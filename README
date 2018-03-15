@@ -1,0 +1,21 @@
+# Wegenregister
+
+To use the private NuGet Aiv.Vbr.* packages, setup 2 environment variables:
+ - VBR_FEED_USER
+ - VBR_FEED_PASS
+
+## Useful commands
+
+### To add a migration:
+
+```
+cd src/Wegenregister.Projections.Oslo/
+dotnet ef migrations add <Name of Migration> --startup-project ../Wegenregister.Api.Oslo/
+```
+
+### To apply a migration:
+
+```
+cd src/Wegenregister.Projections.Oslo/
+dotnet ef database update
+```

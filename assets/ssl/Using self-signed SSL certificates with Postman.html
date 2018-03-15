@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!-- saved from url=(0082)http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/ -->
+<html lang="en-US" class="js"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" href="http://blog.getpostman.com/wp-content/themes/Postal-v1.1.5/favicon.ico?x38712">
+	<link rel="profile" href="http://gmpg.org/xfn/11">
+	<link href="./Using self-signed SSL certificates with Postman_files/css" rel="stylesheet" type="text/css">
+	<link href="./Using self-signed SSL certificates with Postman_files/css(1)" rel="stylesheet" type="text/css">
+		<link rel="pingback" href="http://blog.getpostman.com/xmlrpc.php">
+		<script async="" src="./Using self-signed SSL certificates with Postman_files/saved_resource"></script><script async="" src="http://www.googletagmanager.com/gtm.js?id=GTM-M42M5N"></script><script>(function(html){html.className=html.className.replace(/\bno-js\b/,'js')})(document.documentElement);</script>
+<title>Using self-signed SSL certificates with Postman – Postman Blog - http://blog.getpostman.com/</title>
+<!-- Jetpack Site Verification Tags -->
+<meta name="google-site-verification" content="b8obQH9Z9Fjz8GVcWyOvhXMA1-G-u4C6jY_bO-1ohVQ">
+<link rel="dns-prefetch" href="http://s0.wp.com/">
+<link rel="dns-prefetch" href="http://s.gravatar.com/">
+<link rel="dns-prefetch" href="http://platform-api.sharethis.com/">
+<link rel="dns-prefetch" href="http://fonts.googleapis.com/">
+<link rel="dns-prefetch" href="http://s.w.org/">
+<link rel="alternate" type="application/rss+xml" title="Postman Blog » Feed" href="http://blog.getpostman.com/feed/">
+<link rel="alternate" type="application/rss+xml" title="Postman Blog » Comments Feed" href="http://blog.getpostman.com/comments/feed/">
+<link rel="alternate" type="application/rss+xml" title="Postman Blog » Using self-signed SSL certificates with Postman Comments Feed" href="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/feed/">
+		<script type="text/javascript">window._wpemojiSettings={"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.3\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.3\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/blog.getpostman.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.8.3"}};!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,56826,8203,55356,56819),0,0),c=j.toDataURL(),b!==c&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55358,56794,8205,9794,65039),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55358,56794,8203,9794,65039),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);</script><script src="./Using self-signed SSL certificates with Postman_files/wp-emoji-release.min.js.download" type="text/javascript" defer=""></script>
+		<style type="text/css">img.wp-smiley,img.emoji{display:inline!important;border:none!important;box-shadow:none!important;height:1em!important;width:1em!important;margin:0 .07em!important;vertical-align:-.1em!important;background:none!important;padding:0!important}</style>
+<link rel="stylesheet" id="twentysixteen-jetpack-css" href="./Using self-signed SSL certificates with Postman_files/A.twentysixteen.css,qx38712.pagespeed.cf.XK4a8w8a69.css" type="text/css" media="all">
+<link rel="stylesheet" id="crayon-css" href="./Using self-signed SSL certificates with Postman_files/A.crayon.min.css,qx38712.pagespeed.cf.m5Fbsllevv.css" type="text/css" media="all">
+<link rel="stylesheet" id="font-awesome-css" href="./Using self-signed SSL certificates with Postman_files/A.font-awesome.min.css,qx38712.pagespeed.cf.7aiLaZ_yo1.css" type="text/css" media="all">
+<style id="menu-icons-extra-css" media="all">.menu-item i._mi,.menu-item img._mi{display:inline-block;vertical-align:middle}.menu-item i._mi{margin-top:-.265em;width:auto;height:auto;font-size:1.2em;line-height:1}.menu-item i._before,.rtl .menu-item i._after{margin-right:.25em}.menu-item i._after,.rtl .menu-item i._before{margin-left:.25em}.menu-item img._before,.rtl .menu-item img._after{margin-right:.5em}.menu-item img._after,.rtl .menu-item img._before{margin-left:.5em}.menu-item ._svg{width:1em}.rtl .menu-item i._before{margin-right:0}.rtl .menu-item i._after{margin-left:0}.visuallyhidden{border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.menu-item i.elusive{margin-top:-.3em}.dashicons-admin-site:before{content:"\f319"!important}.dashicons-welcome-view-site:before{content:"\f115"!important}</style>
+<link rel="stylesheet" id="twentysixteen-fonts-css" href="./Using self-signed SSL certificates with Postman_files/css(2)" type="text/css" media="all">
+<link rel="stylesheet" id="genericons-css" href="./Using self-signed SSL certificates with Postman_files/genericons.min.css,qx38712.pagespeed.ce.4Uo7i5YFN0.css" type="text/css" media="all">
+<link rel="stylesheet" id="twentysixteen-style-css" href="./Using self-signed SSL certificates with Postman_files/style.css" type="text/css" media="all">
+<!--[if lt IE 10]>
+<link rel='stylesheet' id='twentysixteen-ie-css'  href='http://blog.getpostman.com/wp-content/themes/twentysixteen/css/ie.css?x38712' type='text/css' media='all' />
+<![endif]-->
+<!--[if lt IE 9]>
+<link rel='stylesheet' id='twentysixteen-ie8-css'  href='http://blog.getpostman.com/wp-content/themes/twentysixteen/css/ie8.css?x38712' type='text/css' media='all' />
+<![endif]-->
+<!--[if lt IE 8]>
+<link rel='stylesheet' id='twentysixteen-ie7-css'  href='http://blog.getpostman.com/wp-content/themes/twentysixteen/css/ie7.css?x38712' type='text/css' media='all' />
+<![endif]-->
+<link rel="stylesheet" id="social-logos-css" href="./Using self-signed SSL certificates with Postman_files/social-logos.min.css,qx38712.pagespeed.ce.HlAnvqp_mu.css" type="text/css" media="all">
+<link rel="stylesheet" id="jetpack_css-css" href="./Using self-signed SSL certificates with Postman_files/A.jetpack.css,qx38712.pagespeed.cf.TWgelSH7yk.css" type="text/css" media="all">
+<script type="text/javascript" src="./Using self-signed SSL certificates with Postman_files/jquery.js,qx38712.pagespeed.jm.pPCPAKkkss.js.download"></script>
+<script type="text/javascript" src="./Using self-signed SSL certificates with Postman_files/jquery-migrate.min.js,qx38712.pagespeed.jm.C2obERNcWh.js.download"></script>
+<script type="text/javascript">//<![CDATA[
+var related_posts_js_options={"post_heading":"h4"};
+//]]></script>
+<script type="text/javascript" src="./Using self-signed SSL certificates with Postman_files/related-posts.js,qx38712.pagespeed.jm.8TxrP_P3Xx.js.download"></script>
+<script type="text/javascript">//<![CDATA[
+var CrayonSyntaxSettings={"version":"_2.7.2_beta","is_admin":"0","ajaxurl":"http:\/\/blog.getpostman.com\/wp-admin\/admin-ajax.php","prefix":"crayon-","setting":"crayon-setting","selected":"crayon-setting-selected","changed":"crayon-setting-changed","special":"crayon-setting-special","orig_value":"data-orig-value","debug":""};var CrayonSyntaxStrings={"copy":"Press %s to Copy, %s to Paste","minimize":"Click To Expand Code"};
+//]]></script>
+<script src="./Using self-signed SSL certificates with Postman_files/crayon-syntax-highlighter,_js,_min,_crayon.min.js,qx38712+duracelltomi-google-tag-manager,_js,_gtm4wp-form-move-tracker.js,,qx38712,Mjm.lJixQ8j.download"></script><script>eval(mod_pagespeed_1nJHUE0ht3);</script>
+<script>eval(mod_pagespeed_XWHruCRGTZ);</script>
+<!--[if lt IE 9]>
+<script type='text/javascript' src='http://blog.getpostman.com/wp-content/themes/twentysixteen/js/html5.js?x38712'></script>
+<![endif]-->
+<script type="text/javascript" src="./Using self-signed SSL certificates with Postman_files/sharethis.js.download"></script>
+<link rel="https://api.w.org/" href="http://blog.getpostman.com/wp-json/">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://blog.getpostman.com/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://blog.getpostman.com/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="Enabling Chrome Developer Tools inside Postman" href="http://blog.getpostman.com/2014/01/27/enabling-chrome-developer-tools-inside-postman/">
+<link rel="next" title="Tip: How to launch Postman really quickly" href="http://blog.getpostman.com/2014/01/31/tip-how-to-launch-postman-really-quickly/">
+<meta name="generator" content="WordPress 4.8.3">
+<link rel="canonical" href="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/">
+<link rel="shortlink" href="http://wp.me/p5YBMx-1W">
+<link rel="alternate" type="application/json+oembed" href="http://blog.getpostman.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fblog.getpostman.com%2F2014%2F01%2F28%2Fusing-self-signed-certificates-with-postman%2F">
+<link rel="alternate" type="text/xml+oembed" href="http://blog.getpostman.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fblog.getpostman.com%2F2014%2F01%2F28%2Fusing-self-signed-certificates-with-postman%2F&amp;format=xml">
+
+<!-- Google Tag Manager for WordPress by DuracellTomi - http://duracelltomi.com -->
+<script data-cfasync="false" type="text/javascript">var gtm4wp_datalayer_name="dataLayer";var dataLayer=dataLayer||[];dataLayer.push({"pagePostType":"post","pagePostType2":"single-post","pageCategory":["tutorials"],"pagePostAuthor":"abhinav"});</script>
+<script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.'+'js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-M42M5N');</script>
+<!-- End Google Tag Manager -->
+<!-- End Google Tag Manager for WordPress by DuracellTomi -->
+<link rel="dns-prefetch" href="http://v0.wordpress.com/">
+<style type="text/css">img#wpstats{display:none}</style>
+<!-- Jetpack Open Graph Tags -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="Using self-signed SSL certificates with Postman">
+<meta property="og:url" content="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/">
+<meta property="og:description" content="This post is applicable to the Postman Chrome app only. If you’re using the Mac app, head to our documentation for details on ignoring SSL errors. Self-signed certificates are often used in t…">
+<meta property="article:published_time" content="2014-01-28T16:42:33+00:00">
+<meta property="article:modified_time" content="2016-06-30T11:42:28+00:00">
+<meta property="og:site_name" content="Postman Blog">
+<meta property="og:image" content="http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.46.png">
+<meta property="og:image:width" content="558">
+<meta property="og:image:height" content="298">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:site" content="@postmanclient">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="http://blog.getpostman.com/wp-content/uploads/2015/04/xlogo-postman-512--551cff77v1_site_icon-32x32.png,qx38712.pagespeed.ic._8o0i-G9J2.png" sizes="32x32">
+<link rel="icon" href="http://blog.getpostman.com/wp-content/uploads/2015/04/xlogo-postman-512--551cff77v1_site_icon-256x256.png,qx38712.pagespeed.ic.Jp8jeXcZbB.png" sizes="192x192">
+<link rel="apple-touch-icon-precomposed" href="http://blog.getpostman.com/wp-content/uploads/2015/04/xlogo-postman-512--551cff77v1_site_icon-256x256.png,qx38712.pagespeed.ic.Jp8jeXcZbB.png">
+<meta name="msapplication-TileImage" content="http://blog.getpostman.com/wp-content/uploads/2015/04/logo-postman-512--551cff77v1_site_icon-512x510.png">
+<script type="text/javascript" async="" src="./Using self-signed SSL certificates with Postman_files/embed.js.download"></script><script async="" type="text/javascript" src="./Using self-signed SSL certificates with Postman_files/count.js.download"></script><link rel="stylesheet" type="text/css" id="gravatar-card-css" href="./Using self-signed SSL certificates with Postman_files/hovercard.css"><link rel="stylesheet" type="text/css" id="gravatar-card-services-css" href="./Using self-signed SSL certificates with Postman_files/services.css"><style type="text/css">
+:root #content > #center > .dose > .dosesingle,
+:root #content > #right > .dose > .dosesingle
+{ display: none !important; }</style><link rel="preload" as="style" href="https://c.disquscdn.com/next/embed/styles/lounge.2def90852131fd25ba9d39a3fc09a490.css"><link rel="preload" as="script" href="https://c.disquscdn.com/next/embed/common.bundle.8edffe1405dcc2d5eb5ee9d96a2866d1.js"><link rel="preload" as="script" href="https://c.disquscdn.com/next/embed/lounge.bundle.329e132f404e98b8a5595dd712187b0e.js"><link rel="preload" as="script" href="https://disqus.com/next/config.js"><style type="text/css">
+:root .adsbox
+{ display: none !important; }
+:root *[xls6bmq][hidden] { display: none !important; }</style></head>
+
+<body class="post-template-default single single-post postid-120 single-format-standard  no-sidebar group-blog"><noscript>&lt;meta HTTP-EQUIV="refresh" content="0;url='http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/?ModPagespeed=noscript'" /&gt;&lt;style&gt;&lt;!--table,div,span,font,p{display:none} --&gt;&lt;/style&gt;&lt;div style="display:block"&gt;Please click &lt;a href="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/?ModPagespeed=noscript"&gt;here&lt;/a&gt; if you are not redirected within a few seconds.&lt;/div&gt;</noscript>
+<div id="page" class="site">
+	<header id="masthead" class="site-header" role="banner">
+		<button id="menu-toggle" class="menu-toggle">
+			<svg width="28px" height="21px" viewBox="0 0 28 21" version="1.1" xmlns="http://www.w3.org/2000/svg">
+				<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+					<g transform="translate(-10.000000, -45.000000)" fill="#EF5B25">
+						<path d="M35.744,53.2575004 L11.98,53.2575004 C10.886,53.2575004 10,54.1435004 10,55.2375004 C10,56.3315004 10.886,57.2175004 11.98,57.2175004 L35.744,57.2175004 C36.838,57.2175004 37.722,56.3315004 37.722,55.2375004 C37.722,54.1435004 36.838,53.2575004 35.744,53.2575004 L35.744,53.2575004 Z M35.746,49.2975004 C36.84,49.2975004 37.724,48.4115004 37.724,47.3175004 C37.724,46.2235004 36.84,45.3375004 35.746,45.3375004 L11.982,45.3375004 C10.888,45.3375004 10.002,46.2235004 10.002,47.3175004 C10.002,48.4115004 10.888,49.2975004 11.982,49.2975004 L35.746,49.2975004 Z M35.744,61.1775004 L11.98,61.1775004 C10.886,61.1775004 10,62.0635004 10,63.1575004 C10,64.2515004 10.886,65.1375004 11.98,65.1375004 L35.744,65.1375004 C36.838,65.1375004 37.722,64.2515004 37.722,63.1575004 C37.722,62.0635004 36.838,61.1775004 35.744,61.1775004 L35.744,61.1775004 Z"></path>
+					</g>
+				</g>
+			</svg>
+		</button>
+		<a href="http://blog.getpostman.com/" class="undecorated">
+			<img src="./Using self-signed SSL certificates with Postman_files/xlogo.png,qx38712.pagespeed.ic.-5TLkMuk70.png" class="pm-postman-logo" pagespeed_url_hash="540724722" scale="0">
+			<img src="./Using self-signed SSL certificates with Postman_files/logo.svg" class="pm-postman-mobile-logo" pagespeed_url_hash="1682497315" scale="0">
+			<div class="pm-postman-subsite">Blog</div>
+		</a>
+
+		<ul id="menu-external-navigation" class="main-nav"><li id="menu-item-1352" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1352"><a href="https://www.getpostman.com/apps">Get the App</a></li>
+<li id="menu-item-1350" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1350"><a href="https://www.getpostman.com/jobs/">Jobs</a></li>
+<li id="menu-item-1351" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1351"><a href="https://www.getpostman.com/docs/">Documentation</a></li>
+<li id="menu-item-1349" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1349"><a href="https://www.getpostman.com/">Home</a></li>
+</ul>	</header><!-- .site-header -->
+	<div class="site-inner">
+		<div id="content" class="site-content">
+<div id="primary" class="content-area">
+	<main id="main" class="site-main" role="main">
+		
+<article id="post-120" class="post-120 post type-post status-publish format-standard hentry category-tutorials">
+	
+	<header class="entry-header">
+		<h1 class="entry-title">Using self-signed SSL certificates with Postman</h1><ul class="entry-meta"><li class="postal-icon postal-icon-date" style="background-image:url(http://blog.getpostman.com/wp-content/themes/Postal-v1.1.5/images/ic-date.svg)"><span class="posted-on"><span class="screen-reader-text">Posted on </span><time class="entry-date published" datetime="2014-01-28T16:42:33+00:00">28 Jan, 2014</time><time class="updated" datetime="2016-06-30T17:12:28+00:00">30 Jun, 2016</time></span></li><li class="author vcard postal-icon postal-icon-profile" style="background-image:url(http://blog.getpostman.com/wp-content/themes/Postal-v1.1.5/images/ic-profile.svg)"><span class="screen-reader-text">Author </span> <a class="url fn n" href="http://blog.getpostman.com/author/abhinav/">abhinav</a></li></ul>	</header><!-- .entry-header -->
+
+	
+	<div class="entry-content">
+		<p>This post is applicable to the Postman Chrome app only. If you're using the Mac app, head to <a href="http://www.getpostman.com/docs/ignoring_ssl" target="_blank">our documentation</a> for details on ignoring SSL errors.</p>
+<p>Self-signed certificates are often used in testing and development environments to provide a layer of security for an API. As they are not verified by a trusted authority, accessing &nbsp;an API endpoint with something like https://&lt;ip&gt; through the Postman Chrome App, would throw up an error like this:</p>
+<p><a href="http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.19.png?x38712" rel="attachment wp-att-1683"><img src="./Using self-signed SSL certificates with Postman_files/840x463xScreen-Shot-2016-06-30-at-16.24.19-1024x564.png,qx38712.pagespeed.ic.-RzA7QSP0n.jpg" alt="Screen Shot 2016-06-30 at 16.24.19" width="840" height="463" class="alignnone size-large wp-image-1683" srcset="http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.19-1024x564.png 1024w, http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.19-300x165.png 300w, http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.19-768x423.png 768w, http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.19-1200x661.png 1200w" sizes="(max-width: 709px) 85vw, (max-width: 909px) 67vw, (max-width: 1362px) 62vw, 840px" pagespeed_url_hash="2021832068"></a></p>
+<p>With the legacy app, you could go to the root URL in Chrome and allow the browser to access URLs with self-signed certificates. But this doesn't work with the new packaged app. If you try to hit a URL with a self-signed SSL certificate, you would get a 500 error as Chrome would decline the certificate:</p>
+<p><span id="more-120"></span><a href="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_error.png?x38712"><img class="alignnone size-large wp-image-134" alt="ssl_error" src="./Using self-signed SSL certificates with Postman_files/604x214xssl_error-1024x364.png,qx38712.pagespeed.ic.94g7N5yrzP.jpg" width="604" height="214" pagespeed_url_hash="2924531296" scale="0"></a></p>
+<p>Turns out that there is a better solution to solve this a problem, and it also avoids adding an exception to Chrome every time you start the browser. This is how you do it:</p>
+<ol>
+<li>Go to the root URL in your browser. For ex. https://localhost</li>
+<li>Click on the lock icon on the top left in the URL bar.</li>
+<li>Open the Connection tab in the dropdown that comes up</li>
+<li>Click on certificate information</li>
+</ol>
+<p>The dialog that comes up now depends on the operating system you are on. Chrome uses the underlying OS layer to handle SSL certificates.</p>
+<p><strong>Mac OS X</strong></p>
+<ol>
+<li>In the dialog that comes up, click 'View Certificate', and drag the certificate icon to your desktop to create a *.cer file<br>
+<a href="http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.40.png?x38712" rel="attachment wp-att-1685"><img src="./Using self-signed SSL certificates with Postman_files/840x538xScreen-Shot-2016-06-30-at-16.24.40-1024x656.png,qx38712.pagespeed.ic.RUIOwN7Nhc.jpg" alt="Screen Shot 2016-06-30 at 16.24.40" width="840" height="538" class="alignnone size-large wp-image-1685" srcset="http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.40-1024x656.png 1024w, http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.40-300x192.png 300w, http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.40-768x492.png 768w, http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.40.png 1175w" sizes="(max-width: 709px) 85vw, (max-width: 909px) 67vw, (max-width: 1362px) 62vw, 840px" pagespeed_url_hash="2732207708"></a><br>
+<a href="http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.46.png?x38712" rel="attachment wp-att-1686"><img src="./Using self-signed SSL certificates with Postman_files/558x298xScreen-Shot-2016-06-30-at-16.24.46.png,qx38712.pagespeed.ic.7gYDkfsky1.png" alt="Screen Shot 2016-06-30 at 16.24.46" width="558" height="298" class="alignnone size-full wp-image-1686" srcset="http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.46.png 558w, http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.24.46-300x160.png 300w" sizes="(max-width: 558px) 85vw, 558px" pagespeed_url_hash="1404841635"></a><p></p>
+</li>
+<li>
+<p>Double click on the file to open the OS X Keychain Access tool.</p>
+</li>
+<li>
+<p>Add the certificate to the System keychain and select "Always trust"<br>
+<a href="./Using self-signed SSL certificates with Postman_files/Screen-Shot-2016-06-30-at-16.30.05.png" rel="attachment wp-att-1695"><img src="./Using self-signed SSL certificates with Postman_files/Screen-Shot-2016-06-30-at-16.30.05.png" alt="Screen Shot 2016-06-30 at 16.30.05" width="753" height="202" class="alignnone size-full wp-image-1695" srcset="http://blog.getpostman.com/wp-content/uploads/2014/01/Screen-Shot-2016-06-30-at-16.30.05.png 753w, http://blog.getpostman.com/wp-content/uploads/2014/01/Screen-Shot-2016-06-30-at-16.30.05-300x80.png 300w" sizes="(max-width: 709px) 85vw, (max-width: 909px) 67vw, (max-width: 984px) 61vw, (max-width: 1362px) 45vw, 600px" pagespeed_url_hash="2278818568"></a></p>
+</li>
+<li>
+<p>Once the certificate is added, double click it to open more details</p>
+</li>
+<li>
+<p>Expand the Trust item</p>
+</li>
+<li>Select "Always trust"<br>
+<a href="./Using self-signed SSL certificates with Postman_files/Screen-Shot-2016-06-30-at-16.26.50.png" rel="attachment wp-att-1689"><img src="./Using self-signed SSL certificates with Postman_files/Screen-Shot-2016-06-30-at-16.26.50.png" alt="Screen Shot 2016-06-30 at 16.26.50" width="525" height="444" class="alignnone size-full wp-image-1689" srcset="http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.26.50.png 525w, http://blog.getpostman.com/wp-content/uploads/2016/06/Screen-Shot-2016-06-30-at-16.26.50-300x254.png 300w" sizes="(max-width: 525px) 85vw, 525px" pagespeed_url_hash="2167024804"></a></li>
+<li>Close Keychain Access and restart Chrome</li>
+</ol>
+<p><strong>Windows</strong></p>
+<ol>
+<li>In the certificates window, go to the Details tab</li>
+</ol>
+<p><a href="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_win_2.png?x38712"><img class="alignnone size-full wp-image-143" alt="ssl_win_2" src="./Using self-signed SSL certificates with Postman_files/440x552xssl_win_2.png,qx38712.pagespeed.ic.OHP1KDLn0b.png" width="440" height="552" srcset="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_win_2.png 440w, http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_win_2-239x300.png 239w" sizes="(max-width: 440px) 85vw, 440px" pagespeed_url_hash="473061760"></a><br>
+2. Select Copy to File<br>
+3. Save the certificate file on your disk. Close the certificate window.</p>
+<p><a href="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_win_3.png?x38712"><img class="alignnone size-full wp-image-144" alt="ssl_win_3" src="./Using self-signed SSL certificates with Postman_files/588x580xssl_win_3.png,qx38712.pagespeed.ic.LQzbrUcg41.png" width="588" height="580" srcset="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_win_3.png 588w, http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_win_3-300x296.png 300w" sizes="(max-width: 588px) 85vw, 588px" pagespeed_url_hash="3137007355"></a><br>
+4. Go to Chrome &gt; Settings, search for SSL (chrome://settings/search#ssl) and click on Manage certificates</p>
+<p><a href="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_win_4.png?x38712"><img class="alignnone size-full wp-image-145" alt="ssl_win_4" src="./Using self-signed SSL certificates with Postman_files/884x208xssl_win_4.png,qx38712.pagespeed.ic.YOcmC4WhUQ.png" width="884" height="208" srcset="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_win_4.png 884w, http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_win_4-300x71.png 300w" sizes="(max-width: 709px) 85vw, (max-width: 909px) 67vw, (max-width: 1362px) 62vw, 840px" pagespeed_url_hash="1505985654"></a><br>
+5. Go to the <strong>Trusted Root Certification Authorities</strong> tab and click on import<br>
+6. Select the file you saved on your disk in step 3.</p>
+<p><a href="./Using self-signed SSL certificates with Postman_files/ssl_win_5.png"><img class="alignnone size-full wp-image-146" alt="ssl_win_5" src="./Using self-signed SSL certificates with Postman_files/ssl_win_5.png" width="524" height="486" srcset="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_win_5.png 524w, http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_win_5-300x278.png 300w" sizes="(max-width: 524px) 85vw, 524px" pagespeed_url_hash="4169931249"></a><br>
+7. Close this window and restart Chrome.</p>
+<p><strong>Linux</strong></p>
+<ol>
+<li>Go to the Details tab</li>
+</ol>
+<p><a href="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_linux_1.png?x38712"><img class="alignnone size-full wp-image-135" alt="ssl_linux_1" src="./Using self-signed SSL certificates with Postman_files/680x712xssl_linux_1.png,qx38712.pagespeed.ic.vVmaUfTENa.png" width="680" height="712" srcset="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_linux_1.png 680w, http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_linux_1-287x300.png 287w" sizes="(max-width: 709px) 85vw, (max-width: 909px) 67vw, (max-width: 984px) 61vw, (max-width: 1362px) 45vw, 600px" pagespeed_url_hash="2201512697"></a><br>
+2. Select Export and save the file on your disk</p>
+<p><a href="./Using self-signed SSL certificates with Postman_files/ssl_linux_2.png"><img class="alignnone size-full wp-image-136" alt="ssl_linux_2" src="./Using self-signed SSL certificates with Postman_files/ssl_linux_2.png" width="944" height="768" srcset="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_linux_2.png 944w, http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_linux_2-300x244.png 300w" sizes="(max-width: 709px) 85vw, (max-width: 909px) 67vw, (max-width: 1362px) 62vw, 840px" pagespeed_url_hash="570490996"></a><br>
+3. Go to Chrome &gt; Settings, search for SSL (chrome://settings/search#ssl) and click on Manage certificates<br>
+4. Go into the Authorities tab</p>
+<p><a href="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_linux_3.png?x38712"><img class="alignnone size-full wp-image-137" alt="ssl_linux_3" src="./Using self-signed SSL certificates with Postman_files/800x572xssl_linux_3.png,qx38712.pagespeed.ic.YT5-xmxLAf.png" width="800" height="572" srcset="http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_linux_3.png 800w, http://blog.getpostman.com/wp-content/uploads/2014/01/ssl_linux_3-300x215.png 300w" sizes="(max-width: 709px) 85vw, (max-width: 909px) 67vw, (max-width: 984px) 61vw, (max-width: 1362px) 45vw, 600px" pagespeed_url_hash="3234436591"></a><br>
+5. Import the certificate<br>
+6. Restart Chrome</p>
+<p>You should be able to fire requests to the endpoints validated by this certificate. The SSL warning will not show up in Chrome even if you restart the browser. Do make sure that you have verified the IP where the certificate comes from. This should only be done for verified IP addresses. This method also works for certificates for localhost. Make sure that the common name of the certificate while generating the certificate is localhost.</p>
+<p>Let me know in the comments if you face any problems with this.</p>
+<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon sd-sharing"><h3 class="sd-title">Share this:</h3><div class="sd-content"><ul><li class="share-twitter"><a rel="nofollow" data-shared="sharing-twitter-120" class="share-twitter sd-button share-icon no-text" href="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/?share=twitter&amp;nb=1" target="_blank" title="Click to share on Twitter"><span></span><span class="sharing-screen-reader-text">Click to share on Twitter (Opens in new window)</span></a></li><li class="share-facebook"><a rel="nofollow" data-shared="sharing-facebook-120" class="share-facebook sd-button share-icon no-text" href="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/?share=facebook&amp;nb=1" target="_blank" title="Click to share on Facebook"><span><span class="share-count">4</span></span><span class="sharing-screen-reader-text">Click to share on Facebook (Opens in new window)<span class="share-count">4</span></span></a></li><li class="share-reddit"><a rel="nofollow" data-shared="" class="share-reddit sd-button share-icon no-text" href="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/?share=reddit&amp;nb=1" target="_blank" title="Click to share on Reddit"><span></span><span class="sharing-screen-reader-text">Click to share on Reddit (Opens in new window)</span></a></li><li class="share-google-plus-1"><a rel="nofollow" data-shared="sharing-google-120" class="share-google-plus-1 sd-button share-icon no-text" href="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/?share=google-plus-1&amp;nb=1" target="_blank" title="Click to share on Google+"><span></span><span class="sharing-screen-reader-text">Click to share on Google+ (Opens in new window)</span></a></li><li><a href="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/#" class="sharing-anchor sd-button share-more"><span>More</span></a></li><li class="share-end"></li></ul><div class="sharing-hidden"><div class="inner" style="display: none;"><ul><li class="share-email share-service-visible"><a rel="nofollow" data-shared="" class="share-email sd-button share-icon no-text" href="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/?share=email&amp;nb=1" target="_blank" title="Click to email this to a friend"><span></span><span class="sharing-screen-reader-text">Click to email this to a friend (Opens in new window)</span></a></li><li class="share-print"><a rel="nofollow" data-shared="" class="share-print sd-button share-icon no-text" href="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/#print" target="_blank" title="Click to print"><span></span><span class="sharing-screen-reader-text">Click to print (Opens in new window)</span></a></li><li class="share-end"></li><li class="share-end"></li></ul></div></div></div></div></div>
+<div id="jp-relatedposts" class="jp-relatedposts" style="display: block;">
+	<h3 class="jp-relatedposts-headline"><em>Related</em></h3>
+<div class="jp-relatedposts-items jp-relatedposts-items-minimal jp-relatedposts-grid "><p class="jp-relatedposts-post jp-relatedposts-post0" data-post-id="1811" data-post-format="false"><span class="jp-relatedposts-post-title"><a class="jp-relatedposts-post-a" href="http://blog.getpostman.com/2016/10/06/it-starts-with-a-simple-rest-client-2/" title="It Starts with a Simple REST Client
+
+As many people know, Postman started 4 years ago as a simple client for HTTP requests, spurred by my experience with cURL. The first time I encountered cURL, I did not like it. cURL -- for me -- was complicated and verbose and hard to understand, particularly for anything beyond…" rel="nofollow" data-origin="120" data-position="0">It Starts with a Simple REST Client</a></span><span class="jp-relatedposts-post-date">October 6, 2016</span><span class="jp-relatedposts-post-context">In "General"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1" data-post-id="2131" data-post-format="false"><span class="jp-relatedposts-post-title"><a class="jp-relatedposts-post-a" href="http://blog.getpostman.com/2017/03/14/going-native/" title="Going native
+
+If you’ve already downloaded and use the Postman native app, you can stop reading right now. . . but only if you&#39;re really, truly, for absolutely certain.  I&#39;ve talked to too many developers who think they&#39;re on the Postman native app, but they&#39;re really not.  It&#39;s an easy mistake to…" rel="nofollow" data-origin="120" data-position="1">Going native</a></span><span class="jp-relatedposts-post-date">March 14, 2017</span><span class="jp-relatedposts-post-context">In "General"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2" data-post-id="3066" data-post-format="false"><span class="jp-relatedposts-post-title"><a class="jp-relatedposts-post-a" href="http://blog.getpostman.com/2017/09/29/client-proxy-settings-in-postman/" title="Client proxy settings in Postman
+
+Millions of developers have already used Postman’s built-in proxy and Interceptor proxy to capture requests. Today, Postman is announcing client proxy settings in the Postman native apps to enhance your API development by directing API requests to a specified internet location. First, a word about Postman’s Chrome app - it…" rel="nofollow" data-origin="120" data-position="2">Client proxy settings in Postman</a></span><span class="jp-relatedposts-post-date">September 29, 2017</span><span class="jp-relatedposts-post-context">In "General"</span></p></div></div>	</div><!-- .entry-content -->
+
+	<footer class="entry-footer"></footer><!-- .entry-footer -->
+</article><!-- #post-## -->
+<div id="disqus_thread"><iframe id="dsq-app4302" name="dsq-app4302" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="./Using self-signed SSL certificates with Postman_files/saved_resource.html" style="width: 1px !important; min-width: 100% !important; border: none !important; overflow: hidden !important; height: 2478px !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></div>
+
+
+	<nav class="navigation post-navigation" role="navigation">
+		<h2 class="screen-reader-text">Post navigation</h2>
+		<div class="nav-links"><div class="nav-previous"><a href="http://blog.getpostman.com/2014/01/27/enabling-chrome-developer-tools-inside-postman/" rel="prev"><span class="meta-nav" aria-hidden="true">Previous</span> <span class="screen-reader-text">Previous post:</span> <span class="post-title">Enabling Chrome Developer Tools inside Postman</span></a></div><div class="nav-next"><a href="http://blog.getpostman.com/2014/01/31/tip-how-to-launch-postman-really-quickly/" rel="next"><span class="meta-nav" aria-hidden="true">Next</span> <span class="screen-reader-text">Next post:</span> <span class="post-title">Tip: How to launch Postman really quickly</span></a></div></div>
+	</nav>
+	</main><!-- .site-main -->
+
+	
+</div><!-- .content-area -->
+
+
+	<aside id="secondary" class="sidebar widget-area" role="complementary">
+		<section id="search-4" class="widget widget_search">
+<form role="search" method="get" class="search-form" action="http://blog.getpostman.com/">
+	<label>
+		<span class="screen-reader-text">Search for:</span>
+		<input type="search" class="search-field" placeholder="Search …" value="" name="s">
+	</label>
+	<button type="submit" class="search-submit"><span class="screen-reader-text">Search</span></button>
+</form>
+</section><section id="blog_subscription-2" class="widget jetpack_subscription_widget"><h2 class="widget-title">Subscribe via Email</h2>
+			<form action="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/#" method="post" accept-charset="utf-8" id="subscribe-blog-blog_subscription-2">
+				<div id="subscribe-text"><p>Enter your email address to subscribe to this blog and receive notifications of new posts by email.</p>
+</div>					<p id="subscribe-email">
+						<label id="jetpack-subscribe-label" for="subscribe-field-blog_subscription-2" style="clip: rect(1px 1px 1px 1px); position: absolute; height: 1px; width: 1px; overflow: hidden;">
+							Email Address						</label>
+						<input type="email" name="email" required="required" class="required" value="" id="subscribe-field-blog_subscription-2" placeholder="Email Address">
+					</p>
+
+					<p id="subscribe-submit">
+						<input type="hidden" name="action" value="subscribe">
+						<input type="hidden" name="source" value="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/">
+						<input type="hidden" name="sub-type" value="widget">
+						<input type="hidden" name="redirect_fragment" value="blog_subscription-2">
+												<input type="submit" value="Subscribe" name="jetpack_subscriptions_widget">
+					</p>
+							</form>
+
+			<script>(function(d){if(('placeholder'in d.createElement('input'))){var label=d.querySelector('label[for=subscribe-field-blog_subscription-2]');label.style.clip='rect(1px, 1px, 1px, 1px)';label.style.position='absolute';label.style.height='1px';label.style.width='1px';label.style.overflow='hidden';}
+var form=d.getElementById('subscribe-blog-blog_subscription-2'),input=d.getElementById('subscribe-field-blog_subscription-2'),handler=function(event){if(''===input.value){input.focus();if(event.preventDefault){event.preventDefault();}
+return false;}};if(window.addEventListener){form.addEventListener('submit',handler,false);}else{form.attachEvent('onsubmit',handler);}})(document);</script>
+				
+</section><section id="tag_cloud-5" class="widget widget_tag_cloud"><h2 class="widget-title">Popular Tags</h2><div class="tagcloud"><a href="http://blog.getpostman.com/tag/api/" class="tag-cloud-link tag-link-59 tag-link-position-1" style="font-size: 1em;">api</a>
+<a href="http://blog.getpostman.com/tag/apimatic/" class="tag-cloud-link tag-link-68 tag-link-position-2" style="font-size: 1em;">APIMatic</a>
+<a href="http://blog.getpostman.com/tag/automation/" class="tag-cloud-link tag-link-104 tag-link-position-3" style="font-size: 1em;">automation</a>
+<a href="http://blog.getpostman.com/tag/bdd/" class="tag-cloud-link tag-link-42 tag-link-position-4" style="font-size: 1em;">bdd</a>
+<a href="http://blog.getpostman.com/tag/bugfix/" class="tag-cloud-link tag-link-8 tag-link-position-5" style="font-size: 1em;">bugfix</a></div>
+</section>		<section id="recent-posts-2" class="widget widget_recent_entries">		<h2 class="widget-title">Recent Posts</h2>		<ul>
+					<li>
+				<a href="http://blog.getpostman.com/2017/11/08/using-a-postman-monitor-to-water-my-plants/">Using a Postman monitor to water my plants</a>
+						</li>
+					<li>
+				<a href="http://blog.getpostman.com/2017/11/04/postman-makes-authorization-stronger-and-easier/">Postman makes authorization stronger and easier</a>
+						</li>
+					<li>
+				<a href="http://blog.getpostman.com/2017/11/01/goodbye-postman-chrome-app/">Goodbye Postman Chrome app</a>
+						</li>
+					<li>
+				<a href="http://blog.getpostman.com/2017/10/25/writing-tests-in-postman/">Writing tests in Postman</a>
+						</li>
+					<li>
+				<a href="http://blog.getpostman.com/2017/10/24/postman-brings-order-to-chaos-at-bettercloud/">Postman brings order to chaos at BetterCloud</a>
+						</li>
+				</ul>
+		</section>		<section id="text-2" class="widget widget_text">			<div class="textwidget"><a href="http://blog.getpostman.com/archive"><small>blog archive</small></a></div>
+		</section>	</aside><!-- .sidebar .widget-area -->
+
+		</div><!-- .site-content -->
+
+		<footer id="colophon" class="site-footer" role="contentinfo">
+			
+			<div class="site-info">
+								<span class="site-title display-none"><a href="http://blog.getpostman.com/" rel="home">Postman Blog</a></span>
+				<a class="display-none" href="https://wordpress.org/">Powered by WordPress</a>
+			</div><!-- .site-info -->
+		</footer><!-- .site-footer -->
+	</div><!-- .site-inner -->
+</div><!-- .site -->
+
+<script>//<![CDATA[
+(function($){var body,menuToggle,masthead;body=$('body');masthead=$('#masthead');menuToggle=masthead.find('#menu-toggle');menuToggle.on('click',function(){body.toggleClass('nav-open');});})(jQuery);
+//]]></script>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript>&lt;iframe src="//www.googletagmanager.com/ns.html?id=GTM-M42M5N" height="0" width="0" style="display:none;visibility:hidden"&gt;&lt;/iframe&gt;</noscript>
+<!-- End Google Tag Manager (noscript) -->	<div style="display:none">
+	</div>
+<script>jQuery(document).ready(function(){jQuery.post('http://blog.getpostman.com?ga_action=googleanalytics_get_script',{action:'googleanalytics_get_script'},function(response){var F=new Function(response);return(F());});});</script>
+	<script type="text/javascript">window.WPCOM_sharing_counts={"http:\/\/blog.getpostman.com\/2014\/01\/28\/using-self-signed-certificates-with-postman\/":120};</script>
+	
+<script type="text/javascript" src="./Using self-signed SSL certificates with Postman_files/devicepx-jetpack.js.download"></script>
+<script type="text/javascript" src="./Using self-signed SSL certificates with Postman_files/gprofiles.js.download"></script>
+<script type="text/javascript">//<![CDATA[
+var WPGroHo={"my_hash":""};
+//]]></script>
+<script src="./Using self-signed SSL certificates with Postman_files/wp-content,_plugins,_jetpack,_modules,_wpgroho.js,,qx38712,Mjm.Kb_9fn7jqv.js+wp-content,_themes,_twentysixteen,_js,_skip-link-focus-fix.js,qx38.download"></script><script>eval(mod_pagespeed_mit8BR9fkd);</script>
+<script>eval(mod_pagespeed_h027iydfs3);</script>
+<script>eval(mod_pagespeed_rV2_ATUHGV);</script>
+<script type="text/javascript">//<![CDATA[
+var screenReaderText={"expand":"expand child menu","collapse":"collapse child menu"};
+//]]></script>
+<script type="text/javascript" src="./Using self-signed SSL certificates with Postman_files/functions.js.download"></script>
+<script type="text/javascript">//<![CDATA[
+!function(a,b){"use strict";function c(){if(!e){e=!0;var a,c,d,f,g=-1!==navigator.appVersion.indexOf("MSIE 10"),h=!!navigator.userAgent.match(/Trident.*rv:11\./),i=b.querySelectorAll("iframe.wp-embedded-content");for(c=0;c<i.length;c++){if(d=i[c],!d.getAttribute("data-secret"))f=Math.random().toString(36).substr(2,10),d.src+="#?secret="+f,d.setAttribute("data-secret",f);if(g||h)a=d.cloneNode(!0),a.removeAttribute("security"),d.parentNode.replaceChild(a,d)}}}var d=!1,e=!1;if(b.querySelector)if(a.addEventListener)d=!0;if(a.wp=a.wp||{},!a.wp.receiveEmbedMessage)if(a.wp.receiveEmbedMessage=function(c){var d=c.data;if(d.secret||d.message||d.value)if(!/[^a-zA-Z0-9]/.test(d.secret)){var e,f,g,h,i,j=b.querySelectorAll('iframe[data-secret="'+d.secret+'"]'),k=b.querySelectorAll('blockquote[data-secret="'+d.secret+'"]');for(e=0;e<k.length;e++)k[e].style.display="none";for(e=0;e<j.length;e++)if(f=j[e],c.source===f.contentWindow){if(f.removeAttribute("style"),"height"===d.message){if(g=parseInt(d.value,10),g>1e3)g=1e3;else if(~~g<200)g=200;f.height=g}if("link"===d.message)if(h=b.createElement("a"),i=b.createElement("a"),h.href=f.getAttribute("src"),i.href=d.value,i.host===h.host)if(b.activeElement===f)a.top.location.href=d.value}else;}},d)a.addEventListener("message",a.wp.receiveEmbedMessage,!1),b.addEventListener("DOMContentLoaded",c,!1),a.addEventListener("load",c,!1)}(window,document);
+//]]></script>
+<script type="text/javascript">//<![CDATA[
+var embedVars={"disqusConfig":{"platform":"wordpress@4.8.3","language":""},"disqusIdentifier":"120 http:\/\/blog.getpostman.com\/?p=120","disqusShortname":"postmanlabs","disqusTitle":"Using self-signed SSL certificates with Postman","disqusUrl":"http:\/\/blog.getpostman.com\/2014\/01\/28\/using-self-signed-certificates-with-postman\/","options":{"manualSync":false},"postId":"120"};
+//]]></script>
+<script type="text/javascript" src="./Using self-signed SSL certificates with Postman_files/disqus.js.download"></script>
+<script type="text/javascript">//<![CDATA[
+var countVars={"disqusShortname":"postmanlabs"};
+//]]></script>
+<script type="text/javascript">//<![CDATA[
+var disqus_shortname=countVars.disqusShortname;(function(){var nodes=document.getElementsByTagName('span');for(var i=0,url;i<nodes.length;i++){if(nodes[i].className.indexOf('dsq-postid')!=-1&&nodes[i].parentNode.tagName=='A'){nodes[i].parentNode.setAttribute('data-disqus-identifier',nodes[i].getAttribute('data-dsqidentifier'));url=nodes[i].parentNode.href.split('#',1);if(url.length==1){url=url[0];}
+else{url=url[1];}
+nodes[i].parentNode.href=url+'#disqus_thread';}}
+var s=document.createElement('script');s.async=true;s.type='text/javascript';s.src='//'+disqus_shortname+'.disqus.com/count.js';(document.getElementsByTagName('HEAD')[0]||document.getElementsByTagName('BODY')[0]).appendChild(s);}());
+//]]></script>
+<script type="text/javascript">//<![CDATA[
+var sharing_js_options={"lang":"en","counts":"1"};
+//]]></script>
+<script type="text/javascript" src="./Using self-signed SSL certificates with Postman_files/sharing.js,qx38712.pagespeed.jm.MvzCKL2Pe2.js.download"></script>
+<script type="text/javascript">var windowOpen;jQuery(document.body).on('click','a.share-twitter',function(){if('undefined'!==typeof windowOpen){windowOpen.close();}
+windowOpen=window.open(jQuery(this).attr('href'),'wpcomtwitter','menubar=1,resizable=1,width=600,height=350');return false;});var windowOpen;jQuery(document.body).on('click','a.share-facebook',function(){if('undefined'!==typeof windowOpen){windowOpen.close();}
+windowOpen=window.open(jQuery(this).attr('href'),'wpcomfacebook','menubar=1,resizable=1,width=600,height=400');return false;});var windowOpen;jQuery(document.body).on('click','a.share-google-plus-1',function(){if('undefined'!==typeof windowOpen){windowOpen.close();}
+windowOpen=window.open(jQuery(this).attr('href'),'wpcomgoogle-plus-1','menubar=1,resizable=1,width=480,height=550');return false;});</script>
+<script type="text/javascript" src="https://stats.wp.com/e-201745.js" async="" defer=""></script>
+<script type="text/javascript">_stq=window._stq||[];_stq.push(['view',{v:'ext',j:'1:5.4',blog:'88326597',post:'120',tz:'5.5',srv:'blog.getpostman.com'}]);_stq.push(['clickTrackerInit','88326597','120']);</script>
+<script pagespeed_no_defer="">//<![CDATA[
+(function(){var e=encodeURIComponent,f=window,h=document,m="width",n="documentElement",p="height",q="length",r="prototype",s="body",t="&",u="&ci=",w="&n=",x="&rd=",y=",",z="?",A="Content-Type",B="Microsoft.XMLHTTP",C="Msxml2.XMLHTTP",D="POST",E="application/x-www-form-urlencoded",F="img",G="input",H="load",I="oh=",J="on",K="pagespeed_url_hash",L="url=",M=function(a,c,d){if(a.addEventListener)a.addEventListener(c,d,!1);else if(a.attachEvent)a.attachEvent(J+c,d);else{var b=a[J+c];a[J+c]=function(){d.call(this);b&&b.call(this)}}};f.pagespeed=f.pagespeed||{};var N=f.pagespeed,O=function(a,c,d,b,g){this.d=a;this.f=c;this.g=d;this.a=g;this.c={height:f.innerHeight||h[n].clientHeight||h[s].clientHeight,width:f.innerWidth||h[n].clientWidth||h[s].clientWidth};this.e=b;this.b={}};O[r].j=function(a){a=a.getBoundingClientRect();return{top:a.top+(void 0!==f.pageYOffset?f.pageYOffset:(h[n]||h[s].parentNode||h[s]).scrollTop),left:a.left+(void 0!==f.pageXOffset?f.pageXOffset:(h[n]||h[s].parentNode||h[s]).scrollLeft)}};O[r].i=function(a){if(0>=a.offsetWidth&&0>=a.offsetHeight)return!1;a=this.j(a);var c=a.top.toString()+y+a.left.toString();if(this.b.hasOwnProperty(c))return!1;this.b[c]=!0;return a.top<=this.c[p]&&a.left<=this.c[m]};O[r].l=function(){for(var a=[F,G],c=[],d={},b=0;b<a[q];++b)for(var g=h.getElementsByTagName(a[b]),k=0;k<g[q];++k){var v=g[k].getAttribute(K);v&&g[k].getBoundingClientRect&&this.i(g[k])&&!(v in d)&&(c.push(v),d[v]=!0)}b=!1;a=I+this.g;this.a&&(a+=w+this.a);if(0!=c[q]){a+=u+e(c[0]);for(b=1;b<c[q];++b){d=y+e(c[b]);if(131072<a[q]+d[q])break;a+=d}b=!0}this.e&&(d=x+e(JSON.stringify(this.h())),131072>=a[q]+d[q]&&(a+=d),b=!0);N.criticalImagesBeaconData=a;if(b){var c=this.d,b=this.f,l;if(f.XMLHttpRequest)l=new XMLHttpRequest;else if(f.ActiveXObject)try{l=new ActiveXObject(C)}catch(P){try{l=new ActiveXObject(B)}catch(Q){}}l&&(l.open(D,c+(-1==c.indexOf(z)?z:t)+L+e(b)),l.setRequestHeader(A,E),l.send(a))}};O[r].h=function(){for(var a={},c=h.getElementsByTagName(F),d=0;d<c[q];++d){var b=c[d],g=b.getAttribute(K);if("undefined"==typeof b.naturalWidth||"undefined"==typeof b.naturalHeight||"undefined"==typeof g)break;if("undefined"==typeof a[b.src]&&0<b[m]&&0<b[p]&&0<b.naturalWidth&&0<b.naturalHeight||"undefined"!=typeof a[b.src]&&b[m]>=a[b.src].n&&b[p]>=a[b.src].m)a[g]={renderedWidth:b[m],renderedHeight:b[p],originalWidth:b.naturalWidth,originalHeight:b.naturalHeight}}return a};N.k=function(a,c,d,b,g){var k=new O(a,c,d,b,g);M(f,H,function(){f.setTimeout(function(){k.l()},0)})};N.criticalImagesBeaconInit=N.k;})();pagespeed.criticalImagesBeaconInit('/mod_pagespeed_beacon','http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/','9fxyNymV5S',false,'wgFfhAW7uH4');
+//]]></script>
+
+<!-- Performance optimized by W3 Total Cache. Learn more: https://www.w3-edge.com/products/
+
+Object Caching 2191/2470 objects using apc
+Page Caching using apc
+
+ Served from: blog.getpostman.com @ 2017-11-12 02:25:49 by W3 Total Cache --><div id="sharing_email" style="display: none;">
+		<form action="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/" method="post">
+			<label for="target_email">Send to Email Address</label>
+			<input type="email" name="target_email" id="target_email" value="">
+
+			
+				<label for="source_name">Your Name</label>
+				<input type="text" name="source_name" id="source_name" value="">
+
+				<label for="source_email">Your Email Address</label>
+				<input type="email" name="source_email" id="source_email" value="">
+
+						<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" title="This field is for validation and should not be changed">
+			<script>jQuery(document).ready(function(){document.getElementById('jetpack-source_f_name').value=''});</script>
+			
+			<img style="float: right; display: none" class="loading" src="./Using self-signed SSL certificates with Postman_files/loading.gif,qx38712.pagespeed.ce.moJpQhMDYx.gif" alt="loading" width="16" height="16" pagespeed_url_hash="2634820033" scale="0">
+			<input type="submit" value="Send Email" class="sharing_send">
+			<a rel="nofollow" href="http://blog.getpostman.com/2014/01/28/using-self-signed-certificates-with-postman/#cancel" class="sharing_cancel">Cancel</a>
+
+			<div class="errors errors-1" style="display: none;">
+				Post was not sent - check your email addresses!			</div>
+
+			<div class="errors errors-2" style="display: none;">
+				Email check failed, please try again			</div>
+
+			<div class="errors errors-3" style="display: none;">
+				Sorry, your blog cannot share posts by email.			</div>
+		</form>
+	</div><iframe style="display: none;" src="./Using self-signed SSL certificates with Postman_files/saved_resource(1).html"></iframe></body></html>

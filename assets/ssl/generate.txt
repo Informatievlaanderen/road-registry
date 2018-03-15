@@ -1,0 +1,3 @@
+C:\OpenSSL-Win32\bin\openssl.exe req -newkey rsa:2048 -x509 -nodes -keyout cert.key -out cert.crt -config req.cnf -sha256 -days 3650
+
+C:\OpenSSL-Win32\bin\openssl pkcs12 -export -out cert.pfx -inkey cert.key -in cert.crt

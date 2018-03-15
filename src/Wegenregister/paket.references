@@ -1,0 +1,9 @@
+Newtonsoft.Json
+SqlStreamStore.MsSql
+
+Aiv.Vbr.AggregateSource
+Aiv.Vbr.AggregateSource.ExplicitRouting
+Aiv.Vbr.CommandHandling
+Aiv.Vbr.EventHandling
+Aiv.Vbr.Generators.Guid.Deterministic
+Aiv.Vbr.Utilities.HexByteConvertor

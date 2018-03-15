@@ -1,0 +1,113 @@
+// https://fsprojects.github.io/Paket/
+// https://fsprojects.github.io/Paket/groups.html
+// Only the target frameworks that are used in projects.
+// If you change the target framework of the projects then you need to run paket install again.
+framework: auto-detect
+
+source https://informatievlaanderen.myget.org/F/nuget-mirror/api/v3/index.json username: "%VBR_FEED_USER%" password: "%VBR_FEED_PASS%" authtype: "basic"
+source https://informatievlaanderen.myget.org/F/basisregisters/api/v3/index.json username: "%VBR_FEED_USER%" password: "%VBR_FEED_PASS%" authtype: "basic"
+
+// This is what Microsoft likes to do from now on, except it makes no sense
+// - It does not work for self contained apps
+// - It requires you to pre install this new "GAC" on every machine
+// - It requires huge Docker base images to contain this new "GAC"
+// nuget Microsoft.AspNetCore.All 2.0.0
+
+// PRODUCTION STUFF
+nuget Microsoft.AspNetCore 2.0.2
+nuget Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore 2.0.2
+nuget Microsoft.AspNetCore.Mvc.Core 2.0.3
+nuget Microsoft.AspNetCore.Mvc.Cors 2.0.3
+nuget Microsoft.AspNetCore.Mvc.Formatters.Json 2.0.3
+nuget Microsoft.AspNetCore.Mvc.Formatters.Xml 2.0.3
+nuget Microsoft.AspNetCore.Mvc.Versioning 2.1.0
+nuget Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer 2.2.0
+nuget Microsoft.AspNetCore.ResponseCompression 2.0.2
+nuget Microsoft.AspNetCore.StaticFiles 2.0.2
+
+nuget Microsoft.EntityFrameworkCore.SqlServer 2.0.2
+
+nuget Microsoft.Extensions.Configuration 2.0.1
+nuget Microsoft.Extensions.Configuration.CommandLine 2.0.1
+nuget Microsoft.Extensions.Configuration.FileExtensions 2.0.1
+nuget Microsoft.Extensions.Configuration.Json 2.0.1
+nuget Microsoft.Extensions.Configuration.EnvironmentVariables 2.0.1
+nuget Microsoft.Extensions.Options.ConfigurationExtensions 2.0.1
+
+nuget Microsoft.VisualStudio.Web.BrowserLink 2.0.2
+
+nuget SqlStreamStore 1.1.1
+nuget SqlStreamStore.MsSql 1.1.1
+
+nuget Autofac.Extensions.DependencyInjection 4.2.1
+
+nuget Newtonsoft.Json 11.0.1
+nuget Destructurama.JsonNet 1.2.1
+
+nuget Serilog 2.6.0
+nuget Serilog.Settings.Configuration 2.5.0
+nuget Serilog.Extensions.Logging 2.0.2
+nuget Serilog.Sinks.Console 3.1.1
+nuget Serilog.Enrichers.Thread 3.0.0
+nuget Serilog.Enrichers.Environment 2.1.2
+
+nuget Swashbuckle.AspNetCore 1.2.0
+nuget Swashbuckle.AspNetCore.Examples 2.8.0
+
+nuget Microsoft.EntityFrameworkCore.Design 2.0.2
+clitool Microsoft.EntityFrameworkCore.Tools.DotNet 2.0.2
+
+// VBR STUFF
+nuget Aiv.Vbr.AggregateSource
+nuget Aiv.Vbr.AggregateSource.ExplicitRouting
+nuget Aiv.Vbr.AggregateSource.SqlStreamStore
+nuget Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac
+nuget Aiv.Vbr.Api
+nuget Aiv.Vbr.AspNetCore.Mvc.Formatters.Csv
+nuget Aiv.Vbr.AspNetCore.Mvc.Formatters.Json
+nuget Aiv.Vbr.AspNetCore.Mvc.Logging
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddCorrelationId
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddCorrelationIdToLogContext
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddCorrelationIdToResponse
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddHttpSecurityHeaders
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddRemoteIpAddress
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddVersionHeader
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.DefaultResponseCompressionQuality
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.EnableRequestRewind
+nuget Aiv.Vbr.AspNetCore.Mvc.ModelBinding.GuidHeader
+nuget Aiv.Vbr.AspNetCore.Swagger
+nuget Aiv.Vbr.CommandHandling
+nuget Aiv.Vbr.CommandHandling.Idempotency
+nuget Aiv.Vbr.CommandHandling.SqlStreamStore
+nuget Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac
+nuget Aiv.Vbr.Configuration.Api copy_content_to_output_dir: always
+nuget Aiv.Vbr.Configuration.Database
+nuget Aiv.Vbr.EntityFrameworkCore.EntityTypeConfiguration
+nuget Aiv.Vbr.EventHandling
+nuget Aiv.Vbr.EventHandling.Autofac
+nuget Aiv.Vbr.Generators.Guid.Deterministic
+nuget Aiv.Vbr.ProjectionHandling.Connector
+nuget Aiv.Vbr.ProjectionHandling.Connector.Testing
+nuget Aiv.Vbr.ProjectionHandling.Runner
+nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore
+nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac
+nuget Aiv.Vbr.Utilities.HashCodeCalculator
+nuget Aiv.Vbr.Utilities.HexByteConvertor
+
+// DOCS STUFF
+nuget Structurizr.Core 0.6.0
+
+// TEST STUFF
+nuget Microsoft.NET.Test.Sdk 15.6.1
+nuget xunit 2.3.1
+nuget xunit.runner.visualstudio 2.3.1
+nuget Microsoft.AspNetCore.TestHost 2.0.2
+nuget FluentAssertions 5.1.2
+nuget Microsoft.EntityFrameworkCore.InMemory 2.0.2
+nuget Moq 4.8.2
+nuget Shouldly 3.0.0
+
+clitool dotnet-xunit 2.3.1
+
+// BUILD STUFF
+nuget FAKE 4.64.11

@@ -1,0 +1,10 @@
+xunit
+dotnet-xunit
+xunit.runner.visualstudio
+Microsoft.NET.Test.Sdk
+FluentAssertions
+
+Microsoft.EntityFrameworkCore.InMemory
+
+Aiv.Vbr.EventHandling
+Aiv.Vbr.ProjectionHandling.Connector.Testing
