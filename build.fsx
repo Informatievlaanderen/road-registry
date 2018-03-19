@@ -55,32 +55,32 @@ Target "Restore" (fun _ ->
 Target "Api_Build" (fun _ ->
   DotNetCli.Build(fun p ->
   { p with
-      Project = "src" @@ "Wegenregister.Api.Oslo" @@ "Wegenregister.Api.Oslo.csproj"
+      Project = "src" @@ "RoadRegistry.Api.Oslo" @@ "RoadRegistry.Api.Oslo.csproj"
       Configuration = "Release"
-      // Output = currentDirectory @@ buildDir @@ "Wegenregister.Api"
+      // Output = currentDirectory @@ buildDir @@ "RoadRegistry.Api"
   })
 )
 
 Target "Api_Test" (fun _ ->
-  [ "test" @@ "Wegenregister.Projections.Oslo.Tests"
-    "test" @@ "Wegenregister.Tests" ]
+  [ "test" @@ "RoadRegistry.Projections.Oslo.Tests"
+    "test" @@ "RoadRegistry.Tests" ]
   |> List.iter testWithXunit
 )
 
 Target "Api_Publish" (fun _ ->
   DotNetCli.Publish(fun p ->
   { p with
-      Project = "src" @@ "Wegenregister.Api.Oslo" @@ "Wegenregister.Api.Oslo.csproj"
+      Project = "src" @@ "RoadRegistry.Api.Oslo" @@ "RoadRegistry.Api.Oslo.csproj"
       Configuration = "Release"
-      Output = currentDirectory @@ buildDir @@ "Wegenregister.Api.Oslo" @@ "linux"
+      Output = currentDirectory @@ buildDir @@ "RoadRegistry.Api.Oslo" @@ "linux"
       Runtime = "debian.8-x64"
   })
 
   DotNetCli.Publish(fun p ->
   { p with
-      Project = "src" @@ "Wegenregister.Api.Oslo" @@ "Wegenregister.Api.Oslo.csproj"
+      Project = "src" @@ "RoadRegistry.Api.Oslo" @@ "RoadRegistry.Api.Oslo.csproj"
       Configuration = "Release"
-      Output = currentDirectory @@ buildDir @@ "Wegenregister.Api.Oslo" @@ "win"
+      Output = currentDirectory @@ buildDir @@ "RoadRegistry.Api.Oslo" @@ "win"
       Runtime = "win10-x64"
   })
 )
@@ -90,7 +90,7 @@ Target "Api_Containerize" (fun _ ->
     ExecProcess (fun info ->
         info.FileName <- "docker"
         info.Arguments <- sprintf "build --no-cache --tag %s/wegenregister/api-oslo:%s ." dockerRegistry buildNumber
-        info.WorkingDirectory <- currentDirectory @@ buildDir @@ "Wegenregister.Api.Oslo" @@ "linux"
+        info.WorkingDirectory <- currentDirectory @@ buildDir @@ "RoadRegistry.Api.Oslo" @@ "linux"
     ) (System.TimeSpan.FromMinutes 5.)
 
   if result1 <> 0 then failwith "Failed result from API Oslo Docker Build"

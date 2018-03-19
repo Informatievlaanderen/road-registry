@@ -1,4 +1,4 @@
-# Wegenregister
+# RoadRegistry
 
 To use the private NuGet Aiv.Vbr.* packages, setup 2 environment variables:
  - VBR_FEED_USER
@@ -9,13 +9,13 @@ To use the private NuGet Aiv.Vbr.* packages, setup 2 environment variables:
 ### To add a migration:
 
 ```
-cd src/Wegenregister.Projections.Oslo/
-dotnet ef migrations add <Name of Migration> --startup-project ../Wegenregister.Api.Oslo/
+cd src/RoadRegistry.Projections.Oslo/
+dotnet ef migrations add <Name of Migration> --startup-project ../RoadRegistry.Api.Oslo/
 ```
 
 ### To apply a migration:
 
 ```
-cd src/Wegenregister.Projections.Oslo/
+cd src/RoadRegistry.Projections.Oslo/
 dotnet ef database update
 ```
