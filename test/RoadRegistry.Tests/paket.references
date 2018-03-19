@@ -3,7 +3,8 @@ dotnet-xunit
 xunit.runner.visualstudio
 Microsoft.NET.Test.Sdk
 FluentAssertions
+AutoFixture
+AutoFixture.Idioms
 
-Aiv.Vbr.EventHandling
 Aiv.Vbr.Utilities.HexByteConvertor
 Aiv.Vbr.Generators.Guid.Deterministic

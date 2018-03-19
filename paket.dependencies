@@ -106,6 +106,8 @@ nuget FluentAssertions 5.1.2
 nuget Microsoft.EntityFrameworkCore.InMemory 2.0.2
 nuget Moq 4.8.2
 nuget Shouldly 3.0.0
+nuget AutoFixture 4.1.0
+nuget AutoFixture.Idioms 4.1.0
 
 clitool dotnet-xunit 2.3.1
 
