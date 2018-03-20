@@ -8,3 +8,6 @@ AutoFixture.Idioms
 
 Aiv.Vbr.Utilities.HexByteConvertor
 Aiv.Vbr.Generators.Guid.Deterministic
+
+System.Threading.Tasks.Dataflow
+System.Collections.Immutable

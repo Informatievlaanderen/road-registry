@@ -57,6 +57,9 @@ nuget Swashbuckle.AspNetCore.Examples 2.8.0
 nuget Microsoft.EntityFrameworkCore.Design 2.0.2
 clitool Microsoft.EntityFrameworkCore.Tools.DotNet 2.0.2
 
+nuget System.Threading.Tasks.Dataflow 4.8.0
+nuget System.Collections.Immutable 1.4.0
+
 // VBR STUFF
 nuget Aiv.Vbr.AggregateSource
 nuget Aiv.Vbr.AggregateSource.ExplicitRouting

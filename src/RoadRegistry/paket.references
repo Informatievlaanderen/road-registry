@@ -7,3 +7,6 @@ Aiv.Vbr.CommandHandling
 Aiv.Vbr.EventHandling
 Aiv.Vbr.Generators.Guid.Deterministic
 Aiv.Vbr.Utilities.HexByteConvertor
+
+System.Threading.Tasks.Dataflow
+System.Collections.Immutable
