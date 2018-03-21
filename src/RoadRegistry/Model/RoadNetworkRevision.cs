@@ -1,4 +1,4 @@
-namespace RoadRegistry
+namespace RoadRegistry.Model
 {
     using System;
 

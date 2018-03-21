@@ -1,8 +1,7 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
-
-namespace RoadRegistry
+namespace RoadRegistry.Model
 {
+    using System.Collections.Generic;
+    using System.Collections.Immutable;
     public class RoadNode
     {
         private readonly ImmutableHashSet<RoadSegmentId> _segments;

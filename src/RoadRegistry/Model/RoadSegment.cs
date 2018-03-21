@@ -1,7 +1,8 @@
-namespace RoadRegistry
+namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
+    
     public class RoadSegment
     {
         public RoadSegmentId Id { get; }

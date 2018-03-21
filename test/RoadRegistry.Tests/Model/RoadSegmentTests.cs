@@ -1,11 +1,11 @@
-using System;
-using System.Linq;
-using AutoFixture;
-using AutoFixture.Idioms;
-using Xunit;
-
-namespace RoadRegistry
+namespace RoadRegistry.Model
 {
+    using System;
+    using System.Linq;
+    using AutoFixture;
+    using AutoFixture.Idioms;
+    using Xunit;
+    
     public class RoadSegmentTests
     {
         private readonly Fixture _fixture;

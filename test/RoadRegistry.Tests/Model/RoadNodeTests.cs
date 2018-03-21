@@ -1,9 +1,9 @@
-using System.Linq;
-using AutoFixture;
-using Xunit;
-
-namespace RoadRegistry
+namespace RoadRegistry.Model
 {
+    using System.Linq;
+    using AutoFixture;
+    using Xunit;
+    
     public class FullyDisconnectedRoadNodeTests
     {
         private readonly Fixture _fixture;
