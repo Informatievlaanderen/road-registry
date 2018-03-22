@@ -1,6 +1,6 @@
 namespace RoadRegistry.Commands
 {
-    public class RoadSegmentSide
+    public class RoadLinkSideProperties
     {
         public int StreetNameIdentifier { get; set; }
         public string StreetName { get; set; }

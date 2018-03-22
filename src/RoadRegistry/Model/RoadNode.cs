@@ -4,32 +4,32 @@ namespace RoadRegistry.Model
     using System.Collections.Immutable;
     public class RoadNode
     {
-        private readonly ImmutableHashSet<RoadSegmentId> _segments;
+        private readonly ImmutableHashSet<RoadLinkId> _links;
 
         public RoadNodeId Id { get; }
 
-        public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
+        public IReadOnlyCollection<RoadLinkId> Links => _links;
 
         public RoadNode(RoadNodeId id)
         {
             Id = id;
-            _segments = ImmutableHashSet<RoadSegmentId>.Empty;
+            _links = ImmutableHashSet<RoadLinkId>.Empty;
         }
 
-        private RoadNode(RoadNodeId id, ImmutableHashSet<RoadSegmentId> segments)
+        private RoadNode(RoadNodeId id, ImmutableHashSet<RoadLinkId> links)
         {
             Id = id;
-            _segments = segments;
+            _links = links;
         }
 
-        public RoadNode ConnectWith(RoadSegmentId segment)
+        public RoadNode ConnectWith(RoadLinkId link)
         {
-            return new RoadNode(Id, _segments.Add(segment));
+            return new RoadNode(Id, _links.Add(link));
         }
 
-        public RoadNode DisconnectFrom(RoadSegmentId segment)
+        public RoadNode DisconnectFrom(RoadLinkId link)
         {
-            return new RoadNode(Id, _segments.Remove(segment));
+            return new RoadNode(Id, _links.Remove(link));
         }
 
         //public KeyValuePair<RoadNodeId, RoadNode> ToKeyValuePair() => new KeyValuePair<RoadNodeId, RoadNode>(Id, this);
@@ -38,28 +38,28 @@ namespace RoadRegistry.Model
 
         // public class Builder
         // {
-        //     private readonly ImmutableHashSet<RoadSegmentId>.Builder _segments;
+        //     private readonly ImmutableHashSet<RoadLinkId>.Builder _links;
         //     public RoadNodeId Id { get; }
 
-        //     public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
+        //     public IReadOnlyCollection<RoadLinkId> Links => _links;
 
         //     internal Builder(RoadNode node)
         //     {
         //         Id = node.Id;
-        //         _segments = node._segments.ToBuilder();
+        //         _links = node._links.ToBuilder();
         //     }
 
-        //     public void ConnectWith(RoadSegmentId segment)
+        //     public void ConnectWith(RoadLinkId link)
         //     {
-        //         _segments.Add(segment);
+        //         _links.Add(link);
         //     }
 
-        //     public void DisconnectFrom(RoadSegmentId segment)
+        //     public void DisconnectFrom(RoadLinkId link)
         //     {
-        //         _segments.Remove(segment);
+        //         _links.Remove(link);
         //     }
 
-        //     public RoadNode ToImmutable() => new RoadNode(Id, _segments.ToImmutable());
+        //     public RoadNode ToImmutable() => new RoadNode(Id, _links.ToImmutable());
         // }
     }
 }

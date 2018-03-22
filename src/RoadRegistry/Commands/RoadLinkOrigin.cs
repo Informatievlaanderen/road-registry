@@ -2,7 +2,7 @@ namespace RoadRegistry.Commands
 {
     using System;
 
-    public class RoadSegmentOrigin
+    public class RoadLinkOrigin
     {
         public string Operator { get; set; }
         public string Organization { get; set; }

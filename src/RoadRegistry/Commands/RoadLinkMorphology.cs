@@ -1,6 +1,6 @@
 namespace RoadRegistry.Commands
 {
-    public enum RoadSegmentMorphology
+    public enum RoadLinkMorphology
     {
         Unknown, // -8	niet gekend	Geen informatie beschikbaar
         Motorway, // 101	autosnelweg	Een "autosnelweg" heeft typisch twee gescheiden parallelle rijbanen met tegengestelde toegelaten rijrichtingen. Op een autosnelweg komen geen gelijkgrondse kruisingen voor. Kruisingen met andere wegen gebeuren steeds ofwel over bruggen of in tunnels.

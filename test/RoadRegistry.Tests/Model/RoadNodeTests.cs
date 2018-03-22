@@ -24,29 +24,29 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public void SegmentsReturnsExpectedResult()
+        public void LinksReturnsExpectedResult()
         {
-            Assert.Empty(_sut.Segments);
+            Assert.Empty(_sut.Links);
         }
 
         [Fact]
         public void ConnectWithReturnsExpectedResult()
         {
-            var segment = _fixture.Create<RoadSegmentId>();
+            var link = _fixture.Create<RoadLinkId>();
 
-            var result = _sut.ConnectWith(segment);
+            var result = _sut.ConnectWith(link);
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new RoadSegmentId[] { segment }, result.Segments);
+            Assert.Equal(new RoadLinkId[] { link }, result.Links);
         }
 
         [Fact]
         public void DisconnectFromReturnsExpectedResult()
         {
-            var result = _sut.DisconnectFrom(_fixture.Create<RoadSegmentId>());
+            var result = _sut.DisconnectFrom(_fixture.Create<RoadLinkId>());
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Empty(result.Segments);
+            Assert.Empty(result.Links);
         }
     }
 
@@ -54,17 +54,17 @@ namespace RoadRegistry.Model
     {
         private readonly Fixture _fixture;
         private readonly RoadNodeId _id;
-        private readonly RoadSegmentId _segment1;
-        private readonly RoadSegmentId _segment2;
+        private readonly RoadLinkId _link1;
+        private readonly RoadLinkId _link2;
         private readonly RoadNode _sut;
 
         public ConnectedRoadNodeTests()
         {
             _fixture = new Fixture();
             _id = _fixture.Create<RoadNodeId>();
-            _segment1 = _fixture.Create<RoadSegmentId>();
-            _segment2 = _fixture.Create<RoadSegmentId>();
-            _sut = new RoadNode(_id).ConnectWith(_segment1).ConnectWith(_segment2);
+            _link1 = _fixture.Create<RoadLinkId>();
+            _link2 = _fixture.Create<RoadLinkId>();
+            _sut = new RoadNode(_id).ConnectWith(_link1).ConnectWith(_link2);
         }
 
         [Fact]
@@ -74,38 +74,38 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public void SegmentsReturnsExpectedResult()
+        public void LinksReturnsExpectedResult()
         {
-            Assert.Equal(new [] { _segment1, _segment2 }.OrderBy(_ => _), _sut.Segments.OrderBy(_ => _));
+            Assert.Equal(new [] { _link1, _link2 }.OrderBy(_ => _), _sut.Links.OrderBy(_ => _));
         }
 
         [Fact]
         public void ConnectWithReturnsExpectedResult()
         {
-            var segment = _fixture.Create<RoadSegmentId>();
+            var link = _fixture.Create<RoadLinkId>();
 
-            var result = _sut.ConnectWith(segment);
+            var result = _sut.ConnectWith(link);
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new RoadSegmentId[] { _segment1, _segment2, segment }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
+            Assert.Equal(new RoadLinkId[] { _link1, _link2, link }.OrderBy(_ => _), result.Links.OrderBy(_ => _));
         }
 
         [Fact]
-        public void DisconnectFromUnknownSegmentReturnsExpectedResult()
+        public void DisconnectFromUnknownLinkReturnsExpectedResult()
         {
-            var result = _sut.DisconnectFrom(_fixture.Create<RoadSegmentId>());
+            var result = _sut.DisconnectFrom(_fixture.Create<RoadLinkId>());
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new [] { _segment1, _segment2 }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
+            Assert.Equal(new [] { _link1, _link2 }.OrderBy(_ => _), result.Links.OrderBy(_ => _));
         }
 
         [Fact]
-        public void DisconnectFromKnownSegmentReturnsExpectedResult()
+        public void DisconnectFromKnownLinkReturnsExpectedResult()
         {
-            var result = _sut.DisconnectFrom(_segment1);
+            var result = _sut.DisconnectFrom(_link1);
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new [] { _segment2 }, result.Segments);
+            Assert.Equal(new [] { _link2 }, result.Links);
         }
     }
 }

@@ -1,6 +1,6 @@
 namespace RoadRegistry.Commands
 {
-    public enum RoadSegmentCategory
+    public enum RoadLinkCategory
     {
         Unknown, // -8	niet gekend	Geen informatie beschikbaar
         NotApplicable, // -9	niet van toepassing	Niet van toepassing

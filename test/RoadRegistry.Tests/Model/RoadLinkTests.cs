@@ -6,21 +6,21 @@ namespace RoadRegistry.Model
     using AutoFixture.Idioms;
     using Xunit;
     
-    public class RoadSegmentTests
+    public class RoadLinkTests
     {
         private readonly Fixture _fixture;
-        private readonly RoadSegmentId _id;
+        private readonly RoadLinkId _id;
         private readonly RoadNodeId _source;
         private readonly RoadNodeId _target;
-        private readonly RoadSegment _sut;
+        private readonly RoadLink _sut;
 
-        public RoadSegmentTests()
+        public RoadLinkTests()
         {
             _fixture = new Fixture();
-            _id = _fixture.Create<RoadSegmentId>();
+            _id = _fixture.Create<RoadLinkId>();
             _source = _fixture.Create<RoadNodeId>();
             _target = _fixture.Create<RoadNodeId>();
-            _sut = new RoadSegment(_id, _source, _target);
+            _sut = new RoadLink(_id, _source, _target);
         }
 
         [Fact]
@@ -32,19 +32,19 @@ namespace RoadRegistry.Model
         [Fact]
         public void SourceReturnsExpectedResult()
         {
-            Assert.Equal(_source, _sut.Source);
+            Assert.Equal(_source, _sut.Start);
         }
 
         [Fact]
         public void TargetReturnsExpectedResult()
         {
-            Assert.Equal(_target, _sut.Target);
+            Assert.Equal(_target, _sut.End);
         }
 
         [Fact]
         public void ThrowsWhenSourceIsSameAsTarget()
         {
-            Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _source, _source));
+            Assert.Throws<ArgumentException>(() => new RoadLink(_id, _source, _source));
         }
         
         [Fact]
@@ -64,7 +64,7 @@ namespace RoadRegistry.Model
             long[] expected
         )
         {
-            var sut = new RoadSegment(_fixture.Create<RoadSegmentId>(), new RoadNodeId(source), new RoadNodeId(target));
+            var sut = new RoadLink(_fixture.Create<RoadLinkId>(), new RoadNodeId(source), new RoadNodeId(target));
 
             var result = sut.SelectCounterNode(new RoadNodeId(to_counter)).ToArray();
 
