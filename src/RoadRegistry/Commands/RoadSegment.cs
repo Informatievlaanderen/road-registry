@@ -15,5 +15,8 @@
         public RoadSegmentSideProperties LeftSide { get; set; }
         public RoadSegmentSideProperties RightSide { get; set; }
         public RoadSegmentOrigin Origin { get; set; }
+        public RoadSegmentEuropeanRoadProperties[] PartOfEuropeanRoads { get; set; }
+        public RoadSegmentNationalRoadProperties[] PartOfNationalRoads { get; set; }
+        public RoadSegmentNumberedRoadProperties[] PartOfNumberedRoads { get; set; }
     }
 }
