@@ -1,8 +1,8 @@
-namespace RoadRegistry.Commands
+﻿namespace RoadRegistry.Commands
 {
     using System;
 
-    public class RoadNodeOrigin
+    public class RoadSegmentOrigin
     {
         public string OrganizationId { get; set; }
         public string Organization { get; set; }

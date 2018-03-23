@@ -1,6 +1,6 @@
-namespace RoadRegistry.Commands
+﻿namespace RoadRegistry.Commands
 {
-    public enum RoadLinkAccessRestriction
+    public enum RoadSegmentAccessRestriction
     {
         PublicRoad, // 1	openbare weg	Weg is publiek toegankelijk.
         PhysicallyImpossible, // 2	onmogelijke toegang	Weg is niet toegankelijk vanwege de aanwezigheid van hindernissen of obstakels.

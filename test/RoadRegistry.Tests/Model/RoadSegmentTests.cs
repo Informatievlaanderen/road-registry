@@ -1,4 +1,4 @@
-namespace RoadRegistry.Model
+﻿namespace RoadRegistry.Model
 {
     using System;
     using System.Linq;
@@ -6,21 +6,21 @@ namespace RoadRegistry.Model
     using AutoFixture.Idioms;
     using Xunit;
     
-    public class RoadLinkTests
+    public class RoadSegmentTests
     {
         private readonly Fixture _fixture;
-        private readonly RoadLinkId _id;
+        private readonly RoadSegmentId _id;
         private readonly RoadNodeId _source;
         private readonly RoadNodeId _target;
-        private readonly RoadLink _sut;
+        private readonly RoadSegment _sut;
 
-        public RoadLinkTests()
+        public RoadSegmentTests()
         {
             _fixture = new Fixture();
-            _id = _fixture.Create<RoadLinkId>();
+            _id = _fixture.Create<RoadSegmentId>();
             _source = _fixture.Create<RoadNodeId>();
             _target = _fixture.Create<RoadNodeId>();
-            _sut = new RoadLink(_id, _source, _target);
+            _sut = new RoadSegment(_id, _source, _target);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace RoadRegistry.Model
         [Fact]
         public void ThrowsWhenSourceIsSameAsTarget()
         {
-            Assert.Throws<ArgumentException>(() => new RoadLink(_id, _source, _source));
+            Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _source, _source));
         }
         
         [Fact]
@@ -64,7 +64,7 @@ namespace RoadRegistry.Model
             long[] expected
         )
         {
-            var sut = new RoadLink(_fixture.Create<RoadLinkId>(), new RoadNodeId(source), new RoadNodeId(target));
+            var sut = new RoadSegment(_fixture.Create<RoadSegmentId>(), new RoadNodeId(source), new RoadNodeId(target));
 
             var result = sut.SelectCounterNode(new RoadNodeId(to_counter)).ToArray();
 

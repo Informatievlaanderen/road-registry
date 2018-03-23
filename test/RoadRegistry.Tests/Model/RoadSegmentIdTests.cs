@@ -1,15 +1,15 @@
-namespace RoadRegistry.Model
+﻿namespace RoadRegistry.Model
 {
     using System;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class RoadLinkIdTests
+    public class RoadSegmentIdTests
     {
         private readonly Fixture _fixture;
 
-        public RoadLinkIdTests()
+        public RoadSegmentIdTests()
         {
             _fixture = new Fixture();
         }
@@ -34,14 +34,14 @@ namespace RoadRegistry.Model
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture),
                 new ComparableCompareToSelfAssertion(_fixture)
-            ).Verify(typeof(RoadLinkId));
+            ).Verify(typeof(RoadSegmentId));
         }
 
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = _fixture.Create<Int64>();
-            var sut = new RoadLinkId(value);
+            var sut = new RoadSegmentId(value);
 
             Assert.Equal("RS-" + value, sut.ToString());
         }
@@ -51,9 +51,9 @@ namespace RoadRegistry.Model
         [InlineData(2L, 1L, 1)]
         public void CompareToReturnsExpectedResult(Int64 left, Int64 right, Int32 expected)
         {
-            var sut = new RoadLinkId(left);
+            var sut = new RoadSegmentId(left);
             
-            var result = sut.CompareTo(new RoadLinkId(right));
+            var result = sut.CompareTo(new RoadSegmentId(right));
 
             Assert.Equal(expected, result);
         }

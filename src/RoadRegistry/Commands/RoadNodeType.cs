@@ -2,7 +2,6 @@ namespace RoadRegistry.Commands
 {
     public enum RoadNodeType
     {
-
         RealNode, // 1	echte knoop	Punt waar 2 wegsegmenten elkaar snijden; minstens drie aansluitende wegsegmenten.
         FakeNode, // 2	schijnknoop	Punt waar 2 wegsegmenten elkaar raken; slechts twee aansluitende wegsegmenten.
         EndNode, // 3	eindknoop	Het einde van een doodlopende wegcorridor, slechts één aansluitend wegsegment.

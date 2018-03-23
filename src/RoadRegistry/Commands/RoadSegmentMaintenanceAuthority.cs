@@ -1,6 +1,6 @@
-namespace RoadRegistry.Commands
+﻿namespace RoadRegistry.Commands
 {
-    public class RoadLinkMaintenanceAuthority
+    public class RoadSegmentMaintenanceAuthority
     {
         public string Identifier { get; set; } //??
         public string Name { get; set; }

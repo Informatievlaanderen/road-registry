@@ -24,29 +24,29 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public void LinksReturnsExpectedResult()
+        public void SegmentsReturnsExpectedResult()
         {
-            Assert.Empty(_sut.Links);
+            Assert.Empty(_sut.Segments);
         }
 
         [Fact]
         public void ConnectWithReturnsExpectedResult()
         {
-            var link = _fixture.Create<RoadLinkId>();
+            var link = _fixture.Create<RoadSegmentId>();
 
             var result = _sut.ConnectWith(link);
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new RoadLinkId[] { link }, result.Links);
+            Assert.Equal(new RoadSegmentId[] { link }, result.Segments);
         }
 
         [Fact]
         public void DisconnectFromReturnsExpectedResult()
         {
-            var result = _sut.DisconnectFrom(_fixture.Create<RoadLinkId>());
+            var result = _sut.DisconnectFrom(_fixture.Create<RoadSegmentId>());
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Empty(result.Links);
+            Assert.Empty(result.Segments);
         }
     }
 
@@ -54,16 +54,16 @@ namespace RoadRegistry.Model
     {
         private readonly Fixture _fixture;
         private readonly RoadNodeId _id;
-        private readonly RoadLinkId _link1;
-        private readonly RoadLinkId _link2;
+        private readonly RoadSegmentId _link1;
+        private readonly RoadSegmentId _link2;
         private readonly RoadNode _sut;
 
         public ConnectedRoadNodeTests()
         {
             _fixture = new Fixture();
             _id = _fixture.Create<RoadNodeId>();
-            _link1 = _fixture.Create<RoadLinkId>();
-            _link2 = _fixture.Create<RoadLinkId>();
+            _link1 = _fixture.Create<RoadSegmentId>();
+            _link2 = _fixture.Create<RoadSegmentId>();
             _sut = new RoadNode(_id).ConnectWith(_link1).ConnectWith(_link2);
         }
 
@@ -74,29 +74,29 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public void LinksReturnsExpectedResult()
+        public void SegmentsReturnsExpectedResult()
         {
-            Assert.Equal(new [] { _link1, _link2 }.OrderBy(_ => _), _sut.Links.OrderBy(_ => _));
+            Assert.Equal(new [] { _link1, _link2 }.OrderBy(_ => _), _sut.Segments.OrderBy(_ => _));
         }
 
         [Fact]
         public void ConnectWithReturnsExpectedResult()
         {
-            var link = _fixture.Create<RoadLinkId>();
+            var link = _fixture.Create<RoadSegmentId>();
 
             var result = _sut.ConnectWith(link);
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new RoadLinkId[] { _link1, _link2, link }.OrderBy(_ => _), result.Links.OrderBy(_ => _));
+            Assert.Equal(new RoadSegmentId[] { _link1, _link2, link }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
         }
 
         [Fact]
         public void DisconnectFromUnknownLinkReturnsExpectedResult()
         {
-            var result = _sut.DisconnectFrom(_fixture.Create<RoadLinkId>());
+            var result = _sut.DisconnectFrom(_fixture.Create<RoadSegmentId>());
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new [] { _link1, _link2 }.OrderBy(_ => _), result.Links.OrderBy(_ => _));
+            Assert.Equal(new [] { _link1, _link2 }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
         }
 
         [Fact]
@@ -105,7 +105,7 @@ namespace RoadRegistry.Model
             var result = _sut.DisconnectFrom(_link1);
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new [] { _link2 }, result.Links);
+            Assert.Equal(new [] { _link2 }, result.Segments);
         }
     }
 }

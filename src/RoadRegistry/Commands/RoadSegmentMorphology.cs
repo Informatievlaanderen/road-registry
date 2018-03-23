@@ -1,6 +1,6 @@
-namespace RoadRegistry.Commands
+﻿namespace RoadRegistry.Commands
 {
-    public enum RoadLinkMorphology
+    public enum RoadSegmentMorphology
     {
         Unknown, // -8	niet gekend	Geen informatie beschikbaar
         Motorway, // 101	autosnelweg	Een "autosnelweg" heeft typisch twee gescheiden parallelle rijbanen met tegengestelde toegelaten rijrichtingen. Op een autosnelweg komen geen gelijkgrondse kruisingen voor. Kruisingen met andere wegen gebeuren steeds ofwel over bruggen of in tunnels.
@@ -9,11 +9,11 @@ namespace RoadRegistry.Commands
         Traffic_circle, // 104	rotonde	Wegsegmenten die tot de rotonde behoren vormen een gesloten ringvormige structuur. Op deze wegsegmenten is enkel eenrichtingsverkeer toegelaten.
         Special_traffic_situation, // 105	speciale verkeerssituatie	Wegsegmenten die behoren tot een min of meer cirkelvormige constructie die geen rotonde is.
         Traffic_square, // 106	verkeersplein	Wegsegmenten die worden opgenomen in gebieden waar het verkeer ongestructureerd verloopt. Het gaat typisch om marktpleinen, parkeerterreinen of terreinen met een andere functie dan een zuivere verkeersfunctie.
-        Entrance_or_exit_ramp_belonging_to_a_grade_separated_junction, // 107	op- of afrit, behorende tot een niet-gelijkgrondse verbinding	Een "op- of afrit, behorende tot een niet-gelijkgrondse kruising" verzorgt de verbinding tussen twee wegen die zich niet-gelijkgronds kruisen. Alle op- en afritten van autosnelwegen en verkeerswisselaars worden eveneens tot deze klasse gerekend.
-        Entrance_or_exit_ramp_belonging_to_a_at_grade_junction, // 108	op- of afrit, behorende tot een gelijkgrondse verbinding	Een "op- of afrit, behorende tot een gelijkgrondse kruising" verzorgt de verbinding tussen twee wegen die geen autosnelweg zijn. Zonder de op- of afrit bestaat er nog steeds een topologische verbinding tussen de wegsegmenten waarbij de op- of afrit hoort.
+        Entry_or_exit_ramp_belonging_to_a_grade_separated_junction, // 107	op- of afrit, behorende tot een niet-gelijkgrondse verbinding	Een "op- of afrit, behorende tot een niet-gelijkgrondse kruising" verzorgt de verbinding tussen twee wegen die zich niet-gelijkgronds kruisen. Alle op- en afritten van autosnelwegen en verkeerswisselaars worden eveneens tot deze klasse gerekend.
+        Entry_or_exit_ramp_belonging_to_a_at_grade_junction, // 108	op- of afrit, behorende tot een gelijkgrondse verbinding	Een "op- of afrit, behorende tot een gelijkgrondse kruising" verzorgt de verbinding tussen twee wegen die geen autosnelweg zijn. Zonder de op- of afrit bestaat er nog steeds een topologische verbinding tussen de wegsegmenten waarbij de op- of afrit hoort.
         Parallel_road, // 109	parallelweg	Een "parallelweg" is een op- of afrit waarvan de begin- en eindpositie verbonden is met dezelfde autosnelweg. Een ‘parallelweg’ heeft een rechtstreekse verbinding of een verbinding via op- of afritten van een ander type met de bijhorende autosnelweg.
         Frontage_road, // 110	ventweg	Een "ventweg" loopt parallel aan een weg met een belangrijke verkeersfunctie die geen autosnelweg is. De weg biedt toegang tot minder belangrijke aanpalende wegen, bestemmingen of adressen en wordt van de hoofdweg gescheiden door kleine constructies.
-        Entry_or_exit_of_a_parking_lot, // 111	in- of uitrit van een parking	Een "in- of uitrit van een parking" is een weg die speciaal ontworpen is om een parkeerterrein of parkeergarage te bereiken of te verlaten.
+        Entry_or_exit_of_a_car_park, // 111	in- of uitrit van een parking	Een "in- of uitrit van een parking" is een weg die speciaal ontworpen is om een parkeerterrein of parkeergarage te bereiken of te verlaten.
         Entry_or_exit_of_a_service, // 112	in- of uitrit van een dienst	Een "in- of uitrit van een dienst" is een weg die speciaal ontworpen is om een dienst (voorbeeld: luchthaven, station, ziekenhuis, brandweerkazerne, politie, openbare dienst, hotel, restaurant) te bereiken of te verlaten.
         Pedestrain_zone, // 113	voetgangerszone	Gebied met een wegennet dat speciaal ontworpen is voor gebruik door voetgangers (meestal gesitueerd in stedelijke gebieden). In voetgangerszones is enkel voetgangersverkeer toegelaten (uitzondering: prioritaire voertuigen en leveringen).
         Walking_or_cycling_path_not_accessible_to_other_vehicles, // 114	wandel- of fietsweg, niet toegankelijk voor andere voertuigen	Op een "wandel- en/of fietsweg" is de verkeerstoegang beperkt tot voetgangers en/of fietsers. De fysieke kenmerken van een "wandel- en/of fietsweg" laten de toegang van andere voertuigen niet toe (smaller dan 2.5m).

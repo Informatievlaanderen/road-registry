@@ -59,6 +59,7 @@ clitool Microsoft.EntityFrameworkCore.Tools.DotNet 2.0.2
 
 nuget System.Threading.Tasks.Dataflow 4.8.0
 nuget System.Collections.Immutable 1.4.0
+nuget System.Data.SqlClient
 
 // VBR STUFF
 nuget Aiv.Vbr.AggregateSource

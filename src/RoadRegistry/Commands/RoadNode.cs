@@ -5,6 +5,5 @@ namespace RoadRegistry.Commands
         public int Id { get; set; }
         public byte[] Geometry { get; set; }
         public RoadNodeType Type { get; set; }
-        public RoadNodeOrigin Origin { get; set; }
     }
 }

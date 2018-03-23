@@ -3,9 +3,9 @@ namespace RoadRegistry.Model
     using System;
     using System.Collections.Generic;
     
-    public class RoadLink
+    public class RoadSegment
     {
-        public RoadLinkId Id { get; }
+        public RoadSegmentId Id { get; }
         public RoadNodeId Start { get; }
         public RoadNodeId End { get; }
 
@@ -18,7 +18,7 @@ namespace RoadRegistry.Model
             }
         }
 
-        public RoadLink(RoadLinkId id, RoadNodeId source, RoadNodeId target)
+        public RoadSegment(RoadSegmentId id, RoadNodeId source, RoadNodeId target)
         {
             if(source == target)
             {
@@ -42,6 +42,6 @@ namespace RoadRegistry.Model
             }
         }
 
-        //public KeyValuePair<RoadLinkId, RoadLink> ToKeyValuePair() => new KeyValuePair<RoadLinkId, RoadLink>(Id, this);
+        //public KeyValuePair<RoadSegmentId, RoadSegment> ToKeyValuePair() => new KeyValuePair<RoadSegmentId, RoadSegment>(Id, this);
     }
 }

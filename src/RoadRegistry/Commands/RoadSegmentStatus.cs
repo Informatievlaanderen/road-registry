@@ -1,6 +1,6 @@
-namespace RoadRegistry.Commands
+﻿namespace RoadRegistry.Commands
 {
-    public enum RoadLinkStatus
+    public enum RoadSegmentStatus
     {
         Unknown, // -8	niet gekend	Geen informatie beschikbaar
         PermitRequested, // 1	vergunning aangevraagd	Geometrie komt voor op officieel document in behandeling.
