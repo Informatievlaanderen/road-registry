@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class RoadSegmentOrigin
+    public class OriginProperties
     {
         public string OrganizationId { get; set; }
         public string Organization { get; set; }

@@ -1,5 +1,7 @@
 ﻿namespace RoadRegistry.Commands
 {
+    using System;
+
     public class RoadSegment
     {
         public int Id { get; set; }
@@ -14,9 +16,13 @@
         public RoadSegmentAccessRestriction AccessRestriction { get; set; }
         public RoadSegmentSideProperties LeftSide { get; set; }
         public RoadSegmentSideProperties RightSide { get; set; }
-        public RoadSegmentOrigin Origin { get; set; }
         public RoadSegmentEuropeanRoadProperties[] PartOfEuropeanRoads { get; set; }
         public RoadSegmentNationalRoadProperties[] PartOfNationalRoads { get; set; }
         public RoadSegmentNumberedRoadProperties[] PartOfNumberedRoads { get; set; }
+        public RoadSegmentLaneProperties[] Lanes { get; set; }
+        public RoadSegmentWidthProperties[] Widths { get; set; }
+        public RoadSegmentSurfaceProperties[] Surfaces { get; set; }
+        public DateTime RecordingDate { get; set; }
+        public OriginProperties Origin { get; set; }
     }
 }

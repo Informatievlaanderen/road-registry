@@ -132,5 +132,55 @@ namespace RoadRegistry.LegacyImporter
                 throw new InvalidOperationException($"Road link access restriction {code} can not be translated.");
             return RoadSegmentAccessRestrictionIndex[index];
         }
+
+        public static GradeSeparatedJunctionType ToGradeSeparatedJunctionType(int code)
+        {
+            var result = GradeSeparatedJunctionType.Unknown;
+            switch(code)
+            {
+                //case -8: result = GradeSeparatedJunctionType.Unknown; break;
+                case 1: result = GradeSeparatedJunctionType.Tunnel; break;
+                case 2: result = GradeSeparatedJunctionType.Bridge; break;
+            }
+            return result;
+        }
+
+        public static LaneDirection ToLaneDirection(int code)
+        {
+            var result = LaneDirection.Unknown;
+            switch(code)
+            {
+                //case -8: result = LaneDirection.Unknown; break;
+                case 1: result = LaneDirection.Forward; break;
+                case 2: result = LaneDirection.Backward; break;
+                case 3: result = LaneDirection.Independent; break;
+            }
+            return result;
+        }
+
+        public static NumberedRoadSegmentDirection ToNumberedRoadSegmentDirection(int code)
+        {
+            var result = NumberedRoadSegmentDirection.Unknown;
+            switch(code)
+            {
+                //case -8: result = NumberedRoadSegmentDirection.Unknown; break;
+                case 1: result = NumberedRoadSegmentDirection.Forward; break;
+                case 2: result = NumberedRoadSegmentDirection.Backward; break;
+            }
+            return result;
+        }
+
+        public static SurfaceType ToSurfaceType(int code)
+        {
+            var result = SurfaceType.Unknown;
+            switch(code)
+            {
+                case -9: result = SurfaceType.NotApplicable; break;
+                //case -8: result = PavementType.Unknown; break;
+                case 1: result = SurfaceType.SolidHardening; break;
+                case 2: result = SurfaceType.LooseHardening; break;
+            }
+            return result;
+        }
     }
 }

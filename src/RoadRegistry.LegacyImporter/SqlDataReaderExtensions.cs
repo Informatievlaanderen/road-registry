@@ -1,9 +1,9 @@
-using System;
-using System.Data.SqlClient;
-using System.IO;
-
 namespace RoadRegistry.LegacyImporter
 {
+    using System;
+    using System.Data.SqlClient;
+    using System.IO;
+    
     public static class SqlDataReaderExtensions
     {
         public static byte[] GetAllBytes(this SqlDataReader reader, int index)
