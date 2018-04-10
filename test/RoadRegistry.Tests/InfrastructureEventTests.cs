@@ -5,6 +5,7 @@ namespace RoadRegistry.Tests
     using System.Linq;
     using Aiv.Vbr.EventHandling;
     using FluentAssertions;
+    using RoadRegistry.Events;
     using Xunit;
 
     public class InfrastructureEventTests
@@ -46,13 +47,7 @@ namespace RoadRegistry.Tests
 
         private static IEnumerable<Type> GetAllEventTypes()
         {
-            bool IsEventNamespace(string @namespace) =>
-                @namespace.EndsWith("Events") || @namespace.Contains(".Events.");
-
-            return typeof(DomainAssemblyMarker)
-                .Assembly
-                .GetTypes()
-                .Where(t => t.IsClass && t.Namespace != null && IsEventNamespace(t.Namespace));
+            return RoadNetworkEvents.All;
         }
     }
 }
