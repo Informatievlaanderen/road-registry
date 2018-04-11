@@ -441,7 +441,7 @@ namespace RoadRegistry.LegacyImporter
                 DateParseHandling = DateParseHandling.DateTime,
                 DefaultValueHandling = DefaultValueHandling.Ignore
             });
-            const string output = "roadnetworkstream.json";
+            const string output = "roadnetworkstream.json"; // TODO: prefer injecting this as an output parameter
             if (File.Exists(output)) { File.Delete(output); }
             using (var stream = File.OpenWrite(output))
             {

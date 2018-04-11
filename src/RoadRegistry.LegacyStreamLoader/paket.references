@@ -13,3 +13,6 @@ Serilog.Enrichers.Environment
 SqlStreamStore.MsSql
 System.Data.SqlClient
 Newtonsoft.Json
+
+Aiv.Vbr.EventHandling
+Aiv.Vbr.Generators.Guid.Deterministic
