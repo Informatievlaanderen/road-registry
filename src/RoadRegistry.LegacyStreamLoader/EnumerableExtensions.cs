@@ -23,6 +23,10 @@ namespace RoadRegistry.LegacyStreamLoader
                         index++;
                         moved = enumerator.MoveNext();
                     }
+                    if(index < size)
+                    {
+                        Array.Resize(ref batch, index);
+                    }
                     yield return batch;
                 }
             }
