@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.LegacyStreamLoader
+namespace RoadRegistry.LegacyStreamLoader
 {
     using System;
     using System.Collections.Generic;
@@ -26,7 +26,7 @@
                 .AddJsonFile($"appsettings.{Environment.MachineName}.json", true, true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args);
-            
+
             var root = configurationBuilder.Build();
 
             var connectionStringBuilder = new SqlConnectionStringBuilder(root.GetConnectionString("StreamStore"));
@@ -46,19 +46,21 @@
             var typeMapping = new EventMapping(
                 EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly)
             );
-            
+
             using(var streamStore = new MsSqlStreamStore(
                 new MsSqlStreamStoreSettings(connectionStringBuilder.ConnectionString)))
             {
                 await streamStore.CreateSchema();
 
                 // Import the legacy stream from a json file
-                var legacySteamFile = new FileInfo(root[LEGACY_STREAM_FILE]);
+                var legacyStreamFilePath = root[LEGACY_STREAM_FILE];
+                Console.WriteLine($"Importing from {legacyStreamFilePath}");
+                var legacyStreamFile = new FileInfo(legacyStreamFilePath);
                 var reader = new LegacyStreamFileReader(fileSettings);
                 var expectedVersion = ExpectedVersion.NoStream;
                 var watch = Stopwatch.StartNew();
                 var index = 0;
-                foreach(var batch in reader.Read(legacySteamFile).Batch(1000))
+                foreach(var batch in reader.Read(legacyStreamFile).Batch(1000))
                 {
                     Console.Write("Expected version is {0}.", expectedVersion);
                     Console.Write(" ");

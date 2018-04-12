@@ -16,6 +16,15 @@
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="appsettings.aocws255.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
