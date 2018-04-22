@@ -9,18 +9,10 @@ namespace RoadRegistry.LegacyImporter
         public static async Task ForEachDataRecord(this SqlCommand command, Action<SqlDataReader> handler)
         {
             using (command)
-            {
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    if (!reader.IsClosed)
-                    {
-                        while(await reader.ReadAsync())
-                        {
-                            handler(reader);
-                        }
-                    }
-                }
-            }
+            using (var reader = await command.ExecuteReaderAsync())
+                if (!reader.IsClosed)
+                    while (await reader.ReadAsync())
+                        handler(reader);
         }
     }
 }

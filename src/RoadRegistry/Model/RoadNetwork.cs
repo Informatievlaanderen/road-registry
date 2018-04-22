@@ -3,7 +3,7 @@ namespace RoadRegistry.Model
     using System;
     using System.Collections.Generic;
     using Aiv.Vbr.AggregateSource;
-    using RoadRegistry.Events;
+    using Events;
 
     public class RoadNetwork : AggregateRootEntity
     {

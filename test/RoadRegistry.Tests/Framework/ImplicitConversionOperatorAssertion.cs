@@ -17,43 +17,41 @@ namespace RoadRegistry
 
         public override void Verify(Type type)
         {
-            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
 
             var method = type
                 .GetMethods()
-                .Where(candidate => 
-                    candidate.Name == "op_Implicit" 
+                .SingleOrDefault(candidate =>
+                    candidate.Name == "op_Implicit"
                     && candidate.GetParameters().Length == 1
                     && candidate.GetParameters()[0].ParameterType == type
-                    && candidate.ReturnParameter.ParameterType == typeof(TResult))
-                .SingleOrDefault();
-            
+                    && candidate.ReturnParameter.ParameterType == typeof(TResult));
+
             if (method == null)
             {
-                throw new ImplicitConversionOperatorException(type, typeof(TResult), 
+                throw new ImplicitConversionOperatorException(type, typeof(TResult),
                     $"The type '{type.Name}' does not define an implicit conversion operator to type '{typeof(TResult).Name}'.");
             }
 
-            var value = this.Builder.Create<TResult>();
-            var composedBuilder = 
+            var value = Builder.Create<TResult>();
+            var composedBuilder =
                 new CompositeSpecimenBuilder(
                     new FrozenSpecimenBuilder<TResult>(value),
-                    this.Builder);
+                    Builder);
 
             var instance = composedBuilder.CreateAnonymous(type);
 
             try
             {
-                
-                var result = (TResult)method.Invoke(null, new object[] { instance });
-                if(!result.Equals(value))
-                {
+
+                var result = (TResult)method.Invoke(null, new[] { instance });
+                if (!result.Equals(value))
                     throw new ImplicitConversionOperatorException(type, typeof(TResult));
-                }
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
-                throw new ImplicitConversionOperatorException(type, typeof(TResult), 
+                throw new ImplicitConversionOperatorException(type, typeof(TResult),
                     $"The implicit conversion operator to type '{typeof(TResult).Name}' of type '{type.Name}' threw an exception.", exception);
             }
         }

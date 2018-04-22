@@ -52,7 +52,7 @@ namespace RoadRegistry.Model
         public void CompareToReturnsExpectedResult(Int64 left, Int64 right, Int32 expected)
         {
             var sut = new RoadNodeId(left);
-            
+
             var result = sut.CompareTo(new RoadNodeId(right));
 
             Assert.Equal(expected, result);

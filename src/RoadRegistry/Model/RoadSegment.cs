@@ -1,17 +1,17 @@
-﻿namespace RoadRegistry.Model
+namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
-    
+
     public class RoadSegment
     {
         public RoadSegmentId Id { get; }
         public RoadNodeId Start { get; }
         public RoadNodeId End { get; }
 
-        public IEnumerable<RoadNodeId> Nodes 
+        public IEnumerable<RoadNodeId> Nodes
         {
-            get 
+            get
             {
                 yield return Start;
                 yield return End;
@@ -20,10 +20,8 @@
 
         public RoadSegment(RoadSegmentId id, RoadNodeId start, RoadNodeId end)
         {
-            if(start == end)
-            {
+            if (start == end)
                 throw new ArgumentException("The start and end can not be the same road node.", nameof(start));
-            }
 
             Id = id;
             Start = start;
@@ -32,11 +30,11 @@
 
         public IEnumerable<RoadNodeId> SelectCounterNode(RoadNodeId id)
         {
-            if(Start == id)
+            if (Start == id)
             {
                 yield return End;
             }
-            else if(End == id)
+            else if (End == id)
             {
                 yield return Start;
             }

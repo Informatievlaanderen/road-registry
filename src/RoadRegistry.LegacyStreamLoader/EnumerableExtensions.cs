@@ -7,26 +7,28 @@ namespace RoadRegistry.LegacyStreamLoader
     {
         public static IEnumerable<T[]> Batch<T>(this IEnumerable<T> enumerable, int size)
         {
-            if(size < 1) 
+            if (size < 1)
                 throw new ArgumentOutOfRangeException(nameof(size), size, "The batch size needs to be greater than or equal to 1.");
 
-            using(var enumerator = enumerable.GetEnumerator())
+            using (var enumerator = enumerable.GetEnumerator())
             {
                 var moved = enumerator.MoveNext();
-                while(moved)
+
+                while (moved)
                 {
                     var batch = new T[size];
                     var index = 0;
-                    while(moved && index < size)
+
+                    while (moved && index < size)
                     {
                         batch[index] = enumerator.Current;
                         index++;
                         moved = enumerator.MoveNext();
                     }
-                    if(index < size)
-                    {
+
+                    if (index < size)
                         Array.Resize(ref batch, index);
-                    }
+
                     yield return batch;
                 }
             }

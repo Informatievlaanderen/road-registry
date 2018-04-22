@@ -20,7 +20,7 @@ let testWithXunit path =
             | None -> p.ToolPath
             | Some sdkPath -> sdkPath
           WorkingDir = path })
-    "xunit -configuration Release -xml TestResults.xml"
+    "xunit -configuration Release -xml test-results/TestResults.xml"
 
 let testWithDotNet path =
   DotNetCli.Test

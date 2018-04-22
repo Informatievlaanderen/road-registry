@@ -10,7 +10,7 @@ namespace RoadRegistry.LegacyStreamLoader
     using Aiv.Vbr.Generators.Guid;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
-    using RoadRegistry.Events;
+    using Events;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
 
@@ -29,10 +29,13 @@ namespace RoadRegistry.LegacyStreamLoader
 
             var root = configurationBuilder.Build();
 
-            var connectionStringBuilder = new SqlConnectionStringBuilder(root.GetConnectionString("StreamStore"));
-            //Attempt to reconnect every 30 seconds, for an hour - could be set in the connection string as well.
-            connectionStringBuilder.ConnectRetryCount = 120;
-            connectionStringBuilder.ConnectRetryInterval = 30;
+            // Attempt to reconnect every 30 seconds, for an hour - could be set in the connection string as well.
+            var connectionStringBuilder =
+                new SqlConnectionStringBuilder(root.GetConnectionString("StreamStore"))
+                {
+                    ConnectRetryCount = 120,
+                    ConnectRetryInterval = 30
+                };
 
             var fileSettings = new JsonSerializerSettings()
             {
@@ -42,13 +45,11 @@ namespace RoadRegistry.LegacyStreamLoader
                 DateParseHandling = DateParseHandling.DateTime,
                 DefaultValueHandling = DefaultValueHandling.Ignore
             };
-            var eventSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-            var typeMapping = new EventMapping(
-                EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly)
-            );
 
-            using(var streamStore = new MsSqlStreamStore(
-                new MsSqlStreamStoreSettings(connectionStringBuilder.ConnectionString)))
+            var eventSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+            var typeMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+
+            using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(connectionStringBuilder.ConnectionString)))
             {
                 await streamStore.CreateSchema();
 
@@ -60,10 +61,12 @@ namespace RoadRegistry.LegacyStreamLoader
                 var expectedVersion = ExpectedVersion.NoStream;
                 var watch = Stopwatch.StartNew();
                 var index = 0;
-                foreach(var batch in reader.Read(legacyStreamFile).Batch(1000))
+
+                foreach (var batch in reader.Read(legacyStreamFile).Batch(1000))
                 {
                     Console.Write("Expected version is {0}.", expectedVersion);
                     Console.Write(" ");
+
                     watch.Restart();
                     var appendResult = await streamStore.AppendToStream(
                         new StreamId("roadnetwork"),
@@ -79,6 +82,7 @@ namespace RoadRegistry.LegacyStreamLoader
                         ))
                     );
                     Console.WriteLine("Append took {0}ms", watch.ElapsedMilliseconds);
+
                     expectedVersion = appendResult.CurrentVersion;
                 }
             }

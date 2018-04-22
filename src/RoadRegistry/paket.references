@@ -1,9 +1,11 @@
+Autofac
 Newtonsoft.Json
 SqlStreamStore.MsSql
 
 Aiv.Vbr.AggregateSource
 Aiv.Vbr.AggregateSource.ExplicitRouting
 Aiv.Vbr.CommandHandling
+Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac
 Aiv.Vbr.EventHandling
 Aiv.Vbr.Generators.Guid.Deterministic
 Aiv.Vbr.Utilities.HexByteConvertor

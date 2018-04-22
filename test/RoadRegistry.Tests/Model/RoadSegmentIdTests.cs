@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Model
+namespace RoadRegistry.Model
 {
     using System;
     using AutoFixture;
@@ -52,7 +52,7 @@
         public void CompareToReturnsExpectedResult(Int64 left, Int64 right, Int32 expected)
         {
             var sut = new RoadSegmentId(left);
-            
+
             var result = sut.CompareTo(new RoadSegmentId(right));
 
             Assert.Equal(expected, result);

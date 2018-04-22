@@ -5,12 +5,9 @@ namespace RoadRegistry.Api.Oslo.Infrastructure
     using System.Net;
     using System.Security.Cryptography.X509Certificates;
     using Aiv.Vbr.AspNetCore.Mvc.Formatters.Json;
-    using Aiv.Vbr.Configuration.Database;
     using Destructurama;
-    using RoadRegistry.Infrastructure;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc.Formatters;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
     using Serilog;
@@ -75,23 +72,6 @@ namespace RoadRegistry.Api.Oslo.Infrastructure
                         .AddJsonFile($"appsettings.{Environment.MachineName}.json", optional: true, reloadOnChange: true)
                         .AddEnvironmentVariables()
                         .AddCommandLine(args);
-
-                    var sqlConfiguration =
-                        config
-                            .Build()
-                            .GetSection(ConfigurationDatabaseConfiguration.Section)
-                            .Get<ConfigurationDatabaseConfiguration>();
-
-                    config
-                        .AddEntityFramework(
-                            x => x.UseSqlServer(
-                                sqlConfiguration.ConnectionString,
-                                sqlServerOptions =>
-                                {
-                                    sqlServerOptions.EnableRetryOnFailure();
-                                    sqlServerOptions.MigrationsHistoryTable(ConfigurationMigrationsTableInfo.DefaultMigrationsTableName, Schema.Default);
-                                }),
-                            new ConfigurationTableInfo(Schema.Default));
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {

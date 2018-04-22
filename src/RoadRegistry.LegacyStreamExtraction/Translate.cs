@@ -6,40 +6,43 @@ namespace RoadRegistry.LegacyImporter
     internal static class Translate
     {
         private static readonly RoadNodeType[] RoadNodeTypeIndex =
-            new RoadNodeType[] 
-            { 
-                RoadNodeType.RealNode, 
-                RoadNodeType.FakeNode, 
-                RoadNodeType.EndNode, 
-                RoadNodeType.MiniRoundabout, 
-                RoadNodeType.TurnLoopNode 
+            {
+                RoadNodeType.RealNode,
+                RoadNodeType.FakeNode,
+                RoadNodeType.EndNode,
+                RoadNodeType.MiniRoundabout,
+                RoadNodeType.TurnLoopNode
             };
+
         public static RoadNodeType ToRoadNodeType(int code)
         {
             var index = code - 1;
             if (index < 0 || index >= RoadNodeTypeIndex.Length)
                 throw new InvalidOperationException($"Road node type {code} can not be translated.");
+
             return RoadNodeTypeIndex[index];
         }
 
         private static readonly RoadSegmentGeometryDrawMethod[] RoadSegmentGeometryDrawMethodIndex =
-            new RoadSegmentGeometryDrawMethod[] 
             {
                 RoadSegmentGeometryDrawMethod.Outlined,
                 RoadSegmentGeometryDrawMethod.Measured,
                 RoadSegmentGeometryDrawMethod.Measured_according_to_GRB_specifications
             };
+
         public static RoadSegmentGeometryDrawMethod ToRoadSegmentGeometryDrawMethod(int code)
         {
             var index = code - 1;
             if (index < 0 || index >= RoadSegmentGeometryDrawMethodIndex.Length)
                 throw new InvalidOperationException($"Road node method {code} can not be translated.");
+
             return RoadSegmentGeometryDrawMethodIndex[index];
         }
 
         public static RoadSegmentMorphology ToRoadSegmentMorphology(int code)
         {
             var result = RoadSegmentMorphology.Unknown;
+
             switch (code)
             {
                 //case -8: result = RoadSegmentMorphology.Unknown; break;
@@ -47,7 +50,7 @@ namespace RoadRegistry.LegacyImporter
                 case 101: result = RoadSegmentMorphology.Motorway; break;
                 case 102: result = RoadSegmentMorphology.Road_with_separate_lanes_that_is_not_a_motorway; break;
                 case 103: result = RoadSegmentMorphology.Road_consisting_of_one_roadway; break;
-                
+
                 case 104: result = RoadSegmentMorphology.Traffic_circle; break;
                 case 105: result = RoadSegmentMorphology.Special_traffic_situation; break;
                 case 106: result = RoadSegmentMorphology.Traffic_square; break;
@@ -69,12 +72,14 @@ namespace RoadRegistry.LegacyImporter
                 case 125: result = RoadSegmentMorphology.Primitive_road; break;
                 case 130: result = RoadSegmentMorphology.Ferry; break;
             }
+
             return result;
         }
 
         public static RoadSegmentStatus ToRoadSegmentStatus(int code)
         {
             var result = RoadSegmentStatus.Unknown;
+
             switch (code)
             {
                 //case -8: result = RoadSegmentStatus.Unknown; break;
@@ -84,12 +89,14 @@ namespace RoadRegistry.LegacyImporter
                 case 4: result = RoadSegmentStatus.InUse; break;
                 case 5: result = RoadSegmentStatus.OutOfUse; break;
             }
+
             return result;
         }
 
         public static RoadSegmentCategory ToRoadSegmentCategory(string code)
         {
             var result = RoadSegmentCategory.Unknown;
+
             switch (code.ToUpperInvariant())
             {
                 //case "-8": result = RoadSegmentCategory.Unknown; break;
@@ -111,11 +118,11 @@ namespace RoadRegistry.LegacyImporter
                 case "S3": result = RoadSegmentCategory.SecondaryRoadType3; break;
                 case "S4": result = RoadSegmentCategory.SecondaryRoadType4; break;
             }
+
             return result;
         }
 
         private static readonly RoadSegmentAccessRestriction[] RoadSegmentAccessRestrictionIndex =
-            new RoadSegmentAccessRestriction[] 
             {
                 RoadSegmentAccessRestriction.PublicRoad,
                 RoadSegmentAccessRestriction.PhysicallyImpossible,
@@ -130,68 +137,79 @@ namespace RoadRegistry.LegacyImporter
             var index = code - 1;
             if (index < 0 || index >= RoadSegmentAccessRestrictionIndex.Length)
                 throw new InvalidOperationException($"Road link access restriction {code} can not be translated.");
+
             return RoadSegmentAccessRestrictionIndex[index];
         }
 
         public static GradeSeparatedJunctionType ToGradeSeparatedJunctionType(int code)
         {
             var result = GradeSeparatedJunctionType.Unknown;
-            switch(code)
+
+            switch (code)
             {
                 //case -8: result = GradeSeparatedJunctionType.Unknown; break;
                 case 1: result = GradeSeparatedJunctionType.Tunnel; break;
                 case 2: result = GradeSeparatedJunctionType.Bridge; break;
             }
+
             return result;
         }
 
         public static LaneDirection ToLaneDirection(int code)
         {
             var result = LaneDirection.Unknown;
-            switch(code)
+
+            switch (code)
             {
                 //case -8: result = LaneDirection.Unknown; break;
                 case 1: result = LaneDirection.Forward; break;
                 case 2: result = LaneDirection.Backward; break;
                 case 3: result = LaneDirection.Independent; break;
             }
+
             return result;
         }
 
         public static NumberedRoadSegmentDirection ToNumberedRoadSegmentDirection(int code)
         {
             var result = NumberedRoadSegmentDirection.Unknown;
-            switch(code)
+
+            switch (code)
             {
                 //case -8: result = NumberedRoadSegmentDirection.Unknown; break;
                 case 1: result = NumberedRoadSegmentDirection.Forward; break;
                 case 2: result = NumberedRoadSegmentDirection.Backward; break;
             }
+
             return result;
         }
 
         public static HardeningType ToHardeningType(int code)
         {
             var result = HardeningType.Unknown;
-            switch(code)
+
+            switch (code)
             {
                 case -9: result = HardeningType.NotApplicable; break;
                 //case -8: result = HardeningType.Unknown; break;
                 case 1: result = HardeningType.SolidHardening; break;
                 case 2: result = HardeningType.LooseHardening; break;
             }
+
             return result;
         }
 
         public static ReferencePointType ToReferencePointType(int code)
         {
             var result = ReferencePointType.Unknown;
-            switch(code)
+
+            switch (code)
             {
                 //case -8: result = ReferencePointType.Unknown; break;
                 case 1: result = ReferencePointType.KilometerMarker; break;
                 case 2: result = ReferencePointType.HectometerMarker; break;
             }
+
             return result;
         }
     }

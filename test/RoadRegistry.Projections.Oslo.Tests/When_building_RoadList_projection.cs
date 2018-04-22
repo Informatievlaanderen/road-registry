@@ -79,9 +79,7 @@ namespace RoadRegistry.Projections.Oslo.Tests
 
                 var result = await specification.Verification(context, CancellationToken.None);
                 if (result.Failed)
-                {
                     throw new AssertionFailedException(result.Message);
-                }
             }
         }
     }

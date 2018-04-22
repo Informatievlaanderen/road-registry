@@ -7,7 +7,6 @@ namespace RoadRegistry
     /// Represents an error about an ill-behaved IEquatable.Equals method.
     /// </summary>
     [Serializable]
-
     public class EquatableEqualsException : Exception
     {
         public Type Type { get; }
@@ -18,24 +17,26 @@ namespace RoadRegistry
         public EquatableEqualsException(Type type)
             : base($"The IEquatable<{type?.Name}>.Equals conversion method on {type?.Name} is ill-behaved.")
         {
-            Type = type ?? throw new ArgumentNullException(nameof(type));;
+            Type = type ?? throw new ArgumentNullException(nameof(type));
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EquatableEqualsException"/> class.
         /// </summary>
+        /// <param name="type"></param>
         /// <param name="message">
         /// The error message that explains the reason for the exception.
         /// </param>
         public EquatableEqualsException(Type type, string message)
             : base(message)
         {
-            Type = type ?? throw new ArgumentNullException(nameof(type));;
+            Type = type ?? throw new ArgumentNullException(nameof(type));
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EquatableEqualsException"/> class.
         /// </summary>
+        /// <param name="type"></param>
         /// <param name="message">
         /// The error message that explains the reason for the exception.
         /// </param>
@@ -45,7 +46,7 @@ namespace RoadRegistry
         public EquatableEqualsException(Type type, string message, Exception innerException)
             : base(message, innerException)
         {
-            Type = type ?? throw new ArgumentNullException(nameof(type));;
+            Type = type ?? throw new ArgumentNullException(nameof(type));
         }
 
         /// <summary>
@@ -68,9 +69,8 @@ namespace RoadRegistry
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             if (info == null)
-            {
                 throw new ArgumentNullException(nameof(info));
-            }
+
             base.GetObjectData(info, context);
             info.AddValue("Type", Type);
         }

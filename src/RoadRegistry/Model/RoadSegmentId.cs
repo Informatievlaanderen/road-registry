@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Model
+namespace RoadRegistry.Model
 {
     using System;
 
@@ -9,9 +9,8 @@
         public RoadSegmentId(long value)
         {
             if (value < 0)
-            {
                 throw new ArgumentOutOfRangeException(nameof(value), value, "The road link identifier must be greater than or equal to zero.");
-            }
+
             _value = value;
         }
 

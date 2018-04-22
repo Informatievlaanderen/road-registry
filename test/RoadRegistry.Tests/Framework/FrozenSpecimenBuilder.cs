@@ -14,9 +14,7 @@ namespace RoadRegistry
         public object Create(object request, ISpecimenContext context)
         {
             if (request != null && request.Equals(typeof(T)))
-            {
                 return Value;
-            }
 
             return new NoSpecimen();
         }

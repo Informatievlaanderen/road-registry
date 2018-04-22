@@ -51,8 +51,6 @@ Aiv.Vbr.CommandHandling
 Aiv.Vbr.CommandHandling.Idempotency
 Aiv.Vbr.CommandHandling.SqlStreamStore
 Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac
-Aiv.Vbr.Configuration.Api
-Aiv.Vbr.Configuration.Database
 Aiv.Vbr.EventHandling
 Aiv.Vbr.EventHandling.Autofac
 Aiv.Vbr.Generators.Guid.Deterministic

@@ -9,11 +9,11 @@ namespace RoadRegistry.Model
         public RoadNetworkRevision(long value)
         {
             if (value < 0)
-            {
                 throw new ArgumentOutOfRangeException(nameof(value), value, "The road revision must be greater than or equal to zero.");
-            }
+
             _value = value;
         }
+
         public long ToInt64() => _value;
         public bool Equals(RoadNetworkRevision other) => _value == other._value;
         public override bool Equals(object other) => other is RoadNetworkRevision && Equals((RoadNetworkRevision)other);

@@ -9,11 +9,11 @@ namespace RoadRegistry.Model
         public RoadNodeId(long value)
         {
             if (value < 0)
-            {
                 throw new ArgumentOutOfRangeException(nameof(value), value, "The road node identifier must be greater than or equal to zero.");
-            }
+
             _value = value;
         }
+
         public long ToInt64() => _value;
         public bool Equals(RoadNodeId other) => _value == other._value;
         public override bool Equals(object other) => other is RoadNodeId && Equals((RoadNodeId)other);
