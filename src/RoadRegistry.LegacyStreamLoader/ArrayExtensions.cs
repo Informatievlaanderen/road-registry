@@ -16,7 +16,7 @@ namespace RoadRegistry.LegacyStreamLoader
 
         public static TOutput[] ConvertAll<TInput, TOutput>(this TInput[] input, Func<TInput, TOutput> converter)
         {
-            return Array.ConvertAll<TInput, TOutput>(input, value => converter(value));
+            return Array.ConvertAll(input, value => converter(value));
         }
     }
 }

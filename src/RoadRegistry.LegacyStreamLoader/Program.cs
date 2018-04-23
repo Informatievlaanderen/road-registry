@@ -56,6 +56,7 @@
                 var legacySteamFile = new FileInfo(root[LEGACY_STREAM_FILE]);
                 var reader = new LegacyStreamFileReader(fileSettings);
                 var expectedVersion = ExpectedVersion.NoStream;
+                var outerWatch = Stopwatch.StartNew();
                 var watch = Stopwatch.StartNew();
                 var index = 0;
                 foreach(var batch in reader.Read(legacySteamFile).Batch(1000))
@@ -79,6 +80,7 @@
                     Console.WriteLine("Append took {0}ms", watch.ElapsedMilliseconds);
                     expectedVersion = appendResult.CurrentVersion;
                 }
+                Console.WriteLine("Total append took {0}ms", outerWatch.ElapsedMilliseconds);
             }
         }
     }
