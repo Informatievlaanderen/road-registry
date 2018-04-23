@@ -1,11 +1,10 @@
-﻿namespace RoadRegistry.Model
+namespace RoadRegistry.Model
 {
     using System;
     using System.Linq;
     using AutoFixture;
-    using AutoFixture.Idioms;
     using Xunit;
-    
+
     public class RoadSegmentTests
     {
         private readonly Fixture _fixture;
@@ -46,27 +45,27 @@
         {
             Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _source, _source));
         }
-        
+
         [Fact]
         public void NodesReturnsExpectedResult()
         {
-            Assert.Equal(new [] { _source, _target }, _sut.Nodes);
+            Assert.Equal(new[] { _source, _target }, _sut.Nodes);
         }
 
         [Theory]
-        [InlineData(1L, 2L, 1L, new [] { 2L })]
-        [InlineData(1L, 2L, 2L, new [] { 1L })]
+        [InlineData(1L, 2L, 1L, new[] { 2L })]
+        [InlineData(1L, 2L, 2L, new[] { 1L })]
         [InlineData(1L, 2L, 3L, new long[0])]
         public void SelectCounterNodeReturnsExpectedResult(
             long source,
             long target,
-            long to_counter,
+            long toCounter,
             long[] expected
         )
         {
             var sut = new RoadSegment(_fixture.Create<RoadSegmentId>(), new RoadNodeId(source), new RoadNodeId(target));
 
-            var result = sut.SelectCounterNode(new RoadNodeId(to_counter)).ToArray();
+            var result = sut.SelectCounterNode(new RoadNodeId(toCounter)).ToArray();
 
             Assert.Equal(Array.ConvertAll(expected, value => new RoadNodeId(value)), result);
         }

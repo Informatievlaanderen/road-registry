@@ -4,7 +4,6 @@ namespace RoadRegistry.Events
 
     [EventName("ImportedRoadNode")]
     [EventDescription("Indicates a road network node was imported.")]
-
     public class ImportedRoadNode
     {
         public int Id { get; set; }

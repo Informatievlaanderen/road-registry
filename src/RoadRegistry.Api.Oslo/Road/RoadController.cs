@@ -19,7 +19,6 @@ namespace RoadRegistry.Api.Oslo.Road
     using Projections.Oslo;
     using Responses;
     using Swashbuckle.AspNetCore.Examples;
-    using ValueObjects;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]

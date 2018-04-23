@@ -16,26 +16,25 @@ namespace RoadRegistry
 
         public override void Verify(Type type)
         {
-            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
 
             var equatableType = typeof(IComparable<>).MakeGenericType(type);
-            if(!equatableType.IsAssignableFrom(type))
+            if (!equatableType.IsAssignableFrom(type))
             {
                 throw new ComparableCompareToException(type, $"The type {type.Name} does not implement IComparable<{type.Name}>.");
             }
 
             var method = equatableType.GetMethods().Single();
-            var self = this.Builder.CreateAnonymous(type);
+            var self = Builder.CreateAnonymous(type);
 
             try
             {
-                var result = (Int32)method.Invoke(self, new object[] { self });
-                if(result != 0)
-                {
+                var result = (int)method.Invoke(self, new[] { self });
+                if (result != 0)
                     throw new ComparableCompareToException(type);
-                }
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 throw new ComparableCompareToException(type, $"The IComparable<{type.Name}>.Compare method of type {type.Name} threw an exception.", exception);
             }

@@ -3,7 +3,6 @@ namespace RoadRegistry.Projections.Oslo
     using System;
     using System.IO;
     using System.Threading;
-    using Aiv.Vbr.Configuration.Database;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using Autofac.Features.OwnedInstances;
@@ -28,32 +27,14 @@ namespace RoadRegistry.Projections.Oslo
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
                 Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
 
-            var configurationBuilder = new ConfigurationBuilder()
+            var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
                 //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{Environment.MachineName}.json", true, true)
                 .AddEnvironmentVariables()
-                .AddCommandLine(args);
-
-            var sqlConfiguration =
-                configurationBuilder
-                    .Build()
-                    .GetSection(ConfigurationDatabaseConfiguration.Section)
-                    .Get<ConfigurationDatabaseConfiguration>();
-
-            configurationBuilder
-                .AddEntityFramework(
-                    x => x.UseSqlServer(
-                        sqlConfiguration.ConnectionString,
-                        sqlServerOptions =>
-                        {
-                            sqlServerOptions.EnableRetryOnFailure();
-                            sqlServerOptions.MigrationsHistoryTable(ConfigurationMigrationsTableInfo.DefaultMigrationsTableName, Schema.Default);
-                        }),
-                    new ConfigurationTableInfo(Schema.Default));
-
-            var configuration = configurationBuilder.Build();
+                .AddCommandLine(args)
+                .Build();
 
             var services = new ServiceCollection();
             var app = ConfigureServices(services, configuration);

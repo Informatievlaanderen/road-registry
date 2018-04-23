@@ -3,7 +3,7 @@ namespace RoadRegistry.Model
     using System.Linq;
     using AutoFixture;
     using Xunit;
-    
+
     public class FullyDisconnectedRoadNodeTests
     {
         private readonly Fixture _fixture;
@@ -76,7 +76,7 @@ namespace RoadRegistry.Model
         [Fact]
         public void SegmentsReturnsExpectedResult()
         {
-            Assert.Equal(new [] { _link1, _link2 }.OrderBy(_ => _), _sut.Segments.OrderBy(_ => _));
+            Assert.Equal(new[] { _link1, _link2 }.OrderBy(_ => _), _sut.Segments.OrderBy(_ => _));
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace RoadRegistry.Model
             var result = _sut.ConnectWith(link);
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new RoadSegmentId[] { _link1, _link2, link }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
+            Assert.Equal(new[] { _link1, _link2, link }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace RoadRegistry.Model
             var result = _sut.DisconnectFrom(_fixture.Create<RoadSegmentId>());
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new [] { _link1, _link2 }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
+            Assert.Equal(new[] { _link1, _link2 }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
         }
 
         [Fact]
@@ -105,7 +105,7 @@ namespace RoadRegistry.Model
             var result = _sut.DisconnectFrom(_link1);
 
             Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new [] { _link2 }, result.Segments);
+            Assert.Equal(new[] { _link2 }, result.Segments);
         }
     }
 }

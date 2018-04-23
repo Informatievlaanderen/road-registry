@@ -20,7 +20,7 @@ nuget Microsoft.AspNetCore.Mvc.Core 2.0.3
 nuget Microsoft.AspNetCore.Mvc.Cors 2.0.3
 nuget Microsoft.AspNetCore.Mvc.Formatters.Json 2.0.3
 nuget Microsoft.AspNetCore.Mvc.Formatters.Xml 2.0.3
-nuget Microsoft.AspNetCore.Mvc.Versioning 2.1.0
+nuget Microsoft.AspNetCore.Mvc.Versioning 2.2.0
 nuget Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer 2.2.0
 nuget Microsoft.AspNetCore.ResponseCompression 2.0.2
 nuget Microsoft.AspNetCore.StaticFiles 2.0.2
@@ -39,20 +39,20 @@ nuget Microsoft.VisualStudio.Web.BrowserLink 2.0.2
 nuget SqlStreamStore 1.1.1
 nuget SqlStreamStore.MsSql 1.1.1
 
-nuget Autofac.Extensions.DependencyInjection 4.2.1
+nuget Autofac.Extensions.DependencyInjection 4.2.2
 
-nuget Newtonsoft.Json 11.0.1
+nuget Newtonsoft.Json 11.0.2
 nuget Destructurama.JsonNet 1.2.1
 
 nuget Serilog 2.6.0
-nuget Serilog.Settings.Configuration 2.5.0
+nuget Serilog.Settings.Configuration 2.6.1
 nuget Serilog.Extensions.Logging 2.0.2
 nuget Serilog.Sinks.Console 3.1.1
 nuget Serilog.Enrichers.Thread 3.0.0
 nuget Serilog.Enrichers.Environment 2.1.2
 
 nuget Swashbuckle.AspNetCore 1.2.0
-nuget Swashbuckle.AspNetCore.Examples 2.8.0
+nuget Swashbuckle.AspNetCore.Examples 2.9.0
 
 nuget Microsoft.EntityFrameworkCore.Design 2.0.2
 clitool Microsoft.EntityFrameworkCore.Tools.DotNet 2.0.2
@@ -62,58 +62,60 @@ nuget System.Collections.Immutable 1.4.0
 nuget System.Data.SqlClient
 
 // VBR STUFF
-nuget Aiv.Vbr.AggregateSource
-nuget Aiv.Vbr.AggregateSource.ExplicitRouting
-nuget Aiv.Vbr.AggregateSource.SqlStreamStore
-nuget Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac
-nuget Aiv.Vbr.Api
-nuget Aiv.Vbr.AspNetCore.Mvc.Formatters.Csv
-nuget Aiv.Vbr.AspNetCore.Mvc.Formatters.Json
-nuget Aiv.Vbr.AspNetCore.Mvc.Logging
-nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddCorrelationId
-nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddCorrelationIdToLogContext
-nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddCorrelationIdToResponse
-nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddHttpSecurityHeaders
-nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddRemoteIpAddress
-nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddVersionHeader
-nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.DefaultResponseCompressionQuality
-nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.EnableRequestRewind
-nuget Aiv.Vbr.AspNetCore.Mvc.ModelBinding.GuidHeader
-nuget Aiv.Vbr.AspNetCore.Swagger
-nuget Aiv.Vbr.CommandHandling
-nuget Aiv.Vbr.CommandHandling.Idempotency
-nuget Aiv.Vbr.CommandHandling.SqlStreamStore
-nuget Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac
-nuget Aiv.Vbr.Configuration.Api copy_content_to_output_dir: always
-nuget Aiv.Vbr.Configuration.Database
-nuget Aiv.Vbr.EntityFrameworkCore.EntityTypeConfiguration
-nuget Aiv.Vbr.EventHandling
-nuget Aiv.Vbr.EventHandling.Autofac
-nuget Aiv.Vbr.Generators.Guid.Deterministic
-nuget Aiv.Vbr.ProjectionHandling.Connector
-nuget Aiv.Vbr.ProjectionHandling.Connector.Testing
-nuget Aiv.Vbr.ProjectionHandling.Runner
-nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore
-nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac
-nuget Aiv.Vbr.Utilities.HashCodeCalculator
-nuget Aiv.Vbr.Utilities.HexByteConvertor
+nuget Aiv.Vbr.AggregateSource ~> 2.0
+nuget Aiv.Vbr.AggregateSource.ExplicitRouting ~> 2.0
+nuget Aiv.Vbr.AggregateSource.SqlStreamStore ~> 2.0
+nuget Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac ~> 2.0
+nuget Aiv.Vbr.Api ~> 2.0 copy_content_to_output_dir: never
+nuget Aiv.Vbr.AspNetCore.Mvc.Formatters.Csv ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Mvc.Formatters.Json ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Mvc.Logging ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddCorrelationId ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddCorrelationIdToLogContext ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddCorrelationIdToResponse ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddHttpSecurityHeaders ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddRemoteIpAddress ~> 3.0
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddVersionHeader ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.DefaultResponseCompressionQuality ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.EnableRequestRewind ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Mvc.ModelBinding.GuidHeader ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Swagger ~> 2.0
+nuget Aiv.Vbr.CommandHandling ~> 2.0
+nuget Aiv.Vbr.CommandHandling.Idempotency ~> 2.0
+nuget Aiv.Vbr.CommandHandling.SqlStreamStore ~> 2.0
+nuget Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac ~> 2.0
+nuget Aiv.Vbr.EntityFrameworkCore.EntityTypeConfiguration ~> 2.0
+nuget Aiv.Vbr.EventHandling ~> 2.0
+nuget Aiv.Vbr.EventHandling.Autofac ~> 2.0
+nuget Aiv.Vbr.Generators.Guid.Deterministic ~> 2.0
+nuget Aiv.Vbr.ProjectionHandling.Connector ~> 2.0
+nuget Aiv.Vbr.ProjectionHandling.Connector.Testing ~> 2.0
+nuget Aiv.Vbr.ProjectionHandling.Runner ~> 2.0
+nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore ~> 2.0
+nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac ~> 2.0
+nuget Aiv.Vbr.Utilities.HashCodeCalculator ~> 2.0
+nuget Aiv.Vbr.Utilities.HexByteConvertor ~> 2.0
 
 // DOCS STUFF
-nuget Structurizr.Core 0.6.0
+nuget Structurizr.Core 0.7.1
 
 // TEST STUFF
-nuget Microsoft.NET.Test.Sdk 15.6.1
+nuget Microsoft.NET.Test.Sdk 15.7.0
 nuget xunit 2.3.1
 nuget xunit.runner.visualstudio 2.3.1
+nuget xunit.categories 2.0.3
 nuget Microsoft.AspNetCore.TestHost 2.0.2
-nuget FluentAssertions 5.1.2
+nuget FluentAssertions 5.3.0
 nuget Microsoft.EntityFrameworkCore.InMemory 2.0.2
 nuget Moq 4.8.2
 nuget Shouldly 3.0.0
-nuget AutoFixture 4.1.0
-nuget AutoFixture.Idioms 4.1.0
+nuget AutoFixture 4.2.1
+nuget AutoFixture.Idioms 4.2.1
 
 clitool dotnet-xunit 2.3.1
 
 // BUILD STUFF
-nuget FAKE 4.64.11
+nuget FAKE 4.64.12
+nuget SourceLink.Embed.AllSourceFiles 2.8.1 copy_local: true
+nuget SourceLink.Copy.PdbFiles 2.8.1 copy_local: true
+clitool dotnet-sourcelink 2.8.1

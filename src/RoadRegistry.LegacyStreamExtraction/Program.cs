@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Data.SqlClient;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using RoadRegistry.Events;
-
 namespace RoadRegistry.LegacyImporter
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data.SqlClient;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Threading.Tasks;
+    using Events;
+    using Microsoft.Extensions.Configuration;
+    using Newtonsoft.Json;
+
     public class Program
     {
         private static async Task Main(string[] args)
@@ -19,7 +17,6 @@ namespace RoadRegistry.LegacyImporter
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
-                //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{Environment.MachineName}.json", true, true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args);
@@ -29,9 +26,11 @@ namespace RoadRegistry.LegacyImporter
             var points = new List<ImportedReferencePoint>();
             var segments = new Dictionary<int, ImportedRoadSegment>();
             var junctions = new List<ImportedGradeSeparatedJunction>();
+
             using (var connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
+
                 Console.WriteLine("Reading nodes started ...");
                 var watch = Stopwatch.StartNew();
                 await
@@ -45,8 +44,7 @@ namespace RoadRegistry.LegacyImporter
                             wk.[begintijd]
                         FROM [wegknoop] wk
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wk.[beginorganisatie] = lo.[code]", connection
-                    )
-                    .ForEachDataRecord(reader =>
+                    ).ForEachDataRecord(reader =>
                     {
                         var node = new ImportedRoadNode
                         {
@@ -60,11 +58,13 @@ namespace RoadRegistry.LegacyImporter
                                 Since = reader.GetDateTime(5)
                             }
                         };
+
                         nodes.Add(node);
                     });
                 Console.WriteLine("Reading nodes took {0}ms", watch.ElapsedMilliseconds);
-                watch.Restart();
+
                 Console.WriteLine("Reading segments started ...");
+                watch.Restart();
                 await
                     new SqlCommand(
                         @"SELECT 
@@ -129,11 +129,13 @@ namespace RoadRegistry.LegacyImporter
                             Widths = Array.Empty<RoadSegmentWidthProperties>(),
                             Hardenings = Array.Empty<RoadSegmentHardeningProperties>(),
                         };
+
                         segments.Add(segment.Id, segment);
                     });
                 Console.WriteLine("Reading segments took {0}ms", watch.ElapsedMilliseconds);
-                watch.Restart();
+
                 Console.WriteLine("Enriching segments with european road information ...");
+                watch.Restart();
                 await
                     new SqlCommand(
                         @"SELECT ew.[wegsegmentID]
@@ -147,25 +149,27 @@ namespace RoadRegistry.LegacyImporter
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (segments.TryGetValue(segmentId, out ImportedRoadSegment segment))
+                        if (!segments.TryGetValue(segmentId, out var segment))
+                            return;
+
+                        var props = new RoadSegmentEuropeanRoadProperties
                         {
-                            var props = new RoadSegmentEuropeanRoadProperties
+                            AttributeId = reader.GetInt32(1),
+                            RoadNumber = reader.GetString(2),
+                            Origin = new OriginProperties
                             {
-                                AttributeId = reader.GetInt32(1),
-                                RoadNumber = reader.GetString(2),
-                                Origin = new OriginProperties
-                                {
-                                    OrganizationId = reader.GetNullableString(3),
-                                    Organization = reader.GetNullableString(4),
-                                    Since = reader.GetDateTime(5)
-                                }
-                            };
-                            var copy = new RoadSegmentEuropeanRoadProperties[segment.PartOfEuropeanRoads.Length + 1];
-                            segment.PartOfEuropeanRoads.CopyTo(copy, 0);
-                            copy[segment.PartOfEuropeanRoads.Length] = props;
-                            segment.PartOfEuropeanRoads = copy;
-                        }
+                                OrganizationId = reader.GetNullableString(3),
+                                Organization = reader.GetNullableString(4),
+                                Since = reader.GetDateTime(5)
+                            }
+                        };
+
+                        var copy = new RoadSegmentEuropeanRoadProperties[segment.PartOfEuropeanRoads.Length + 1];
+                        segment.PartOfEuropeanRoads.CopyTo(copy, 0);
+                        copy[segment.PartOfEuropeanRoads.Length] = props;
+                        segment.PartOfEuropeanRoads = copy;
                     });
+
                 Console.WriteLine("Enriching segments with national road information ...");
                 await
                     new SqlCommand(
@@ -180,25 +184,27 @@ namespace RoadRegistry.LegacyImporter
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (segments.TryGetValue(segmentId, out ImportedRoadSegment segment))
+                        if (!segments.TryGetValue(segmentId, out var segment))
+                            return;
+
+                        var props = new RoadSegmentNationalRoadProperties
                         {
-                            var props = new RoadSegmentNationalRoadProperties
+                            AttributeId = reader.GetInt32(1),
+                            Ident2 = reader.GetString(2),
+                            Origin = new OriginProperties
                             {
-                                AttributeId = reader.GetInt32(1),
-                                Ident2 = reader.GetString(2),
-                                Origin = new OriginProperties
-                                {
-                                    OrganizationId = reader.GetNullableString(3),
-                                    Organization = reader.GetNullableString(4),
-                                    Since = reader.GetDateTime(5)
-                                }
-                            };
-                            var copy = new RoadSegmentNationalRoadProperties[segment.PartOfNationalRoads.Length + 1];
-                            segment.PartOfNationalRoads.CopyTo(copy, 0);
-                            copy[segment.PartOfNationalRoads.Length] = props;
-                            segment.PartOfNationalRoads = copy;
-                        }
+                                OrganizationId = reader.GetNullableString(3),
+                                Organization = reader.GetNullableString(4),
+                                Since = reader.GetDateTime(5)
+                            }
+                        };
+
+                        var copy = new RoadSegmentNationalRoadProperties[segment.PartOfNationalRoads.Length + 1];
+                        segment.PartOfNationalRoads.CopyTo(copy, 0);
+                        copy[segment.PartOfNationalRoads.Length] = props;
+                        segment.PartOfNationalRoads = copy;
                     });
+
                 Console.WriteLine("Enriching segments with numbered road information ...");
                 await
                     new SqlCommand(
@@ -216,27 +222,29 @@ namespace RoadRegistry.LegacyImporter
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (segments.TryGetValue(segmentId, out ImportedRoadSegment segment))
+                        if (!segments.TryGetValue(segmentId, out var segment))
+                            return;
+
+                        var props = new RoadSegmentNumberedRoadProperties
                         {
-                            var props = new RoadSegmentNumberedRoadProperties
+                            AttributeId = reader.GetInt32(1),
+                            Ident8 = reader.GetString(2),
+                            Direction = Translate.ToNumberedRoadSegmentDirection(reader.GetInt32(3)),
+                            Ordinal = reader.GetInt32(4),
+                            Origin = new OriginProperties
                             {
-                                AttributeId = reader.GetInt32(1),
-                                Ident8 = reader.GetString(2),
-                                Direction = Translate.ToNumberedRoadSegmentDirection(reader.GetInt32(3)),
-                                Ordinal = reader.GetInt32(4),
-                                Origin = new OriginProperties
-                                {
-                                    OrganizationId = reader.GetNullableString(5),
-                                    Organization = reader.GetNullableString(6),
-                                    Since = reader.GetDateTime(7)
-                                }
-                            };
-                            var copy = new RoadSegmentNumberedRoadProperties[segment.PartOfNumberedRoads.Length + 1];
-                            segment.PartOfNumberedRoads.CopyTo(copy, 0);
-                            copy[segment.PartOfNumberedRoads.Length] = props;
-                            segment.PartOfNumberedRoads = copy;
-                        }
+                                OrganizationId = reader.GetNullableString(5),
+                                Organization = reader.GetNullableString(6),
+                                Since = reader.GetDateTime(7)
+                            }
+                        };
+
+                        var copy = new RoadSegmentNumberedRoadProperties[segment.PartOfNumberedRoads.Length + 1];
+                        segment.PartOfNumberedRoads.CopyTo(copy, 0);
+                        copy[segment.PartOfNumberedRoads.Length] = props;
+                        segment.PartOfNumberedRoads = copy;
                     });
+
                 Console.WriteLine("Enriching segments with lane information ...");
                 await
                     new SqlCommand(
@@ -256,28 +264,30 @@ namespace RoadRegistry.LegacyImporter
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (segments.TryGetValue(segmentId, out ImportedRoadSegment segment))
+                        if (!segments.TryGetValue(segmentId, out var segment))
+                            return;
+
+                        var props = new RoadSegmentLaneProperties
                         {
-                            var props = new RoadSegmentLaneProperties
+                            AttributeId = reader.GetInt32(1),
+                            Count = reader.GetInt32(2),
+                            Direction = Translate.ToLaneDirection(reader.GetInt32(3)),
+                            FromPosition = reader.GetDecimal(4),
+                            ToPosition = reader.GetDecimal(5),
+                            Origin = new OriginProperties
                             {
-                                AttributeId = reader.GetInt32(1),
-                                Count = reader.GetInt32(2),
-                                Direction = Translate.ToLaneDirection(reader.GetInt32(3)),
-                                FromPosition = reader.GetDecimal(4),
-                                ToPosition = reader.GetDecimal(5),
-                                Origin = new OriginProperties
-                                {
-                                    OrganizationId = reader.GetNullableString(6),
-                                    Organization = reader.GetNullableString(7),
-                                    Since = reader.GetDateTime(8)
-                                }
-                            };
-                            var copy = new RoadSegmentLaneProperties[segment.Lanes.Length + 1];
-                            segment.Lanes.CopyTo(copy, 0);
-                            copy[segment.Lanes.Length] = props;
-                            segment.Lanes = copy;
-                        }
+                                OrganizationId = reader.GetNullableString(6),
+                                Organization = reader.GetNullableString(7),
+                                Since = reader.GetDateTime(8)
+                            }
+                        };
+
+                        var copy = new RoadSegmentLaneProperties[segment.Lanes.Length + 1];
+                        segment.Lanes.CopyTo(copy, 0);
+                        copy[segment.Lanes.Length] = props;
+                        segment.Lanes = copy;
                     });
+
                 Console.WriteLine("Enriching segments with width information ...");
                 await
                     new SqlCommand(
@@ -295,27 +305,29 @@ namespace RoadRegistry.LegacyImporter
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (segments.TryGetValue(segmentId, out ImportedRoadSegment segment))
+                        if (!segments.TryGetValue(segmentId, out var segment))
+                            return;
+
+                        var props = new RoadSegmentWidthProperties
                         {
-                            var props = new RoadSegmentWidthProperties
+                            AttributeId = reader.GetInt32(1),
+                            Width = reader.GetInt32(2),
+                            FromPosition = reader.GetDecimal(3),
+                            ToPosition = reader.GetDecimal(4),
+                            Origin = new OriginProperties
                             {
-                                AttributeId = reader.GetInt32(1),
-                                Width = reader.GetInt32(2),
-                                FromPosition = reader.GetDecimal(3),
-                                ToPosition = reader.GetDecimal(4),
-                                Origin = new OriginProperties
-                                {
-                                    OrganizationId = reader.GetNullableString(5),
-                                    Organization = reader.GetNullableString(6),
-                                    Since = reader.GetDateTime(7)
-                                }
-                            };
-                            var copy = new RoadSegmentWidthProperties[segment.Widths.Length + 1];
-                            segment.Widths.CopyTo(copy, 0);
-                            copy[segment.Widths.Length] = props;
-                            segment.Widths = copy;
-                        }
+                                OrganizationId = reader.GetNullableString(5),
+                                Organization = reader.GetNullableString(6),
+                                Since = reader.GetDateTime(7)
+                            }
+                        };
+
+                        var copy = new RoadSegmentWidthProperties[segment.Widths.Length + 1];
+                        segment.Widths.CopyTo(copy, 0);
+                        copy[segment.Widths.Length] = props;
+                        segment.Widths = copy;
                     });
+
                 Console.WriteLine("Enriching segments with hardening information ...");
                 await
                     new SqlCommand(
@@ -333,30 +345,32 @@ namespace RoadRegistry.LegacyImporter
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (segments.TryGetValue(segmentId, out ImportedRoadSegment segment))
+                        if (!segments.TryGetValue(segmentId, out var segment))
+                            return;
+
+                        var props = new RoadSegmentHardeningProperties
                         {
-                            var props = new RoadSegmentHardeningProperties
+                            AttributeId = reader.GetInt32(1),
+                            Type = Translate.ToHardeningType(reader.GetInt32(2)),
+                            FromPosition = reader.GetDecimal(3),
+                            ToPosition = reader.GetDecimal(4),
+                            Origin = new OriginProperties
                             {
-                                AttributeId = reader.GetInt32(1),
-                                Type = Translate.ToHardeningType(reader.GetInt32(2)),
-                                FromPosition = reader.GetDecimal(3),
-                                ToPosition = reader.GetDecimal(4),
-                                Origin = new OriginProperties
-                                {
-                                    OrganizationId = reader.GetNullableString(5),
-                                    Organization = reader.GetNullableString(6),
-                                    Since = reader.GetDateTime(7)
-                                }
-                            };
-                            var copy = new RoadSegmentHardeningProperties[segment.Hardenings.Length + 1];
-                            segment.Hardenings.CopyTo(copy, 0);
-                            copy[segment.Hardenings.Length] = props;
-                            segment.Hardenings = copy;
-                        }
+                                OrganizationId = reader.GetNullableString(5),
+                                Organization = reader.GetNullableString(6),
+                                Since = reader.GetDateTime(7)
+                            }
+                        };
+
+                        var copy = new RoadSegmentHardeningProperties[segment.Hardenings.Length + 1];
+                        segment.Hardenings.CopyTo(copy, 0);
+                        copy[segment.Hardenings.Length] = props;
+                        segment.Hardenings = copy;
                     });
                 Console.WriteLine("Enriching segments took {0}ms", watch.ElapsedMilliseconds);
-                watch.Restart();
+
                 Console.WriteLine("Reading junctions started ...");
+                watch.Restart();
                 await
                     new SqlCommand(
                         @"SELECT ok.[ongelijkgrondseKruisingID]
@@ -383,11 +397,13 @@ namespace RoadRegistry.LegacyImporter
                                 Since = reader.GetDateTime(6)
                             }
                         };
+
                         junctions.Add(junction);
                     });
                 Console.WriteLine("Reading junctions took {0}ms", watch.ElapsedMilliseconds);
-                watch.Restart();
+
                 Console.WriteLine("Reading reference points started ...");
+                watch.Restart();
                 await
                     new SqlCommand(
                         @"SELECT rp.[referentiepuntID] --0
@@ -416,24 +432,26 @@ namespace RoadRegistry.LegacyImporter
                                 Since = reader.GetDateTime(7)
                             }
                         };
+
                         points.Add(point);
                     });
                 Console.WriteLine("Reading reference points took {0}ms", watch.ElapsedMilliseconds);
                 connection.Close();
-                watch.Restart();
+
                 Console.WriteLine("Writing stream to json started ...");
+                watch.Restart();
                 await WriteExtractedStreamToJsonFile(nodes, segments.Values, junctions, points);
                 Console.WriteLine("Writing stream to json took {0}ms", watch.ElapsedMilliseconds);
             }
         }
 
         private static async Task WriteExtractedStreamToJsonFile(
-            IEnumerable<ImportedRoadNode> nodes, 
+            IEnumerable<ImportedRoadNode> nodes,
             IEnumerable<ImportedRoadSegment> segments,
             IEnumerable<ImportedGradeSeparatedJunction> junctions,
             IEnumerable<ImportedReferencePoint> points)
         {
-            var serializer = JsonSerializer.Create(new JsonSerializerSettings()
+            var serializer = JsonSerializer.Create(new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
@@ -441,13 +459,17 @@ namespace RoadRegistry.LegacyImporter
                 DateParseHandling = DateParseHandling.DateTime,
                 DefaultValueHandling = DefaultValueHandling.Ignore
             });
+
             const string output = "roadnetworkstream.json"; // TODO: prefer injecting this as an output parameter
-            if (File.Exists(output)) { File.Delete(output); }
+            if (File.Exists(output))
+                File.Delete(output);
+
             using (var stream = File.OpenWrite(output))
             {
                 using (var writer = new JsonTextWriter(new StreamWriter(stream)))
                 {
                     await writer.WriteStartArrayAsync();
+
                     foreach (var node in nodes)
                     {
                         await writer.WriteStartObjectAsync();
@@ -455,6 +477,7 @@ namespace RoadRegistry.LegacyImporter
                         serializer.Serialize(writer, node);
                         await writer.WriteEndObjectAsync();
                     }
+
                     foreach (var segment in segments)
                     {
                         await writer.WriteStartObjectAsync();
@@ -462,6 +485,7 @@ namespace RoadRegistry.LegacyImporter
                         serializer.Serialize(writer, segment);
                         await writer.WriteEndObjectAsync();
                     }
+
                     foreach (var junction in junctions)
                     {
                         await writer.WriteStartObjectAsync();
@@ -469,6 +493,7 @@ namespace RoadRegistry.LegacyImporter
                         serializer.Serialize(writer, junction);
                         await writer.WriteEndObjectAsync();
                     }
+
                     foreach (var point in points)
                     {
                         await writer.WriteStartObjectAsync();
@@ -476,6 +501,7 @@ namespace RoadRegistry.LegacyImporter
                         serializer.Serialize(writer, point);
                         await writer.WriteEndObjectAsync();
                     }
+
                     await writer.WriteEndArrayAsync();
                     await writer.FlushAsync();
                 }

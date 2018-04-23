@@ -22,7 +22,6 @@ Serilog.Enrichers.Thread
 Serilog.Enrichers.Environment
 
 Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac
-Aiv.Vbr.Configuration.Database
 Aiv.Vbr.EntityFrameworkCore.EntityTypeConfiguration
 Aiv.Vbr.EventHandling.Autofac
 Aiv.Vbr.ProjectionHandling.Connector

@@ -1,7 +1,6 @@
 namespace RoadRegistry.Api.Oslo.Infrastructure.Modules
 {
     using Aiv.Vbr.CommandHandling.Idempotency;
-    using Aiv.Vbr.Configuration.Database;
     using Aiv.Vbr.EventHandling;
     using Aiv.Vbr.EventHandling.Autofac;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac;
@@ -32,14 +31,6 @@ namespace RoadRegistry.Api.Oslo.Infrastructure.Modules
         protected override void Load(ContainerBuilder containerBuilder)
         {
             var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
-            containerBuilder
-                .RegisterModule(new ConfigurationDatabaseModule(
-                    _services,
-                    _configuration.GetSection(ConfigurationDatabaseConfiguration.Section).Get<ConfigurationDatabaseConfiguration>().ConnectionString,
-                    new ConfigurationMigrationsTableInfo(Schema.Default),
-                    new ConfigurationTableInfo(Schema.Default),
-                    _loggerFactory));
 
             containerBuilder
                 .RegisterModule(new IdempotencyModule(

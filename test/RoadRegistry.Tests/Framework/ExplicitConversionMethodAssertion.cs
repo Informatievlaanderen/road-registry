@@ -17,43 +17,41 @@ namespace RoadRegistry
 
         public override void Verify(Type type)
         {
-            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
 
             var method = type
                 .GetMethods()
-                .Where(candidate => 
+                .SingleOrDefault(candidate =>
                     candidate.Name == ("To" + typeof(TResult).Name)
                     && candidate.GetParameters().Length == 0
-                    && candidate.ReturnParameter.ParameterType == typeof(TResult))
-                .SingleOrDefault();
-            
+                    && candidate.ReturnParameter.ParameterType == typeof(TResult));
+
             if (method == null)
             {
-                throw new ExplicitConversionMethodException(type, typeof(TResult), 
+                throw new ExplicitConversionMethodException(type, typeof(TResult),
                     $"The type '{type.Name}' does not define an explicit conversion method to type '{typeof(TResult).Name}' called 'To{typeof(TResult).Name}()'.");
             }
 
-            var value = this.Builder.Create<TResult>();
-            var composedBuilder = 
+            var value = Builder.Create<TResult>();
+            var composedBuilder =
                 new CompositeSpecimenBuilder(
                     new FrozenSpecimenBuilder<TResult>(value),
-                    this.Builder);
+                    Builder);
 
             var instance = composedBuilder.CreateAnonymous(type);
 
             try
             {
                 var result = (TResult)method.Invoke(instance, new object[0]);
-                if(!result.Equals(value))
-                {
+                if (!result.Equals(value))
                     throw new ExplicitConversionMethodException(type, typeof(TResult));
-                }
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
-                throw new ImplicitConversionOperatorException(type, typeof(TResult), 
+                throw new ImplicitConversionOperatorException(type, typeof(TResult),
                     $"The explicit conversion method to type '{nameof(TResult)}' of type '{type.Name}' threw an exception.", exception);
-            }            
+            }
         }
     }
 }

@@ -1,11 +1,12 @@
-using System;
-using System.Globalization;
-using System.Reflection;
-using AutoFixture.Idioms;
-using AutoFixture.Kernel;
-
 namespace RoadRegistry
 {
+    using System;
+    using System.Globalization;
+    using System.Reflection;
+    using AutoFixture;
+    using AutoFixture.Idioms;
+    using AutoFixture.Kernel;
+
     /// <summary>
     /// Encapsulates a unit test that verifies that a type which overrides the
     /// <see cref="object.Equals(object)"/> method is implemented correctly with
@@ -28,7 +29,7 @@ namespace RoadRegistry
         /// </remarks>
         public EqualsOtherAssertion(ISpecimenBuilder builder)
         {
-            this.Builder = builder ?? throw new ArgumentNullException(nameof(builder));
+            Builder = builder ?? throw new ArgumentNullException(nameof(builder));
         }
 
         /// <summary>
@@ -43,18 +44,19 @@ namespace RoadRegistry
         /// <param name="methodInfo">The method to verify</param>
         public override void Verify(MethodInfo methodInfo)
         {
-            if (methodInfo == null) throw new ArgumentNullException(nameof(methodInfo));
+            if (methodInfo == null)
+                throw new ArgumentNullException(nameof(methodInfo));
 
-            if (methodInfo.ReflectedType == null ||
-                !methodInfo.IsObjectEqualsOverrideMethod())
+            if (methodInfo.ReflectedType == null || !methodInfo.IsObjectEqualsOverrideMethod())
             {
                 // The method is not an override of the Object.Equals(object) method
                 return;
             }
 
-            var instance = this.Builder.CreateAnonymous(methodInfo.ReflectedType);
-            var other = this.Builder.CreateAnonymous(methodInfo.ReflectedType);
+            var instance = Builder.CreateAnonymous(methodInfo.ReflectedType);
+            var other = Builder.CreateAnonymous(methodInfo.ReflectedType);
             var equalsResult = instance.Equals(other);
+
             if (equalsResult)
             {
                 throw new EqualsOverrideException(string.Format(CultureInfo.CurrentCulture,

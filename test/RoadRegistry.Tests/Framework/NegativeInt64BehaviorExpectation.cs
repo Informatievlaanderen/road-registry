@@ -26,14 +26,15 @@ namespace RoadRegistry
         /// </remarks>
         public void Verify(IGuardClauseCommand command)
         {
-            if (command == null) throw new ArgumentNullException(nameof(command));
-            
-            if (command.RequestedType != typeof(Int64))
+            if (command == null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (command.RequestedType != typeof(long))
                 return;
 
             try
             {
-                command.Execute(new Random().Next(Int32.MinValue, -1));
+                command.Execute(new Random().Next(int.MinValue, -1));
             }
             catch (ArgumentOutOfRangeException)
             {
