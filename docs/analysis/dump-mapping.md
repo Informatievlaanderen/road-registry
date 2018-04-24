@@ -330,6 +330,156 @@ Below you'll find a mapping and description  of the various dBase III and shape 
 | LBLMORF | Character | 64 | 0 |
 | DEFMORF | Character | 255 | 0 |
 
+### WegsegmentLktStatus
+
+#### DBF Mapping
+
+| DBF Column | Legacy DB Column | Event Property |
+|---|---|---|
+| STATUS | code | - |
+| LBLSTATUS | label | - |
+| DEFSTATUS | definitie | - |
+
+#### DBF Description
+
+| Name | DataType | Length | Decimal |
+|---|---|---|---|
+| STATUS | Number | 2 | 0 |
+| LBLSTATUS | Character | 64 | 0 |
+| DEFSTATUS | Character | 255 | 0 |
+
+### WegsegmentLktMethode
+
+#### DBF Mapping
+
+| DBF Column | Legacy DB Column | Event Property |
+|---|---|---|
+| METHODE | code | - |
+| LBLMETHOD | label | - |
+| DEFMETHOD | definitie | - |
+
+#### DBF Description
+
+| Name | DataType | Length | Decimal |
+|---|---|---|---|
+| METHODE | Number | 2 | 0 |
+| LBLMETHOD | Character | 64 | 0 |
+| DEFMETHOD | Character | 255 | 0 |
+
+### RijstrokenLktRichting
+
+#### DBF Mapping
+
+| DBF Column | Legacy DB Column | Event Property |
+|---|---|---|
+| RICHTING | code | - |
+| LBLRICHT | label | - |
+| DEFRICHT | definitie | - |
+
+#### DBF Description
+
+| Name | DataType | Length | Decimal |
+|---|---|---|---|
+| RICHTING | Number | 2 | 0 |
+| LBLRICHT | Character | 64 | 0 |
+| DEFRICHT | Character | 255 | 0 |
+
+### OgkruisingLktType
+
+#### DBF Mapping
+
+| DBF Column | Legacy DB Column | Event Property |
+|---|---|---|
+| TYPE | code | - |
+| LBLTYPE | label | - |
+| DEFTYPE | definitie | - |
+
+#### DBF Description
+
+| Name | DataType | Length | Decimal |
+|---|---|---|---|
+| TYPE | Number | 2 | 0 |
+| LBLTYPE | Character | 64 | 0 |
+| DEFTYPE | Character | 255 | 0 |
+
+### WegsegmentLktTgbep
+
+#### DBF Mapping
+
+| DBF Column | Legacy DB Column | Event Property |
+|---|---|---|
+| TYPE | code | - |
+| LBLTYPE | label | - |
+| DEFTYPE | definitie | - |
+
+#### DBF Description
+
+| Name | DataType | Length | Decimal |
+|---|---|---|---|
+| TYPE | Number | 2 | 0 |
+| LBLTYPE | Character | 64 | 0 |
+| DEFTYPE | Character | 255 | 0 |
+
+### RltBbitgi
+
+- Obsolete
+
+#### DBF Mapping
+
+| DBF Column | Legacy DB Column | Event Property |
+|---|---|---|
+| ITGI_OIDN | relatieBasisbestandITGIID | N/A |
+| WS_OIDN | wegsegmentID | N/A |
+| TGID | TGID | N/A |
+| VANPOS | vanPositie | N/A |
+| TOTPOS | totPositie | N/A |
+| BEGINTIJD | begintijd | N/A |
+| BEGINORG | beginorganisatieCode | N/A |
+| LBLBGNORG | beginorganisatieLabel | N/A |
+
+#### DBF Description
+
+| Name | DataType | Length | Decimal |
+|---|---|---|---|
+| ITGI_OIDN | Number | 15 | 0 |
+| WS_OIDN | Number | 15 | 0 |
+| TGID | Character | 38 | 0 |
+| VANPOS | Number | 9 | 3 |
+| TOTPOS | Number | 9 | 3 |
+| BEGINTIJD | DateTime | 12 | 0 |
+| BEGINORG | Character | 18 | 0 |
+| LBLBGNORG | Character | 64 | 0 |
+
+### RltBbgrb
+
+- Obsolete
+
+#### DBF Mapping
+
+| DBF Column | Legacy DB Column | Event Property |
+|---|---|---|
+| GRB_OIDN | relatieBasisbestandGRBID | - |
+| WS_OIDN | wegsegmentID | - |
+| WVB_OIDN | identificatorWegObject | - |
+| VANPOS | vanPositie | - |
+| TOTPOS | totPositie | - |
+| BEGINTIJD | begintijd | - |
+| BEGINORG | beginorganisatieCode | - |
+| LBLBGNORG | beginorganisatieLabel | - |
+
+#### DBF Description
+
+| Name | DataType | Length | Decimal |
+|---|---|---|---|
+| GRB_OIDN | Number | 15 | 0 |
+| WS_OIDN | Number | 15 | 0 |
+| WVB_OIDN | Number | 15 | 0 |
+| VANPOS | Number | 9 | 3 |
+| TOTPOS | Number | 9 | 3 |
+| BEGINTIJD | DateTime | 12 | 0 |
+| BEGINORG | Character | 18 | 0 |
+| LBLBGNORG | Character | 64 | 0 |
+
 ## Shapes
 
 ### Wegknoop
@@ -500,6 +650,15 @@ Below you'll find a mapping and description  of the various dBase III and shape 
 
 | DBF Column | Legacy DB Column  | Event Property |
 |---|---|---|
+| RP_OIDN | referentiepuntID | - |
+| RP_UIDN | referentiepuntversieID | - |
+| IDENT8 | ident8 | - |
+| OPSCHRIFT | opschrift | - |
+| TYPE | typeCode | - |
+| LBLTYPE | typeLabel | - |
+| BEGINTIJD | begintijd | - |
+| BEGINORG | beginorganisatieCode | - |
+| LBLBGNORG | beginorganisatieLabel | - |
 
 #### DBF Description
 
