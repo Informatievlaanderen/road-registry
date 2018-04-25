@@ -14,9 +14,11 @@ namespace Shaperon.IO
         public ShapeFileRecordHeader Header { get; }
         public IShape Shape { get; }
 
+        //public WordLength RecordLength { get; }
+
         public static ShapeFileRecord Create(RecordNumber recordNumber, IShape shape)
         {
-            return new ShapeFileRecord(new ShapeFileRecordHeader(recordNumber, shape.ContentWordLength), shape);
+            return new ShapeFileRecord(new ShapeFileRecordHeader(recordNumber, shape.ContentLength), shape);
         }
 
         public static ShapeFileRecord Read(BinaryReader reader)
@@ -47,7 +49,7 @@ namespace Shaperon.IO
             return new ShapeFileRecord(header, shape);
         }
 
-        public void WriteToShp(BinaryWriter writer)
+        public void Write(BinaryWriter writer)
         {
             if (writer == null)
             {
@@ -57,16 +59,10 @@ namespace Shaperon.IO
             Header.Write(writer);
             Shape.Write(writer);
         }
-        
-        public void WriteToShx(BinaryWriter writer)
-        {
-            if (writer == null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
 
-            Header.Write(writer);
-            Shape.Write(writer);
+        public ShapeIndexFileRecord AtOffset(Offset offset)
+        {
+            return new ShapeIndexFileRecord(offset, Header.ContentLength);
         }
     }
 }

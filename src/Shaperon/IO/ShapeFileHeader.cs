@@ -8,12 +8,12 @@ namespace Shaperon.IO
     {
         public ShapeFileHeader(WordLength fileWordLength, ShapeType shapeType, BoundingBox3D boundingBox)
         {
-            FileWordLength = fileWordLength;
+            FileLength = fileWordLength;
             ShapeType = shapeType;
             BoundingBox = boundingBox;
         }
 
-        public WordLength FileWordLength { get; }
+        public WordLength FileLength { get; }
         public ShapeType ShapeType { get; }
         public BoundingBox3D BoundingBox { get; }
 
@@ -60,7 +60,7 @@ namespace Shaperon.IO
             {
                 writer.Write(0x0);
             }
-            writer.WriteInt32BigEndian(FileWordLength);
+            writer.WriteInt32BigEndian(FileLength);
             writer.WriteInt32LittleEndian(1000);
             writer.WriteInt32LittleEndian((int)ShapeType);
             writer.WriteDoubleLittleEndian(BoundingBox.XMin);

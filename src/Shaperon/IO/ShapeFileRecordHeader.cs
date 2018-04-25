@@ -5,14 +5,14 @@ namespace Shaperon.IO
 {
     public class ShapeFileRecordHeader
     {
-        public ShapeFileRecordHeader(RecordNumber recordNumber, WordLength contentWordLength)
+        public ShapeFileRecordHeader(RecordNumber recordNumber, WordLength contentLength)
         {
             RecordNumber = recordNumber;
-            ContentWordLength = contentWordLength;
+            ContentLength = contentLength;
         }
 
         public RecordNumber RecordNumber { get; }
-        public WordLength ContentWordLength { get; }
+        public WordLength ContentLength { get; }
 
         public static ShapeFileRecordHeader Read(BinaryReader reader)
         {
@@ -33,7 +33,7 @@ namespace Shaperon.IO
             }
 
             writer.WriteInt32BigEndian(RecordNumber.ToInt32());
-            writer.WriteInt32BigEndian(ContentWordLength);
+            writer.WriteInt32BigEndian(ContentLength);
         }
     }
 }

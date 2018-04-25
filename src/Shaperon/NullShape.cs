@@ -10,12 +10,12 @@ namespace Shaperon
 
         private NullShape() 
         { 
-            ContentWordLength = new WordLength(2);
+            ContentLength = new WordLength(2);
         }
 
         public ShapeType ShapeType => ShapeType.NullShape;
 
-        public WordLength ContentWordLength { get; }
+        public WordLength ContentLength { get; }
 
         public void Write(BinaryWriter writer)
         {

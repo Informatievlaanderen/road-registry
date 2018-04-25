@@ -62,8 +62,8 @@ namespace Shaperon
         public static bool operator >=(WordLength left, WordLength right) => left.CompareTo(right) >= 0;
         public static bool operator >(WordLength left, WordLength right) => left.CompareTo(right) > 0;
 
-        public static WordLength operator +(WordLength left, ByteLength right) => new WordLength(left.ToInt32() + right.ToWordLength().ToInt32());
-        public static WordLength operator -(WordLength left, ByteLength right) => new WordLength(left.ToInt32() - right.ToWordLength().ToInt32());
+        public static WordLength operator +(WordLength left, ByteLength right) => left + right.ToWordLength();
+        public static WordLength operator -(WordLength left, ByteLength right) => left - right.ToWordLength();
         public static bool operator ==(WordLength left, ByteLength right) => left.Equals(right.ToWordLength());
         public static bool operator !=(WordLength left, ByteLength right) => !left.Equals(right.ToWordLength());
         public static bool operator <(WordLength left, ByteLength right) => left.CompareTo(right.ToWordLength()) < 0;

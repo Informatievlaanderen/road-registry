@@ -10,7 +10,7 @@ namespace Shaperon
         {
             X = x;
             Y = y;
-            ContentWordLength = new WordLength(10);
+            ContentLength = new WordLength(10);
         }
 
         public ShapeType ShapeType => ShapeType.Point;
@@ -18,7 +18,7 @@ namespace Shaperon
         public double X { get; }
         public double Y { get; }
 
-        public WordLength ContentWordLength { get; }
+        public WordLength ContentLength { get; }
 
         public static IShape Read(BinaryReader reader, ShapeFileRecordHeader header)
         {

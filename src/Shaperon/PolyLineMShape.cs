@@ -13,7 +13,7 @@ namespace Shaperon
             Points = points ?? throw new ArgumentNullException(nameof(points));
             MeasureRange = measureRange;
             Measures = measures;
-            ContentWordLength = MeasureRange != null && Measures != null
+            ContentLength = MeasureRange != null && Measures != null
                 ? new ByteLength(84 + (4 * Parts.Length) + (16 * Points.Length) + (8 * Points.Length)).ToWordLength()
                 : new ByteLength(76 + (4 * Parts.Length) + (16 * Points.Length)).ToWordLength();
         }
@@ -24,7 +24,7 @@ namespace Shaperon
         public Point[] Points { get; }
         public MeasureRange MeasureRange { get; }
         public double[] Measures { get; }
-        public WordLength ContentWordLength { get; }
+        public WordLength ContentLength { get; }
 
         public static IShape Read(BinaryReader reader, ShapeFileRecordHeader header)
         {
@@ -55,7 +55,7 @@ namespace Shaperon
                 );
             }
             var requiredContentByteLength = new ByteLength(44 + (4 * numParts) + (16 * numPoints));
-            if(header.ContentWordLength > requiredContentByteLength)
+            if(header.ContentLength > requiredContentByteLength)
             {
                 var measureRange = new MeasureRange(
                     reader.ReadDoubleLittleEndian(),

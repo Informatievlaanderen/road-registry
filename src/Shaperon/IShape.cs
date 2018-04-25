@@ -6,7 +6,7 @@ namespace Shaperon
     {
         ShapeType ShapeType { get; }
 
-        WordLength ContentWordLength { get; }
+        WordLength ContentLength { get; }
 
         void Write(BinaryWriter writer);
     }

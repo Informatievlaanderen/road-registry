@@ -26,7 +26,14 @@ namespace Shaperon
         }
 
         public int ToInt32() => _value;
-        public WordLength ToWordLength() => new WordLength(_value / 2);
+        public WordLength ToWordLength() 
+        {
+            if(_value % 2 != 0) 
+            {
+                throw new InvalidOperationException("The byte length needs to be divisible by 2.");
+            }
+            return new WordLength(_value / 2);
+        }
         public bool Equals(ByteLength instance) => instance._value == _value;
         public override bool Equals(object obj) => obj is ByteLength && Equals((ByteLength)obj);
         public override int GetHashCode() => _value;
