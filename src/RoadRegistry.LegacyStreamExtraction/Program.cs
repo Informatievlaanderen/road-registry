@@ -38,7 +38,7 @@ namespace RoadRegistry.LegacyImporter
                         @"SELECT 
                             wk.[wegknoopID],
                             wk.[type],
-                            wk.[geometrie],
+                            wk.[geometrie].STAsBinary(),
                             wk.[beginorganisatie],
                             lo.[label],
                             wk.[begintijd]
@@ -50,7 +50,7 @@ namespace RoadRegistry.LegacyImporter
                         {
                             Id = reader.GetInt32(0),
                             Type = Translate.ToRoadNodeType(reader.GetInt32(1)),
-                            Geometry = reader.GetAllBytes(2),
+                            WellKnownBinaryGeometry = reader.GetAllBytes(2),
                             Origin = new OriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(3),
@@ -71,7 +71,7 @@ namespace RoadRegistry.LegacyImporter
                             ws.[wegsegmentID], --0
                             ws.[beginWegknoopID], --1
                             ws.[eindWegknoopID], --2
-                            ws.[geometrie], --3
+                            ws.[geometrie].STAsBinary(), --3
                             ws.[beheerder], --4
                             ws.[methode], --5
                             ws.[morfologie], --6
@@ -98,7 +98,7 @@ namespace RoadRegistry.LegacyImporter
                             Id = reader.GetInt32(0),
                             StartNodeId = reader.GetInt32(1),
                             EndNodeId = reader.GetInt32(2),
-                            Geometry = reader.GetAllBytes(3),
+                            WellKnownBinaryGeometry = reader.GetAllBytes(3),
                             MaintainerId = reader.GetString(4),
                             GeometryDrawMethod = Translate.ToRoadSegmentGeometryDrawMethod(reader.GetInt32(5)),
                             Morphology = Translate.ToRoadSegmentMorphology(reader.GetInt32(6)),
@@ -407,7 +407,7 @@ namespace RoadRegistry.LegacyImporter
                 await
                     new SqlCommand(
                         @"SELECT rp.[referentiepuntID] --0
-                            ,rp.[geometrie] --1
+                            ,rp.[geometrie].STAsBinary() --1
                             ,rp.[ident8] --2
                             ,rp.[type] --3
                             ,CONVERT(NVARCHAR(MAX), rp.[opschrift]) --4
@@ -421,7 +421,7 @@ namespace RoadRegistry.LegacyImporter
                         var point = new ImportedReferencePoint
                         {
                             Id = reader.GetInt32(0),
-                            Geometry = reader.GetAllBytes(1),
+                            WellKnownBinaryGeometry = reader.GetAllBytes(1),
                             Ident8 = reader.GetString(2),
                             Type = Translate.ToReferencePointType(reader.GetInt32(3)),
                             Caption = reader.GetString(4),
