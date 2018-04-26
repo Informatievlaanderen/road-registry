@@ -1,13 +1,38 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using Shaperon;
 using Shaperon.IO;
 
 namespace Usage
 {
-    class Program
+    partial class Program
     {
         static void Main(string[] args)
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            using (var outDbfFile = File.OpenWrite(args[1]))
+            using (var inFile = File.OpenRead(args[0]))
+            {
+                using (var dbfWriter = new BinaryWriter(outDbfFile, Encoding.ASCII)) //Encoding.GetEncoding(1252)
+                using (var reader = new BinaryReader(inFile, Encoding.ASCII))
+                {
+                    var header = DbaseFileHeader.Read(reader);
+                    header.Write(dbfWriter);
+
+                    while (reader.BaseStream.Position != reader.BaseStream.Length
+                        && reader.PeekChar() != (char)DbaseRecord.EndOfFile)
+                    {
+                        var record = DbaseRecord.Read(reader, header);
+                        record.Write(dbfWriter);
+                    }
+                    dbfWriter.Write(DbaseRecord.EndOfFile);
+                    outDbfFile.Flush();
+                }
+            }
+        }
+
+        private static void ReadWriteShx(string[] args)
         {
             using (var outShxFile = File.OpenWrite(args[1]))
             using (var inFile = File.OpenRead(args[0]))
