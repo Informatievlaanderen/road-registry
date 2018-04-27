@@ -28,18 +28,22 @@ namespace Shaperon.IO
                     field => new DbaseDateTime(field)
                 }
             };
-        public DbaseField(string name, DbaseFieldType fieldType, int length, int decimalCount)
+        public DbaseField(DbaseFieldName name, DbaseFieldType fieldType, ByteOffset offset, DbaseFieldLength length, DbaseDecimalCount decimalCount)
         {
             Name = name;
             FieldType = fieldType;
+            Offset = offset;
             Length = length;
             DecimalCount = decimalCount;
+
+            //TODO: Verify the compatibility of the length with the field type.
         }
 
-        public string Name { get; }
+        public DbaseFieldName Name { get; }
         public DbaseFieldType FieldType { get; }
-        public int Length { get; }
-        public int DecimalCount { get; }
+        public ByteOffset Offset { get; }
+        public DbaseFieldLength Length { get; }
+        public DbaseDecimalCount DecimalCount { get; }
         
         public DbaseValue CreateValue()
         {
@@ -57,22 +61,18 @@ namespace Shaperon.IO
                 throw new ArgumentNullException(nameof(reader));
             }
 
-            var name = reader.ReadRightPaddedString(11, char.MinValue);
+            var name = new DbaseFieldName(reader.ReadRightPaddedString(11, char.MinValue));
             var typeOfField = reader.ReadByte();
             if(!(Enum.IsDefined(typeof(DbaseFieldType), typeOfField)))
             {
                 throw new DbaseFileException($"The field type {typeOfField} of field {name} is not supported.");
             }
             var fieldType = (DbaseFieldType)typeOfField;
-            // if(fieldType != DbaseFieldType.Number || fieldType != DbaseFieldType.Character || fieldType != DbaseFieldType.DateTime)
-            // {
-            //     throw new DbaseFileException($"The field type {fieldType} of field {name} is not supported.");
-            // }
-            reader.ReadInt32();
-            var length = reader.ReadByte();
-            var decimals = reader.ReadByte();
+            var offset = new ByteOffset(reader.ReadInt32());
+            var length = new DbaseFieldLength(reader.ReadByte());
+            var decimalCount = new DbaseDecimalCount(reader.ReadByte());
             reader.ReadBytes(14);
-            return new DbaseField(name, (DbaseFieldType)typeOfField, length, decimals);
+            return new DbaseField(name, (DbaseFieldType)typeOfField, offset, length, decimalCount);
         }
 
         public void Write(BinaryWriter writer)
@@ -82,7 +82,7 @@ namespace Shaperon.IO
                 throw new ArgumentNullException(nameof(writer));
             }
 
-            writer.WriteRightPaddedString(Name, 11, char.MinValue);
+            writer.WriteRightPaddedString(Name.ToString(), 11, char.MinValue);
             // HACK: Because legacy represents date times as characters - so why bother with DateTime support?
             if(FieldType == DbaseFieldType.DateTime)
             {
@@ -92,9 +92,9 @@ namespace Shaperon.IO
             {
                 writer.Write((byte)FieldType);
             }
-            writer.Write(0); //TODO: Figure out what we need to fill in here.
-            writer.Write(Convert.ToByte(Length));
-            writer.Write(Convert.ToByte(DecimalCount));
+            writer.Write(Offset.ToInt32());
+            writer.Write(Length.ToByte());
+            writer.Write(DecimalCount.ToByte());
             writer.Write(new byte[14]);
         }
     }

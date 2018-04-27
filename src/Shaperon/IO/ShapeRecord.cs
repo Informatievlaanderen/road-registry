@@ -1,34 +1,36 @@
-using System;
+﻿using System;
 using System.IO;
 
 namespace Shaperon.IO
 {
-    public class ShapeFileRecord
+    public class ShapeRecord
     {
-        public ShapeFileRecord(ShapeFileRecordHeader header, IShape shape)
+        public static readonly WordOffset InitialOffset = new WordOffset(50); //100 byte file header means first record appears at offset 50 (16-bit word) of the mainfile.
+
+        public ShapeRecord(ShapeRecordHeader header, IShape shape)
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
             Shape = shape ?? throw new ArgumentNullException(nameof(shape));
         }
 
-        public ShapeFileRecordHeader Header { get; }
+        public ShapeRecordHeader Header { get; }
         public IShape Shape { get; }
 
         //public WordLength RecordLength { get; }
 
-        public static ShapeFileRecord Create(RecordNumber recordNumber, IShape shape)
+        public static ShapeRecord Create(RecordNumber recordNumber, IShape shape)
         {
-            return new ShapeFileRecord(new ShapeFileRecordHeader(recordNumber, shape.ContentLength), shape);
+            return new ShapeRecord(new ShapeRecordHeader(recordNumber, shape.ContentLength), shape);
         }
 
-        public static ShapeFileRecord Read(BinaryReader reader)
+        public static ShapeRecord Read(BinaryReader reader)
         {
             if (reader == null)
             {
                 throw new ArgumentNullException(nameof(reader));
             }
 
-            var header = ShapeFileRecordHeader.Read(reader);
+            var header = ShapeRecordHeader.Read(reader);
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
                 throw new ShapeFileException("The Shape Type field does not contain a known type of shape.");
@@ -46,7 +48,7 @@ namespace Shaperon.IO
                 default:
                     throw new ShapeFileException($"The Shape Type {typeOfShape} is currently not suppported.");
             }
-            return new ShapeFileRecord(header, shape);
+            return new ShapeRecord(header, shape);
         }
 
         public void Write(BinaryWriter writer)
@@ -60,9 +62,9 @@ namespace Shaperon.IO
             Shape.Write(writer);
         }
 
-        public ShapeIndexFileRecord AtOffset(Offset offset)
+        public ShapeIndexRecord AtOffset(WordOffset offset)
         {
-            return new ShapeIndexFileRecord(offset, Header.ContentLength);
+            return new ShapeIndexRecord(offset, Header.ContentLength);
         }
     }
 }

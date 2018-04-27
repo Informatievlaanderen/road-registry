@@ -57,11 +57,11 @@ namespace Shaperon.IO
             {
                 var format = Field.DecimalCount > 0 
                     ? String.Concat(
-                        new string('0', Field.Length - Field.DecimalCount - 1),
+                        new string('#', Field.Length - Field.DecimalCount - 1),
                         ".",
                         new string('0', Field.DecimalCount)
                       )
-                    : new string('0', Field.Length - Field.DecimalCount - 1);
+                    : new string('#', Field.Length - Field.DecimalCount - 1);
                 var unpadded = Value.Value.ToString(format, DoubleNumberFormat);
                 writer.WriteLeftPaddedString(unpadded, Field.Length, ' ');
             }

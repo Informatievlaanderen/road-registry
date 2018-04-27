@@ -58,7 +58,7 @@ namespace Shaperon.IO
             {
                 throw new ArgumentNullException(nameof(writer));
             }
-            writer.Write(IsDeleted ? 0x2A : 0x20);
+            writer.Write(Convert.ToByte(IsDeleted ? 0x2A : 0x20));
             foreach(var value in Values)
             {
                 value.Write(writer);

@@ -46,7 +46,7 @@ namespace Usage
                     var fileByteLength = header.FileLength.ToByteLength();
                     while (reader.BaseStream.Position < fileByteLength)
                     {
-                        var record = ShapeIndexFileRecord.Read(reader);
+                        var record = ShapeIndexRecord.Read(reader);
                         record.Write(shxWriter);
                     }
 
@@ -70,10 +70,10 @@ namespace Usage
                     header.Write(shxWriter);
 
                     var fileByteLength = header.FileLength.ToByteLength();
-                    var offset = Offset.Initial;
+                    var offset = ShapeRecord.InitialOffset;
                     while (reader.BaseStream.Position < fileByteLength)
                     {
-                        var record = ShapeFileRecord.Read(reader);
+                        var record = ShapeRecord.Read(reader);
                         record.Write(shpWriter);
                         var indexRecord = record.AtOffset(offset);
                         indexRecord.Write(shxWriter);

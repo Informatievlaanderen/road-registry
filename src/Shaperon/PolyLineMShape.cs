@@ -26,7 +26,7 @@ namespace Shaperon
         public double[] Measures { get; }
         public WordLength ContentLength { get; }
 
-        public static IShape Read(BinaryReader reader, ShapeFileRecordHeader header)
+        public static IShape Read(BinaryReader reader, ShapeRecordHeader header)
         {
             if (reader == null)
             {

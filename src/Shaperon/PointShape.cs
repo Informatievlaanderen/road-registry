@@ -20,7 +20,7 @@ namespace Shaperon
 
         public WordLength ContentLength { get; }
 
-        public static IShape Read(BinaryReader reader, ShapeFileRecordHeader header)
+        public static IShape Read(BinaryReader reader, ShapeRecordHeader header)
         {
             if (reader == null)
             {

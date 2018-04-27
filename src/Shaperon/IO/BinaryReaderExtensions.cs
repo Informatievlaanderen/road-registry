@@ -8,35 +8,31 @@ namespace Shaperon.IO
         public static string ReadRightPaddedString(this BinaryReader reader, int length, char padding)
         {
             var characters = reader.ReadChars(length);
-            var index = Array.FindIndex(
-                characters, 
-                character => character.Equals(padding));
-            if (index == 0) 
-            {
-                return string.Empty;
+            var index = characters.Length - 1;
+            while(index >= 0 && characters[index].Equals(padding)) 
+            { 
+                index--; 
             }
             if (index < 0)
             {
-                return new string(characters);
+                return string.Empty;
             }
-            return new string(characters, 0, index);
+            return new string(characters, 0, index + 1);
         }
 
         public static string ReadLeftPaddedString(this BinaryReader reader, int length, char padding)
         {
             var characters = reader.ReadChars(length);
-            var index = Array.FindLastIndex(
-                characters, 
-                character => character.Equals(padding));
-            if(index == length)
+            var index = 0;
+            while(index < characters.Length && characters[index].Equals(padding)) 
+            { 
+                index++; 
+            }
+            if(index == characters.Length)
             {
                 return string.Empty;
             }
-            if(index < 0)
-            {
-                return new string(characters);
-            }
-            return new string(characters, index + 1, characters.Length - index - 1);
+            return new string(characters, index, characters.Length - index);
         }
 
         public static void WriteRightPaddedString(this BinaryWriter writer, string value, int length, char padding)

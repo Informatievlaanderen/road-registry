@@ -5,6 +5,7 @@ namespace Shaperon.IO
 {
     public class DbaseFileHeader
     {
+        public const int MaximumFileSize = 1073741824; // 1 GB
         private const byte Terminator = 0x0d;
         private const int HeaderMetaDataSize = 33;
         private const int FieldMetaDataSize = 32;

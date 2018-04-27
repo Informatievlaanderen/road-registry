@@ -6,7 +6,6 @@ namespace Shaperon.IO
 {
     public class DbaseInt32 : DbaseValue
     {
-        private static readonly NumberFormatInfo Int32NumberFormat = new NumberFormatInfo { NumberDecimalSeparator = "." };
         public DbaseInt32(DbaseField field) : this(field, null)
         {
         }
@@ -34,7 +33,7 @@ namespace Shaperon.IO
             {
                 var unpadded = reader.ReadLeftPaddedString(Field.Length, ' ');
                 int parsed;
-                if (int.TryParse(unpadded, NumberStyles.Integer | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, Int32NumberFormat, out parsed))
+                if (int.TryParse(unpadded, NumberStyles.Integer | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out parsed))
                 {
                     Value = parsed;
                 }
@@ -54,14 +53,7 @@ namespace Shaperon.IO
 
             if(Value.HasValue)
             {
-                var format = Field.DecimalCount > 0 
-                    ? String.Concat(
-                        new string('0', Field.Length - Field.DecimalCount - 1),
-                        ".",
-                        new string('0', Field.DecimalCount)
-                      )
-                    : new string('0', Field.Length - Field.DecimalCount - 1);
-                var unpadded = Value.Value.ToString(format, Int32NumberFormat);
+                var unpadded = Value.Value.ToString(CultureInfo.InvariantCulture);
                 writer.WriteLeftPaddedString(unpadded, Field.Length, ' ');
             }
             else

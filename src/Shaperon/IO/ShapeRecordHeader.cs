@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.IO;
 
 namespace Shaperon.IO
 {
-    public class ShapeFileRecordHeader
+    public class ShapeRecordHeader
     {
-        public ShapeFileRecordHeader(RecordNumber recordNumber, WordLength contentLength)
+        public ShapeRecordHeader(RecordNumber recordNumber, WordLength contentLength)
         {
             RecordNumber = recordNumber;
             ContentLength = contentLength;
@@ -14,7 +14,7 @@ namespace Shaperon.IO
         public RecordNumber RecordNumber { get; }
         public WordLength ContentLength { get; }
 
-        public static ShapeFileRecordHeader Read(BinaryReader reader)
+        public static ShapeRecordHeader Read(BinaryReader reader)
         {
             if (reader == null)
             {
@@ -22,7 +22,7 @@ namespace Shaperon.IO
             }
             var recordNumber = reader.ReadInt32BigEndian();
             var contentLength = reader.ReadInt32BigEndian();
-            return new ShapeFileRecordHeader(new RecordNumber(recordNumber), new WordLength(contentLength));
+            return new ShapeRecordHeader(new RecordNumber(recordNumber), new WordLength(contentLength));
         }
 
         public void Write(BinaryWriter writer)
