@@ -20,9 +20,9 @@ namespace Shaperon.IO
             {
                 throw new ArgumentNullException(nameof(reader));
             }
-            var recordNumber = reader.ReadInt32BigEndian();
-            var contentLength = reader.ReadInt32BigEndian();
-            return new ShapeRecordHeader(new RecordNumber(recordNumber), new WordLength(contentLength));
+            var recordNumber = new RecordNumber(reader.ReadInt32BigEndian());
+            var contentLength = new WordLength(reader.ReadInt32BigEndian());
+            return new ShapeRecordHeader(recordNumber, contentLength);
         }
 
         public void Write(BinaryWriter writer)
@@ -33,7 +33,7 @@ namespace Shaperon.IO
             }
 
             writer.WriteInt32BigEndian(RecordNumber.ToInt32());
-            writer.WriteInt32BigEndian(ContentLength);
+            writer.WriteInt32BigEndian(ContentLength.ToInt32());
         }
     }
 }
