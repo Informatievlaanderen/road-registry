@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Oslo
+namespace RoadRegistry.Projections
 {
     using Infrastructure;
     using Microsoft.EntityFrameworkCore;
@@ -8,19 +8,19 @@ namespace RoadRegistry.Projections.Oslo
     {
         public static void Run(string connectionString, ILoggerFactory loggerFactory = null)
         {
-            var migratorOptions = new DbContextOptionsBuilder<OsloContext>()
+            var migratorOptions = new DbContextOptionsBuilder<ShapeContext>()
                 .UseSqlServer(
                     connectionString,
                     sqlServerOptions =>
                     {
                         sqlServerOptions.EnableRetryOnFailure();
-                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.Oslo, Schema.Oslo);
+                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.Shape, Schema.Shape);
                     });
 
             if (loggerFactory != null)
                 migratorOptions = migratorOptions.UseLoggerFactory(loggerFactory);
 
-            using (var migrator = new OsloContext(migratorOptions.Options))
+            using (var migrator = new ShapeContext(migratorOptions.Options))
                 migrator.Database.Migrate();
         }
     }

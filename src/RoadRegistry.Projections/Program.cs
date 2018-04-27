@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Oslo
+namespace RoadRegistry.Projections.Shape
 {
     using System;
     using System.IO;
@@ -19,7 +19,7 @@ namespace RoadRegistry.Projections.Oslo
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Starting RoadRegistry.Projections.Oslo");
+            Console.WriteLine("Starting RoadRegistry.Projections.Shape");
 
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
                 Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
@@ -44,8 +44,8 @@ namespace RoadRegistry.Projections.Oslo
 
             try
             {
-                app.GetService<RoadOsloRunner>()
-                    .Handle(app.GetService<IStreamStore>(), app.GetService<Func<Owned<OsloContext>>>());
+                app.GetService<RoadShapeRunner>()
+                    .Handle(app.GetService<IStreamStore>(), app.GetService<Func<Owned<ShapeContext>>>());
 
                 Console.WriteLine("Running...");
                 Console.ReadLine();
@@ -69,7 +69,7 @@ namespace RoadRegistry.Projections.Oslo
                 .BuildServiceProvider();
 
             var builder = new ContainerBuilder();
-            builder.RegisterModule(new OsloRunnerModule(configuration, services, app.GetService<ILoggerFactory>()));
+            builder.RegisterModule(new ShapeRunnerModule(configuration, services, app.GetService<ILoggerFactory>()));
             return new AutofacServiceProvider(builder.Build());
         }
 

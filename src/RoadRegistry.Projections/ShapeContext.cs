@@ -1,21 +1,19 @@
-namespace RoadRegistry.Projections.Oslo
+﻿namespace RoadRegistry.Projections
 {
     using Aiv.Vbr.ProjectionHandling.Runner;
     using Infrastructure;
     using Microsoft.EntityFrameworkCore;
-    using RoadList;
 
-    public class OsloContext : RunnerDbContext<OsloContext>
+    public class ShapeContext : RunnerDbContext<ShapeContext>
     {
         public override string ProjectionStateSchema => Schema.Oslo;
 
-        public DbSet<RoadListItem> RoadList { get; set; }
-        public DbSet<Road.Road> Roads { get; set; }
+        public DbSet<RoadNodeRecord> RoadNodes { get; set; }
 
-        public OsloContext() { }
+        public ShapeContext() { }
 
         // This needs to be DbContextOptions<T> for Autofac!
-        public OsloContext(DbContextOptions<OsloContext> options)
+        public ShapeContext(DbContextOptions<ShapeContext> options)
             : base(options) { }
 
         protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)

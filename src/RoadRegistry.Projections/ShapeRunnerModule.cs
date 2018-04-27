@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Oslo
+﻿namespace RoadRegistry.Projections
 {
     using Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac;
     using Aiv.Vbr.EventHandling;
@@ -11,13 +11,13 @@ namespace RoadRegistry.Projections.Oslo
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
 
-    public class OsloRunnerModule : Module
+    public class ShapeRunnerModule : Module
     {
         private readonly IConfiguration _configuration;
         private readonly IServiceCollection _services;
         private readonly ILoggerFactory _loggerFactory;
 
-        public OsloRunnerModule(
+        public ShapeRunnerModule(
             IConfiguration configuration,
             IServiceCollection services,
             ILoggerFactory loggerFactory)
@@ -32,7 +32,7 @@ namespace RoadRegistry.Projections.Oslo
             var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
             containerBuilder
-                .RegisterModule(new OsloModule(_configuration, _services, _loggerFactory));
+                .RegisterModule(new ShapeModule(_configuration, _services, _loggerFactory));
 
             containerBuilder
                 .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
@@ -43,7 +43,7 @@ namespace RoadRegistry.Projections.Oslo
             containerBuilder
                 .RegisterModule(new SqlStreamStoreModule(_configuration.GetConnectionString("Events"), Schema.Default));
 
-            containerBuilder.RegisterType<RoadOsloRunner>()
+            containerBuilder.RegisterType<RoadShapeRunner>()
                 .SingleInstance();
 
             containerBuilder.Populate(_services);
