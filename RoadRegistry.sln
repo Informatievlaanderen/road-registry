@@ -11,7 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C2F8FF63-7A4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8EA18457-86E2-4D2D-AC9E-2552FDC9676F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projections.Oslo", "src\RoadRegistry.Projections.Oslo\RoadRegistry.Projections.Oslo.csproj", "{1DB4FC79-FCB0-4186-AB90-693334475938}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projections", "src\RoadRegistry.Projections\RoadRegistry.Projections.csproj", "{1DB4FC79-FCB0-4186-AB90-693334475938}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projections.Oslo", "src\RoadRegistry.Projections.Oslo\RoadRegistry.Projections.Oslo.csproj", "{1DB4FC79-FCB0-4186-AB90-693334475939}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry", "src\RoadRegistry\RoadRegistry.csproj", "{BE9DCAED-271E-49EB-B2CC-BB4D727AFA21}"
 EndProject
@@ -24,6 +26,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{FCF39E66-4EE0-4265-B8D6-0AD721AF138C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Tests", "test\RoadRegistry.Tests\RoadRegistry.Tests.csproj", "{0943FA25-9B89-4023-81DE-4A320B88EA7F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projections.Tests", "test\RoadRegistry.Projections.Tests\RoadRegistry.Projections.Tests.csproj", "{0B257FCE-C282-48F4-941B-2832DC0C0A87}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projections.Oslo.Tests", "test\RoadRegistry.Projections.Oslo.Tests\RoadRegistry.Projections.Oslo.Tests.csproj", "{0B257FCE-C282-48F4-941B-2832DC0C0A86}"
 EndProject
