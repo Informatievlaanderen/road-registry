@@ -1,26 +1,24 @@
-using System;
+﻿using System;
 using System.IO;
 using Shaperon.IO;
 
 namespace Shaperon
 {
-    public class PointShape : IShape
+    public class PointShapeContent : IShapeContent
     {
-        public PointShape(double x, double y)
+        public PointShapeContent(Point point)
         {
-            X = x;
-            Y = y;
+            Point = point;
             ContentLength = new WordLength(10);
         }
 
         public ShapeType ShapeType => ShapeType.Point;
 
-        public double X { get; }
-        public double Y { get; }
+        public Point Point { get; }
 
         public WordLength ContentLength { get; }
 
-        public static IShape Read(BinaryReader reader, ShapeRecordHeader header)
+        public static IShapeContent Read(BinaryReader reader, ShapeRecordHeader header)
         {
             if (reader == null)
             {
@@ -29,7 +27,7 @@ namespace Shaperon
 
             var x = reader.ReadDoubleLittleEndian();
             var y = reader.ReadDoubleLittleEndian();
-            return new PointShape(x, y);
+            return new PointShapeContent(new Point(x, y));
         }
 
         public void Write(BinaryWriter writer)
@@ -40,10 +38,10 @@ namespace Shaperon
             }
 
             writer.WriteInt32LittleEndian((int)ShapeType); // Shape Type
-            writer.WriteDoubleLittleEndian(X); // X Coordinate
-            writer.WriteDoubleLittleEndian(Y); // Y Coordinate
+            writer.WriteDoubleLittleEndian(Point.X); // X Coordinate
+            writer.WriteDoubleLittleEndian(Point.Y); // Y Coordinate
         }
 
-        public override string ToString() => $"Point[{X};{Y}]";
+        public override string ToString() => $"Point[{Point.X};{Point.Y}]";
     }
 }

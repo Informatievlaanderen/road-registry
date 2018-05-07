@@ -8,20 +8,20 @@ namespace Shaperon.IO
         //Rationale: 100 byte file header means first record appears at offset 50 (16-bit word) of the mainfile.
         public static readonly WordOffset InitialOffset = new WordOffset(50);
 
-        public ShapeRecord(ShapeRecordHeader header, IShape shape)
+        public ShapeRecord(ShapeRecordHeader header, IShapeContent content)
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
-            Shape = shape ?? throw new ArgumentNullException(nameof(shape));
+            Content = content ?? throw new ArgumentNullException(nameof(content));
         }
 
         public ShapeRecordHeader Header { get; }
-        public IShape Shape { get; }
+        public IShapeContent Content { get; }
 
         //public WordLength RecordLength { get; }
 
-        public static ShapeRecord Create(RecordNumber recordNumber, IShape shape)
+        public static ShapeRecord Create(RecordNumber recordNumber, IShapeContent content)
         {
-            return new ShapeRecord(new ShapeRecordHeader(recordNumber, shape.ContentLength), shape);
+            return new ShapeRecord(new ShapeRecordHeader(recordNumber, content.ContentLength), content);
         }
 
         public static ShapeRecord Read(BinaryReader reader)
@@ -35,21 +35,21 @@ namespace Shaperon.IO
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
                 throw new ShapeFileException("The Shape Type field does not contain a known type of shape.");
-            var shape = NullShape.Instance;
+            var content = NullShapeContent.Instance;
             switch((ShapeType)typeOfShape)
             {
                 case ShapeType.NullShape:
                     break;
                 case ShapeType.Point:
-                    shape = PointShape.Read(reader, header);
+                    content = PointShapeContent.Read(reader, header);
                     break;
                 case ShapeType.PolyLineM:
-                    shape = PolyLineMShape.Read(reader, header);
+                    content = PolyLineMShapeContent.Read(reader, header);
                     break;
                 default:
                     throw new ShapeFileException($"The Shape Type {typeOfShape} is currently not suppported.");
             }
-            return new ShapeRecord(header, shape);
+            return new ShapeRecord(header, content);
         }
 
         public void Write(BinaryWriter writer)
@@ -60,7 +60,7 @@ namespace Shaperon.IO
             }
 
             Header.Write(writer);
-            Shape.Write(writer);
+            Content.Write(writer);
         }
 
         public ShapeIndexRecord AtOffset(WordOffset offset)

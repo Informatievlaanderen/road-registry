@@ -1,14 +1,14 @@
-using System;
+﻿using System;
 using System.IO;
 using Shaperon.IO;
 
 namespace Shaperon
 {
-    public class NullShape : IShape
+    public class NullShapeContent : IShapeContent
     {
-        public static readonly IShape Instance = new NullShape();
+        public static readonly IShapeContent Instance = new NullShapeContent();
 
-        private NullShape() 
+        private NullShapeContent() 
         { 
             ContentLength = new WordLength(2);
         }

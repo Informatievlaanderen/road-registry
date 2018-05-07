@@ -1,8 +1,8 @@
-using System.IO;
+﻿using System.IO;
 
 namespace Shaperon
 {
-    public interface IShape
+    public interface IShapeContent
     {
         ShapeType ShapeType { get; }
 

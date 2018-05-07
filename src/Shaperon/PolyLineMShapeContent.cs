@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.IO;
 using Shaperon.IO;
 
 namespace Shaperon
 {
-    public class PolyLineMShape : IShape
+    public class PolyLineMShapeContent : IShapeContent
     {
-        public PolyLineMShape(BoundingBox2D boundingBox, Int32[] parts, Point[] points, MeasureRange measureRange, double[] measures)
+        public PolyLineMShapeContent(BoundingBox2D boundingBox, Int32[] parts, Point[] points, MeasureRange measureRange, double[] measures)
         {
             BoundingBox = boundingBox ?? throw new ArgumentNullException(nameof(boundingBox));
             Parts = parts ?? throw new ArgumentNullException(nameof(parts));
@@ -26,7 +26,7 @@ namespace Shaperon
         public double[] Measures { get; }
         public WordLength ContentLength { get; }
 
-        public static IShape Read(BinaryReader reader, ShapeRecordHeader header)
+        public static IShapeContent Read(BinaryReader reader, ShapeRecordHeader header)
         {
             if (reader == null)
             {
@@ -66,9 +66,9 @@ namespace Shaperon
                 {
                     measures[measureIndex] = reader.ReadDoubleLittleEndian();
                 }
-                return new PolyLineMShape(box, parts, points, measureRange, measures);
+                return new PolyLineMShapeContent(box, parts, points, measureRange, measures);
             }
-            return new PolyLineMShape(box, parts, points, null, null);
+            return new PolyLineMShapeContent(box, parts, points, null, null);
         }
 
         public void Write(BinaryWriter writer)
