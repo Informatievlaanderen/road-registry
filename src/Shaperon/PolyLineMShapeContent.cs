@@ -1,29 +1,23 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Shaperon.IO;
+using Wkx;
 
 namespace Shaperon
 {
     public class PolyLineMShapeContent : IShapeContent
     {
-        public PolyLineMShapeContent(BoundingBox2D boundingBox, Int32[] parts, Point[] points, MeasureRange measureRange, double[] measures)
+        public PolyLineMShapeContent(MultiLineString shape)
         {
-            BoundingBox = boundingBox ?? throw new ArgumentNullException(nameof(boundingBox));
-            Parts = parts ?? throw new ArgumentNullException(nameof(parts));
-            Points = points ?? throw new ArgumentNullException(nameof(points));
-            MeasureRange = measureRange;
-            Measures = measures;
-            ContentLength = MeasureRange != null && Measures != null
-                ? new ByteLength(84 + (4 * Parts.Length) + (16 * Points.Length) + (8 * Points.Length)).ToWordLength()
-                : new ByteLength(76 + (4 * Parts.Length) + (16 * Points.Length)).ToWordLength();
+            Shape = shape ?? throw new ArgumentNullException(nameof(shape));
+            ContentLength = shape.Dimension == Dimension.Xym
+                ? new ByteLength(84 + (4 * 1) + (16 * shape.Points.Count) + (8 * shape.Points.Count)).ToWordLength()
+                : new ByteLength(76 + (4 * 1) + (16 * shape.Points.Count)).ToWordLength();
+            
         }
         public ShapeType ShapeType => ShapeType.PolyLineM;
-
-        public BoundingBox2D BoundingBox { get; }
-        public int[] Parts { get; }
-        public Point[] Points { get; }
-        public MeasureRange MeasureRange { get; }
-        public double[] Measures { get; }
+        public MultiLineString Shape { get; }
         public WordLength ContentLength { get; }
 
         public static IShapeContent Read(BinaryReader reader, ShapeRecordHeader header)
@@ -33,18 +27,13 @@ namespace Shaperon
                 throw new ArgumentNullException(nameof(reader));
             }
 
-            var box = new BoundingBox2D(
-                reader.ReadDoubleLittleEndian(),
-                reader.ReadDoubleLittleEndian(),
-                reader.ReadDoubleLittleEndian(),
-                reader.ReadDoubleLittleEndian()
-            );
+            reader.ReadBytes(4 * 8); // skip bounding box
             var numParts = reader.ReadInt32LittleEndian();
             var numPoints = reader.ReadInt32LittleEndian();
-            var parts = new Int32[numParts];
+            reader.ReadBytes(numParts * 4); // skip parts (perhaps enforce that it needs to be 1).
             for(var partIndex = 0; partIndex < numParts; partIndex++)
             {
-                parts[partIndex] = reader.ReadInt32LittleEndian();
+                reader.ReadInt32LittleEndian(); //
             }
             var points = new Point[numPoints];
             for(var pointIndex = 0; pointIndex < numPoints; pointIndex++)
@@ -61,14 +50,17 @@ namespace Shaperon
                     reader.ReadDoubleLittleEndian(),
                     reader.ReadDoubleLittleEndian()
                 );
-                var measures = new double[numPoints];
                 for(var measureIndex = 0; measureIndex < numPoints; measureIndex++)
                 {
-                    measures[measureIndex] = reader.ReadDoubleLittleEndian();
+                    points[measureIndex] = new Point(
+                        points[measureIndex].X.Value,
+                        points[measureIndex].Y.Value,
+                        null,
+                        reader.ReadDoubleLittleEndian());
                 }
-                return new PolyLineMShapeContent(box, parts, points, measureRange, measures);
+                //return new PolyLineMShapeContent(box, parts, points, measureRange, measures);
             }
-            return new PolyLineMShapeContent(box, parts, points, null, null);
+            return new PolyLineMShapeContent(new LineString(points));
         }
 
         public void Write(BinaryWriter writer)
@@ -80,28 +72,31 @@ namespace Shaperon
 
             writer.WriteInt32LittleEndian((int)ShapeType); // Shape Type
 
-            writer.WriteDoubleLittleEndian(BoundingBox.XMin);
-            writer.WriteDoubleLittleEndian(BoundingBox.YMin);
-            writer.WriteDoubleLittleEndian(BoundingBox.XMax);
-            writer.WriteDoubleLittleEndian(BoundingBox.YMax);
+            var bbox = Shape.GetBoundingBox();
+            writer.WriteDoubleLittleEndian(bbox.XMin);
+            writer.WriteDoubleLittleEndian(bbox.YMin);
+            writer.WriteDoubleLittleEndian(bbox.XMax);
+            writer.WriteDoubleLittleEndian(bbox.YMax);
 
-            writer.WriteInt32LittleEndian(Parts.Length);
-            writer.WriteInt32LittleEndian(Points.Length);
-            foreach(var part in Parts)
+            writer.WriteInt32LittleEndian(Shape.Geometries.Count);
+            writer.WriteInt32LittleEndian(Shape.Geometries.Aggregate(0, (current, line) => line.Points.Count));
+            var offset = 0;
+            foreach(var line in Shape.Geometries)
             {
-                writer.WriteInt32LittleEndian(part);
+                writer.WriteInt32LittleEndian(0);
             }
-            foreach(var point in Points)
+            
+            foreach(var point in Shape.Points)
             {
-                writer.WriteDoubleLittleEndian(point.X);
-                writer.WriteDoubleLittleEndian(point.Y);
+                writer.WriteDoubleLittleEndian(point.X.Value);
+                writer.WriteDoubleLittleEndian(point.Y.Value);
             }
-            if(MeasureRange != null && Measures != null)
+            if(Shape.Dimension == Dimension.Xym)
             {
-                writer.WriteDoubleLittleEndian(MeasureRange.MMin);
-                writer.WriteDoubleLittleEndian(MeasureRange.MMax);
+                writer.WriteDoubleLittleEndian(Shape.Points.Min(point => point.M.Value));
+                writer.WriteDoubleLittleEndian(Shape.Points.Max(point => point.M.Value));
 
-                foreach(var measure in Measures)
+                foreach(var measure in Shape.Points.Select(point => point.M.Value))
                 {
                     writer.WriteDoubleLittleEndian(measure);
                 }

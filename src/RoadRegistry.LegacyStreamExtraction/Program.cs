@@ -9,6 +9,7 @@ namespace RoadRegistry.LegacyImporter
     using Events;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
+    using Shaperon;
 
     public class Program
     {
@@ -37,8 +38,9 @@ namespace RoadRegistry.LegacyImporter
                     new SqlCommand(
                         @"SELECT 
                             wk.[wegknoopID],
+                            wk.[wegknoopversie],
                             wk.[type],
-                            wk.[geometrie].STAsBinary(),
+                            wk.[geometrie].AsBinaryZM(),
                             wk.[beginorganisatie],
                             lo.[label],
                             wk.[begintijd]
@@ -46,19 +48,26 @@ namespace RoadRegistry.LegacyImporter
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wk.[beginorganisatie] = lo.[code]", connection
                     ).ForEachDataRecord(reader =>
                     {
+                        var wellKnownBinary = reader.GetAllBytes(3);
+                        // var gem = Wkx.Geometry.Deserialize<Wkx.WkbSerializer>(bytes);
+                        // Console.WriteLine(gem.GeometryType);
                         var node = new ImportedRoadNode
                         {
                             Id = reader.GetInt32(0),
-                            Type = Translate.ToRoadNodeType(reader.GetInt32(1)),
-                            WellKnownBinaryGeometry = reader.GetAllBytes(2),
+                            Version = reader.GetInt32(1),
+                            Type = Translate.ToRoadNodeType(reader.GetInt32(2)),
+                            Geometry = new Geometry
+                            {
+                                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
+                                WellKnownBinary = wellKnownBinary
+                            },
                             Origin = new OriginProperties
                             {
-                                OrganizationId = reader.GetNullableString(3),
-                                Organization = reader.GetNullableString(4),
-                                Since = reader.GetDateTime(5)
+                                OrganizationId = reader.GetNullableString(4),
+                                Organization = reader.GetNullableString(5),
+                                Since = reader.GetDateTime(6)
                             }
                         };
-
                         nodes.Add(node);
                     });
                 Console.WriteLine("Reading nodes took {0}ms", watch.ElapsedMilliseconds);
@@ -69,23 +78,24 @@ namespace RoadRegistry.LegacyImporter
                     new SqlCommand(
                         @"SELECT 
                             ws.[wegsegmentID], --0
-                            ws.[beginWegknoopID], --1
-                            ws.[eindWegknoopID], --2
-                            ws.[geometrie].STAsBinary(), --3
-                            ws.[beheerder], --4
-                            ws.[methode], --5
-                            ws.[morfologie], --6
-                            ws.[status], --7
-                            ws.[categorie], --8
-                            ws.[toegangsbeperking], --9
-                            ws.[linksStraatnaamID], --10
-                            lg.[NISCode], --11
-                            ws.[rechtsStraatnaamID], --12
-                            rg.[NISCode], --13
-                            ws.[opnamedatum], --14
-                            ws.[beginorganisatie], --15
-                            lo.[label], --16
-                            ws.[begintijd] --17
+                            ws.[wegsegmentversie], --1
+                            ws.[beginWegknoopID], --2
+                            ws.[eindWegknoopID], --3
+                            ws.[geometrie].AsBinaryZM(), --4
+                            ws.[beheerder], --5
+                            ws.[methode], --6
+                            ws.[morfologie], --7
+                            ws.[status], --8
+                            ws.[categorie], --9
+                            ws.[toegangsbeperking], --10
+                            ws.[linksStraatnaamID], --11
+                            lg.[NISCode], --12
+                            ws.[rechtsStraatnaamID], --13
+                            rg.[NISCode], --14
+                            ws.[opnamedatum], --15
+                            ws.[beginorganisatie], --16
+                            lo.[label], --17
+                            ws.[begintijd] --18
                         FROM [dbo].[wegsegment] ws
                         LEFT OUTER JOIN [dbo].[gemeenteNIS] lg ON ws.[linksGemeente] = lg.[gemeenteId]
                         LEFT OUTER JOIN [dbo].[gemeenteNIS] rg ON ws.[rechtsGemeente] = rg.[gemeenteId]
@@ -93,34 +103,40 @@ namespace RoadRegistry.LegacyImporter
                         WHERE ws.[eindWegknoopID] IS NOT NULL", connection
                     ).ForEachDataRecord(reader =>
                     {
+                        var wellKnownBinary = reader.GetAllBytes(4);
                         var segment = new ImportedRoadSegment
                         {
                             Id = reader.GetInt32(0),
-                            StartNodeId = reader.GetInt32(1),
-                            EndNodeId = reader.GetInt32(2),
-                            WellKnownBinaryGeometry = reader.GetAllBytes(3),
-                            MaintainerId = reader.GetString(4),
-                            GeometryDrawMethod = Translate.ToRoadSegmentGeometryDrawMethod(reader.GetInt32(5)),
-                            Morphology = Translate.ToRoadSegmentMorphology(reader.GetInt32(6)),
-                            Status = Translate.ToRoadSegmentStatus(reader.GetInt32(7)),
-                            Category = Translate.ToRoadSegmentCategory(reader.GetString(8)),
-                            AccessRestriction = Translate.ToRoadSegmentAccessRestriction(reader.GetInt32(9)),
+                            Version = reader.GetInt32(1),
+                            StartNodeId = reader.GetInt32(2),
+                            EndNodeId = reader.GetInt32(3),
+                            Geometry = new Geometry
+                            {
+                                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
+                                WellKnownBinary = wellKnownBinary
+                            },
+                            MaintainerId = reader.GetString(5),
+                            GeometryDrawMethod = Translate.ToRoadSegmentGeometryDrawMethod(reader.GetInt32(6)),
+                            Morphology = Translate.ToRoadSegmentMorphology(reader.GetInt32(7)),
+                            Status = Translate.ToRoadSegmentStatus(reader.GetInt32(8)),
+                            Category = Translate.ToRoadSegmentCategory(reader.GetString(9)),
+                            AccessRestriction = Translate.ToRoadSegmentAccessRestriction(reader.GetInt32(10)),
                             LeftSide = new RoadSegmentSideProperties
                             {
-                                StreetNameId = reader.GetNullableInt32(10),
-                                MunicipalityNISCode = reader.GetNullableString(11)
+                                StreetNameId = reader.GetNullableInt32(11),
+                                MunicipalityNISCode = reader.GetNullableString(12)
                             },
                             RightSide = new RoadSegmentSideProperties
                             {
-                                StreetNameId = reader.GetNullableInt32(12),
-                                MunicipalityNISCode = reader.GetNullableString(13)
+                                StreetNameId = reader.GetNullableInt32(13),
+                                MunicipalityNISCode = reader.GetNullableString(14)
                             },
-                            RecordingDate = reader.GetDateTime(14),
+                            RecordingDate = reader.GetDateTime(15),
                             Origin = new OriginProperties
                             {
-                                OrganizationId = reader.GetNullableString(15),
-                                Organization = reader.GetNullableString(16),
-                                Since = reader.GetDateTime(17)
+                                OrganizationId = reader.GetNullableString(16),
+                                Organization = reader.GetNullableString(17),
+                                Since = reader.GetDateTime(18)
                             },
                             PartOfEuropeanRoads = Array.Empty<RoadSegmentEuropeanRoadProperties>(),
                             PartOfNationalRoads = Array.Empty<RoadSegmentNationalRoadProperties>(),
@@ -129,7 +145,6 @@ namespace RoadRegistry.LegacyImporter
                             Widths = Array.Empty<RoadSegmentWidthProperties>(),
                             Hardenings = Array.Empty<RoadSegmentHardeningProperties>(),
                         };
-
                         segments.Add(segment.Id, segment);
                     });
                 Console.WriteLine("Reading segments took {0}ms", watch.ElapsedMilliseconds);
@@ -421,7 +436,11 @@ namespace RoadRegistry.LegacyImporter
                         var point = new ImportedReferencePoint
                         {
                             Id = reader.GetInt32(0),
-                            WellKnownBinaryGeometry = reader.GetAllBytes(1),
+                            Geometry = new Geometry
+                            {
+                                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
+                                WellKnownBinary = reader.GetAllBytes(1)
+                            },
                             Ident8 = reader.GetString(2),
                             Type = Translate.ToReferencePointType(reader.GetInt32(3)),
                             Caption = reader.GetString(4),

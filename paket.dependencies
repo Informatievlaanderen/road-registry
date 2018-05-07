@@ -62,6 +62,7 @@ nuget System.Collections.Immutable 1.4.0
 nuget System.Data.SqlClient
 
 nuget System.Text.Encoding.CodePages
+nuget Wkx
 
 // VBR STUFF
 nuget Aiv.Vbr.AggregateSource ~> 2.0

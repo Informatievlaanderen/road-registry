@@ -1271,6 +1271,7 @@ NUGET
       System.Xml.ReaderWriter (>= 4.3)
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
+    Wkx (0.4.1)
     xunit (2.3.1)
       xunit.analyzers (>= 0.7)
       xunit.assert (2.3.1)
