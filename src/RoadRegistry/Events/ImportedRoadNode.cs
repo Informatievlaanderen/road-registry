@@ -7,7 +7,8 @@ namespace RoadRegistry.Events
     public class ImportedRoadNode
     {
         public int Id { get; set; }
-        public byte[] WellKnownBinaryGeometry { get; set; }  //srid
+        public int Version { get; set; }
+        public Geometry Geometry { get; set; }
         public RoadNodeType Type { get; set; }
         public OriginProperties Origin { get; set; }
     }

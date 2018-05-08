@@ -1,20 +1,21 @@
 ﻿using System;
 using System.IO;
 using Shaperon.IO;
+using Wkx;
 
 namespace Shaperon
 {
     public class PointShapeContent : IShapeContent
     {
-        public PointShapeContent(Point point)
+        public PointShapeContent(Point shape)
         {
-            Point = point;
+            Shape = shape ?? throw new ArgumentNullException(nameof(shape));
             ContentLength = new WordLength(10);
         }
 
         public ShapeType ShapeType => ShapeType.Point;
 
-        public Point Point { get; }
+        public Point Shape { get; }
 
         public WordLength ContentLength { get; }
 
@@ -38,10 +39,10 @@ namespace Shaperon
             }
 
             writer.WriteInt32LittleEndian((int)ShapeType); // Shape Type
-            writer.WriteDoubleLittleEndian(Point.X); // X Coordinate
-            writer.WriteDoubleLittleEndian(Point.Y); // Y Coordinate
+            writer.WriteDoubleLittleEndian(Shape.X.Value); // X Coordinate
+            writer.WriteDoubleLittleEndian(Shape.Y.Value); // Y Coordinate
         }
 
-        public override string ToString() => $"Point[{Point.X};{Point.Y}]";
+        public override string ToString() => $"Point[{Shape.X.Value};{Shape.Y.Value}]";
     }
 }

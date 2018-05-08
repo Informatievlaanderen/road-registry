@@ -1,4 +1,4 @@
-﻿namespace Shaperon
+﻿namespace Shaperon.IO
 {
     public class BoundingBox3D
     {
