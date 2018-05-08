@@ -61,6 +61,8 @@ nuget System.Threading.Tasks.Dataflow 4.8.0
 nuget System.Collections.Immutable 1.4.0
 nuget System.Data.SqlClient
 
+nuget System.Text.Encoding.CodePages
+
 // VBR STUFF
 nuget Aiv.Vbr.AggregateSource ~> 2.0
 nuget Aiv.Vbr.AggregateSource.ExplicitRouting ~> 2.0

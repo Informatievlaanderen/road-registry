@@ -11,7 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C2F8FF63-7A4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8EA18457-86E2-4D2D-AC9E-2552FDC9676F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projections.Oslo", "src\RoadRegistry.Projections.Oslo\RoadRegistry.Projections.Oslo.csproj", "{1DB4FC79-FCB0-4186-AB90-693334475938}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projections", "src\RoadRegistry.Projections\RoadRegistry.Projections.csproj", "{1DB4FC79-FCB0-4186-AB90-693334475938}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projections.Oslo", "src\RoadRegistry.Projections.Oslo\RoadRegistry.Projections.Oslo.csproj", "{1DB4FC79-FCB0-4186-AB90-693334475939}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry", "src\RoadRegistry\RoadRegistry.csproj", "{BE9DCAED-271E-49EB-B2CC-BB4D727AFA21}"
 EndProject
@@ -24,6 +26,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{FCF39E66-4EE0-4265-B8D6-0AD721AF138C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Tests", "test\RoadRegistry.Tests\RoadRegistry.Tests.csproj", "{0943FA25-9B89-4023-81DE-4A320B88EA7F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projections.Tests", "test\RoadRegistry.Projections.Tests\RoadRegistry.Projections.Tests.csproj", "{0B257FCE-C282-48F4-941B-2832DC0C0A87}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projections.Oslo.Tests", "test\RoadRegistry.Projections.Oslo.Tests\RoadRegistry.Projections.Oslo.Tests.csproj", "{0B257FCE-C282-48F4-941B-2832DC0C0A86}"
 EndProject
@@ -38,6 +42,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.LegacyStreamExtraction", "src\RoadRegistry.LegacyStreamExtraction\RoadRegistry.LegacyStreamExtraction.csproj", "{B5267E8A-DB8F-44C3-9046-69573A75B104}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.LegacyStreamLoader", "src\RoadRegistry.LegacyStreamLoader\RoadRegistry.LegacyStreamLoader.csproj", "{89A34C62-12D6-4505-AE09-9ECC7B5D07D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaperon", "src\Shaperon\Shaperon.csproj", "{3946E7CB-8BAA-4224-95CE-4D08B574905E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaperon.Usage", "src\Shaperon.Usage\Shaperon.Usage.csproj", "{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -157,6 +165,30 @@ Global
 		{89A34C62-12D6-4505-AE09-9ECC7B5D07D6}.Release|x64.Build.0 = Release|Any CPU
 		{89A34C62-12D6-4505-AE09-9ECC7B5D07D6}.Release|x86.ActiveCfg = Release|Any CPU
 		{89A34C62-12D6-4505-AE09-9ECC7B5D07D6}.Release|x86.Build.0 = Release|Any CPU
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Debug|x64.ActiveCfg = Debug|x64
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Debug|x64.Build.0 = Debug|x64
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Debug|x86.ActiveCfg = Debug|x86
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Debug|x86.Build.0 = Debug|x86
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Release|x64.ActiveCfg = Release|x64
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Release|x64.Build.0 = Release|x64
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Release|x86.ActiveCfg = Release|x86
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E}.Release|x86.Build.0 = Release|x86
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Debug|x64.ActiveCfg = Debug|x64
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Debug|x64.Build.0 = Debug|x64
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Debug|x86.ActiveCfg = Debug|x86
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Debug|x86.Build.0 = Debug|x86
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Release|x64.ActiveCfg = Release|x64
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Release|x64.Build.0 = Release|x64
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Release|x86.ActiveCfg = Release|x86
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -171,6 +203,8 @@ Global
 		{0B257FCE-C282-48F4-941B-2832DC0C0A86} = {8EA18457-86E2-4D2D-AC9E-2552FDC9676F}
 		{B5267E8A-DB8F-44C3-9046-69573A75B104} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{89A34C62-12D6-4505-AE09-9ECC7B5D07D6} = {C2F8FF63-7A48-4179-A720-86206C42F496}
+		{3946E7CB-8BAA-4224-95CE-4D08B574905E} = {C2F8FF63-7A48-4179-A720-86206C42F496}
+		{DF8CB70E-3C6F-415F-8BA4-A0AC7BBD5F4E} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EB87445-E263-4E1E-89CC-3839170028E5}

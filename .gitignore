@@ -39,3 +39,4 @@ structurizr-*.json
 appsettings.BitTacklr002.json
 roadnetworkstream.json
 .local
+run-local.bat

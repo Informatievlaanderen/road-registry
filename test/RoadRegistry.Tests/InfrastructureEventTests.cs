@@ -67,7 +67,7 @@ namespace RoadRegistry.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Road Registry uses POCOs with getters and setters instead of constructor injection.")]
         [SystemTest]
         public void HasJsonConstructor()
         {
