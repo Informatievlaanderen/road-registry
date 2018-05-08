@@ -59,7 +59,8 @@ namespace RoadRegistry.LegacyStreamLoader
                 var legacyStreamFile = new FileInfo(legacyStreamFilePath);
                 var reader = new LegacyStreamFileReader(fileSettings);
                 var expectedVersion = ExpectedVersion.NoStream;
-                var watch = Stopwatch.StartNew();
+                var innerWatch = Stopwatch.StartNew();
+                var outerWatch = Stopwatch.StartNew();
                 var index = 0;
 
                 foreach (var batch in reader.Read(legacyStreamFile).Batch(1000))
@@ -67,7 +68,7 @@ namespace RoadRegistry.LegacyStreamLoader
                     Console.Write("Expected version is {0}.", expectedVersion);
                     Console.Write(" ");
 
-                    watch.Restart();
+                    innerWatch.Restart();
                     var appendResult = await streamStore.AppendToStream(
                         new StreamId("roadnetwork"),
                         expectedVersion,
@@ -81,10 +82,11 @@ namespace RoadRegistry.LegacyStreamLoader
                             }, eventSettings)
                         ))
                     );
-                    Console.WriteLine("Append took {0}ms", watch.ElapsedMilliseconds);
+                    Console.WriteLine("Append took {0}ms", innerWatch.ElapsedMilliseconds);
 
                     expectedVersion = appendResult.CurrentVersion;
                 }
+                Console.WriteLine("Total append took {0}ms", outerWatch.ElapsedMilliseconds);
             }
         }
     }
