@@ -16,6 +16,16 @@ namespace Shaperon.IO
         public bool IsDeleted { get; }
         public DbaseValue[] Values { get; }
 
+        public static DbaseRecord Create(DbaseValue[] values)
+        {
+            if (values == null)
+            {
+                throw new ArgumentNullException(nameof(values));
+            }
+
+            return new DbaseRecord(false, values);
+        }
+
         public static DbaseRecord Read(BinaryReader reader, DbaseFileHeader header)
         {
             if (reader == null)
@@ -51,7 +61,7 @@ namespace Shaperon.IO
             }
             return new DbaseRecord(deleted, values);
         }
-
+        
         public void Write(BinaryWriter writer)
         {
             if (writer == null)
@@ -62,6 +72,19 @@ namespace Shaperon.IO
             foreach(var value in Values)
             {
                 value.Write(writer);
+            }
+        }
+
+        public byte[] ToBytes()
+        {
+            using(var output = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(output))
+                {
+                    Write(writer);
+                    writer.Flush();
+                }
+                return output.ToArray();
             }
         }
     }

@@ -7,7 +7,7 @@
     {
         public RoadShapeRunner(EnvelopeFactory envelopeFactory) :
             base(
-                "RoadOsloRunner",
+                "RoadShapeRunner",
                 envelopeFactory,
                 new RoadNodeRecordProjection())
             { }

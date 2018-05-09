@@ -4,6 +4,7 @@ using System.IO;
 
 namespace Shaperon.IO
 {
+
     public class DbaseField
     {
         private readonly Dictionary<DbaseFieldType, Func<DbaseField, DbaseValue>> _factories =

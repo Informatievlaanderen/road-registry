@@ -28,3 +28,5 @@ Aiv.Vbr.ProjectionHandling.Connector
 Aiv.Vbr.ProjectionHandling.Runner
 Aiv.Vbr.ProjectionHandling.SqlStreamStore
 Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac
+
+Wkx

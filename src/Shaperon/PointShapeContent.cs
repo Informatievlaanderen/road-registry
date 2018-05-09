@@ -15,7 +15,7 @@ namespace Shaperon
 
         public ShapeType ShapeType => ShapeType.Point;
 
-        public Point Shape { get; }
+        public Point Shape { get; private set; }
 
         public WordLength ContentLength { get; }
 
@@ -28,6 +28,21 @@ namespace Shaperon
 
             var x = reader.ReadDoubleLittleEndian();
             var y = reader.ReadDoubleLittleEndian();
+            return new PointShapeContent(new Point(x, y));
+        }
+
+        public void Read(BinaryReader reader)
+        {
+            if (reader == null)
+            {
+                throw new ArgumentNullException(nameof(reader));
+            }
+
+            var x = ;
+            var y = ;
+            Shape = new Point(
+                reader.ReadDoubleLittleEndian(),
+                reader.ReadDoubleLittleEndian());
             return new PointShapeContent(new Point(x, y));
         }
 
