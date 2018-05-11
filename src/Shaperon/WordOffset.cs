@@ -10,7 +10,7 @@ namespace Shaperon
         {
             if(value < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), "value", "The value of word offset must be greater than or equal to 0.");
+                throw new ArgumentOutOfRangeException(nameof(value), value, "The value of word offset must be greater than or equal to 0.");
             }
             _value = value;
         }

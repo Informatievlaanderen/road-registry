@@ -1,0 +1,7 @@
+xunit
+dotnet-xunit
+xunit.runner.visualstudio
+xunit.categories
+Microsoft.NET.Test.Sdk
+AutoFixture
+AutoFixture.Idioms
