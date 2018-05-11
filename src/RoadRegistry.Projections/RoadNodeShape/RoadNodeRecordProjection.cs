@@ -2,7 +2,7 @@ using System.IO;
 using Aiv.Vbr.ProjectionHandling.Connector;
 using RoadRegistry.Events;
 using Shaperon;
-using Shaperon.IO;
+using Shaperon;
 using Wkx;
 
 namespace RoadRegistry.Projections
@@ -17,25 +17,23 @@ namespace RoadRegistry.Projections
             When<ImportedRoadNode>((context, @event, token) =>
             {
                 //TODO:
-                //- Where does record number come from?
                 //- Use pooled memory streams
 
-                return context.AddAsync(new RoadNodeRecord
+                RoadNodeDbaseRecord dbaseRecord = new RoadNodeDbaseRecord
                 {
-                    Id = @event.Id,
-                    ShapeRecord = ShapeRecord
-                        .Create(
-                            new RecordNumber(1), 
-                            new PointShapeContent(RoadNodePoint.FromWellKnownBinary(@event.Geometry.WellKnownBinary))
-                        ).ToBytes(),
-                    DbaseRecord = new RoadNodeDbaseRecord
+                    WK_OIDN = { Value = @event.Id },
+                    WK_UIDN = { Value = @event.Id + "_" + @event.Version },
+                    TYPE = { Value = RoadNodeTypeTranslator.TranslateToIdentifier(@event.Type) },
+                    LBLTYPE = { Value = RoadNodeTypeTranslator.TranslateToDutchName(@event.Type) },
+                    BEGINTIJD = { Value = @event.Origin.Since },
+                    BEGINORG = { Value = @event.Origin.OrganizationId },
+                    LBLBGNORG = { Value = @event.Origin.Organization }
+                };
+                return context.AddAsync(new RoadNodeRecord
                     {
-                        WK_OIDN = { Value = @event.Id },
-                        WK_UIDN = { Value = @event.Id + "_" + @event.Version },
-                        TYPE = { Value = RoadNodeTypeTranslator.TranslateToIdentifier(@event.Type) },
-                        LBLTYPE = { Value = RoadNodeTypeTranslator.TranslateToDutchName(@event.Type) },
-                    }.ToBytes()
-                    //...
+                    Id = @event.Id,
+                    ShapeRecordContent = new PointShapeContent(FromWellKnownBinary.ToPoint(@event.Geometry.WellKnownBinary)).ToBytes(),
+                    DbaseRecord = dbaseRecord.ToBytes()
                 }, token);
             });
         }

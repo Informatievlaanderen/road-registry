@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 
-namespace Shaperon.IO
+namespace Shaperon
 {
     public class DbaseString : DbaseValue
     {

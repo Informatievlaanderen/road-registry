@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Shaperon.IO;
+using Shaperon;
 using Wkx;
 
 namespace Shaperon
@@ -19,7 +19,7 @@ namespace Shaperon
 
         public WordLength ContentLength { get; }
 
-        public static IShapeContent Read(BinaryReader reader, ShapeRecordHeader header)
+        internal static IShapeContent ReadFromRecord(BinaryReader reader, ShapeRecordHeader header)
         {
             if (reader == null)
             {
@@ -31,19 +31,23 @@ namespace Shaperon
             return new PointShapeContent(new Point(x, y));
         }
 
-        public void Read(BinaryReader reader)
+        public static IShapeContent Read(BinaryReader reader)
         {
             if (reader == null)
             {
                 throw new ArgumentNullException(nameof(reader));
             }
 
-            var x = ;
-            var y = ;
-            Shape = new Point(
-                reader.ReadDoubleLittleEndian(),
-                reader.ReadDoubleLittleEndian());
-            return new PointShapeContent(new Point(x, y));
+            var typeOfShape = reader.ReadInt32LittleEndian();
+            if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
+                throw new ShapeFileContentException("The Shape Type field does not contain a known type of shape.");
+            if(((ShapeType)typeOfShape) != ShapeType.Point)
+                throw new ShapeFileContentException("The Shape Type field does not indicate a Point shape.");
+
+            return new PointShapeContent(
+                new Point(
+                    reader.ReadDoubleLittleEndian(),
+                    reader.ReadDoubleLittleEndian()));
         }
 
         public void Write(BinaryWriter writer)
@@ -56,6 +60,19 @@ namespace Shaperon
             writer.WriteInt32LittleEndian((int)ShapeType); // Shape Type
             writer.WriteDoubleLittleEndian(Shape.X.Value); // X Coordinate
             writer.WriteDoubleLittleEndian(Shape.Y.Value); // Y Coordinate
+        }
+
+        public byte[] ToBytes()
+        {
+            using(var output = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(output))
+                {
+                    Write(writer);
+                    writer.Flush();
+                }
+                return output.ToArray();
+            }
         }
 
         public override string ToString() => $"Point[{Shape.X.Value};{Shape.Y.Value}]";

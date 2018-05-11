@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using Shaperon;
-using Shaperon.IO;
+using Shaperon;
 using Wkx;
 
 namespace RoadRegistry.Projections

@@ -1,10 +1,10 @@
-using Wkx;
+﻿using Wkx;
 
 namespace RoadRegistry.Projections
 {
-    public static class RoadNodePoint 
+    public static class FromWellKnownBinary 
     {
-        public static Point FromWellKnownBinary(byte[] value)
+        public static Point ToPoint(byte[] value)
         {
             return (Point)Wkx.Geometry.Deserialize<WkbSerializer>(value);
         }

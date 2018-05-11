@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Shaperon.IO
+namespace Shaperon
 {
     public class ShapeRecord
     {
@@ -34,20 +34,20 @@ namespace Shaperon.IO
             var header = ShapeRecordHeader.Read(reader);
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
-                throw new ShapeFileException("The Shape Type field does not contain a known type of shape.");
+                throw new ShapeFileContentException("The Shape Type field does not contain a known type of shape.");
             var content = NullShapeContent.Instance;
             switch((ShapeType)typeOfShape)
             {
                 case ShapeType.NullShape:
                     break;
                 case ShapeType.Point:
-                    content = PointShapeContent.Read(reader, header);
+                    content = PointShapeContent.ReadFromRecord(reader, header);
                     break;
                 case ShapeType.PolyLineM:
-                    content = PolyLineMShapeContent.Read(reader, header);
+                    content = PolyLineMShapeContent.ReadFromRecord(reader, header);
                     break;
                 default:
-                    throw new ShapeFileException($"The Shape Type {typeOfShape} is currently not suppported.");
+                    throw new ShapeFileContentException($"The Shape Type {typeOfShape} is currently not suppported.");
             }
             return new ShapeRecord(header, content);
         }

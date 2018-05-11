@@ -8,7 +8,7 @@ namespace RoadRegistry.Projections
     public class RoadNodeRecord
     {
         public int Id { get; set; }
-        public byte[] ShapeRecord { get; set; }
+        public byte[] ShapeRecordContent { get; set; }
         public byte[] DbaseRecord { get; set; }
     }
 
@@ -22,7 +22,7 @@ namespace RoadRegistry.Projections
                 .HasKey(p => p.Id)
                 .ForSqlServerIsClustered(false);
 
-            b.Property(p => p.ShapeRecord);
+            b.Property(p => p.ShapeRecordContent);
             b.Property(p => p.DbaseRecord);
         }
     }

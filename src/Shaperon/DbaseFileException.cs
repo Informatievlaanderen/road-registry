@@ -1,6 +1,6 @@
 using System;
 
-namespace Shaperon.IO
+namespace Shaperon
 {
     public class DbaseFileException : Exception
     {

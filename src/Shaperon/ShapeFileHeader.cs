@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace Shaperon.IO
+namespace Shaperon
 {
     public class ShapeFileHeader
     {
@@ -25,14 +25,14 @@ namespace Shaperon.IO
             }
 
             if (reader.ReadInt32BigEndian() != 9994)
-                throw new ShapeFileException("The File Code field does not match 9994.");
+                throw new ShapeFileHeaderException("The File Code field does not match 9994.");
             reader.ReadBytes(20);
             var fileLength = reader.ReadInt32BigEndian();
             if(reader.ReadInt32LittleEndian() != 1000)
-                throw new ShapeFileException("The Version field does not match 1000.");
+                throw new ShapeFileHeaderException("The Version field does not match 1000.");
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
-                throw new ShapeFileException("The Shape Type field does not contain a known type of shape.");
+                throw new ShapeFileHeaderException("The Shape Type field does not contain a known type of shape.");
             var boundingBox = new BoundingBox3D(
                 reader.ReadDoubleLittleEndian(),
                 reader.ReadDoubleLittleEndian(),

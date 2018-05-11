@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Shaperon.IO;
+using Shaperon;
 using Wkx;
 
 namespace Shaperon
@@ -21,7 +21,7 @@ namespace Shaperon
         public MultiLineString Shape { get; }
         public WordLength ContentLength { get; }
 
-        public static IShapeContent Read(BinaryReader reader, ShapeRecordHeader header)
+        internal static IShapeContent ReadFromRecord(BinaryReader reader, ShapeRecordHeader header)
         {
             if (reader == null)
             {
@@ -53,6 +53,55 @@ namespace Shaperon
                     points[measureIndex] = points[measureIndex].WithMeasure(reader.ReadDoubleLittleEndian());
                 }
             }
+            var lines = new LineString[numParts];
+            var toPointIndex = points.Length;
+            for(var partIndex = numParts - 1; partIndex >= 0; partIndex--)
+            {
+                var fromPointIndex = parts[partIndex];
+                lines[partIndex] = new LineString(new ArraySegment<Point>(points, fromPointIndex, toPointIndex - fromPointIndex));
+                toPointIndex = fromPointIndex;
+            }
+            return new PolyLineMShapeContent(new MultiLineString(lines));
+        }
+
+        public static IShapeContent Read(BinaryReader reader)
+        {
+            if (reader == null)
+            {
+                throw new ArgumentNullException(nameof(reader));
+            }
+
+            var typeOfShape = reader.ReadInt32LittleEndian();
+            if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
+                throw new ShapeFileContentException("The Shape Type field does not contain a known type of shape.");
+            if(((ShapeType)typeOfShape) != ShapeType.PolyLineM)
+                throw new ShapeFileContentException("The Shape Type field does not indicate a PolyLineM shape.");
+
+            reader.ReadBytes(4 * 8); // skip bounding box
+            var numParts = reader.ReadInt32LittleEndian();
+            var numPoints = reader.ReadInt32LittleEndian();
+            var parts = new Int32[numParts];
+            for(var partIndex = 0; partIndex < numParts; partIndex++)
+            {
+                parts[partIndex] = reader.ReadInt32LittleEndian();
+            }
+            var points = new Point[numPoints];
+            for(var pointIndex = 0; pointIndex < numPoints; pointIndex++)
+            {
+                points[pointIndex] = new Point(
+                    reader.ReadDoubleLittleEndian(),
+                    reader.ReadDoubleLittleEndian()
+                );
+            }
+            var requiredContentByteLength = new ByteLength(44 + (4 * numParts) + (16 * numPoints));
+            if(reader.BaseStream.CanSeek && reader.BaseStream.Position != reader.BaseStream.Length)
+            {
+                reader.ReadBytes(2 * 8); // skip measure range
+                for(var measureIndex = 0; measureIndex < numPoints; measureIndex++)
+                {
+                    points[measureIndex] = points[measureIndex].WithMeasure(reader.ReadDoubleLittleEndian());
+                }
+            } //else try-catch-EndOfStreamException?? or only support seekable streams?
             var lines = new LineString[numParts];
             var toPointIndex = points.Length;
             for(var partIndex = numParts - 1; partIndex >= 0; partIndex--)

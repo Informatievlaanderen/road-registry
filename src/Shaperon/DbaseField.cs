@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Shaperon.IO
+namespace Shaperon
 {
 
     public class DbaseField

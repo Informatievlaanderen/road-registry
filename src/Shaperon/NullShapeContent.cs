@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Shaperon.IO;
+using Shaperon;
 
 namespace Shaperon
 {
@@ -16,6 +16,22 @@ namespace Shaperon
         public ShapeType ShapeType => ShapeType.NullShape;
 
         public WordLength ContentLength { get; }
+
+        public static IShapeContent Read(BinaryReader reader)
+        {
+            if (reader == null)
+            {
+                throw new ArgumentNullException(nameof(reader));
+            }
+
+            var typeOfShape = reader.ReadInt32LittleEndian();
+            if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
+                throw new ShapeFileContentException("The Shape Type field does not contain a known type of shape.");
+            if(((ShapeType)typeOfShape) != ShapeType.NullShape)
+                throw new ShapeFileContentException("The Shape Type field does not indicate a Null shape.");
+            
+            return Instance;
+        }
 
         public void Write(BinaryWriter writer)
         {

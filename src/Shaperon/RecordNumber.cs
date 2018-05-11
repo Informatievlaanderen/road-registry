@@ -1,6 +1,6 @@
 using System;
 
-namespace Shaperon.IO
+namespace Shaperon
 {
     public readonly struct RecordNumber : IEquatable<RecordNumber>
     {

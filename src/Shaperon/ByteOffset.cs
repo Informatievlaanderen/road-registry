@@ -1,6 +1,6 @@
 using System;
 
-namespace Shaperon.IO
+namespace Shaperon
 {
     public readonly struct ByteOffset : IEquatable<ByteOffset>, IComparable<ByteOffset>
     {

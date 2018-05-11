@@ -1,29 +1,28 @@
 ﻿using System;
 using System.IO;
 
-namespace Shaperon.IO
+namespace Shaperon
 {
-    public class ShapeIndexRecord
+    public class ShapeRecordHeader
     {
-        public ShapeIndexRecord(WordOffset offset, WordLength contentLength)
+        public ShapeRecordHeader(RecordNumber recordNumber, WordLength contentLength)
         {
-            Offset = offset;
+            RecordNumber = recordNumber;
             ContentLength = contentLength;
         }
 
-        public WordOffset Offset { get; }
+        public RecordNumber RecordNumber { get; }
         public WordLength ContentLength { get; }
 
-        public static ShapeIndexRecord Read(BinaryReader reader)
+        public static ShapeRecordHeader Read(BinaryReader reader)
         {
             if (reader == null)
             {
                 throw new ArgumentNullException(nameof(reader));
             }
-
-            var offset = new WordOffset(reader.ReadInt32BigEndian());
+            var recordNumber = new RecordNumber(reader.ReadInt32BigEndian());
             var contentLength = new WordLength(reader.ReadInt32BigEndian());
-            return new ShapeIndexRecord(offset, contentLength);
+            return new ShapeRecordHeader(recordNumber, contentLength);
         }
 
         public void Write(BinaryWriter writer)
@@ -33,7 +32,7 @@ namespace Shaperon.IO
                 throw new ArgumentNullException(nameof(writer));
             }
 
-            writer.WriteInt32BigEndian(Offset.ToInt32());
+            writer.WriteInt32BigEndian(RecordNumber.ToInt32());
             writer.WriteInt32BigEndian(ContentLength.ToInt32());
         }
     }

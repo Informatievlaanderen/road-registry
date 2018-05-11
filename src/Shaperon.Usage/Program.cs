@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 using Shaperon;
-using Shaperon.IO;
+using Shaperon;
 using Wkx;
 
 namespace Usage

@@ -1,4 +1,4 @@
-using Shaperon.IO;
+using Shaperon;
 
 namespace RoadRegistry.Projections
 {

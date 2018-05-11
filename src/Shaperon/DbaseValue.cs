@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Shaperon.IO
+namespace Shaperon
 {
     public abstract class DbaseValue
     {
