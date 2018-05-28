@@ -11,7 +11,7 @@ namespace RoadRegistry.Events
         public int Version { get; set; }
         public int StartNodeId { get; set; }
         public int EndNodeId { get; set; }
-        public Geometry Geometry { get; set; }
+        public VersionedGeometry Geometry { get; set; }
         public string MaintainerId { get; set; }
         public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; set; }
         public RoadSegmentMorphology Morphology { get; set; }

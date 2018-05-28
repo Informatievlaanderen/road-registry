@@ -27,13 +27,33 @@ namespace RoadRegistry.LegacyImporter
             var points = new List<ImportedReferencePoint>();
             var segments = new Dictionary<int, ImportedRoadSegment>();
             var junctions = new List<ImportedGradeSeparatedJunction>();
+            var organizations = new List<ImportedOrganization>();
 
             using (var connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
+                
+                Console.WriteLine("Reading organizations started ...");
+                var watch = Stopwatch.StartNew();
+                await
+                    new SqlCommand(
+                        @"SELECT 
+                            org.[Code],
+                            org.[Label]
+                        FROM [listOrganisatie] org", connection
+                    ).ForEachDataRecord(reader =>
+                    {
+                        var organization = new ImportedOrganization
+                        {
+                            Code = reader.GetString(0),
+                            Name = reader.GetString(1)
+                        };
+                        organizations.Add(organization);
+                    });
+                Console.WriteLine("Reading organizations took {0}ms", watch.ElapsedMilliseconds);
 
                 Console.WriteLine("Reading nodes started ...");
-                var watch = Stopwatch.StartNew();
+                watch.Restart();
                 await
                     new SqlCommand(
                         @"SELECT 
@@ -82,23 +102,30 @@ namespace RoadRegistry.LegacyImporter
                             ws.[beginWegknoopID], --2
                             ws.[eindWegknoopID], --3
                             ws.[geometrie].AsBinaryZM(), --4
-                            ws.[beheerder], --5
-                            ws.[methode], --6
-                            ws.[morfologie], --7
-                            ws.[status], --8
-                            ws.[categorie], --9
-                            ws.[toegangsbeperking], --10
-                            ws.[linksStraatnaamID], --11
-                            lg.[NISCode], --12
-                            ws.[rechtsStraatnaamID], --13
-                            rg.[NISCode], --14
-                            ws.[opnamedatum], --15
-                            ws.[beginorganisatie], --16
-                            lo.[label], --17
-                            ws.[begintijd] --18
+                            ws.[geometrieversie], --5
+                            ws.[beheerder], --6
+                            ws.[methode], --7
+                            ws.[morfologie], --8
+                            ws.[status], --9
+                            ws.[categorie], --10
+                            ws.[toegangsbeperking], --11
+                            ws.[linksStraatnaamID], --12
+                            ls.[LOS], --13
+                            lg.[NISCode], --14
+                            lg.[naam], --15
+                            ws.[rechtsStraatnaamID], --16
+                            rs.[LOS], --17
+                            rg.[NISCode], --18
+                            rg.[naam], --19
+                            ws.[opnamedatum], --20
+                            ws.[beginorganisatie], --21
+                            lo.[label], --22
+                            ws.[begintijd] --23
                         FROM [dbo].[wegsegment] ws
                         LEFT OUTER JOIN [dbo].[gemeenteNIS] lg ON ws.[linksGemeente] = lg.[gemeenteId]
+                        LEFT OUTER JOIN [dbo].[crabsnm] ls ON ws.[linksStraatnaamID] = ls.[EXN]
                         LEFT OUTER JOIN [dbo].[gemeenteNIS] rg ON ws.[rechtsGemeente] = rg.[gemeenteId]
+                        LEFT OUTER JOIN [dbo].[crabsnm] rs ON ws.[rechtsStraatnaamID] = rs.[EXN]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ws.[beginorganisatie] = lo.[code]
                         WHERE ws.[eindWegknoopID] IS NOT NULL", connection
                     ).ForEachDataRecord(reader =>
@@ -110,33 +137,38 @@ namespace RoadRegistry.LegacyImporter
                             Version = reader.GetInt32(1),
                             StartNodeId = reader.GetInt32(2),
                             EndNodeId = reader.GetInt32(3),
-                            Geometry = new Geometry
+                            Geometry = new VersionedGeometry
                             {
+                                Version = reader.GetInt32(5),
                                 SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
                                 WellKnownBinary = wellKnownBinary
                             },
-                            MaintainerId = reader.GetString(5),
-                            GeometryDrawMethod = Translate.ToRoadSegmentGeometryDrawMethod(reader.GetInt32(6)),
-                            Morphology = Translate.ToRoadSegmentMorphology(reader.GetInt32(7)),
-                            Status = Translate.ToRoadSegmentStatus(reader.GetInt32(8)),
-                            Category = Translate.ToRoadSegmentCategory(reader.GetString(9)),
-                            AccessRestriction = Translate.ToRoadSegmentAccessRestriction(reader.GetInt32(10)),
+                            MaintainerId = reader.GetString(6),
+                            GeometryDrawMethod = Translate.ToRoadSegmentGeometryDrawMethod(reader.GetInt32(7)),
+                            Morphology = Translate.ToRoadSegmentMorphology(reader.GetInt32(8)),
+                            Status = Translate.ToRoadSegmentStatus(reader.GetInt32(9)),
+                            Category = Translate.ToRoadSegmentCategory(reader.GetString(10)),
+                            AccessRestriction = Translate.ToRoadSegmentAccessRestriction(reader.GetInt32(11)),
                             LeftSide = new RoadSegmentSideProperties
                             {
-                                StreetNameId = reader.GetNullableInt32(11),
-                                MunicipalityNISCode = reader.GetNullableString(12)
+                                StreetNameId = reader.GetNullableInt32(12),
+                                StreetName = reader.GetNullableString(13),
+                                MunicipalityNISCode = reader.GetNullableString(14),
+                                Municipality = reader.GetNullableString(15)
                             },
                             RightSide = new RoadSegmentSideProperties
                             {
-                                StreetNameId = reader.GetNullableInt32(13),
-                                MunicipalityNISCode = reader.GetNullableString(14)
+                                StreetNameId = reader.GetNullableInt32(16),
+                                StreetName = reader.GetNullableString(17),
+                                MunicipalityNISCode = reader.GetNullableString(18),
+                                Municipality = reader.GetNullableString(19)
                             },
-                            RecordingDate = reader.GetDateTime(15),
+                            RecordingDate = reader.GetDateTime(20),
                             Origin = new OriginProperties
                             {
-                                OrganizationId = reader.GetNullableString(16),
-                                Organization = reader.GetNullableString(17),
-                                Since = reader.GetDateTime(18)
+                                OrganizationId = reader.GetNullableString(21),
+                                Organization = reader.GetNullableString(22),
+                                Since = reader.GetDateTime(23)
                             },
                             PartOfEuropeanRoads = Array.Empty<RoadSegmentEuropeanRoadProperties>(),
                             PartOfNationalRoads = Array.Empty<RoadSegmentNationalRoadProperties>(),
@@ -459,12 +491,13 @@ namespace RoadRegistry.LegacyImporter
 
                 Console.WriteLine("Writing stream to json started ...");
                 watch.Restart();
-                await WriteExtractedStreamToJsonFile(nodes, segments.Values, junctions, points);
+                await WriteExtractedStreamToJsonFile(organizations, nodes, segments.Values, junctions, points);
                 Console.WriteLine("Writing stream to json took {0}ms", watch.ElapsedMilliseconds);
             }
         }
 
         private static async Task WriteExtractedStreamToJsonFile(
+            IEnumerable<ImportedOrganization> organizations,
             IEnumerable<ImportedRoadNode> nodes,
             IEnumerable<ImportedRoadSegment> segments,
             IEnumerable<ImportedGradeSeparatedJunction> junctions,
@@ -488,6 +521,14 @@ namespace RoadRegistry.LegacyImporter
                 using (var writer = new JsonTextWriter(new StreamWriter(stream)))
                 {
                     await writer.WriteStartArrayAsync();
+
+                    foreach (var organization in organizations)
+                    {
+                        await writer.WriteStartObjectAsync();
+                        await writer.WritePropertyNameAsync(nameof(ImportedOrganization));
+                        serializer.Serialize(writer, organization);
+                        await writer.WriteEndObjectAsync();
+                    }
 
                     foreach (var node in nodes)
                     {
