@@ -8,7 +8,8 @@
             typeof(ImportedGradeSeparatedJunction),
             typeof(ImportedReferencePoint),
             typeof(ImportedRoadNode),
-            typeof(ImportedRoadSegment)
+            typeof(ImportedRoadSegment),
+            typeof(ImportedOrganization)
         };
     }
 }

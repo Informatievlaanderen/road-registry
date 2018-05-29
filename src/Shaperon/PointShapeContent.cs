@@ -15,7 +15,7 @@ namespace Shaperon
 
         public ShapeType ShapeType => ShapeType.Point;
 
-        public Point Shape { get; private set; }
+        public Point Shape { get; }
 
         public WordLength ContentLength { get; }
 
