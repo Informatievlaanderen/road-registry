@@ -20,6 +20,12 @@ namespace Shaperon
                     customization.FromFactory<Int32>(value => new ByteLength(Math.Abs(value))));
         }
 
+        [Fact]
+        public void InitialReturnsExpectedValue()
+        {
+            Assert.Equal(0, ByteOffset.Initial);
+        }
+
         [Theory]
         [InlineData(-1)]
         [InlineData(int.MinValue)]

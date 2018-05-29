@@ -12,7 +12,15 @@ namespace Shaperon
         public WordOffsetTests()
         {
             _fixture = new Fixture();
-            _fixture.Customizations.Add(new Int32SequenceGenerator());
+            _fixture.Customize<WordOffset>(
+                customization =>
+                    customization.FromFactory<Int32>(value => new WordOffset(Math.Abs(value))));
+            _fixture.Customize<ByteLength>(
+                customization =>
+                    customization.FromFactory<Int32>(value => new ByteLength(Math.Abs(value))));
+            _fixture.Customize<WordLength>(
+                customization =>
+                    customization.FromFactory<Int32>(value => new WordLength(Math.Abs(value))));
         }
 
         [Theory]
@@ -26,7 +34,7 @@ namespace Shaperon
         [Fact]
         public void ToInt32ReturnsExpectedValue()
         {
-            var value = _fixture.Create<int>();
+            var value = Math.Abs(_fixture.Create<int>());
             var sut = new WordOffset(value);
 
             var result = sut.ToInt32();
@@ -35,14 +43,202 @@ namespace Shaperon
         }
 
         [Fact]
-        public void ToByteLengthReturnsExpectedValue()
+        public void ImplicitConversionToInt32ReturnsExpectedValue()
         {
-            var value = _fixture.Create<int>();
+            var value = Math.Abs(_fixture.Create<int>());
             var sut = new WordOffset(value);
 
-            var result = sut.ToByteLength();
+            int result = sut;
 
-            Assert.Equal(new ByteLength(value * 2), result);
+            Assert.Equal(value, result);
+        }
+
+        [Fact]
+        public void PlusByteLengthReturnsExpectedValue()
+        {
+            var value = _fixture.Create<ByteLength>();
+            var sut = _fixture.Create<WordOffset>();
+
+            var result = sut.Plus(value);
+
+            Assert.Equal(new WordOffset(value.ToInt32() / 2 + sut.ToInt32()), result);
+        }
+
+        [Fact]
+        public void PlusByteLengthOperatorReturnsExpectedValue()
+        {
+            var value = _fixture.Create<ByteLength>();
+            var sut = _fixture.Create<WordOffset>();
+
+            var result = sut + value;
+
+            Assert.Equal(new WordOffset(value.ToInt32() / 2 + sut.ToInt32()), result);
+        }
+
+        [Fact]
+        public void PlusWordLengthReturnsExpectedValue()
+        {
+            var value = _fixture.Create<WordLength>();
+            var sut = _fixture.Create<WordOffset>();
+
+            var result = sut.Plus(value);
+
+            Assert.Equal(new WordOffset(value.ToInt32() + sut.ToInt32()), result);
+        }
+
+        [Fact]
+        public void PlusWordLengthOperatorReturnsExpectedValue()
+        {
+            var value = _fixture.Create<WordLength>();
+            var sut = _fixture.Create<WordOffset>();
+
+            var result = sut + value;
+
+            Assert.Equal(new WordOffset(value.ToInt32() + sut.ToInt32()), result);
+        }
+
+        [Fact]
+        public void ToStringReturnsExpectedValue()
+        {
+            var value = Math.Abs(_fixture.Create<int>());
+            var sut = new WordOffset(value);
+
+            var result = sut.ToString();
+
+            Assert.Equal(value.ToString(), result);
+        }
+
+        [Fact]
+        public void VerifyEquality()
+        {
+            new CompositeIdiomaticAssertion(
+                new EqualsNewObjectAssertion(_fixture),
+                new EqualsNullAssertion(_fixture),
+                new EqualsSelfAssertion(_fixture),
+                new EqualsSuccessiveAssertion(_fixture),
+                new GetHashCodeSuccessiveAssertion(_fixture)
+            ).Verify(typeof(WordOffset));
+        }
+
+        [Fact]
+        public void IsEquatableToWordOffset()
+        {
+            Assert.IsAssignableFrom<IEquatable<WordOffset>>(_fixture.Create<WordOffset>());
+        }
+
+        [Fact]
+        public void IsComparableToWordOffset()
+        {
+            Assert.IsAssignableFrom<IComparable<WordOffset>>(_fixture.Create<WordOffset>());
+        }
+
+        [Theory]
+        [InlineData(0, Int32.MaxValue,-1)]
+        [InlineData(0, 1,-1)]
+        [InlineData(1, 1, 0)]
+        [InlineData(1, 0, 1)]
+        [InlineData(Int32.MaxValue, 0, 1)]
+        public void CompareToReturnsExpectedResult(int left, int right, int expected)
+        {
+            var sut = new WordOffset(left);
+            var other = new WordOffset(right);
+
+            var result = sut.CompareTo(other);
+
+            Assert.Equal(expected, result);
+        }
+
+
+        [Theory]
+        [InlineData(0, 0, true)]
+        [InlineData(0, 1, false)]
+        [InlineData(1, 0, false)]
+        public void EqualityOperatorReturnsExpectedValue(int left, int right, bool expected)
+        {
+            var sut = new WordOffset(left);
+            var other = new WordOffset(right);
+
+            var result = sut == other;
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(0, 0, false)]
+        [InlineData(0, 1, true)]
+        [InlineData(1, 0, true)]
+        public void InequalityOperatorReturnsExpectedValue(int left, int right, bool expected)
+        {
+            var sut = new WordOffset(left);
+            var other = new WordOffset(right);
+
+            var result = sut != other;
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(0, Int32.MaxValue, false)]
+        [InlineData(0, 1, false)]
+        [InlineData(1, 1, false)]
+        [InlineData(1, 0, true)]
+        [InlineData(Int32.MaxValue, 0, true)]
+        public void GreaterThanOperatorReturnsExpectedValue(int left, int right, bool expected)
+        {
+            var sut = new WordOffset(left);
+            var other = new WordOffset(right);
+
+            var result = sut > other;
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(0, Int32.MaxValue, false)]
+        [InlineData(0, 1, false)]
+        [InlineData(1, 1, true)]
+        [InlineData(1, 0, true)]
+        [InlineData(Int32.MaxValue, 0, true)]
+        public void GreaterThanOrEqualOperatorReturnsExpectedValue(int left, int right, bool expected)
+        {
+            var sut = new WordOffset(left);
+            var other = new WordOffset(right);
+
+            var result = sut >= other;
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(0, Int32.MaxValue, true)]
+        [InlineData(0, 1, true)]
+        [InlineData(1, 1, false)]
+        [InlineData(1, 0, false)]
+        [InlineData(Int32.MaxValue, 0, false)]
+        public void LessThanOperatorReturnsExpectedValue(int left, int right, bool expected)
+        {
+            var sut = new WordOffset(left);
+            var other = new WordOffset(right);
+
+            var result = sut < other;
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(0, Int32.MaxValue, true)]
+        [InlineData(0, 1, true)]
+        [InlineData(1, 1, true)]
+        [InlineData(1, 0, false)]
+        [InlineData(Int32.MaxValue, 0, false)]
+        public void LessThanOrEqualOperatorReturnsExpectedValue(int left, int right, bool expected)
+        {
+            var sut = new WordOffset(left);
+            var other = new WordOffset(right);
+
+            var result = sut <= other;
+
+            Assert.Equal(expected, result);
         }
     }
 }
