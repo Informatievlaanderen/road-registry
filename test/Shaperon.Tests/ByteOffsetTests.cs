@@ -97,7 +97,7 @@ namespace Shaperon
         }
 
         [Fact]
-        public void IsEquatableToByteLength()
+        public void IsEquatableToByteOffset()
         {
             Assert.IsAssignableFrom<IEquatable<ByteOffset>>(_fixture.Create<ByteOffset>());
         }
