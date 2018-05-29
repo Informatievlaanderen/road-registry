@@ -9,71 +9,57 @@ namespace Shaperon
         {
             var characters = reader.ReadChars(length);
             var index = characters.Length - 1;
-            while(index >= 0 && characters[index].Equals(padding)) 
-            { 
-                index--; 
-            }
-            if (index < 0)
+            while(index >= 0 && characters[index].Equals(padding))
             {
-                return string.Empty;
+                index--;
             }
-            return new string(characters, 0, index + 1);
+            return index < 0 ? string.Empty : new string(characters, 0, index + 1);
         }
 
         public static string ReadLeftPaddedString(this BinaryReader reader, int length, char padding)
         {
             var characters = reader.ReadChars(length);
             var index = 0;
-            while(index < characters.Length && characters[index].Equals(padding)) 
-            { 
-                index++; 
-            }
-            if(index == characters.Length)
+            while(index < characters.Length && characters[index].Equals(padding))
             {
-                return string.Empty;
+                index++;
             }
-            return new string(characters, index, characters.Length - index);
+            return index == characters.Length ? string.Empty : new string(characters, index, characters.Length - index);
         }
 
         public static void WriteRightPaddedString(this BinaryWriter writer, string value, int length, char padding)
         {
-            if(value != null && value.Length > length) 
+            if(value != null && value.Length > length)
             {
                 throw new ArgumentException("The value length is longer than the writable length.");
             }
-            if(value == null || value.Length == 0)
+            if(string.IsNullOrEmpty(value))
             {
                 writer.Write(new string(padding, length).ToCharArray());
             }
             else
             {
-                if(value.Length != length)
-                {
-                    writer.Write(String.Concat(value, new string(padding, length - value.Length)).ToCharArray());
-                } else {
-                    writer.Write(value.ToCharArray());
-                }
+                writer.Write(value.Length != length
+                    ? string.Concat(value, new string(padding, length - value.Length)).ToCharArray()
+                    : value.ToCharArray());
             }
         }
 
         public static void WriteLeftPaddedString(this BinaryWriter writer, string value, int length, char padding)
         {
-            if(value != null && value.Length > length) 
+            if(value != null && value.Length > length)
             {
                 throw new ArgumentException("The value length is longer than the writable length.");
             }
-            if(value == null || value.Length == 0)
+            if(string.IsNullOrEmpty(value))
             {
                 writer.Write(new string(padding, length).ToCharArray());
             }
             else
             {
-                if(value.Length != length)
-                {
-                    writer.Write(String.Concat(new string(padding, length - value.Length), value).ToCharArray());
-                } else {
-                    writer.Write(value.ToCharArray());
-                }
+                writer.Write(value.Length != length
+                    ? string.Concat(new string(padding, length - value.Length), value).ToCharArray()
+                    : value.ToCharArray());
             }
         }
     }

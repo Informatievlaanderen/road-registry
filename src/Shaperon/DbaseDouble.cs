@@ -7,12 +7,8 @@ namespace Shaperon
     public class DbaseDouble : DbaseValue
     {
         private static readonly NumberFormatInfo DoubleNumberFormat = new NumberFormatInfo { NumberDecimalSeparator = "." };
-        
-        public DbaseDouble(DbaseField field) : this(field, null)
-        {
-        }
 
-        public DbaseDouble(DbaseField field, double? value) : base(field)
+        public DbaseDouble(DbaseField field, double? value = null) : base(field)
         {
             Value = value;
         }
@@ -34,8 +30,7 @@ namespace Shaperon
             else
             {
                 var unpadded = reader.ReadLeftPaddedString(Field.Length, ' ');
-                double parsed;
-                if (double.TryParse(unpadded, NumberStyles.Float | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, DoubleNumberFormat, out parsed))
+                if (double.TryParse(unpadded, NumberStyles.Float | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, DoubleNumberFormat, out var parsed))
                 {
                     Value = parsed;
                 }
@@ -55,7 +50,7 @@ namespace Shaperon
 
             if(Value.HasValue)
             {
-                var format = Field.DecimalCount > 0 
+                var format = Field.DecimalCount > 0
                     ? String.Concat(
                         new string('#', Field.Length - Field.DecimalCount - 1),
                         ".",

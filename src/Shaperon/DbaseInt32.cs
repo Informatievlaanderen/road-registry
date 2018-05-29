@@ -6,11 +6,7 @@ namespace Shaperon
 {
     public class DbaseInt32 : DbaseValue
     {
-        public DbaseInt32(DbaseField field) : this(field, null)
-        {
-        }
-
-        public DbaseInt32(DbaseField field, int? value) : base(field)
+        public DbaseInt32(DbaseField field, int? value = null) : base(field)
         {
             Value = value;
         }
@@ -32,8 +28,7 @@ namespace Shaperon
             else
             {
                 var unpadded = reader.ReadLeftPaddedString(Field.Length, ' ');
-                int parsed;
-                if (int.TryParse(unpadded, NumberStyles.Integer | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out parsed))
+                if (int.TryParse(unpadded, NumberStyles.Integer | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out var parsed))
                 {
                     Value = parsed;
                 }

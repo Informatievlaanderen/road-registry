@@ -5,7 +5,7 @@ namespace Shaperon
     public readonly struct ByteOffset : IEquatable<ByteOffset>, IComparable<ByteOffset>
     {
         public static readonly ByteOffset Initial = new ByteOffset(0);
-        
+
         private readonly int _value;
 
         public ByteOffset(int value)
@@ -17,14 +17,14 @@ namespace Shaperon
             _value = value;
         }
 
-        public ByteOffset Plus(ByteLength other) 
+        public ByteOffset Plus(ByteLength other)
         {
             return new ByteOffset(_value + other.ToInt32());
         }
 
         public int ToInt32() => _value;
         public bool Equals(ByteOffset instance) => instance._value == _value;
-        public override bool Equals(object obj) => obj is ByteOffset && Equals((ByteOffset)obj);
+        public override bool Equals(object obj) => obj is ByteOffset offset && Equals(offset);
         public override int GetHashCode() => _value;
         public override string ToString() => _value.ToString();
 

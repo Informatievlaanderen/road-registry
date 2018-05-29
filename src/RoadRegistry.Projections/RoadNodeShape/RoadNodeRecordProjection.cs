@@ -1,8 +1,6 @@
-using System.IO;
 using Aiv.Vbr.ProjectionHandling.Connector;
 using RoadRegistry.Events;
 using Shaperon;
-using Wkx;
 
 namespace RoadRegistry.Projections
 {

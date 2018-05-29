@@ -8,19 +8,15 @@ namespace Shaperon
     {
         private string _value;
 
-        public DbaseString(DbaseField field) : this(field, null)
-        {
-        }
-
-        public DbaseString(DbaseField field, string value) : base(field)
+        public DbaseString(DbaseField field, string value = null) : base(field)
         {
             Value = value;
         }
 
-        public string Value 
-        { 
+        public string Value
+        {
             get => _value;
-            set 
+            set
             {
                 if(_value != null && _value.Length > Field.Length)
                 {

@@ -14,7 +14,7 @@ namespace Shaperon
         }
 
         public bool Equals(DbaseDecimalCount other) => _value.Equals(other._value);
-        public override bool Equals(object obj) => obj is DbaseDecimalCount && Equals((DbaseDecimalCount)obj);
+        public override bool Equals(object obj) => obj is DbaseDecimalCount count && Equals(count);
         public override int GetHashCode() => _value;
         public int ToInt32() => _value;
         public byte ToByte() => Convert.ToByte(_value);

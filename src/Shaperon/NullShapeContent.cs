@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Shaperon;
 
 namespace Shaperon
 {
@@ -8,8 +7,8 @@ namespace Shaperon
     {
         public static readonly IShapeContent Instance = new NullShapeContent();
 
-        private NullShapeContent() 
-        { 
+        private NullShapeContent()
+        {
             ContentLength = new WordLength(2);
         }
 
@@ -29,7 +28,7 @@ namespace Shaperon
                 throw new ShapeFileContentException("The Shape Type field does not contain a known type of shape.");
             if(((ShapeType)typeOfShape) != ShapeType.NullShape)
                 throw new ShapeFileContentException("The Shape Type field does not indicate a Null shape.");
-            
+
             return Instance;
         }
 

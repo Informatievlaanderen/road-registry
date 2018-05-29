@@ -3,7 +3,7 @@
 namespace Shaperon
 {
     public readonly struct WordOffset : IEquatable<WordOffset>, IComparable<WordOffset>
-    {   
+    {
         private readonly int _value;
 
         public WordOffset(int value)
@@ -15,12 +15,12 @@ namespace Shaperon
             _value = value;
         }
 
-        public WordOffset Plus(WordLength other) 
+        public WordOffset Plus(WordLength other)
         {
             return new WordOffset(_value + other.ToInt32());
         }
 
-        public WordOffset Plus(ByteLength other) 
+        public WordOffset Plus(ByteLength other)
         {
             return new WordOffset(_value + other.ToWordLength().ToInt32());
         }
@@ -28,7 +28,7 @@ namespace Shaperon
         public int ToInt32() => _value;
         public ByteLength ToByteLength() => new ByteLength(_value * 2);
         public bool Equals(WordOffset instance) => instance._value == _value;
-        public override bool Equals(object obj) => obj is WordLength && Equals((WordLength)obj);
+        public override bool Equals(object obj) => obj is WordLength length && Equals(length);
         public override int GetHashCode() => _value;
         public override string ToString() => _value.ToString();
 

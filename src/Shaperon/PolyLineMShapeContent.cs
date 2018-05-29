@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Shaperon;
 using Wkx;
 
 namespace Shaperon

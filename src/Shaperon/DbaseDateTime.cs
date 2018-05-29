@@ -6,11 +6,7 @@ namespace Shaperon
 {
     public class DbaseDateTime : DbaseValue
     {
-        public DbaseDateTime(DbaseField field) : this(field, null)
-        {
-        }
-
-        public DbaseDateTime(DbaseField field, DateTime? value) : base(field)
+        public DbaseDateTime(DbaseField field, DateTime? value = null) : base(field)
         {
             Value = value;
         }

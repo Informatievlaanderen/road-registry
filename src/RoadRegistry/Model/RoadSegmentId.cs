@@ -16,7 +16,7 @@ namespace RoadRegistry.Model
 
         public long ToInt64() => _value;
         public bool Equals(RoadSegmentId other) => _value == other._value;
-        public override bool Equals(object other) => other is RoadSegmentId && Equals((RoadSegmentId)other);
+        public override bool Equals(object other) => other is RoadSegmentId id && Equals(id);
         public override int GetHashCode() => _value.GetHashCode();
         public override string ToString() => "RS-" + _value.ToString();
         public int CompareTo(RoadSegmentId other) => _value.CompareTo(other._value);

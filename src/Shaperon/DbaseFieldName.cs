@@ -16,7 +16,7 @@ namespace Shaperon
         }
 
         public bool Equals(DbaseFieldName other) => _value.Equals( other._value);
-        public override bool Equals(object obj) => obj is DbaseFieldName && Equals((DbaseFieldName)obj);
+        public override bool Equals(object obj) => obj is DbaseFieldName name && Equals(name);
         public override int GetHashCode() => _value.GetHashCode();
         public override string ToString() => _value;
         public static implicit operator string(DbaseFieldName instance) => instance.ToString();

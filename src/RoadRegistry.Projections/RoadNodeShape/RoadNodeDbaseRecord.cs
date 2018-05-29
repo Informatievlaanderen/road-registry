@@ -1,14 +1,13 @@
 using System;
 using System.IO;
 using Shaperon;
-using Wkx;
 
 namespace RoadRegistry.Projections
 {
     public class RoadNodeDbaseRecord
     {
         private static readonly RoadNodeDbaseSchema Schema = new RoadNodeDbaseSchema();
-        
+
         public RoadNodeDbaseRecord()
         {
             WK_OIDN = new DbaseInt32(Schema.WK_OIDN);
@@ -42,7 +41,7 @@ namespace RoadRegistry.Projections
             {
                 throw new DbaseFileException("The end of file was reached unexpectedly.");
             }
-            if(flag != 0x20 && flag != 0x2A) 
+            if(flag != 0x20 && flag != 0x2A)
             {
                 throw new DbaseFileException($"The record deleted flag must be either deleted (0x2A) or valid (0x20) but is 0x{flag:X2}");
             }

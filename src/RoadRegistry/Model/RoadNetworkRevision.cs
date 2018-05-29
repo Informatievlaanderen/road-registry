@@ -16,10 +16,10 @@ namespace RoadRegistry.Model
 
         public long ToInt64() => _value;
         public bool Equals(RoadNetworkRevision other) => _value == other._value;
-        public override bool Equals(object other) => other is RoadNetworkRevision && Equals((RoadNetworkRevision)other);
+        public override bool Equals(object other) => other is RoadNetworkRevision revision && Equals(revision);
         public override int GetHashCode() => _value.GetHashCode();
         public static bool operator ==(RoadNetworkRevision left, RoadNetworkRevision right) => left.Equals(right);
         public static bool operator !=(RoadNetworkRevision left, RoadNetworkRevision right) => !left.Equals(right);
-        public static implicit operator Int64(RoadNetworkRevision instance) => instance._value;
+        public static implicit operator long(RoadNetworkRevision instance) => instance._value;
     }
 }

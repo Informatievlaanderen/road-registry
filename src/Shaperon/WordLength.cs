@@ -15,22 +15,22 @@ namespace Shaperon
             _value = value;
         }
 
-        public WordLength Plus(WordLength other) 
+        public WordLength Plus(WordLength other)
         {
             return new WordLength(_value + other.ToInt32());
         }
 
-        public WordLength Plus(ByteLength other) 
+        public WordLength Plus(ByteLength other)
         {
             return new WordLength(_value + other.ToWordLength().ToInt32());
         }
 
-        public WordLength Minus(WordLength other) 
+        public WordLength Minus(WordLength other)
         {
             return new WordLength(_value - other.ToInt32());
         }
 
-        public WordLength Minus(ByteLength other) 
+        public WordLength Minus(ByteLength other)
         {
             return new WordLength(_value - other.ToWordLength().ToInt32());
         }
@@ -38,7 +38,7 @@ namespace Shaperon
         public int ToInt32() => _value;
         public ByteLength ToByteLength() => new ByteLength(_value * 2);
         public bool Equals(WordLength instance) => instance._value == _value;
-        public override bool Equals(object obj) => obj is WordLength && Equals((WordLength)obj);
+        public override bool Equals(object obj) => obj is WordLength length && Equals(length);
         public override int GetHashCode() => _value;
         public override string ToString() => _value.ToString();
 
