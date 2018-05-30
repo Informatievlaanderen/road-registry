@@ -18,6 +18,7 @@ namespace Shaperon
             _fixture = new Fixture();
             _fixture.CustomizeRecordNumber();
             _fixture.CustomizeWordLength();
+            _fixture.CustomizeWordOffset();
             _fixture.Customize<Point>(
                 customization => customization.FromFactory<int>(
                     value => new Point(new Random(value).Next(), new Random(value).Next())
@@ -45,6 +46,18 @@ namespace Shaperon
         }
 
         [Fact]
+        public void IndexAtReturnsExpectedResult()
+        {
+            var offset = _fixture.Create<WordOffset>();
+            var sut = _fixture.Create<ShapeRecord>();
+
+            var result = sut.IndexAt(offset);
+
+            Assert.Equal(sut.Header.ContentLength, result.ContentLength);
+            Assert.Equal(offset, result.Offset);
+        }
+
+        [Fact]
         public void ReaderCanNotBeNull()
         {
             new GuardClauseAssertion(_fixture)
@@ -61,9 +74,7 @@ namespace Shaperon
         [Fact]
         public void CanReadWrite()
         {
-            var sut = new ShapeRecord(
-                _fixture.Create<ShapeRecordHeader>(),
-                _fixture.Create<IShapeContent>());
+            var sut = _fixture.Create<ShapeRecord>();
 
             using(var stream = new MemoryStream())
             {
