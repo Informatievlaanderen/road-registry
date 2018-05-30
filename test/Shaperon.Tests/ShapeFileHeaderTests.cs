@@ -15,7 +15,6 @@ namespace Shaperon
         public ShapeFileHeaderTests()
         {
             _fixture = new Fixture();
-            _fixture.CustomizeRecordNumber();
             _fixture.CustomizeWordLength();
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));

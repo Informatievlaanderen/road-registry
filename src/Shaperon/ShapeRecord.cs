@@ -34,7 +34,7 @@ namespace Shaperon
             var header = ShapeRecordHeader.Read(reader);
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
-                throw new ShapeFileContentException("The Shape Type field does not contain a known type of shape.");
+                throw new ShapeRecordContentException("The Shape Type field does not contain a known type of shape.");
             var content = NullShapeContent.Instance;
             switch((ShapeType)typeOfShape)
             {
@@ -47,7 +47,7 @@ namespace Shaperon
                     content = PolyLineMShapeContent.ReadFromRecord(reader, header);
                     break;
                 default:
-                    throw new ShapeFileContentException($"The Shape Type {typeOfShape} is currently not suppported.");
+                    throw new ShapeRecordContentException($"The Shape Type {typeOfShape} is currently not suppported.");
             }
             return new ShapeRecord(header, content);
         }

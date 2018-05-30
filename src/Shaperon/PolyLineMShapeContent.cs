@@ -72,9 +72,11 @@ namespace Shaperon
 
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
-                throw new ShapeFileContentException("The Shape Type field does not contain a known type of shape.");
+                throw new ShapeRecordContentException("The Shape Type field does not contain a known type of shape.");
+            if(((ShapeType)typeOfShape) == ShapeType.NullShape)
+                return NullShapeContent.Instance;
             if(((ShapeType)typeOfShape) != ShapeType.PolyLineM)
-                throw new ShapeFileContentException("The Shape Type field does not indicate a PolyLineM shape.");
+                throw new ShapeRecordContentException("The Shape Type field does not indicate a PolyLineM shape.");
 
             reader.ReadBytes(4 * 8); // skip bounding box
             var numParts = reader.ReadInt32LittleEndian();
