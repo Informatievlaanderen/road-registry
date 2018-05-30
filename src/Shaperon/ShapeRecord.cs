@@ -69,7 +69,7 @@ namespace Shaperon
             }
         }
 
-        public ShapeIndexRecord AtOffset(WordOffset offset)
+        public ShapeIndexRecord IndexAt(WordOffset offset)
         {
             return new ShapeIndexRecord(offset, Header.ContentLength);
         }

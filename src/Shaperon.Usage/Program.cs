@@ -125,7 +125,7 @@ namespace Usage
                     {
                         var record = ShapeRecord.Read(reader);
                         record.Write(shpWriter);
-                        var indexRecord = record.AtOffset(offset);
+                        var indexRecord = record.IndexAt(offset);
                         indexRecord.Write(shxWriter);
                         offset = indexRecord.Offset.Plus(indexRecord.ContentLength);
                     }
