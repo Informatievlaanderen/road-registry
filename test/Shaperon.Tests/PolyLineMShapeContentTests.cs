@@ -26,19 +26,6 @@ namespace Shaperon
         }
 
         [Fact]
-        public void RecordAsReturnsExpectedResult()
-        {
-            var number = _fixture.Create<RecordNumber>();
-            var sut = new PolyLineMShapeContent(new MultiLineString(_fixture.CreateMany<LineString>()));
-
-            var result = sut.RecordAs(number);
-
-            Assert.Equal(sut, result.Content);
-            Assert.Equal(number, result.Header.RecordNumber);
-            Assert.Equal(sut.ContentLength, result.Header.ContentLength);
-        }
-
-        [Fact]
         public void ReadReaderCanNotBeNull()
         {
             new GuardClauseAssertion(_fixture)

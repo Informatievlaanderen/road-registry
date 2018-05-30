@@ -7,7 +7,7 @@ namespace Shaperon
     using System.IO;
     using System.Text;
     using Wkx;
-    
+
     public class NullShapeContentTests
     {
         private readonly Fixture _fixture;
@@ -19,19 +19,6 @@ namespace Shaperon
             _fixture.Register(() => (NullShapeContent)NullShapeContent.Instance);
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
-        }
-
-        [Fact]
-        public void RecordAsReturnsExpectedResult()
-        {
-            var number = _fixture.Create<RecordNumber>();
-            var sut = NullShapeContent.Instance;
-
-            var result = sut.RecordAs(number);
-
-            Assert.Equal(sut, result.Content);
-            Assert.Equal(number, result.Header.RecordNumber);
-            Assert.Equal(sut.ContentLength, result.Header.ContentLength);
         }
 
         [Fact]
