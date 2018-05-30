@@ -64,7 +64,8 @@ nuget System.Data.SqlClient
 
 nuget System.Text.Encoding.CodePages
 nuget Wkx
-nuget CompareNETObjects 
+nuget CompareNETObjects
+nuget Albedo
 
 // VBR STUFF
 nuget Aiv.Vbr.AggregateSource ~> 2.0

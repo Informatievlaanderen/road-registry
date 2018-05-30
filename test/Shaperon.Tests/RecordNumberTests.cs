@@ -12,9 +12,7 @@ namespace Shaperon
         public RecordNumberTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<RecordNumber>(
-                customization =>
-                    customization.FromFactory<Int32>(value => value == 0 ? new RecordNumber(1) : new RecordNumber(Math.Abs(value))));
+            _fixture.CustomizeRecordNumber();
         }
 
         [Theory]
@@ -49,8 +47,7 @@ namespace Shaperon
         [Fact]
         public void ToInt32ReturnsExpectedValue()
         {
-            var value = _fixture.Create<int>();
-            value = value == 0 ? 1 : Math.Abs(value);
+            var value = _fixture.Create<int>().AsRecordNumberValue();
             var sut = new RecordNumber(value);
 
             var result = sut.ToInt32();
@@ -61,8 +58,7 @@ namespace Shaperon
         [Fact]
         public void ImplicitConversionToInt32ReturnsExpectedValue()
         {
-            var value = _fixture.Create<int>();
-            value = value == 0 ? 1 : Math.Abs(value);
+            var value = _fixture.Create<int>().AsRecordNumberValue();
             var sut = new RecordNumber(value);
 
             int result = sut;
@@ -73,8 +69,7 @@ namespace Shaperon
         [Fact]
         public void ToStringReturnsExpectedValue()
         {
-            var value = _fixture.Create<int>();
-            value = value == 0 ? 1 : Math.Abs(value);
+            var value = _fixture.Create<int>().AsRecordNumberValue();
             var sut = new RecordNumber(value);
 
             var result = sut.ToString();

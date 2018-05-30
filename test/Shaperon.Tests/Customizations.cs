@@ -40,5 +40,13 @@ namespace Shaperon
                         value => new ByteLength(value.AsByteLengthValue())
                     ));
         }
+        public static void CustomizeRecordNumber(this IFixture fixture)
+        {
+            fixture.Customize<RecordNumber>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => new RecordNumber(value.AsRecordNumberValue())
+                    ));
+        }
     }
 }

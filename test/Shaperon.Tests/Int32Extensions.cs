@@ -13,5 +13,11 @@ namespace Shaperon
                     ? absolute
                     : absolute + 1;
         }
+
+        public static int AsRecordNumberValue(this int value)
+        {
+            var absolute = Math.Abs(value);
+            return absolute == 0 ? 1 : absolute;
+        }
     }
 }
