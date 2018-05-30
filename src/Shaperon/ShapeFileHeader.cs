@@ -57,7 +57,7 @@ namespace Shaperon
             writer.WriteInt32BigEndian(9994);
             for(var index = 0; index < 20; index++)
             {
-                writer.Write(0x0);
+                writer.Write((byte)0x0);
             }
             writer.WriteInt32BigEndian(FileLength);
             writer.WriteInt32LittleEndian(1000);

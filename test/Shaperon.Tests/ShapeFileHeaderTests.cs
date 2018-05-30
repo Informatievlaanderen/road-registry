@@ -7,11 +7,11 @@ namespace Shaperon
     using System.IO;
     using System.Text;
 
-    public class ShapeRecordHeaderTests
+    public class ShapeFileHeaderTests
     {
         private readonly Fixture _fixture;
 
-        public ShapeRecordHeaderTests()
+        public ShapeFileHeaderTests()
         {
             _fixture = new Fixture();
             _fixture.CustomizeRecordNumber();
@@ -24,20 +24,23 @@ namespace Shaperon
         public void ReaderCanNotBeNull()
         {
             new GuardClauseAssertion(_fixture)
-                .Verify(Methods.Select(() => ShapeRecordHeader.Read(null)));
+                .Verify(Methods.Select(() => ShapeFileHeader.Read(null)));
         }
 
         [Fact]
         public void WriterCanNotBeNull()
         {
             new GuardClauseAssertion(_fixture)
-                .Verify(new Methods<ShapeRecordHeader>().Select(instance => instance.Write(null)));
+                .Verify(new Methods<ShapeFileHeader>().Select(instance => instance.Write(null)));
         }
 
         [Fact]
         public void CanReadWrite()
         {
-            var sut = new ShapeRecordHeader(_fixture.Create<RecordNumber>(), _fixture.Create<WordLength>());
+            var sut = new ShapeFileHeader(
+                _fixture.Create<WordLength>(),
+                _fixture.Create<ShapeType>(),
+                _fixture.Create<BoundingBox3D>());
 
             using(var stream = new MemoryStream())
             {
@@ -51,10 +54,11 @@ namespace Shaperon
 
                 using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
                 {
-                    var result = ShapeRecordHeader.Read(reader);
+                    var result = ShapeFileHeader.Read(reader);
 
-                    Assert.Equal(sut.RecordNumber, result.RecordNumber);
-                    Assert.Equal(sut.ContentLength, result.ContentLength);
+                    Assert.Equal(sut.FileLength, result.FileLength);
+                    Assert.Equal(sut.ShapeType, result.ShapeType);
+                    Assert.Equal(sut.BoundingBox, result.BoundingBox);
                 }
             }
         }
