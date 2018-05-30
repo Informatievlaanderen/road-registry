@@ -6,6 +6,7 @@ namespace Shaperon
     using Xunit;
     using System.IO;
     using System.Text;
+    using System;
 
     public class ShapeFileHeaderTests
     {
@@ -59,6 +60,86 @@ namespace Shaperon
                     Assert.Equal(sut.FileLength, result.FileLength);
                     Assert.Equal(sut.ShapeType, result.ShapeType);
                     Assert.Equal(sut.BoundingBox, result.BoundingBox);
+                }
+            }
+        }
+
+        [Fact]
+        public void ReadExpectsHeaderToStartWith9994()
+        {
+            using(var stream = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+                {
+                    writer.WriteInt32BigEndian(1234); // start
+
+                    writer.Flush();
+                }
+
+                stream.Position = 0;
+
+                using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
+                {
+                    Assert.Throws<ShapeFileHeaderException>(
+                        () => ShapeFileHeader.Read(reader)
+                    );
+                }
+            }
+        }
+
+        [Fact]
+        public void ReadExpectsHeaderVersionToBe1000()
+        {
+            using(var stream = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+                {
+                    writer.WriteInt32BigEndian(9994);
+                    for(var index = 0; index < 20; index++)
+                    {
+                        writer.Write((byte)0x0);
+                    }
+                    writer.WriteInt32BigEndian(_fixture.Create<int>());
+                    writer.WriteInt32LittleEndian(999); // version
+                    writer.Flush();
+                }
+
+                stream.Position = 0;
+
+                using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
+                {
+                    Assert.Throws<ShapeFileHeaderException>(
+                        () => ShapeFileHeader.Read(reader)
+                    );
+                }
+            }
+        }
+
+        [Fact]
+        public void ReadExpectsHeaderShapeTypeToBeValid()
+        {
+            using(var stream = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+                {
+                    writer.WriteInt32BigEndian(9994);
+                    for(var index = 0; index < 20; index++)
+                    {
+                        writer.Write((byte)0x0);
+                    }
+                    writer.WriteInt32BigEndian(_fixture.Create<int>());
+                    writer.WriteInt32LittleEndian(1000);
+                    writer.WriteInt32LittleEndian(-1); // shape type
+                    writer.Flush();
+                }
+
+                stream.Position = 0;
+
+                using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
+                {
+                    Assert.Throws<ShapeFileHeaderException>(
+                        () => ShapeFileHeader.Read(reader)
+                    );
                 }
             }
         }
