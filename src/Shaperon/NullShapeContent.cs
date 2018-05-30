@@ -16,6 +16,11 @@ namespace Shaperon
 
         public WordLength ContentLength { get; }
 
+        public ShapeRecord RecordAs(RecordNumber number)
+        {
+            return new ShapeRecord(new ShapeRecordHeader(number, ContentLength), this);
+        }
+
         public static IShapeContent Read(BinaryReader reader)
         {
             if (reader == null)

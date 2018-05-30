@@ -7,20 +7,16 @@ namespace Shaperon
     using System.IO;
     using System.Text;
     using Wkx;
-    using System;
 
-    public class PolyLineMShapeContentTests
+    public class NullShapeContentTests
     {
         private readonly Fixture _fixture;
 
-        public PolyLineMShapeContentTests()
+        public NullShapeContentTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<Point>(
-                customization => customization.FromFactory<int>(
-                    value => new Point(new Random(value).Next(), new Random(value).Next())
-                )
-            );
+            _fixture.CustomizeRecordNumber();
+            _fixture.Register(() => (NullShapeContent)NullShapeContent.Instance);
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
         }
@@ -29,7 +25,7 @@ namespace Shaperon
         public void RecordAsReturnsExpectedResult()
         {
             var number = _fixture.Create<RecordNumber>();
-            var sut = new PolyLineMShapeContent(new MultiLineString(_fixture.CreateMany<LineString>()));
+            var sut = NullShapeContent.Instance;
 
             var result = sut.RecordAs(number);
 
@@ -42,21 +38,20 @@ namespace Shaperon
         public void ReadReaderCanNotBeNull()
         {
             new GuardClauseAssertion(_fixture)
-                .Verify(Methods.Select(() => PolyLineMShapeContent.Read(null)));
+                .Verify(Methods.Select(() => NullShapeContent.Read(null)));
         }
 
         [Fact]
         public void WriterCanNotBeNull()
         {
             new GuardClauseAssertion(_fixture)
-                .Verify(new Methods<PolyLineMShapeContent>().Select(instance => instance.Write(null)));
+                .Verify(new Methods<NullShapeContent>().Select(instance => instance.Write(null)));
         }
 
         [Fact]
-        public void CanReadWritePointShape()
+        public void CanReadWriteNullShape()
         {
-            var shape = new MultiLineString(_fixture.CreateMany<LineString>());
-            var sut = new PolyLineMShapeContent(shape);
+            var sut = NullShapeContent.Instance;
 
             using(var stream = new MemoryStream())
             {
@@ -70,36 +65,14 @@ namespace Shaperon
 
                 using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
                 {
-                    var result = (PolyLineMShapeContent)PolyLineMShapeContent.Read(reader);
+                    var result = (NullShapeContent)NullShapeContent.Read(reader);
 
-                    Assert.Equal(sut.Shape, result.Shape);
                     Assert.Equal(sut.ShapeType, result.ShapeType);
                     Assert.Equal(sut.ContentLength, result.ContentLength);
                 }
             }
         }
 
-        [Fact]
-        public void CanReadNullShape()
-        {
-            using(var stream = new MemoryStream())
-            {
-                using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
-                {
-                    NullShapeContent.Instance.Write(writer);
-                    writer.Flush();
-                }
-
-                stream.Position = 0;
-
-                using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
-                {
-                    var result = PolyLineMShapeContent.Read(reader);
-
-                    Assert.Equal(NullShapeContent.Instance, result);
-                }
-            }
-        }
 
         [Theory]
         [InlineData(ShapeType.Point)]
@@ -111,6 +84,7 @@ namespace Shaperon
         [InlineData(ShapeType.PolygonZ)]
         [InlineData(ShapeType.MultiPointZ)]
         [InlineData(ShapeType.PointM)]
+        [InlineData(ShapeType.PolyLineM)]
         [InlineData(ShapeType.PolygonM)]
         [InlineData(ShapeType.MultiPointM)]
         [InlineData(ShapeType.MultiPatch)]
@@ -130,7 +104,7 @@ namespace Shaperon
                 using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
                 {
                     Assert.Throws<ShapeRecordContentException>(
-                        () => PolyLineMShapeContent.Read(reader)
+                        () => NullShapeContent.Read(reader)
                     );
                 }
             }

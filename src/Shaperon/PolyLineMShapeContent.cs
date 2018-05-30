@@ -20,6 +20,11 @@ namespace Shaperon
         public MultiLineString Shape { get; }
         public WordLength ContentLength { get; }
 
+        public ShapeRecord RecordAs(RecordNumber number)
+        {
+            return new ShapeRecord(new ShapeRecordHeader(number, ContentLength), this);
+        }
+
         internal static IShapeContent ReadFromRecord(BinaryReader reader, ShapeRecordHeader header)
         {
             if (reader == null)

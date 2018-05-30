@@ -9,5 +9,7 @@ namespace Shaperon
         WordLength ContentLength { get; }
 
         void Write(BinaryWriter writer);
+
+        ShapeRecord RecordAs(RecordNumber number);
     }
 }
