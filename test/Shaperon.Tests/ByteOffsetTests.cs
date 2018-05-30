@@ -12,12 +12,8 @@ namespace Shaperon
         public ByteOffsetTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<ByteOffset>(
-                customization =>
-                    customization.FromFactory<Int32>(value => new ByteOffset(Math.Abs(value))));
-            _fixture.Customize<ByteLength>(
-                customization =>
-                    customization.FromFactory<Int32>(value => new ByteLength(Math.Abs(value))));
+            _fixture.CustomizeByteOffset();
+            _fixture.CustomizeByteLength();
         }
 
         [Fact]

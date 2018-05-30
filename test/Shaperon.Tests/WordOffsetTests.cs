@@ -12,15 +12,9 @@ namespace Shaperon
         public WordOffsetTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<WordOffset>(
-                customization =>
-                    customization.FromFactory<Int32>(value => new WordOffset(Math.Abs(value))));
-            _fixture.Customize<ByteLength>(
-                customization =>
-                    customization.FromFactory<Int32>(value => new ByteLength(Math.Abs(value))));
-            _fixture.Customize<WordLength>(
-                customization =>
-                    customization.FromFactory<Int32>(value => new WordLength(Math.Abs(value))));
+            _fixture.CustomizeWordOffset();
+            _fixture.CustomizeByteLength();
+            _fixture.CustomizeWordLength();
         }
 
         [Theory]

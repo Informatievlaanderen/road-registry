@@ -12,12 +12,8 @@ namespace Shaperon
         public ByteLengthTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<ByteLength>(
-                customization =>
-                    customization.FromFactory<Int32>(value => new ByteLength(Math.Abs(value))));
-            _fixture.Customize<WordLength>(
-                customization =>
-                    customization.FromFactory<Int32>(value => new WordLength(Math.Abs(value))));
+            _fixture.CustomizeByteLength();
+            _fixture.CustomizeWordLength();
         }
 
         [Theory]
@@ -28,10 +24,18 @@ namespace Shaperon
             Assert.Throws<ArgumentOutOfRangeException>(() => new ByteLength(value));
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(int.MaxValue)]
+        public void ValueCanNotBeOdd(int value)
+        {
+            Assert.Throws<ArgumentException>(() => new ByteLength(value));
+        }
+
         [Fact]
         public void ToInt32ReturnsExpectedValue()
         {
-            var value = Math.Abs(_fixture.Create<int>());
+            var value = _fixture.Create<int>().AsByteLengthValue();
             var sut = new ByteLength(value);
 
             var result = sut.ToInt32();
@@ -42,7 +46,7 @@ namespace Shaperon
         [Fact]
         public void ImplicitConversionToInt32ReturnsExpectedValue()
         {
-            var value = Math.Abs(_fixture.Create<int>());
+            var value = _fixture.Create<int>().AsByteLengthValue();
             var sut = new ByteLength(value);
 
             int result = sut;
@@ -86,7 +90,7 @@ namespace Shaperon
         [Fact]
         public void ToStringReturnsExpectedValue()
         {
-            var value = Math.Abs(_fixture.Create<int>());
+            var value = _fixture.Create<int>().AsByteLengthValue();
             var sut = new ByteLength(value);
 
             var result = sut.ToString();

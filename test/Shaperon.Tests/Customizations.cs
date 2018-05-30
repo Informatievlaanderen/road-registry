@@ -32,14 +32,13 @@ namespace Shaperon
                     ));
         }
 
-        //TODO: Explore what effect the conversion of byte length to word length has when the byte length is not divisible by 2.
-        // public static void CustomizeByteLengthCompatibleWithWordLength(this IFixture fixture)
-        // {
-        //     fixture.Customize<ByteOffset>(
-        //         customization =>
-        //             customization.FromFactory<int>(
-        //                 value => value % 2 == 0 ? new ByteOffset(Math.Abs(value)) : new ByteOffset(Math.Abs(value) + 1)
-        //             ));
-        // }
+        public static void CustomizeByteLength(this IFixture fixture)
+        {
+            fixture.Customize<ByteLength>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => new ByteLength(value.AsByteLengthValue())
+                    ));
+        }
     }
 }
