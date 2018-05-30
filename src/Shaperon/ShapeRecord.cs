@@ -8,14 +8,14 @@ namespace Shaperon
         //Rationale: 100 byte file header means first record appears at offset 50 (16-bit word) of the mainfile.
         public static readonly WordOffset InitialOffset = new WordOffset(50);
 
-        public ShapeRecord(ShapeRecordHeader header, IShapeContent content)
+        public ShapeRecord(ShapeRecordHeader header, ShapeContent content)
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
             Content = content ?? throw new ArgumentNullException(nameof(content));
         }
 
         public ShapeRecordHeader Header { get; }
-        public IShapeContent Content { get; }
+        public ShapeContent Content { get; }
 
         public static ShapeRecord Read(BinaryReader reader)
         {

@@ -7,7 +7,7 @@ namespace Shaperon
     using System.IO;
     using System.Text;
     using Wkx;
-
+    
     public class NullShapeContentTests
     {
         private readonly Fixture _fixture;

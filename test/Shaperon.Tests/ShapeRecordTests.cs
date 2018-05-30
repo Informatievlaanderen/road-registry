@@ -24,9 +24,9 @@ namespace Shaperon
                     value => new Point(new Random(value).Next(), new Random(value).Next())
                 )
             );
-            _fixture.Customize<IShapeContent>(customization =>
+            _fixture.Customize<ShapeContent>(customization =>
                 customization.FromFactory<int>(value => {
-                    IShapeContent content = null;
+                    ShapeContent content = null;
                     switch(value % 3)
                     {
                         case 0:

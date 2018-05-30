@@ -3,25 +3,17 @@ using System.IO;
 
 namespace Shaperon
 {
-    public class NullShapeContent : IShapeContent
+    public class NullShapeContent : ShapeContent
     {
-        public static readonly IShapeContent Instance = new NullShapeContent();
+        public static readonly ShapeContent Instance = new NullShapeContent();
 
         private NullShapeContent()
         {
+            ShapeType = ShapeType.NullShape;
             ContentLength = new WordLength(2);
         }
 
-        public ShapeType ShapeType => ShapeType.NullShape;
-
-        public WordLength ContentLength { get; }
-
-        public ShapeRecord RecordAs(RecordNumber number)
-        {
-            return new ShapeRecord(new ShapeRecordHeader(number, ContentLength), this);
-        }
-
-        public static IShapeContent Read(BinaryReader reader)
+        public static ShapeContent Read(BinaryReader reader)
         {
             if (reader == null)
             {
@@ -37,7 +29,7 @@ namespace Shaperon
             return Instance;
         }
 
-        public void Write(BinaryWriter writer)
+        public override void Write(BinaryWriter writer)
         {
             if (writer == null)
             {
