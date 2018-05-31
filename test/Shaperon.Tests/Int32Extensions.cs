@@ -19,5 +19,15 @@ namespace Shaperon
             var absolute = Math.Abs(value);
             return absolute == 0 ? 1 : absolute;
         }
+
+        public static int AsDbaseFieldNameLength(this int value)
+        {
+            return new Random(value).Next(1, 12);
+        }
+
+        public static int AsDbaseFieldLengthValue(this int value)
+        {
+            return new Random(value).Next(0, 255);
+        }
     }
 }

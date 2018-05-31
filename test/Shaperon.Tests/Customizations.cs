@@ -48,5 +48,21 @@ namespace Shaperon
                         value => new RecordNumber(value.AsRecordNumberValue())
                     ));
         }
+
+        public static void CustomizeDbaseFieldName(this IFixture fixture)
+        {
+            fixture.Customize<DbaseFieldName>(customization =>
+                customization.FromFactory<int>(value =>
+                    new DbaseFieldName(new string('a', value.AsDbaseFieldNameLength()))));
+        }
+
+        public static void CustomizeDbaseFieldLength(this IFixture fixture)
+        {
+            fixture.Customize<DbaseFieldLength>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => new DbaseFieldLength(value.AsDbaseFieldLengthValue())
+                    ));
+        }
     }
 }
