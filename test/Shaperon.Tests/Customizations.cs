@@ -73,5 +73,53 @@ namespace Shaperon
                         value => new DbaseDecimalCount(value.AsDbaseDecimalCountValue())
                     ));
         }
+
+        public static void CustomizeDbaseInt32(this IFixture fixture)
+        {
+            fixture.Customize<DbaseInt32>(
+                customization =>
+                    customization.FromFactory<int?>(
+                        value => new DbaseInt32(
+                            new DbaseField(
+                                fixture.Create<DbaseFieldName>(),
+                                DbaseFieldType.Number,
+                                fixture.Create<ByteOffset>(),
+                                fixture.Create<DbaseFieldLength>(),
+                                new DbaseDecimalCount(0)
+                            ), value)
+                    ));
+        }
+
+        public static void CustomizeDbaseDouble(this IFixture fixture)
+        {
+            fixture.Customize<DbaseDouble>(
+                customization =>
+                    customization.FromFactory<double?>(
+                        value => new DbaseDouble(
+                            new DbaseField(
+                                fixture.Create<DbaseFieldName>(),
+                                DbaseFieldType.Number,
+                                fixture.Create<ByteOffset>(),
+                                new DbaseFieldLength(new Random().Next(10, 20)),
+                                new DbaseDecimalCount(new Random().Next(1, 10))
+                            ), value)
+                    ));
+        }
+
+        public static void CustomizeDbaseDateTime(this IFixture fixture)
+        {
+            fixture.Customize<DbaseDateTime>(
+                customization =>
+                    customization.FromFactory<DateTime?>(
+                        value => new DbaseDateTime(
+                            new DbaseField(
+                                fixture.Create<DbaseFieldName>(),
+                                DbaseFieldType.DateTime,
+                                fixture.Create<ByteOffset>(),
+                                new DbaseFieldLength(15),
+                                new DbaseDecimalCount(0)
+                            ), value)
+                    ));
+        }
     }
 }

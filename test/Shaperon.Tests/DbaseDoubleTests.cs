@@ -1,6 +1,5 @@
 namespace Shaperon
 {
-    using System;
     using System.IO;
     using System.Text;
     using Albedo;
@@ -8,39 +7,45 @@ namespace Shaperon
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class ShapeIndexRecordTests
+    public class DbaseDoubleTests
     {
         private readonly Fixture _fixture;
 
-        public ShapeIndexRecordTests()
+        public DbaseDoubleTests()
         {
             _fixture = new Fixture();
-            _fixture.CustomizeWordLength();
-            _fixture.CustomizeWordOffset();
+            _fixture.CustomizeDbaseFieldName();
+            _fixture.CustomizeDbaseFieldLength();
+            _fixture.CustomizeDbaseDecimalCount();
+            _fixture.CustomizeDbaseDouble();
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
+        }
+
+        [Fact]
+        public void IsDbaseFieldValue()
+        {
+            Assert.IsAssignableFrom<DbaseFieldValue>(_fixture.Create<DbaseDouble>());
         }
 
         [Fact]
         public void ReaderCanNotBeNull()
         {
             new GuardClauseAssertion(_fixture)
-                .Verify(Methods.Select(() => ShapeIndexRecord.Read(null)));
+                .Verify(new Methods<DbaseDouble>().Select(instance => instance.Read(null)));
         }
 
         [Fact]
         public void WriterCanNotBeNull()
         {
             new GuardClauseAssertion(_fixture)
-                .Verify(new Methods<ShapeIndexRecord>().Select(instance => instance.Write(null)));
+                .Verify(new Methods<DbaseDouble>().Select(instance => instance.Write(null)));
         }
 
         [Fact]
         public void CanReadWrite()
         {
-            var sut = new ShapeIndexRecord(
-                _fixture.Create<WordOffset>(),
-                _fixture.Create<WordLength>());
+            var sut = _fixture.Create<DbaseDouble>();
 
             using(var stream = new MemoryStream())
             {
@@ -54,10 +59,11 @@ namespace Shaperon
 
                 using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
                 {
-                    var result = ShapeIndexRecord.Read(reader);
+                    var result = new DbaseDouble(sut.Field);
+                    result.Read(reader);
 
-                    Assert.Equal(sut.Offset, result.Offset);
-                    Assert.Equal(sut.ContentLength, result.ContentLength);
+                    Assert.Equal(sut.Field, result.Field);
+                    Assert.Equal(sut.Value, result.Value);
                 }
             }
         }

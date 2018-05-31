@@ -57,5 +57,18 @@ namespace Shaperon
                 value.Write(writer);
             }
         }
+
+        public byte[] ToBytes()
+        {
+            using(var output = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(output))
+                {
+                    Write(writer);
+                    writer.Flush();
+                }
+                return output.ToArray();
+            }
+        }
     }
 }
