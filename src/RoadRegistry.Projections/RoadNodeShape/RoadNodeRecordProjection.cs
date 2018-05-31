@@ -26,10 +26,13 @@ namespace RoadRegistry.Projections
                     BEGINORG = { Value = @event.Origin.OrganizationId },
                     LBLBGNORG = { Value = @event.Origin.Organization }
                 };
+                var pointShapeContent = new PointShapeContent(FromWellKnownBinary.ToPoint(@event.Geometry.WellKnownBinary));
+
                 return context.AddAsync(new RoadNodeRecord
                     {
                     Id = @event.Id,
-                    ShapeRecordContent = new PointShapeContent(FromWellKnownBinary.ToPoint(@event.Geometry.WellKnownBinary)).ToBytes(),
+                    ShapeRecordContent = pointShapeContent.ToBytes(),
+                    ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
                     DbaseRecord = dbaseRecord.ToBytes()
                 }, token);
             });

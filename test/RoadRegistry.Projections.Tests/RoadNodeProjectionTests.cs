@@ -23,6 +23,7 @@ namespace RoadRegistry.Projections.Tests
         public Task When_road_node_was_imported()
         {
             var point = _fixture.Create<Point>();
+            var pointShapeContent = new PointShapeContent(point);
             var geometry = _fixture.Build<Events.Geometry>().With(g => g.WellKnownBinary, point.SerializeByteArray<WkbSerializer>()).Create();
             var importedRoadNode = _fixture.Build<ImportedRoadNode>().With(n => n.Geometry, geometry).Create();
 
@@ -46,7 +47,8 @@ namespace RoadRegistry.Projections.Tests
                             BEGINORG = {Value = importedRoadNode.Origin.OrganizationId},
                             LBLBGNORG = {Value = importedRoadNode.Origin.Organization}
                         }.ToBytes(),
-                        ShapeRecordContent = new PointShapeContent(point).ToBytes()
+                        ShapeRecordContent = pointShapeContent.ToBytes(),
+                        ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32()
                     }
                 });
         }
@@ -69,6 +71,7 @@ namespace RoadRegistry.Projections.Tests
                         .With(node => node.Id, index + 1)
                         .Create();
 
+                    var pointShapeContent = new PointShapeContent(point);
                     var expectedRecord = new RoadNodeRecord
                     {
                         Id = importedRoadNode.Id,
@@ -85,7 +88,8 @@ namespace RoadRegistry.Projections.Tests
                             BEGINORG = {Value = importedRoadNode.Origin.OrganizationId},
                             LBLBGNORG = {Value = importedRoadNode.Origin.Organization}
                         }.ToBytes(),
-                        ShapeRecordContent = new PointShapeContent(point).ToBytes()
+                        ShapeRecordContent = pointShapeContent.ToBytes(),
+                        ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32()
                     };
 
                     return new
