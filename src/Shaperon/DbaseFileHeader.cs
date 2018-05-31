@@ -12,7 +12,7 @@ namespace Shaperon
 
         public DbaseFileHeader(DateTime lastUpdated, int recordCount, int recordLength, DbaseField[] recordFields)
         {
-            LastUpdated = lastUpdated;
+            LastUpdated = lastUpdated.RoundToDay();
             RecordCount = recordCount;
             RecordLength = recordLength;
             RecordFields = recordFields;

@@ -17,5 +17,10 @@ namespace Shaperon
             }
             return value;
         }
+
+        public static DateTime RoundToDay(this DateTime value)
+        {
+            return new DateTime(value.Year, value.Month, value.Day, 0, 0, 0, 0, value.Kind);
+        }
     }
 }

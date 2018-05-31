@@ -23,6 +23,18 @@ namespace Shaperon
         }
 
         [Fact]
+        public void VerifyEquality()
+        {
+            new CompositeIdiomaticAssertion(
+                new EqualsNewObjectAssertion(_fixture),
+                new EqualsNullAssertion(_fixture),
+                new EqualsSelfAssertion(_fixture),
+                new EqualsSuccessiveAssertion(_fixture),
+                new GetHashCodeSuccessiveAssertion(_fixture)
+            ).Verify(typeof(DbaseField));
+        }
+
+        [Fact]
         public void CreateCharacterFieldValueReturnsExpectedResult()
         {
             var sut = new DbaseField(

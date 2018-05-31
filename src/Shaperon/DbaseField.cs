@@ -49,6 +49,34 @@ namespace Shaperon
         public DbaseFieldLength Length { get; }
         public DbaseDecimalCount DecimalCount { get; }
 
+        private bool Equals(DbaseField other) =>
+            other != null &&
+            Name == other.Name &&
+            // HACK: Because legacy represents date times as characters - so why bother with DateTime support?
+            (
+                (
+                    (FieldType == DbaseFieldType.Character || FieldType == DbaseFieldType.DateTime)
+                    &&
+                    (other.FieldType == DbaseFieldType.Character || other.FieldType == DbaseFieldType.DateTime)
+                )
+                ||
+                FieldType == other.FieldType
+            ) &&
+            Offset == other.Offset &&
+            Length == other.Length &&
+            DecimalCount == other.DecimalCount;
+
+        public override bool Equals(object obj) =>
+            obj is DbaseField field && Equals(field);
+
+        public override int GetHashCode() =>
+            Name.GetHashCode() ^
+            // HACK: Because legacy represents date times as characters - so why bother with DateTime support?
+            (FieldType == DbaseFieldType.DateTime ? DbaseFieldType.Character : FieldType).GetHashCode() ^
+            Offset.GetHashCode() ^
+            Length.GetHashCode() ^
+            DecimalCount.GetHashCode();
+
         public DbaseFieldValue CreateFieldValue()
         {
             return _factories[FieldType](this);
