@@ -30,7 +30,7 @@ namespace Shaperon
         }
 
         [Fact]
-        public void ValueMillisecondsAreRemovedUponConstruction()
+        public void DateTimeMillisecondsAreRemovedUponConstruction()
         {
             var field = new DbaseField(
                 _fixture.Create<DbaseFieldName>(),
@@ -44,7 +44,7 @@ namespace Shaperon
         }
 
         [Fact]
-        public void ValueMillisecondsAreRemovedUponSet()
+        public void DateTimeMillisecondsAreRemovedUponSet()
         {
             var field = new DbaseField(
                 _fixture.Create<DbaseFieldName>(),

@@ -74,6 +74,22 @@ namespace Shaperon
                     ));
         }
 
+        public static void CustomizeDbaseString(this IFixture fixture)
+        {
+            fixture.Customize<DbaseString>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => new DbaseString(
+                            new DbaseField(
+                                fixture.Create<DbaseFieldName>(),
+                                DbaseFieldType.Character,
+                                fixture.Create<ByteOffset>(),
+                                new DbaseFieldLength(new Random(value).Next(10, 200)),
+                                new DbaseDecimalCount(0)
+                            ), new string('a', new Random(value).Next(1, 10)))
+                    ));
+        }
+
         public static void CustomizeDbaseInt32(this IFixture fixture)
         {
             fixture.Customize<DbaseInt32>(
