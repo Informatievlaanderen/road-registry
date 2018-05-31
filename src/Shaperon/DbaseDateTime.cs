@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Shaperon
 {
-    public class DbaseDateTime : DbaseValue
+    public class DbaseDateTime : DbaseFieldValue
     {
         public DbaseDateTime(DbaseField field, DateTime? value = null) : base(field)
         {

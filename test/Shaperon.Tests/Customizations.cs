@@ -64,5 +64,14 @@ namespace Shaperon
                         value => new DbaseFieldLength(value.AsDbaseFieldLengthValue())
                     ));
         }
+
+        public static void CustomizeDbaseDecimalCount(this IFixture fixture)
+        {
+            fixture.Customize<DbaseDecimalCount>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => new DbaseDecimalCount(value.AsDbaseDecimalCountValue())
+                    ));
+        }
     }
 }

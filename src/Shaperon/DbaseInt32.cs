@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Shaperon
 {
-    public class DbaseInt32 : DbaseValue
+    public class DbaseInt32 : DbaseFieldValue
     {
         public DbaseInt32(DbaseField field, int? value = null) : base(field)
         {

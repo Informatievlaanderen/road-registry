@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Shaperon
 {
-    public class DbaseString : DbaseValue
+    public class DbaseString : DbaseFieldValue
     {
         private string _value;
 
@@ -61,7 +61,7 @@ namespace Shaperon
             }
         }
 
-        public DbaseValue TryInferDateTime()
+        public DbaseFieldValue TryInferDateTime()
         {
             if(Value != null && Field.Length == 15 && DateTime.TryParseExact(Value, "yyyyMMdd\\THHmmss", CultureInfo.InvariantCulture, DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out DateTime parsed))
             {

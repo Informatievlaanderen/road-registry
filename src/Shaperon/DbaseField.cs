@@ -4,20 +4,19 @@ using System.IO;
 
 namespace Shaperon
 {
-
     public class DbaseField
     {
-        private readonly Dictionary<DbaseFieldType, Func<DbaseField, DbaseValue>> _factories =
-            new Dictionary<DbaseFieldType, Func<DbaseField, DbaseValue>> 
+        private readonly Dictionary<DbaseFieldType, Func<DbaseField, DbaseFieldValue>> _factories =
+            new Dictionary<DbaseFieldType, Func<DbaseField, DbaseFieldValue>>
             {
-                { 
-                    DbaseFieldType.Character, 
-                    field => new DbaseString(field) 
+                {
+                    DbaseFieldType.Character,
+                    field => new DbaseString(field)
                 },
                 {
-                    DbaseFieldType.Number, 
+                    DbaseFieldType.Number,
                     field => {
-                        if(field.DecimalCount == 0) 
+                        if(field.DecimalCount == 0)
                         {
                             return new DbaseInt32(field);
                         }
@@ -25,12 +24,16 @@ namespace Shaperon
                     }
                 },
                 {
-                    DbaseFieldType.DateTime, 
+                    DbaseFieldType.DateTime,
                     field => new DbaseDateTime(field)
                 }
             };
         public DbaseField(DbaseFieldName name, DbaseFieldType fieldType, ByteOffset offset, DbaseFieldLength length, DbaseDecimalCount decimalCount)
         {
+            if(!Enum.IsDefined(typeof(DbaseFieldType), fieldType))
+            {
+                throw new ArgumentException($"The field type {fieldType} of field {name} is not supported.", nameof(fieldType));
+            }
             Name = name;
             FieldType = fieldType;
             Offset = offset;
@@ -45,14 +48,10 @@ namespace Shaperon
         public ByteOffset Offset { get; }
         public DbaseFieldLength Length { get; }
         public DbaseDecimalCount DecimalCount { get; }
-        
-        public DbaseValue CreateValue()
+
+        public DbaseFieldValue CreateFieldValue()
         {
-            if(!_factories.TryGetValue(FieldType, out Func<DbaseField, DbaseValue> factory))
-            {
-                throw new NotSupportedException($"The field type {FieldType} of field {Name} is not supported.");
-            }
-            return factory(this);
+            return _factories[FieldType](this);
         }
 
         public static DbaseField Read(BinaryReader reader)

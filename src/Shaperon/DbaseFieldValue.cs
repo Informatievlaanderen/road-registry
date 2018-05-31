@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.IO;
 
 namespace Shaperon
 {
-    public abstract class DbaseValue
+    public abstract class DbaseFieldValue
     {
-        protected DbaseValue(DbaseField field)
+        protected DbaseFieldValue(DbaseField field)
         {
             Field = field ?? throw new ArgumentNullException(nameof(field));
         }

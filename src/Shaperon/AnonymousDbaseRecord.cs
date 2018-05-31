@@ -12,7 +12,7 @@ namespace Shaperon
             }
 
             IsDeleted = false;
-            Values = Array.ConvertAll(fields, field => field.CreateValue());
+            Values = Array.ConvertAll(fields, field => field.CreateFieldValue());
         }
     }
 }

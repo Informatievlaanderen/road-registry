@@ -14,7 +14,7 @@ namespace Shaperon
 
         public bool IsDeleted { get; set; }
 
-        public DbaseValue[] Values { get; protected set; }
+        public DbaseFieldValue[] Values { get; protected set; }
 
         public void Read(BinaryReader reader)
         {

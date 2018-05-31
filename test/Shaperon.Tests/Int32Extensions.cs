@@ -29,5 +29,10 @@ namespace Shaperon
         {
             return new Random(value).Next(0, 255);
         }
+
+        public static int AsDbaseDecimalCountValue(this int value)
+        {
+            return new Random(value).Next(0, 255);
+        }
     }
 }
