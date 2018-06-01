@@ -1,14 +1,17 @@
 namespace RoadRegistry.Projections.Tests.Infrastucture
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.Connector.Testing;
     using KellermanSoftware.CompareNetObjects;
     using Microsoft.EntityFrameworkCore;
+    using Newtonsoft.Json;
     using Xunit.Sdk;
 
     public static class ShapeContextScenarioExtensions
@@ -20,25 +23,38 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
             this ConnectedProjectionScenario<ShapeContext> scenario,
             IEnumerable<object> records)
         {
-            var databaseName = Guid.NewGuid().ToString("N");
-            var options = new DbContextOptionsBuilder<ShapeContext>()
-                .UseInMemoryDatabase(databaseName)
-                .EnableSensitiveDataLogging()
-                .Options;
+            var specificationId = Guid.NewGuid();
+            var expectedRecords = records.ToList();
 
             var specification = scenario.Verify(async context =>
             {
-                var comparer = new CompareLogic();
+                var comparisonConfig = new ComparisonConfig { MaxDifferences = 5 };
+                var comparer = new CompareLogic(comparisonConfig);
                 var result = comparer.Compare(
                     new List<object>(await context.RoadNodes.ToListAsync()),
-                    records.ToList()
+                    expectedRecords
                 );
+
                 return result.AreEqual
                     ? VerificationResult.Pass()
-                    : VerificationResult.Fail(result.DifferencesString);
+                    : VerificationResult.Fail(result.CreateDifferenceMessage());
             });
 
-            using (var context = new ShapeContext(options))
+            await specification.ApplyMessages(() => CreateContextFor(specificationId));
+
+            using (var context = CreateContextFor(specificationId))
+            {
+                var result = await specification.Verification(context, CancellationToken.None);
+
+                if (result.Failed)
+                    throw new XunitException(CreateExceptionMessage(specification.Messages, expectedRecords, result.Message));
+            }
+        }
+
+
+        private static async Task ApplyMessages(this ConnectedProjectionTestSpecification<ShapeContext> specification, Func<ShapeContext> createContext)
+        {
+            using (var context = createContext())
             {
                 var projector = new ConnectedProjector<ShapeContext>(specification.Resolver);
                 foreach (var message in specification.Messages)
@@ -48,14 +64,41 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
 
                 await context.SaveChangesAsync();
             }
+        }
 
-            using (var context = new ShapeContext(options))
-            {
-                var result = await specification.Verification(context, CancellationToken.None);
+        private static ShapeContext CreateContextFor(Guid specificationId)
+        {
+            var databaseName = specificationId.ToString("N");
+            var options = new DbContextOptionsBuilder<ShapeContext>()
+                .UseInMemoryDatabase(databaseName)
+                .EnableSensitiveDataLogging()
+                .Options;
 
-                if (result.Failed)
-                    throw new XunitException(result.Message);
-            }
+            return new ShapeContext(options);
+        }
+
+        private static string CreateExceptionMessage(IEnumerable given, IEnumerable expected, string differenceMessage)
+        {
+            var title = string.Empty;
+            string NamedMessageFormat(object message) => $"{message.GetType().Name} - {JsonConvert.SerializeObject(message, Formatting.Indented)}";
+
+            var exceptionMessage = new StringBuilder().AppendLine(title);
+
+            exceptionMessage
+                .AppendLine("Given:")
+                .AppendLines(given, NamedMessageFormat)
+                .AppendLine();
+
+            exceptionMessage
+                .AppendLine("Expected:")
+                .AppendLines(expected, NamedMessageFormat)
+                .AppendLine();
+
+            exceptionMessage
+                .AppendLine("But:")
+                .Append(differenceMessage);
+
+            return exceptionMessage.ToString();
         }
     }
 }

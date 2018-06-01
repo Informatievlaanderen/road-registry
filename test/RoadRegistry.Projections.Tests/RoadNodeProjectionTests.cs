@@ -57,7 +57,7 @@ namespace RoadRegistry.Projections.Tests
         public Task When_multiple_road_nodes_were_imported()
         {
             var data = _fixture
-                .CreateMany<Point>(new Random().Next(10))
+                .CreateMany<Point>(new Random().Next(2,10))
                 .Select((point, index) =>
                 {
                     var geometry = _fixture
