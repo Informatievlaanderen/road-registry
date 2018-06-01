@@ -1,30 +1,50 @@
 namespace RoadRegistry.Projections.Tests.Infrastucture
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Text;
 
     public static class StringBuilderExtensions
     {
-        public static StringBuilder AppendLines<T>(
+        public static StringBuilder AppendTitleBlock(
             this StringBuilder builder,
-            IEnumerable<T> collection,
-            Func<T, string> format)
+            string title,
+            Action<StringBuilder> addContent)
         {
-            foreach (var item in collection)
-            {
-                builder.AppendLine(format(item));
-            }
+            builder.AppendLine($"{title}:");
+            addContent(builder);
+            builder.AppendLine();
+
             return builder;
         }
 
-        public static StringBuilder AppendLines(
+        public static StringBuilder AppendTitleBlock(
             this StringBuilder builder,
-            IEnumerable collection,
-            Func<object, string> format)
+            string title,
+            string content)
         {
-            return builder.AppendLines((IEnumerable<object>)collection, format);
+            return builder.AppendTitleBlock(title, b => b.AppendLine(content));
+        }
+
+        public static StringBuilder AppendTitleBlock<T>(
+            this StringBuilder builder,
+            string title,
+            IEnumerable<T> collection,
+            Func<T, string> formatter)
+        {
+            return builder.AppendTitleBlock(title, b => b.AppendLines(collection, formatter));
+        }
+
+        public static StringBuilder AppendLines<T>(
+            this StringBuilder builder,
+            IEnumerable<T> collection,
+            Func<T, string> formatter)
+        {
+            foreach (var item in collection)
+            {
+                builder.AppendLine(formatter(item));
+            }
+            return builder;
         }
     }
 }

@@ -1,7 +1,6 @@
 namespace RoadRegistry.Projections.Tests.Infrastucture
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -11,7 +10,6 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
     using Aiv.Vbr.ProjectionHandling.Connector.Testing;
     using KellermanSoftware.CompareNetObjects;
     using Microsoft.EntityFrameworkCore;
-    using Newtonsoft.Json;
     using Xunit.Sdk;
 
     public static class ShapeContextScenarioExtensions
@@ -30,14 +28,15 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
             {
                 var comparisonConfig = new ComparisonConfig { MaxDifferences = 5 };
                 var comparer = new CompareLogic(comparisonConfig);
+                var actualRecords = new List<object>(await context.RoadNodes.ToListAsync());
                 var result = comparer.Compare(
-                    new List<object>(await context.RoadNodes.ToListAsync()),
+                    actualRecords,
                     expectedRecords
                 );
 
                 return result.AreEqual
                     ? VerificationResult.Pass()
-                    : VerificationResult.Fail(result.CreateDifferenceMessage());
+                    : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, expectedRecords));
             });
 
             await specification.ApplyMessages(() => CreateContextFor(specificationId));
@@ -47,10 +46,9 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
                 var result = await specification.Verification(context, CancellationToken.None);
 
                 if (result.Failed)
-                    throw new XunitException(CreateExceptionMessage(specification.Messages, expectedRecords, result.Message));
+                    throw specification.CreateFailedScenarioExceptionFor(result);
             }
         }
-
 
         private static async Task ApplyMessages(this ConnectedProjectionTestSpecification<ShapeContext> specification, Func<ShapeContext> createContext)
         {
@@ -77,28 +75,15 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
             return new ShapeContext(options);
         }
 
-        private static string CreateExceptionMessage(IEnumerable given, IEnumerable expected, string differenceMessage)
+        private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<ShapeContext> specification, VerificationResult result)
         {
             var title = string.Empty;
-            string NamedMessageFormat(object message) => $"{message.GetType().Name} - {JsonConvert.SerializeObject(message, Formatting.Indented)}";
+            var exceptionMessage = new StringBuilder()
+                .AppendLine(title)
+                .AppendTitleBlock("Given", specification.Messages, Formatters.NamedJsonMessage)
+                .Append(result.Message);
 
-            var exceptionMessage = new StringBuilder().AppendLine(title);
-
-            exceptionMessage
-                .AppendLine("Given:")
-                .AppendLines(given, NamedMessageFormat)
-                .AppendLine();
-
-            exceptionMessage
-                .AppendLine("Expected:")
-                .AppendLines(expected, NamedMessageFormat)
-                .AppendLine();
-
-            exceptionMessage
-                .AppendLine("But:")
-                .Append(differenceMessage);
-
-            return exceptionMessage.ToString();
+            return new XunitException(exceptionMessage.ToString());
         }
     }
 }
