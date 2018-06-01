@@ -39,11 +39,11 @@ namespace RoadRegistry.Projections
             var flag = reader.ReadByte();
             if(flag == DbaseRecord.EndOfFile)
             {
-                throw new DbaseFileException("The end of file was reached unexpectedly.");
+                throw new DbaseFileHeaderException("The end of file was reached unexpectedly.");
             }
             if(flag != 0x20 && flag != 0x2A)
             {
-                throw new DbaseFileException($"The record deleted flag must be either deleted (0x2A) or valid (0x20) but is 0x{flag:X2}");
+                throw new DbaseFileHeaderException($"The record deleted flag must be either deleted (0x2A) or valid (0x20) but is 0x{flag:X2}");
             }
             IsDeleted = flag == 0x2A;
             WK_OIDN.Read(reader);

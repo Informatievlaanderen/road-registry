@@ -7,6 +7,7 @@ namespace Shaperon
     using System.IO;
     using System.Text;
     using System;
+    using System.Linq;
 
     public class ShapeFileHeaderTests
     {
@@ -64,13 +65,15 @@ namespace Shaperon
         }
 
         [Fact]
-        public void ReadExpectsHeaderToStartWith9994()
+        public void ReadExpectsHeaderToStartWithFileCode9994()
         {
+            var start = _fixture.Create<Generator<int>>().Where(_ => _ != ShapeFileHeader.ExpectedFileCode).First();
+
             using(var stream = new MemoryStream())
             {
                 using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
                 {
-                    writer.WriteInt32BigEndian(1234); // start
+                    writer.WriteInt32BigEndian(start);
 
                     writer.Flush();
                 }
@@ -89,17 +92,19 @@ namespace Shaperon
         [Fact]
         public void ReadExpectsHeaderVersionToBe1000()
         {
+            var version = _fixture.Create<Generator<int>>().Where(_ => _ != ShapeFileHeader.ExpectedVersion).First();
+
             using(var stream = new MemoryStream())
             {
                 using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
                 {
-                    writer.WriteInt32BigEndian(9994);
+                    writer.WriteInt32BigEndian(ShapeFileHeader.ExpectedFileCode);
                     for(var index = 0; index < 20; index++)
                     {
                         writer.Write((byte)0x0);
                     }
                     writer.WriteInt32BigEndian(_fixture.Create<int>());
-                    writer.WriteInt32LittleEndian(999); // version
+                    writer.WriteInt32LittleEndian(version);
                     writer.Flush();
                 }
 
@@ -117,18 +122,20 @@ namespace Shaperon
         [Fact]
         public void ReadExpectsHeaderShapeTypeToBeValid()
         {
+            var shapeType = _fixture.Create<Generator<int>>().Where(_ => !Enum.IsDefined(typeof(ShapeType), _)).First();
+
             using(var stream = new MemoryStream())
             {
                 using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
                 {
-                    writer.WriteInt32BigEndian(9994);
+                    writer.WriteInt32BigEndian(ShapeFileHeader.ExpectedFileCode);
                     for(var index = 0; index < 20; index++)
                     {
                         writer.Write((byte)0x0);
                     }
                     writer.WriteInt32BigEndian(_fixture.Create<int>());
-                    writer.WriteInt32LittleEndian(1000);
-                    writer.WriteInt32LittleEndian(-1); // shape type
+                    writer.WriteInt32LittleEndian(ShapeFileHeader.ExpectedVersion);
+                    writer.WriteInt32LittleEndian(shapeType);
                     writer.Flush();
                 }
 

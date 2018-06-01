@@ -6,7 +6,8 @@ namespace Shaperon
     public class DbaseFileHeader
     {
         public const int MaximumFileSize = 1073741824; // 1 GB
-        private const byte Terminator = 0x0d;
+        public const byte Terminator = 0x0d;
+        public const byte ExpectedDbaseFormat = 0x03;
         private const int HeaderMetaDataSize = 33;
         private const int FieldMetaDataSize = 32;
 
@@ -30,9 +31,9 @@ namespace Shaperon
                 throw new System.ArgumentNullException(nameof(reader));
             }
 
-            if (reader.ReadByte() != 0x3)
+            if (reader.ReadByte() != ExpectedDbaseFormat)
             {
-                throw new DbaseFileException("The database file type must be 3 (dBase III).");
+                throw new DbaseFileHeaderException("The database file type must be 3 (dBase III).");
             }
             var lastUpdated = new DateTime(reader.ReadByte() + 1900, reader.ReadByte(), reader.ReadByte(), 0, 0, 0, DateTimeKind.Unspecified);
             var recordCount = reader.ReadInt32();
@@ -47,7 +48,7 @@ namespace Shaperon
             }
             if(reader.ReadByte() != Terminator)
             {
-                throw new DbaseFileException("The database file header terminator is missing.");
+                throw new DbaseFileHeaderException("The database file header terminator is missing.");
             }
             // skip to first record
             var bytesToSkip = headerLength - (HeaderMetaDataSize + (FieldMetaDataSize * recordFieldCount));

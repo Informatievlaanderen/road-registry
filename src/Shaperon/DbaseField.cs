@@ -93,7 +93,7 @@ namespace Shaperon
             var typeOfField = reader.ReadByte();
             if(!(Enum.IsDefined(typeof(DbaseFieldType), typeOfField)))
             {
-                throw new DbaseFileException($"The field type {typeOfField} of field {name} is not supported.");
+                throw new DbaseFileHeaderException($"The field type {typeOfField} of field {name} is not supported.");
             }
             var fieldType = (DbaseFieldType)typeOfField;
             var offset = new ByteOffset(reader.ReadInt32());

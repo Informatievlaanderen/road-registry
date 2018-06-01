@@ -5,6 +5,9 @@ namespace Shaperon
 {
     public class ShapeFileHeader
     {
+        public const int ExpectedFileCode = 9994;
+        public const int ExpectedVersion = 1000;
+
         public ShapeFileHeader(WordLength fileWordLength, ShapeType shapeType, BoundingBox3D boundingBox)
         {
             FileLength = fileWordLength;
@@ -27,7 +30,7 @@ namespace Shaperon
                 throw new ShapeFileHeaderException("The File Code field does not match 9994.");
             reader.ReadBytes(20);
             var fileLength = reader.ReadInt32BigEndian();
-            if(reader.ReadInt32LittleEndian() != 1000)
+            if(reader.ReadInt32LittleEndian() != ExpectedVersion)
                 throw new ShapeFileHeaderException("The Version field does not match 1000.");
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
