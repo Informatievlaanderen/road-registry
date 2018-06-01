@@ -23,6 +23,7 @@ namespace RoadRegistry.Projections
                 .ForSqlServerIsClustered(false);
 
             b.Property(p => p.ShapeRecordContent);
+            b.Property(p => p.ShapeRecordContentLength);
             b.Property(p => p.DbaseRecord);
         }
     }
