@@ -63,7 +63,8 @@ Target "Api_Build" (fun _ ->
 
 Target "Api_Test" (fun _ ->
   [ "test" @@ "RoadRegistry.Projections.Oslo.Tests"
-    "test" @@ "RoadRegistry.Tests" ]
+    "test" @@ "RoadRegistry.Tests"
+    "test" @@ "Shaperon.Tests" ]
   |> List.iter testWithXunit
 )
 
