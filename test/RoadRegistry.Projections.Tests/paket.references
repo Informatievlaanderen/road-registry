@@ -4,8 +4,12 @@ xunit.runner.visualstudio
 xunit.categories
 Microsoft.NET.Test.Sdk
 FluentAssertions
+AutoFixture
+CompareNETObjects
 
 Microsoft.EntityFrameworkCore.InMemory
 
 Aiv.Vbr.EventHandling
 Aiv.Vbr.ProjectionHandling.Connector.Testing
+
+Wkx

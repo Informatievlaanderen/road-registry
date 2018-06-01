@@ -6,7 +6,7 @@ namespace RoadRegistry.Projections
 {
     public class RoadNodeDbaseRecord
     {
-        private static readonly RoadNodeDbaseSchema Schema = new RoadNodeDbaseSchema();
+        public static readonly RoadNodeDbaseSchema Schema = new RoadNodeDbaseSchema();
 
         public RoadNodeDbaseRecord()
         {
