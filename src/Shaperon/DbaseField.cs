@@ -4,20 +4,19 @@ using System.IO;
 
 namespace Shaperon
 {
-
     public class DbaseField
     {
-        private readonly Dictionary<DbaseFieldType, Func<DbaseField, DbaseValue>> _factories =
-            new Dictionary<DbaseFieldType, Func<DbaseField, DbaseValue>> 
+        private readonly Dictionary<DbaseFieldType, Func<DbaseField, DbaseFieldValue>> _factories =
+            new Dictionary<DbaseFieldType, Func<DbaseField, DbaseFieldValue>>
             {
-                { 
-                    DbaseFieldType.Character, 
-                    field => new DbaseString(field) 
+                {
+                    DbaseFieldType.Character,
+                    field => new DbaseString(field)
                 },
                 {
-                    DbaseFieldType.Number, 
+                    DbaseFieldType.Number,
                     field => {
-                        if(field.DecimalCount == 0) 
+                        if(field.DecimalCount == 0)
                         {
                             return new DbaseInt32(field);
                         }
@@ -25,12 +24,16 @@ namespace Shaperon
                     }
                 },
                 {
-                    DbaseFieldType.DateTime, 
+                    DbaseFieldType.DateTime,
                     field => new DbaseDateTime(field)
                 }
             };
         public DbaseField(DbaseFieldName name, DbaseFieldType fieldType, ByteOffset offset, DbaseFieldLength length, DbaseDecimalCount decimalCount)
         {
+            if(!Enum.IsDefined(typeof(DbaseFieldType), fieldType))
+            {
+                throw new ArgumentException($"The field type {fieldType} of field {name} is not supported.", nameof(fieldType));
+            }
             Name = name;
             FieldType = fieldType;
             Offset = offset;
@@ -45,14 +48,38 @@ namespace Shaperon
         public ByteOffset Offset { get; }
         public DbaseFieldLength Length { get; }
         public DbaseDecimalCount DecimalCount { get; }
-        
-        public DbaseValue CreateValue()
+
+        private bool Equals(DbaseField other) =>
+            other != null &&
+            Name == other.Name &&
+            // HACK: Because legacy represents date times as characters - so why bother with DateTime support?
+            (
+                (
+                    (FieldType == DbaseFieldType.Character || FieldType == DbaseFieldType.DateTime)
+                    &&
+                    (other.FieldType == DbaseFieldType.Character || other.FieldType == DbaseFieldType.DateTime)
+                )
+                ||
+                FieldType == other.FieldType
+            ) &&
+            Offset == other.Offset &&
+            Length == other.Length &&
+            DecimalCount == other.DecimalCount;
+
+        public override bool Equals(object obj) =>
+            obj is DbaseField field && Equals(field);
+
+        public override int GetHashCode() =>
+            Name.GetHashCode() ^
+            // HACK: Because legacy represents date times as characters - so why bother with DateTime support?
+            (FieldType == DbaseFieldType.DateTime ? DbaseFieldType.Character : FieldType).GetHashCode() ^
+            Offset.GetHashCode() ^
+            Length.GetHashCode() ^
+            DecimalCount.GetHashCode();
+
+        public DbaseFieldValue CreateFieldValue()
         {
-            if(!_factories.TryGetValue(FieldType, out Func<DbaseField, DbaseValue> factory))
-            {
-                throw new NotSupportedException($"The field type {FieldType} of field {Name} is not supported.");
-            }
-            return factory(this);
+            return _factories[FieldType](this);
         }
 
         public static DbaseField Read(BinaryReader reader)
@@ -66,7 +93,7 @@ namespace Shaperon
             var typeOfField = reader.ReadByte();
             if(!(Enum.IsDefined(typeof(DbaseFieldType), typeOfField)))
             {
-                throw new DbaseFileException($"The field type {typeOfField} of field {name} is not supported.");
+                throw new DbaseFileHeaderException($"The field type {typeOfField} of field {name} is not supported.");
             }
             var fieldType = (DbaseFieldType)typeOfField;
             var offset = new ByteOffset(reader.ReadInt32());

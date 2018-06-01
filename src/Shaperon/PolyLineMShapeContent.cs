@@ -5,22 +5,21 @@ using Wkx;
 
 namespace Shaperon
 {
-    public class PolyLineMShapeContent : IShapeContent
+    public class PolyLineMShapeContent : ShapeContent
     {
         public PolyLineMShapeContent(MultiLineString shape)
         {
             Shape = shape ?? throw new ArgumentNullException(nameof(shape));
+            ShapeType = ShapeType.PolyLineM;
             var partCount = shape.Geometries.Count;
             var pointCount = shape.Geometries.Aggregate(0, (current, line) => line.Points.Count);
             ContentLength = shape.Dimension == Dimension.Xym
                 ? new ByteLength(44 + (4 * partCount) + (16 * pointCount) + 16 + (8 * pointCount)).ToWordLength()
                 : new ByteLength(44 + (4 * partCount) + (16 * pointCount)).ToWordLength();
         }
-        public ShapeType ShapeType => ShapeType.PolyLineM;
         public MultiLineString Shape { get; }
-        public WordLength ContentLength { get; }
 
-        internal static IShapeContent ReadFromRecord(BinaryReader reader, ShapeRecordHeader header)
+        internal static ShapeContent ReadFromRecord(BinaryReader reader, ShapeRecordHeader header)
         {
             if (reader == null)
             {
@@ -63,7 +62,7 @@ namespace Shaperon
             return new PolyLineMShapeContent(new MultiLineString(lines));
         }
 
-        public static IShapeContent Read(BinaryReader reader)
+        public static ShapeContent Read(BinaryReader reader)
         {
             if (reader == null)
             {
@@ -72,9 +71,11 @@ namespace Shaperon
 
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
-                throw new ShapeFileContentException("The Shape Type field does not contain a known type of shape.");
+                throw new ShapeRecordContentException("The Shape Type field does not contain a known type of shape.");
+            if(((ShapeType)typeOfShape) == ShapeType.NullShape)
+                return NullShapeContent.Instance;
             if(((ShapeType)typeOfShape) != ShapeType.PolyLineM)
-                throw new ShapeFileContentException("The Shape Type field does not indicate a PolyLineM shape.");
+                throw new ShapeRecordContentException("The Shape Type field does not indicate a PolyLineM shape.");
 
             reader.ReadBytes(4 * 8); // skip bounding box
             var numParts = reader.ReadInt32LittleEndian();
@@ -112,7 +113,7 @@ namespace Shaperon
             return new PolyLineMShapeContent(new MultiLineString(lines));
         }
 
-        public void Write(BinaryWriter writer)
+        public override void Write(BinaryWriter writer)
         {
             if (writer == null)
             {

@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Shaperon
 {
-    public class DbaseString : DbaseValue
+    public class DbaseString : DbaseFieldValue
     {
         private string _value;
 
@@ -57,11 +57,11 @@ namespace Shaperon
             }
             else
             {
-                writer.Write(new string(' ', Field.Length));
+                writer.Write(new byte[Field.Length]);
             }
         }
 
-        public DbaseValue TryInferDateTime()
+        public DbaseFieldValue TryInferDateTime()
         {
             if(Value != null && Field.Length == 15 && DateTime.TryParseExact(Value, "yyyyMMdd\\THHmmss", CultureInfo.InvariantCulture, DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out DateTime parsed))
             {
@@ -70,7 +70,7 @@ namespace Shaperon
             return this;
         }
 
-        public override void Inspect(IDbaseValueInspector writer)
+        public override void Inspect(IDbaseFieldValueInspector writer)
         {
             writer.Inspect(this);
         }

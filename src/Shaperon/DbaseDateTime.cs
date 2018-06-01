@@ -4,14 +4,27 @@ using System.IO;
 
 namespace Shaperon
 {
-    public class DbaseDateTime : DbaseValue
+    public class DbaseDateTime : DbaseFieldValue
     {
+        private DateTime? _value;
+
         public DbaseDateTime(DbaseField field, DateTime? value = null) : base(field)
         {
             Value = value;
         }
 
-        public DateTime? Value { get; set; }
+        public DateTime? Value
+        {
+            get
+            {
+                return _value;
+            }
+            set
+            {
+                //Reason: due to serialization, precision is only guaranteed up to the second.
+                _value = value.RoundToSeconds();
+            }
+        }
 
         public override void Read(BinaryReader reader)
         {
@@ -57,7 +70,7 @@ namespace Shaperon
             }
         }
 
-        public override void Inspect(IDbaseValueInspector writer)
+        public override void Inspect(IDbaseFieldValueInspector writer)
         {
             writer.Inspect(this);
         }

@@ -2,7 +2,7 @@ namespace Shaperon
 {
     using Wkx;
 
-    public static class PointExtensions
+    internal static class PointExtensions
     {
         public static Point WithMeasure(this Point point, double? value)
         {

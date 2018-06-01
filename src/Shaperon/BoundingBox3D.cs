@@ -22,5 +22,28 @@
         public double ZMax { get; }
         public double MMin { get; }
         public double MMax { get; }
+
+        public override bool Equals(object obj) => obj is BoundingBox3D box && Equals(box);
+
+        private bool Equals(BoundingBox3D other) =>
+            other != null &&
+            XMin == other.XMin &&
+            YMin == other.YMin &&
+            XMax == other.XMax &&
+            YMax == other.YMax &&
+            ZMin == other.ZMin &&
+            ZMax == other.ZMax &&
+            MMin == other.MMin &&
+            MMax == other.MMax;
+
+        public override int GetHashCode() =>
+            XMin.GetHashCode() ^
+            YMin.GetHashCode() ^
+            XMax.GetHashCode() ^
+            YMax.GetHashCode() ^
+            ZMin.GetHashCode() ^
+            ZMax.GetHashCode() ^
+            MMin.GetHashCode() ^
+            MMax.GetHashCode();
     }
 }

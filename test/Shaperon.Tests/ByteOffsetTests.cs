@@ -5,16 +5,21 @@ namespace Shaperon
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class WordOffsetTests
+    public class ByteOffsetTests
     {
         private readonly Fixture _fixture;
 
-        public WordOffsetTests()
+        public ByteOffsetTests()
         {
             _fixture = new Fixture();
-            _fixture.CustomizeWordOffset();
+            _fixture.CustomizeByteOffset();
             _fixture.CustomizeByteLength();
-            _fixture.CustomizeWordLength();
+        }
+
+        [Fact]
+        public void InitialReturnsExpectedValue()
+        {
+            Assert.Equal(0, ByteOffset.Initial);
         }
 
         [Theory]
@@ -22,14 +27,14 @@ namespace Shaperon
         [InlineData(int.MinValue)]
         public void ValueCanNotBeNegative(int value)
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new WordOffset(value));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new ByteOffset(value));
         }
 
         [Fact]
         public void ToInt32ReturnsExpectedValue()
         {
             var value = Math.Abs(_fixture.Create<int>());
-            var sut = new WordOffset(value);
+            var sut = new ByteOffset(value);
 
             var result = sut.ToInt32();
 
@@ -40,7 +45,7 @@ namespace Shaperon
         public void ImplicitConversionToInt32ReturnsExpectedValue()
         {
             var value = Math.Abs(_fixture.Create<int>());
-            var sut = new WordOffset(value);
+            var sut = new ByteOffset(value);
 
             int result = sut;
 
@@ -51,51 +56,30 @@ namespace Shaperon
         public void PlusByteLengthReturnsExpectedValue()
         {
             var value = _fixture.Create<ByteLength>();
-            var sut = _fixture.Create<WordOffset>();
+            var sut = _fixture.Create<ByteOffset>();
 
             var result = sut.Plus(value);
 
-            Assert.Equal(new WordOffset(value.ToInt32() / 2 + sut.ToInt32()), result);
+            Assert.Equal(new ByteOffset(value.ToInt32() + sut.ToInt32()), result);
         }
 
         [Fact]
-        public void PlusByteLengthOperatorReturnsExpectedValue()
+        public void PlusOperatorReturnsExpectedValue()
         {
             var value = _fixture.Create<ByteLength>();
-            var sut = _fixture.Create<WordOffset>();
+            var sut = _fixture.Create<ByteOffset>();
 
             var result = sut + value;
 
-            Assert.Equal(new WordOffset(value.ToInt32() / 2 + sut.ToInt32()), result);
+            Assert.Equal(new ByteOffset(value.ToInt32() + sut.ToInt32()), result);
         }
 
-        [Fact]
-        public void PlusWordLengthReturnsExpectedValue()
-        {
-            var value = _fixture.Create<WordLength>();
-            var sut = _fixture.Create<WordOffset>();
-
-            var result = sut.Plus(value);
-
-            Assert.Equal(new WordOffset(value.ToInt32() + sut.ToInt32()), result);
-        }
-
-        [Fact]
-        public void PlusWordLengthOperatorReturnsExpectedValue()
-        {
-            var value = _fixture.Create<WordLength>();
-            var sut = _fixture.Create<WordOffset>();
-
-            var result = sut + value;
-
-            Assert.Equal(new WordOffset(value.ToInt32() + sut.ToInt32()), result);
-        }
 
         [Fact]
         public void ToStringReturnsExpectedValue()
         {
             var value = Math.Abs(_fixture.Create<int>());
-            var sut = new WordOffset(value);
+            var sut = new ByteOffset(value);
 
             var result = sut.ToString();
 
@@ -111,19 +95,19 @@ namespace Shaperon
                 new EqualsSelfAssertion(_fixture),
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
-            ).Verify(typeof(WordOffset));
+            ).Verify(typeof(ByteOffset));
         }
 
         [Fact]
-        public void IsEquatableToWordOffset()
+        public void IsEquatableToByteOffset()
         {
-            Assert.IsAssignableFrom<IEquatable<WordOffset>>(_fixture.Create<WordOffset>());
+            Assert.IsAssignableFrom<IEquatable<ByteOffset>>(_fixture.Create<ByteOffset>());
         }
 
         [Fact]
-        public void IsComparableToWordOffset()
+        public void IsComparableToByteOffset()
         {
-            Assert.IsAssignableFrom<IComparable<WordOffset>>(_fixture.Create<WordOffset>());
+            Assert.IsAssignableFrom<IComparable<ByteOffset>>(_fixture.Create<ByteOffset>());
         }
 
         [Theory]
@@ -134,8 +118,8 @@ namespace Shaperon
         [InlineData(Int32.MaxValue, 0, 1)]
         public void CompareToReturnsExpectedResult(int left, int right, int expected)
         {
-            var sut = new WordOffset(left);
-            var other = new WordOffset(right);
+            var sut = new ByteOffset(left);
+            var other = new ByteOffset(right);
 
             var result = sut.CompareTo(other);
 
@@ -149,8 +133,8 @@ namespace Shaperon
         [InlineData(1, 0, false)]
         public void EqualityOperatorReturnsExpectedValue(int left, int right, bool expected)
         {
-            var sut = new WordOffset(left);
-            var other = new WordOffset(right);
+            var sut = new ByteOffset(left);
+            var other = new ByteOffset(right);
 
             var result = sut == other;
 
@@ -163,8 +147,8 @@ namespace Shaperon
         [InlineData(1, 0, true)]
         public void InequalityOperatorReturnsExpectedValue(int left, int right, bool expected)
         {
-            var sut = new WordOffset(left);
-            var other = new WordOffset(right);
+            var sut = new ByteOffset(left);
+            var other = new ByteOffset(right);
 
             var result = sut != other;
 
@@ -179,8 +163,8 @@ namespace Shaperon
         [InlineData(Int32.MaxValue, 0, true)]
         public void GreaterThanOperatorReturnsExpectedValue(int left, int right, bool expected)
         {
-            var sut = new WordOffset(left);
-            var other = new WordOffset(right);
+            var sut = new ByteOffset(left);
+            var other = new ByteOffset(right);
 
             var result = sut > other;
 
@@ -195,8 +179,8 @@ namespace Shaperon
         [InlineData(Int32.MaxValue, 0, true)]
         public void GreaterThanOrEqualOperatorReturnsExpectedValue(int left, int right, bool expected)
         {
-            var sut = new WordOffset(left);
-            var other = new WordOffset(right);
+            var sut = new ByteOffset(left);
+            var other = new ByteOffset(right);
 
             var result = sut >= other;
 
@@ -211,8 +195,8 @@ namespace Shaperon
         [InlineData(Int32.MaxValue, 0, false)]
         public void LessThanOperatorReturnsExpectedValue(int left, int right, bool expected)
         {
-            var sut = new WordOffset(left);
-            var other = new WordOffset(right);
+            var sut = new ByteOffset(left);
+            var other = new ByteOffset(right);
 
             var result = sut < other;
 
@@ -227,8 +211,8 @@ namespace Shaperon
         [InlineData(Int32.MaxValue, 0, false)]
         public void LessThanOrEqualOperatorReturnsExpectedValue(int left, int right, bool expected)
         {
-            var sut = new WordOffset(left);
-            var other = new WordOffset(right);
+            var sut = new ByteOffset(left);
+            var other = new ByteOffset(right);
 
             var result = sut <= other;
 

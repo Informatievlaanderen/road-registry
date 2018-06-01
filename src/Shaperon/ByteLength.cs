@@ -10,7 +10,11 @@ namespace Shaperon
         {
             if(value < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), "value", "The value of byte length must be greater than or equal to 0.");
+                throw new ArgumentOutOfRangeException(nameof(value), value, "The value of byte length must be greater than or equal to 0.");
+            }
+            if(value % 2 != 0)
+            {
+                throw new ArgumentException("The value of byte length must be a multiple of 2 (even).", nameof(value));
             }
             _value = value;
         }
@@ -28,10 +32,6 @@ namespace Shaperon
         public int ToInt32() => _value;
         public WordLength ToWordLength()
         {
-            if(_value % 2 != 0)
-            {
-                throw new InvalidOperationException("The byte length needs to be divisible by 2.");
-            }
             return new WordLength(_value / 2);
         }
         public bool Equals(ByteLength instance) => instance._value == _value;

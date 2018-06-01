@@ -10,7 +10,7 @@ namespace Shaperon
         {
             if(value < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), "value", "The value of word length must be greater than or equal to 0.");
+                throw new ArgumentOutOfRangeException(nameof(value), value, "The value of word length must be greater than or equal to 0.");
             }
             _value = value;
         }
@@ -23,16 +23,6 @@ namespace Shaperon
         public WordLength Plus(ByteLength other)
         {
             return new WordLength(_value + other.ToWordLength().ToInt32());
-        }
-
-        public WordLength Minus(WordLength other)
-        {
-            return new WordLength(_value - other.ToInt32());
-        }
-
-        public WordLength Minus(ByteLength other)
-        {
-            return new WordLength(_value - other.ToWordLength().ToInt32());
         }
 
         public int ToInt32() => _value;
@@ -53,8 +43,8 @@ namespace Shaperon
         }
 
         public static implicit operator int(WordLength instance) => instance.ToInt32();
-        public static WordLength operator +(WordLength left, WordLength right) => new WordLength(left.ToInt32() + right.ToInt32());
-        public static WordLength operator -(WordLength left, WordLength right) => new WordLength(left.ToInt32() - right.ToInt32());
+
+        public static WordLength operator +(WordLength left, WordLength right) => left.Plus(right);
         public static bool operator ==(WordLength left, WordLength right) => left.Equals(right);
         public static bool operator !=(WordLength left, WordLength right) => !left.Equals(right);
         public static bool operator <(WordLength left, WordLength right) => left.CompareTo(right) < 0;
@@ -62,8 +52,7 @@ namespace Shaperon
         public static bool operator >=(WordLength left, WordLength right) => left.CompareTo(right) >= 0;
         public static bool operator >(WordLength left, WordLength right) => left.CompareTo(right) > 0;
 
-        public static WordLength operator +(WordLength left, ByteLength right) => left + right.ToWordLength();
-        public static WordLength operator -(WordLength left, ByteLength right) => left - right.ToWordLength();
+        public static WordLength operator +(WordLength left, ByteLength right) => left.Plus(right);
         public static bool operator ==(WordLength left, ByteLength right) => left.Equals(right.ToWordLength());
         public static bool operator !=(WordLength left, ByteLength right) => !left.Equals(right.ToWordLength());
         public static bool operator <(WordLength left, ByteLength right) => left.CompareTo(right.ToWordLength()) < 0;

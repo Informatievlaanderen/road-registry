@@ -3,20 +3,17 @@ using System.IO;
 
 namespace Shaperon
 {
-    public class NullShapeContent : IShapeContent
+    public class NullShapeContent : ShapeContent
     {
-        public static readonly IShapeContent Instance = new NullShapeContent();
+        public static readonly ShapeContent Instance = new NullShapeContent();
 
         private NullShapeContent()
         {
+            ShapeType = ShapeType.NullShape;
             ContentLength = new WordLength(2);
         }
 
-        public ShapeType ShapeType => ShapeType.NullShape;
-
-        public WordLength ContentLength { get; }
-
-        public static IShapeContent Read(BinaryReader reader)
+        public static ShapeContent Read(BinaryReader reader)
         {
             if (reader == null)
             {
@@ -25,14 +22,14 @@ namespace Shaperon
 
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
-                throw new ShapeFileContentException("The Shape Type field does not contain a known type of shape.");
+                throw new ShapeRecordContentException("The Shape Type field does not contain a known type of shape.");
             if(((ShapeType)typeOfShape) != ShapeType.NullShape)
-                throw new ShapeFileContentException("The Shape Type field does not indicate a Null shape.");
+                throw new ShapeRecordContentException("The Shape Type field does not indicate a Null shape.");
 
             return Instance;
         }
 
-        public void Write(BinaryWriter writer)
+        public override void Write(BinaryWriter writer)
         {
             if (writer == null)
             {

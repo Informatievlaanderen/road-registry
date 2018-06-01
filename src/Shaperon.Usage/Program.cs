@@ -73,7 +73,8 @@ namespace Usage
                     while (reader.BaseStream.Position != reader.BaseStream.Length
                         && reader.PeekChar() != (char)DbaseRecord.EndOfFile)
                     {
-                        var record = DbaseRecord.Read(reader, header);
+                        var record = new AnonymousDbaseRecord(header.RecordFields);
+                        record.Read(reader);
                         record.Write(dbfWriter);
                     }
                     dbfWriter.Write(DbaseRecord.EndOfFile);
@@ -125,7 +126,7 @@ namespace Usage
                     {
                         var record = ShapeRecord.Read(reader);
                         record.Write(shpWriter);
-                        var indexRecord = record.AtOffset(offset);
+                        var indexRecord = record.IndexAt(offset);
                         indexRecord.Write(shxWriter);
                         offset = indexRecord.Offset.Plus(indexRecord.ContentLength);
                     }

@@ -1,6 +1,6 @@
 ﻿namespace Shaperon
 {
-    public interface IDbaseValueInspector
+    public interface IDbaseFieldValueInspector
     {
         void Inspect(DbaseDateTime value);
         void Inspect(DbaseDouble value);

@@ -8,7 +8,7 @@ namespace Shaperon
         public static int ReadInt32BigEndian(this BinaryReader reader)
         {
             var bytes = reader.ReadBytes(4);
-            if(BitConverter.IsLittleEndian) 
+            if(BitConverter.IsLittleEndian)
             {
                 Array.Reverse(bytes);
             }
@@ -18,7 +18,7 @@ namespace Shaperon
         public static double ReadDoubleBigEndian(this BinaryReader reader)
         {
             var bytes = reader.ReadBytes(8);
-            if(BitConverter.IsLittleEndian) 
+            if(BitConverter.IsLittleEndian)
             {
                 Array.Reverse(bytes);
             }
@@ -28,7 +28,7 @@ namespace Shaperon
         public static int ReadInt32LittleEndian(this BinaryReader reader)
         {
             var bytes = reader.ReadBytes(4);
-            if(!BitConverter.IsLittleEndian) 
+            if(!BitConverter.IsLittleEndian)
             {
                 Array.Reverse(bytes);
             }
@@ -38,7 +38,7 @@ namespace Shaperon
         public static double ReadDoubleLittleEndian(this BinaryReader reader)
         {
             var bytes = reader.ReadBytes(8);
-            if(!BitConverter.IsLittleEndian) 
+            if(!BitConverter.IsLittleEndian)
             {
                 Array.Reverse(bytes);
             }

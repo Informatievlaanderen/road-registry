@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Shaperon
 {
-    public class DbaseDouble : DbaseValue
+    public class DbaseDouble : DbaseFieldValue
     {
         private static readonly NumberFormatInfo DoubleNumberFormat = new NumberFormatInfo { NumberDecimalSeparator = "." };
 
@@ -66,7 +66,7 @@ namespace Shaperon
             }
         }
 
-        public override void Inspect(IDbaseValueInspector writer)
+        public override void Inspect(IDbaseFieldValueInspector writer)
         {
             writer.Inspect(this);
         }

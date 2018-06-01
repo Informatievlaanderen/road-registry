@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Shaperon
 {
-    public static class BinaryReaderExtensions
+    internal static class BinaryReaderExtensions
     {
         public static string ReadRightPaddedString(this BinaryReader reader, int length, char padding)
         {

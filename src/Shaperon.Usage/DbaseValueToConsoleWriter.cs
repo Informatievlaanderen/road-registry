@@ -5,7 +5,7 @@ namespace Usage
 {
     partial class Program
     {
-        private class DbaseValueToConsoleWriter : IDbaseValueInspector
+        private class DbaseValueToConsoleWriter : IDbaseFieldValueInspector
         {
             public void Inspect(DbaseDateTime value)
             {
