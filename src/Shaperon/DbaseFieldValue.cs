@@ -13,6 +13,6 @@ namespace Shaperon
         public DbaseField Field { get; }
         public abstract void Read(BinaryReader reader);
         public abstract void Write(BinaryWriter writer);
-        public abstract void Inspect(IDbaseValueInspector inspector);
+        public abstract void Inspect(IDbaseFieldValueInspector inspector);
     }
 }

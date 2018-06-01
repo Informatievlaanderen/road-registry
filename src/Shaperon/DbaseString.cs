@@ -57,7 +57,7 @@ namespace Shaperon
             }
             else
             {
-                writer.Write(new string(' ', Field.Length));
+                writer.Write(new byte[Field.Length]);
             }
         }
 
@@ -70,7 +70,7 @@ namespace Shaperon
             return this;
         }
 
-        public override void Inspect(IDbaseValueInspector writer)
+        public override void Inspect(IDbaseFieldValueInspector writer)
         {
             writer.Inspect(this);
         }

@@ -67,5 +67,40 @@ namespace Shaperon
                 }
             }
         }
+
+        [Fact]
+        public void CanReadWriteNullString()
+        {
+            var sut = new DbaseString(
+                new DbaseField(
+                    _fixture.Create<DbaseFieldName>(),
+                    DbaseFieldType.Character,
+                    ByteOffset.Initial,
+                    new DbaseFieldLength(5),
+                    new DbaseDecimalCount(0)
+                ),
+                null
+            );
+
+            using(var stream = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+                {
+                    sut.Write(writer);
+                    writer.Flush();
+                }
+
+                stream.Position = 0;
+
+                using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
+                {
+                    var result = new DbaseString(sut.Field);
+                    result.Read(reader);
+
+                    Assert.Equal(sut.Field, result.Field);
+                    Assert.Equal(sut.Value, result.Value);
+                }
+            }
+        }
     }
 }
