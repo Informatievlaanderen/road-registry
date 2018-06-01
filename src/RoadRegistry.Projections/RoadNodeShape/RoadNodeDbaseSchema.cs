@@ -1,9 +1,9 @@
-using Shaperon;
-
 namespace RoadRegistry.Projections
 {
+    using Shaperon;
+
     public class RoadNodeDbaseSchema
-    {       
+    {
         public RoadNodeDbaseSchema()
         {
             WK_OIDN = new DbaseField(
@@ -19,14 +19,14 @@ namespace RoadRegistry.Projections
                 ByteOffset.Initial,
                 new DbaseFieldLength(18),
                 new DbaseDecimalCount(0));
-            
+
             TYPE = new DbaseField(
                 new DbaseFieldName(nameof(TYPE)),
                 DbaseFieldType.Number,
                 ByteOffset.Initial,
                 new DbaseFieldLength(2),
                 new DbaseDecimalCount(0));
-            
+
             LBLTYPE = new DbaseField(
                 new DbaseFieldName(nameof(LBLTYPE)),
                 DbaseFieldType.Character,
@@ -40,7 +40,7 @@ namespace RoadRegistry.Projections
                 ByteOffset.Initial,
                 new DbaseFieldLength(12),
                 new DbaseDecimalCount(0));
-            
+
             BEGINORG = new DbaseField(
                 new DbaseFieldName(nameof(BEGINORG)),
                 DbaseFieldType.Character,

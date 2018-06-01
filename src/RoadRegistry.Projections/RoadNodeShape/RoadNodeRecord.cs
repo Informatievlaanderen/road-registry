@@ -1,9 +1,9 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using RoadRegistry.Infrastructure;
-
 namespace RoadRegistry.Projections
 {
+    using Infrastructure;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
     public class RoadNodeRecord
     {
         public int Id { get; set; }

@@ -1,9 +1,7 @@
-using System;
-using System.IO;
-using Shaperon;
-
 namespace RoadRegistry.Projections
 {
+    using Shaperon;
+
     public class RoadNodeDbaseRecord : DbaseRecord
     {
         public static readonly RoadNodeDbaseSchema Schema = new RoadNodeDbaseSchema();
