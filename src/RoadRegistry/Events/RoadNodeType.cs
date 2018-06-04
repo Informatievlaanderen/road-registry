@@ -1,5 +1,7 @@
 namespace RoadRegistry.Events
 {
+    using System.Collections.Generic;
+
     public enum RoadNodeType
     {
         RealNode = 1, // 1	echte knoop	Punt waar 2 wegsegmenten elkaar snijden; minstens drie aansluitende wegsegmenten.
@@ -9,35 +11,16 @@ namespace RoadRegistry.Events
         TurnLoopNode = 5 // 5	keerlusknoop	Juist twee aansluitende wegsegmenten; wegsegmenten die aan beide zijden begrensd worden door dezelfde wegknoop worden met behulp van een extra wegknoop (= keerlusknoop) opgesplitst.
     }
 
-    public class RoadNodeTypeTranslator
+    public class RoadNodeTypeTranslator : EnumTranslator<RoadNodeType>
     {
-        public int TranslateToIdentifier(RoadNodeType value)
+        protected override IDictionary<RoadNodeType, string> DutchTranslations => _dutchTranslations;
+        private static readonly Dictionary<RoadNodeType, string> _dutchTranslations = new Dictionary<RoadNodeType, string>
         {
-            return (int)value;
-        }
-
-        public string TranslateToDutchName(RoadNodeType value)
-        {
-            var translation = "";
-            switch(value)
-            {
-                case RoadNodeType.RealNode:
-                    translation = "echte knoop";
-                    break;
-                case RoadNodeType.FakeNode:
-                    translation = "schijnknoop";
-                    break;
-                case RoadNodeType.EndNode:
-                    translation = "eindknoop";
-                    break;
-                case RoadNodeType.MiniRoundabout:
-                    translation = "minirotonde";
-                    break;
-                case RoadNodeType.TurnLoopNode:
-                    translation = "keerlusknoop";
-                    break;
-            }
-            return translation;
-        }
+            { RoadNodeType.RealNode, "echte knoop" },
+            { RoadNodeType.FakeNode, "schijnknoop" },
+            { RoadNodeType.EndNode, "eindknoop" },
+            { RoadNodeType.MiniRoundabout, "minirotonde" },
+            { RoadNodeType.TurnLoopNode, "keerlusknoop" },
+        };
     }
 }
