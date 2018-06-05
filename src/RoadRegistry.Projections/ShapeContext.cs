@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections
+namespace RoadRegistry.Projections
 {
     using Aiv.Vbr.ProjectionHandling.Runner;
     using Infrastructure;
@@ -9,6 +9,7 @@
         public override string ProjectionStateSchema => Schema.Oslo;
 
         public DbSet<RoadNodeRecord> RoadNodes { get; set; }
+        public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
 
         public ShapeContext() { }
 
