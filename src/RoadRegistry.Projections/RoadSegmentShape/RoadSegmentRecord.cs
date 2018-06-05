@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.RoadSegmentShape
+namespace RoadRegistry.Projections
 {
     using Infrastructure;
     using Microsoft.EntityFrameworkCore;
