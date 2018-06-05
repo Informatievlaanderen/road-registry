@@ -19,17 +19,22 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
 
         public object Create(object request, ISpecimenContext context)
         {
-            var pi = request as PropertyInfo;
+            if (!IsDefinedProperty(request))
+                return (object)new NoSpecimen();
 
-            return pi != null && AreEquivalent(pi, _prop)
-                ? context.Create<string>().Substring(0, _length)
-                : (object)new NoSpecimen();
+            var value = context.Create<string>();
+            return value.Length > _length
+                ? value.Substring(0, _length)
+                : value;
         }
 
-        private bool AreEquivalent(PropertyInfo a, PropertyInfo b)
+        private bool IsDefinedProperty(object request)
         {
-            return a.DeclaringType == b.DeclaringType
-                   && a.Name == b.Name;
+            var pi = request as PropertyInfo;
+            return
+                null != pi
+                && pi.DeclaringType == _prop.DeclaringType
+                && pi.Name == _prop.Name;
         }
     }
 }

@@ -18,8 +18,9 @@ namespace RoadRegistry
 
         public int TranslateToIdentifier(TEnum value)
         {
-            // This would be some much simpler code if "where T : Enum" is supported
-            // return (int) value;
+            // This would be some much simpler code when "where T : Enum" is supported
+            // supported from C# 7.3
+            // return (int)value;
 
             // ReSharper disable once SpecifyACultureInStringConversionExplicitly : <enum>.ToString() does nog have an overload that excepts an IFormatProvider
             return (int)Enum.Parse(typeof(TEnum), value.ToString());
