@@ -20,7 +20,8 @@ namespace Shaperon
         public DbaseFieldPadding Pad { get; }
     }
 
-    public enum DbaseFieldPadding {
+    public enum DbaseFieldPadding
+    {
         Left,
         Right,
     }

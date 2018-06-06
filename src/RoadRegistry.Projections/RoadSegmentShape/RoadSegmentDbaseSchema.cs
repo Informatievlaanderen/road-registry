@@ -143,14 +143,14 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(OPNDATUM)),
                 DbaseFieldType.DateTime,
                 ByteOffset.Initial,
-                new DbaseFieldLength(12),
+                new DbaseFieldLength(15),
                 new DbaseDecimalCount(0));
 
             BEGINTIJD = new DbaseField(
                 new DbaseFieldName(nameof(BEGINTIJD)),
                 DbaseFieldType.DateTime,
                 ByteOffset.Initial,
-                new DbaseFieldLength(12),
+                new DbaseFieldLength(15),
                 new DbaseDecimalCount(0));
 
             BEGINORG = new DbaseField(

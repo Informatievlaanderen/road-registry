@@ -3,6 +3,8 @@ using System.IO;
 
 namespace Shaperon
 {
+    using System.Text;
+
     internal static class BinaryReaderExtensions
     {
         public static string ReadRightPaddedString(this BinaryReader reader, int length, char padding)
@@ -31,7 +33,12 @@ namespace Shaperon
         {
             if (value != null && value.Length > properties.Length)
             {
-                throw new ArgumentException($"The value length for {properties.Name} is longer than the writable length.");
+                var message = new StringBuilder()
+                    .AppendLine($"The value of {properties.Name} is longer than the writable length.")
+                    .AppendLine($"Value: '{value}'")
+                    .AppendLine($"Length (actual/writable): {value.Length}/{properties.Length}");
+
+                throw new ArgumentException(message.ToString());
             }
 
             if (string.IsNullOrEmpty(value))

@@ -15,15 +15,8 @@ namespace Shaperon
 
         public DateTime? Value
         {
-            get
-            {
-                return _value;
-            }
-            set
-            {
-                //Reason: due to serialization, precision is only guaranteed up to the second.
-                _value = value.RoundToSeconds();
-            }
+            get => _value;
+            set => _value = value.RoundToSeconds(); //Reason: due to serialization, precision is only guaranteed up to the second.
         }
 
         public override void Read(BinaryReader reader)
@@ -61,7 +54,12 @@ namespace Shaperon
 
             if(Value.HasValue)
             {
-                var unpadded = Value.Value.ToString("yyyyMMddTHHmmss", CultureInfo.InvariantCulture);
+                const string dateTimeWriteFormat = "yyyyMMddTHHmmss";
+                if (dateTimeWriteFormat.Length != Field.Length)
+                {
+                    throw new DbaseFieldInvalidConfigurationException($"Writing a DateTime to {Field.Name} with length {Field.Length}. Expected length {dateTimeWriteFormat.Length} for a DateTime field");
+                }
+                var unpadded = Value.Value.ToString(dateTimeWriteFormat, CultureInfo.InvariantCulture);
                 writer.WritePaddedString(unpadded, new DbaseFieldWriteProperties(Field, ' ', DbaseFieldPadding.Right));
             }
             else

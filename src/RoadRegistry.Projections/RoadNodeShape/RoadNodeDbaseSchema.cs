@@ -38,7 +38,7 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(BEGINTIJD)),
                 DbaseFieldType.DateTime,
                 ByteOffset.Initial,
-                new DbaseFieldLength(12),
+                new DbaseFieldLength(15),
                 new DbaseDecimalCount(0));
 
             BEGINORG = new DbaseField(
