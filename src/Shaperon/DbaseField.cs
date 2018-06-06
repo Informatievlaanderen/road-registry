@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -110,7 +110,7 @@ namespace Shaperon
                 throw new ArgumentNullException(nameof(writer));
             }
 
-            writer.WriteRightPaddedString(Name.ToString(), 11, char.MinValue);
+            writer.WritePaddedString(Name.ToString(), new DbaseFieldWriteProperties(Name, 11, char.MinValue, DbaseFieldPadding.Right));
             // HACK: Because legacy represents date times as characters - so why bother with DateTime support?
             if(FieldType == DbaseFieldType.DateTime)
             {

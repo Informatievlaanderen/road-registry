@@ -53,7 +53,7 @@ namespace Shaperon
 
             if(Value != null)
             {
-                writer.WriteRightPaddedString(Value, Field.Length, ' ');
+                writer.WritePaddedString(Value, new DbaseFieldWriteProperties(Field, ' ', DbaseFieldPadding.Right));
             }
             else
             {

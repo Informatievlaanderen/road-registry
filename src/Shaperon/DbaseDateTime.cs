@@ -62,7 +62,7 @@ namespace Shaperon
             if(Value.HasValue)
             {
                 var unpadded = Value.Value.ToString("yyyyMMddTHHmmss", CultureInfo.InvariantCulture);
-                writer.WriteRightPaddedString(unpadded, Field.Length, ' ');
+                writer.WritePaddedString(unpadded, new DbaseFieldWriteProperties(Field, ' ', DbaseFieldPadding.Right));
             }
             else
             {

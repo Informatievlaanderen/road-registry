@@ -4,7 +4,6 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Events;
     using Infrastucture;
-    using RoadSegmentShape;
     using Shaperon;
     using Wkx;
     using Xunit;
