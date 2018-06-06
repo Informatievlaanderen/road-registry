@@ -52,7 +52,7 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(LBLBGINORG)),
                 DbaseFieldType.Character,
                 ByteOffset.Initial,
-                new DbaseFieldLength(18),
+                new DbaseFieldLength(64),
                 new DbaseDecimalCount(0));
         }
 

@@ -10,11 +10,11 @@ namespace RoadRegistry.Projections
         {
             WK_OIDN = new DbaseInt32(Schema.WK_OIDN);
             WK_UIDN = new DbaseString(Schema.WK_UIDN);
-            TYPE = new DbaseInt32(Schema.WK_UIDN);
-            LBLTYPE = new DbaseString(Schema.WK_UIDN);
-            BEGINTIJD = new DbaseDateTime(Schema.WK_UIDN);
-            BEGINORG = new DbaseString(Schema.WK_UIDN);
-            LBLBGNORG = new DbaseString(Schema.WK_UIDN);
+            TYPE = new DbaseInt32(Schema.TYPE);
+            LBLTYPE = new DbaseString(Schema.LBLTYPE);
+            BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
+            BEGINORG = new DbaseString(Schema.BEGINORG);
+            LBLBGNORG = new DbaseString(Schema.LBLBGINORG);
 
             Values = new DbaseFieldValue[]
             {
