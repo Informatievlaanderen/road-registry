@@ -52,7 +52,7 @@ namespace RoadRegistry.Projections.Tests
 
             _organisationRetrieverMock
                 .Setup(retreiver => retreiver.Get(importedRoadSegment.MaintainerId))
-                .ReturnsAsync(organisation);
+                .Returns(organisation);
             var organisationLookup = _organisationRetrieverMock.Object;
 
             return new RoadSegmentRecordProjection(organisationLookup).Scenario()
@@ -82,7 +82,7 @@ namespace RoadRegistry.Projections.Tests
                             RSTRNMID = { Value = importedRoadSegment.RightSide.StreetNameId },
                             RSTRNM = { Value = importedRoadSegment.RightSide.StreetName },
                             BEHEER = { Value = importedRoadSegment.MaintainerId },
-                            LBLBEHEER = { Value = organisationLookup.Get(importedRoadSegment.MaintainerId).Result.Name },
+                            LBLBEHEER = { Value = organisationLookup.Get(importedRoadSegment.MaintainerId).Name },
                             METHODE = { Value = _geometryDrawMethodTranslator.TranslateToIdentifier(importedRoadSegment.GeometryDrawMethod) },
                             LBLMETHOD = { Value = _geometryDrawMethodTranslator.TranslateToDutchName(importedRoadSegment.GeometryDrawMethod) },
                             OPNDATUM = { Value = importedRoadSegment.RecordingDate },

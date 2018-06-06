@@ -4,7 +4,7 @@ namespace RoadRegistry.Projections
 
     public interface IOrganisationRetreiver
     {
-        Task<Organisation> Get(string organisationId);
+        Organisation Get(string organisationId);
     }
 
     public class Organisation
