@@ -47,9 +47,11 @@ namespace Shaperon
         {
             // ToDo: fix the flickering test!
             // fails
-            // when (value <= 0) && Field.DecimalCount >= Field.Length
+            // when (0 < value < 1) && Field.DecimalCount >= Field.Length
             // or
             // when (value > 0) && (Field.DecimalCount + InterPartLengthOf(value)) >= Field.Length
+            // or
+            // negative value ...
 
             var sut = _fixture.Create<DbaseDouble>();
 
