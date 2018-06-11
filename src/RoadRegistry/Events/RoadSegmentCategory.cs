@@ -1,5 +1,7 @@
-﻿namespace RoadRegistry.Events
+namespace RoadRegistry.Events
 {
+    using System.Collections.Generic;
+
     public enum RoadSegmentCategory
     {
         Unknown, // -8	niet gekend	Geen informatie beschikbaar
@@ -20,5 +22,61 @@
         SecondaryRoadType2, // S2	secundaire weg type 2	De weg verzorgt een verzamelfunctie voor het kleinstedelijk gebied naar het hoofdwegennet, maar kan niet als primaire weg II worden geselecteerd.
         SecondaryRoadType3, // S3	secundaire weg type 3	De weg verzorgt een verzamelfunctie voor een gebied dat niet geselecteerd is als stedelijk gebied, poort of toeristisch-recreatief knooppunt op Vlaams niveau en kan bijgevolg niet als primaire weg II geselecteerd worden.
         SecondaryRoadType4 // S4	secundaire weg type 4	De weg had oorspronkelijk een verbindende functie op Vlaams niveau als “steenweg”. Deze functie wordt door een autosnelweg (hoofdweg) overgenomen. Momenteel heeft de weg een verbindings- en verzamelfunctie op (boven-)lokaal niveau.
+    }
+
+    public class RoadSegmentCategoryTranslator : EnumTranslator<RoadSegmentCategory>
+    {
+        protected override IDictionary<RoadSegmentCategory, string> DutchTranslations => _dutchTranslations;
+        private static readonly IDictionary<RoadSegmentCategory, string> _dutchTranslations =
+            new Dictionary<RoadSegmentCategory, string>
+            {
+                { RoadSegmentCategory.Unknown, "niet gekend" },
+                { RoadSegmentCategory.NotApplicable, "niet van toepassing" },
+                { RoadSegmentCategory.MainRoad, "hoofdweg" },
+                { RoadSegmentCategory.LocalRoad, "lokale weg" },
+                { RoadSegmentCategory.LocalRoadType1, "lokale weg type 1" },
+                { RoadSegmentCategory.LocalRoadType2, "lokale weg type 2" },
+                { RoadSegmentCategory.LocalRoadType3, "lokale weg type 3" },
+                { RoadSegmentCategory.PrimaryRoadI, "primaire weg I" },
+                { RoadSegmentCategory.PrimaryRoadII, "primaire weg II" },
+                { RoadSegmentCategory.PrimaryRoadIIType1, "primaire weg II type 1" },
+                { RoadSegmentCategory.PrimaryRoadIIType2, "primaire weg II type 2" },
+                { RoadSegmentCategory.PrimaryRoadIIType3, "primaire weg II type 3" },
+                { RoadSegmentCategory.PrimaryRoadIIType4, "primaire weg II type 4" },
+                { RoadSegmentCategory.SecondaryRoad, "secundaire weg" },
+                { RoadSegmentCategory.SecondaryRoadType1, "secundaire weg type 1" },
+                { RoadSegmentCategory.SecondaryRoadType2, "secundaire weg type 2" },
+                { RoadSegmentCategory.SecondaryRoadType3, "secundaire weg type 3" },
+                { RoadSegmentCategory.SecondaryRoadType4, "secundaire weg type 4" },
+            };
+
+        private static readonly IDictionary<RoadSegmentCategory, string> Codes =
+            new Dictionary<RoadSegmentCategory, string>
+            {
+                { RoadSegmentCategory.Unknown, "-8" },
+                { RoadSegmentCategory.NotApplicable, "-9" },
+                { RoadSegmentCategory.MainRoad, "H" },
+                { RoadSegmentCategory.LocalRoad, "L" },
+                { RoadSegmentCategory.LocalRoadType1, "L1" },
+                { RoadSegmentCategory.LocalRoadType2, "L2" },
+                { RoadSegmentCategory.LocalRoadType3, "L3" },
+                { RoadSegmentCategory.PrimaryRoadI, "PI" },
+                { RoadSegmentCategory.PrimaryRoadII, "PII" },
+                { RoadSegmentCategory.PrimaryRoadIIType1, "PII-1" },
+                { RoadSegmentCategory.PrimaryRoadIIType2, "PII-2" },
+                { RoadSegmentCategory.PrimaryRoadIIType3, "PII-3" },
+                { RoadSegmentCategory.PrimaryRoadIIType4, "PII-4" },
+                { RoadSegmentCategory.SecondaryRoad, "S" },
+                { RoadSegmentCategory.SecondaryRoadType1, "S1" },
+                { RoadSegmentCategory.SecondaryRoadType2, "S2" },
+                { RoadSegmentCategory.SecondaryRoadType3, "S3" },
+                { RoadSegmentCategory.SecondaryRoadType4, "S4" },
+        };
+
+        public new string TranslateToIdentifier(RoadSegmentCategory category)
+        {
+            return Codes.ContainsKey(category) ? Codes[category] : string.Empty;
+        }
+
     }
 }

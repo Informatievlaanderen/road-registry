@@ -1,9 +1,9 @@
-using Aiv.Vbr.ProjectionHandling.Connector;
-using RoadRegistry.Events;
-using Shaperon;
-
 namespace RoadRegistry.Projections
 {
+    using Aiv.Vbr.ProjectionHandling.Connector;
+    using Events;
+    using Shaperon;
+    using Wkx;
 
     public class RoadNodeRecordProjection : ConnectedProjection<ShapeContext>
     {
@@ -26,7 +26,7 @@ namespace RoadRegistry.Projections
                     BEGINORG = { Value = @event.Origin.OrganizationId },
                     LBLBGNORG = { Value = @event.Origin.Organization }
                 };
-                var pointShapeContent = new PointShapeContent(FromWellKnownBinary.ToPoint(@event.Geometry.WellKnownBinary));
+                var pointShapeContent = new PointShapeContent(From.WellKnownBinary(@event.Geometry.WellKnownBinary).To<Point>());
 
                 return context.AddAsync(new RoadNodeRecord
                     {

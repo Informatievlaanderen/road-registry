@@ -3,6 +3,8 @@ using System.IO;
 
 namespace Shaperon
 {
+    using System.Text;
+
     internal static class BinaryReaderExtensions
     {
         public static string ReadRightPaddedString(this BinaryReader reader, int length, char padding)
@@ -27,39 +29,32 @@ namespace Shaperon
             return index == characters.Length ? string.Empty : new string(characters, index, characters.Length - index);
         }
 
-        public static void WriteRightPaddedString(this BinaryWriter writer, string value, int length, char padding)
+        public static void WritePaddedString(this BinaryWriter writer, string value, DbaseFieldWriteProperties properties)
         {
-            if(value != null && value.Length > length)
+            if (value != null && value.Length > properties.Length)
             {
-                throw new ArgumentException("The value length is longer than the writable length.");
-            }
-            if(string.IsNullOrEmpty(value))
-            {
-                writer.Write(new string(padding, length).ToCharArray());
-            }
-            else
-            {
-                writer.Write(value.Length != length
-                    ? string.Concat(value, new string(padding, length - value.Length)).ToCharArray()
-                    : value.ToCharArray());
-            }
-        }
+                var message = new StringBuilder()
+                    .AppendLine($"The value of {properties.Name} is longer than the writable length.")
+                    .AppendLine($"Value: '{value}'")
+                    .AppendLine($"Length (actual/writable): {value.Length}/{properties.Length}");
 
-        public static void WriteLeftPaddedString(this BinaryWriter writer, string value, int length, char padding)
-        {
-            if(value != null && value.Length > length)
-            {
-                throw new ArgumentException("The value length is longer than the writable length.");
+                throw new ArgumentException(message.ToString());
             }
-            if(string.IsNullOrEmpty(value))
+
+            if (string.IsNullOrEmpty(value))
             {
-                writer.Write(new string(padding, length).ToCharArray());
+                writer.Write(new string(properties.Padding, properties.Length).ToCharArray());
             }
             else
             {
-                writer.Write(value.Length != length
-                    ? string.Concat(new string(padding, length - value.Length), value).ToCharArray()
-                    : value.ToCharArray());
+                var padding = new string(properties.Padding, properties.Length - value.Length);
+                writer.Write(
+                    (
+                        properties.Pad == DbaseFieldPadding.Left
+                        ? string.Concat(padding, value)
+                        : string.Concat(value, padding)
+                    ).ToCharArray()
+                );
             }
         }
     }

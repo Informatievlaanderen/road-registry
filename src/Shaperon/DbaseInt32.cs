@@ -49,7 +49,7 @@ namespace Shaperon
             if(Value.HasValue)
             {
                 var unpadded = Value.Value.ToString(CultureInfo.InvariantCulture);
-                writer.WriteLeftPaddedString(unpadded, Field.Length, ' ');
+                writer.WritePaddedString(unpadded,new DbaseFieldWriteProperties(Field, ' ', DbaseFieldPadding.Left));
             }
             else
             {

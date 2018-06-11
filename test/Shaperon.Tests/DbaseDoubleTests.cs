@@ -45,11 +45,19 @@ namespace Shaperon
         [Fact]
         public void CanReadWrite()
         {
+            // ToDo: fix the flickering test!
+            // fails
+            // when (0 < value < 1) && Field.DecimalCount >= Field.Length
+            // or
+            // when (value > 0) && (Field.DecimalCount + InterPartLengthOf(value)) >= Field.Length
+            // or
+            // negative value ...
+
             var sut = _fixture.Create<DbaseDouble>();
 
-            using(var stream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
-                using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+                using (var writer = new BinaryWriter(stream, Encoding.ASCII, true))
                 {
                     sut.Write(writer);
                     writer.Flush();
@@ -57,7 +65,7 @@ namespace Shaperon
 
                 stream.Position = 0;
 
-                using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
+                using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
                 {
                     var result = new DbaseDouble(sut.Field);
                     result.Read(reader);

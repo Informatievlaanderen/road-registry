@@ -28,7 +28,7 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
             {
                 var comparisonConfig = new ComparisonConfig { MaxDifferences = 5 };
                 var comparer = new CompareLogic(comparisonConfig);
-                var actualRecords = new List<object>(await context.RoadNodes.ToListAsync());
+                var actualRecords = new List<object>(await context.AllRecordsToListAsync());
                 var result = comparer.Compare(
                     actualRecords,
                     expectedRecords
@@ -48,6 +48,15 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
                 if (result.Failed)
                     throw specification.CreateFailedScenarioExceptionFor(result);
             }
+        }
+
+        private static async Task<List<object>> AllRecordsToListAsync(this ShapeContext context)
+        {
+            var records = new List<object>();
+            records.AddRange(await context.RoadNodes.ToListAsync());
+            records.AddRange(await context.RoadSegments.ToListAsync());
+
+            return records;
         }
 
         private static async Task ApplyMessages(this ConnectedProjectionTestSpecification<ShapeContext> specification, Func<ShapeContext> createContext)

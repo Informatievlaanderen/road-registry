@@ -58,7 +58,7 @@ namespace Shaperon
                       )
                     : new string('#', Field.Length - Field.DecimalCount - 1);
                 var unpadded = Value.Value.ToString(format, DoubleNumberFormat);
-                writer.WriteLeftPaddedString(unpadded, Field.Length, ' ');
+                writer.WritePaddedString(unpadded, new DbaseFieldWriteProperties(Field, ' ', DbaseFieldPadding.Left));
             }
             else
             {

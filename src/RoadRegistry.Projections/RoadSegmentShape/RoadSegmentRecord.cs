@@ -4,7 +4,7 @@ namespace RoadRegistry.Projections
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-    public class RoadNodeRecord
+    public class RoadSegmentRecord
     {
         public int Id { get; set; }
         public byte[] ShapeRecordContent { get; set; }
@@ -12,11 +12,11 @@ namespace RoadRegistry.Projections
         public byte[] DbaseRecord { get; set; }
     }
 
-    public class RoadNodeConfiguration : IEntityTypeConfiguration<RoadNodeRecord>
+    public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentRecord>
     {
-        private const string TableName = "RoadNode";
+        private const string TableName = "RoadSegment";
 
-        public void Configure(EntityTypeBuilder<RoadNodeRecord> b)
+        public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
         {
             b.ToTable(TableName, Schema.Shape)
                 .HasKey(p => p.Id)
@@ -27,4 +27,5 @@ namespace RoadRegistry.Projections
             b.Property(p => p.DbaseRecord);
         }
     }
+
 }
