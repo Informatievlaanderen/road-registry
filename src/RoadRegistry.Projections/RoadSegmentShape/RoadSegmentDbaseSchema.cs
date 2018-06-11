@@ -208,21 +208,5 @@ namespace RoadRegistry.Projections
         public DbaseField TGBEP { get; }
         public DbaseField LBLTGBEP { get; }
 
-        /*
-
-h5. Record content
-
-|| Position || Field || Value || Type || Number || Byte Order || Event Mapping ||
-| Byte 0 | Shape Type |  23 | Integer | 1 | Little | None |
-| Byte 4 | Box | Box | Double | 4 | Little | PolyLineM(ImportedRoadSegment.Geometry).GetBoundingBox()[.XMin,.YMin,.XMax,.YMax] |
-| Byte 36 | NumParts | NumParts | Integer | 1 | Little | PolyLineM(ImportedRoadSegment.Geometry).Geometries.Count |
-| Byte 40 | NumPoints | NumPoints | Integer | 1 | Little | PolyLineM(ImportedRoadSegment.Geometry).Geometries.Aggregate(0, (current, line) => line.Points.Count) |
-| Byte 44 | Parts | Parts | Integer | NumParts | Little | For each line the startindex in the Points array, i.e. where the points for that line start being enumerated |
-| Byte X | Points | Points | Point | NumPoints | Little | Each point of each line in PolyLineM(ImportedRoadSegment.Geometry) |
-| Byte Y | Mmin | Mmin | Double | 1 | Little | PolyLineM(ImportedRoadSegment.Geometry).Geometries.Min(line => line.Points.Min(point => point.M.Value)) |
-| Byte Y+8 | Mmax | Mmax | Double | 1 | Little | PolyLineM(ImportedRoadSegment.Geometry).Geometries.Max(line => line.Points.Max(point => point.M.Value)) |
-| Byte Y+16 | Marray | Marray| Double | NumPoints | Little | Each M value of each point of each line in PolyLineM(ImportedRoadSegment.Geometry) |
-*/
-
     }
 }
