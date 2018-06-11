@@ -1,6 +1,8 @@
 namespace Shaperon
 {
+    using System;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using Albedo;
     using AutoFixture;
@@ -23,6 +25,25 @@ namespace Shaperon
         }
 
         [Fact]
+        public void CreateFailsIfFieldIsNotCharacter()
+        {
+            var fieldType = new Generator<DbaseFieldType>(_fixture)
+                .First(specimen => specimen != DbaseFieldType.Character);
+            Assert.Throws<ArgumentException>(
+                () =>
+                    new DbaseString(
+                        new DbaseField(
+                            _fixture.Create<DbaseFieldName>(),
+                            fieldType,
+                            _fixture.Create<ByteOffset>(),
+                            _fixture.Create<DbaseFieldLength>(),
+                            new DbaseDecimalCount(0)
+                        )
+                    )
+            );
+        }
+
+        [Fact]
         public void IsDbaseFieldValue()
         {
             Assert.IsAssignableFrom<DbaseFieldValue>(_fixture.Create<DbaseString>());
@@ -40,6 +61,35 @@ namespace Shaperon
         {
             new GuardClauseAssertion(_fixture)
                 .Verify(new Methods<DbaseString>().Select(instance => instance.Write(null)));
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public void CanReadWriteNullOrEmptyString(string value)
+        {
+            var sut = _fixture.Create<DbaseString>();
+            sut.Value = value;
+
+            using(var stream = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+                {
+                    sut.Write(writer);
+                    writer.Flush();
+                }
+
+                stream.Position = 0;
+
+                using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
+                {
+                    var result = new DbaseString(sut.Field);
+                    result.Read(reader);
+
+                    Assert.Equal(sut.Field, result.Field);
+                    Assert.Equal(sut.Value, result.Value);
+                }
+            }
         }
 
         [Fact]

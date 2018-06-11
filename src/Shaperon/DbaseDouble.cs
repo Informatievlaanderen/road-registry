@@ -10,6 +10,11 @@ namespace Shaperon
 
         public DbaseDouble(DbaseField field, double? value = null) : base(field)
         {
+            if (field.FieldType != DbaseFieldType.Number)
+            {
+                throw new ArgumentException($"The field {field.Name} 's type must be number to use it as a double field.", nameof(field));
+            }
+
             Value = value;
         }
 
@@ -50,19 +55,33 @@ namespace Shaperon
 
             if(Value.HasValue)
             {
+                //With decimal count > 0 the format is #--#0.0--0
+                //where # appears length - 2 - decimalcount times
+                //      0 before the decimal separator appears once
+                //      . appears once
+                //      0 appears decimal count times
+
+                //With decimal count = 0 the format is #--#
+                //where # appears length times
+
                 var format = Field.DecimalCount > 0
                     ? String.Concat(
-                        new string('#', Field.Length - Field.DecimalCount - 1),
-                        ".",
+                        new string('#', Field.Length - Field.DecimalCount - 2),
+                        "0.",
                         new string('0', Field.DecimalCount)
                       )
-                    : new string('#', Field.Length - Field.DecimalCount - 1);
+                    : new string('#', Field.Length);
                 var unpadded = Value.Value.ToString(format, DoubleNumberFormat);
-                writer.WritePaddedString(unpadded, new DbaseFieldWriteProperties(Field, ' ', DbaseFieldPadding.Left));
+                if(unpadded.Length > Field.Length)
+                {
+                    // TODO: We may want to log we're loosing some of our precision here (and log exactly how much we're loosing). Is this acceptable?
+                    unpadded = unpadded.Substring(0, Field.Length);
+                }
+                writer.WriteLeftPaddedString(unpadded, Field.Length, ' ');
             }
             else
             {
-                writer.Write(new string(' ', Field.Length));
+                writer.Write(new string(' ', Field.Length).ToCharArray());
             }
         }
 

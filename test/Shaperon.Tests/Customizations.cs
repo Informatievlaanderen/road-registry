@@ -1,6 +1,7 @@
 namespace Shaperon
 {
     using System;
+    using System.Linq;
     using AutoFixture;
 
     internal static class Customizations
@@ -74,68 +75,134 @@ namespace Shaperon
                     ));
         }
 
+        public static void CustomizeDbaseField(this IFixture fixture)
+        {
+            fixture.Customize<DbaseField>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => {
+                            DbaseField field;
+                            switch(value % 3)
+                            {
+                                case 1: // datetime
+                                    field = new DbaseField(
+                                        fixture.Create<DbaseFieldName>(),
+                                        DbaseFieldType.DateTime,
+                                        fixture.Create<ByteOffset>(),
+                                        new DbaseFieldLength(15),
+                                        new DbaseDecimalCount(0)
+                                    );
+                                    break;
+                                case 2: // number
+                                    var length = new Generator<DbaseFieldLength>(fixture)
+                                        .First(specimen => specimen.ToInt32() > 2);
+                                    var decimalCount = new Generator<DbaseDecimalCount>(fixture)
+                                        .First(specimen => specimen.ToInt32() < length.ToInt32() - 2);
+                                    field = new DbaseField(
+                                        fixture.Create<DbaseFieldName>(),
+                                        DbaseFieldType.Number,
+                                        fixture.Create<ByteOffset>(),
+                                        length,
+                                        decimalCount
+                                    );
+                                    break;
+                                default:
+                                // case 0: // character
+                                    field = new DbaseField(
+                                        fixture.Create<DbaseFieldName>(),
+                                        DbaseFieldType.Character,
+                                        fixture.Create<ByteOffset>(),
+                                        fixture.Create<DbaseFieldLength>(),
+                                        new DbaseDecimalCount(0)
+                                    );
+                                    break;
+                            }
+                            return field;
+                        }
+                    )
+            );
+        }
+
         public static void CustomizeDbaseString(this IFixture fixture)
         {
             fixture.Customize<DbaseString>(
                 customization =>
-                    customization.FromFactory<int>(
-                        value => new DbaseString(
-                            new DbaseField(
-                                fixture.Create<DbaseFieldName>(),
-                                DbaseFieldType.Character,
-                                fixture.Create<ByteOffset>(),
-                                new DbaseFieldLength(new Random(value).Next(10, 200)),
-                                new DbaseDecimalCount(0)
-                            ), new string('a', new Random(value).Next(1, 10)))
-                    ));
+                    customization
+                        .FromFactory<int>(
+                            value => {
+                                var length = new DbaseFieldLength(new Random(value).Next(0, 255));
+                                return new DbaseString(
+                                    new DbaseField(
+                                        fixture.Create<DbaseFieldName>(),
+                                        DbaseFieldType.Character,
+                                        fixture.Create<ByteOffset>(),
+                                        length,
+                                        new DbaseDecimalCount(0)
+                                    ),
+                                    new string('a', new Random(value).Next(0, length.ToInt32())));
+                            }
+                        )
+                        .OmitAutoProperties());
         }
 
         public static void CustomizeDbaseInt32(this IFixture fixture)
         {
             fixture.Customize<DbaseInt32>(
                 customization =>
-                    customization.FromFactory<int?>(
-                        value => new DbaseInt32(
-                            new DbaseField(
-                                fixture.Create<DbaseFieldName>(),
-                                DbaseFieldType.Number,
-                                fixture.Create<ByteOffset>(),
-                                fixture.Create<DbaseFieldLength>(),
-                                new DbaseDecimalCount(0)
-                            ), value)
-                    ));
+                    customization
+                        .FromFactory<int?>(
+                            value => new DbaseInt32(
+                                new DbaseField(
+                                    fixture.Create<DbaseFieldName>(),
+                                    DbaseFieldType.Number,
+                                    fixture.Create<ByteOffset>(),
+                                    fixture.Create<DbaseFieldLength>(),
+                                    new DbaseDecimalCount(0)
+                                ), value)
+                        )
+                        .OmitAutoProperties());
         }
 
         public static void CustomizeDbaseDouble(this IFixture fixture)
         {
             fixture.Customize<DbaseDouble>(
                 customization =>
-                    customization.FromFactory<double?>(
-                        value => new DbaseDouble(
-                            new DbaseField(
-                                fixture.Create<DbaseFieldName>(),
-                                DbaseFieldType.Number,
-                                fixture.Create<ByteOffset>(),
-                                new DbaseFieldLength(new Random().Next(10, 20)),
-                                new DbaseDecimalCount(new Random().Next(1, 10))
-                            ), value)
-                    ));
+                    customization
+                        .FromFactory<double?>(
+                            value => {
+                                var length = new Generator<DbaseFieldLength>(fixture)
+                                    .First(specimen => specimen.ToInt32() > 2);
+                                var decimalCount = new Generator<DbaseDecimalCount>(fixture)
+                                    .First(specimen => specimen.ToInt32() < length.ToInt32() - 2);
+                                return new DbaseDouble(
+                                    new DbaseField(
+                                        fixture.Create<DbaseFieldName>(),
+                                        DbaseFieldType.Number,
+                                        fixture.Create<ByteOffset>(),
+                                        length,
+                                        decimalCount
+                                    ), value);
+                            }
+                        )
+                        .OmitAutoProperties());
         }
 
         public static void CustomizeDbaseDateTime(this IFixture fixture)
         {
             fixture.Customize<DbaseDateTime>(
                 customization =>
-                    customization.FromFactory<DateTime?>(
-                        value => new DbaseDateTime(
-                            new DbaseField(
-                                fixture.Create<DbaseFieldName>(),
-                                DbaseFieldType.DateTime,
-                                fixture.Create<ByteOffset>(),
-                                new DbaseFieldLength(15),
-                                new DbaseDecimalCount(0)
-                            ), value)
-                    ));
+                    customization
+                        .FromFactory<DateTime?>(
+                            value => new DbaseDateTime(
+                                new DbaseField(
+                                    fixture.Create<DbaseFieldName>(),
+                                    DbaseFieldType.DateTime,
+                                    fixture.Create<ByteOffset>(),
+                                    new DbaseFieldLength(15),
+                                    new DbaseDecimalCount(0)
+                                ), value)
+                        )
+                        .OmitAutoProperties());
         }
     }
 }

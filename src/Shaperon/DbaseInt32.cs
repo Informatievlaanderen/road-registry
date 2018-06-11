@@ -8,6 +8,16 @@ namespace Shaperon
     {
         public DbaseInt32(DbaseField field, int? value = null) : base(field)
         {
+            if (field.FieldType != DbaseFieldType.Number)
+            {
+                throw new ArgumentException($"The field {field.Name} 's type must be number to use it as an integer field.", nameof(field));
+            }
+
+            if (field.DecimalCount.ToInt32() != 0)
+            {
+                throw new ArgumentException($"The number field {field.Name} 's decimal count must be 0 to use it as an integer field.", nameof(field));
+            }
+
             Value = value;
         }
 
@@ -49,11 +59,11 @@ namespace Shaperon
             if(Value.HasValue)
             {
                 var unpadded = Value.Value.ToString(CultureInfo.InvariantCulture);
-                writer.WritePaddedString(unpadded,new DbaseFieldWriteProperties(Field, ' ', DbaseFieldPadding.Left));
+                writer.WriteLeftPaddedString(unpadded, Field.Length, ' ');
             }
             else
             {
-                writer.Write(new string(' ', Field.Length));
+                writer.Write(new string(' ', Field.Length).ToCharArray());
             }
         }
 
