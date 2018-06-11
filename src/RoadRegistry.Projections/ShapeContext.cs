@@ -10,6 +10,7 @@ namespace RoadRegistry.Projections
 
         public DbSet<RoadNodeRecord> RoadNodes { get; set; }
         public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
+        public DbSet<ExtendedRoadSegmentRecord> ExtendedRoadSegments { get; set; }
 
         public ShapeContext() { }
 
