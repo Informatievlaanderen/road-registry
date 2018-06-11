@@ -465,6 +465,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             ,rp.[beginorganisatie] --5
                             ,lo.[label] --6
                             ,rp.[begintijd] --7
+                            ,rp.[referentiepuntversie] --8
                         FROM [dbo].[referentiepunt] rp
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON rp.[beginorganisatie] = lo.[code]", connection
                     ).ForEachDataRecord(reader =>
@@ -472,6 +473,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         var point = new ImportedReferencePoint
                         {
                             Id = reader.GetInt32(0),
+                            Version = reader.GetInt32(8),
                             Geometry = new Geometry
                             {
                                 SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
