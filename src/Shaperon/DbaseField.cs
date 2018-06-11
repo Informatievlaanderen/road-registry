@@ -53,7 +53,7 @@ namespace Shaperon
                     }
                     break;
                 case DbaseFieldType.Number:
-                    if(decimalCount.ToInt32() >= length.ToInt32() - 2)
+                    if(decimalCount.ToInt32() > length.ToInt32() - 2)
                     {
                         throw new ArgumentException($"The number field {name} decimal count ({decimalCount}) must be 2 less than its length ({length}).");
                     }

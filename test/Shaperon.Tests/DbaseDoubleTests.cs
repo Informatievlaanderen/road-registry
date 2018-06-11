@@ -128,7 +128,7 @@ namespace Shaperon
         {
             var length = new Generator<DbaseFieldLength>(_fixture)
                 .First(specimen => specimen.ToInt32() > 2);
-            var decimalCount = new DbaseDecimalCount(length - 3);
+            var decimalCount = new DbaseDecimalCount(length - 2);
             var sut =
                 new DbaseDouble(
                     new DbaseField(
