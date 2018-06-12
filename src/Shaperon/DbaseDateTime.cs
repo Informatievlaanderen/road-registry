@@ -65,6 +65,7 @@ namespace Shaperon
             else
             {
                 writer.Write(new string(' ', Field.Length).ToCharArray());
+                // or writer.Write(new byte[Field.Length]); // to determine
             }
         }
 
