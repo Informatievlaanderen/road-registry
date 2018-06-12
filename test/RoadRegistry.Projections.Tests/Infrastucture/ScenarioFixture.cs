@@ -22,6 +22,16 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
                     new MultiLineString(this.CreateMany<LineString>(generator.Next(1,10)))
                 ));
 
+            Customize<LineString>(customizations =>
+                customizations.FromFactory(generator =>
+                {
+                    return new LineString(
+                        CreateMany(
+                            generator.Next(1, 50),
+                            () => new Point(this.Create<double>(), this.Create<double>(), this.Create<double>(), this.Create<double>())
+                        ));
+                }));
+
             Customize<Events.Geometry>(customization =>
                 customization.FromFactory<int>(value =>
                     new Events.Geometry
@@ -44,6 +54,17 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
         private void LimitFieldLength<T>(Expression<Func<T, string>> field, int length)
         {
             Customizations.Add(new StringPropertyTruncateSpecimenBuilder<T>(field, length));
+        }
+
+        public IEnumerable<T> CreateMany<T>(int amount, Func<T> create)
+        {
+            if(amount < 0)
+                throw new ArgumentException($"Cannot generate {amount} number of {typeof(T)}");
+
+            for (var i = 0; i < amount; i++)
+            {
+                yield return create();
+            }
         }
     }
 
