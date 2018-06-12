@@ -1,8 +1,10 @@
 namespace RoadRegistry.Projections.Tests.Infrastucture
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using AutoFixture;
+    using AutoFixture.Dsl;
     using Events;
     using Wkx;
 
@@ -11,12 +13,14 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
         public ScenarioFixture()
         {
             Customize<Point>(customization =>
-                customization.FromFactory<int>(value =>
-                    new Point(new Random(value).NextDouble(), new Random(value).NextDouble())));
+                customization.FromFactory(generator =>
+                    new Point(generator.NextDouble(), generator.NextDouble())
+                ));
 
             Customize<MultiLineString>(customization =>
-                customization.FromFactory<int>(value =>
-                    new MultiLineString(this.CreateMany<LineString>(new Random(value).Next(10)))));
+                customization.FromFactory(generator =>
+                    new MultiLineString(this.CreateMany<LineString>(generator.Next(1,10)))
+                ));
 
             Customize<Events.Geometry>(customization =>
                 customization.FromFactory<int>(value =>
@@ -38,6 +42,14 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
         private void LimitFieldLength<T>(Expression<Func<T, string>> field, int length)
         {
             Customizations.Add(new StringPropertyTruncateSpecimenBuilder<T>(field, length));
+        }
+    }
+
+    public static class FactoryComposerExtensions
+    {
+        public static IPostprocessComposer<T> FromFactory<T>(this IFactoryComposer<T> composer, Func<Random, T> factory)
+        {
+            return composer.FromFactory<int>(value => factory(new Random(value)));
         }
     }
 }
