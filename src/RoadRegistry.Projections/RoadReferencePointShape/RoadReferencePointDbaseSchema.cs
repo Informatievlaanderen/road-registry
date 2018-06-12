@@ -32,7 +32,7 @@ namespace RoadRegistry.Projections
                 DbaseFieldType.Number,
                 ByteOffset.Initial,
                 new DbaseFieldLength(5),
-                new DbaseDecimalCount(0));
+                new DbaseDecimalCount(1));
 
             TYPE = new DbaseField(
                 new DbaseFieldName(nameof(TYPE)),

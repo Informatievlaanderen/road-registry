@@ -11,7 +11,7 @@ namespace RoadRegistry.Projections
             RP_OIDN = new DbaseInt32(Schema.RP_OIDN);
             RP_UIDN = new DbaseString(Schema.RP_UIDN);
             IDENT8 = new DbaseString(Schema.IDENT8);
-            OPSCHRIFT = new DbaseInt32(Schema.OPSCHRIFT);
+            OPSCHRIFT = new DbaseDouble(Schema.OPSCHRIFT);
             TYPE = new DbaseInt32(Schema.TYPE);
             LBLTYPE = new DbaseString(Schema.LBLTYPE);
             BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
@@ -35,7 +35,7 @@ namespace RoadRegistry.Projections
         public DbaseInt32 RP_OIDN { get; }
         public DbaseString RP_UIDN { get; }
         public DbaseString IDENT8 { get; }
-        public DbaseInt32 OPSCHRIFT { get; }
+        public DbaseDouble OPSCHRIFT { get; }
         public DbaseInt32 TYPE { get; }
         public DbaseString LBLTYPE { get; }
         public DbaseDateTime BEGINTIJD { get; }

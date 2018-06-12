@@ -461,7 +461,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             ,rp.[geometrie].STAsBinary() --1
                             ,rp.[ident8] --2
                             ,rp.[type] --3
-                            ,CONVERT(NVARCHAR(MAX), rp.[opschrift]) --4
+                            ,rp.[opschrift] --4
                             ,rp.[beginorganisatie] --5
                             ,lo.[label] --6
                             ,rp.[begintijd] --7
@@ -481,7 +481,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             },
                             Ident8 = reader.GetString(2),
                             Type = Translate.ToReferencePointType(reader.GetInt32(3)),
-                            Caption = reader.GetString(4),
+                            Caption = reader.GetDouble(4),
                             Origin = new OriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(5),
