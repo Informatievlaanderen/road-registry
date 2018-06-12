@@ -55,6 +55,7 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
             var records = new List<object>();
             records.AddRange(await context.RoadNodes.ToListAsync());
             records.AddRange(await context.RoadSegments.ToListAsync());
+            records.AddRange(await context.RoadReferencePoints.ToListAsync());
 
             return records;
         }

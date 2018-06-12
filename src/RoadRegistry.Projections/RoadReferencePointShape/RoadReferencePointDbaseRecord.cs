@@ -4,7 +4,7 @@ namespace RoadRegistry.Projections
 
     public class RoadReferencePointDbaseRecord : DbaseRecord
     {
-        private static readonly RoadReferencePointDbaseSchema Schema = new RoadReferencePointDbaseSchema();
+        public static readonly RoadReferencePointDbaseSchema Schema = new RoadReferencePointDbaseSchema();
 
         public RoadReferencePointDbaseRecord()
         {
