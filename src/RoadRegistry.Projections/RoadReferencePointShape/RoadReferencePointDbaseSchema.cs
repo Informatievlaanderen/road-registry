@@ -6,68 +6,50 @@ namespace RoadRegistry.Projections
     {
         public RoadReferencePointDbaseSchema()
         {
-            RP_OIDN = new DbaseField(
+            RP_OIDN = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(RP_OIDN)),
-                DbaseFieldType.Number,
                 ByteOffset.Initial,
-                new DbaseFieldLength(15),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(15));
 
-            RP_UIDN = new DbaseField(
+            RP_UIDN = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(RP_UIDN)),
-                DbaseFieldType.Character,
                 ByteOffset.Initial,
-                new DbaseFieldLength(18),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(18));
 
-            IDENT8 = new DbaseField(
+            IDENT8 =  DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(IDENT8)),
-                DbaseFieldType.Character,
                 ByteOffset.Initial,
-                new DbaseFieldLength(8),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(8));
 
-            OPSCHRIFT = new DbaseField(
+            OPSCHRIFT = DbaseField.CreateDoubleField(
                 new DbaseFieldName(nameof(OPSCHRIFT)),
-                DbaseFieldType.Number,
                 ByteOffset.Initial,
                 new DbaseFieldLength(5),
                 new DbaseDecimalCount(1));
 
-            TYPE = new DbaseField(
+            TYPE = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(TYPE)),
-                DbaseFieldType.Number,
                 ByteOffset.Initial,
-                new DbaseFieldLength(2),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(2));
 
-            LBLTYPE = new DbaseField(
+            LBLTYPE = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLTYPE)),
-                DbaseFieldType.Character,
                 ByteOffset.Initial,
-                new DbaseFieldLength(64),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(64));
 
-            BEGINTIJD = new DbaseField(
+            BEGINTIJD = DbaseField.CreateDateTimeField(
                 new DbaseFieldName(nameof(BEGINTIJD)),
-                DbaseFieldType.DateTime,
-                ByteOffset.Initial,
-                new DbaseFieldLength(15),
-                new DbaseDecimalCount(0));
+                ByteOffset.Initial);
 
-            BEGINORG = new DbaseField(
+            BEGINORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(BEGINORG)),
-                DbaseFieldType.Character,
                 ByteOffset.Initial,
-                new DbaseFieldLength(18),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(18));
 
-            LBLBEGINORG = new DbaseField(
+            LBLBEGINORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLBEGINORG)),
-                DbaseFieldType.Character,
                 ByteOffset.Initial,
-                new DbaseFieldLength(64),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(64));
         }
 
         public DbaseField RP_UIDN { get; }

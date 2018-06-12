@@ -172,7 +172,7 @@ namespace Shaperon
                 offset);
 
             Assert.Equal(name, result.Name);
-            Assert.Equal(DbaseFieldType.Number, result.FieldType);
+            Assert.Equal(DbaseFieldType.DateTime, result.FieldType);
             Assert.Equal(offset, result.Offset);
             Assert.Equal(new DbaseFieldLength(15), result.Length);
             Assert.Equal(new DbaseDecimalCount(0), result.DecimalCount);

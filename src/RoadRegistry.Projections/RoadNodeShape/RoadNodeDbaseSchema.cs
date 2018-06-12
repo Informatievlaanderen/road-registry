@@ -6,54 +6,39 @@ namespace RoadRegistry.Projections
     {
         public RoadNodeDbaseSchema()
         {
-            WK_OIDN = new DbaseField(
+            WK_OIDN = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(WK_OIDN)),
-                DbaseFieldType.Number,
                 ByteOffset.Initial,
-                new DbaseFieldLength(15),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(15));
 
-            WK_UIDN = new DbaseField(
+            WK_UIDN = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(WK_UIDN)),
-                DbaseFieldType.Character,
                 ByteOffset.Initial,
-                new DbaseFieldLength(18),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(18));
 
-            TYPE = new DbaseField(
+            TYPE = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(TYPE)),
-                DbaseFieldType.Number,
                 ByteOffset.Initial,
-                new DbaseFieldLength(2),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(2));
 
-            LBLTYPE = new DbaseField(
+            LBLTYPE = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLTYPE)),
-                DbaseFieldType.Character,
                 ByteOffset.Initial,
-                new DbaseFieldLength(64),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(64));
 
-            BEGINTIJD = new DbaseField(
+            BEGINTIJD = DbaseField.CreateDateTimeField(
                 new DbaseFieldName(nameof(BEGINTIJD)),
-                DbaseFieldType.DateTime,
-                ByteOffset.Initial,
-                new DbaseFieldLength(15),
-                new DbaseDecimalCount(0));
+                ByteOffset.Initial);
 
-            BEGINORG = new DbaseField(
+            BEGINORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(BEGINORG)),
-                DbaseFieldType.Character,
                 ByteOffset.Initial,
-                new DbaseFieldLength(18),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(18));
 
-            LBLBGINORG = new DbaseField(
+            LBLBGINORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLBGINORG)),
-                DbaseFieldType.Character,
                 ByteOffset.Initial,
-                new DbaseFieldLength(64),
-                new DbaseDecimalCount(0));
+                new DbaseFieldLength(64));
         }
 
         public DbaseField WK_OIDN { get; }
