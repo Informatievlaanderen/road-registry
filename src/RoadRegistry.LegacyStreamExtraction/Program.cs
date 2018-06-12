@@ -1,4 +1,4 @@
-namespace RoadRegistry.LegacyImporter
+namespace RoadRegistry.LegacyStreamExtraction
 {
     using System;
     using System.Collections.Generic;
@@ -15,6 +15,8 @@ namespace RoadRegistry.LegacyImporter
     {
         private static async Task Main(string[] args)
         {
+            const string LEGACY_STREAM_FILE = "LegacyStreamFile";
+
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
@@ -22,7 +24,9 @@ namespace RoadRegistry.LegacyImporter
                 .AddEnvironmentVariables()
                 .AddCommandLine(args);
 
-            var connectionString = configurationBuilder.Build().GetConnectionString("Legacy");
+            var root = configurationBuilder.Build();
+            var output = new FileInfo(root[LEGACY_STREAM_FILE]);
+            var connectionString = root.GetConnectionString("Legacy");
             var nodes = new List<ImportedRoadNode>();
             var points = new List<ImportedReferencePoint>();
             var segments = new Dictionary<int, ImportedRoadSegment>();
@@ -32,12 +36,12 @@ namespace RoadRegistry.LegacyImporter
             using (var connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
-                
+
                 Console.WriteLine("Reading organizations started ...");
                 var watch = Stopwatch.StartNew();
                 await
                     new SqlCommand(
-                        @"SELECT 
+                        @"SELECT
                             org.[Code],
                             org.[Label]
                         FROM [listOrganisatie] org", connection
@@ -56,7 +60,7 @@ namespace RoadRegistry.LegacyImporter
                 watch.Restart();
                 await
                     new SqlCommand(
-                        @"SELECT 
+                        @"SELECT
                             wk.[wegknoopID],
                             wk.[wegknoopversie],
                             wk.[type],
@@ -96,7 +100,7 @@ namespace RoadRegistry.LegacyImporter
                 watch.Restart();
                 await
                     new SqlCommand(
-                        @"SELECT 
+                        @"SELECT
                             ws.[wegsegmentID], --0
                             ws.[wegsegmentversie], --1
                             ws.[beginWegknoopID], --2
@@ -255,7 +259,7 @@ namespace RoadRegistry.LegacyImporter
                 Console.WriteLine("Enriching segments with numbered road information ...");
                 await
                     new SqlCommand(
-                        @"SELECT 
+                        @"SELECT
                             gw.[wegsegmentID]
                             ,gw.[genummerdeWegID]
                             ,gw.[ident8]
@@ -295,7 +299,7 @@ namespace RoadRegistry.LegacyImporter
                 Console.WriteLine("Enriching segments with lane information ...");
                 await
                     new SqlCommand(
-                        @"SELECT 
+                        @"SELECT
                             rs.[wegsegmentID]
                             ,rs.[rijstrokenID]
                             ,rs.[aantal]
@@ -491,80 +495,9 @@ namespace RoadRegistry.LegacyImporter
 
                 Console.WriteLine("Writing stream to json started ...");
                 watch.Restart();
-                await WriteExtractedStreamToJsonFile(organizations, nodes, segments.Values, junctions, points);
+                await new ExtractedStreamsWriter(output)
+                    .WriteAsync(organizations, nodes, segments.Values, junctions, points);
                 Console.WriteLine("Writing stream to json took {0}ms", watch.ElapsedMilliseconds);
-            }
-        }
-
-        private static async Task WriteExtractedStreamToJsonFile(
-            IEnumerable<ImportedOrganization> organizations,
-            IEnumerable<ImportedRoadNode> nodes,
-            IEnumerable<ImportedRoadSegment> segments,
-            IEnumerable<ImportedGradeSeparatedJunction> junctions,
-            IEnumerable<ImportedReferencePoint> points)
-        {
-            var serializer = JsonSerializer.Create(new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                DateTimeZoneHandling = DateTimeZoneHandling.Unspecified,
-                DateParseHandling = DateParseHandling.DateTime,
-                DefaultValueHandling = DefaultValueHandling.Ignore
-            });
-
-            const string output = "roadnetworkstream.json"; // TODO: prefer injecting this as an output parameter
-            if (File.Exists(output))
-                File.Delete(output);
-
-            using (var stream = File.OpenWrite(output))
-            {
-                using (var writer = new JsonTextWriter(new StreamWriter(stream)))
-                {
-                    await writer.WriteStartArrayAsync();
-
-                    foreach (var organization in organizations)
-                    {
-                        await writer.WriteStartObjectAsync();
-                        await writer.WritePropertyNameAsync(nameof(ImportedOrganization));
-                        serializer.Serialize(writer, organization);
-                        await writer.WriteEndObjectAsync();
-                    }
-
-                    foreach (var node in nodes)
-                    {
-                        await writer.WriteStartObjectAsync();
-                        await writer.WritePropertyNameAsync(nameof(ImportedRoadNode));
-                        serializer.Serialize(writer, node);
-                        await writer.WriteEndObjectAsync();
-                    }
-
-                    foreach (var segment in segments)
-                    {
-                        await writer.WriteStartObjectAsync();
-                        await writer.WritePropertyNameAsync(nameof(ImportedRoadSegment));
-                        serializer.Serialize(writer, segment);
-                        await writer.WriteEndObjectAsync();
-                    }
-
-                    foreach (var junction in junctions)
-                    {
-                        await writer.WriteStartObjectAsync();
-                        await writer.WritePropertyNameAsync(nameof(ImportedGradeSeparatedJunction));
-                        serializer.Serialize(writer, junction);
-                        await writer.WriteEndObjectAsync();
-                    }
-
-                    foreach (var point in points)
-                    {
-                        await writer.WriteStartObjectAsync();
-                        await writer.WritePropertyNameAsync(nameof(ImportedReferencePoint));
-                        serializer.Serialize(writer, point);
-                        await writer.WriteEndObjectAsync();
-                    }
-
-                    await writer.WriteEndArrayAsync();
-                    await writer.FlushAsync();
-                }
             }
         }
     }
