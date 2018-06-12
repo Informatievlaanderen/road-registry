@@ -37,23 +37,23 @@ namespace Shaperon
             switch(fieldType)
             {
                 case DbaseFieldType.Character:
-                    if(decimalCount.ToInt32() != 0)
+                    if(decimalCount != 0)
                     {
                         throw new ArgumentException($"The character field {name} decimal count ({decimalCount}) must be set to 0.", nameof(decimalCount));
                     }
                     break;
                 case DbaseFieldType.DateTime:
-                    if(length.ToInt32() != 15)
+                    if(length != 15)
                     {
                         throw new ArgumentException($"The datetime field {name} length ({length}) must be set to 15.");
                     }
-                    if(decimalCount.ToInt32() != 0)
+                    if(decimalCount != 0)
                     {
                         throw new ArgumentException($"The datetime field {name} decimal count ({decimalCount}) must be set to 0.", nameof(decimalCount));
                     }
                     break;
                 case DbaseFieldType.Number:
-                    if(decimalCount.ToInt32() > length.ToInt32() - 2)
+                    if(decimalCount != 0 && decimalCount > length - 2)
                     {
                         throw new ArgumentException($"The number field {name} decimal count ({decimalCount}) must be 2 less than its length ({length}).");
                     }

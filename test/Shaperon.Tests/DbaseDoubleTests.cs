@@ -1,6 +1,7 @@
 namespace Shaperon
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -63,6 +64,70 @@ namespace Shaperon
         {
             new GuardClauseAssertion(_fixture)
                 .Verify(new Methods<DbaseDouble>().Select(instance => instance.Write(null)));
+        }
+
+        [Fact]
+        public void LengthOfValueBeingSetCanNotExceedFieldLength()
+        {
+            var maxLength =
+                Math.Max(
+                    Double.MaxValue.ToString(CultureInfo.InvariantCulture).Length,
+                    Double.MinValue.ToString(CultureInfo.InvariantCulture).Length
+                );
+            var length = new Generator<int>(_fixture)
+                .Where(specimen => specimen < maxLength)
+                .Select(_ => new DbaseFieldLength(_))
+                .First();
+            var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
+
+            var sut =
+                new DbaseDouble(
+                    new DbaseField(
+                        _fixture.Create<DbaseFieldName>(),
+                        DbaseFieldType.Number,
+                        _fixture.Create<ByteOffset>(),
+                        length,
+                        decimalCount
+                    )
+                );
+
+            var value = Enumerable
+                .Range(0, sut.Field.Length)
+                .Aggregate(1d, (current, _) => current * 10d);
+
+            Assert.Throws<ArgumentException>(() => sut.Value = value);
+        }
+
+        [Fact]
+        public void LengthOfNegativeValueBeingSetCanNotExceedFieldLength()
+        {
+            var maxLength =
+                Math.Max(
+                    Double.MaxValue.ToString(CultureInfo.InvariantCulture).Length,
+                    Double.MinValue.ToString(CultureInfo.InvariantCulture).Length
+                );
+            var length = new Generator<int>(_fixture)
+                .Where(specimen => specimen < maxLength)
+                .Select(_ => new DbaseFieldLength(_))
+                .First();
+            var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
+
+            var sut =
+                new DbaseDouble(
+                    new DbaseField(
+                        _fixture.Create<DbaseFieldName>(),
+                        DbaseFieldType.Number,
+                        _fixture.Create<ByteOffset>(),
+                        length,
+                        decimalCount
+                    )
+                );
+
+            var value = Enumerable
+                .Range(0, sut.Field.Length)
+                .Aggregate(-1d, (current, _) => current * 10d);
+
+            Assert.Throws<ArgumentException>(() => sut.Value = value);
         }
 
         [Fact]

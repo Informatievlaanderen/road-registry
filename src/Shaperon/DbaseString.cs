@@ -25,7 +25,7 @@ namespace Shaperon
             {
                 if(value != null && value.Length > Field.Length)
                 {
-                    throw new ArgumentException($"The value length {value.Length} is greater than the field length {Field.Length}.");
+                    throw new ArgumentException($"The value length {value.Length} of field {Field.Name} is greater than its field length {Field.Length}.");
                 }
                 _value = value;
             }

@@ -4,6 +4,9 @@ namespace Shaperon
 {
     public struct DbaseFieldLength : IEquatable<DbaseFieldLength>
     {
+        public static readonly DbaseFieldLength MinLength = new DbaseFieldLength(0);
+        public static readonly DbaseFieldLength MaxLength = new DbaseFieldLength(254);
+        
         private readonly int _value;
 
         public DbaseFieldLength(int value)

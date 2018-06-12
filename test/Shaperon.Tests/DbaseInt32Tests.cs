@@ -1,6 +1,7 @@
 namespace Shaperon
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -64,6 +65,70 @@ namespace Shaperon
                         )
                     )
             );
+        }
+
+        [Fact]
+        public void LengthOfValueBeingSetCanNotExceedFieldLength()
+        {
+            var maxLength =
+                Math.Max(
+                    Int32.MaxValue.ToString(CultureInfo.InvariantCulture).Length,
+                    Int32.MinValue.ToString(CultureInfo.InvariantCulture).Length
+                );
+            var length = new Generator<int>(_fixture)
+                .Where(specimen => specimen < maxLength)
+                .Select(_ => new DbaseFieldLength(_))
+                .First();
+
+            var sut =
+                new DbaseInt32(
+                    new DbaseField(
+                        _fixture.Create<DbaseFieldName>(),
+                        DbaseFieldType.Number,
+                        _fixture.Create<ByteOffset>(),
+                        length,
+                        new DbaseDecimalCount(0)
+                    )
+                );
+
+            var value = Enumerable
+                .Range(0, sut.Field.Length)
+                .Aggregate(1, (current, _) => current * 10);
+
+            Assert.Throws<ArgumentException>(() => sut.Value = value);
+        }
+
+        [Fact]
+        public void LengthOfNegativeValueBeingSetCanNotExceedFieldLength()
+        {
+            var maxLength = Math.Min(
+                Math.Max(
+                    Int32.MaxValue.ToString(CultureInfo.InvariantCulture).Length,
+                    Int32.MinValue.ToString(CultureInfo.InvariantCulture).Length
+                ),
+                DbaseFieldLength.MaxLength.ToInt32()
+            );
+            var length = new Generator<int>(_fixture)
+                .Where(specimen => specimen < maxLength)
+                .Select(_ => new DbaseFieldLength(_))
+                .First();
+
+            var sut =
+                new DbaseInt32(
+                    new DbaseField(
+                        _fixture.Create<DbaseFieldName>(),
+                        DbaseFieldType.Number,
+                        _fixture.Create<ByteOffset>(),
+                        length,
+                        new DbaseDecimalCount(0)
+                    )
+                );
+
+            var value = Enumerable
+                .Range(0, sut.Field.Length)
+                .Aggregate(-1, (current, _) => current * 10);
+
+            Assert.Throws<ArgumentException>(() => sut.Value = value);
         }
 
         [Fact]

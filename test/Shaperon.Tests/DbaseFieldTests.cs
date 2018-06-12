@@ -55,7 +55,7 @@ namespace Shaperon
         }
 
         [Fact]
-        public void CreateNumberFieldFailsWhenDecimalCountIsNotLessThanLengthMinus2()
+        public void CreateNumberFieldFailsWhenDecimalCountIsNotZeroAndNotLessThanLengthMinus2()
         {
             var length = _fixture.Create<DbaseFieldLength>();
             var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
@@ -67,6 +67,29 @@ namespace Shaperon
                     _fixture.Create<ByteOffset>(),
                     length,
                     decimalCount));
+        }
+
+        [Fact]
+        public void CreateNumberFieldReturnsExpectedResultWhenDecimalCountIsZeroAndNotLessThanLengthMinus2()
+        {
+            var name = _fixture.Create<DbaseFieldName>();
+            var offset = _fixture.Create<ByteOffset>();
+            //var length = _fixture.Create<DbaseFieldLength>();
+            var length = new DbaseFieldLength(1);
+            var decimalCount = new DbaseDecimalCount(0);
+            var result =
+                new DbaseField(
+                    name,
+                    DbaseFieldType.Number,
+                    offset,
+                    length,
+                    decimalCount);
+
+            Assert.Equal(name, result.Name);
+            Assert.Equal(DbaseFieldType.Number, result.FieldType);
+            Assert.Equal(offset, result.Offset);
+            Assert.Equal(length, result.Length);
+            Assert.Equal(decimalCount, result.DecimalCount);
         }
 
         [Fact]

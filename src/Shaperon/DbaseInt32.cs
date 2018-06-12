@@ -6,6 +6,8 @@ namespace Shaperon
 {
     public class DbaseInt32 : DbaseFieldValue
     {
+        private int? _value;
+
         public DbaseInt32(DbaseField field, int? value = null) : base(field)
         {
             if (field.FieldType != DbaseFieldType.Number)
@@ -21,7 +23,26 @@ namespace Shaperon
             Value = value;
         }
 
-        public int? Value { get; set; }
+        public int? Value
+        {
+            get => _value;
+            set {
+                if(value.HasValue)
+                {
+                    var length = FormatAsString(value.Value).Length;
+                    if (length > Field.Length)
+                    {
+                        throw new ArgumentException($"The value length {length} of field {Field.Name} is greater than its field length {Field.Length}.");
+                    }
+                }
+                _value = value;
+            }
+        }
+
+        private static string FormatAsString(int value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture);
+        }
 
         public override void Read(BinaryReader reader)
         {
@@ -58,12 +79,13 @@ namespace Shaperon
 
             if(Value.HasValue)
             {
-                var unpadded = Value.Value.ToString(CultureInfo.InvariantCulture);
+                var unpadded = FormatAsString(Value.Value);
                 writer.WriteLeftPaddedString(unpadded, Field.Length, ' ');
             }
             else
             {
                 writer.Write(new string(' ', Field.Length).ToCharArray());
+                // or writer.Write(new byte[Field.Length]); // to determine
             }
         }
 
