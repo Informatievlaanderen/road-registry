@@ -34,78 +34,15 @@ namespace RoadRegistry.Projections.Tests
         }
 
         [Fact]
-        public Task When_a_road_segment_was_imported()
-        {
-            var multiLineString = _fixture.Create<MultiLineString>();
-            var polyLineMShapeContent = new PolyLineMShapeContent(multiLineString);
-            var geometry = _fixture
-                .Build<Events.VersionedGeometry>()
-                .With(g => g.WellKnownBinary, multiLineString.SerializeByteArray<WkbSerializer>())
-                .Create();
-            var importedRoadSegment = _fixture
-                .Build<ImportedRoadSegment>()
-                .With(segment => segment.Geometry, geometry)
-                .Create();
-
-            var organisation = _fixture.Build<Organisation>()
-                .With(o => o.Id, importedRoadSegment.MaintainerId)
-                .Create();
-
-            _organisationRetrieverMock
-                .Setup(retreiver => retreiver.Get(importedRoadSegment.MaintainerId))
-                .Returns(organisation);
-
-            return new RoadSegmentRecordProjection(_organisationRetrieverMock.Object).Scenario()
-                .Given(importedRoadSegment)
-                .Expect(new object[]
-                {
-                    new RoadSegmentRecord
-                    {
-                        Id = importedRoadSegment.Id,
-                        ShapeRecordContent = polyLineMShapeContent.ToBytes(),
-                        ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                        DbaseRecord = new RoadSegmentDbaseRecord
-                        {
-                            WS_OIDN = { Value = importedRoadSegment.Id },
-                            WS_UIDN = { Value = importedRoadSegment.Id + "_" + importedRoadSegment.Version },
-                            WS_GIDN = { Value = importedRoadSegment.Id + "_" + importedRoadSegment.Geometry.Version },
-                            B_WK_OIDN = { Value = importedRoadSegment.StartNodeId },
-                            E_WK_OIDN = { Value = importedRoadSegment.EndNodeId },
-                            STATUS = { Value = _segmentStatusTranslator.TranslateToIdentifier(importedRoadSegment.Status) },
-                            LBLSTATUS = { Value = _segmentStatusTranslator.TranslateToDutchName(importedRoadSegment.Status) },
-                            MORF = { Value = _morphologyTranslator.TranslateToIdentifier(importedRoadSegment.Morphology) },
-                            LBLMORF = { Value = _morphologyTranslator.TranslateToDutchName(importedRoadSegment.Morphology) },
-                            WEGCAT = { Value = _categoryTranslator.TranslateToIdentifier(importedRoadSegment.Category) },
-                            LBLWEGCAT = { Value = _categoryTranslator.TranslateToDutchName(importedRoadSegment.Category) },
-                            LSTRNMID = { Value = importedRoadSegment.LeftSide.StreetNameId },
-                            LSTRNM = { Value = importedRoadSegment.LeftSide.StreetName },
-                            RSTRNMID = { Value = importedRoadSegment.RightSide.StreetNameId },
-                            RSTRNM = { Value = importedRoadSegment.RightSide.StreetName },
-                            BEHEER = { Value = importedRoadSegment.MaintainerId },
-                            LBLBEHEER = { Value = organisation.Name },
-                            METHODE = { Value = _geometryDrawMethodTranslator.TranslateToIdentifier(importedRoadSegment.GeometryDrawMethod) },
-                            LBLMETHOD = { Value = _geometryDrawMethodTranslator.TranslateToDutchName(importedRoadSegment.GeometryDrawMethod) },
-                            OPNDATUM = { Value = importedRoadSegment.RecordingDate },
-                            BEGINTIJD = { Value = importedRoadSegment.Origin.Since },
-                            BEGINORG = { Value = importedRoadSegment.Origin.OrganizationId },
-                            LBLBGNORG = { Value = importedRoadSegment.Origin.Organization },
-                            TGBEP = { Value = _accessRestrictionTranslator.TranslateToIdentifier(importedRoadSegment.AccessRestriction) },
-                            LBLTGBEP = { Value = _accessRestrictionTranslator.TranslateToDutchName(importedRoadSegment.AccessRestriction) }
-                        }.ToBytes(),
-                    }
-                });
-        }
-
-        [Fact]
-        public Task When_multiple_road_segments_are_imported()
+        public Task When_road_segments_are_imported()
         {
             var data = _fixture
-                .CreateMany<MultiLineString>(new Random().Next(2, 10))
+                .CreateMany<MultiLineString>(new Random().Next(1, 10))
                 .Select((multiLineString, index) =>
                 {
                     var polyLineMShapeContent = new PolyLineMShapeContent(multiLineString);
                     var geometry = _fixture
-                        .Build<Events.VersionedGeometry>()
+                        .Build<VersionedGeometry>()
                         .With(g => g.WellKnownBinary, multiLineString.SerializeByteArray<WkbSerializer>())
                         .Create();
                     var importedRoadSegment = _fixture
