@@ -160,10 +160,8 @@ namespace Shaperon
         {
             var name = _fixture.Create<DbaseFieldName>();
             var offset =_fixture.Create<ByteOffset>();
-            var length = new Generator<DbaseFieldLength>(_fixture)
-                .First(specimen => specimen.ToInt32() > 2);
-            var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
-                .First(specimen => specimen.ToInt32() < length.ToInt32() - 2);
+            var length = _fixture.GenerateDbaseDoubleLength();
+            var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
 
             var result = DbaseField.CreateDoubleField(
                 name,
@@ -215,10 +213,8 @@ namespace Shaperon
         [Fact]
         public void CreateNumberFieldValueReturnsExpectedResult()
         {
-            var length = new Generator<DbaseFieldLength>(_fixture)
-                .First(specimen => specimen.ToInt32() > 2);
-            var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
-                .First(specimen => specimen.ToInt32() < length.ToInt32() - 2);
+            var length = _fixture.GenerateDbaseDoubleLength();
+            var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
             var sut = new DbaseField(
                 _fixture.Create<DbaseFieldName>(),
                 DbaseFieldType.Number,

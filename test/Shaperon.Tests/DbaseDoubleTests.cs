@@ -29,10 +29,8 @@ namespace Shaperon
         {
             var fieldType = new Generator<DbaseFieldType>(_fixture)
                 .First(specimen => specimen != DbaseFieldType.Number);
-            var length = new Generator<DbaseFieldLength>(_fixture)
-                .First(specimen => specimen.ToInt32() > 2);
-            var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
-                .First(specimen => specimen.ToInt32() < length.ToInt32() - 2);
+            var length = _fixture.GenerateDbaseDoubleLength();
+            var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
             Assert.Throws<ArgumentException>(
                 () =>
                     new DbaseDouble(
@@ -126,8 +124,7 @@ namespace Shaperon
         [Fact]
         public void CanReadWriteWithMaxDecimalCount()
         {
-            var length = new Generator<DbaseFieldLength>(_fixture)
-                .First(specimen => specimen.ToInt32() > 2);
+            var length = _fixture.GenerateDbaseDoubleLength();
             var decimalCount = new DbaseDecimalCount(length - 2);
             var sut =
                 new DbaseDouble(

@@ -75,6 +75,18 @@ namespace Shaperon
                     ));
         }
 
+        public static DbaseFieldLength GenerateDbaseDoubleLength(this IFixture fixture)
+        {
+            return new Generator<DbaseFieldLength>(fixture)
+                .First(specimen => specimen > 2);
+        }
+
+        public static DbaseDecimalCount GenerateDbaseDoubleDecimalCount(this IFixture fixture, DbaseFieldLength length)
+        {
+            return new Generator<DbaseDecimalCount>(fixture)
+                .First(specimen => specimen < length - 2);
+        }
+
         public static void CustomizeDbaseField(this IFixture fixture)
         {
             fixture.Customize<DbaseField>(
@@ -94,10 +106,8 @@ namespace Shaperon
                                     );
                                     break;
                                 case 2: // number
-                                    var length = new Generator<DbaseFieldLength>(fixture)
-                                        .First(specimen => specimen.ToInt32() > 2);
-                                    var decimalCount = new Generator<DbaseDecimalCount>(fixture)
-                                        .First(specimen => specimen.ToInt32() < length.ToInt32() - 2);
+                                    var length = fixture.GenerateDbaseDoubleLength();
+                                    var decimalCount = fixture.GenerateDbaseDoubleDecimalCount(length);
                                     field = new DbaseField(
                                         fixture.Create<DbaseFieldName>(),
                                         DbaseFieldType.Number,
@@ -170,10 +180,8 @@ namespace Shaperon
                     customization
                         .FromFactory<double?>(
                             value => {
-                                var length = new Generator<DbaseFieldLength>(fixture)
-                                    .First(specimen => specimen.ToInt32() > 2);
-                                var decimalCount = new Generator<DbaseDecimalCount>(fixture)
-                                    .First(specimen => specimen.ToInt32() < length.ToInt32() - 2);
+                                var length = fixture.GenerateDbaseDoubleLength();
+                                var decimalCount = fixture.GenerateDbaseDoubleDecimalCount(length);
                                 return new DbaseDouble(
                                     new DbaseField(
                                         fixture.Create<DbaseFieldName>(),
