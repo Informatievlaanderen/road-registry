@@ -4,7 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <RootNamespace>RoadRegistry</RootNamespace>
+    <RootNamespace>RoadRegistry.LegacyStreamExtraction</RootNamespace>
+    <AssemblyName>RoadRegistry.LegacyStreamExtraction</AssemblyName>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
@@ -12,7 +13,7 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
     <ProjectReference Include="..\Shaperon\Shaperon.csproj" />

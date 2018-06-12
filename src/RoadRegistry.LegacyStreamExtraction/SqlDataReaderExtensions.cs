@@ -1,4 +1,4 @@
-namespace RoadRegistry.LegacyImporter
+namespace RoadRegistry.LegacyStreamExtraction
 {
     using System;
     using System.Data.SqlClient;

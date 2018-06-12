@@ -4,7 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <RootNamespace>RoadRegistry</RootNamespace>
+    <RootNamespace>RoadRegistry.LegacyStreamLoader</RootNamespace>
+    <AssemblyName>RoadRegistry.LegacyStreamLoader</AssemblyName>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
@@ -12,11 +13,11 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <None Update="appsettings.aocws255.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

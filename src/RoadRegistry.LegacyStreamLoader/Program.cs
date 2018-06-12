@@ -13,6 +13,8 @@ namespace RoadRegistry.LegacyStreamLoader
     using Events;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
+    using System.Linq;
+    using System.Collections.Concurrent;
 
     public class Program
     {
@@ -58,33 +60,51 @@ namespace RoadRegistry.LegacyStreamLoader
                 Console.WriteLine($"Importing from {legacyStreamFilePath}");
                 var legacyStreamFile = new FileInfo(legacyStreamFilePath);
                 var reader = new LegacyStreamFileReader(fileSettings);
-                var expectedVersion = ExpectedVersion.NoStream;
+
+                var expectedVersions = new ConcurrentDictionary<string, int>();
                 var innerWatch = Stopwatch.StartNew();
                 var outerWatch = Stopwatch.StartNew();
-                var index = 0;
 
                 foreach (var batch in reader.Read(legacyStreamFile).Batch(1000))
                 {
-                    Console.Write("Expected version is {0}.", expectedVersion);
-                    Console.Write(" ");
+                    // foreach(var item in batch)
+                    // {
+                    //     Console.WriteLine("{0}:{1}", item.Stream, item.Event.GetType().Name);
+                    // }
 
-                    innerWatch.Restart();
-                    var appendResult = await streamStore.AppendToStream(
-                        new StreamId("roadnetwork"),
-                        expectedVersion,
-                        batch.ConvertAll(@event => new NewStreamMessage(
-                            Deterministic.Create(Deterministic.Namespaces.Events, $"roadnetwork-{index++}"),
-                            typeMapping.GetEventName(@event.GetType()),
-                            JsonConvert.SerializeObject(@event, eventSettings),
-                            JsonConvert.SerializeObject(new Dictionary<string, string>
-                            {
-                                { "$version", "0" }
-                            }, eventSettings)
-                        ))
-                    );
-                    Console.WriteLine("Append took {0}ms", innerWatch.ElapsedMilliseconds);
+                    foreach(var stream in batch.GroupBy(item => item.Stream, item => item.Event))
+                    {
+                        int expectedVersion;
+                        if(!expectedVersions.TryGetValue(stream.Key, out expectedVersion))
+                        {
+                            expectedVersion = ExpectedVersion.NoStream;
+                        }
 
-                    expectedVersion = appendResult.CurrentVersion;
+                        innerWatch.Restart();
+
+                        var appendResult = await streamStore.AppendToStream(
+                            new StreamId(stream.Key),
+                            expectedVersion,
+                            stream
+                                .Select(@event => new NewStreamMessage(
+                                    Deterministic.Create(Deterministic.Namespaces.Events, $"{stream.Key}-{expectedVersion++}"),
+                                    typeMapping.GetEventName(@event.GetType()),
+                                    JsonConvert.SerializeObject(@event, eventSettings),
+                                    JsonConvert.SerializeObject(new Dictionary<string, string>
+                                    {
+                                        { "$version", "0" }
+                                    }, eventSettings)
+                                ))
+                                .ToArray()
+                        );
+
+                        Console.WriteLine("Append took {0}ms for stream {1}@{2}",
+                            innerWatch.ElapsedMilliseconds,
+                            stream.Key,
+                            appendResult.CurrentVersion);
+
+                        expectedVersions[stream.Key] = appendResult.CurrentVersion;
+                    }
                 }
                 Console.WriteLine("Total append took {0}ms", outerWatch.ElapsedMilliseconds);
             }

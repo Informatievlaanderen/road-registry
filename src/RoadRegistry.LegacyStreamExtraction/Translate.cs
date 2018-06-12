@@ -1,8 +1,8 @@
-using System;
-using RoadRegistry.Events;
-
-namespace RoadRegistry.LegacyImporter
+namespace RoadRegistry.LegacyStreamExtraction
 {
+    using System;
+    using RoadRegistry.Events;
+
     internal static class Translate
     {
         private static readonly RoadNodeType[] RoadNodeTypeIndex =
