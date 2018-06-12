@@ -34,13 +34,56 @@ namespace Shaperon
             {
                 throw new ArgumentException($"The field type {fieldType} of field {name} is not supported.", nameof(fieldType));
             }
+            switch(fieldType)
+            {
+                case DbaseFieldType.Character:
+                    if(decimalCount != 0)
+                    {
+                        throw new ArgumentException($"The character field {name} decimal count ({decimalCount}) must be set to 0.", nameof(decimalCount));
+                    }
+                    break;
+                case DbaseFieldType.DateTime:
+                    if(length != 15)
+                    {
+                        throw new ArgumentException($"The datetime field {name} length ({length}) must be set to 15.");
+                    }
+                    if(decimalCount != 0)
+                    {
+                        throw new ArgumentException($"The datetime field {name} decimal count ({decimalCount}) must be set to 0.", nameof(decimalCount));
+                    }
+                    break;
+                case DbaseFieldType.Number:
+                    if(decimalCount != 0 && decimalCount > length - 2)
+                    {
+                        throw new ArgumentException($"The number field {name} decimal count ({decimalCount}) must be 2 less than its length ({length}).");
+                    }
+                    break;
+            }
             Name = name;
             FieldType = fieldType;
             Offset = offset;
             Length = length;
             DecimalCount = decimalCount;
+        }
 
-            //TODO: Verify the compatibility of the length with the field type.
+        public static DbaseField CreateStringField(DbaseFieldName name, ByteOffset offset, DbaseFieldLength length)
+        {
+            return new DbaseField(name, DbaseFieldType.Character, offset, length, new DbaseDecimalCount(0));
+        }
+
+        public static DbaseField CreateInt32Field(DbaseFieldName name, ByteOffset offset, DbaseFieldLength length)
+        {
+            return new DbaseField(name, DbaseFieldType.Number, offset, length, new DbaseDecimalCount(0));
+        }
+
+        public static DbaseField CreateDateTimeField(DbaseFieldName name, ByteOffset offset)
+        {
+            return new DbaseField(name, DbaseFieldType.Number, offset, new DbaseFieldLength(15), new DbaseDecimalCount(0));
+        }
+
+        public static DbaseField CreateDoubleField(DbaseFieldName name, ByteOffset offset, DbaseFieldLength length, DbaseDecimalCount decimalCount)
+        {
+            return new DbaseField(name, DbaseFieldType.Number, offset, length, decimalCount);
         }
 
         public DbaseFieldName Name { get; }
@@ -110,7 +153,7 @@ namespace Shaperon
                 throw new ArgumentNullException(nameof(writer));
             }
 
-            writer.WritePaddedString(Name.ToString(), new DbaseFieldWriteProperties(Name, 11, char.MinValue, DbaseFieldPadding.Right));
+            writer.WriteRightPaddedString(Name.ToString(), 11, char.MinValue);
             // HACK: Because legacy represents date times as characters - so why bother with DateTime support?
             if(FieldType == DbaseFieldType.DateTime)
             {

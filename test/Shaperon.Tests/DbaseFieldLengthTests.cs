@@ -15,6 +15,22 @@ namespace Shaperon
             _fixture.CustomizeDbaseFieldLength();
         }
 
+        [Fact]
+        public void MinLengthReturnsExpectedResult()
+        {
+            var result = DbaseFieldLength.MinLength;
+
+            Assert.Equal(new DbaseFieldLength(0), result);
+        }
+
+        [Fact]
+        public void MaxLengthReturnsExpectedResult()
+        {
+            var result = DbaseFieldLength.MaxLength;
+
+            Assert.Equal(new DbaseFieldLength(254), result);
+        }
+
         [Theory]
         [InlineData(-1)]
         [InlineData(int.MinValue)]

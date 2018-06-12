@@ -20,6 +20,7 @@ namespace Shaperon
             _fixture.CustomizeDbaseFieldName();
             _fixture.CustomizeDbaseFieldLength();
             _fixture.CustomizeDbaseDecimalCount();
+            _fixture.CustomizeDbaseField();
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
         }
@@ -60,7 +61,7 @@ namespace Shaperon
                     Assert.Equal(sut.LastUpdated, result.LastUpdated);
                     Assert.Equal(sut.RecordCount, result.RecordCount);
                     Assert.Equal(sut.RecordLength, result.RecordLength);
-                    Assert.Equal(sut.RecordFields, result.RecordFields, EqualityComparer<DbaseField>.Default);
+                    Assert.Equal(sut.RecordFields, result.RecordFields);
                 }
             }
         }

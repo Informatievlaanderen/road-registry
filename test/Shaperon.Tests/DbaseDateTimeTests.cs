@@ -2,6 +2,7 @@ namespace Shaperon
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using Albedo;
     using AutoFixture;
@@ -21,6 +22,25 @@ namespace Shaperon
             _fixture.CustomizeDbaseDateTime();
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
+        }
+
+        [Fact]
+        public void CreateFailsIfFieldIsNotDateTime()
+        {
+            var fieldType = new Generator<DbaseFieldType>(_fixture)
+                .First(specimen => specimen != DbaseFieldType.DateTime);
+            Assert.Throws<ArgumentException>(
+                () =>
+                    new DbaseDateTime(
+                        new DbaseField(
+                            _fixture.Create<DbaseFieldName>(),
+                            fieldType,
+                            _fixture.Create<ByteOffset>(),
+                            new DbaseFieldLength(15),
+                            new DbaseDecimalCount(0)
+                        )
+                    )
+            );
         }
 
         [Fact]
@@ -71,6 +91,33 @@ namespace Shaperon
         {
             new GuardClauseAssertion(_fixture)
                 .Verify(new Methods<DbaseDateTime>().Select(instance => instance.Write(null)));
+        }
+
+        [Fact]
+        public void CanReadWriteNull()
+        {
+            var sut = _fixture.Create<DbaseDateTime>();
+            sut.Value = null;
+
+            using(var stream = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+                {
+                    sut.Write(writer);
+                    writer.Flush();
+                }
+
+                stream.Position = 0;
+
+                using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
+                {
+                    var result = new DbaseDateTime(sut.Field);
+                    result.Read(reader);
+
+                    Assert.Equal(sut.Field, result.Field);
+                    Assert.Equal(sut.Value, result.Value);
+                }
+            }
         }
 
         [Fact]

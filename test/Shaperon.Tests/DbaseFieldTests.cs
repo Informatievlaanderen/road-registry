@@ -1,6 +1,8 @@
 namespace Shaperon
 {
+    using System;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using Albedo;
     using AutoFixture;
@@ -18,6 +20,7 @@ namespace Shaperon
             _fixture.CustomizeByteOffset();
             _fixture.CustomizeDbaseFieldLength();
             _fixture.CustomizeDbaseDecimalCount();
+            _fixture.CustomizeDbaseField();
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
         }
@@ -34,6 +37,186 @@ namespace Shaperon
             ).Verify(typeof(DbaseField));
         }
 
+        // Field type, length, decimal count validation related tests
+
+        [Fact]
+        public void CreateCharacterFieldFailsWhenDecimalCountIsNot0()
+        {
+            var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
+                .First(specimen => specimen.ToInt32() != 0);
+
+            Assert.Throws<ArgumentException>(() =>
+                new DbaseField(
+                    _fixture.Create<DbaseFieldName>(),
+                    DbaseFieldType.Character,
+                    _fixture.Create<ByteOffset>(),
+                    _fixture.Create<DbaseFieldLength>(),
+                    decimalCount));
+        }
+
+        [Fact]
+        public void CreateNumberFieldFailsWhenDecimalCountIsNotZeroAndNotLessThanLengthMinus2()
+        {
+            var length = _fixture.Create<DbaseFieldLength>();
+            var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
+                .First(specimen => specimen.ToInt32() >= length.ToInt32() - 2);
+            Assert.Throws<ArgumentException>(() =>
+                new DbaseField(
+                    _fixture.Create<DbaseFieldName>(),
+                    DbaseFieldType.Number,
+                    _fixture.Create<ByteOffset>(),
+                    length,
+                    decimalCount));
+        }
+
+        [Fact]
+        public void CreateNumberFieldReturnsExpectedResultWhenDecimalCountIsZeroAndNotLessThanLengthMinus2()
+        {
+            var name = _fixture.Create<DbaseFieldName>();
+            var offset = _fixture.Create<ByteOffset>();
+            //var length = _fixture.Create<DbaseFieldLength>();
+            var length = new DbaseFieldLength(1);
+            var decimalCount = new DbaseDecimalCount(0);
+            var result =
+                new DbaseField(
+                    name,
+                    DbaseFieldType.Number,
+                    offset,
+                    length,
+                    decimalCount);
+
+            Assert.Equal(name, result.Name);
+            Assert.Equal(DbaseFieldType.Number, result.FieldType);
+            Assert.Equal(offset, result.Offset);
+            Assert.Equal(length, result.Length);
+            Assert.Equal(decimalCount, result.DecimalCount);
+        }
+
+        [Fact]
+        public void CreateDateTimeFieldFailsWhenLengthIsNot15()
+        {
+            var length = new Generator<DbaseFieldLength>(_fixture)
+                .First(specimen => specimen.ToInt32() != 15);
+            Assert.Throws<ArgumentException>(() =>
+                new DbaseField(
+                    _fixture.Create<DbaseFieldName>(),
+                    DbaseFieldType.DateTime,
+                    _fixture.Create<ByteOffset>(),
+                    length,
+                    new DbaseDecimalCount(0)));
+        }
+
+        [Fact]
+        public void CreateDateTimeFieldFailsWhenDecimalCountIsNot0()
+        {
+            var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
+                .First(specimen => specimen.ToInt32() != 0);
+            Assert.Throws<ArgumentException>(() =>
+                new DbaseField(
+                    _fixture.Create<DbaseFieldName>(),
+                    DbaseFieldType.DateTime,
+                    _fixture.Create<ByteOffset>(),
+                    new DbaseFieldLength(15),
+                    decimalCount));
+        }
+
+        // Factory method tests
+
+        [Fact]
+        public void CreateStringFieldReturnsExpectedResult()
+        {
+            var name = _fixture.Create<DbaseFieldName>();
+            var offset =_fixture.Create<ByteOffset>();
+            var length = _fixture.Create<DbaseFieldLength>();
+
+            var result = DbaseField.CreateStringField(
+                name,
+                offset,
+                length);
+
+            Assert.Equal(name, result.Name);
+            Assert.Equal(DbaseFieldType.Character, result.FieldType);
+            Assert.Equal(offset, result.Offset);
+            Assert.Equal(length, result.Length);
+            Assert.Equal(new DbaseDecimalCount(0), result.DecimalCount);
+        }
+
+
+        [Fact]
+        public void CreateInt32FieldReturnsExpectedResult()
+        {
+            var name = _fixture.Create<DbaseFieldName>();
+            var offset =_fixture.Create<ByteOffset>();
+            var length = _fixture.Create<DbaseFieldLength>();
+
+            var result = DbaseField.CreateInt32Field(
+                name,
+                offset,
+                length);
+
+            Assert.Equal(name, result.Name);
+            Assert.Equal(DbaseFieldType.Number, result.FieldType);
+            Assert.Equal(offset, result.Offset);
+            Assert.Equal(length, result.Length);
+            Assert.Equal(new DbaseDecimalCount(0), result.DecimalCount);
+        }
+
+        [Fact]
+        public void CreateDateTimeFieldReturnsExpectedResult()
+        {
+            var name = _fixture.Create<DbaseFieldName>();
+            var offset =_fixture.Create<ByteOffset>();
+
+            var result = DbaseField.CreateDateTimeField(
+                name,
+                offset);
+
+            Assert.Equal(name, result.Name);
+            Assert.Equal(DbaseFieldType.Number, result.FieldType);
+            Assert.Equal(offset, result.Offset);
+            Assert.Equal(new DbaseFieldLength(15), result.Length);
+            Assert.Equal(new DbaseDecimalCount(0), result.DecimalCount);
+        }
+
+        [Fact]
+        public void CreateDoubleFieldReturnsExpectedResult()
+        {
+            var name = _fixture.Create<DbaseFieldName>();
+            var offset =_fixture.Create<ByteOffset>();
+            var length = _fixture.GenerateDbaseDoubleLength();
+            var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
+
+            var result = DbaseField.CreateDoubleField(
+                name,
+                offset,
+                length,
+                decimalCount);
+
+            Assert.Equal(name, result.Name);
+            Assert.Equal(DbaseFieldType.Number, result.FieldType);
+            Assert.Equal(offset, result.Offset);
+            Assert.Equal(length, result.Length);
+            Assert.Equal(decimalCount, result.DecimalCount);
+        }
+
+        [Fact]
+        public void CreateDoubleFieldThrowsWhenDecimalCountGreaterThanOrEqualToLength()
+        {
+            var name = _fixture.Create<DbaseFieldName>();
+            var offset =_fixture.Create<ByteOffset>();
+            var length = _fixture.Create<DbaseFieldLength>();
+            var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
+                .First(specimen => specimen.ToInt32() >= length.ToInt32());
+
+            Assert.Throws<ArgumentException>(() => DbaseField.CreateDoubleField(
+                name,
+                offset,
+                length,
+                decimalCount));
+        }
+
+        // Field value factory related tests
+
         [Fact]
         public void CreateCharacterFieldValueReturnsExpectedResult()
         {
@@ -42,7 +225,7 @@ namespace Shaperon
                 DbaseFieldType.Character,
                 _fixture.Create<ByteOffset>(),
                 _fixture.Create<DbaseFieldLength>(),
-                _fixture.Create<DbaseDecimalCount>());
+                new DbaseDecimalCount(0));
 
             var result = sut.CreateFieldValue();
 
@@ -53,12 +236,14 @@ namespace Shaperon
         [Fact]
         public void CreateNumberFieldValueReturnsExpectedResult()
         {
+            var length = _fixture.GenerateDbaseDoubleLength();
+            var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
             var sut = new DbaseField(
                 _fixture.Create<DbaseFieldName>(),
                 DbaseFieldType.Number,
                 _fixture.Create<ByteOffset>(),
-                _fixture.Create<DbaseFieldLength>(),
-                _fixture.Create<DbaseDecimalCount>());
+                length,
+                decimalCount);
 
             var result = sut.CreateFieldValue();
 
@@ -80,8 +265,8 @@ namespace Shaperon
                 _fixture.Create<DbaseFieldName>(),
                 DbaseFieldType.DateTime,
                 _fixture.Create<ByteOffset>(),
-                _fixture.Create<DbaseFieldLength>(),
-                _fixture.Create<DbaseDecimalCount>());
+                new DbaseFieldLength(15),
+                new DbaseDecimalCount(0));
 
             var result = sut.CreateFieldValue();
 
@@ -106,12 +291,7 @@ namespace Shaperon
         [Fact]
         public void CanReadWrite()
         {
-            var sut = new DbaseField(
-                _fixture.Create<DbaseFieldName>(),
-                _fixture.Create<DbaseFieldType>(),
-                _fixture.Create<ByteOffset>(),
-                _fixture.Create<DbaseFieldLength>(),
-                _fixture.Create<DbaseDecimalCount>());
+            var sut = _fixture.Create<DbaseField>();
 
             using(var stream = new MemoryStream())
             {
@@ -127,10 +307,7 @@ namespace Shaperon
                 {
                     var result = DbaseField.Read(reader);
 
-                    Assert.Equal(sut.Name, result.Name);
-                    Assert.Equal(sut.Length, result.Length);
-                    Assert.Equal(sut.FieldType, result.FieldType);
-                    Assert.Equal(sut.DecimalCount, result.DecimalCount);
+                    Assert.Equal(sut, result);
                 }
             }
         }

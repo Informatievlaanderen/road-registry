@@ -10,6 +10,11 @@ namespace Shaperon
 
         public DbaseString(DbaseField field, string value = null) : base(field)
         {
+            if (field.FieldType != DbaseFieldType.Character)
+            {
+                throw new ArgumentException($"The field {field.Name} 's type must be character to use it as a string field.", nameof(field));
+            }
+
             Value = value;
         }
 
@@ -18,9 +23,9 @@ namespace Shaperon
             get => _value;
             set
             {
-                if(_value != null && _value.Length > Field.Length)
+                if(value != null && value.Length > Field.Length)
                 {
-                    throw new ArgumentException($"The value length {_value.Length} is greater than the field length {Field.Length}.");
+                    throw new ArgumentException($"The value length {value.Length} of field {Field.Name} is greater than its field length {Field.Length}.");
                 }
                 _value = value;
             }
@@ -51,13 +56,13 @@ namespace Shaperon
                 throw new ArgumentNullException(nameof(writer));
             }
 
-            if(Value != null)
+            if(Value == null)
             {
-                writer.WritePaddedString(Value, new DbaseFieldWriteProperties(Field, ' ', DbaseFieldPadding.Right));
+                writer.Write(new byte[Field.Length]);
             }
             else
             {
-                writer.Write(new byte[Field.Length]);
+                writer.WriteRightPaddedString(Value, Field.Length, ' ');
             }
         }
 

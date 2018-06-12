@@ -10,6 +10,11 @@ namespace Shaperon
 
         public DbaseDateTime(DbaseField field, DateTime? value = null) : base(field)
         {
+            if (field.FieldType != DbaseFieldType.DateTime)
+            {
+                throw new ArgumentException($"The field {field.Name} 's type must be number to use it as a datetime field.", nameof(field));
+            }
+
             Value = value;
         }
 
@@ -54,17 +59,13 @@ namespace Shaperon
 
             if(Value.HasValue)
             {
-                const string dateTimeWriteFormat = "yyyyMMddTHHmmss";
-                if (dateTimeWriteFormat.Length != Field.Length)
-                {
-                    throw new DbaseFieldInvalidConfigurationException($"Writing a DateTime to {Field.Name} with length {Field.Length}. Expected length {dateTimeWriteFormat.Length} for a DateTime field");
-                }
-                var unpadded = Value.Value.ToString(dateTimeWriteFormat, CultureInfo.InvariantCulture);
-                writer.WritePaddedString(unpadded, new DbaseFieldWriteProperties(Field, ' ', DbaseFieldPadding.Right));
+                var unpadded = Value.Value.ToString("yyyyMMddTHHmmss", CultureInfo.InvariantCulture);
+                writer.WriteRightPaddedString(unpadded, Field.Length, ' ');
             }
             else
             {
-                writer.Write(new string(' ', Field.Length));
+                writer.Write(new string(' ', Field.Length).ToCharArray());
+                // or writer.Write(new byte[Field.Length]); // to determine
             }
         }
 

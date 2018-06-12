@@ -18,10 +18,7 @@ namespace Shaperon
             _fixture.CustomizeDbaseFieldName();
             _fixture.CustomizeDbaseFieldLength();
             _fixture.CustomizeDbaseDecimalCount();
-            _fixture.CustomizeDbaseInt32();
-            _fixture.CustomizeDbaseDouble();
-            _fixture.CustomizeDbaseString();
-            _fixture.CustomizeDbaseDateTime();
+            _fixture.CustomizeDbaseField();
             _fixture.Customize<DbaseRecord>(customization =>
                 customization.FromFactory<int>(value =>
                     new AnonymousDbaseRecord(_fixture.CreateMany<DbaseField>().ToArray())));

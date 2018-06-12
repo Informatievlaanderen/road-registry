@@ -6,12 +6,43 @@ namespace Shaperon
 {
     public class DbaseInt32 : DbaseFieldValue
     {
+        private int? _value;
+
         public DbaseInt32(DbaseField field, int? value = null) : base(field)
         {
+            if (field.FieldType != DbaseFieldType.Number)
+            {
+                throw new ArgumentException($"The field {field.Name} 's type must be number to use it as an integer field.", nameof(field));
+            }
+
+            if (field.DecimalCount.ToInt32() != 0)
+            {
+                throw new ArgumentException($"The number field {field.Name} 's decimal count must be 0 to use it as an integer field.", nameof(field));
+            }
+
             Value = value;
         }
 
-        public int? Value { get; set; }
+        public int? Value
+        {
+            get => _value;
+            set {
+                if(value.HasValue)
+                {
+                    var length = FormatAsString(value.Value).Length;
+                    if (length > Field.Length)
+                    {
+                        throw new ArgumentException($"The value length {length} of field {Field.Name} is greater than its field length {Field.Length}.");
+                    }
+                }
+                _value = value;
+            }
+        }
+
+        private static string FormatAsString(int value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture);
+        }
 
         public override void Read(BinaryReader reader)
         {
@@ -48,12 +79,13 @@ namespace Shaperon
 
             if(Value.HasValue)
             {
-                var unpadded = Value.Value.ToString(CultureInfo.InvariantCulture);
-                writer.WritePaddedString(unpadded,new DbaseFieldWriteProperties(Field, ' ', DbaseFieldPadding.Left));
+                var unpadded = FormatAsString(Value.Value);
+                writer.WriteLeftPaddedString(unpadded, Field.Length, ' ');
             }
             else
             {
-                writer.Write(new string(' ', Field.Length));
+                writer.Write(new string(' ', Field.Length).ToCharArray());
+                // or writer.Write(new byte[Field.Length]); // to determine
             }
         }
 
