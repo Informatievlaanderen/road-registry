@@ -1,16 +1,17 @@
 ﻿namespace RoadRegistry.LegacyStreamExtraction
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
     using RoadRegistry.Events;
 
-    public class ExtractedStreamsWriter
+    internal class ExtractedStreamsWriter
     {
         public ExtractedStreamsWriter(FileInfo output)
         {
-            Output = output ?? throw new System.ArgumentNullException(nameof(output));
+            Output = output ?? throw new ArgumentNullException(nameof(output));
         }
 
         public FileInfo Output { get; }
