@@ -1,7 +1,10 @@
-﻿namespace RoadRegistry.Projections
+namespace RoadRegistry.Projections
 {
     using Aiv.Vbr.ProjectionHandling.Runner;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
+    using Events;
+    using NetTopologySuite;
+    using NetTopologySuite.IO;
 
     public class RoadShapeRunner : Runner<ShapeContext>
     {
@@ -9,7 +12,10 @@
             base(
                 "RoadShapeRunner",
                 envelopeFactory,
-                new RoadNodeRecordProjection())
+                new RoadNodeRecordProjection(
+                    new WKBReader(new NtsGeometryServices()),
+                    new RoadNodeTypeTranslator()
+                ))
             { }
     }
 }
