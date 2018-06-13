@@ -15,7 +15,7 @@ namespace Shaperon
                 throw new ArgumentException($"The field {field.Name} 's type must be number to use it as an integer field.", nameof(field));
             }
 
-            if (field.DecimalCount.ToInt32() != 0)
+            if (field.DecimalCount != 0)
             {
                 throw new ArgumentException($"The number field {field.Name} 's decimal count must be 0 to use it as an integer field.", nameof(field));
             }
