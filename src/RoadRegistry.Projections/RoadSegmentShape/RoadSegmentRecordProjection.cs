@@ -5,8 +5,8 @@ namespace RoadRegistry.Projections
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Events;
+    using NetTopologySuite.Geometries;
     using Shaperon;
-    using Wkx;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<ShapeContext>
     {

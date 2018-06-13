@@ -6,8 +6,8 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Events;
     using Infrastructure;
+    using NetTopologySuite.Geometries;
     using Shaperon;
-    using Wkx;
     using Xunit;
 
     public class RoadNodeProjectionTests
@@ -28,7 +28,7 @@ namespace RoadRegistry.Projections.Tests
                 {
                     var geometry = _fixture
                         .Build<Events.Geometry>()
-                        .With(g => g.WellKnownBinary, point.SerializeByteArray<WkbSerializer>())
+                        .With(g => g.WellKnownBinary, point.ToBinary())
                         .Create();
 
                     var importedRoadNode = _fixture

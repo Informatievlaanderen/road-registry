@@ -6,7 +6,6 @@ namespace Shaperon
     using Xunit;
     using System.IO;
     using System.Text;
-    using Wkx;
 
     public class NullShapeContentTests
     {

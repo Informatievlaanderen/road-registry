@@ -190,6 +190,8 @@ namespace Shaperon
         public void CanReadWriteWithMaxDecimalCount()
         {
             var length = _fixture.GenerateDbaseDoubleLength();
+            // var generator = new Generator<double>(_fixture)
+            //     .First(value => value.ToString())
             var decimalCount = new DbaseDecimalCount(length - 2);
             var sut =
                 new DbaseDouble(
