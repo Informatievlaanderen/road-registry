@@ -7,9 +7,9 @@ namespace RoadRegistry.Projections.Tests
     using Events;
     using Infrastructure;
     using Shaperon;
-    using Wkx;
     using Xunit;
     using Moq;
+    using NetTopologySuite.Geometries;
 
     public class RoadSegmentProjectionTests
     {
@@ -43,7 +43,7 @@ namespace RoadRegistry.Projections.Tests
                     var polyLineMShapeContent = new PolyLineMShapeContent(multiLineString);
                     var geometry = _fixture
                         .Build<VersionedGeometry>()
-                        .With(g => g.WellKnownBinary, multiLineString.SerializeByteArray<WkbSerializer>())
+                        .With(g => g.WellKnownBinary, multiLineString.ToBinary())
                         .Create();
                     var importedRoadSegment = _fixture
                         .Build<ImportedRoadSegment>()

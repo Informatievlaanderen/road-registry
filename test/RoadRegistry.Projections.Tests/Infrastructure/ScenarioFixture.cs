@@ -2,11 +2,13 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using AutoFixture;
     using AutoFixture.Dsl;
     using Events;
-    using Wkx;
+    using GeoAPI.Geometries;
+    using NetTopologySuite.Geometries;
 
     public class ScenarioFixture : Fixture
     {
@@ -15,29 +17,31 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             Customize<Point>(customization =>
                 customization.FromFactory(generator =>
                     new Point(generator.NextDouble(), generator.NextDouble())
-                ));
+                ).OmitAutoProperties());
 
             Customize<MultiLineString>(customization =>
                 customization.FromFactory(generator =>
-                    new MultiLineString(this.CreateMany<LineString>(generator.Next(1,10)))
-                ));
+                    new MultiLineString(this
+                        .CreateMany<ILineString>(generator.Next(1,10))
+                        .ToArray())
+                ).OmitAutoProperties());
 
-            Customize<LineString>(customizations =>
-                customizations.FromFactory(generator =>
-                {
-                    return new LineString(
-                        CreateMany(
-                            generator.Next(1, 50),
-                            () => new Point(this.Create<double>(), this.Create<double>(), this.Create<double>(), this.Create<double>())
-                        ));
-                }));
+//            Customize<ILineString>(customizations =>
+//                customizations.FromFactory(generator =>
+//                {
+//                    return new LineString(
+//                        CreateMany(
+//                            generator.Next(1, 50),
+//                            () => new Point(this.Create<double>(), this.Create<double>(), this.Create<double>(), this.Create<double>())
+//                        ));
+//                }));
 
             Customize<Events.Geometry>(customization =>
                 customization.FromFactory<int>(value =>
                     new Events.Geometry
                     {
                         SpatialReferenceSystemIdentifier = value,
-                        WellKnownBinary = this.Create<Point>().SerializeByteArray<WkbSerializer>()
+                        WellKnownBinary = this.Create<Point>().ToBinary()
                     }));
 
             LimitFieldLength<OriginProperties>(p => p.OrganizationId, RoadNodeDbaseRecord.Schema.BEGINORG.Length);

@@ -6,7 +6,7 @@ framework: auto-detect
 
 source https://informatievlaanderen.myget.org/F/nuget-mirror/api/v3/index.json username: "%MYGET_FEED_USER%" password: "%MYGET_FEED_PASS%" authtype: "basic"
 source https://informatievlaanderen.myget.org/F/basisregisters/api/v3/index.json username: "%MYGET_FEED_USER%" password: "%MYGET_FEED_PASS%" authtype: "basic"
-source https://www.myget.org/F/cedar/api/v2
+source https://www.myget.org/F/nettopologysuite/api/v3/index.json
 
 // This is what Microsoft likes to do from now on, except it makes no sense
 // - It does not work for self contained apps
@@ -37,8 +37,8 @@ nuget Microsoft.Extensions.Options.ConfigurationExtensions 2.0.1
 
 nuget Microsoft.VisualStudio.Web.BrowserLink 2.0.2
 
-nuget SqlStreamStore 1.1.2-build01256
-nuget SqlStreamStore.MsSql 1.1.2-build01256
+nuget SqlStreamStore 1.1.2
+nuget SqlStreamStore.MsSql 1.1.2
 
 nuget Autofac.Extensions.DependencyInjection 4.2.2
 
@@ -66,6 +66,7 @@ nuget System.Text.Encoding.CodePages
 nuget Wkx
 nuget CompareNETObjects
 nuget Albedo
+nuget NetTopologySuite 1.15.0-pre063
 
 // VBR STUFF
 nuget Aiv.Vbr.AggregateSource ~> 2.0

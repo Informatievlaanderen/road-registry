@@ -6,8 +6,8 @@ namespace Shaperon
     using Xunit;
     using System.IO;
     using System.Text;
-    using Wkx;
     using System;
+    using NetTopologySuite.Geometries;
 
     public class PointShapeContentTests
     {
@@ -17,9 +17,11 @@ namespace Shaperon
         {
             _fixture = new Fixture();
             _fixture.Customize<Point>(
-                customization => customization.FromFactory<int>(
-                    value => new Point(new Random(value).Next(), new Random(value).Next())
-                )
+                customization => customization
+                    .FromFactory<int>(
+                        value => new Point(new Random(value).Next(), new Random(value).Next())
+                    )
+                    .OmitAutoProperties()
             );
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));

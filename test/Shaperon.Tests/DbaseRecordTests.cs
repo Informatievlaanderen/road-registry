@@ -1,5 +1,6 @@
 namespace Shaperon
 {
+    using System;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -21,7 +22,7 @@ namespace Shaperon
             _fixture.CustomizeDbaseField();
             _fixture.Customize<DbaseRecord>(customization =>
                 customization.FromFactory<int>(value =>
-                    new AnonymousDbaseRecord(_fixture.CreateMany<DbaseField>().ToArray())));
+                    new AnonymousDbaseRecord(_fixture.CreateMany<DbaseField>(new Random(value).Next(1, 50)).ToArray())));
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
         }

@@ -1,9 +1,9 @@
-using System;
-using System.IO;
-using Wkx;
-
 namespace Shaperon
 {
+    using System;
+    using System.IO;
+    using NetTopologySuite.Geometries;
+
     public class PointShapeContent : ShapeContent
     {
         public PointShapeContent(Point shape)
@@ -56,10 +56,10 @@ namespace Shaperon
             }
 
             writer.WriteInt32LittleEndian((int)ShapeType); // Shape Type
-            writer.WriteDoubleLittleEndian(Shape.X.Value); // X Coordinate
-            writer.WriteDoubleLittleEndian(Shape.Y.Value); // Y Coordinate
+            writer.WriteDoubleLittleEndian(Shape.X); // X Coordinate
+            writer.WriteDoubleLittleEndian(Shape.Y); // Y Coordinate
         }
 
-        public override string ToString() => $"Point[{Shape.X.Value};{Shape.Y.Value}]";
+        public override string ToString() => $"Point[{Shape.X};{Shape.Y}]";
     }
 }

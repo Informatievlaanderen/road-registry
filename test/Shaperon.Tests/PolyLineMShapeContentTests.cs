@@ -6,8 +6,10 @@ namespace Shaperon
     using Xunit;
     using System.IO;
     using System.Text;
-    using Wkx;
     using System;
+    using NetTopologySuite.Geometries;
+    using GeoAPI.Geometries;
+    using System.Linq;
 
     public class PolyLineMShapeContentTests
     {
@@ -16,10 +18,20 @@ namespace Shaperon
         public PolyLineMShapeContentTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<Point>(
+            _fixture.Customize<Coordinate>(
                 customization => customization.FromFactory<int>(
-                    value => new Point(new Random(value).Next(), new Random(value).Next())
-                )
+                    value => new Coordinate(new Random(value).Next(), new Random(value).Next())
+                ).OmitAutoProperties()
+            );
+            _fixture.Customize<LineString>(
+                customization => customization.FromFactory<int>(
+                    value => new LineString(_fixture.CreateMany<Coordinate>(new Random(value).Next(2, 10)).ToArray())
+                ).OmitAutoProperties()
+            );
+            _fixture.Customize<MultiLineString>(
+                customization => customization.FromFactory<int>(
+                    value => new MultiLineString(_fixture.CreateMany<LineString>(new Random(value).Next(1,10)).ToArray())
+                ).OmitAutoProperties()
             );
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
@@ -42,7 +54,7 @@ namespace Shaperon
         [Fact]
         public void CanReadWritePointShape()
         {
-            var shape = new MultiLineString(_fixture.CreateMany<LineString>());
+            var shape = _fixture.Create<MultiLineString>();
             var sut = new PolyLineMShapeContent(shape);
 
             using(var stream = new MemoryStream())

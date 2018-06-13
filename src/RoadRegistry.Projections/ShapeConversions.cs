@@ -1,6 +1,8 @@
 namespace RoadRegistry.Projections
 {
-    using Wkx;
+    using GeoAPI.Geometries;
+    using NetTopologySuite.Geometries;
+    using NetTopologySuite.IO;
 
     internal static class From
     {
@@ -20,9 +22,9 @@ namespace RoadRegistry.Projections
         }
 
         public TGeometry To<TGeometry>()
-            where TGeometry : Geometry
+            where TGeometry : IGeometry
         {
-            return (TGeometry)Geometry.Deserialize<WkbSerializer>(_value);
+            return (TGeometry)new WKBReader().Read(_value);
         }
     }
 }

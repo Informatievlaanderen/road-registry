@@ -4,6 +4,7 @@ namespace Shaperon
     using Xunit;
     using System.IO;
     using System.Linq;
+    using System;
 
     public class ShapeContentTests
     {
@@ -23,7 +24,7 @@ namespace Shaperon
             var sut = new ShapeContentUnderTest(
                 _fixture.Create<ShapeType>(),
                 _fixture.Create<WordLength>(),
-                _fixture.CreateMany<byte>().ToArray()
+                _fixture.CreateMany<byte>(new Random().Next(0, 200)).ToArray()
             );
 
             var result = sut.RecordAs(number);
@@ -37,7 +38,7 @@ namespace Shaperon
         public void ToBytesReturnsExpectedResult()
         {
             var number = _fixture.Create<RecordNumber>();
-            var bytes = _fixture.CreateMany<byte>().ToArray();
+            var bytes = _fixture.CreateMany<byte>(new Random().Next(0, 200)).ToArray();
             var sut = new ShapeContentUnderTest(
                 _fixture.Create<ShapeType>(),
                 _fixture.Create<WordLength>(),

@@ -48,7 +48,7 @@ namespace Shaperon
                     var length = FormatAsString(value.Value).Length;
                     if(length > Field.Length)
                     {
-                        throw new ArgumentException($"The value length {length} of field {Field.Name} is greater than its field length {Field.Length}.");
+                        throw new ArgumentException($"The length {length} of value {value.Value} using format {Format} of field {Field.Name} is greater than its field length {Field.Length}.");
                     }
                 }
                 _value = value;
