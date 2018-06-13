@@ -16,7 +16,7 @@ namespace RoadRegistry.Projections
             LBLTYPE = new DbaseString(Schema.LBLTYPE);
             BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
             BEGINORG = new DbaseString(Schema.BEGINORG);
-            LBLBEGINORG = new DbaseString(Schema.LBLBEGINORG);
+            LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
 
             Values = new DbaseFieldValue[]
             {
@@ -28,7 +28,7 @@ namespace RoadRegistry.Projections
                 LBLTYPE,
                 BEGINTIJD,
                 BEGINORG,
-                LBLBEGINORG,
+                LBLBGNORG,
             };
         }
 
@@ -40,6 +40,6 @@ namespace RoadRegistry.Projections
         public DbaseString LBLTYPE { get; }
         public DbaseDateTime BEGINTIJD { get; }
         public DbaseString BEGINORG { get; }
-        public DbaseString LBLBEGINORG { get; }
+        public DbaseString LBLBGNORG { get; }
     }
 }

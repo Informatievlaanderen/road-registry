@@ -41,7 +41,7 @@ namespace RoadRegistry.Projections
                         LBLTYPE = { Value = _referencePointTypeTranslator.TranslateToDutchName(@event.Type) },
                         BEGINTIJD = { Value = @event.Origin.Since },
                         BEGINORG = { Value = @event.Origin.OrganizationId },
-                        LBLBEGINORG = { Value = @event.Origin.Organization },
+                        LBLBGNORG = { Value = @event.Origin.Organization },
                     }.ToBytes()
                 },
                 token);

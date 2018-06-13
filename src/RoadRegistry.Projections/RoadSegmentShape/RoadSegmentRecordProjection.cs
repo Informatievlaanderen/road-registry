@@ -1,5 +1,6 @@
 namespace RoadRegistry.Projections
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
@@ -9,16 +10,16 @@ namespace RoadRegistry.Projections
 
     public class RoadSegmentRecordProjection : ConnectedProjection<ShapeContext>
     {
-        private readonly IOrganisationRetreiver _organisationRetreiver;
+        private readonly IOrganizationRetriever _organizationRetriever;
         private readonly RoadSegmentStatusTranslator _segmentStatusTranslator;
         private readonly RoadSegmentMorphologyTranslator _segmentMorphologyTranslator;
         private readonly RoadSegmentCategoryTranslator _segmentCategoryTranslator;
         private readonly RoadSegmentGeometryDrawMethodTranslator _geometryDrawMethodTranslator;
         private readonly RoadSegmentAccessRestrictionTranslator _accessRestrictionTranslator;
 
-        public RoadSegmentRecordProjection(IOrganisationRetreiver organisationRetreiver)
+        public RoadSegmentRecordProjection(IOrganizationRetriever organizationRetriever)
         {
-            _organisationRetreiver = organisationRetreiver;
+            _organizationRetriever = organizationRetriever ?? throw new ArgumentNullException(nameof(organizationRetriever));
             _segmentStatusTranslator = new RoadSegmentStatusTranslator();
             _segmentMorphologyTranslator = new RoadSegmentMorphologyTranslator();
             _segmentCategoryTranslator = new RoadSegmentCategoryTranslator();
@@ -35,7 +36,7 @@ namespace RoadRegistry.Projections
                 .To<MultiLineString>();
 
             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
-            var organisation = _organisationRetreiver.Get(@event.MaintainerId);
+            var organization = _organizationRetriever.Get(@event.MaintainerId);
             return context.AddAsync(
                 new RoadSegmentRecord
                 {
@@ -60,7 +61,7 @@ namespace RoadRegistry.Projections
                         RSTRNMID = { Value = @event.RightSide.StreetNameId },
                         RSTRNM = { Value = @event.RightSide.StreetName },
                         BEHEER = { Value = @event.MaintainerId },
-                        LBLBEHEER = { Value = organisation.Name },
+                        LBLBEHEER = { Value = organization.Name },
                         METHODE = { Value = _geometryDrawMethodTranslator.TranslateToIdentifier(@event.GeometryDrawMethod) },
                         LBLMETHOD = { Value = _geometryDrawMethodTranslator.TranslateToDutchName(@event.GeometryDrawMethod) },
                         OPNDATUM = { Value = @event.RecordingDate },

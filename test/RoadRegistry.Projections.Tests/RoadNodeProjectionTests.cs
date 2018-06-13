@@ -5,7 +5,7 @@ namespace RoadRegistry.Projections.Tests
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
-    using Infrastucture;
+    using Infrastructure;
     using Shaperon;
     using Wkx;
     using Xunit;

@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Infrastucture
+namespace RoadRegistry.Projections.Tests.Infrastructure
 {
     using System.Collections.Generic;
     using System.Text;

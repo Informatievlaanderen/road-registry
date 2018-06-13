@@ -5,7 +5,7 @@ namespace RoadRegistry.Projections.Tests
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
-    using Infrastucture;
+    using Infrastructure;
     using Shaperon;
     using Wkx;
     using Xunit;
@@ -19,7 +19,7 @@ namespace RoadRegistry.Projections.Tests
         private readonly RoadSegmentCategoryTranslator _categoryTranslator;
         private readonly RoadSegmentGeometryDrawMethodTranslator _geometryDrawMethodTranslator;
         private readonly RoadSegmentAccessRestrictionTranslator _accessRestrictionTranslator;
-        private readonly Mock<IOrganisationRetreiver> _organisationRetrieverMock;
+        private readonly Mock<IOrganizationRetriever> _organizationRetrieverMock;
 
 
         public RoadSegmentProjectionTests()
@@ -30,7 +30,7 @@ namespace RoadRegistry.Projections.Tests
             _categoryTranslator = new RoadSegmentCategoryTranslator();
             _geometryDrawMethodTranslator = new RoadSegmentGeometryDrawMethodTranslator();
             _accessRestrictionTranslator = new RoadSegmentAccessRestrictionTranslator();
-            _organisationRetrieverMock = new Mock<IOrganisationRetreiver>();
+            _organizationRetrieverMock = new Mock<IOrganizationRetriever>();
         }
 
         [Fact]
@@ -51,13 +51,13 @@ namespace RoadRegistry.Projections.Tests
                         .With(segment => segment.Geometry, geometry)
                         .Create();
 
-                    var organisation = _fixture.Build<Organisation>()
+                    var organization = _fixture.Build<Organization>()
                         .With(o => o.Id, importedRoadSegment.MaintainerId)
                         .Create();
 
-                    _organisationRetrieverMock
-                        .Setup(retreiver => retreiver.Get(importedRoadSegment.MaintainerId))
-                        .Returns(organisation);
+                    _organizationRetrieverMock
+                        .Setup(retriever => retriever.Get(importedRoadSegment.MaintainerId))
+                        .Returns(organization);
 
                     var expected = new RoadSegmentRecord
                     {
@@ -82,7 +82,7 @@ namespace RoadRegistry.Projections.Tests
                             RSTRNMID = { Value = importedRoadSegment.RightSide.StreetNameId },
                             RSTRNM = { Value = importedRoadSegment.RightSide.StreetName },
                             BEHEER = { Value = importedRoadSegment.MaintainerId },
-                            LBLBEHEER = { Value = organisation.Name },
+                            LBLBEHEER = { Value = organization.Name },
                             METHODE = { Value = _geometryDrawMethodTranslator.TranslateToIdentifier(importedRoadSegment.GeometryDrawMethod) },
                             LBLMETHOD = { Value = _geometryDrawMethodTranslator.TranslateToDutchName(importedRoadSegment.GeometryDrawMethod) },
                             OPNDATUM = { Value = importedRoadSegment.RecordingDate },
@@ -96,7 +96,7 @@ namespace RoadRegistry.Projections.Tests
                     return new {importedRoadSegment, expected};
                 }).ToList();
 
-            return new RoadSegmentRecordProjection(_organisationRetrieverMock.Object).Scenario()
+            return new RoadSegmentRecordProjection(_organizationRetrieverMock.Object).Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data.Select(d => d.expected).ToArray());
         }

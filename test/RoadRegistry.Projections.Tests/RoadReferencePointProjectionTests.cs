@@ -5,7 +5,7 @@ namespace RoadRegistry.Projections.Tests
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
-    using Infrastucture;
+    using Infrastructure;
     using Shaperon;
     using Wkx;
     using Xunit;
@@ -54,16 +54,19 @@ namespace RoadRegistry.Projections.Tests
                             LBLTYPE = { Value = _referencePointTypeTranslator.TranslateToDutchName(importedReferencePoint.Type) },
                             BEGINTIJD = { Value = importedReferencePoint.Origin.Since },
                             BEGINORG = { Value = importedReferencePoint.Origin.OrganizationId },
-                            LBLBEGINORG = { Value = importedReferencePoint.Origin.Organization },
+                            LBLBGNORG = { Value = importedReferencePoint.Origin.Organization },
                         }.ToBytes(),
                     };
 
-                    return new { importedReferencePoint, expected };
+                    return new {
+                        ImportedReferencePoint = importedReferencePoint,
+                        Expected = expected
+                    };
                 }).ToList();
 
             return new RoadReferencePointRecordProjection().Scenario()
-                .Given(data.Select(d => d.importedReferencePoint))
-                .Expect(data.Select(d => d.expected).ToArray());
+                .Given(data.Select(d => d.ImportedReferencePoint))
+                .Expect(data.Select(d => d.Expected).ToArray());
         }
     }
 }

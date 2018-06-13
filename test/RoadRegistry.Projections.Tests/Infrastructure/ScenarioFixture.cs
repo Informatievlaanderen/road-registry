@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Infrastucture
+namespace RoadRegistry.Projections.Tests.Infrastructure
 {
     using System;
     using System.Collections.Generic;
@@ -47,8 +47,8 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
 
             LimitFieldLength<ImportedReferencePoint>(point => point.Ident8, RoadReferencePointDbaseRecord.Schema.IDENT8.Length);
 
-            LimitFieldLength<Organisation>(p => p.Id, RoadSegmentDbaseRecord.Schema.BEHEER.Length);
-            LimitFieldLength<Organisation>(p => p.Name, RoadSegmentDbaseRecord.Schema.LBLBEHEER.Length);
+            LimitFieldLength<Organization>(p => p.Id, RoadSegmentDbaseRecord.Schema.BEHEER.Length);
+            LimitFieldLength<Organization>(p => p.Name, RoadSegmentDbaseRecord.Schema.LBLBEHEER.Length);
         }
 
         private void LimitFieldLength<T>(Expression<Func<T, string>> field, int length)
