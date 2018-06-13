@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Infrastucture
+namespace RoadRegistry.Projections.Tests.Infrastructure
 {
     using System;
     using System.Collections.Generic;
@@ -55,6 +55,7 @@ namespace RoadRegistry.Projections.Tests.Infrastucture
             var records = new List<object>();
             records.AddRange(await context.RoadNodes.ToListAsync());
             records.AddRange(await context.RoadSegments.ToListAsync());
+            records.AddRange(await context.RoadReferencePoints.ToListAsync());
 
             return records;
         }

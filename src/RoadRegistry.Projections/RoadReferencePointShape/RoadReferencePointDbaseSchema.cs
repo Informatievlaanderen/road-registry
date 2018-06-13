@@ -2,19 +2,30 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadNodeDbaseSchema
+    public class RoadReferencePointDbaseSchema
     {
-        public RoadNodeDbaseSchema()
+        public RoadReferencePointDbaseSchema()
         {
-            WK_OIDN = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(WK_OIDN)),
+            RP_OIDN = DbaseField.CreateInt32Field(
+                new DbaseFieldName(nameof(RP_OIDN)),
                 ByteOffset.Initial,
                 new DbaseFieldLength(15));
 
-            WK_UIDN = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(WK_UIDN)),
+            RP_UIDN = DbaseField.CreateStringField(
+                new DbaseFieldName(nameof(RP_UIDN)),
                 ByteOffset.Initial,
                 new DbaseFieldLength(18));
+
+            IDENT8 =  DbaseField.CreateStringField(
+                new DbaseFieldName(nameof(IDENT8)),
+                ByteOffset.Initial,
+                new DbaseFieldLength(8));
+
+            OPSCHRIFT = DbaseField.CreateDoubleField(
+                new DbaseFieldName(nameof(OPSCHRIFT)),
+                ByteOffset.Initial,
+                new DbaseFieldLength(5),
+                new DbaseDecimalCount(1));
 
             TYPE = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(TYPE)),
@@ -35,18 +46,20 @@ namespace RoadRegistry.Projections
                 ByteOffset.Initial,
                 new DbaseFieldLength(18));
 
-            LBLBGINORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLBGINORG)),
+            LBLBGNORG = DbaseField.CreateStringField(
+                new DbaseFieldName(nameof(LBLBGNORG)),
                 ByteOffset.Initial,
                 new DbaseFieldLength(64));
         }
 
-        public DbaseField WK_OIDN { get; }
-        public DbaseField WK_UIDN { get; }
+        public DbaseField RP_UIDN { get; }
+        public DbaseField RP_OIDN { get; }
+        public DbaseField IDENT8 { get; }
+        public DbaseField OPSCHRIFT { get; }
         public DbaseField TYPE { get; }
         public DbaseField LBLTYPE { get; }
         public DbaseField BEGINTIJD { get; }
         public DbaseField BEGINORG { get; }
-        public DbaseField LBLBGINORG { get; }
+        public DbaseField LBLBGNORG { get; }
     }
 }

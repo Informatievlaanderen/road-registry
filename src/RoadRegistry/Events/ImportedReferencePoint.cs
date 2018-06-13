@@ -7,10 +7,12 @@ namespace RoadRegistry.Events
     public class ImportedReferencePoint
     {
         public int Id { get; set; }
+        public int Version { get; set; }
         public Geometry Geometry { get; set; }
         public string Ident8 { get; set; }
         public ReferencePointType Type { get; set; }
-        public string Caption { get; set; }
+        public double Caption { get; set; }
         public OriginProperties Origin { get; set; }
     }
 }
+

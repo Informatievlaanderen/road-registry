@@ -28,6 +28,7 @@ namespace Shaperon
                     field => new DbaseDateTime(field)
                 }
             };
+
         public DbaseField(DbaseFieldName name, DbaseFieldType fieldType, ByteOffset offset, DbaseFieldLength length, DbaseDecimalCount decimalCount)
         {
             if(!Enum.IsDefined(typeof(DbaseFieldType), fieldType))
@@ -78,7 +79,7 @@ namespace Shaperon
 
         public static DbaseField CreateDateTimeField(DbaseFieldName name, ByteOffset offset)
         {
-            return new DbaseField(name, DbaseFieldType.Number, offset, new DbaseFieldLength(15), new DbaseDecimalCount(0));
+            return new DbaseField(name, DbaseFieldType.DateTime, offset, new DbaseFieldLength(15), new DbaseDecimalCount(0));
         }
 
         public static DbaseField CreateDoubleField(DbaseFieldName name, ByteOffset offset, DbaseFieldLength length, DbaseDecimalCount decimalCount)

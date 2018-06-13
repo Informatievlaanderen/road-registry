@@ -12,7 +12,7 @@ namespace Shaperon
         {
             if (field.FieldType != DbaseFieldType.DateTime)
             {
-                throw new ArgumentException($"The field {field.Name} 's type must be number to use it as a datetime field.", nameof(field));
+                throw new ArgumentException($"The field {field.Name}'s type must be number to use it as a datetime field.", nameof(field));
             }
 
             Value = value;

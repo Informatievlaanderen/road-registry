@@ -461,10 +461,11 @@ namespace RoadRegistry.LegacyStreamExtraction
                             ,rp.[geometrie].STAsBinary() --1
                             ,rp.[ident8] --2
                             ,rp.[type] --3
-                            ,CONVERT(NVARCHAR(MAX), rp.[opschrift]) --4
+                            ,rp.[opschrift] --4
                             ,rp.[beginorganisatie] --5
                             ,lo.[label] --6
                             ,rp.[begintijd] --7
+                            ,rp.[referentiepuntversie] --8
                         FROM [dbo].[referentiepunt] rp
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON rp.[beginorganisatie] = lo.[code]", connection
                     ).ForEachDataRecord(reader =>
@@ -472,6 +473,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         var point = new ImportedReferencePoint
                         {
                             Id = reader.GetInt32(0),
+                            Version = reader.GetInt32(8),
                             Geometry = new Geometry
                             {
                                 SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
@@ -479,7 +481,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             },
                             Ident8 = reader.GetString(2),
                             Type = Translate.ToReferencePointType(reader.GetInt32(3)),
-                            Caption = reader.GetString(4),
+                            Caption = reader.GetDouble(4),
                             Origin = new OriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(5),
