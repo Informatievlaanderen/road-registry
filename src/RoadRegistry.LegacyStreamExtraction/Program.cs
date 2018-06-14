@@ -481,7 +481,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             },
                             Ident8 = reader.GetString(2),
                             Type = Translate.ToReferencePointType(reader.GetInt32(3)),
-                            Caption = reader.GetDouble(4),
+                            Caption = (double)reader.GetDecimal(4),
                             Origin = new OriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(5),
