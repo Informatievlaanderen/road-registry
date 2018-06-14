@@ -50,9 +50,6 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             LimitFieldLength<Maintainer>(segment => segment.Name, RoadSegmentDbaseRecord.Schema.LBLBEHEER.Length);
 
             LimitFieldLength<ImportedReferencePoint>(point => point.Ident8, RoadReferencePointDbaseRecord.Schema.IDENT8.Length);
-
-            LimitFieldLength<Organization>(p => p.Id, RoadSegmentDbaseRecord.Schema.BEHEER.Length);
-            LimitFieldLength<Organization>(p => p.Name, RoadSegmentDbaseRecord.Schema.LBLBEHEER.Length);
         }
 
         private void LimitFieldLength<T>(Expression<Func<T, string>> field, int length)
