@@ -9,7 +9,9 @@ namespace RoadRegistry.Projections.Tests
     using Shaperon;
     using Xunit;
     using Moq;
+    using NetTopologySuite;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.IO;
 
     public class RoadSegmentProjectionTests
     {
@@ -96,7 +98,15 @@ namespace RoadRegistry.Projections.Tests
                     return new {importedRoadSegment, expected};
                 }).ToList();
 
-            return new RoadSegmentRecordProjection(_organizationRetrieverMock.Object).Scenario()
+            return new RoadSegmentRecordProjection(
+                    new WKBReader(new NtsGeometryServices()),
+                    _organizationRetrieverMock.Object,
+                    _segmentStatusTranslator,
+                    _morphologyTranslator,
+                    _categoryTranslator,
+                    _geometryDrawMethodTranslator,
+                    _accessRestrictionTranslator)
+                .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data.Select(d => d.expected).ToArray());
         }

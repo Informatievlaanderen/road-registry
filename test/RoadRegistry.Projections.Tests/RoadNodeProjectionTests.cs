@@ -6,17 +6,21 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Events;
     using Infrastructure;
+    using NetTopologySuite;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.IO;
     using Shaperon;
     using Xunit;
 
     public class RoadNodeProjectionTests
     {
         private readonly ScenarioFixture _fixture;
+        private readonly RoadNodeTypeTranslator _roadNodeTypeTranslator;
 
         public RoadNodeProjectionTests()
         {
             _fixture = new ScenarioFixture();
+            _roadNodeTypeTranslator = new RoadNodeTypeTranslator();
         }
 
         [Fact]
@@ -48,7 +52,7 @@ namespace RoadRegistry.Projections.Tests
                             TYPE = {Value = (int) importedRoadNode.Type},
                             LBLTYPE =
                             {
-                                Value = new RoadNodeTypeTranslator().TranslateToDutchName(importedRoadNode.Type)
+                                Value = _roadNodeTypeTranslator.TranslateToDutchName(importedRoadNode.Type)
                             },
                             BEGINTIJD = {Value = importedRoadNode.Origin.Since},
                             BEGINORG = {Value = importedRoadNode.Origin.OrganizationId},
@@ -65,7 +69,10 @@ namespace RoadRegistry.Projections.Tests
                     };
                 }).ToList();
 
-            return new RoadNodeRecordProjection().Scenario()
+            return new RoadNodeRecordProjection(
+                    new WKBReader(new NtsGeometryServices()),
+                    _roadNodeTypeTranslator)
+                .Scenario()
                 .Given(data.Select(d => d.ImportedRoadNode))
                 .Expect(data.Select(d => d.ExpectedRecord));
 

@@ -6,7 +6,9 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Events;
     using Infrastructure;
+    using NetTopologySuite;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.IO;
     using Shaperon;
     using Xunit;
 
@@ -64,7 +66,10 @@ namespace RoadRegistry.Projections.Tests
                     };
                 }).ToList();
 
-            return new RoadReferencePointRecordProjection().Scenario()
+            return new RoadReferencePointRecordProjection(
+                    new WKBReader(new NtsGeometryServices()),
+                    _referencePointTypeTranslator)
+                .Scenario()
                 .Given(data.Select(d => d.ImportedReferencePoint))
                 .Expect(data.Select(d => d.Expected).ToArray());
         }

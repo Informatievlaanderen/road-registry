@@ -1,19 +1,25 @@
 namespace RoadRegistry.Projections
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Events;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.IO;
     using Shaperon;
 
     public class RoadReferencePointRecordProjection: ConnectedProjection<ShapeContext>
     {
+        private readonly WKBReader _wkbReader;
         private readonly ReferencePointTypeTranslator _referencePointTypeTranslator;
 
-        public RoadReferencePointRecordProjection()
+        public RoadReferencePointRecordProjection(
+            WKBReader wkbReader,
+            ReferencePointTypeTranslator referencePointTypeTranslator)
         {
-            _referencePointTypeTranslator = new ReferencePointTypeTranslator();
+            _wkbReader = wkbReader ?? throw new ArgumentNullException(nameof(wkbReader));
+            _referencePointTypeTranslator = referencePointTypeTranslator ?? throw new ArgumentNullException(nameof(referencePointTypeTranslator));
 
             When<ImportedReferencePoint>(HandleImportedRoadReferencePoint);
         }
@@ -23,7 +29,7 @@ namespace RoadRegistry.Projections
             ImportedReferencePoint @event,
             CancellationToken token)
         {
-            var pointShapeContent = new PointShapeContent(From.WellKnownBinary(@event.Geometry.WellKnownBinary).To<Point>());
+            var pointShapeContent = new PointShapeContent(_wkbReader.ReadAs<Point>(@event.Geometry.WellKnownBinary));
 
             return context.AddAsync(
                 new RoadReferencePointRecord

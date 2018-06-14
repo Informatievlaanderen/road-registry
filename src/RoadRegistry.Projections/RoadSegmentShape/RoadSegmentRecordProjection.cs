@@ -6,10 +6,12 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Events;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.IO;
     using Shaperon;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<ShapeContext>
     {
+        private readonly WKBReader _wkbReader;
         private readonly IOrganizationRetriever _organizationRetriever;
         private readonly RoadSegmentStatusTranslator _segmentStatusTranslator;
         private readonly RoadSegmentMorphologyTranslator _segmentMorphologyTranslator;
@@ -17,24 +19,28 @@ namespace RoadRegistry.Projections
         private readonly RoadSegmentGeometryDrawMethodTranslator _geometryDrawMethodTranslator;
         private readonly RoadSegmentAccessRestrictionTranslator _accessRestrictionTranslator;
 
-        public RoadSegmentRecordProjection(IOrganizationRetriever organizationRetriever)
+        public RoadSegmentRecordProjection(WKBReader wkbReader,
+            IOrganizationRetriever organizationRetriever,
+            RoadSegmentStatusTranslator segmentStatusTranslator,
+            RoadSegmentMorphologyTranslator segmentMorphologyTranslator,
+            RoadSegmentCategoryTranslator segmentCategoryTranslator,
+            RoadSegmentGeometryDrawMethodTranslator geometryDrawMethodTranslator,
+            RoadSegmentAccessRestrictionTranslator accessRestrictionTranslator)
         {
+            _wkbReader = wkbReader ?? throw new ArgumentNullException(nameof(wkbReader));
             _organizationRetriever = organizationRetriever ?? throw new ArgumentNullException(nameof(organizationRetriever));
-            _segmentStatusTranslator = new RoadSegmentStatusTranslator();
-            _segmentMorphologyTranslator = new RoadSegmentMorphologyTranslator();
-            _segmentCategoryTranslator = new RoadSegmentCategoryTranslator();
-            _geometryDrawMethodTranslator = new RoadSegmentGeometryDrawMethodTranslator();
-            _accessRestrictionTranslator = new RoadSegmentAccessRestrictionTranslator();
+            _segmentStatusTranslator = segmentStatusTranslator ?? throw new ArgumentNullException(nameof(segmentStatusTranslator));
+            _segmentMorphologyTranslator = segmentMorphologyTranslator ?? throw new ArgumentNullException(nameof(segmentMorphologyTranslator));
+            _segmentCategoryTranslator = segmentCategoryTranslator ?? throw new ArgumentNullException(nameof(segmentCategoryTranslator));
+            _geometryDrawMethodTranslator = geometryDrawMethodTranslator ?? throw new ArgumentNullException(nameof(geometryDrawMethodTranslator));
+            _accessRestrictionTranslator = accessRestrictionTranslator ?? throw new ArgumentNullException(nameof(accessRestrictionTranslator));
 
             When<ImportedRoadSegment>(HandleImportedRoadSegment);
         }
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
         {
-            var geometry = From
-                .WellKnownBinary(@event.Geometry.WellKnownBinary)
-                .To<MultiLineString>();
-
+            var geometry = _wkbReader.ReadAs<MultiLineString>(@event.Geometry.WellKnownBinary);
             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
             var organization = _organizationRetriever.Get(@event.MaintainerId);
             return context.AddAsync(
