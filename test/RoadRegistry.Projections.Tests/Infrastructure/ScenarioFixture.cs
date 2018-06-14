@@ -46,7 +46,8 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             LimitFieldLength<OriginProperties>(p => p.OrganizationId, RoadNodeDbaseRecord.Schema.BEGINORG.Length);
             LimitFieldLength<OriginProperties>(p => p.Organization, RoadNodeDbaseRecord.Schema.LBLBGINORG.Length);
 
-            LimitFieldLength<ImportedRoadSegment>(segment => segment.MaintainerId, RoadSegmentDbaseRecord.Schema.BEHEER.Length);
+            LimitFieldLength<MaintainerProperties>(segment => segment.Id, RoadSegmentDbaseRecord.Schema.BEHEER.Length);
+            LimitFieldLength<MaintainerProperties>(segment => segment.Name, RoadSegmentDbaseRecord.Schema.LBLBEHEER.Length);
 
             LimitFieldLength<ImportedReferencePoint>(point => point.Ident8, RoadReferencePointDbaseRecord.Schema.IDENT8.Length);
 
