@@ -35,13 +35,13 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
 
             Customize<Coordinate>(composer => composer.OmitAutoProperties());
 
-            Customize<Events.Geometry>(customization =>
-                customization.FromFactory<int>(value =>
-                    new Events.Geometry
-                    {
-                        SpatialReferenceSystemIdentifier = value,
-                        WellKnownBinary = this.Create<Point>().ToBinary()
-                    }));
+            // Customize<Events.Geometry>(customization =>
+            //     customization.FromFactory<int>(value =>
+            //         new Events.Geometry
+            //         {
+            //             SpatialReferenceSystemIdentifier = value,
+            //             WellKnownBinary = this.Create<Point>().ToBinary()
+            //         }));
 
             LimitFieldLength<OriginProperties>(p => p.OrganizationId, RoadNodeDbaseRecord.Schema.BEGINORG.Length);
             LimitFieldLength<OriginProperties>(p => p.Organization, RoadNodeDbaseRecord.Schema.LBLBGINORG.Length);

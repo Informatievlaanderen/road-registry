@@ -37,7 +37,7 @@ namespace RoadRegistry.Projections
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
         {
-            var geometry = _wkbReader.ReadAs<MultiLineString>(@event.Geometry.WellKnownBinary);
+            var geometry = _wkbReader.ReadAs<MultiLineString>(@event.Geometry);
             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
             return context.AddAsync(
                 new RoadSegmentRecord
@@ -49,7 +49,7 @@ namespace RoadRegistry.Projections
                     {
                         WS_OIDN = { Value = @event.Id },
                         WS_UIDN = { Value = $"{@event.Id}_{@event.Version}" },
-                        WS_GIDN = { Value = $"{@event.Id}_{@event.Geometry.Version}" },
+                        WS_GIDN = { Value = $"{@event.Id}_{@event.GeometryVersion}" },
                         B_WK_OIDN = { Value = @event.StartNodeId },
                         E_WK_OIDN =  {Value = @event.EndNodeId },
                         STATUS = { Value = _segmentStatusTranslator.TranslateToIdentifier(@event.Status) },

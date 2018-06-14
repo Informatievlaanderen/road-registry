@@ -29,7 +29,7 @@ namespace RoadRegistry.Projections
             ImportedReferencePoint @event,
             CancellationToken token)
         {
-            var pointShapeContent = new PointShapeContent(_wkbReader.ReadAs<Point>(@event.Geometry.WellKnownBinary));
+            var pointShapeContent = new PointShapeContent(_wkbReader.ReadAs<Point>(@event.Geometry));
 
             return context.AddAsync(
                 new RoadReferencePointRecord

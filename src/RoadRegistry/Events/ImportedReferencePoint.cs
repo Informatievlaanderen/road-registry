@@ -8,7 +8,7 @@ namespace RoadRegistry.Events
     {
         public int Id { get; set; }
         public int Version { get; set; }
-        public Geometry Geometry { get; set; }
+        public byte[] Geometry { get; set; }
         public string Ident8 { get; set; }
         public ReferencePointType Type { get; set; }
         public double Caption { get; set; }

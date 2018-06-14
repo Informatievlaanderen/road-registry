@@ -5,6 +5,7 @@ namespace RoadRegistry.Projections.Tests
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
+    using GeoAPI.Geometries;
     using Infrastructure;
     using NetTopologySuite;
     using NetTopologySuite.Geometries;
@@ -31,14 +32,11 @@ namespace RoadRegistry.Projections.Tests
                 .Select((point, i) =>
                 {
                     var pointShapeContent = new PointShapeContent(point);
-                    var geometry = _fixture.Build<Events.Geometry>()
-                        .With(g => g.WellKnownBinary, point.ToBinary())
-                        .Create();
 
                     var importedReferencePoint = _fixture
                         .Build<ImportedReferencePoint>()
                         .With(referencePoint => referencePoint.Id, i + 124)
-                        .With(referencePoint => referencePoint.Geometry, geometry)
+                        .With(referencePoint => referencePoint.Geometry, point.ToBinary())
                         .Create();
 
                     var expected = new RoadReferencePointRecord
@@ -67,7 +65,11 @@ namespace RoadRegistry.Projections.Tests
                 }).ToList();
 
             return new RoadReferencePointRecordProjection(
-                    new WKBReader(new NtsGeometryServices()),
+                    new WKBReader(new NtsGeometryServices())
+                    {
+                        HandleOrdinates = Ordinates.XYZM,
+                        HandleSRID = true
+                    },
                     _referencePointTypeTranslator)
                 .Scenario()
                 .Given(data.Select(d => d.ImportedReferencePoint))

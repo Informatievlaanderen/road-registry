@@ -5,4 +5,4 @@ Microsoft.Extensions.Configuration.EnvironmentVariables
 
 System.Data.SqlClient
 Newtonsoft.Json
-Wkx
+NetTopologySuite
