@@ -12,7 +12,6 @@ namespace RoadRegistry.Projections
     public class RoadSegmentRecordProjection : ConnectedProjection<ShapeContext>
     {
         private readonly WKBReader _wkbReader;
-        private readonly IOrganizationRetriever _organizationRetriever;
         private readonly RoadSegmentStatusTranslator _segmentStatusTranslator;
         private readonly RoadSegmentMorphologyTranslator _segmentMorphologyTranslator;
         private readonly RoadSegmentCategoryTranslator _segmentCategoryTranslator;
@@ -20,7 +19,6 @@ namespace RoadRegistry.Projections
         private readonly RoadSegmentAccessRestrictionTranslator _accessRestrictionTranslator;
 
         public RoadSegmentRecordProjection(WKBReader wkbReader,
-            IOrganizationRetriever organizationRetriever,
             RoadSegmentStatusTranslator segmentStatusTranslator,
             RoadSegmentMorphologyTranslator segmentMorphologyTranslator,
             RoadSegmentCategoryTranslator segmentCategoryTranslator,
@@ -28,7 +26,6 @@ namespace RoadRegistry.Projections
             RoadSegmentAccessRestrictionTranslator accessRestrictionTranslator)
         {
             _wkbReader = wkbReader ?? throw new ArgumentNullException(nameof(wkbReader));
-            _organizationRetriever = organizationRetriever ?? throw new ArgumentNullException(nameof(organizationRetriever));
             _segmentStatusTranslator = segmentStatusTranslator ?? throw new ArgumentNullException(nameof(segmentStatusTranslator));
             _segmentMorphologyTranslator = segmentMorphologyTranslator ?? throw new ArgumentNullException(nameof(segmentMorphologyTranslator));
             _segmentCategoryTranslator = segmentCategoryTranslator ?? throw new ArgumentNullException(nameof(segmentCategoryTranslator));
@@ -42,7 +39,6 @@ namespace RoadRegistry.Projections
         {
             var geometry = _wkbReader.ReadAs<MultiLineString>(@event.Geometry.WellKnownBinary);
             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
-            var organization = _organizationRetriever.Get(@event.MaintainerId);
             return context.AddAsync(
                 new RoadSegmentRecord
                 {
@@ -66,8 +62,8 @@ namespace RoadRegistry.Projections
                         LSTRNM = { Value = @event.LeftSide.StreetName },
                         RSTRNMID = { Value = @event.RightSide.StreetNameId },
                         RSTRNM = { Value = @event.RightSide.StreetName },
-                        BEHEER = { Value = @event.MaintainerId },
-                        LBLBEHEER = { Value = organization.Name },
+                        BEHEER = { Value = @event.Maintainer.Code },
+                        LBLBEHEER = { Value = @event.Maintainer.Name },
                         METHODE = { Value = _geometryDrawMethodTranslator.TranslateToIdentifier(@event.GeometryDrawMethod) },
                         LBLMETHOD = { Value = _geometryDrawMethodTranslator.TranslateToDutchName(@event.GeometryDrawMethod) },
                         OPNDATUM = { Value = @event.RecordingDate },

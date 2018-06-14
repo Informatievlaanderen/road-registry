@@ -124,13 +124,15 @@ namespace RoadRegistry.LegacyStreamExtraction
                             ws.[opnamedatum], --20
                             ws.[beginorganisatie], --21
                             lo.[label], --22
-                            ws.[begintijd] --23
+                            ws.[begintijd], --23
+                            beheerders.[label] --24
                         FROM [dbo].[wegsegment] ws
                         LEFT OUTER JOIN [dbo].[gemeenteNIS] lg ON ws.[linksGemeente] = lg.[gemeenteId]
                         LEFT OUTER JOIN [dbo].[crabsnm] ls ON ws.[linksStraatnaamID] = ls.[EXN]
                         LEFT OUTER JOIN [dbo].[gemeenteNIS] rg ON ws.[rechtsGemeente] = rg.[gemeenteId]
                         LEFT OUTER JOIN [dbo].[crabsnm] rs ON ws.[rechtsStraatnaamID] = rs.[EXN]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ws.[beginorganisatie] = lo.[code]
+                        LEFT OUTER JOIN [dbo].[listOrganisatie] beheerders ON ws.[beheerder] = beheerders.[code]
                         WHERE ws.[eindWegknoopID] IS NOT NULL", connection
                     ).ForEachDataRecord(reader =>
                     {
@@ -147,7 +149,11 @@ namespace RoadRegistry.LegacyStreamExtraction
                                 SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
                                 WellKnownBinary = wellKnownBinary
                             },
-                            MaintainerId = reader.GetString(6),
+                            Maintainer = new Maintainer
+                            {
+                                Code = reader.GetString(6),
+                                Name = reader.GetString(24)
+                            },
                             GeometryDrawMethod = Translate.ToRoadSegmentGeometryDrawMethod(reader.GetInt32(7)),
                             Morphology = Translate.ToRoadSegmentMorphology(reader.GetInt32(8)),
                             Status = Translate.ToRoadSegmentStatus(reader.GetInt32(9)),
@@ -481,7 +487,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             },
                             Ident8 = reader.GetString(2),
                             Type = Translate.ToReferencePointType(reader.GetInt32(3)),
-                            Caption = reader.GetDouble(4),
+                            Caption = (double)reader.GetDecimal(4),
                             Origin = new OriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(5),

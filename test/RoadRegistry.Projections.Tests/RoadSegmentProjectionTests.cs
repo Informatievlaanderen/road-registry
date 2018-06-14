@@ -8,7 +8,6 @@ namespace RoadRegistry.Projections.Tests
     using Infrastructure;
     using Shaperon;
     using Xunit;
-    using Moq;
     using NetTopologySuite;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
@@ -21,7 +20,6 @@ namespace RoadRegistry.Projections.Tests
         private readonly RoadSegmentCategoryTranslator _categoryTranslator;
         private readonly RoadSegmentGeometryDrawMethodTranslator _geometryDrawMethodTranslator;
         private readonly RoadSegmentAccessRestrictionTranslator _accessRestrictionTranslator;
-        private readonly Mock<IOrganizationRetriever> _organizationRetrieverMock;
 
 
         public RoadSegmentProjectionTests()
@@ -32,7 +30,6 @@ namespace RoadRegistry.Projections.Tests
             _categoryTranslator = new RoadSegmentCategoryTranslator();
             _geometryDrawMethodTranslator = new RoadSegmentGeometryDrawMethodTranslator();
             _accessRestrictionTranslator = new RoadSegmentAccessRestrictionTranslator();
-            _organizationRetrieverMock = new Mock<IOrganizationRetriever>();
         }
 
         [Fact]
@@ -52,14 +49,6 @@ namespace RoadRegistry.Projections.Tests
                         .With(segment => segment.Id, index + 1)
                         .With(segment => segment.Geometry, geometry)
                         .Create();
-
-                    var organization = _fixture.Build<Organization>()
-                        .With(o => o.Id, importedRoadSegment.MaintainerId)
-                        .Create();
-
-                    _organizationRetrieverMock
-                        .Setup(retriever => retriever.Get(importedRoadSegment.MaintainerId))
-                        .Returns(organization);
 
                     var expected = new RoadSegmentRecord
                     {
@@ -83,8 +72,8 @@ namespace RoadRegistry.Projections.Tests
                             LSTRNM = { Value = importedRoadSegment.LeftSide.StreetName },
                             RSTRNMID = { Value = importedRoadSegment.RightSide.StreetNameId },
                             RSTRNM = { Value = importedRoadSegment.RightSide.StreetName },
-                            BEHEER = { Value = importedRoadSegment.MaintainerId },
-                            LBLBEHEER = { Value = organization.Name },
+                            BEHEER = { Value = importedRoadSegment.Maintainer.Code },
+                            LBLBEHEER = { Value = importedRoadSegment.Maintainer.Name },
                             METHODE = { Value = _geometryDrawMethodTranslator.TranslateToIdentifier(importedRoadSegment.GeometryDrawMethod) },
                             LBLMETHOD = { Value = _geometryDrawMethodTranslator.TranslateToDutchName(importedRoadSegment.GeometryDrawMethod) },
                             OPNDATUM = { Value = importedRoadSegment.RecordingDate },
@@ -100,7 +89,6 @@ namespace RoadRegistry.Projections.Tests
 
             return new RoadSegmentRecordProjection(
                     new WKBReader(new NtsGeometryServices()),
-                    _organizationRetrieverMock.Object,
                     _segmentStatusTranslator,
                     _morphologyTranslator,
                     _categoryTranslator,
