@@ -69,15 +69,13 @@ namespace Shaperon
         [Fact]
         public void LengthOfValueBeingSetCanNotExceedFieldLength()
         {
-            var maxLength =
+            var maxLength = new DbaseFieldLength(
                 Math.Max(
                     Double.MaxValue.ToString(CultureInfo.InvariantCulture).Length,
                     Double.MinValue.ToString(CultureInfo.InvariantCulture).Length
-                );
-            var length = new Generator<int>(_fixture)
-                .Where(specimen => specimen < maxLength)
-                .Select(_ => new DbaseFieldLength(_))
-                .First();
+                )
+            );
+            var length = _fixture.GenerateDbaseDoubleLengthLessThan(maxLength);
             var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
 
             var sut =
@@ -101,15 +99,13 @@ namespace Shaperon
         [Fact]
         public void LengthOfNegativeValueBeingSetCanNotExceedFieldLength()
         {
-            var maxLength =
+            var maxLength = new DbaseFieldLength(
                 Math.Max(
                     Double.MaxValue.ToString(CultureInfo.InvariantCulture).Length,
                     Double.MinValue.ToString(CultureInfo.InvariantCulture).Length
-                );
-            var length = new Generator<int>(_fixture)
-                .Where(specimen => specimen < maxLength)
-                .Select(_ => new DbaseFieldLength(_))
-                .First();
+                )
+            );
+            var length = _fixture.GenerateDbaseDoubleLengthLessThan(maxLength);
             var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
 
             var sut =
@@ -124,7 +120,7 @@ namespace Shaperon
                 );
 
             var value = Enumerable
-                .Range(0, sut.Field.Length)
+                .Range(0, sut.Field.Length - 1) // because the sign itself also takes a place
                 .Aggregate(-1d, (current, _) => current * 10d);
 
             Assert.Throws<ArgumentException>(() => sut.Value = value);
@@ -186,7 +182,7 @@ namespace Shaperon
         }
 
 
-        [Fact(Skip = "Generated value exceeds field length")]
+        [Fact]
         public void CanReadWriteWithMaxDecimalCount()
         {
             var length = _fixture.GenerateDbaseDoubleLength();
@@ -201,9 +197,9 @@ namespace Shaperon
                         _fixture.Create<ByteOffset>(),
                         length,
                         decimalCount
-                    ),
-                    _fixture.Create<double>()
+                    )
                 );
+            sut.Value = Convert.ToDouble(_fixture.Create<int>()) + _fixture.Create<double>();
 
             using (var stream = new MemoryStream())
             {
