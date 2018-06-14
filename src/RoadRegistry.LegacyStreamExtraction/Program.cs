@@ -149,9 +149,9 @@ namespace RoadRegistry.LegacyStreamExtraction
                                 SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
                                 WellKnownBinary = wellKnownBinary
                             },
-                            Maintainer = new MaintainerProperties
+                            Maintainer = new Maintainer
                             {
-                                Id = reader.GetString(6),
+                                Code = reader.GetString(6),
                                 Name = reader.GetString(24)
                             },
                             GeometryDrawMethod = Translate.ToRoadSegmentGeometryDrawMethod(reader.GetInt32(7)),

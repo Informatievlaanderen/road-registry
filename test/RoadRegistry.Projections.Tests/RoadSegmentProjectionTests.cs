@@ -72,7 +72,7 @@ namespace RoadRegistry.Projections.Tests
                             LSTRNM = { Value = importedRoadSegment.LeftSide.StreetName },
                             RSTRNMID = { Value = importedRoadSegment.RightSide.StreetNameId },
                             RSTRNM = { Value = importedRoadSegment.RightSide.StreetName },
-                            BEHEER = { Value = importedRoadSegment.Maintainer.Id },
+                            BEHEER = { Value = importedRoadSegment.Maintainer.Code },
                             LBLBEHEER = { Value = importedRoadSegment.Maintainer.Name },
                             METHODE = { Value = _geometryDrawMethodTranslator.TranslateToIdentifier(importedRoadSegment.GeometryDrawMethod) },
                             LBLMETHOD = { Value = _geometryDrawMethodTranslator.TranslateToDutchName(importedRoadSegment.GeometryDrawMethod) },

@@ -62,7 +62,7 @@ namespace RoadRegistry.Projections
                         LSTRNM = { Value = @event.LeftSide.StreetName },
                         RSTRNMID = { Value = @event.RightSide.StreetNameId },
                         RSTRNM = { Value = @event.RightSide.StreetName },
-                        BEHEER = { Value = @event.Maintainer.Id },
+                        BEHEER = { Value = @event.Maintainer.Code },
                         LBLBEHEER = { Value = @event.Maintainer.Name },
                         METHODE = { Value = _geometryDrawMethodTranslator.TranslateToIdentifier(@event.GeometryDrawMethod) },
                         LBLMETHOD = { Value = _geometryDrawMethodTranslator.TranslateToDutchName(@event.GeometryDrawMethod) },
