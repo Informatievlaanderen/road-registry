@@ -9,12 +9,15 @@ namespace Shaperon
     using AutoFixture;
     using AutoFixture.Idioms;
     using Xunit;
+    using Xunit.Abstractions;
 
     public class DbaseInt32Tests
     {
         private readonly Fixture _fixture;
 
-        public DbaseInt32Tests()
+        public ITestOutputHelper Out { get; }
+
+        public DbaseInt32Tests(ITestOutputHelper @out)
         {
             _fixture = new Fixture();
             _fixture.CustomizeDbaseFieldName();
@@ -23,6 +26,7 @@ namespace Shaperon
             _fixture.CustomizeDbaseInt32();
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
+            Out = @out ?? throw new ArgumentNullException(nameof(@out));
         }
 
         [Fact]
@@ -70,15 +74,12 @@ namespace Shaperon
         [Fact]
         public void LengthOfValueBeingSetCanNotExceedFieldLength()
         {
-            var maxLength =
-                Math.Max(
-                    Int32.MaxValue.ToString(CultureInfo.InvariantCulture).Length,
-                    Int32.MinValue.ToString(CultureInfo.InvariantCulture).Length
-                );
-            var length = new Generator<int>(_fixture)
-                .Where(specimen => specimen < maxLength)
-                .Select(_ => new DbaseFieldLength(_))
-                .First();
+            var maxLength = new DbaseFieldLength(
+                Int32.MaxValue.ToString(CultureInfo.InvariantCulture).Length - 1
+                // because it's impossible to create a value longer than this (we need the test to generate a longer value)
+            );
+            var length = _fixture.GenerateDbaseInt32LengthLessThan(maxLength);
+            Out.WriteLine("Length used is: {0}", length.ToString());
 
             var sut =
                 new DbaseInt32(
@@ -94,6 +95,7 @@ namespace Shaperon
             var value = Enumerable
                 .Range(0, sut.Field.Length)
                 .Aggregate(1, (current, _) => current * 10);
+            Out.WriteLine("Value used is: {0}", value.ToString());
 
             Assert.Throws<ArgumentException>(() => sut.Value = value);
         }
@@ -101,17 +103,11 @@ namespace Shaperon
         [Fact]
         public void LengthOfNegativeValueBeingSetCanNotExceedFieldLength()
         {
-            var maxLength = Math.Min(
-                Math.Max(
-                    Int32.MaxValue.ToString(CultureInfo.InvariantCulture).Length,
-                    Int32.MinValue.ToString(CultureInfo.InvariantCulture).Length
-                ),
-                DbaseFieldLength.MaxLength.ToInt32()
+            var maxLength = new DbaseFieldLength(
+                Int32.MaxValue.ToString(CultureInfo.InvariantCulture).Length - 1
+                // because it's impossible to create a value longer than this (we need the test to generate a longer value)
             );
-            var length = new Generator<int>(_fixture)
-                .Where(specimen => specimen < maxLength)
-                .Select(_ => new DbaseFieldLength(_))
-                .First();
+            var length = _fixture.GenerateDbaseInt32LengthLessThan(maxLength);
 
             var sut =
                 new DbaseInt32(

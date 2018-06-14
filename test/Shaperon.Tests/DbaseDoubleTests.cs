@@ -70,10 +70,8 @@ namespace Shaperon
         public void LengthOfValueBeingSetCanNotExceedFieldLength()
         {
             var maxLength = new DbaseFieldLength(
-                Math.Max(
-                    Double.MaxValue.ToString(CultureInfo.InvariantCulture).Length,
-                    Double.MinValue.ToString(CultureInfo.InvariantCulture).Length
-                )
+                Double.MaxValue.ToString(CultureInfo.InvariantCulture).Length - 1
+                // because it's impossible to create a value longer than this (we need the test to generate a longer value)
             );
             var length = _fixture.GenerateDbaseDoubleLengthLessThan(maxLength);
             var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
@@ -100,10 +98,8 @@ namespace Shaperon
         public void LengthOfNegativeValueBeingSetCanNotExceedFieldLength()
         {
             var maxLength = new DbaseFieldLength(
-                Math.Max(
-                    Double.MaxValue.ToString(CultureInfo.InvariantCulture).Length,
-                    Double.MinValue.ToString(CultureInfo.InvariantCulture).Length
-                )
+                Double.MinValue.ToString(CultureInfo.InvariantCulture).Length - 1
+                // because it's impossible to create a value longer than this (we need the test to generate a longer value)
             );
             var length = _fixture.GenerateDbaseDoubleLengthLessThan(maxLength);
             var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
@@ -120,7 +116,7 @@ namespace Shaperon
                 );
 
             var value = Enumerable
-                .Range(0, sut.Field.Length - 1) // because the sign itself also takes a place
+                .Range(0, sut.Field.Length)
                 .Aggregate(-1d, (current, _) => current * 10d);
 
             Assert.Throws<ArgumentException>(() => sut.Value = value);

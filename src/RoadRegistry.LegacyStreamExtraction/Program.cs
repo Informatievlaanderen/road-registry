@@ -8,6 +8,7 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Threading.Tasks;
     using Events;
     using GeoAPI.Geometries;
+    using GeoAPI.IO;
     using Microsoft.Extensions.Configuration;
     using NetTopologySuite;
     using NetTopologySuite.IO;
@@ -28,16 +29,15 @@ namespace RoadRegistry.LegacyStreamExtraction
                 .AddCommandLine(args);
 
             var services = new NtsGeometryServices();
+            services.DefaultSRID = SpatialReferenceSystemIdentifier.BelgeLambert1972;
             var wkbReader = new WKBReader(services)
             {
                 HandleOrdinates = Ordinates.XYZM,
                 HandleSRID = true
             };
-            var wkbWriter = new WKBWriter()
+            var wkbWriter = new WKBWriter(ByteOrder.LittleEndian, true)
             {
-                HandleOrdinates = Ordinates.XYZM,
-                HandleSRID = true,
-                Strict = true
+                HandleOrdinates = Ordinates.XYZM
             };
 
             var root = configurationBuilder.Build();
@@ -88,10 +88,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wk.[beginorganisatie] = lo.[code]", connection
                     ).ForEachDataRecord(reader =>
                     {
-                        var wellKnownBinary = reader.GetAllBytes(3);
-                        var geometry = wkbReader.Read(wellKnownBinary);
-                        geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
-                        wellKnownBinary = wkbWriter.Write(geometry);
+                        var wellKnownBinary = wkbWriter.Write(wkbReader.Read(reader.GetAllBytes(3)));
                         var node = new ImportedRoadNode
                         {
                             Id = reader.GetInt32(0),
@@ -149,10 +146,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         WHERE ws.[eindWegknoopID] IS NOT NULL", connection
                     ).ForEachDataRecord(reader =>
                     {
-                        var wellKnownBinary = reader.GetAllBytes(4);
-                        var geometry = wkbReader.Read(wellKnownBinary);
-                        geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
-                        wellKnownBinary = wkbWriter.Write(geometry);
+                        var wellKnownBinary = wkbWriter.Write(wkbReader.Read(reader.GetAllBytes(4)));
                         var segment = new ImportedRoadSegment
                         {
                             Id = reader.GetInt32(0),
@@ -488,11 +482,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON rp.[beginorganisatie] = lo.[code]", connection
                     ).ForEachDataRecord(reader =>
                     {
-                        var wellKnownBinary = reader.GetAllBytes(1);
-                        var geometry = wkbReader.Read(wellKnownBinary);
-                        geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
-                        wellKnownBinary = wkbWriter.Write(geometry);
-
+                        var wellKnownBinary = wkbWriter.Write(wkbReader.Read(reader.GetAllBytes(1)));
                         var point = new ImportedReferencePoint
                         {
                             Id = reader.GetInt32(0),
