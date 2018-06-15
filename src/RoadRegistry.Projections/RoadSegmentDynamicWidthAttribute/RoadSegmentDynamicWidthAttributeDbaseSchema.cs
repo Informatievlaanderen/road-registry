@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.RoadSegmentDynamicWidthAttribute
+namespace RoadRegistry.Projections
 {
     using Shaperon;
 

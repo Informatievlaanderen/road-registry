@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.RoadSegmentDynamicHardeningAttribute
+namespace RoadRegistry.Projections
 {
     using Shaperon;
 

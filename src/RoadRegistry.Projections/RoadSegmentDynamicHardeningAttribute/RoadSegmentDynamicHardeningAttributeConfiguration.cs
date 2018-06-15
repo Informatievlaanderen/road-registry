@@ -4,18 +4,17 @@ namespace RoadRegistry.Projections
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-    public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentRecord>
+    public class RoadSegmentDynamicHardeningAttributeConfiguration : IEntityTypeConfiguration<RoadSegmentDynamicHardeningAttributeRecord>
     {
-        private const string TableName = "RoadSegment";
+        private const string TableName = "RoadSegmentHardeningAttribute";
 
-        public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
+        public void Configure(EntityTypeBuilder<RoadSegmentDynamicHardeningAttributeRecord> b)
         {
             b.ToTable(TableName, Schema.Shape)
                 .HasKey(p => p.Id)
                 .ForSqlServerIsClustered(false);
 
-            b.Property(p => p.ShapeRecordContent);
-            b.Property(p => p.ShapeRecordContentLength);
+            b.Property(p => p.RoadSegmentId);
             b.Property(p => p.DbaseRecord);
         }
     }

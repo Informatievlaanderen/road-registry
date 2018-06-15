@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.RoadSegmentDynamicLaneAttribute
+namespace RoadRegistry.Projections
 {
     using Shaperon;
 
