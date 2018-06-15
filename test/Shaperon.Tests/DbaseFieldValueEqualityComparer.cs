@@ -37,6 +37,11 @@ namespace Shaperon
                 Value = value.Value;
             }
 
+            public void Inspect(DbaseSingle value)
+            {
+                Value = value.Value;
+            }
+
             public void Inspect(DbaseInt32 value)
             {
                 Value = value.Value;
@@ -59,6 +64,13 @@ namespace Shaperon
             }
 
             public void Inspect(DbaseDouble value)
+            {
+                HashCode = value.Value.HasValue
+                    ? value.Value.Value.GetHashCode()
+                    : 0;
+            }
+            
+            public void Inspect(DbaseSingle value)
             {
                 HashCode = value.Value.HasValue
                     ? value.Value.Value.GetHashCode()

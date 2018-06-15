@@ -27,6 +27,16 @@ namespace Usage
                 }
             }
 
+            public void Inspect(DbaseSingle value)
+            {
+                if(value.Value.HasValue)
+                {
+                    Console.Write(value.Value.Value.ToString(""));
+                } else {
+                    Console.Write("<null>");
+                }
+            }
+
             public void Inspect(DbaseInt32 value)
             {
                 if(value.Value.HasValue)
