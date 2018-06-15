@@ -20,7 +20,7 @@ namespace RoadRegistry.Projections
         public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
         public DbSet<OrganizationRecord> Organizations { get; set; }
 
-        public ShapeContext() { }
+        public ShapeContext() {}
 
         // This needs to be DbContextOptions<T> for Autofac!
         public ShapeContext(DbContextOptions<ShapeContext> options)

@@ -6,10 +6,13 @@
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
+    using GeoAPI.Geometries;
     using Infrastructure;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using NetTopologySuite;
+    using NetTopologySuite.IO;
 
     public class ShapeRunnerModule : Module
     {
@@ -45,6 +48,12 @@
 
             containerBuilder.RegisterType<RoadShapeRunner>()
                 .SingleInstance();
+
+            containerBuilder.RegisterInstance<WKBReader>(new WKBReader(new NtsGeometryServices())
+            {
+                HandleOrdinates = Ordinates.XYZM,
+                HandleSRID = true
+            });
 
             containerBuilder.Populate(_services);
         }

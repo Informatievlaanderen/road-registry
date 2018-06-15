@@ -44,7 +44,7 @@ namespace RoadRegistry.Projections.Shape
             var app = ConfigureServices(services, configuration);
             var logger = app.GetService<ILogger<Program>>();
 
-            MigrationsHelper.Run(configuration.GetConnectionString("OsloProjectionsAdmin"), app.GetService<ILoggerFactory>());
+            MigrationsHelper.Run(configuration.GetConnectionString("ShapeProjectionsAdmin"), app.GetService<ILoggerFactory>());
 
             try
             {

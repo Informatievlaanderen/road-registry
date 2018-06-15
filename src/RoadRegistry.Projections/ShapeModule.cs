@@ -16,12 +16,12 @@
             ILoggerFactory loggerFactory)
         {
             var logger = loggerFactory.CreateLogger<ShapeModule>();
-            var osloProjectionsConnectionString = configuration.GetConnectionString("OsloProjections");
+            var projectionsConnectionString = configuration.GetConnectionString("ShapeProjections");
 
             services
                 .AddDbContext<ShapeContext>(options => options
                     .UseLoggerFactory(loggerFactory)
-                    .UseSqlServer(osloProjectionsConnectionString, sqlServerOptions =>
+                    .UseSqlServer(projectionsConnectionString, sqlServerOptions =>
                     {
                         sqlServerOptions.EnableRetryOnFailure();
                         sqlServerOptions.MigrationsHistoryTable(MigrationTables.Shape, Schema.Shape);
