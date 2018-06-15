@@ -2,9 +2,9 @@ namespace RoadRegistry.Projections.RoadSegmentDynamicHardeningAttribute
 {
     using Shaperon;
 
-    public class RoadSegmentDynamicHardeningAttributeSchema
+    public class RoadSegmentDynamicHardeningAttributeDbaseSchema
     {
-        public RoadSegmentDynamicHardeningAttributeSchema()
+        public RoadSegmentDynamicHardeningAttributeDbaseSchema()
         {
             WV_OIDN = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(WV_OIDN)),

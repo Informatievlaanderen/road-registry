@@ -1,11 +1,10 @@
 namespace RoadRegistry.Projections.RoadSegmentDynamicWidthAttribute
 {
-    using Events;
     using Shaperon;
 
-    public class RoadSegmentDynamicWidthAttributeSchema
+    public class RoadSegmentDynamicWidthAttributeDbaseSchema
     {
-        public RoadSegmentDynamicWidthAttributeSchema()
+        public RoadSegmentDynamicWidthAttributeDbaseSchema()
         {
             WB_OIDN = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(WB_OIDN)),

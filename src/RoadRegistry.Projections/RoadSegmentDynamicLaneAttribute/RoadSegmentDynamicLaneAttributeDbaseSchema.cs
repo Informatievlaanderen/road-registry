@@ -2,9 +2,9 @@ namespace RoadRegistry.Projections.RoadSegmentDynamicLaneAttribute
 {
     using Shaperon;
 
-    public class RoadSegmentDynamicLaneAttributeSchema
+    public class RoadSegmentDynamicLaneAttributeDbaseSchema
     {
-        public RoadSegmentDynamicLaneAttributeSchema()
+        public RoadSegmentDynamicLaneAttributeDbaseSchema()
         {
             RS_OIDN = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(RS_OIDN)),
