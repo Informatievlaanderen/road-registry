@@ -11,6 +11,7 @@ namespace RoadRegistry.Projections.Tests
     using NetTopologySuite;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
+    using GeoAPI.Geometries;
 
     public class RoadSegmentProjectionTests
     {
@@ -40,14 +41,10 @@ namespace RoadRegistry.Projections.Tests
                 .Select((multiLineString, index) =>
                 {
                     var polyLineMShapeContent = new PolyLineMShapeContent(multiLineString);
-                    var geometry = _fixture
-                        .Build<VersionedGeometry>()
-                        .With(g => g.WellKnownBinary, multiLineString.ToBinary())
-                        .Create();
                     var importedRoadSegment = _fixture
                         .Build<ImportedRoadSegment>()
                         .With(segment => segment.Id, index + 1)
-                        .With(segment => segment.Geometry, geometry)
+                        .With(segment => segment.Geometry, multiLineString.ToBinary())
                         .Create();
 
                     var expected = new RoadSegmentRecord
@@ -59,7 +56,7 @@ namespace RoadRegistry.Projections.Tests
                         {
                             WS_OIDN = { Value = importedRoadSegment.Id },
                             WS_UIDN = { Value = importedRoadSegment.Id + "_" + importedRoadSegment.Version },
-                            WS_GIDN = { Value = importedRoadSegment.Id + "_" + importedRoadSegment.Geometry.Version },
+                            WS_GIDN = { Value = importedRoadSegment.Id + "_" + importedRoadSegment.GeometryVersion },
                             B_WK_OIDN = { Value = importedRoadSegment.StartNodeId },
                             E_WK_OIDN = { Value = importedRoadSegment.EndNodeId },
                             STATUS = { Value = _segmentStatusTranslator.TranslateToIdentifier(importedRoadSegment.Status) },
@@ -88,7 +85,11 @@ namespace RoadRegistry.Projections.Tests
                 }).ToList();
 
             return new RoadSegmentRecordProjection(
-                    new WKBReader(new NtsGeometryServices()),
+                    new WKBReader(new NtsGeometryServices())
+                    {
+                        HandleOrdinates = Ordinates.XYZM,
+                        HandleSRID = true
+                    },
                     _segmentStatusTranslator,
                     _morphologyTranslator,
                     _categoryTranslator,

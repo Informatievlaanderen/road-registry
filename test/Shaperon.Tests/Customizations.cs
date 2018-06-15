@@ -87,6 +87,12 @@ namespace Shaperon
                 .First(specimen => specimen > 2 && specimen < maxLength);
         }
 
+        public static DbaseFieldLength GenerateDbaseInt32LengthLessThan(this IFixture fixture, DbaseFieldLength maxLength)
+        {
+            return new Generator<DbaseFieldLength>(fixture)
+                .First(specimen => specimen < maxLength);
+        }
+
         public static DbaseDecimalCount GenerateDbaseDoubleDecimalCount(this IFixture fixture, DbaseFieldLength length)
         {
             return new Generator<DbaseDecimalCount>(fixture)
