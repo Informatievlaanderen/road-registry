@@ -81,6 +81,15 @@ namespace Shaperon
             return new Generator<DbaseFieldLength>(fixture)
                 .First(specimen => specimen < maxLength);
         }
+        
+        public static void CustomizeDbaseCodePage(this IFixture fixture)
+        {
+            fixture.Customize<DbaseCodePage>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => DbaseCodePage.All[value % DbaseCodePage.All.Length]
+                    ));
+        }
 
         public static DbaseFieldLength GenerateDbaseDoubleLength(this IFixture fixture)
         {
