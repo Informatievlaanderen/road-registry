@@ -10,31 +10,31 @@ namespace Shaperon
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class DbaseDoubleTests
+    public class DbaseSingleTests
     {
         private readonly Fixture _fixture;
 
-        public DbaseDoubleTests()
+        public DbaseSingleTests()
         {
             _fixture = new Fixture();
             _fixture.CustomizeDbaseFieldName();
             _fixture.CustomizeDbaseFieldLength();
             _fixture.CustomizeDbaseDecimalCount();
-            _fixture.CustomizeDbaseDouble();
+            _fixture.CustomizeDbaseSingle();
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
         }
 
         [Fact]
-        public void CreateFailsIfFieldIsNotNumber()
+        public void CreateFailsIfFieldIsNotFloat()
         {
             var fieldType = new Generator<DbaseFieldType>(_fixture)
-                .First(specimen => specimen != DbaseFieldType.Number);
-            var length = _fixture.GenerateDbaseDoubleLength();
-            var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
+                .First(specimen => specimen != DbaseFieldType.Float);
+            var length = _fixture.GenerateDbaseSingleLength();
+            var decimalCount = _fixture.GenerateDbaseSingleDecimalCount(length);
             Assert.Throws<ArgumentException>(
                 () =>
-                    new DbaseDouble(
+                    new DbaseSingle(
                         new DbaseField(
                             _fixture.Create<DbaseFieldName>(),
                             fieldType,
@@ -49,38 +49,38 @@ namespace Shaperon
         [Fact]
         public void IsDbaseFieldValue()
         {
-            Assert.IsAssignableFrom<DbaseFieldValue>(_fixture.Create<DbaseDouble>());
+            Assert.IsAssignableFrom<DbaseFieldValue>(_fixture.Create<DbaseSingle>());
         }
 
         [Fact]
         public void ReaderCanNotBeNull()
         {
             new GuardClauseAssertion(_fixture)
-                .Verify(new Methods<DbaseDouble>().Select(instance => instance.Read(null)));
+                .Verify(new Methods<DbaseSingle>().Select(instance => instance.Read(null)));
         }
 
         [Fact]
         public void WriterCanNotBeNull()
         {
             new GuardClauseAssertion(_fixture)
-                .Verify(new Methods<DbaseDouble>().Select(instance => instance.Write(null)));
+                .Verify(new Methods<DbaseSingle>().Select(instance => instance.Write(null)));
         }
 
         [Fact]
         public void LengthOfValueBeingSetCanNotExceedFieldLength()
         {
             var maxLength = new DbaseFieldLength(
-                Double.MaxValue.ToString(CultureInfo.InvariantCulture).Length - 1
+                Single.MaxValue.ToString(CultureInfo.InvariantCulture).Length - 1
                 // because it's impossible to create a value longer than this (we need the test to generate a longer value)
             );
-            var length = _fixture.GenerateDbaseDoubleLengthLessThan(maxLength);
-            var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
+            var length = _fixture.GenerateDbaseSingleLengthLessThan(maxLength);
+            var decimalCount = _fixture.GenerateDbaseSingleDecimalCount(length);
 
             var sut =
-                new DbaseDouble(
+                new DbaseSingle(
                     new DbaseField(
                         _fixture.Create<DbaseFieldName>(),
-                        DbaseFieldType.Number,
+                        DbaseFieldType.Float,
                         _fixture.Create<ByteOffset>(),
                         length,
                         decimalCount
@@ -89,7 +89,7 @@ namespace Shaperon
 
             var value = Enumerable
                 .Range(0, sut.Field.Length)
-                .Aggregate(1d, (current, _) => current * 10d);
+                .Aggregate(1f, (current, _) => current * 10f);
 
             Assert.Throws<ArgumentException>(() => sut.Value = value);
         }
@@ -98,17 +98,17 @@ namespace Shaperon
         public void LengthOfNegativeValueBeingSetCanNotExceedFieldLength()
         {
             var maxLength = new DbaseFieldLength(
-                Double.MinValue.ToString(CultureInfo.InvariantCulture).Length - 1
+                Single.MinValue.ToString(CultureInfo.InvariantCulture).Length - 1
                 // because it's impossible to create a value longer than this (we need the test to generate a longer value)
             );
-            var length = _fixture.GenerateDbaseDoubleLengthLessThan(maxLength);
-            var decimalCount = _fixture.GenerateDbaseDoubleDecimalCount(length);
+            var length = _fixture.GenerateDbaseSingleLengthLessThan(maxLength);
+            var decimalCount = _fixture.GenerateDbaseSingleDecimalCount(length);
 
             var sut =
-                new DbaseDouble(
+                new DbaseSingle(
                     new DbaseField(
                         _fixture.Create<DbaseFieldName>(),
-                        DbaseFieldType.Number,
+                        DbaseFieldType.Float,
                         _fixture.Create<ByteOffset>(),
                         length,
                         decimalCount
@@ -117,7 +117,7 @@ namespace Shaperon
 
             var value = Enumerable
                 .Range(0, sut.Field.Length)
-                .Aggregate(-1d, (current, _) => current * 10d);
+                .Aggregate(-1f, (current, _) => current * 10f);
 
             Assert.Throws<ArgumentException>(() => sut.Value = value);
         }
@@ -125,7 +125,7 @@ namespace Shaperon
         [Fact]
         public void CanReadWriteNull()
         {
-            var sut = _fixture.Create<DbaseDouble>();
+            var sut = _fixture.Create<DbaseSingle>();
             sut.Value = null;
 
             using (var stream = new MemoryStream())
@@ -140,7 +140,7 @@ namespace Shaperon
 
                 using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
                 {
-                    var result = new DbaseDouble(sut.Field);
+                    var result = new DbaseSingle(sut.Field);
                     result.Read(reader);
 
                     Assert.Equal(sut.Field, result.Field);
@@ -152,8 +152,8 @@ namespace Shaperon
         [Fact]
         public void CanReadWriteNegative()
         {
-            var value = Math.Abs(_fixture.Create<double>()) * -1d;
-            var sut = _fixture.Create<DbaseDouble>();
+            var value = Math.Abs(_fixture.Create<float>()) * -1f;
+            var sut = _fixture.Create<DbaseSingle>();
             sut.Value = value;
 
             using (var stream = new MemoryStream())
@@ -168,7 +168,7 @@ namespace Shaperon
 
                 using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
                 {
-                    var result = new DbaseDouble(sut.Field);
+                    var result = new DbaseSingle(sut.Field);
                     result.Read(reader);
 
                     Assert.Equal(sut.Field, result.Field);
@@ -181,21 +181,19 @@ namespace Shaperon
         [Fact]
         public void CanReadWriteWithMaxDecimalCount()
         {
-            var length = _fixture.GenerateDbaseDoubleLength();
-            // var generator = new Generator<double>(_fixture)
-            //     .First(value => value.ToString())
+            var length = _fixture.GenerateDbaseSingleLength();
             var decimalCount = new DbaseDecimalCount(length - 2);
             var sut =
-                new DbaseDouble(
+                new DbaseSingle(
                     new DbaseField(
                         _fixture.Create<DbaseFieldName>(),
-                        DbaseFieldType.Number,
+                        DbaseFieldType.Float,
                         _fixture.Create<ByteOffset>(),
                         length,
                         decimalCount
                     )
                 );
-            sut.Value = Convert.ToDouble(_fixture.Create<int>()) + _fixture.Create<double>();
+            sut.Value = Convert.ToSingle(_fixture.Create<int>()) + _fixture.Create<float>();
 
             using (var stream = new MemoryStream())
             {
@@ -209,7 +207,7 @@ namespace Shaperon
 
                 using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
                 {
-                    var result = new DbaseDouble(sut.Field);
+                    var result = new DbaseSingle(sut.Field);
                     result.Read(reader);
 
                     Assert.Equal(sut.Field, result.Field);
@@ -221,7 +219,7 @@ namespace Shaperon
         [Fact]
         public void CanReadWrite()
         {
-            var sut = _fixture.Create<DbaseDouble>();
+            var sut = _fixture.Create<DbaseSingle>();
 
             using (var stream = new MemoryStream())
             {
@@ -235,7 +233,7 @@ namespace Shaperon
 
                 using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
                 {
-                    var result = new DbaseDouble(sut.Field);
+                    var result = new DbaseSingle(sut.Field);
                     result.Read(reader);
 
                     Assert.Equal(sut.Field, result.Field);

@@ -4,48 +4,48 @@ using System.IO;
 
 namespace Shaperon
 {
-    public class DbaseDouble : DbaseFieldValue
+    public class DbaseSingle : DbaseFieldValue
     {
-        private static readonly NumberFormatInfo DoubleNumberFormat = new NumberFormatInfo { NumberDecimalSeparator = "." };
-        private const int MaximumDoublePrecision = 15;
+        private static readonly NumberFormatInfo SingleNumberFormat = new NumberFormatInfo { NumberDecimalSeparator = "." };
+        private const int MaximumSinglePrecision = 7;
 
-        private double? _value;
+        private float? _value;
 
-        public DbaseDouble(DbaseField field, double? value = null) : base(field)
+        public DbaseSingle(DbaseField field, float? value = null) : base(field)
         {
-            if (field.FieldType != DbaseFieldType.Number)
+            if (field.FieldType != DbaseFieldType.Float)
             {
-                throw new ArgumentException($"The field {field.Name} 's type must be number to use it as a double field.", nameof(field));
+                throw new ArgumentException($"The field {field.Name} 's type must be float to use it as a single field.", nameof(field));
             }
 
             Value = value;
         }
 
-        public double? Value
+        public float? Value
         {
             get => _value;
             set {
                 if(value.HasValue)
                 {
-                    // if(Double.IsNaN(value.Value))
+                    // if(Single.IsNaN(value.Value))
                     // {
                     //     throw new ArgumentException($"The value of field {Field.Name} can not be not-a-number (NaN).");
                     // }
 
-                    // if(Double.IsNegativeInfinity(value.Value))
+                    // if(Single.IsNegativeInfinity(value.Value))
                     // {
                     //     throw new ArgumentException($"The value of field {Field.Name} can not be negative infinite.");
                     // }
 
-                    // if(Double.IsPositiveInfinity(value.Value))
+                    // if(Single.IsPositiveInfinity(value.Value))
                     // {
                     //     throw new ArgumentException($"The value of field {Field.Name} can not be positive infinite.");
                     // }
 
                     if(Field.DecimalCount == 0)
                     {
-                        var truncated = Math.Truncate(value.Value);
-                        var length = truncated.ToString("0", DoubleNumberFormat).Length;
+                        var truncated = (float)Math.Truncate(value.Value);
+                        var length = truncated.ToString("0", SingleNumberFormat).Length;
                         if(length > Field.Length)
                         {
                             throw new ArgumentException($"The length ({length}) of the value ({truncated}) of field {Field.Name} is greater than its field length {Field.Length}, which would result in loss of precision.");
@@ -54,9 +54,9 @@ namespace Shaperon
                     }
                     else
                     {
-                        var digits = Math.Min(Field.DecimalCount.ToInt32(), MaximumDoublePrecision);
-                        var rounded = Math.Round(value.Value, digits);
-                        var length = rounded.ToString("0.0##############", DoubleNumberFormat).Length;
+                        var digits = Math.Min(Field.DecimalCount.ToInt32(), MaximumSinglePrecision);
+                        var rounded = (float)Math.Round(value.Value, digits);
+                        var length = rounded.ToString("0.0######", SingleNumberFormat).Length;
                         if(length > Field.Length)
                         {
                             throw new ArgumentException($"The length ({length}) of the value ({rounded}) of field {Field.Name} is greater than its field length {Field.Length}, which would result in loss of precision.");
@@ -86,7 +86,7 @@ namespace Shaperon
             else
             {
                 var unpadded = reader.ReadLeftPaddedString(Field.Length, ' ');
-                if (double.TryParse(unpadded, NumberStyles.Float | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, DoubleNumberFormat, out var parsed))
+                if (float.TryParse(unpadded, NumberStyles.Float | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, SingleNumberFormat, out var parsed))
                 {
                     Value = parsed;
                 }
@@ -110,16 +110,16 @@ namespace Shaperon
                 //where 0 before the decimal separator appears once
                 //      . appears once
                 //      0 after the decimal separator appears once
-                //      # appears 14 times (max precision is 15 digits for doubles)
+                //      # appears 6 times (max precision is 7 digits for floats)
 
                 //When decimal count = 0, the format is #--#
                 //where # appears length times
 
                 var format =
                     Field.DecimalCount > 0
-                    ? "0.0##############"
+                    ? "0.0######"
                     : new string('#', Field.Length);
-                var unpadded = Value.Value.ToString(format, DoubleNumberFormat);
+                var unpadded = Value.Value.ToString(format, SingleNumberFormat);
                 writer.WriteLeftPaddedString(unpadded, Field.Length, ' ');
             }
             else

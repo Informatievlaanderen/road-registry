@@ -76,6 +76,12 @@ namespace Shaperon
                     ));
         }
 
+        public static DbaseFieldLength GenerateDbaseInt32LengthLessThan(this IFixture fixture, DbaseFieldLength maxLength)
+        {
+            return new Generator<DbaseFieldLength>(fixture)
+                .First(specimen => specimen < maxLength);
+        }
+
         public static DbaseFieldLength GenerateDbaseDoubleLength(this IFixture fixture)
         {
             return new Generator<DbaseFieldLength>(fixture)
@@ -88,13 +94,25 @@ namespace Shaperon
                 .First(specimen => specimen > 2 && specimen < maxLength);
         }
 
-        public static DbaseFieldLength GenerateDbaseInt32LengthLessThan(this IFixture fixture, DbaseFieldLength maxLength)
+        public static DbaseDecimalCount GenerateDbaseDoubleDecimalCount(this IFixture fixture, DbaseFieldLength length)
         {
-            return new Generator<DbaseFieldLength>(fixture)
-                .First(specimen => specimen < maxLength);
+            return new Generator<DbaseDecimalCount>(fixture)
+                .First(specimen => specimen < length - 2);
         }
 
-        public static DbaseDecimalCount GenerateDbaseDoubleDecimalCount(this IFixture fixture, DbaseFieldLength length)
+        public static DbaseFieldLength GenerateDbaseSingleLength(this IFixture fixture)
+        {
+            return new Generator<DbaseFieldLength>(fixture)
+                .First(specimen => specimen > 2);
+        }
+
+        public static DbaseFieldLength GenerateDbaseSingleLengthLessThan(this IFixture fixture, DbaseFieldLength maxLength)
+        {
+            return new Generator<DbaseFieldLength>(fixture)
+                .First(specimen => specimen > 2 && specimen < maxLength);
+        }
+
+        public static DbaseDecimalCount GenerateDbaseSingleDecimalCount(this IFixture fixture, DbaseFieldLength length)
         {
             return new Generator<DbaseDecimalCount>(fixture)
                 .First(specimen => specimen < length - 2);
@@ -107,7 +125,7 @@ namespace Shaperon
                     customization.FromFactory<int>(
                         value => {
                             DbaseField field;
-                            switch(value % 3)
+                            switch(value % 4)
                             {
                                 case 1: // datetime
                                     field = new DbaseField(
@@ -119,14 +137,25 @@ namespace Shaperon
                                     );
                                     break;
                                 case 2: // number
-                                    var length = fixture.GenerateDbaseDoubleLength();
-                                    var decimalCount = fixture.GenerateDbaseDoubleDecimalCount(length);
+                                    var doubleLength = fixture.GenerateDbaseDoubleLength();
+                                    var doubleDecimalCount = fixture.GenerateDbaseDoubleDecimalCount(doubleLength);
                                     field = new DbaseField(
                                         fixture.Create<DbaseFieldName>(),
                                         DbaseFieldType.Number,
                                         fixture.Create<ByteOffset>(),
-                                        length,
-                                        decimalCount
+                                        doubleLength,
+                                        doubleDecimalCount
+                                    );
+                                    break;
+                                case 3: // float
+                                    var singleLength = fixture.GenerateDbaseSingleLength();
+                                    var singleDecimalCount = fixture.GenerateDbaseSingleDecimalCount(singleLength);
+                                    field = new DbaseField(
+                                        fixture.Create<DbaseFieldName>(),
+                                        DbaseFieldType.Number,
+                                        fixture.Create<ByteOffset>(),
+                                        singleLength,
+                                        singleDecimalCount
                                     );
                                     break;
                                 default:
@@ -203,6 +232,28 @@ namespace Shaperon
                                     new DbaseField(
                                         fixture.Create<DbaseFieldName>(),
                                         DbaseFieldType.Number,
+                                        fixture.Create<ByteOffset>(),
+                                        length,
+                                        decimalCount
+                                    ), value);
+                            }
+                        )
+                        .OmitAutoProperties());
+        }
+
+        public static void CustomizeDbaseSingle(this IFixture fixture)
+        {
+            fixture.Customize<DbaseSingle>(
+                customization =>
+                    customization
+                        .FromFactory<float?>(
+                            value => {
+                                var length = fixture.GenerateDbaseSingleLength();
+                                var decimalCount = fixture.GenerateDbaseSingleDecimalCount(length);
+                                return new DbaseSingle(
+                                    new DbaseField(
+                                        fixture.Create<DbaseFieldName>(),
+                                        DbaseFieldType.Float,
                                         fixture.Create<ByteOffset>(),
                                         length,
                                         decimalCount

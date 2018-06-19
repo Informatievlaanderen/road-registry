@@ -93,6 +93,44 @@ namespace Shaperon
         }
 
         [Fact]
+        public void CreateFloatFieldFailsWhenDecimalCountIsNotZeroAndNotLessThanLengthMinus2()
+        {
+            var length = _fixture.Create<DbaseFieldLength>();
+            var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
+                .First(specimen => specimen.ToInt32() >= length.ToInt32() - 2);
+            Assert.Throws<ArgumentException>(() =>
+                new DbaseField(
+                    _fixture.Create<DbaseFieldName>(),
+                    DbaseFieldType.Float,
+                    _fixture.Create<ByteOffset>(),
+                    length,
+                    decimalCount));
+        }
+
+        [Fact]
+        public void CreateFloatFieldReturnsExpectedResultWhenDecimalCountIsZeroAndNotLessThanLengthMinus2()
+        {
+            var name = _fixture.Create<DbaseFieldName>();
+            var offset = _fixture.Create<ByteOffset>();
+            //var length = _fixture.Create<DbaseFieldLength>();
+            var length = new DbaseFieldLength(1);
+            var decimalCount = new DbaseDecimalCount(0);
+            var result =
+                new DbaseField(
+                    name,
+                    DbaseFieldType.Float,
+                    offset,
+                    length,
+                    decimalCount);
+
+            Assert.Equal(name, result.Name);
+            Assert.Equal(DbaseFieldType.Float, result.FieldType);
+            Assert.Equal(offset, result.Offset);
+            Assert.Equal(length, result.Length);
+            Assert.Equal(decimalCount, result.DecimalCount);
+        }
+
+        [Fact]
         public void CreateDateTimeFieldFailsWhenLengthIsNot15()
         {
             var length = new Generator<DbaseFieldLength>(_fixture)
@@ -215,6 +253,43 @@ namespace Shaperon
                 decimalCount));
         }
 
+        [Fact]
+        public void CreateSingleFieldReturnsExpectedResult()
+        {
+            var name = _fixture.Create<DbaseFieldName>();
+            var offset =_fixture.Create<ByteOffset>();
+            var length = _fixture.GenerateDbaseSingleLength();
+            var decimalCount = _fixture.GenerateDbaseSingleDecimalCount(length);
+
+            var result = DbaseField.CreateSingleField(
+                name,
+                offset,
+                length,
+                decimalCount);
+
+            Assert.Equal(name, result.Name);
+            Assert.Equal(DbaseFieldType.Float, result.FieldType);
+            Assert.Equal(offset, result.Offset);
+            Assert.Equal(length, result.Length);
+            Assert.Equal(decimalCount, result.DecimalCount);
+        }
+
+        [Fact]
+        public void CreateSingleFieldThrowsWhenDecimalCountGreaterThanOrEqualToLength()
+        {
+            var name = _fixture.Create<DbaseFieldName>();
+            var offset =_fixture.Create<ByteOffset>();
+            var length = _fixture.Create<DbaseFieldLength>();
+            var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
+                .First(specimen => specimen.ToInt32() >= length.ToInt32());
+
+            Assert.Throws<ArgumentException>(() => DbaseField.CreateSingleField(
+                name,
+                offset,
+                length,
+                decimalCount));
+        }
+
         // Field value factory related tests
 
         [Fact]
@@ -255,6 +330,31 @@ namespace Shaperon
             else
             {
                 Assert.IsType<DbaseDouble>(result);
+            }
+        }
+
+        [Fact]
+        public void CreateFloatFieldValueReturnsExpectedResult()
+        {
+            var length = _fixture.GenerateDbaseSingleLength();
+            var decimalCount = _fixture.GenerateDbaseSingleDecimalCount(length);
+            var sut = new DbaseField(
+                _fixture.Create<DbaseFieldName>(),
+                DbaseFieldType.Float,
+                _fixture.Create<ByteOffset>(),
+                length,
+                decimalCount);
+
+            var result = sut.CreateFieldValue();
+
+            Assert.Equal(sut, result.Field);
+            if(sut.DecimalCount == 0)
+            {
+                Assert.IsType<DbaseInt32>(result);
+            }
+            else
+            {
+                Assert.IsType<DbaseSingle>(result);
             }
         }
 

@@ -24,6 +24,16 @@ namespace Shaperon
                     }
                 },
                 {
+                    DbaseFieldType.Float,
+                    field => {
+                        if(field.DecimalCount == 0)
+                        {
+                            return new DbaseInt32(field);
+                        }
+                        return new DbaseSingle(field);
+                    }
+                },
+                {
                     DbaseFieldType.DateTime,
                     field => new DbaseDateTime(field)
                 }
@@ -59,6 +69,12 @@ namespace Shaperon
                         throw new ArgumentException($"The number field {name} decimal count ({decimalCount}) must be 2 less than its length ({length}).");
                     }
                     break;
+                case DbaseFieldType.Float:
+                    if(decimalCount != 0 && decimalCount > length - 2)
+                    {
+                        throw new ArgumentException($"The float field {name} decimal count ({decimalCount}) must be 2 less than its length ({length}).");
+                    }
+                    break;
             }
             Name = name;
             FieldType = fieldType;
@@ -85,6 +101,11 @@ namespace Shaperon
         public static DbaseField CreateDoubleField(DbaseFieldName name, ByteOffset offset, DbaseFieldLength length, DbaseDecimalCount decimalCount)
         {
             return new DbaseField(name, DbaseFieldType.Number, offset, length, decimalCount);
+        }
+
+        public static DbaseField CreateSingleField(DbaseFieldName name, ByteOffset offset, DbaseFieldLength length, DbaseDecimalCount decimalCount)
+        {
+            return new DbaseField(name, DbaseFieldType.Float, offset, length, decimalCount);
         }
 
         public DbaseFieldName Name { get; }

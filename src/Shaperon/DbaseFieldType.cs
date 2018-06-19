@@ -4,6 +4,7 @@
     {
         Number = (byte)'N',
         DateTime = (byte)'T',
-        Character = (byte)'C'
+        Character = (byte)'C',
+        Float = (byte)'F'
     }
 }
