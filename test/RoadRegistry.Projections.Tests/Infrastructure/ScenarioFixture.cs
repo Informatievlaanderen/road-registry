@@ -18,7 +18,8 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             Customizations.Add(new LimitedLengthStringBuilder<Maintainer>(segment => segment.Code, RoadSegmentDbaseRecord.Schema.BEHEER.Length));
             Customizations.Add(new LimitedLengthStringBuilder<Maintainer>(segment => segment.Name, RoadSegmentDbaseRecord.Schema.LBLBEHEER.Length));
             Customizations.Add(new LimitedLengthStringBuilder<ImportedReferencePoint>(point => point.Ident8, RoadReferencePointDbaseRecord.Schema.IDENT8.Length));
-            Customizations.Add(new LimitedLengthIntegerBuilder<RoadSegmentLaneProperties>(lanes => lanes.Count, RoadSegmentDynamicLaneAttributeDbaseRecord.Schema.AANTAL.Length));
+            Customizations.Add(new LimitedLengthIntegerBuilder<RoadSegmentLaneProperties>(lane => lane.Count, RoadSegmentDynamicLaneAttributeDbaseRecord.Schema.AANTAL.Length));
+            Customizations.Add(new LimitedLengthIntegerBuilder<RoadSegmentWidthProperties>(width => width.Width, RoadSegmentDynamicWidthAttributeDbaseRecord.Schema.BREEDTE.Length));
 
             Customize<Point>(customization =>
                 customization.FromFactory(generator =>

@@ -57,7 +57,7 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             records.AddRange(await context.RoadSegments.ToListAsync());
             records.AddRange(await context.RoadReferencePoints.ToListAsync());
             records.AddRange(await context.RoadLaneAttrubutes.ToListAsync());
-//            records.AddRange(await context.RoadWidthAttrubutes.ToListAsync());
+            records.AddRange(await context.RoadWidthAttrubutes.ToListAsync());
 //            records.AddRange(await context.RoadHardeningAttrubutes.ToListAsync());
 
             return records;
