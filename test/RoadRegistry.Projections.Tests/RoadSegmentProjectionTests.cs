@@ -38,12 +38,11 @@ namespace RoadRegistry.Projections.Tests
         {
             var data = _fixture
                 .CreateMany<MultiLineString>(new Random().Next(1, 10))
-                .Select((multiLineString, index) =>
+                .Select(multiLineString =>
                 {
                     var polyLineMShapeContent = new PolyLineMShapeContent(multiLineString);
                     var importedRoadSegment = _fixture
                         .Build<ImportedRoadSegment>()
-                        .With(segment => segment.Id, index + 1)
                         .With(segment => segment.Geometry, multiLineString.ToBinary())
                         .Create();
 

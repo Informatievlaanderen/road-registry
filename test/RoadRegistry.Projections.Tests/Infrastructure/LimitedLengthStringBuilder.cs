@@ -6,12 +6,12 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
     using AutoFixture;
     using AutoFixture.Kernel;
 
-    public class StringPropertyTruncateSpecimenBuilder<TEntity> : ISpecimenBuilder
+    public class LimitedLengthStringBuilder<TEntity> : ISpecimenBuilder
     {
         private readonly int _length;
         private readonly PropertyInfo _prop;
 
-        public StringPropertyTruncateSpecimenBuilder(Expression<Func<TEntity, string>> getter, int length)
+        public LimitedLengthStringBuilder(Expression<Func<TEntity, string>> getter, int length)
         {
             _length = length;
             _prop = (PropertyInfo)((MemberExpression)getter.Body).Member;
