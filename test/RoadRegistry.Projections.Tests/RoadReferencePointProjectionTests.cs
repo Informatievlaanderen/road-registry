@@ -29,13 +29,12 @@ namespace RoadRegistry.Projections.Tests
         {
             var data = _fixture
                 .CreateMany<Point>(new Random().Next(1,10))
-                .Select((point, i) =>
+                .Select(point =>
                 {
                     var pointShapeContent = new PointShapeContent(point);
 
                     var importedReferencePoint = _fixture
                         .Build<ImportedReferencePoint>()
-                        .With(referencePoint => referencePoint.Id, i + 124)
                         .With(referencePoint => referencePoint.Geometry, point.ToBinary())
                         .Create();
 

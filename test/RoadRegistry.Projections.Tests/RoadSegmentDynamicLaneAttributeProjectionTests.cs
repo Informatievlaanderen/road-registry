@@ -1,0 +1,74 @@
+namespace RoadRegistry.Projections.Tests
+{
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using AutoFixture;
+    using Events;
+    using Infrastructure;
+    using Xunit;
+
+    public class RoadSegmentDynamicLaneAttributeProjectionTests
+    {
+        private readonly ScenarioFixture _fixture;
+        private readonly LaneDirectionTranslator _laneDirectionTranslator;
+
+        public RoadSegmentDynamicLaneAttributeProjectionTests()
+        {
+            _fixture = new ScenarioFixture();
+            _laneDirectionTranslator = new LaneDirectionTranslator();
+        }
+
+        [Fact]
+        public Task When_importing_road_nodes()
+        {
+            var random = new Random();
+            var data = _fixture
+                .CreateMany<ImportedRoadSegment>(random.Next(1, 3))
+                .Select(segment =>
+                {
+                    segment.Lanes = _fixture
+                        .CreateMany<RoadSegmentLaneProperties>(random.Next(0, 5))
+                        .ToArray();
+
+                    var expected = segment
+                        .Lanes
+                        .Select(lane => new RoadSegmentDynamicLaneAttributeRecord
+                        {
+                            Id = lane.AttributeId,
+                            RoadSegmentId = segment.Id,
+                            DbaseRecord = new RoadSegmentDynamicLaneAttributeDbaseRecord
+                            {
+                                RS_OIDN = { Value = lane.AttributeId },
+                                WS_OIDN = { Value = segment.Id },
+                                WS_GIDN = { Value = segment.Id + "_" + segment.GeometryVersion },
+                                AANTAL =  { Value = lane.Count },
+                                RICHTING = { Value = _laneDirectionTranslator.TranslateToIdentifier(lane.Direction) },
+                                LBLRICHT = { Value = _laneDirectionTranslator.TranslateToDutchName(lane.Direction) },
+                                VANPOS = { Value = (double)lane.FromPosition },
+                                TOTPOS = { Value = (double)lane.ToPosition },
+                                BEGINTIJD = { Value = lane.Origin.Since },
+                                BEGINORG = { Value = lane.Origin.OrganizationId },
+                                LBLBGNORG = { Value = lane.Origin.Organization },
+                            }.ToBytes()
+                        });
+
+                    return new
+                    {
+                        importedRoadSegment = segment,
+                        expected,
+                    };
+
+                }).ToList();
+
+            return new RoadSegmentDynamicLaneAttributeProjection(_laneDirectionTranslator)
+                .Scenario()
+                .Given(data.Select(d => d.importedRoadSegment))
+                .Expect(data
+                    .SelectMany(d => d.expected)
+                    .Cast<object>()
+                    .ToArray()
+                );
+        }
+    }
+}

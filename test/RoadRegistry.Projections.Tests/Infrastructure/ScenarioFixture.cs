@@ -2,7 +2,6 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
 {
     using System;
     using System.Linq;
-    using System.Linq.Expressions;
     using AutoFixture;
     using AutoFixture.Dsl;
     using Events;
@@ -13,6 +12,14 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
     {
         public ScenarioFixture()
         {
+            Customizations.Add(new IdentifierBuilder());
+            Customizations.Add(new LimitedLengthStringBuilder<OriginProperties>(p => p.OrganizationId, RoadNodeDbaseRecord.Schema.BEGINORG.Length));
+            Customizations.Add(new LimitedLengthStringBuilder<OriginProperties>(p => p.Organization, RoadNodeDbaseRecord.Schema.LBLBGINORG.Length));
+            Customizations.Add(new LimitedLengthStringBuilder<Maintainer>(segment => segment.Code, RoadSegmentDbaseRecord.Schema.BEHEER.Length));
+            Customizations.Add(new LimitedLengthStringBuilder<Maintainer>(segment => segment.Name, RoadSegmentDbaseRecord.Schema.LBLBEHEER.Length));
+            Customizations.Add(new LimitedLengthStringBuilder<ImportedReferencePoint>(point => point.Ident8, RoadReferencePointDbaseRecord.Schema.IDENT8.Length));
+            Customizations.Add(new LimitedLengthIntegerBuilder<RoadSegmentLaneProperties>(lanes => lanes.Count, RoadSegmentDynamicLaneAttributeDbaseRecord.Schema.AANTAL.Length));
+
             Customize<Point>(customization =>
                 customization.FromFactory(generator =>
                     new Point(generator.NextDouble(), generator.NextDouble())
@@ -33,20 +40,9 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
                         )
                     ).OmitAutoProperties());
 
-            Customize<Coordinate>(composer => composer.OmitAutoProperties());
-
-            LimitFieldLength<OriginProperties>(p => p.OrganizationId, RoadNodeDbaseRecord.Schema.BEGINORG.Length);
-            LimitFieldLength<OriginProperties>(p => p.Organization, RoadNodeDbaseRecord.Schema.LBLBGINORG.Length);
-
-            LimitFieldLength<Maintainer>(segment => segment.Code, RoadSegmentDbaseRecord.Schema.BEHEER.Length);
-            LimitFieldLength<Maintainer>(segment => segment.Name, RoadSegmentDbaseRecord.Schema.LBLBEHEER.Length);
-
-            LimitFieldLength<ImportedReferencePoint>(point => point.Ident8, RoadReferencePointDbaseRecord.Schema.IDENT8.Length);
-        }
-
-        private void LimitFieldLength<T>(Expression<Func<T, string>> field, int length)
-        {
-            Customizations.Add(new StringPropertyTruncateSpecimenBuilder<T>(field, length));
+            Customize<Coordinate>(customizations =>
+                customizations.OmitAutoProperties()
+            );
         }
     }
 
