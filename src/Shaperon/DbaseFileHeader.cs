@@ -8,18 +8,20 @@ namespace Shaperon
         public const int MaximumFileSize = 1073741824; // 1 GB
         public const byte Terminator = 0x0d;
         public const byte ExpectedDbaseFormat = 0x03;
-        private const int HeaderMetaDataSize = 33;
-        private const int FieldMetaDataSize = 32;
+        public const int HeaderMetaDataSize = 33;
+        public const int FieldMetaDataSize = 32;
 
-        public DbaseFileHeader(DateTime lastUpdated, int recordCount, int recordLength, DbaseField[] recordFields)
+        public DbaseFileHeader(DateTime lastUpdated, DbaseCodePage codePage, int recordCount, int recordLength, DbaseField[] recordFields)
         {
             LastUpdated = lastUpdated.RoundToDay();
+            CodePage = codePage;
             RecordCount = recordCount;
             RecordLength = recordLength;
             RecordFields = recordFields;
         }
 
         public DateTime LastUpdated { get; }
+        public DbaseCodePage CodePage { get; }
         public int RecordCount { get; }
         public int RecordLength { get; }
         public DbaseField[] RecordFields { get; }
@@ -28,7 +30,7 @@ namespace Shaperon
         {
             if (reader == null)
             {
-                throw new System.ArgumentNullException(nameof(reader));
+                throw new ArgumentNullException(nameof(reader));
             }
 
             if (reader.ReadByte() != ExpectedDbaseFormat)
@@ -39,7 +41,13 @@ namespace Shaperon
             var recordCount = reader.ReadInt32();
             var headerLength = reader.ReadInt16();
             var recordLength = reader.ReadInt16();
-            reader.ReadBytes(20);
+            reader.ReadBytes(16);
+            var rawCodePage = reader.ReadByte();
+            if(!DbaseCodePage.TryParse(rawCodePage, out DbaseCodePage codePage))
+            {
+                throw new DbaseFileHeaderException($"The database code page {rawCodePage} is not supported.");
+            }
+            reader.ReadBytes(3);
             var recordFieldCount = (headerLength - HeaderMetaDataSize) / FieldMetaDataSize;
             var recordFields = new DbaseField[recordFieldCount];
             for (var recordFieldIndex = 0; recordFieldIndex < recordFieldCount; recordFieldIndex++)
@@ -54,7 +62,7 @@ namespace Shaperon
             var bytesToSkip = headerLength - (HeaderMetaDataSize + (FieldMetaDataSize * recordFieldCount));
             reader.ReadBytes(bytesToSkip);
 
-            return new DbaseFileHeader(lastUpdated, recordCount, recordLength, recordFields);
+            return new DbaseFileHeader(lastUpdated, codePage, recordCount, recordLength, recordFields);
         }
 
         public void Write(BinaryWriter writer)
@@ -72,7 +80,9 @@ namespace Shaperon
             var headerLength = HeaderMetaDataSize + (FieldMetaDataSize * RecordFields.Length);
             writer.Write(Convert.ToInt16(headerLength));
             writer.Write(Convert.ToInt16(RecordLength));
-            writer.Write(new byte[20]);
+            writer.Write(new byte[16]);
+            writer.Write(CodePage.ToByte());
+            writer.Write(new byte[3]);
             foreach(var recordField in RecordFields)
             {
                 recordField.Write(writer);

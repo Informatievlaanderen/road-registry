@@ -2,7 +2,7 @@ using System;
 
 namespace Shaperon
 {
-    public struct DbaseDecimalCount : IEquatable<DbaseDecimalCount>
+    public readonly struct DbaseDecimalCount : IEquatable<DbaseDecimalCount>
     {
         private readonly int _value;
 

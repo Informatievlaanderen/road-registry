@@ -2,7 +2,7 @@ using System;
 
 namespace Shaperon
 {
-    public struct DbaseFieldName : IEquatable<DbaseFieldName>
+    public readonly struct DbaseFieldName : IEquatable<DbaseFieldName>
     {
         private readonly string _value;
 

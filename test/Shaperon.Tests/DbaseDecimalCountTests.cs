@@ -91,7 +91,7 @@ namespace Shaperon
         }
 
         [Fact]
-        public void IsEquatableToRecordNumber()
+        public void IsEquatableToDbaseDecimalCount()
         {
             Assert.IsAssignableFrom<IEquatable<DbaseDecimalCount>>(_fixture.Create<DbaseDecimalCount>());
         }

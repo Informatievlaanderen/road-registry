@@ -6,3 +6,4 @@ Microsoft.NET.Test.Sdk
 Albedo
 AutoFixture
 AutoFixture.Idioms
+System.Text.Encoding.CodePages

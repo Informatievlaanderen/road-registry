@@ -8,6 +8,7 @@ namespace Shaperon
     using System.Text;
     using System.Collections.Generic;
     using System.Linq;
+    using System;
 
     public class DbaseFileHeaderTests
     {
@@ -21,6 +22,7 @@ namespace Shaperon
             _fixture.CustomizeDbaseFieldLength();
             _fixture.CustomizeDbaseDecimalCount();
             _fixture.CustomizeDbaseField();
+            _fixture.CustomizeDbaseCodePage();
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
         }
@@ -62,6 +64,7 @@ namespace Shaperon
                     Assert.Equal(sut.RecordCount, result.RecordCount);
                     Assert.Equal(sut.RecordLength, result.RecordLength);
                     Assert.Equal(sut.RecordFields, result.RecordFields);
+                    Assert.Equal(sut.CodePage, result.CodePage);
                 }
             }
         }
@@ -76,6 +79,41 @@ namespace Shaperon
                 using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
                 {
                     writer.Write(start);
+
+                    writer.Flush();
+                }
+
+                stream.Position = 0;
+
+                using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
+                {
+                    Assert.Throws<DbaseFileHeaderException>(
+                        () => DbaseFileHeader.Read(reader)
+                    );
+                }
+            }
+        }
+
+        [Fact]
+        public void ReadExpectsHeaderToHaveSupportedCodePage()
+        {
+            var all_supported = Array.ConvertAll(DbaseCodePage.All, _ => _.ToByte());
+            var codePage = new Generator<byte>(_fixture)
+                .First(candidate => !Array.Exists(all_supported, supported => supported == candidate));
+            using(var stream = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+                {
+                    writer.Write(Convert.ToByte(3));
+                    writer.Write(Convert.ToByte(0));
+                    writer.Write(Convert.ToByte(1));
+                    writer.Write(Convert.ToByte(1));
+                    writer.Write(0);
+                    var headerLength = DbaseFileHeader.HeaderMetaDataSize + (DbaseFileHeader.FieldMetaDataSize * 1);
+                    writer.Write(Convert.ToInt16(headerLength));
+                    writer.Write(Convert.ToInt16(0));
+                    writer.Write(new byte[16]);
+                    writer.Write(codePage);
 
                     writer.Flush();
                 }

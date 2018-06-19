@@ -34,5 +34,10 @@ namespace Shaperon
         {
             return new Random(value).Next(0, 255);
         }
+
+        public static byte AsDbaseCodePageValue(this byte value)
+        {
+            return DbaseCodePage.All[new Random(value).Next(0, DbaseCodePage.All.Length)].ToByte();
+        }
     }
 }
