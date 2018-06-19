@@ -1,6 +1,7 @@
 namespace Shaperon
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using AutoFixture;
 
@@ -173,14 +174,18 @@ namespace Shaperon
                 customization =>
                     customization
                         .FromFactory<int?>(
-                            value => new DbaseInt32(
-                                new DbaseField(
-                                    fixture.Create<DbaseFieldName>(),
-                                    DbaseFieldType.Number,
-                                    fixture.Create<ByteOffset>(),
-                                    fixture.Create<DbaseFieldLength>(),
-                                    new DbaseDecimalCount(0)
-                                ), value)
+                            value => {
+                                var length = new Generator<DbaseFieldLength>(fixture)
+                                    .First(_ => _.ToInt32() >= (value.HasValue ? value.Value.ToString(CultureInfo.InvariantCulture).Length : 0));
+                                return new DbaseInt32(
+                                    new DbaseField(
+                                        fixture.Create<DbaseFieldName>(),
+                                        DbaseFieldType.Number,
+                                        fixture.Create<ByteOffset>(),
+                                        length,
+                                        new DbaseDecimalCount(0)
+                                ), value);
+                            }
                         )
                         .OmitAutoProperties());
         }
