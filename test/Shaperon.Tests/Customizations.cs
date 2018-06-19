@@ -81,7 +81,7 @@ namespace Shaperon
             return new Generator<DbaseFieldLength>(fixture)
                 .First(specimen => specimen < maxLength);
         }
-        
+
         public static void CustomizeDbaseCodePage(this IFixture fixture)
         {
             fixture.Customize<DbaseCodePage>(
@@ -161,7 +161,7 @@ namespace Shaperon
                                     var singleDecimalCount = fixture.GenerateDbaseSingleDecimalCount(singleLength);
                                     field = new DbaseField(
                                         fixture.Create<DbaseFieldName>(),
-                                        DbaseFieldType.Number,
+                                        DbaseFieldType.Float,
                                         fixture.Create<ByteOffset>(),
                                         singleLength,
                                         singleDecimalCount
