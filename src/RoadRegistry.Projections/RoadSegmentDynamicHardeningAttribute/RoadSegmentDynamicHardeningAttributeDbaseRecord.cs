@@ -9,7 +9,7 @@ namespace RoadRegistry.Projections
         public RoadSegmentDynamicHardeningAttributeDbaseRecord()
         {
             WV_OIDN = new DbaseInt32(Schema.WV_OIDN);
-            WS_OIDN = new DbaseString(Schema.WS_OIDN);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
             WS_GIDN = new DbaseString(Schema.WS_GIDN);
             TYPE = new DbaseInt32(Schema.TYPE);
             LBLTYPE = new DbaseString(Schema.LBLTYPE);
@@ -35,7 +35,7 @@ namespace RoadRegistry.Projections
         }
 
         public DbaseInt32 WV_OIDN { get; set; }
-        public DbaseString WS_OIDN { get; set; }
+        public DbaseInt32 WS_OIDN { get; set; }
         public DbaseString WS_GIDN { get; set; }
         public DbaseInt32 TYPE { get; set; }
         public DbaseString LBLTYPE { get; set; }
