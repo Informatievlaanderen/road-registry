@@ -61,6 +61,7 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             records.AddRange(await context.RoadWidthAttributes.ToListAsync());
             records.AddRange(await context.RoadHardeningAttributes.ToListAsync());
             records.AddRange(await context.EuropeanRoadAttributes.ToListAsync());
+            records.AddRange(await context.NationalRoadAttributes.ToListAsync());
 
             return records;
         }
