@@ -8,6 +8,7 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.Connector.Testing;
+    using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using KellermanSoftware.CompareNetObjects;
     using Microsoft.EntityFrameworkCore;
     using Xunit.Sdk;
@@ -70,7 +71,8 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
                 var projector = new ConnectedProjector<ShapeContext>(specification.Resolver);
                 foreach (var message in specification.Messages)
                 {
-                    await projector.ProjectAsync(context, message);
+                    var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
+                    await projector.ProjectAsync(context, envelope);
                 }
 
                 await context.SaveChangesAsync();

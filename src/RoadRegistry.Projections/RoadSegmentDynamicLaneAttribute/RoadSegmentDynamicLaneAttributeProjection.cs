@@ -4,6 +4,7 @@ namespace RoadRegistry.Projections
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
+    using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
 
     public class RoadSegmentDynamicLaneAttributeProjection : ConnectedProjection<ShapeContext>
@@ -14,12 +15,12 @@ namespace RoadRegistry.Projections
         {
             _laneDirectionTranslator = laneDirectionTranslator;
 
-            When<ImportedRoadSegment>(HandleImportedRoadSegment);
+            When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
         }
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
         {
-            if(@event.Lanes.Length == 0)
+            if(null == @event?.Lanes || @event.Lanes.Length == 0)
                 return Task.CompletedTask;
 
             var laneRecords = @event

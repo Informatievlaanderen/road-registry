@@ -4,19 +4,21 @@ namespace RoadRegistry.Projections
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
+    using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
 
     public class RoadSegmentDynamicWidthAttributeProjection : ConnectedProjection<ShapeContext>
     {
         public RoadSegmentDynamicWidthAttributeProjection()
         {
-            When<ImportedRoadSegment>(HandleImportedRoadSegment);
+            When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
         }
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
         {
-            if(null == @event.Widths || @event.Widths.Length == 0)
+            if(null == @event?.Widths || @event.Widths.Length == 0)
                 return Task.CompletedTask;
+
             var widths = @event
                 .Widths
                 .Select(width => new RoadSegmentDynamicWidthAttributeRecord
