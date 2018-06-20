@@ -61,7 +61,7 @@ namespace RoadRegistry.Projections.Tests
 
                 }).ToList();
 
-            return new RoadSegmentDynamicLaneAttributeProjection(_laneDirectionTranslator)
+            return new RoadSegmentDynamicLaneAttributeRecordProjection(_laneDirectionTranslator)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -77,7 +77,7 @@ namespace RoadRegistry.Projections.Tests
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.Lanes = new RoadSegmentLaneProperties[0];
 
-            return new RoadSegmentDynamicLaneAttributeProjection(_laneDirectionTranslator)
+            return new RoadSegmentDynamicLaneAttributeRecordProjection(_laneDirectionTranslator)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new object[0]);

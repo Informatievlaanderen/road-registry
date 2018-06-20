@@ -7,9 +7,9 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
 
-    public class RoadSegmentDynamicWidthAttributeProjection : ConnectedProjection<ShapeContext>
+    public class RoadSegmentDynamicWidthAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {
-        public RoadSegmentDynamicWidthAttributeProjection()
+        public RoadSegmentDynamicWidthAttributeRecordProjection()
         {
             When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
         }

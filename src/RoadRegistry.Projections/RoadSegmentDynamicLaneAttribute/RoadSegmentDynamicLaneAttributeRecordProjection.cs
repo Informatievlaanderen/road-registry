@@ -7,11 +7,11 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
 
-    public class RoadSegmentDynamicLaneAttributeProjection : ConnectedProjection<ShapeContext>
+    public class RoadSegmentDynamicLaneAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {
         private readonly LaneDirectionTranslator _laneDirectionTranslator;
 
-        public RoadSegmentDynamicLaneAttributeProjection(LaneDirectionTranslator laneDirectionTranslator)
+        public RoadSegmentDynamicLaneAttributeRecordProjection(LaneDirectionTranslator laneDirectionTranslator)
         {
             _laneDirectionTranslator = laneDirectionTranslator;
 

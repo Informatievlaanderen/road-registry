@@ -7,11 +7,11 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
 
-    public class RoadSegmentDynamicHardeningAttributeProjection : ConnectedProjection<ShapeContext>
+    public class RoadSegmentDynamicHardeningAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {
         private readonly HardeningTypeTranslator _hardeningTypeTranslator;
 
-        public RoadSegmentDynamicHardeningAttributeProjection(HardeningTypeTranslator hardeningTypeTranslator)
+        public RoadSegmentDynamicHardeningAttributeRecordProjection(HardeningTypeTranslator hardeningTypeTranslator)
         {
             _hardeningTypeTranslator = hardeningTypeTranslator;
 
