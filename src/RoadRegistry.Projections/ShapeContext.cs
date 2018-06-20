@@ -14,6 +14,7 @@ namespace RoadRegistry.Projections
         public DbSet<RoadSegmentDynamicLaneAttributeRecord> RoadLaneAttrubutes { get; set; }
         public DbSet<RoadSegmentDynamicWidthAttributeRecord> RoadWidthAttrubutes { get; set; }
         public DbSet<RoadSegmentDynamicHardeningAttributeRecord> RoadHardeningAttrubutes { get; set; }
+        public DbSet<RoadSegmentEuropeanRoadAttributeRecord> EuropeanRoadAttributes { get; set; }
 
         public ShapeContext() { }
 
