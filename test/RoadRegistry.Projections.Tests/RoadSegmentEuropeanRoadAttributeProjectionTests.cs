@@ -6,7 +6,6 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Events;
     using Infrastructure;
-    using RoadSegmentEuropeanRoadAttribute;
     using Xunit;
 
     public class RoadSegmentEuropeanRoadAttributeProjectionTests
