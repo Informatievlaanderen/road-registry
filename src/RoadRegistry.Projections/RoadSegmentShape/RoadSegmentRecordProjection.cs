@@ -38,9 +38,6 @@ namespace RoadRegistry.Projections
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
         {
-            if(null == @event)
-                return Task.CompletedTask;
-
             var geometry = _wkbReader.ReadAs<MultiLineString>(@event.Geometry);
             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
             return context.AddAsync(

@@ -27,9 +27,6 @@ namespace RoadRegistry.Projections
 
         private Task HandleImportedRoadNode(ShapeContext context, ImportedRoadNode @event, CancellationToken token)
         {
-            if (null == @event)
-                return Task.CompletedTask;
-
             //TODO:
             //- Use pooled memory streams
 

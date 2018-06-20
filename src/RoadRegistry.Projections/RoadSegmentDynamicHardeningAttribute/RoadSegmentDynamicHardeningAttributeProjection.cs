@@ -20,7 +20,7 @@ namespace RoadRegistry.Projections
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
         {
-            if(null == @event?.Hardenings || @event.Hardenings.Length == 0)
+            if(@event.Hardenings.Length == 0)
                 return Task.CompletedTask;
 
             var hardenings = @event
