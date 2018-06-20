@@ -30,10 +30,10 @@ namespace Shaperon
         }
 
         [Fact]
-        public void CreateFailsIfFieldIsNotNumber()
+        public void CreateFailsIfFieldIsNotNumberOrFloat()
         {
             var fieldType = new Generator<DbaseFieldType>(_fixture)
-                .First(specimen => specimen != DbaseFieldType.Number);
+                .First(specimen => specimen != DbaseFieldType.Number && specimen != DbaseFieldType.Float);
             var length = new Generator<DbaseFieldLength>(_fixture)
                 .First(specimen => specimen.ToInt32() > 0);
             Assert.Throws<ArgumentException>(
@@ -62,7 +62,7 @@ namespace Shaperon
                     new DbaseInt32(
                         new DbaseField(
                             _fixture.Create<DbaseFieldName>(),
-                            DbaseFieldType.Number,
+                            _fixture.GenerateDbaseInt32FieldType(),
                             _fixture.Create<ByteOffset>(),
                             length,
                             decimalCount
@@ -85,7 +85,7 @@ namespace Shaperon
                 new DbaseInt32(
                     new DbaseField(
                         _fixture.Create<DbaseFieldName>(),
-                        DbaseFieldType.Number,
+                        _fixture.GenerateDbaseInt32FieldType(),
                         _fixture.Create<ByteOffset>(),
                         length,
                         new DbaseDecimalCount(0)
@@ -113,7 +113,7 @@ namespace Shaperon
                 new DbaseInt32(
                     new DbaseField(
                         _fixture.Create<DbaseFieldName>(),
-                        DbaseFieldType.Number,
+                        _fixture.GenerateDbaseInt32FieldType(),
                         _fixture.Create<ByteOffset>(),
                         length,
                         new DbaseDecimalCount(0)
