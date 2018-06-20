@@ -4,17 +4,18 @@ namespace RoadRegistry.Projections
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
+    using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
 
-    public class RoadSegmentDynamicLaneAttributeProjection : ConnectedProjection<ShapeContext>
+    public class RoadSegmentDynamicLaneAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {
         private readonly LaneDirectionTranslator _laneDirectionTranslator;
 
-        public RoadSegmentDynamicLaneAttributeProjection(LaneDirectionTranslator laneDirectionTranslator)
+        public RoadSegmentDynamicLaneAttributeRecordProjection(LaneDirectionTranslator laneDirectionTranslator)
         {
             _laneDirectionTranslator = laneDirectionTranslator;
 
-            When<ImportedRoadSegment>(HandleImportedRoadSegment);
+            When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
         }
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)

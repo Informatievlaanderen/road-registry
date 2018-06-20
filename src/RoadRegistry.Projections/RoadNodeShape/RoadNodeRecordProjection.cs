@@ -4,6 +4,7 @@ namespace RoadRegistry.Projections
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
+    using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
@@ -21,7 +22,7 @@ namespace RoadRegistry.Projections
             _wkbReader = wkbReader ?? throw new ArgumentNullException(nameof(wkbReader));
             _roadNodeTypeTranslator = roadNodeTypeTranslator ?? throw new ArgumentNullException(nameof(roadNodeTypeTranslator));
 
-            When<ImportedRoadNode>(HandleImportedRoadNode);
+            When<Envelope<ImportedRoadNode>>((context, message, token) => HandleImportedRoadNode(context, message.Message, token));
         }
 
         private Task HandleImportedRoadNode(ShapeContext context, ImportedRoadNode @event, CancellationToken token)

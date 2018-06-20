@@ -4,6 +4,7 @@ namespace RoadRegistry.Projections
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
+    using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
@@ -32,7 +33,7 @@ namespace RoadRegistry.Projections
             _geometryDrawMethodTranslator = geometryDrawMethodTranslator ?? throw new ArgumentNullException(nameof(geometryDrawMethodTranslator));
             _accessRestrictionTranslator = accessRestrictionTranslator ?? throw new ArgumentNullException(nameof(accessRestrictionTranslator));
 
-            When<ImportedRoadSegment>(HandleImportedRoadSegment);
+            When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
         }
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)

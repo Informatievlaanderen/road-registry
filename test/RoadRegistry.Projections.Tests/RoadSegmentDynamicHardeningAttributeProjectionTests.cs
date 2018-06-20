@@ -28,7 +28,7 @@ namespace RoadRegistry.Projections.Tests
                 .Select(segment =>
                 {
                     segment.Hardenings = _fixture
-                        .CreateMany<RoadSegmentHardeningProperties>(random.Next(0, 5))
+                        .CreateMany<RoadSegmentHardeningProperties>(random.Next(1, 5))
                         .ToArray();
 
                     var expected = segment
@@ -60,7 +60,7 @@ namespace RoadRegistry.Projections.Tests
 
                 }).ToList();
 
-            return new RoadSegmentDynamicHardeningAttributeProjection(_hardeningTypeTranslator)
+            return new RoadSegmentDynamicHardeningAttributeRecordProjection(_hardeningTypeTranslator)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -68,6 +68,18 @@ namespace RoadRegistry.Projections.Tests
                     .Cast<object>()
                     .ToArray()
                 );
+        }
+
+        [Fact]
+        public Task When_importing_a_road_node_without_hardenings()
+        {
+            var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
+            importedRoadSegment.Hardenings = new RoadSegmentHardeningProperties[0];
+
+            return new RoadSegmentDynamicHardeningAttributeRecordProjection(_hardeningTypeTranslator)
+                .Scenario()
+                .Given(importedRoadSegment)
+                .Expect(new object[0]);
         }
     }
 }
