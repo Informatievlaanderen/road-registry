@@ -11,7 +11,6 @@ namespace RoadRegistry.Projections.Tests
     public class RoadSegmentEuropeanRoadAttributeProjectionTests
     {
         private readonly ScenarioFixture _fixture;
-        private readonly HardeningTypeTranslator _hardeningTypeTranslator;
 
         public RoadSegmentEuropeanRoadAttributeProjectionTests()
         {
