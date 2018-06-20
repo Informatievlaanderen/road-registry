@@ -83,29 +83,29 @@ namespace Shaperon
             DecimalCount = decimalCount;
         }
 
-        public static DbaseField CreateStringField(DbaseFieldName name, ByteOffset offset, DbaseFieldLength length)
+        public static DbaseField CreateStringField(DbaseFieldName name, DbaseFieldLength length)
         {
-            return new DbaseField(name, DbaseFieldType.Character, offset, length, new DbaseDecimalCount(0));
+            return new DbaseField(name, DbaseFieldType.Character, new ByteOffset(0), length, new DbaseDecimalCount(0));
         }
 
-        public static DbaseField CreateInt32Field(DbaseFieldName name, ByteOffset offset, DbaseFieldLength length)
+        public static DbaseField CreateInt32Field(DbaseFieldName name, DbaseFieldLength length)
         {
-            return new DbaseField(name, DbaseFieldType.Number, offset, length, new DbaseDecimalCount(0));
+            return new DbaseField(name, DbaseFieldType.Number, new ByteOffset(0), length, new DbaseDecimalCount(0));
         }
 
-        public static DbaseField CreateDateTimeField(DbaseFieldName name, ByteOffset offset)
+        public static DbaseField CreateDateTimeField(DbaseFieldName name)
         {
-            return new DbaseField(name, DbaseFieldType.DateTime, offset, new DbaseFieldLength(15), new DbaseDecimalCount(0));
+            return new DbaseField(name, DbaseFieldType.DateTime, new ByteOffset(0), new DbaseFieldLength(15), new DbaseDecimalCount(0));
         }
 
-        public static DbaseField CreateDoubleField(DbaseFieldName name, ByteOffset offset, DbaseFieldLength length, DbaseDecimalCount decimalCount)
+        public static DbaseField CreateDoubleField(DbaseFieldName name, DbaseFieldLength length, DbaseDecimalCount decimalCount)
         {
-            return new DbaseField(name, DbaseFieldType.Number, offset, length, decimalCount);
+            return new DbaseField(name, DbaseFieldType.Number, new ByteOffset(0), length, decimalCount);
         }
 
-        public static DbaseField CreateSingleField(DbaseFieldName name, ByteOffset offset, DbaseFieldLength length, DbaseDecimalCount decimalCount)
+        public static DbaseField CreateSingleField(DbaseFieldName name, DbaseFieldLength length, DbaseDecimalCount decimalCount)
         {
-            return new DbaseField(name, DbaseFieldType.Float, offset, length, decimalCount);
+            return new DbaseField(name, DbaseFieldType.Float, new ByteOffset(0), length, decimalCount);
         }
 
         public DbaseFieldName Name { get; }

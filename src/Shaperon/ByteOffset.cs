@@ -4,8 +4,6 @@ namespace Shaperon
 {
     public readonly struct ByteOffset : IEquatable<ByteOffset>, IComparable<ByteOffset>
     {
-        public static readonly ByteOffset Initial = new ByteOffset(0);
-
         private readonly int _value;
 
         public ByteOffset(int value)

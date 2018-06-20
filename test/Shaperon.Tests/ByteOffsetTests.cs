@@ -16,12 +16,6 @@ namespace Shaperon
             _fixture.CustomizeByteLength();
         }
 
-        [Fact]
-        public void InitialReturnsExpectedValue()
-        {
-            Assert.Equal(0, ByteOffset.Initial);
-        }
-
         [Theory]
         [InlineData(-1)]
         [InlineData(int.MinValue)]
