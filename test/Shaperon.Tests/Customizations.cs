@@ -82,6 +82,12 @@ namespace Shaperon
                 .First(specimen => specimen < maxLength);
         }
 
+        public static DbaseFieldType GenerateDbaseInt32FieldType(this IFixture fixture)
+        {
+            return new Generator<DbaseFieldType>(fixture)
+                .First(specimen => specimen == DbaseFieldType.Number || specimen == DbaseFieldType.Float);
+        }
+
         public static void CustomizeDbaseCodePage(this IFixture fixture)
         {
             fixture.Customize<DbaseCodePage>(
@@ -215,10 +221,11 @@ namespace Shaperon
                             value => {
                                 var length = new Generator<DbaseFieldLength>(fixture)
                                     .First(_ => _.ToInt32() >= (value.HasValue ? value.Value.ToString(CultureInfo.InvariantCulture).Length : 0));
+                                var fieldType = fixture.GenerateDbaseInt32FieldType();
                                 return new DbaseInt32(
                                     new DbaseField(
                                         fixture.Create<DbaseFieldName>(),
-                                        DbaseFieldType.Number,
+                                        fieldType,
                                         fixture.Create<ByteOffset>(),
                                         length,
                                         new DbaseDecimalCount(0)

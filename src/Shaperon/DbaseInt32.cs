@@ -10,14 +10,14 @@ namespace Shaperon
 
         public DbaseInt32(DbaseField field, int? value = null) : base(field)
         {
-            if (field.FieldType != DbaseFieldType.Number)
+            if (field.FieldType != DbaseFieldType.Number && field.FieldType != DbaseFieldType.Float)
             {
-                throw new ArgumentException($"The field {field.Name} 's type must be number to use it as an integer field.", nameof(field));
+                throw new ArgumentException($"The field {field.Name}'s type must be either number or float to use it as an integer field.", nameof(field));
             }
 
             if (field.DecimalCount != 0)
             {
-                throw new ArgumentException($"The number field {field.Name} 's decimal count must be 0 to use it as an integer field.", nameof(field));
+                throw new ArgumentException($"The number field {field.Name}'s decimal count must be 0 to use it as an integer field.", nameof(field));
             }
 
             Value = value;
