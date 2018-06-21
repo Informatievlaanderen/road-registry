@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using RoadRegistry.Projections;
 using Shaperon;
 using Wkx;
 
@@ -8,7 +13,7 @@ namespace Usage
 {
     partial class Program
     {
-        static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
             // var gem = LineString.Deserialize<WkbSerializer>(new byte[]
             // {
@@ -56,7 +61,48 @@ namespace Usage
             // });
             // Console.WriteLine(gem.);
             //ReadWriteShpAndShx(args);
-            
+            var builder = new SqlConnectionStringBuilder
+            {
+                DataSource = "AOCWS977",
+                InitialCatalog = "RoadRegistry",
+                IntegratedSecurity = true
+            };
+            var schema = new RoadNodeDbaseSchema();
+            var options = new DbContextOptionsBuilder<ShapeContext>()
+                .UseSqlServer(
+                    builder.ConnectionString,
+                    sqlServerOptions =>
+                    {
+                        sqlServerOptions.EnableRetryOnFailure();
+                    }).Options;
+            using(var context = new ShapeContext(options))
+            {
+                using (var outDbfFile = File.OpenWrite("roadnode.dbf"))
+                {
+                    using (var dbfWriter = new BinaryWriter(outDbfFile, Encoding.ASCII))
+                    {
+                        // TODO: Make sure there's a transaction to ensure the count and iteration are in sync
+                        var recordCount = await context.RoadNodes.CountAsync();
+                        var header = new DbaseFileHeader(
+                            DateTime.Now,
+                            DbaseCodePage.WindowsANSI,
+                            recordCount,
+                            schema.TotalLength,
+                            schema.Fields
+                        );
+                        header.Write(dbfWriter);
+                        var record = new RoadNodeDbaseRecord();
+                        foreach(var node in context.RoadNodes)
+                        {
+                            record.FromBytes(node.DbaseRecord);
+                            record.Write(dbfWriter);
+                        }
+                        dbfWriter.Write(DbaseRecord.EndOfFile);
+                        outDbfFile.Flush();
+                    }
+                }
+            }
+
         }
 
         private static void ReadWriteDbf(string[] args)
