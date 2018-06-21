@@ -9,6 +9,19 @@ namespace RoadRegistry.Projections
         {
             return (TGeometry)reader.Read(value);
         }
+
+        public static bool TryReadAs<TGeometry>(this WKBReader reader, byte[] value, out TGeometry geometry)
+            where TGeometry : IGeometry
+        {
+            var parsed = reader.Read(value);
+            if(parsed is TGeometry)
+            {
+                geometry = (TGeometry)parsed;
+                return true;
+            }
+            geometry = default(TGeometry);
+            return false;
+        }
     }
 
 }

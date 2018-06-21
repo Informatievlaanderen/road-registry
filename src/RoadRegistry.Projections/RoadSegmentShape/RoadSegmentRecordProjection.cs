@@ -7,6 +7,7 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
+    using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
     using Shaperon;
@@ -41,7 +42,15 @@ namespace RoadRegistry.Projections
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
         {
-            var geometry = _wkbReader.ReadAs<MultiLineString>(@event.Geometry);
+            MultiLineString geometry;
+            if(_wkbReader.TryReadAs<LineString>(@event.Geometry, out LineString line))
+            {
+                geometry = new MultiLineString(new ILineString[] { line });
+            }
+            else
+            {
+                geometry = _wkbReader.ReadAs<MultiLineString>(@event.Geometry);
+            }
             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
             return context.AddAsync(
                 new RoadSegmentRecord
