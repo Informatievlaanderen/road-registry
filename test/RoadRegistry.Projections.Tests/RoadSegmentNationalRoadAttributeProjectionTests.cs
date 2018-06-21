@@ -65,7 +65,7 @@ namespace RoadRegistry.Projections.Tests
         }
 
         [Fact]
-        public Task When_importing_a_road_node_without_european_road_links()
+        public Task When_importing_a_road_node_without_national_road_links()
         {
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.PartOfNationalRoads = new RoadSegmentNationalRoadProperties[0];
