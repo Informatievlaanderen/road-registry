@@ -11,7 +11,7 @@ using System;
 namespace RoadRegistry.Projections.Migrations
 {
     [DbContext(typeof(ShapeContext))]
-    [Migration("20180614154710_InitialCreate")]
+    [Migration("20180621124916_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,8 +36,7 @@ namespace RoadRegistry.Projections.Migrations
 
             modelBuilder.Entity("RoadRegistry.Projections.RoadNodeRecord", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<int>("Id");
 
                     b.Property<byte[]>("DbaseRecord");
 
@@ -53,8 +52,7 @@ namespace RoadRegistry.Projections.Migrations
 
             modelBuilder.Entity("RoadRegistry.Projections.RoadReferencePointRecord", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<int>("Id");
 
                     b.Property<byte[]>("DbaseRecord");
 
@@ -62,15 +60,57 @@ namespace RoadRegistry.Projections.Migrations
 
                     b.Property<int>("ShapeRecordContentLength");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("RoadReferencePoints");
+                    b.ToTable("RoadReferencePoint","RoadRegistryShape");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentDynamicHardeningAttributeRecord", b =>
+                {
+                    b.Property<int>("Id");
+
+                    b.Property<byte[]>("DbaseRecord");
+
+                    b.Property<int>("RoadSegmentId");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RoadSegmentHardeningAttribute","RoadRegistryShape");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentDynamicLaneAttributeRecord", b =>
+                {
+                    b.Property<int>("Id");
+
+                    b.Property<byte[]>("DbaseRecord");
+
+                    b.Property<int>("RoadSegmentId");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RoadSegmentLaneAttribute","RoadRegistryShape");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentDynamicWidthAttributeRecord", b =>
+                {
+                    b.Property<int>("Id");
+
+                    b.Property<byte[]>("DbaseRecord");
+
+                    b.Property<int>("RoadSegmentId");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RoadSegmentWidthAttribute","RoadRegistryShape");
                 });
 
             modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentRecord", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<int>("Id");
 
                     b.Property<byte[]>("DbaseRecord");
 

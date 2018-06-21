@@ -55,7 +55,8 @@ namespace Usage
             //     0x41,
             // });
             // Console.WriteLine(gem.);
-            ReadWriteShpAndShx(args);
+            //ReadWriteShpAndShx(args);
+            
         }
 
         private static void ReadWriteDbf(string[] args)
