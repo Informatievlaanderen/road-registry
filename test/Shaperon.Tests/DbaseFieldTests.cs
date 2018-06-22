@@ -95,7 +95,7 @@ namespace Shaperon
         [Fact]
         public void CreateFloatFieldFailsWhenDecimalCountIsNotZeroAndNotLessThanLengthMinus2()
         {
-            var length = _fixture.Create<DbaseFieldLength>();
+            var length = _fixture.GenerateDbaseSingleLength();
             var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
                 .First(specimen => specimen.ToInt32() >= length.ToInt32() - 2);
             Assert.Throws<ArgumentException>(() =>
