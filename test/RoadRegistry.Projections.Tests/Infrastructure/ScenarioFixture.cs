@@ -23,6 +23,8 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             Customizations.Add(new LimitedLengthStringBuilder<RoadSegmentEuropeanRoadProperties>(road => road.RoadNumber, RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema.EUNUMMER.Length));
             Customizations.Add(new LimitedLengthStringBuilder<RoadSegmentNationalRoadProperties>(road => road.Ident2, RoadSegmentNationalRoadAttributeDbaseRecord.Schema.IDENT2.Length));
             Customizations.Add(new LimitedLengthStringBuilder<RoadSegmentNumberedRoadProperties>(road => road.Ident8, RoadSegmentNumberedRoadAttributeDbaseRecord.Schema.IDENT8.Length));
+            Customizations.Add(new LimitedLengthStringBuilder<ImportedOrganization>(organization => organization.Code, OrganizationDbaseRecord.Schema.ORG.Length));
+            Customizations.Add(new LimitedLengthStringBuilder<ImportedOrganization>(organization => organization.Name, OrganizationDbaseRecord.Schema.LBLORG.Length));
 
             Customize<Point>(customization =>
                 customization.FromFactory(generator =>

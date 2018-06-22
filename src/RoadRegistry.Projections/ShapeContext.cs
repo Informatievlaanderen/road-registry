@@ -18,6 +18,7 @@ namespace RoadRegistry.Projections
         public DbSet<RoadSegmentNationalRoadAttributeRecord> NationalRoadAttributes { get; set; }
         public DbSet<RoadSegmentNumberedRoadAttributeRecord> NumberedRoadAttributes { get; set; }
         public DbSet<GradeSeparatedJunctionRecord> GradeSeperatedJunctions { get; set; }
+        public DbSet<OrganizationRecord> Organizations { get; set; }
 
         public ShapeContext() { }
 
