@@ -8,125 +8,98 @@ namespace RoadRegistry.Projections
         {
             WS_OIDN = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(WS_OIDN)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(15));
 
             WS_UIDN = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(WS_UIDN)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(18));
 
             WS_GIDN = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(WS_GIDN)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(18));
 
             B_WK_OIDN = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(B_WK_OIDN)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(15));
 
             E_WK_OIDN = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(E_WK_OIDN)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(15));
 
             STATUS = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(STATUS)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(2));
 
             LBLSTATUS = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLSTATUS)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(64));
 
             MORF = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(MORF)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(3));
 
             LBLMORF = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLMORF)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(64));
 
             WEGCAT = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(WEGCAT)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(5));
 
             LBLWEGCAT = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLWEGCAT)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(64));
 
             LSTRNMID = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(LSTRNMID)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(15));
 
             LSTRNM = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LSTRNM)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(80));
 
             RSTRNMID = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(RSTRNMID)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(15));
 
             RSTRNM = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(RSTRNM)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(80));
 
             BEHEER = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(BEHEER)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(18));
 
             LBLBEHEER = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLBEHEER)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(64));
 
             METHODE = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(METHODE)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(2));
 
             LBLMETHOD = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLMETHOD)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(64));
 
-            OPNDATUM = DbaseField.CreateDateTimeField(
-                new DbaseFieldName(nameof(OPNDATUM)),
-                ByteOffset.Initial);
+            OPNDATUM = DbaseField.CreateDateTimeField(new DbaseFieldName(nameof(OPNDATUM)));
 
-            BEGINTIJD = DbaseField.CreateDateTimeField(
-                new DbaseFieldName(nameof(BEGINTIJD)),
-                ByteOffset.Initial);
+            BEGINTIJD = DbaseField.CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD)));
 
             BEGINORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(BEGINORG)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(18));
 
             LBLBGNORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLBGNORG)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(64));
 
             TGBEP = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(TGBEP)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(2));
 
             LBLTGBEP = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLTGBEP)),
-                ByteOffset.Initial,
                 new DbaseFieldLength(64));
         }
 

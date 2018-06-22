@@ -57,9 +57,12 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             records.AddRange(await context.RoadNodes.ToListAsync());
             records.AddRange(await context.RoadSegments.ToListAsync());
             records.AddRange(await context.RoadReferencePoints.ToListAsync());
-            records.AddRange(await context.RoadLaneAttrubutes.ToListAsync());
-            records.AddRange(await context.RoadWidthAttrubutes.ToListAsync());
-            records.AddRange(await context.RoadHardeningAttrubutes.ToListAsync());
+            records.AddRange(await context.RoadLaneAttributes.ToListAsync());
+            records.AddRange(await context.RoadWidthAttributes.ToListAsync());
+            records.AddRange(await context.RoadHardeningAttributes.ToListAsync());
+            records.AddRange(await context.EuropeanRoadAttributes.ToListAsync());
+            records.AddRange(await context.NationalRoadAttributes.ToListAsync());
+            records.AddRange(await context.NumberedRoadAttributes.ToListAsync());
 
             return records;
         }
