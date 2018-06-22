@@ -17,6 +17,7 @@ namespace RoadRegistry.Projections
         public DbSet<RoadSegmentEuropeanRoadAttributeRecord> EuropeanRoadAttributes { get; set; }
         public DbSet<RoadSegmentNationalRoadAttributeRecord> NationalRoadAttributes { get; set; }
         public DbSet<RoadSegmentNumberedRoadAttributeRecord> NumberedRoadAttributes { get; set; }
+        public DbSet<GradeSeparatedJunctionRecord> GradeSeperatedJunctions { get; set; }
 
         public ShapeContext() { }
 
