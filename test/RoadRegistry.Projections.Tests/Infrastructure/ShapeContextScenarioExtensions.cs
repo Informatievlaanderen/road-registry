@@ -63,7 +63,7 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             records.AddRange(await context.EuropeanRoadAttributes.ToListAsync());
             records.AddRange(await context.NationalRoadAttributes.ToListAsync());
             records.AddRange(await context.NumberedRoadAttributes.ToListAsync());
-            records.AddRange(await context.GradeSeperatedJunctions.ToListAsync());
+            records.AddRange(await context.GradeSeparatedJunctions.ToListAsync());
             records.AddRange(await context.Organizations.ToListAsync());
 
             return records;

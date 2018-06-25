@@ -20,7 +20,7 @@ namespace RoadRegistry.Projections.Tests
         }
 
         [Fact]
-        public void All_raod_segment_access_restriction_records_are_defined()
+        public void All_road_segment_access_restriction_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
                 TypeReferences.RoadSegmentAccessRestrictions,
