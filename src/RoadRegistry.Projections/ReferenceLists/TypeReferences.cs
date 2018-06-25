@@ -8,8 +8,9 @@ namespace RoadRegistry.Projections
 
     public class TypeReferences
     {
-        public static ReferencePointTypeDbaseRecord[] ReferencePointTypes => CreateDbaseRecords<ReferencePointTypeDbaseRecord, ReferencePointType>();
         public static RoadSegmentAccessRestrictionRecord[] RoadSegmentAccessRestrictions => CreateDbaseRecords<RoadSegmentAccessRestrictionRecord, RoadSegmentAccessRestriction>();
+        public static ReferencePointTypeDbaseRecord[] ReferencePointTypes => CreateDbaseRecords<ReferencePointTypeDbaseRecord, ReferencePointType>();
+        public static GradeSeparatedJunctionTypeRecord[] GradeSeparatedJunctionTypes => CreateDbaseRecords<GradeSeparatedJunctionTypeRecord, GradeSeparatedJunctionType>();
 
         private static TDbaseRecord[] CreateDbaseRecords<TDbaseRecord, TEnum>()
             where TDbaseRecord : DbaseRecord
@@ -149,47 +150,9 @@ namespace RoadRegistry.Projections
         | LBLMETHOD | Character | 64 | 0 |
         | DEFMETHOD | Character | 255 | 0 |
 
-        h3. RijstrokenLktRichting
-
-        Lijst met richtingen van rijstroken.
-
-        h4. DBF Mapping
-
-        || DBF Column || Legacy DB Column || Enum Mapping ||
-        | RICHTING | code | CodeForEach(LaneDirection) |
-        | LBLRICHT | label | LabelForEach(LaneDirection) |
-        | DEFRICHT | definitie | DescriptionForEach(LaneDirection) |
-
-        h4. DBF Description
-
-        || Name || DataType || Length || Decimal ||
-        | RICHTING | Number | 2 | 0 |
-        | LBLRICHT | Character | 64 | 0 |
-        | DEFRICHT | Character | 255 | 0 |
-
-        h3. OgkruisingLktType
-
-        Lijst met types ongelijkgrondse kruisingen.
-
-        h4. DBF Mapping
-
-        || DBF Column || Legacy DB Column || Enum Mapping ||
-        | TYPE | code | CodeForEach(GradeSeparatedJunctionType) |
-        | LBLTYPE | label | LabelForEach(GradeSeparatedJunctionType) |
-        | DEFTYPE | definitie | DescriptionForEach(GradeSeparatedJunctionType) |
-
-        h4. DBF Description
-
-        || Name || DataType || Length || Decimal ||
-        | TYPE | Number | 2 | 0 |
-        | LBLTYPE | Character | 64 | 0 |
-        | DEFTYPE | Character | 255 | 0 |
-
-
          */
     }
 
     /*
-
      */
 }

@@ -35,6 +35,19 @@ namespace RoadRegistry.Projections.Tests
                 });
         }
 
+        [Fact]
+        public void All_grade_separated_junction_type_records_are_defined()
+        {
+            AssertDbaseRecordCollectionsContainSameElements(
+                TypeReferences.GradeSeparatedJunctionTypes,
+                new[]
+                {
+                    new GradeSeparatedJunctionTypeRecord(GradeSeparatedJunctionType.Unknown),
+                    new GradeSeparatedJunctionTypeRecord(GradeSeparatedJunctionType.Tunnel),
+                    new GradeSeparatedJunctionTypeRecord(GradeSeparatedJunctionType.Bridge),
+                });
+        }
+
         private void AssertDbaseRecordCollectionsContainSameElements<T>(T[] actualRecords, T[] expectedRecords)
             where T : DbaseRecord
         {
