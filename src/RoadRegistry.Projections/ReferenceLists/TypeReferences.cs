@@ -9,6 +9,7 @@ namespace RoadRegistry.Projections
     public class TypeReferences
     {
         public static RoadSegmentAccessRestrictionRecord[] RoadSegmentAccessRestrictions => CreateDbaseRecords<RoadSegmentAccessRestrictionRecord, RoadSegmentAccessRestriction>();
+        public static RoadSegmentGeometryDrawMethodRecord[] RoadSegmentGeometryDrawMethodRecords => CreateDbaseRecords<RoadSegmentGeometryDrawMethodRecord, RoadSegmentGeometryDrawMethod>();
         public static ReferencePointTypeDbaseRecord[] ReferencePointTypes => CreateDbaseRecords<ReferencePointTypeDbaseRecord, ReferencePointType>();
         public static GradeSeparatedJunctionTypeRecord[] GradeSeparatedJunctionTypes => CreateDbaseRecords<GradeSeparatedJunctionTypeRecord, GradeSeparatedJunctionType>();
 
@@ -134,25 +135,10 @@ namespace RoadRegistry.Projections
         | LBLSTATUS | Character | 64 | 0 |
         | DEFSTATUS | Character | 255 | 0 |
 
-        h3. WegsegmentLktMethode
-
-        h4. DBF Mapping
-
-        || DBF Column || Legacy DB Column || Enum Mapping ||
-        | METHODE | code | CodeForEach(RoadSegmentGeometryDrawMethod) |
-        | LBLMETHOD | label | LabelForEach(RoadSegmentGeometryDrawMethod) |
-        | DEFMETHOD | definitie | DescriptionForEach(RoadSegmentGeometryDrawMethod) |
-
-        h4. DBF Description
-
-        || Name || DataType || Length || Decimal ||
-        | METHODE | Number | 2 | 0 |
-        | LBLMETHOD | Character | 64 | 0 |
-        | DEFMETHOD | Character | 255 | 0 |
-
          */
     }
 
     /*
+
      */
 }

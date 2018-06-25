@@ -7,19 +7,6 @@ namespace RoadRegistry.Projections.Tests
     public class TypeRefenceTests
     {
         [Fact]
-        public void All_reference_point_type_records_are_defined()
-        {
-            AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.ReferencePointTypes,
-                new[]
-                {
-                    new ReferencePointTypeDbaseRecord(ReferencePointType.Unknown),
-                    new ReferencePointTypeDbaseRecord(ReferencePointType.KilometerMarker),
-                    new ReferencePointTypeDbaseRecord(ReferencePointType.HectometerMarker),
-                });
-        }
-
-        [Fact]
         public void All_road_segment_access_restriction_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
@@ -32,6 +19,32 @@ namespace RoadRegistry.Projections.Tests
                     new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.PrivateRoad),
                     new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.Seasonal),
                     new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.Toll),
+                });
+        }
+
+        [Fact]
+        public void All_road_segment_geometry_draw_method_records_are_defined()
+        {
+            AssertDbaseRecordCollectionsContainSameElements(
+                TypeReferences.RoadSegmentGeometryDrawMethodRecords,
+                new[]
+                {
+                    new RoadSegmentGeometryDrawMethodRecord(RoadSegmentGeometryDrawMethod.Outlined),
+                    new RoadSegmentGeometryDrawMethodRecord(RoadSegmentGeometryDrawMethod.Measured),
+                    new RoadSegmentGeometryDrawMethodRecord(RoadSegmentGeometryDrawMethod.Measured_according_to_GRB_specifications),
+                });
+        }
+
+        [Fact]
+        public void All_reference_point_type_records_are_defined()
+        {
+            AssertDbaseRecordCollectionsContainSameElements(
+                TypeReferences.ReferencePointTypes,
+                new[]
+                {
+                    new ReferencePointTypeDbaseRecord(ReferencePointType.Unknown),
+                    new ReferencePointTypeDbaseRecord(ReferencePointType.KilometerMarker),
+                    new ReferencePointTypeDbaseRecord(ReferencePointType.HectometerMarker),
                 });
         }
 
