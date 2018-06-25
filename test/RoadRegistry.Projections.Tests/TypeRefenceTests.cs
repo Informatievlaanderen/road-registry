@@ -26,7 +26,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_road_segment_geometry_draw_method_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.RoadSegmentGeometryDrawMethodRecords,
+                TypeReferences.RoadSegmentGeometryDrawMethods,
                 new[]
                 {
                     new RoadSegmentGeometryDrawMethodRecord(RoadSegmentGeometryDrawMethod.Outlined),
@@ -39,7 +39,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_road_segment_status_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.RoadSegmentStatusRecords,
+                TypeReferences.RoadSegmentStatuses,
                 new[]
                 {
                     new RoadSegmentStatusRecord(RoadSegmentStatus.Unknown),
@@ -48,6 +48,35 @@ namespace RoadRegistry.Projections.Tests
                     new RoadSegmentStatusRecord(RoadSegmentStatus.UnderConstruction),
                     new RoadSegmentStatusRecord(RoadSegmentStatus.InUse),
                     new RoadSegmentStatusRecord(RoadSegmentStatus.OutOfUse),
+                });
+        }
+
+        [Fact]
+        public void All_road_segment_morphology_records_are_defined()
+        {
+            AssertDbaseRecordCollectionsContainSameElements(
+                TypeReferences.RoadSegmentMorphologies,
+                new[]
+                {
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Unknown),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Motorway),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Road_with_separate_lanes_that_is_not_a_motorway),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Road_consisting_of_one_roadway),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Traffic_circle),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Special_traffic_situation),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Traffic_square),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_grade_separated_junction),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_level_junction),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Parallel_road),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Frontage_road),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Entry_or_exit_of_a_car_park),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Entry_or_exit_of_a_service),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Pedestrain_zone),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Walking_or_cycling_path_not_accessible_to_other_vehicles),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Tramway_not_accessible_to_other_vehicles),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Service_road),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Primitive_road),
+                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Ferry)
                 });
         }
 

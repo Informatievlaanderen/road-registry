@@ -9,8 +9,9 @@ namespace RoadRegistry.Projections
     public class TypeReferences
     {
         public static RoadSegmentAccessRestrictionRecord[] RoadSegmentAccessRestrictions => CreateDbaseRecords<RoadSegmentAccessRestrictionRecord, RoadSegmentAccessRestriction>();
-        public static RoadSegmentGeometryDrawMethodRecord[] RoadSegmentGeometryDrawMethodRecords => CreateDbaseRecords<RoadSegmentGeometryDrawMethodRecord, RoadSegmentGeometryDrawMethod>();
-        public static RoadSegmentStatusRecord[] RoadSegmentStatusRecords => CreateDbaseRecords<RoadSegmentStatusRecord, RoadSegmentStatus>();
+        public static RoadSegmentGeometryDrawMethodRecord[] RoadSegmentGeometryDrawMethods => CreateDbaseRecords<RoadSegmentGeometryDrawMethodRecord, RoadSegmentGeometryDrawMethod>();
+        public static RoadSegmentStatusRecord[] RoadSegmentStatuses => CreateDbaseRecords<RoadSegmentStatusRecord, RoadSegmentStatus>();
+        public static RoadSegmentMorphologyRecord[] RoadSegmentMorphologies => CreateDbaseRecords<RoadSegmentMorphologyRecord, RoadSegmentMorphology>();
         public static ReferencePointTypeDbaseRecord[] ReferencePointTypes => CreateDbaseRecords<ReferencePointTypeDbaseRecord, ReferencePointType>();
         public static GradeSeparatedJunctionTypeRecord[] GradeSeparatedJunctionTypes => CreateDbaseRecords<GradeSeparatedJunctionTypeRecord, GradeSeparatedJunctionType>();
 
@@ -99,24 +100,6 @@ namespace RoadRegistry.Projections
         | TYPE | Number | 2 | 0 |
         | LBLTYPE | Character | 64 | 0 |
         | DEFTYPE | Character | 255 | 0 |
-
-        h3. WegsegmentLktMorf
-
-        Lijst met mogelijke wegmorfologiën die aan een wegsegment kunnen worden toegekend.
-
-        h4. DBF Mapping
-
-        || DBF Column || Legacy DB Column || Enum Mapping ||
-        | MORF | code | CodeForEach(RoadSegmentMorphology) |
-        | LBLMORF | label | LabelForEach(RoadSegmentMorphology) |
-        | DEFMORF | definitie | DescriptionForEach(RoadSegmentMorphology) |
-
-        h4. DBF Description
-
-        || Name || DataType || Length || Decimal ||
-        | MORF | Number | 3 | 0 |
-        | LBLMORF | Character | 64 | 0 |
-        | DEFMORF | Character | 255 | 0 |
 
          */
     }
