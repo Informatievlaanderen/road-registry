@@ -36,6 +36,22 @@ namespace RoadRegistry.Projections.Tests
         }
 
         [Fact]
+        public void All_road_segment_status_records_are_defined()
+        {
+            AssertDbaseRecordCollectionsContainSameElements(
+                TypeReferences.RoadSegmentStatusRecords,
+                new[]
+                {
+                    new RoadSegmentStatusRecord(RoadSegmentStatus.Unknown),
+                    new RoadSegmentStatusRecord(RoadSegmentStatus.PermitRequested),
+                    new RoadSegmentStatusRecord(RoadSegmentStatus.BuildingPermitGranted),
+                    new RoadSegmentStatusRecord(RoadSegmentStatus.UnderConstruction),
+                    new RoadSegmentStatusRecord(RoadSegmentStatus.InUse),
+                    new RoadSegmentStatusRecord(RoadSegmentStatus.OutOfUse),
+                });
+        }
+
+        [Fact]
         public void All_reference_point_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
