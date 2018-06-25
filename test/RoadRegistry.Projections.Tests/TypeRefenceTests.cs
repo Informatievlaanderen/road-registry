@@ -19,6 +19,22 @@ namespace RoadRegistry.Projections.Tests
                 });
         }
 
+        [Fact]
+        public void All_raod_segment_access_restriction_records_are_defined()
+        {
+            AssertDbaseRecordCollectionsContainSameElements(
+                TypeReferences.RoadSegmentAccessRestrictions,
+                new[]
+                {
+                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.PublicRoad),
+                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.PhysicallyImpossible),
+                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.LegallyForbidden),
+                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.PrivateRoad),
+                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.Seasonal),
+                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.Toll),
+                });
+        }
+
         private void AssertDbaseRecordCollectionsContainSameElements<T>(T[] actualRecords, T[] expectedRecords)
             where T : DbaseRecord
         {

@@ -9,6 +9,7 @@ namespace RoadRegistry.Projections
     public class TypeReferences
     {
         public static ReferencePointTypeDbaseRecord[] ReferencePointTypes => CreateDbaseRecords<ReferencePointTypeDbaseRecord, ReferencePointType>();
+        public static RoadSegmentAccessRestrictionRecord[] RoadSegmentAccessRestrictions => CreateDbaseRecords<RoadSegmentAccessRestrictionRecord, RoadSegmentAccessRestriction>();
 
         private static TDbaseRecord[] CreateDbaseRecords<TDbaseRecord, TEnum>()
             where TDbaseRecord : DbaseRecord
@@ -184,23 +185,11 @@ namespace RoadRegistry.Projections
         | LBLTYPE | Character | 64 | 0 |
         | DEFTYPE | Character | 255 | 0 |
 
-        h3. WegsegmentLktTgbep
 
-        Lijst met mogelijke toegangsbeperkingen van een wegsegment.
-
-        h4. DBF Mapping
-
-        || DBF Column || Legacy DB Column || Enum Mapping ||
-        | TYPE | code | CodeForEach(RoadSegmentAccessRestriction) |
-        | LBLTYPE | label | LabelForEach(RoadSegmentAccessRestriction) |
-        | DEFTYPE | definitie | DescriptionForEach(RoadSegmentAccessRestriction) |
-
-        h4. DBF Description
-
-        || Name || DataType || Length || Decimal ||
-        | TYPE | Number | 2 | 0 |
-        | LBLTYPE | Character | 64 | 0 |
-        | DEFTYPE | Character | 255 | 0 |
          */
     }
+
+    /*
+
+     */
 }
