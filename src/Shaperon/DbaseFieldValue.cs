@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 
 namespace Shaperon
@@ -14,5 +14,21 @@ namespace Shaperon
         public abstract void Read(BinaryReader reader);
         public abstract void Write(BinaryWriter writer);
         public abstract void Inspect(IDbaseFieldValueInspector inspector);
+
+        public override bool Equals(object obj)
+        {
+            return obj is DbaseFieldValue fieldValue
+                   && Equals(fieldValue);
+        }
+
+        protected bool Equals(DbaseFieldValue other)
+        {
+            return Equals(Field, other.Field);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Field != null ? Field.GetHashCode() : 0);
+        }
     }
 }

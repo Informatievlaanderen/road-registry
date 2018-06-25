@@ -3,6 +3,7 @@ namespace RoadRegistry
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Globalization;
 
     public abstract class EnumTranslator<TEnum>
         where TEnum : IConvertible, IComparable, IFormattable
@@ -15,6 +16,7 @@ namespace RoadRegistry
         }
 
         protected abstract IDictionary<TEnum, string> DutchTranslations { get; }
+        protected virtual IDictionary<TEnum, string> DutchDescriptions => throw new NotImplementedException($"{nameof(DutchDescriptions)} not defined in {GetType().Name}");
 
         public int TranslateToIdentifier(TEnum value)
         {
@@ -22,13 +24,18 @@ namespace RoadRegistry
             // supported from C# 7.3
             // return (int)value;
 
-            // ReSharper disable once SpecifyACultureInStringConversionExplicitly : <enum>.ToString() does nog have an overload that excepts an IFormatProvider
-            return (int)Enum.Parse(typeof(TEnum), value.ToString());
+            return value.ToInt32(CultureInfo.InvariantCulture);
         }
 
         public string TranslateToDutchName(TEnum value)
         {
-            return (DutchTranslations.ContainsKey(value)) ? DutchTranslations[value] : string.Empty;
+            return DutchTranslations.ContainsKey(value) ? DutchTranslations[value] : throw new NotImplementedException($"Translation not set for {value}");
         }
+
+        public string TranslateToDutchDescription(TEnum value)
+        {
+            return DutchDescriptions.ContainsKey(value) ? DutchDescriptions[value] : throw new NotImplementedException($"Description not set for {value}");
+        }
+
     }
 }
