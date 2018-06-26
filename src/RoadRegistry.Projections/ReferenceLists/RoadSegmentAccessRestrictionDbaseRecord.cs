@@ -3,12 +3,12 @@ namespace RoadRegistry.Projections
     using Events;
     using Shaperon;
 
-    public class RoadSegmentAccessRestrictionRecord : DbaseRecord
+    public class RoadSegmentAccessRestrictionDbaseRecord : DbaseRecord
     {
-        private static readonly RoadSegmentAccessRestrictionSchema Schema = new RoadSegmentAccessRestrictionSchema();
+        private static readonly RoadSegmentAccessRestrictionDbaseSchema Schema = new RoadSegmentAccessRestrictionDbaseSchema();
         private static readonly RoadSegmentAccessRestrictionTranslator Translator = new RoadSegmentAccessRestrictionTranslator();
 
-        public RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction value)
+        public RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction value)
         {
             Values = new DbaseFieldValue[]
             {

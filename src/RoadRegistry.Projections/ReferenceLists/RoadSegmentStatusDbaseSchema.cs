@@ -2,9 +2,9 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadSegmentStatusSchema
+    public class RoadSegmentStatusDbaseSchema
     {
-        public RoadSegmentStatusSchema()
+        public RoadSegmentStatusDbaseSchema()
         {
             STATUS = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(STATUS)),

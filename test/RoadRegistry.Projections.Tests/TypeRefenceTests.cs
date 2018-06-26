@@ -28,12 +28,12 @@ namespace RoadRegistry.Projections.Tests
                 TypeReferences.RoadSegmentAccessRestrictions,
                 new[]
                 {
-                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.PublicRoad),
-                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.PhysicallyImpossible),
-                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.LegallyForbidden),
-                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.PrivateRoad),
-                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.Seasonal),
-                    new RoadSegmentAccessRestrictionRecord(RoadSegmentAccessRestriction.Toll),
+                    new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.PublicRoad),
+                    new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.PhysicallyImpossible),
+                    new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.LegallyForbidden),
+                    new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.PrivateRoad),
+                    new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.Seasonal),
+                    new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.Toll),
                 });
         }
 
@@ -44,9 +44,9 @@ namespace RoadRegistry.Projections.Tests
                 TypeReferences.RoadSegmentGeometryDrawMethods,
                 new[]
                 {
-                    new RoadSegmentGeometryDrawMethodRecord(RoadSegmentGeometryDrawMethod.Outlined),
-                    new RoadSegmentGeometryDrawMethodRecord(RoadSegmentGeometryDrawMethod.Measured),
-                    new RoadSegmentGeometryDrawMethodRecord(RoadSegmentGeometryDrawMethod.Measured_according_to_GRB_specifications),
+                    new RoadSegmentGeometryDrawMethodDbaseRecord(RoadSegmentGeometryDrawMethod.Outlined),
+                    new RoadSegmentGeometryDrawMethodDbaseRecord(RoadSegmentGeometryDrawMethod.Measured),
+                    new RoadSegmentGeometryDrawMethodDbaseRecord(RoadSegmentGeometryDrawMethod.Measured_according_to_GRB_specifications),
                 });
         }
 
@@ -57,12 +57,12 @@ namespace RoadRegistry.Projections.Tests
                 TypeReferences.RoadSegmentStatuses,
                 new[]
                 {
-                    new RoadSegmentStatusRecord(RoadSegmentStatus.Unknown),
-                    new RoadSegmentStatusRecord(RoadSegmentStatus.PermitRequested),
-                    new RoadSegmentStatusRecord(RoadSegmentStatus.BuildingPermitGranted),
-                    new RoadSegmentStatusRecord(RoadSegmentStatus.UnderConstruction),
-                    new RoadSegmentStatusRecord(RoadSegmentStatus.InUse),
-                    new RoadSegmentStatusRecord(RoadSegmentStatus.OutOfUse),
+                    new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.Unknown),
+                    new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.PermitRequested),
+                    new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.BuildingPermitGranted),
+                    new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.UnderConstruction),
+                    new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.InUse),
+                    new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.OutOfUse),
                 });
         }
 
@@ -73,25 +73,25 @@ namespace RoadRegistry.Projections.Tests
                 TypeReferences.RoadSegmentMorphologies,
                 new[]
                 {
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Unknown),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Motorway),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Road_with_separate_lanes_that_is_not_a_motorway),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Road_consisting_of_one_roadway),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Traffic_circle),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Special_traffic_situation),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Traffic_square),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_grade_separated_junction),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_level_junction),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Parallel_road),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Frontage_road),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Entry_or_exit_of_a_car_park),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Entry_or_exit_of_a_service),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Pedestrain_zone),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Walking_or_cycling_path_not_accessible_to_other_vehicles),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Tramway_not_accessible_to_other_vehicles),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Service_road),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Primitive_road),
-                    new RoadSegmentMorphologyRecord(RoadSegmentMorphology.Ferry)
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Unknown),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Motorway),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Road_with_separate_lanes_that_is_not_a_motorway),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Road_consisting_of_one_roadway),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Traffic_circle),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Special_traffic_situation),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Traffic_square),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_grade_separated_junction),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_level_junction),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Parallel_road),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Frontage_road),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Entry_or_exit_of_a_car_park),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Entry_or_exit_of_a_service),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Pedestrain_zone),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Walking_or_cycling_path_not_accessible_to_other_vehicles),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Tramway_not_accessible_to_other_vehicles),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Service_road),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Primitive_road),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Ferry)
                 });
         }
 
@@ -115,9 +115,9 @@ namespace RoadRegistry.Projections.Tests
                 TypeReferences.GradeSeparatedJunctionTypes,
                 new[]
                 {
-                    new GradeSeparatedJunctionTypeRecord(GradeSeparatedJunctionType.Unknown),
-                    new GradeSeparatedJunctionTypeRecord(GradeSeparatedJunctionType.Tunnel),
-                    new GradeSeparatedJunctionTypeRecord(GradeSeparatedJunctionType.Bridge),
+                    new GradeSeparatedJunctionTypeDbaseRecord(GradeSeparatedJunctionType.Unknown),
+                    new GradeSeparatedJunctionTypeDbaseRecord(GradeSeparatedJunctionType.Tunnel),
+                    new GradeSeparatedJunctionTypeDbaseRecord(GradeSeparatedJunctionType.Bridge),
                 });
         }
 

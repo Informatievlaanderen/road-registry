@@ -3,12 +3,12 @@ namespace RoadRegistry.Projections
     using Events;
     using Shaperon;
 
-    public class GradeSeparatedJunctionTypeRecord : DbaseRecord
+    public class GradeSeparatedJunctionTypeDbaseRecord : DbaseRecord
     {
-        private static readonly GradeSeparatedJunctionTypeSchema Schema = new GradeSeparatedJunctionTypeSchema();
+        private static readonly GradeSeparatedJunctionTypeDbaseSchema Schema = new GradeSeparatedJunctionTypeDbaseSchema();
         private static readonly GradeSeparatedJunctionTypeTranslator Translator = new GradeSeparatedJunctionTypeTranslator();
 
-        public GradeSeparatedJunctionTypeRecord(GradeSeparatedJunctionType value)
+        public GradeSeparatedJunctionTypeDbaseRecord(GradeSeparatedJunctionType value)
         {
             Values = new DbaseFieldValue[]
             {

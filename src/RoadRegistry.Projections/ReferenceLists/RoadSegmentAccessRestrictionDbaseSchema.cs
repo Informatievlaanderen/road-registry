@@ -2,9 +2,9 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class GradeSeparatedJunctionTypeSchema
+    public class RoadSegmentAccessRestrictionDbaseSchema
     {
-        public GradeSeparatedJunctionTypeSchema()
+        public RoadSegmentAccessRestrictionDbaseSchema()
         {
             TYPE = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(TYPE)),
@@ -18,6 +18,7 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(DEFTYPE)),
                 new DbaseFieldLength(254));
         }
+
         public DbaseField TYPE { get; }
         public DbaseField LBLTYPE { get; }
         public DbaseField DEFTYPE { get; }

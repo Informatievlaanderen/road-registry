@@ -9,12 +9,12 @@ namespace RoadRegistry.Projections
     public class TypeReferences
     {
         public static RoadNodeTypeDbaseRecord[] RoadNodeTypes => CreateDbaseRecords<RoadNodeTypeDbaseRecord, RoadNodeType>();
-        public static RoadSegmentAccessRestrictionRecord[] RoadSegmentAccessRestrictions => CreateDbaseRecords<RoadSegmentAccessRestrictionRecord, RoadSegmentAccessRestriction>();
-        public static RoadSegmentGeometryDrawMethodRecord[] RoadSegmentGeometryDrawMethods => CreateDbaseRecords<RoadSegmentGeometryDrawMethodRecord, RoadSegmentGeometryDrawMethod>();
-        public static RoadSegmentStatusRecord[] RoadSegmentStatuses => CreateDbaseRecords<RoadSegmentStatusRecord, RoadSegmentStatus>();
-        public static RoadSegmentMorphologyRecord[] RoadSegmentMorphologies => CreateDbaseRecords<RoadSegmentMorphologyRecord, RoadSegmentMorphology>();
+        public static RoadSegmentAccessRestrictionDbaseRecord[] RoadSegmentAccessRestrictions => CreateDbaseRecords<RoadSegmentAccessRestrictionDbaseRecord, RoadSegmentAccessRestriction>();
+        public static RoadSegmentGeometryDrawMethodDbaseRecord[] RoadSegmentGeometryDrawMethods => CreateDbaseRecords<RoadSegmentGeometryDrawMethodDbaseRecord, RoadSegmentGeometryDrawMethod>();
+        public static RoadSegmentStatusDbaseRecord[] RoadSegmentStatuses => CreateDbaseRecords<RoadSegmentStatusDbaseRecord, RoadSegmentStatus>();
+        public static RoadSegmentMorphologyDbaseRecord[] RoadSegmentMorphologies => CreateDbaseRecords<RoadSegmentMorphologyDbaseRecord, RoadSegmentMorphology>();
         public static ReferencePointTypeDbaseRecord[] ReferencePointTypes => CreateDbaseRecords<ReferencePointTypeDbaseRecord, ReferencePointType>();
-        public static GradeSeparatedJunctionTypeRecord[] GradeSeparatedJunctionTypes => CreateDbaseRecords<GradeSeparatedJunctionTypeRecord, GradeSeparatedJunctionType>();
+        public static GradeSeparatedJunctionTypeDbaseRecord[] GradeSeparatedJunctionTypes => CreateDbaseRecords<GradeSeparatedJunctionTypeDbaseRecord, GradeSeparatedJunctionType>();
 
         private static TDbaseRecord[] CreateDbaseRecords<TDbaseRecord, TEnum>()
             where TDbaseRecord : DbaseRecord

@@ -2,9 +2,9 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class LaneDirectionSchema
+    public class LaneDirectionDbaseSchema
     {
-        public LaneDirectionSchema()
+        public LaneDirectionDbaseSchema()
         {
             RICHTING = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(RICHTING)),

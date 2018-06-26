@@ -3,12 +3,12 @@ namespace RoadRegistry.Projections
     using Events;
     using Shaperon;
 
-    public class RoadSegmentGeometryDrawMethodRecord : DbaseRecord
+    public class RoadSegmentGeometryDrawMethodDbaseRecord : DbaseRecord
     {
-        private static readonly RoadSegmentGeometryDrawMethodSchema Schema = new RoadSegmentGeometryDrawMethodSchema();
+        private static readonly RoadSegmentGeometryDrawMethodDbaseSchema Schema = new RoadSegmentGeometryDrawMethodDbaseSchema();
         private static readonly RoadSegmentGeometryDrawMethodTranslator Translator = new RoadSegmentGeometryDrawMethodTranslator();
 
-        public RoadSegmentGeometryDrawMethodRecord(RoadSegmentGeometryDrawMethod value)
+        public RoadSegmentGeometryDrawMethodDbaseRecord(RoadSegmentGeometryDrawMethod value)
         {
             Values = new DbaseFieldValue[]
             {

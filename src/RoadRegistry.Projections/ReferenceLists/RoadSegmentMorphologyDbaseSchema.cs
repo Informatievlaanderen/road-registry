@@ -2,9 +2,9 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadSegmentMorphologySchema
+    public class RoadSegmentMorphologyDbaseSchema
     {
-        public RoadSegmentMorphologySchema()
+        public RoadSegmentMorphologyDbaseSchema()
         {
             MORF = DbaseField.CreateInt32Field(
                 new DbaseFieldName(nameof(MORF)),

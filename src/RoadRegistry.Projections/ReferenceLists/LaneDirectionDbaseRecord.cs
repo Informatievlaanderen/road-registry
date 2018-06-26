@@ -3,12 +3,12 @@ namespace RoadRegistry.Projections
     using Events;
     using Shaperon;
 
-    public class LaneDirectionRecord : DbaseRecord
+    public class LaneDirectionDbaseRecord : DbaseRecord
     {
-        private static readonly LaneDirectionSchema Schema = new LaneDirectionSchema();
+        private static readonly LaneDirectionDbaseSchema Schema = new LaneDirectionDbaseSchema();
         private static readonly LaneDirectionTranslator Translator = new LaneDirectionTranslator();
 
-        public LaneDirectionRecord(LaneDirection value)
+        public LaneDirectionDbaseRecord(LaneDirection value)
         {
             Values = new DbaseFieldValue[]
             {
