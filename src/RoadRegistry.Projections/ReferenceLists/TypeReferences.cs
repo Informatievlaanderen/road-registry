@@ -13,6 +13,7 @@ namespace RoadRegistry.Projections
         public static RoadSegmentGeometryDrawMethodDbaseRecord[] RoadSegmentGeometryDrawMethods => CreateDbaseRecords<RoadSegmentGeometryDrawMethodDbaseRecord, RoadSegmentGeometryDrawMethod>();
         public static RoadSegmentStatusDbaseRecord[] RoadSegmentStatuses => CreateDbaseRecords<RoadSegmentStatusDbaseRecord, RoadSegmentStatus>();
         public static RoadSegmentMorphologyDbaseRecord[] RoadSegmentMorphologies => CreateDbaseRecords<RoadSegmentMorphologyDbaseRecord, RoadSegmentMorphology>();
+        public static HardeningTypeDbaseRecord[] HardeningTypes => CreateDbaseRecords<HardeningTypeDbaseRecord, HardeningType>();
         public static ReferencePointTypeDbaseRecord[] ReferencePointTypes => CreateDbaseRecords<ReferencePointTypeDbaseRecord, ReferencePointType>();
         public static GradeSeparatedJunctionTypeDbaseRecord[] GradeSeparatedJunctionTypes => CreateDbaseRecords<GradeSeparatedJunctionTypeDbaseRecord, GradeSeparatedJunctionType>();
 
@@ -66,28 +67,6 @@ namespace RoadRegistry.Projections
         | LBLRICHT | Character | 64 | 0 |
         | DEFRICHT | Character | 255 | 0 |
 
-        h3. WegverhardLktType
-
-        Lijst met mogelijke wegverhardingen.
-
-        h4. DBF Mapping
-
-        || DBF Column || Legacy DB Column || Enum Mapping ||
-        | TYPE | code | CodeForEach(HardeningType) |
-        | LBLTYPE | label | LabelForEach(HardeningType) |
-        | DEFTYPE | definitie | DescriptionForEach(HardeningType) |
-
-        h4. DBF Description
-
-        || Name || DataType || Length || Decimal ||
-        | TYPE | Number | 2 | 0 |
-        | LBLTYPE | Character | 64 | 0 |
-        | DEFTYPE | Character | 255 | 0 |
-
          */
     }
-
-    /*
-
-     */
 }

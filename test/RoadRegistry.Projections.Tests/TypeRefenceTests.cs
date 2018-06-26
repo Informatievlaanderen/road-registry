@@ -96,6 +96,20 @@ namespace RoadRegistry.Projections.Tests
         }
 
         [Fact]
+        public void All_hardening_type_records_are_defined()
+        {
+            AssertDbaseRecordCollectionsContainSameElements(
+                TypeReferences.HardeningTypes,
+                new[]
+                {
+                    new HardeningTypeDbaseRecord(HardeningType.NotApplicable),
+                    new HardeningTypeDbaseRecord(HardeningType.Unknown),
+                    new HardeningTypeDbaseRecord(HardeningType.SolidHardening),
+                    new HardeningTypeDbaseRecord(HardeningType.LooseHardening),
+                });
+        }
+
+        [Fact]
         public void All_reference_point_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
