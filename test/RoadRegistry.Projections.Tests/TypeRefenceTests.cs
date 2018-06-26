@@ -7,6 +7,21 @@ namespace RoadRegistry.Projections.Tests
     public class TypeRefenceTests
     {
         [Fact]
+        public void All_road_node_type_records_are_defined()
+        {
+            AssertDbaseRecordCollectionsContainSameElements(
+                TypeReferences.RoadNodeTypes,
+                new[]
+                {
+                    new RoadNodeTypeDbaseRecord(RoadNodeType.RealNode),
+                    new RoadNodeTypeDbaseRecord(RoadNodeType.FakeNode),
+                    new RoadNodeTypeDbaseRecord(RoadNodeType.EndNode),
+                    new RoadNodeTypeDbaseRecord(RoadNodeType.MiniRoundabout),
+                    new RoadNodeTypeDbaseRecord(RoadNodeType.TurnLoopNode),
+                });
+        }
+
+        [Fact]
         public void All_road_segment_access_restriction_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(

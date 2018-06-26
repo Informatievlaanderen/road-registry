@@ -8,6 +8,7 @@ namespace RoadRegistry.Projections
 
     public class TypeReferences
     {
+        public static RoadNodeTypeDbaseRecord[] RoadNodeTypes => CreateDbaseRecords<RoadNodeTypeDbaseRecord, RoadNodeType>();
         public static RoadSegmentAccessRestrictionRecord[] RoadSegmentAccessRestrictions => CreateDbaseRecords<RoadSegmentAccessRestrictionRecord, RoadSegmentAccessRestriction>();
         public static RoadSegmentGeometryDrawMethodRecord[] RoadSegmentGeometryDrawMethods => CreateDbaseRecords<RoadSegmentGeometryDrawMethodRecord, RoadSegmentGeometryDrawMethod>();
         public static RoadSegmentStatusRecord[] RoadSegmentStatuses => CreateDbaseRecords<RoadSegmentStatusRecord, RoadSegmentStatus>();
@@ -75,24 +76,6 @@ namespace RoadRegistry.Projections
         | TYPE | code | CodeForEach(HardeningType) |
         | LBLTYPE | label | LabelForEach(HardeningType) |
         | DEFTYPE | definitie | DescriptionForEach(HardeningType) |
-
-        h4. DBF Description
-
-        || Name || DataType || Length || Decimal ||
-        | TYPE | Number | 2 | 0 |
-        | LBLTYPE | Character | 64 | 0 |
-        | DEFTYPE | Character | 255 | 0 |
-
-        h3. WegknoopLktType
-
-        Lijst met mogelijke wegknoop types.
-
-        h4. DBF Mapping
-
-        || DBF Column || Legacy DB Column || Enum Mapping ||
-        | TYPE | code | CodeForEach(RoadNodeType) |
-        | LBLTYPE | label | LabelForEach(RoadNodeType) |
-        | DEFTYPE | definitie | DescriptionForEach(RoadNodeType) |
 
         h4. DBF Description
 
