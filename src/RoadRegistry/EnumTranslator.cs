@@ -16,7 +16,7 @@ namespace RoadRegistry
         }
 
         protected abstract IDictionary<TEnum, string> DutchTranslations { get; }
-        protected virtual IDictionary<TEnum, string> DutchDescriptions => throw new NotImplementedException($"{nameof(DutchDescriptions)} not defined in {GetType().Name}");
+        protected abstract IDictionary<TEnum, string> DutchDescriptions { get; }
 
         public int TranslateToIdentifier(TEnum value)
         {
