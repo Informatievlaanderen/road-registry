@@ -110,6 +110,19 @@ namespace RoadRegistry.Projections.Tests
         }
 
         [Fact]
+        public void All_numbered_road_segement_direction_records_are_defined()
+        {
+            AssertDbaseRecordCollectionsContainSameElements(
+                TypeReferences.NumberedRoadSegmentDirections,
+                new[]
+                {
+                    new NumberedRoadSegmentDirectionDbaseRecord(NumberedRoadSegmentDirection.Unknown),
+                    new NumberedRoadSegmentDirectionDbaseRecord(NumberedRoadSegmentDirection.Forward),
+                    new NumberedRoadSegmentDirectionDbaseRecord(NumberedRoadSegmentDirection.Backward),
+                });
+        }
+
+        [Fact]
         public void All_reference_point_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(

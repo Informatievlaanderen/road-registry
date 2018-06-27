@@ -14,6 +14,7 @@ namespace RoadRegistry.Projections
         public static RoadSegmentStatusDbaseRecord[] RoadSegmentStatuses => CreateDbaseRecords<RoadSegmentStatusDbaseRecord, RoadSegmentStatus>();
         public static RoadSegmentMorphologyDbaseRecord[] RoadSegmentMorphologies => CreateDbaseRecords<RoadSegmentMorphologyDbaseRecord, RoadSegmentMorphology>();
         public static HardeningTypeDbaseRecord[] HardeningTypes => CreateDbaseRecords<HardeningTypeDbaseRecord, HardeningType>();
+        public static NumberedRoadSegmentDirectionDbaseRecord[] NumberedRoadSegmentDirections => CreateDbaseRecords<NumberedRoadSegmentDirectionDbaseRecord, NumberedRoadSegmentDirection>();
         public static ReferencePointTypeDbaseRecord[] ReferencePointTypes => CreateDbaseRecords<ReferencePointTypeDbaseRecord, ReferencePointType>();
         public static GradeSeparatedJunctionTypeDbaseRecord[] GradeSeparatedJunctionTypes => CreateDbaseRecords<GradeSeparatedJunctionTypeDbaseRecord, GradeSeparatedJunctionType>();
 
@@ -49,24 +50,7 @@ namespace RoadRegistry.Projections
         | LBLWEGCAT | Character | 64 | 0 |
         | DEFWEGCAT | Character | 255 | 0 |
 
-        h3. GenumwegLktRichting
-
-        Lijst met mogelijke richtingen van een genummerde weg.
-
-        h4. DBF Mapping
-
-        || DBF Column || Legacy DB Column || Enum Mapping ||
-        | RICHTING | code | CodeForEach(NumberedRoadSegmentDirection) |
-        | LBLRICHT | label | LabelForEach(NumberedRoadSegmentDirection) |
-        | DEFRICHT | definitie | DescriptionForEach(NumberedRoadSegmentDirection) |
-
-        h4. DBF Description
-
-        || Name || DataType || Length || Decimal ||
-        | RICHTING | Number | 2 | 0 |
-        | LBLRICHT | Character | 64 | 0 |
-        | DEFRICHT | Character | 255 | 0 |
-
          */
+
     }
 }
