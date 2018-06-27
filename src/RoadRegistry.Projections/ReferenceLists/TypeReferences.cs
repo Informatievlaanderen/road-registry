@@ -15,6 +15,7 @@ namespace RoadRegistry.Projections
         public static RoadSegmentMorphologyDbaseRecord[] RoadSegmentMorphologies => CreateDbaseRecords<RoadSegmentMorphologyDbaseRecord, RoadSegmentMorphology>();
         public static RoadSegmentCategoryDbaseRecord[] RoadSegmentCategories => CreateDbaseRecords<RoadSegmentCategoryDbaseRecord, RoadSegmentCategory>();
         public static HardeningTypeDbaseRecord[] HardeningTypes => CreateDbaseRecords<HardeningTypeDbaseRecord, HardeningType>();
+        public static LaneDirectionDbaseRecord[] LaneDirections => CreateDbaseRecords<LaneDirectionDbaseRecord, LaneDirection>();
         public static NumberedRoadSegmentDirectionDbaseRecord[] NumberedRoadSegmentDirections => CreateDbaseRecords<NumberedRoadSegmentDirectionDbaseRecord, NumberedRoadSegmentDirection>();
         public static ReferencePointTypeDbaseRecord[] ReferencePointTypes => CreateDbaseRecords<ReferencePointTypeDbaseRecord, ReferencePointType>();
         public static GradeSeparatedJunctionTypeDbaseRecord[] GradeSeparatedJunctionTypes => CreateDbaseRecords<GradeSeparatedJunctionTypeDbaseRecord, GradeSeparatedJunctionType>();

@@ -138,6 +138,20 @@ namespace RoadRegistry.Projections.Tests
         }
 
         [Fact]
+        public void All_lane_direction_records_are_defined()
+        {
+            AssertDbaseRecordCollectionsContainSameElements(
+                TypeReferences.LaneDirections,
+                new[]
+                {
+                    new LaneDirectionDbaseRecord(LaneDirection.Unknown),
+                    new LaneDirectionDbaseRecord(LaneDirection.Forward),
+                    new LaneDirectionDbaseRecord(LaneDirection.Backward),
+                    new LaneDirectionDbaseRecord(LaneDirection.Independent),
+                });
+        }
+
+        [Fact]
         public void All_numbered_road_segement_direction_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
