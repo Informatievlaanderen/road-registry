@@ -96,6 +96,34 @@ namespace RoadRegistry.Projections.Tests
         }
 
         [Fact]
+        public void All_road_segment_category_records_are_defined()
+        {
+            AssertDbaseRecordCollectionsContainSameElements(
+                TypeReferences.RoadSegmentCategories,
+                new[]
+                {
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.Unknown),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.NotApplicable),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.MainRoad),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.LocalRoad),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.LocalRoadType1),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.LocalRoadType2),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.LocalRoadType3),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.PrimaryRoadI),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.PrimaryRoadII),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.PrimaryRoadIIType1),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.PrimaryRoadIIType2),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.PrimaryRoadIIType3),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.PrimaryRoadIIType4),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.SecondaryRoad),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.SecondaryRoadType1),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.SecondaryRoadType2),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.SecondaryRoadType3),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.SecondaryRoadType4),
+                });
+        }
+
+        [Fact]
         public void All_hardening_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(

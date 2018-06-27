@@ -13,6 +13,7 @@ namespace RoadRegistry.Projections
         public static RoadSegmentGeometryDrawMethodDbaseRecord[] RoadSegmentGeometryDrawMethods => CreateDbaseRecords<RoadSegmentGeometryDrawMethodDbaseRecord, RoadSegmentGeometryDrawMethod>();
         public static RoadSegmentStatusDbaseRecord[] RoadSegmentStatuses => CreateDbaseRecords<RoadSegmentStatusDbaseRecord, RoadSegmentStatus>();
         public static RoadSegmentMorphologyDbaseRecord[] RoadSegmentMorphologies => CreateDbaseRecords<RoadSegmentMorphologyDbaseRecord, RoadSegmentMorphology>();
+        public static RoadSegmentCategoryDbaseRecord[] RoadSegmentCategories => CreateDbaseRecords<RoadSegmentCategoryDbaseRecord, RoadSegmentCategory>();
         public static HardeningTypeDbaseRecord[] HardeningTypes => CreateDbaseRecords<HardeningTypeDbaseRecord, HardeningType>();
         public static NumberedRoadSegmentDirectionDbaseRecord[] NumberedRoadSegmentDirections => CreateDbaseRecords<NumberedRoadSegmentDirectionDbaseRecord, NumberedRoadSegmentDirection>();
         public static ReferencePointTypeDbaseRecord[] ReferencePointTypes => CreateDbaseRecords<ReferencePointTypeDbaseRecord, ReferencePointType>();
@@ -27,30 +28,5 @@ namespace RoadRegistry.Projections
                 .Select(value => (TDbaseRecord)Activator.CreateInstance(typeof(TDbaseRecord), value))
                 .ToArray();
         }
-
-
-        /*
-
-
-        h3. WegsegmentLktWegcat
-
-        Lijst met de mogelijke wegcategorieën tot dewelke een wegsegment kan behoren.
-
-        h4. DBF Mapping
-
-        || DBF Column || Legacy DB Column || Enum Mapping ||
-        | WEGCAT | code | CodeForEach(RoadSegmentCategory) |
-        | LBLWEGCAT | label | LabelForEach(RoadSegmentCategory) |
-        | DEFWEGCAT | definitie | DescriptionForEach(RoadSegmentCategory) |
-
-        h4. DBF Description
-
-        || Name || DataType || Length || Decimal ||
-        | WEGCAT | Character | 5 | 0 |
-        | LBLWEGCAT | Character | 64 | 0 |
-        | DEFWEGCAT | Character | 255 | 0 |
-
-         */
-
     }
 }
