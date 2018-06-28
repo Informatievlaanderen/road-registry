@@ -107,7 +107,7 @@ namespace Shaperon
         }
 
         [Fact]
-        public void IsEquatableToRecordNumber()
+        public void IsEquatableToDbaseFieldLength()
         {
             Assert.IsAssignableFrom<IEquatable<DbaseFieldLength>>(_fixture.Create<DbaseFieldLength>());
         }

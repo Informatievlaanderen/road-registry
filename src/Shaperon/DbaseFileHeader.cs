@@ -20,10 +20,21 @@ namespace Shaperon
             RecordFields = recordFields;
         }
 
+        public DbaseFileHeader(DateTime lastUpdated, DbaseCodePage codePage, DbaseRecordCount recordCount, DbaseSchema schema)
+        {
+            LastUpdated = lastUpdated.RoundToDay();
+            CodePage = codePage;
+            RecordCount = recordCount;
+            Schema = schema;
+        }
+
         public DateTime LastUpdated { get; }
         public DbaseCodePage CodePage { get; }
         public int RecordCount { get; }
+        public DbaseSchema Schema { get; }
+        [Obsolete]
         public int RecordLength { get; }
+        [Obsolete]
         public DbaseField[] RecordFields { get; }
 
         public static DbaseFileHeader Read(BinaryReader reader)
@@ -48,21 +59,23 @@ namespace Shaperon
                 throw new DbaseFileHeaderException($"The database code page {rawCodePage} is not supported.");
             }
             reader.ReadBytes(3);
-            var recordFieldCount = (headerLength - HeaderMetaDataSize) / FieldMetaDataSize;
-            var recordFields = new DbaseField[recordFieldCount];
-            for (var recordFieldIndex = 0; recordFieldIndex < recordFieldCount; recordFieldIndex++)
+            var fieldCount = (headerLength - HeaderMetaDataSize) / FieldMetaDataSize;
+            var fields = new DbaseField[fieldCount];
+            for (var recordFieldIndex = 0; recordFieldIndex < fieldCount; recordFieldIndex++)
             {
-                recordFields[recordFieldIndex] = DbaseField.Read(reader);
+                fields[recordFieldIndex] = DbaseField.Read(reader);
             }
             if(reader.ReadByte() != Terminator)
             {
                 throw new DbaseFileHeaderException("The database file header terminator is missing.");
             }
             // skip to first record
-            var bytesToSkip = headerLength - (HeaderMetaDataSize + (FieldMetaDataSize * recordFieldCount));
+            var bytesToSkip = headerLength - (HeaderMetaDataSize + (FieldMetaDataSize * fieldCount));
             reader.ReadBytes(bytesToSkip);
 
-            return new DbaseFileHeader(lastUpdated, codePage, recordCount, recordLength, recordFields);
+            var schema = new AnonymousDbaseSchema(fields);
+
+            return new DbaseFileHeader(lastUpdated, codePage, new DbaseRecordCount(recordCount), schema);
         }
 
         public void Write(BinaryWriter writer)

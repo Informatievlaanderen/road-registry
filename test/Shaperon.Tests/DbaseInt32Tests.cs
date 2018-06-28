@@ -15,10 +15,11 @@ namespace Shaperon
     {
         private readonly Fixture _fixture;
 
-        public ITestOutputHelper Out { get; }
+        private ITestOutputHelper _out;
 
         public DbaseInt32Tests(ITestOutputHelper @out)
         {
+            _out = @out ?? throw new ArgumentNullException(nameof(@out));
             _fixture = new Fixture();
             _fixture.CustomizeDbaseFieldName();
             _fixture.CustomizeDbaseFieldLength();
@@ -26,7 +27,6 @@ namespace Shaperon
             _fixture.CustomizeDbaseInt32();
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
-            Out = @out ?? throw new ArgumentNullException(nameof(@out));
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace Shaperon
                 // because it's impossible to create a value longer than this (we need the test to generate a longer value)
             );
             var length = _fixture.GenerateDbaseInt32LengthLessThan(maxLength);
-            Out.WriteLine("Length used is: {0}", length.ToString());
+            _out.WriteLine("Length used is: {0}", length.ToString());
 
             var sut =
                 new DbaseInt32(
@@ -95,7 +95,7 @@ namespace Shaperon
             var value = Enumerable
                 .Range(0, sut.Field.Length)
                 .Aggregate(1, (current, _) => current * 10);
-            Out.WriteLine("Value used is: {0}", value.ToString());
+            _out.WriteLine("Value used is: {0}", value.ToString());
 
             Assert.Throws<ArgumentException>(() => sut.Value = value);
         }

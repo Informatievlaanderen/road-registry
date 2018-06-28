@@ -67,6 +67,24 @@ namespace Shaperon
                     ));
         }
 
+        public static void CustomizeDbaseRecordCount(this IFixture fixture)
+        {
+            fixture.Customize<DbaseRecordCount>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => new DbaseRecordCount(value.AsDbaseRecordCountValue())
+                    ));
+        }
+
+        public static void CustomizeDbaseRecordLength(this IFixture fixture)
+        {
+            fixture.Customize<DbaseRecordLength>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => new DbaseRecordLength(value.AsDbaseRecordLengthValue())
+                    ));
+        }
+
         public static void CustomizeDbaseDecimalCount(this IFixture fixture)
         {
             fixture.Customize<DbaseDecimalCount>(

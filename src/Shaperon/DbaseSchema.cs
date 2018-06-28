@@ -1,7 +1,8 @@
-using System;
-
 namespace Shaperon
 {
+    using System;
+    using System.Linq;
+
     public abstract class DbaseSchema
     {
         public const int MaximumFieldCount = 128;
@@ -26,6 +27,6 @@ namespace Shaperon
             }
         }
 
-        //public RecordLength RecordLength => Fields.Aggregate(new RecordLength(0), (length, field) => length.Plus(field.Length));
+        public DbaseRecordLength Length => Fields.Aggregate(DbaseRecordLength.Initial, (length, field) => length.Plus(field.Length));
     }
 }
