@@ -73,20 +73,5 @@ namespace Shaperon
         {
             writer.Inspect(this);
         }
-
-        public override bool Equals(object obj)
-        {
-            return obj is DbaseDateTime record
-                   && base.Equals(record)
-                   && _value.Equals(record._value);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (base.GetHashCode() * 397) ^ _value.GetHashCode();
-            }
-        }
     }
 }

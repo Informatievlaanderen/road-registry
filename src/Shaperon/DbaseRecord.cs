@@ -70,38 +70,5 @@ namespace Shaperon
                 return output.ToArray();
             }
         }
-
-        public override bool Equals(object obj)
-        {
-            return obj is DbaseRecord record
-                   && GetType() == obj.GetType()
-                   && Equals(record);
-        }
-
-        private bool Equals(DbaseRecord other)
-        {
-            return IsDeleted == other.IsDeleted && EqualValues(other);
-        }
-
-        private bool EqualValues(DbaseRecord other)
-        {
-            if (null == Values && null == other.Values)
-                return true;
-
-            if (Values?.Length != other.Values?.Length)
-                return false;
-
-            return Values
-                .Select<DbaseFieldValue, Func<bool>>((value, i) => { return () => value.Equals(other.Values[i]); })
-                .All(areEqual => areEqual());
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (IsDeleted.GetHashCode() * 397) ^ (Values != null ? Values.GetHashCode() : 0);
-            }
-        }
     }
 }
