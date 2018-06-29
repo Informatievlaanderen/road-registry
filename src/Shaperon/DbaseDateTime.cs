@@ -10,9 +10,9 @@ namespace Shaperon
 
         public DbaseDateTime(DbaseField field, DateTime? value = null) : base(field)
         {
-            if (field.FieldType != DbaseFieldType.DateTime)
+            if (field.FieldType != DbaseFieldType.DateTime && field.FieldType != DbaseFieldType.Character)
             {
-                throw new ArgumentException($"The field {field.Name}'s type must be number to use it as a datetime field.", nameof(field));
+                throw new ArgumentException($"The field {field.Name}'s type must be either datetime or character to use it as a datetime field.", nameof(field));
             }
 
             Value = value;

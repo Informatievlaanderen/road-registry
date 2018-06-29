@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadSegmentEuropeanRoadAttributeDbaseSchema
+    public class RoadSegmentEuropeanRoadAttributeDbaseSchema : DbaseSchema
     {
         public RoadSegmentEuropeanRoadAttributeDbaseSchema()
         {
@@ -27,6 +27,11 @@ namespace RoadRegistry.Projections
             LBLBGNORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLBGNORG)),
                 new DbaseFieldLength(64));
+
+            Fields = new DbaseField[]
+            {
+                EU_OIDN, WS_OIDN, EUNUMMER, BEGINTIJD, BEGINORG, LBLBGNORG
+            };
         }
 
         public DbaseField EU_OIDN { get; }

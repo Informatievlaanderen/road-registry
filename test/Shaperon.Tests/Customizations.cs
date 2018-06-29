@@ -106,12 +106,38 @@ namespace Shaperon
                 .First(specimen => specimen == DbaseFieldType.Number || specimen == DbaseFieldType.Float);
         }
 
+        public static DbaseFieldType GenerateDbaseDateTimeFieldType(this IFixture fixture)
+        {
+            return new Generator<DbaseFieldType>(fixture)
+                .First(specimen => specimen == DbaseFieldType.DateTime || specimen == DbaseFieldType.Character);
+        }
+
+        public static int GenerateDbaseSchemaFieldCount(this IFixture fixture)
+        {
+            return new Generator<int>(fixture)
+                .First(specimen => specimen <= DbaseSchema.MaximumFieldCount);
+        }
+
         public static void CustomizeDbaseCodePage(this IFixture fixture)
         {
             fixture.Customize<DbaseCodePage>(
                 customization =>
                     customization.FromFactory<int>(
                         value => DbaseCodePage.All[value % DbaseCodePage.All.Length]
+                    ));
+        }
+
+        public static void CustomizeDbaseSchema(this IFixture fixture)
+        {
+            fixture.Customize<DbaseSchema>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => 
+                            new AnonymousDbaseSchema(
+                                fixture
+                                    .CreateMany<DbaseField>(fixture.GenerateDbaseSchemaFieldCount())
+                                    .ToArray()
+                            )
                     ));
         }
 
@@ -163,7 +189,7 @@ namespace Shaperon
                                 case 1: // datetime
                                     field = new DbaseField(
                                         fixture.Create<DbaseFieldName>(),
-                                        DbaseFieldType.DateTime,
+                                        fixture.GenerateDbaseDateTimeFieldType(),
                                         fixture.Create<ByteOffset>(),
                                         new DbaseFieldLength(15),
                                         new DbaseDecimalCount(0)
@@ -260,7 +286,8 @@ namespace Shaperon
                     customization
                         .FromFactory<double?>(
                             value => {
-                                var length = fixture.GenerateDbaseDoubleLength();
+                                var length = new Generator<DbaseFieldLength>(fixture)
+                                    .First(_ => _.ToInt32() >= (value.HasValue ? value.Value.ToString(CultureInfo.InvariantCulture).Length : 0));
                                 var decimalCount = fixture.GenerateDbaseDoubleDecimalCount(length);
                                 return new DbaseDouble(
                                     new DbaseField(
@@ -282,7 +309,8 @@ namespace Shaperon
                     customization
                         .FromFactory<float?>(
                             value => {
-                                var length = fixture.GenerateDbaseSingleLength();
+                                var length = new Generator<DbaseFieldLength>(fixture)
+                                    .First(_ => _.ToInt32() >= (value.HasValue ? value.Value.ToString(CultureInfo.InvariantCulture).Length : 0));
                                 var decimalCount = fixture.GenerateDbaseSingleDecimalCount(length);
                                 return new DbaseSingle(
                                     new DbaseField(
@@ -306,7 +334,7 @@ namespace Shaperon
                             value => new DbaseDateTime(
                                 new DbaseField(
                                     fixture.Create<DbaseFieldName>(),
-                                    DbaseFieldType.DateTime,
+                                    fixture.GenerateDbaseDateTimeFieldType(),
                                     fixture.Create<ByteOffset>(),
                                     new DbaseFieldLength(15),
                                     new DbaseDecimalCount(0)

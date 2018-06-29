@@ -28,5 +28,9 @@ namespace Shaperon
         }
 
         public DbaseRecordLength Length => Fields.Aggregate(DbaseRecordLength.Initial, (length, field) => length.Plus(field.Length));
+
+        public bool Equals(DbaseSchema other) => other != null && other.Fields.SequenceEqual(Fields);
+        public override bool Equals(object obj) => obj is DbaseSchema schema && Equals(schema);
+        public override int GetHashCode() => Fields.Aggregate(0, (current, field) => current ^ field.GetHashCode());
     }
 }

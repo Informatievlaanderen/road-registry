@@ -1,7 +1,9 @@
 namespace Shaperon
 {
     using System;
+    using System.IO;
     using System.Linq;
+    using System.Text;
     using AutoFixture;
     using Xunit;
 
@@ -15,7 +17,6 @@ namespace Shaperon
             _fixture.CustomizeDbaseFieldName();
             _fixture.CustomizeDbaseFieldLength();
             _fixture.CustomizeDbaseDecimalCount();
-            _fixture.CustomizeDbaseString();
             _fixture.CustomizeDbaseField();
         }
 
@@ -43,23 +44,61 @@ namespace Shaperon
             Assert.Same(values, sut.Values);
         }
 
-        [Fact(Skip = "Needs work")]
+        [Fact]
         public void ReadingCharacterWithDateTimeValueHasExpectedResult()
         {
-            var fields = _fixture.CreateMany<DbaseField>().ToArray();
-            fields[0] = new DbaseField(
-                fields[0].Name,
-                DbaseFieldType.Character,
-                new ByteOffset(0),
-                new DbaseFieldLength(15),
-                new DbaseDecimalCount(0)
-            );
-            var expectedValues = Array.ConvertAll(fields, field => field.CreateFieldValue());
+            var value =  _fixture.Create<DateTime>();
+            var fields = new DbaseField[] {
+                new DbaseField(
+                    _fixture.Create<DbaseFieldName>(),
+                    DbaseFieldType.DateTime,
+                    new ByteOffset(0),
+                    new DbaseFieldLength(15),
+                    new DbaseDecimalCount(0)
+                )
+            };
+            var values = new DbaseFieldValue[] {
+                new DbaseDateTime(
+                    fields[0],
+                    value
+                )
+            };
+            
+            using(var stream = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+                {
+                    new AnonymousDbaseRecord(values).Write(writer);
+                    writer.Flush();
+                }
 
-            var sut = new AnonymousDbaseRecord(fields);
+                stream.Position = 0;
 
-            Assert.False(sut.IsDeleted);
-            Assert.Equal(expectedValues, sut.Values, new DbaseFieldValueEqualityComparer());
+                using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
+                {
+                    fields[0] = new DbaseField(
+                        fields[0].Name,
+                        DbaseFieldType.Character,
+                        new ByteOffset(0),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)
+                    );
+
+                    var sut = new AnonymousDbaseRecord(fields);
+
+                    //Act
+                    sut.Read(reader);
+
+                    Assert.False(sut.IsDeleted);
+                    Assert.Equal(new DbaseFieldValue[] {
+                        new DbaseDateTime(
+                            fields[0],
+                            value
+                        )
+                    }, sut.Values, new DbaseFieldValueEqualityComparer());
+                }
+            }
+
         }
     }
 }

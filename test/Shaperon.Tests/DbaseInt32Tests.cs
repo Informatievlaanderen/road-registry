@@ -104,7 +104,7 @@ namespace Shaperon
         public void LengthOfNegativeValueBeingSetCanNotExceedFieldLength()
         {
             var maxLength = new DbaseFieldLength(
-                Int32.MaxValue.ToString(CultureInfo.InvariantCulture).Length - 1
+                Int32.MinValue.ToString(CultureInfo.InvariantCulture).Length - 1
                 // because it's impossible to create a value longer than this (we need the test to generate a longer value)
             );
             var length = _fixture.GenerateDbaseInt32LengthLessThan(maxLength);
@@ -178,8 +178,16 @@ namespace Shaperon
         public void CanReadWriteNegative()
         {
             var value = Math.Abs(_fixture.Create<int>()) * -1;
-            var sut = _fixture.Create<DbaseInt32>();
-            sut.Value = value;
+            var sut = new DbaseInt32(
+                new DbaseField(
+                    _fixture.Create<DbaseFieldName>(),
+                    _fixture.GenerateDbaseInt32FieldType(),
+                    new ByteOffset(0),
+                    new DbaseFieldLength(value.ToString(CultureInfo.InvariantCulture).Length),
+                    new DbaseDecimalCount(0)
+                ),
+                value
+            );
 
             using (var stream = new MemoryStream())
             {

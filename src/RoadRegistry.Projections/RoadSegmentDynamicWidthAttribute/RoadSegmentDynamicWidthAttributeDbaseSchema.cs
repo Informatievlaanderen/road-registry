@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadSegmentDynamicWidthAttributeDbaseSchema
+    public class RoadSegmentDynamicWidthAttributeDbaseSchema : DbaseSchema
     {
         public RoadSegmentDynamicWidthAttributeDbaseSchema()
         {
@@ -42,6 +42,11 @@ namespace RoadRegistry.Projections
             LBLBGNORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLBGNORG)),
                 new DbaseFieldLength(64));
+
+            Fields = new DbaseField[]
+            {
+                WB_OIDN, WS_OIDN, WS_GIDN, BREEDTE, VANPOS, TOTPOS, BEGINTIJD, BEGINORG, LBLBGNORG
+            };
         }
 
         public DbaseField WB_OIDN { get; set; }

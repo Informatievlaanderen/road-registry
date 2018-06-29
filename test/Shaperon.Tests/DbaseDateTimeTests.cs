@@ -25,10 +25,10 @@ namespace Shaperon
         }
 
         [Fact]
-        public void CreateFailsIfFieldIsNotDateTime()
+        public void CreateFailsIfFieldIsNotDateTimeOrCharacter()
         {
             var fieldType = new Generator<DbaseFieldType>(_fixture)
-                .First(specimen => specimen != DbaseFieldType.DateTime);
+                .First(specimen => specimen != DbaseFieldType.DateTime && specimen != DbaseFieldType.Character);
             Assert.Throws<ArgumentException>(
                 () =>
                     new DbaseDateTime(

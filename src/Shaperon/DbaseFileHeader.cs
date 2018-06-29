@@ -11,15 +11,6 @@ namespace Shaperon
         public const int HeaderMetaDataSize = 33;
         public const int FieldMetaDataSize = 32;
 
-        public DbaseFileHeader(DateTime lastUpdated, DbaseCodePage codePage, int recordCount, int recordLength, DbaseField[] recordFields)
-        {
-            LastUpdated = lastUpdated.RoundToDay();
-            CodePage = codePage;
-            RecordCount = recordCount;
-            RecordLength = recordLength;
-            RecordFields = recordFields;
-        }
-
         public DbaseFileHeader(DateTime lastUpdated, DbaseCodePage codePage, DbaseRecordCount recordCount, DbaseSchema schema)
         {
             LastUpdated = lastUpdated.RoundToDay();
@@ -30,13 +21,14 @@ namespace Shaperon
 
         public DateTime LastUpdated { get; }
         public DbaseCodePage CodePage { get; }
-        public int RecordCount { get; }
+        public DbaseRecordCount RecordCount { get; }
         public DbaseSchema Schema { get; }
-        [Obsolete]
-        public int RecordLength { get; }
-        [Obsolete]
-        public DbaseField[] RecordFields { get; }
 
+        public DbaseRecord CreateDbaseRecord()
+        {
+            return new AnonymousDbaseRecord(Schema.Fields);
+        }
+        
         public static DbaseFileHeader Read(BinaryReader reader)
         {
             if (reader == null)
@@ -49,9 +41,14 @@ namespace Shaperon
                 throw new DbaseFileHeaderException("The database file type must be 3 (dBase III).");
             }
             var lastUpdated = new DateTime(reader.ReadByte() + 1900, reader.ReadByte(), reader.ReadByte(), 0, 0, 0, DateTimeKind.Unspecified);
-            var recordCount = reader.ReadInt32();
+            var recordCount = new DbaseRecordCount(reader.ReadInt32());
             var headerLength = reader.ReadInt16();
-            var recordLength = reader.ReadInt16();
+            var fieldCount = (headerLength - HeaderMetaDataSize) / FieldMetaDataSize;
+            if (fieldCount > DbaseSchema.MaximumFieldCount)
+            {
+                throw new DbaseFileHeaderException($"The database file can not contain more than {DbaseSchema.MaximumFieldCount} fields.");
+            }
+            var recordLength = new DbaseRecordLength(reader.ReadInt16());
             reader.ReadBytes(16);
             var rawCodePage = reader.ReadByte();
             if(!DbaseCodePage.TryParse(rawCodePage, out DbaseCodePage codePage))
@@ -59,11 +56,15 @@ namespace Shaperon
                 throw new DbaseFileHeaderException($"The database code page {rawCodePage} is not supported.");
             }
             reader.ReadBytes(3);
-            var fieldCount = (headerLength - HeaderMetaDataSize) / FieldMetaDataSize;
             var fields = new DbaseField[fieldCount];
             for (var recordFieldIndex = 0; recordFieldIndex < fieldCount; recordFieldIndex++)
             {
                 fields[recordFieldIndex] = DbaseField.Read(reader);
+            }
+            var schema = new AnonymousDbaseSchema(fields);
+            if(recordLength != schema.Length)
+            {
+                throw new DbaseFileHeaderException($"The database file record length ({recordLength}) does not match the total length of all fields ({schema.Length}).");
             }
             if(reader.ReadByte() != Terminator)
             {
@@ -72,10 +73,7 @@ namespace Shaperon
             // skip to first record
             var bytesToSkip = headerLength - (HeaderMetaDataSize + (FieldMetaDataSize * fieldCount));
             reader.ReadBytes(bytesToSkip);
-
-            var schema = new AnonymousDbaseSchema(fields);
-
-            return new DbaseFileHeader(lastUpdated, codePage, new DbaseRecordCount(recordCount), schema);
+            return new DbaseFileHeader(lastUpdated, codePage, recordCount, schema);
         }
 
         public void Write(BinaryWriter writer)
@@ -89,14 +87,14 @@ namespace Shaperon
             writer.Write(Convert.ToByte(LastUpdated.Year - 1900));
             writer.Write(Convert.ToByte(LastUpdated.Month));
             writer.Write(Convert.ToByte(LastUpdated.Day));
-            writer.Write(RecordCount);
-            var headerLength = HeaderMetaDataSize + (FieldMetaDataSize * RecordFields.Length);
+            writer.Write(RecordCount.ToInt32());
+            var headerLength = HeaderMetaDataSize + (FieldMetaDataSize * Schema.Fields.Length);
             writer.Write(Convert.ToInt16(headerLength));
-            writer.Write(Convert.ToInt16(RecordLength));
+            writer.Write(Convert.ToInt16(Schema.Length));
             writer.Write(new byte[16]);
             writer.Write(CodePage.ToByte());
             writer.Write(new byte[3]);
-            foreach(var recordField in RecordFields)
+            foreach(var recordField in Schema.Fields)
             {
                 recordField.Write(writer);
             }
