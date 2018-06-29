@@ -13,6 +13,8 @@ namespace RoadRegistry.Events
     public class LaneDirectionTranslator : EnumTranslator<LaneDirection>
     {
         protected override IDictionary<LaneDirection, string> DutchTranslations => _dutchTranslations;
+        protected override IDictionary<LaneDirection, string> DutchDescriptions => _dutchDescriptions;
+
         private static readonly IDictionary<LaneDirection, string> _dutchTranslations =
             new Dictionary<LaneDirection, string>
             {
@@ -21,6 +23,14 @@ namespace RoadRegistry.Events
                 { LaneDirection.Backward, "tegengesteld aan de digitalisatiezin" },
                 { LaneDirection.Independent, "onafhankelijk van de digitalisatiezin" },
             };
-    }
 
+        private static readonly IDictionary<LaneDirection, string> _dutchDescriptions =
+            new Dictionary<LaneDirection, string>
+            {
+                { LaneDirection.Unknown, "Geen informatie beschikbaar" },
+                { LaneDirection.Forward, "Aantal rijstroken slaat op de richting die de digitalisatiezin van het wegsegment volgt." },
+                { LaneDirection.Backward, "Aantal rijstroken slaat op de richting die tegengesteld loopt aan de digitalisatiezin van het wegsegment." },
+                { LaneDirection.Independent, "Aantal rijstroken slaat op het totaal in beide richtingen, onafhankelijk van de digitalisatiezin van het wegsegment." },
+            };
+    }
 }

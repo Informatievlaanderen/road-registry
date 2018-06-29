@@ -56,7 +56,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                 case 106: result = RoadSegmentMorphology.Traffic_square; break;
 
                 case 107: result = RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_grade_separated_junction; break;
-                case 108: result = RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_at_grade_junction; break;
+                case 108: result = RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_level_junction; break;
                 case 109: result = RoadSegmentMorphology.Parallel_road; break;
 
                 case 110: result = RoadSegmentMorphology.Frontage_road; break;

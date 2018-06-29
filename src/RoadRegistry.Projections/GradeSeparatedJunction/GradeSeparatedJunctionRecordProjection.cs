@@ -14,10 +14,10 @@ namespace RoadRegistry.Projections
         {
             _typeTranslator = typeTranslator;
 
-            When<Envelope<ImportedGradeSeparatedJunction>>((context, message, token) => HandleImportedGradeSeperatedJunction(context, message.Message, token));
+            When<Envelope<ImportedGradeSeparatedJunction>>((context, message, token) => HandleImportedGradeSeparatedJunction(context, message.Message, token));
         }
 
-        private Task HandleImportedGradeSeperatedJunction(ShapeContext context, ImportedGradeSeparatedJunction @event, CancellationToken token)
+        private Task HandleImportedGradeSeparatedJunction(ShapeContext context, ImportedGradeSeparatedJunction @event, CancellationToken token)
         {
             var junctionRecord = new GradeSeparatedJunctionRecord
             {

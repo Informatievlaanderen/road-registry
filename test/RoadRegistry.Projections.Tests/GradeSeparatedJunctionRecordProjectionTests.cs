@@ -19,7 +19,7 @@ namespace RoadRegistry.Projections.Tests
         }
 
         [Fact]
-        public Task When_importing_grade_seperated_junctions()
+        public Task When_importing_grade_separated_junctions()
         {
             var data = _fixture
                 .CreateMany<ImportedGradeSeparatedJunction>()
