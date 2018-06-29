@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadSegmentDbaseSchema
+    public class RoadSegmentDbaseSchema : DbaseSchema
     {
         public RoadSegmentDbaseSchema()
         {
@@ -101,6 +101,36 @@ namespace RoadRegistry.Projections
             LBLTGBEP = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLTGBEP)),
                 new DbaseFieldLength(64));
+            
+            Fields = new DbaseField[]
+            {
+                WS_OIDN,
+                WS_UIDN,
+                WS_GIDN,
+                B_WK_OIDN,
+                E_WK_OIDN,
+                STATUS,
+                LBLSTATUS,
+                MORF,
+                LBLMORF,
+                WEGCAT,
+                LBLWEGCAT,
+                LSTRNMID,
+                LSTRNM,
+                RSTRNMID,
+                RSTRNM,
+                BEHEER,
+                LBLBEHEER,
+                METHODE,
+                LBLMETHOD,
+                OPNDATUM,
+                BEGINTIJD,
+                BEGINORG,
+                LBLBGNORG,
+                TGBEP,
+                LBLTGBEP
+            };
+
         }
 
         public DbaseField WS_OIDN { get; }

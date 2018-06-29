@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Shaperon
 {
+
     public abstract class DbaseRecord
     {
         public const byte EndOfFile = 0x1a;
@@ -24,23 +25,28 @@ namespace Shaperon
             }
 
             var flag = reader.ReadByte();
-            if(flag == EndOfFile)
+            if (flag == EndOfFile)
             {
                 throw new DbaseFileHeaderException("The end of file was reached unexpectedly.");
             }
-            if(flag != 0x20 && flag != 0x2A)
+            if (flag != 0x20 && flag != 0x2A)
             {
                 throw new DbaseFileHeaderException($"The record deleted flag must be either deleted (0x2A) or valid (0x20) but is 0x{flag:X2}");
             }
             IsDeleted = flag == 0x2A;
-            for(var index = 0; index < Values.Length; index++)
+            ReadValues(reader);
+        }
+
+        protected virtual void ReadValues(BinaryReader reader)
+        {
+            if (reader == null)
             {
-                var value = Values[index];
+                throw new ArgumentNullException(nameof(reader));
+            }
+
+            foreach (var value in Values)
+            {
                 value.Read(reader);
-                if(value is DbaseString candidate)
-                {
-                    Values[index] = candidate.TryInferDateTime();
-                }
             }
         }
 
@@ -52,7 +58,17 @@ namespace Shaperon
             }
 
             writer.Write(Convert.ToByte(IsDeleted ? 0x2A : 0x20));
-            foreach(var value in Values)
+            WriteValues(writer);
+        }
+
+        protected virtual void WriteValues(BinaryWriter writer)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            foreach (var value in Values)
             {
                 value.Write(writer);
             }

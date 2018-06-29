@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadReferencePointDbaseSchema
+    public class RoadReferencePointDbaseSchema : DbaseSchema
     {
         public RoadReferencePointDbaseSchema()
         {
@@ -40,6 +40,11 @@ namespace RoadRegistry.Projections
             LBLBGNORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLBGNORG)),
                 new DbaseFieldLength(64));
+            
+            Fields = new DbaseField[]
+            {
+                RP_UIDN, RP_OIDN, IDENT8, OPSCHRIFT, TYPE, LBLTYPE, BEGINTIJD, BEGINORG, LBLBGNORG
+            };
         }
 
         public DbaseField RP_UIDN { get; }

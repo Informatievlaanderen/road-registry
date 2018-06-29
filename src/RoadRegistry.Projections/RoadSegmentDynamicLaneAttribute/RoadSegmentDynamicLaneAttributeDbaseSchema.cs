@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadSegmentDynamicLaneAttributeDbaseSchema
+    public class RoadSegmentDynamicLaneAttributeDbaseSchema : DbaseSchema
     {
         public RoadSegmentDynamicLaneAttributeDbaseSchema()
         {
@@ -49,6 +49,11 @@ namespace RoadRegistry.Projections
             LBLBGNORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLBGNORG)),
                 new DbaseFieldLength(64));
+            
+            Fields = new DbaseField[]
+            {
+                RS_OIDN, WS_OIDN, WS_GIDN, AANTAL, RICHTING, LBLRICHT, VANPOS, TOTPOS, BEGINTIJD, BEGINORG, LBLBGNORG
+            };
         }
 
         public DbaseField RS_OIDN { get; set; }

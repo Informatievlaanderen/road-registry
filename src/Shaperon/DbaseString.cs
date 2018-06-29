@@ -66,9 +66,9 @@ namespace Shaperon
             }
         }
 
-        public DbaseFieldValue TryInferDateTime()
+        internal DbaseFieldValue TryInferDateTime()
         {
-            if(Value != null && Field.Length == 15 && DateTime.TryParseExact(Value, "yyyyMMdd\\THHmmss", CultureInfo.InvariantCulture, DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out DateTime parsed))
+            if(Value != null && Field.Length == 15 && Field.DecimalCount == 0 && DateTime.TryParseExact(Value, "yyyyMMdd\\THHmmss", CultureInfo.InvariantCulture, DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite, out DateTime parsed))
             {
                 return new DbaseDateTime(Field, new DateTime(parsed.Year, parsed.Month, parsed.Day, parsed.Hour, parsed.Minute, parsed.Second, DateTimeKind.Unspecified));
             }

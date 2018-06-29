@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class OrganizationDbaseSchema
+    public class OrganizationDbaseSchema : DbaseSchema
     {
         public OrganizationDbaseSchema()
         {
@@ -13,6 +13,11 @@ namespace RoadRegistry.Projections
             LBLORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLORG)),
                 new DbaseFieldLength(64));
+
+            Fields = new DbaseField[]
+            {
+                ORG, LBLORG
+            };
         }
 
         public DbaseField ORG { get; }

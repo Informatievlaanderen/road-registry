@@ -153,8 +153,20 @@ namespace Shaperon
         public void CanReadWriteNegative()
         {
             var value = Math.Abs(_fixture.Create<float>()) * -1f;
-            var sut = _fixture.Create<DbaseSingle>();
-            sut.Value = value;
+            var length = new DbaseFieldLength(
+                value.ToString(CultureInfo.InvariantCulture).Length
+            );
+            var decimalCount = _fixture.GenerateDbaseSingleDecimalCount(length);
+            var sut = new DbaseSingle(
+                new DbaseField(
+                    _fixture.Create<DbaseFieldName>(),
+                    DbaseFieldType.Float,
+                    new ByteOffset(0),
+                    length,
+                    decimalCount
+                ),
+                value
+            );
 
             using (var stream = new MemoryStream())
             {

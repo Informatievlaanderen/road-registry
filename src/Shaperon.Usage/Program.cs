@@ -73,7 +73,7 @@ namespace Usage
                     while (reader.BaseStream.Position != reader.BaseStream.Length
                         && reader.PeekChar() != (char)DbaseRecord.EndOfFile)
                     {
-                        var record = new AnonymousDbaseRecord(header.RecordFields);
+                        var record = new AnonymousDbaseRecord(header.Schema.Fields);
                         record.Read(reader);
                         record.Write(dbfWriter);
                     }

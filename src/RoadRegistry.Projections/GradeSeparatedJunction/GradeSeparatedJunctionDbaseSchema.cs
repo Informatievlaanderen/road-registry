@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class GradeSeparatedJunctionDbaseSchema
+    public class GradeSeparatedJunctionDbaseSchema : DbaseSchema
     {
         public GradeSeparatedJunctionDbaseSchema()
         {
@@ -35,6 +35,11 @@ namespace RoadRegistry.Projections
             LBLBGNORG = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(LBLBGNORG)),
                 new DbaseFieldLength(64));
+            
+            Fields = new DbaseField[]
+            {
+                OK_OIDN, TYPE, LBLTYPE, BO_WS_OIDN, ON_WS_OIDN, BEGINTIJD, BEGINORG, LBLBGNORG
+            };
         }
 
         public DbaseField OK_OIDN { get; }
