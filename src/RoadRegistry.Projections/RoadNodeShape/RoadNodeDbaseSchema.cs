@@ -28,8 +28,8 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(BEGINORG)),
                 new DbaseFieldLength(18));
 
-            LBLBGINORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLBGINORG)),
+            LBLBGNORG = DbaseField.CreateStringField(
+                new DbaseFieldName(nameof(LBLBGNORG)),
                 new DbaseFieldLength(64));
         }
 
@@ -39,6 +39,6 @@ namespace RoadRegistry.Projections
         public DbaseField LBLTYPE { get; }
         public DbaseField BEGINTIJD { get; }
         public DbaseField BEGINORG { get; }
-        public DbaseField LBLBGINORG { get; }
+        public DbaseField LBLBGNORG { get; }
     }
 }

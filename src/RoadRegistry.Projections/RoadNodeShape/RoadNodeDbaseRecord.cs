@@ -14,7 +14,7 @@ namespace RoadRegistry.Projections
             LBLTYPE = new DbaseString(Schema.LBLTYPE);
             BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
             BEGINORG = new DbaseString(Schema.BEGINORG);
-            LBLBGNORG = new DbaseString(Schema.LBLBGINORG);
+            LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
 
             Values = new DbaseFieldValue[]
             {
