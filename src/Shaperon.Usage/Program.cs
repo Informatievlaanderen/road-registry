@@ -111,14 +111,14 @@ namespace Usage
                         );
                         dbfHeader.Write(dbfWriter);
                         //var fileLength = new WordLength(await context.RoadSegments.SumAsync(segment => segment.ShapeRecordContentLength));
-                        var fileLength = new WordLength(50);
+                        var shpFileLength = new WordLength(50);
                         var dbfRecord = new RoadSegmentDbaseRecord();
                         var shpRecords = new List<ShapeRecord>();
                         var shxRecords = new List<ShapeIndexRecord>();
                         var envelope = new Envelope();
                         var number = RecordNumber.Initial;
                         var offset = ShapeRecord.InitialOffset;
-                        foreach(var segment in context.RoadSegments.Take(10))
+                        foreach(var segment in context.RoadSegments)
                         {
                             dbfRecord.FromBytes(segment.DbaseRecord, encoding);
                             dbfRecord.Write(dbfWriter);
@@ -132,7 +132,7 @@ namespace Usage
                                         case PolyLineMShapeContent content:
                                             envelope.ExpandToInclude(content.Shape.EnvelopeInternal);
                                             var shpRecord1 = content.RecordAs(number);
-                                            fileLength = fileLength.Plus(shpRecord1.Length);
+                                            shpFileLength = shpFileLength.Plus(shpRecord1.Length);
                                             var shxRecord1 = shpRecord1.IndexAt(offset);
                                             shpRecords.Add(shpRecord1);
                                             shxRecords.Add(shxRecord1);
@@ -141,7 +141,7 @@ namespace Usage
                                             break;
                                         case NullShapeContent content:
                                             var shpRecord2 = content.RecordAs(number);
-                                            fileLength = fileLength.Plus(shpRecord2.Length);
+                                            shpFileLength = shpFileLength.Plus(shpRecord2.Length);
                                             var shxRecord2 = shpRecord2.IndexAt(offset);
                                             shpRecords.Add(shpRecord2);
                                             shxRecords.Add(shxRecord2);
@@ -151,20 +151,21 @@ namespace Usage
                                     }
 
                                     
-                                    Console.WriteLine("File length is " + fileLength.ToInt32());
-                                    Console.WriteLine("Offset is " + offset.ToInt32());
-                                    Console.WriteLine("Record number is " + number.ToInt32());
-                                    Console.WriteLine();
+                                    // Console.WriteLine("File length is " + shpFileLength.ToInt32());
+                                    // Console.WriteLine("Offset is " + offset.ToInt32());
+                                    // Console.WriteLine("Record number is " + number.ToInt32());
+                                    // Console.WriteLine();
                                 }
                             }
                         }
                         dbfWriter.Write(DbaseRecord.EndOfFile);
                         outDbfFile.Flush();
                         
-                        Console.WriteLine("File length is " + fileLength.ToInt32());
-                        var shpHeader = new ShapeFileHeader(fileLength, ShapeType.PolyLineM, new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, 0, 0));
+                        // Console.WriteLine("File length is " + shpFileLength.ToInt32());
+                        var shpHeader = new ShapeFileHeader(shpFileLength, ShapeType.PolyLineM, new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, 0, 0));
                         shpHeader.Write(shpWriter);
-                        shpHeader.Write(shxWriter);
+                        var shxHeader = new ShapeFileHeader(new WordLength(50 + 4 * shxRecords.Count), ShapeType.PolyLineM, new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, 0, 0));
+                        shxHeader.Write(shxWriter);
 
                         foreach(var shpRecord in shpRecords)
                         {
@@ -177,6 +178,8 @@ namespace Usage
                             shxRecord.Write(shxWriter);
                         }
                         shxWriter.Flush();
+
+                        Console.WriteLine("Done");
                     }
                 }
             }
