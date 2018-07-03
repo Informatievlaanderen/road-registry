@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using RoadRegistry.Projections;
@@ -61,11 +64,14 @@ namespace Usage
             // });
             // Console.WriteLine(gem.);
             //ReadWriteShpAndShx(args);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var builder = new SqlConnectionStringBuilder
             {
-                DataSource = "AOCWS977",
+                DataSource = "(local)",
                 InitialCatalog = "RoadRegistry",
-                IntegratedSecurity = true
+                IntegratedSecurity = false,
+                UserID = "sa",
+                Password = "K@rm3l13t"
             };
             var schema = new RoadNodeDbaseSchema();
             var options = new DbContextOptionsBuilder<ShapeContext>()
@@ -75,30 +81,102 @@ namespace Usage
                     {
                         sqlServerOptions.EnableRetryOnFailure();
                     }).Options;
+            var encoding = Encoding.GetEncoding(1252);
             using(var context = new ShapeContext(options))
             {
-                using (var outDbfFile = File.OpenWrite("roadnode.dbf"))
+                // using (var inShpFile = File.OpenRead("roadsegment.shp"))
+                // {
+                //     using (var shpReader = new BinaryReader(inShpFile, Encoding.ASCII))
+                //     {
+                //         var shpHeader = ShapeFileHeader.Read(shpReader);
+                //         Console.WriteLine("Can read");
+                //     }
+                // }
+
+                using (var outDbfFile = File.OpenWrite("roadsegment.dbf"))
+                using (var outShpFile = File.OpenWrite("roadsegment.shp"))
+                using (var outShxFile = File.OpenWrite("roadsegment.shx"))
                 {
-                    using (var dbfWriter = new BinaryWriter(outDbfFile, Encoding.ASCII))
+                    using (var shxWriter = new BinaryWriter(outShxFile, Encoding.ASCII))
+                    using (var shpWriter = new BinaryWriter(outShpFile, Encoding.ASCII))
+                    using (var dbfWriter = new BinaryWriter(outDbfFile, encoding))
                     {
                         // TODO: Make sure there's a transaction to ensure the count and iteration are in sync
-                        var recordCount = await context.RoadNodes.CountAsync();
-                        var header = new DbaseFileHeader(
+                        var recordCount = await context.RoadSegments.CountAsync();
+                        var dbfHeader = new DbaseFileHeader(
                             DateTime.Now,
                             DbaseCodePage.WindowsANSI,
-                            recordCount,
-                            schema.TotalLength,
-                            schema.Fields
+                            new DbaseRecordCount(recordCount),
+                            schema
                         );
-                        header.Write(dbfWriter);
-                        var record = new RoadNodeDbaseRecord();
-                        foreach(var node in context.RoadNodes)
+                        dbfHeader.Write(dbfWriter);
+                        //var fileLength = new WordLength(await context.RoadSegments.SumAsync(segment => segment.ShapeRecordContentLength));
+                        var fileLength = new WordLength(50);
+                        var dbfRecord = new RoadSegmentDbaseRecord();
+                        var shpRecords = new List<ShapeRecord>();
+                        var shxRecords = new List<ShapeIndexRecord>();
+                        var envelope = new Envelope();
+                        var number = RecordNumber.Initial;
+                        var offset = ShapeRecord.InitialOffset;
+                        foreach(var segment in context.RoadSegments.Take(10))
                         {
-                            record.FromBytes(node.DbaseRecord);
-                            record.Write(dbfWriter);
+                            dbfRecord.FromBytes(segment.DbaseRecord, encoding);
+                            dbfRecord.Write(dbfWriter);
+
+                            using(var stream = new MemoryStream(segment.ShapeRecordContent))
+                            {
+                                using(var reader = new BinaryReader(stream))
+                                {
+                                    switch(PolyLineMShapeContent.Read(reader))
+                                    {
+                                        case PolyLineMShapeContent content:
+                                            envelope.ExpandToInclude(content.Shape.EnvelopeInternal);
+                                            var shpRecord1 = content.RecordAs(number);
+                                            fileLength = fileLength.Plus(shpRecord1.Length);
+                                            var shxRecord1 = shpRecord1.IndexAt(offset);
+                                            shpRecords.Add(shpRecord1);
+                                            shxRecords.Add(shxRecord1);
+                                            offset = offset.Plus(shpRecord1.Length);
+                                            number = number.Next();
+                                            break;
+                                        case NullShapeContent content:
+                                            var shpRecord2 = content.RecordAs(number);
+                                            fileLength = fileLength.Plus(shpRecord2.Length);
+                                            var shxRecord2 = shpRecord2.IndexAt(offset);
+                                            shpRecords.Add(shpRecord2);
+                                            shxRecords.Add(shxRecord2);
+                                            offset = offset.Plus(shpRecord2.Length);
+                                            number = number.Next();
+                                            break;
+                                    }
+
+                                    
+                                    Console.WriteLine("File length is " + fileLength.ToInt32());
+                                    Console.WriteLine("Offset is " + offset.ToInt32());
+                                    Console.WriteLine("Record number is " + number.ToInt32());
+                                    Console.WriteLine();
+                                }
+                            }
                         }
                         dbfWriter.Write(DbaseRecord.EndOfFile);
                         outDbfFile.Flush();
+                        
+                        Console.WriteLine("File length is " + fileLength.ToInt32());
+                        var shpHeader = new ShapeFileHeader(fileLength, ShapeType.PolyLineM, new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, 0, 0));
+                        shpHeader.Write(shpWriter);
+                        shpHeader.Write(shxWriter);
+
+                        foreach(var shpRecord in shpRecords)
+                        {
+                            shpRecord.Write(shpWriter);
+                        }
+                        shpWriter.Flush();
+
+                        foreach(var shxRecord in shxRecords)
+                        {
+                            shxRecord.Write(shxWriter);
+                        }
+                        shxWriter.Flush();
                     }
                 }
             }

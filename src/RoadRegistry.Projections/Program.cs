@@ -22,6 +22,8 @@ namespace RoadRegistry.Projections.Shape
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.Projections.Shape");
+            
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 

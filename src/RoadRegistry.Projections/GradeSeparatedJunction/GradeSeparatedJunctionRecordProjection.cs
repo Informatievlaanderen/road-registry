@@ -17,7 +17,6 @@ namespace RoadRegistry.Projections
         {
             _typeTranslator = typeTranslator ?? throw new ArgumentNullException(nameof(typeTranslator));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-
             When<Envelope<ImportedGradeSeparatedJunction>>((context, message, token) => HandleImportedGradeSeparatedJunction(context, message.Message, token));
         }
 

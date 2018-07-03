@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 using System.Collections.Generic;
 
@@ -26,6 +27,35 @@ namespace RoadRegistry.Projections.Migrations
                 {
                     table.PrimaryKey("PK_ProjectionStates", x => x.Name)
                         .Annotation("SqlServer:Clustered", true);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GradeSeparatedJunction",
+                schema: "RoadRegistryShape",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GradeSeparatedJunction", x => x.Id)
+                        .Annotation("SqlServer:Clustered", false);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Organization",
+                schema: "RoadRegistryShape",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Code = table.Column<string>(nullable: true),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Organization", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -77,6 +107,21 @@ namespace RoadRegistry.Projections.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RoadSegmentEuropeanRoadAttribute",
+                schema: "RoadRegistryShape",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true),
+                    RoadSegmentId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoadSegmentEuropeanRoadAttribute", x => x.Id)
+                        .Annotation("SqlServer:Clustered", false);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoadSegmentHardeningAttribute",
                 schema: "RoadRegistryShape",
                 columns: table => new
@@ -107,6 +152,36 @@ namespace RoadRegistry.Projections.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RoadSegmentNationalRoadAttribute",
+                schema: "RoadRegistryShape",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true),
+                    RoadSegmentId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoadSegmentNationalRoadAttribute", x => x.Id)
+                        .Annotation("SqlServer:Clustered", false);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoadSegmentNumberedRoadAttribute",
+                schema: "RoadRegistryShape",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true),
+                    RoadSegmentId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoadSegmentNumberedRoadAttribute", x => x.Id)
+                        .Annotation("SqlServer:Clustered", false);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoadSegmentWidthAttribute",
                 schema: "RoadRegistryShape",
                 columns: table => new
@@ -120,6 +195,13 @@ namespace RoadRegistry.Projections.Migrations
                     table.PrimaryKey("PK_RoadSegmentWidthAttribute", x => x.Id)
                         .Annotation("SqlServer:Clustered", false);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Organization_Id",
+                schema: "RoadRegistryShape",
+                table: "Organization",
+                column: "Id")
+                .Annotation("SqlServer:Clustered", false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -127,6 +209,14 @@ namespace RoadRegistry.Projections.Migrations
             migrationBuilder.DropTable(
                 name: "ProjectionStates",
                 schema: "RoadRegistryOslo");
+
+            migrationBuilder.DropTable(
+                name: "GradeSeparatedJunction",
+                schema: "RoadRegistryShape");
+
+            migrationBuilder.DropTable(
+                name: "Organization",
+                schema: "RoadRegistryShape");
 
             migrationBuilder.DropTable(
                 name: "RoadNode",
@@ -141,11 +231,23 @@ namespace RoadRegistry.Projections.Migrations
                 schema: "RoadRegistryShape");
 
             migrationBuilder.DropTable(
+                name: "RoadSegmentEuropeanRoadAttribute",
+                schema: "RoadRegistryShape");
+
+            migrationBuilder.DropTable(
                 name: "RoadSegmentHardeningAttribute",
                 schema: "RoadRegistryShape");
 
             migrationBuilder.DropTable(
                 name: "RoadSegmentLaneAttribute",
+                schema: "RoadRegistryShape");
+
+            migrationBuilder.DropTable(
+                name: "RoadSegmentNationalRoadAttribute",
+                schema: "RoadRegistryShape");
+
+            migrationBuilder.DropTable(
+                name: "RoadSegmentNumberedRoadAttribute",
                 schema: "RoadRegistryShape");
 
             migrationBuilder.DropTable(

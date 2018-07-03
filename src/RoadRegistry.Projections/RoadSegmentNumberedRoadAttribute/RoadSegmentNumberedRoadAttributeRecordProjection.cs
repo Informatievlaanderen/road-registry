@@ -11,6 +11,7 @@ namespace RoadRegistry.Projections
 
     public class RoadSegmentNumberedRoadAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {
+        private readonly Encoding _encoding;
         private readonly NumberedRoadSegmentDirectionTranslator _directionTranslator;
         private readonly Encoding _encoding;
 

@@ -38,25 +38,6 @@ namespace RoadRegistry.Projections
             };
         }
 
-        public DbaseField[] Fields {
-            get {
-                return new DbaseField[]
-                {
-                    WK_OIDN, WK_UIDN, TYPE,
-                    LBLTYPE, BEGINTIJD, BEGINORG,
-                    LBLBGINORG
-                };
-            }
-        }
-
-        public int TotalLength {
-            get {
-                return WK_OIDN.Length + WK_UIDN.Length + TYPE.Length
-                + LBLTYPE.Length + BEGINTIJD.Length + BEGINORG.Length
-                + LBLBGINORG.Length;
-            }
-        }
-
         public DbaseField WK_OIDN { get; }
         public DbaseField WK_UIDN { get; }
         public DbaseField TYPE { get; }

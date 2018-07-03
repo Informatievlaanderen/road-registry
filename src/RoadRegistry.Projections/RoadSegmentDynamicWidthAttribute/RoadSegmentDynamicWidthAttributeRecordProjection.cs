@@ -15,7 +15,6 @@ namespace RoadRegistry.Projections
         public RoadSegmentDynamicWidthAttributeRecordProjection(Encoding encoding)
         {
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-
             When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
         }
 
