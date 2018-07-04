@@ -1,5 +1,7 @@
 namespace RoadRegistry.Projections
 {
+    using System;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
@@ -9,10 +11,12 @@ namespace RoadRegistry.Projections
     public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<ShapeContext>
     {
         private readonly GradeSeparatedJunctionTypeTranslator _typeTranslator;
+        private readonly Encoding _encoding;
 
-        public GradeSeparatedJunctionRecordProjection(GradeSeparatedJunctionTypeTranslator typeTranslator)
+        public GradeSeparatedJunctionRecordProjection(GradeSeparatedJunctionTypeTranslator typeTranslator, Encoding encoding)
         {
-            _typeTranslator = typeTranslator;
+            _typeTranslator = typeTranslator ?? throw new ArgumentNullException(nameof(typeTranslator));
+            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
 
             When<Envelope<ImportedGradeSeparatedJunction>>((context, message, token) => HandleImportedGradeSeparatedJunction(context, message.Message, token));
         }
@@ -32,12 +36,10 @@ namespace RoadRegistry.Projections
                     BEGINTIJD = {Value = @event.Origin.Since},
                     BEGINORG = {Value = @event.Origin.OrganizationId},
                     LBLBGNORG = {Value = @event.Origin.Organization},
-                }.ToBytes()
+                }.ToBytes(_encoding)
             };
 
             return context.AddAsync(junctionRecord, token);
-
-            throw new System.NotImplementedException();
         }
     }
 }

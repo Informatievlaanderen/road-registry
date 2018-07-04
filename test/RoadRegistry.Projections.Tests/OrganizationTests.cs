@@ -1,6 +1,7 @@
 namespace RoadRegistry.Projections.Tests
 {
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
@@ -32,7 +33,7 @@ namespace RoadRegistry.Projections.Tests
                         {
                             ORG = { Value = organization.Code },
                             LBLORG = { Value = organization.Name },
-                        }.ToBytes(),
+                        }.ToBytes(Encoding.UTF8),
                     };
                     return new
                     {
@@ -41,7 +42,7 @@ namespace RoadRegistry.Projections.Tests
                     };
                 }).ToList();
 
-            return new OrganizationRecordProjection()
+            return new OrganizationRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.ImportedOrganization))
                 .Expect(data.Select(d => d.Expected));

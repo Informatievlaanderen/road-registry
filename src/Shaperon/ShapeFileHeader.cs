@@ -8,6 +8,8 @@ namespace Shaperon
         public const int ExpectedFileCode = 9994;
         public const int ExpectedVersion = 1000;
 
+        public static readonly WordLength Length = new WordLength(50);
+
         public ShapeFileHeader(WordLength fileWordLength, ShapeType shapeType, BoundingBox3D boundingBox)
         {
             FileLength = fileWordLength;

@@ -42,6 +42,66 @@ namespace Shaperon
         }
 
         [Fact]
+        public void ToBytesHasExpectedResult()
+        {
+            var sut = new PointShapeContent(_fixture.Create<Point>());
+
+            var result = sut.ToBytes();
+
+            using(var stream = new MemoryStream())
+            using(var writer = new BinaryWriter(stream))
+            {
+                sut.Write(writer);
+                writer.Flush();
+
+                Assert.Equal(stream.ToArray(), result);
+            }
+        }
+
+        [Fact]
+        public void FromBytesHasExpectedResult()
+        {
+            var content = new PointShapeContent(_fixture.Create<Point>());
+
+            var result = PointShapeContent.FromBytes(content.ToBytes());
+
+            var actual = Assert.IsType<PointShapeContent>(result);
+            Assert.Equal(content.Shape, actual.Shape);
+            Assert.Equal(content.ShapeType, actual.ShapeType);
+            Assert.Equal(content.ContentLength, actual.ContentLength);
+        }
+
+        [Fact]
+        public void ToBytesWithEncodingHasExpectedResult()
+        {
+            var sut = new PointShapeContent(_fixture.Create<Point>());
+
+            var result = sut.ToBytes(Encoding.UTF8);
+
+            using(var stream = new MemoryStream())
+            using(var writer = new BinaryWriter(stream, Encoding.UTF8))
+            {
+                sut.Write(writer);
+                writer.Flush();
+
+                Assert.Equal(stream.ToArray(), result);
+            }
+        }
+
+        [Fact]
+        public void FromBytesWithEncodingHasExpectedResult()
+        {
+            var content = new PointShapeContent(_fixture.Create<Point>());
+
+            var result = PointShapeContent.FromBytes(content.ToBytes(Encoding.UTF8), Encoding.UTF8);
+
+            var actual = Assert.IsType<PointShapeContent>(result);
+            Assert.Equal(content.Shape, actual.Shape);
+            Assert.Equal(content.ShapeType, actual.ShapeType);
+            Assert.Equal(content.ContentLength, actual.ContentLength);
+        }
+
+        [Fact]
         public void CanReadWritePointShape()
         {
             var sut = new PointShapeContent(_fixture.Create<Point>());

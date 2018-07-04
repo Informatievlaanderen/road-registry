@@ -95,11 +95,11 @@ nuget Aiv.Vbr.EntityFrameworkCore.EntityTypeConfiguration ~> 2.0
 nuget Aiv.Vbr.EventHandling ~> 2.0
 nuget Aiv.Vbr.EventHandling.Autofac ~> 2.0
 nuget Aiv.Vbr.Generators.Guid.Deterministic ~> 2.0
-nuget Aiv.Vbr.ProjectionHandling.Connector ~> 2.0
-nuget Aiv.Vbr.ProjectionHandling.Connector.Testing ~> 2.0
-nuget Aiv.Vbr.ProjectionHandling.Runner ~> 2.0
-nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore ~> 2.0
-nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac ~> 2.0
+nuget Aiv.Vbr.ProjectionHandling.Connector ~> 4.0
+nuget Aiv.Vbr.ProjectionHandling.Connector.Testing ~> 4.0
+nuget Aiv.Vbr.ProjectionHandling.Runner ~> 4.0
+nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore ~> 4.0
+nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac ~> 4.0
 nuget Aiv.Vbr.Utilities.HashCodeCalculator ~> 2.0
 nuget Aiv.Vbr.Utilities.HexByteConvertor ~> 2.0
 

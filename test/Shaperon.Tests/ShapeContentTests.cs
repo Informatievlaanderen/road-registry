@@ -5,6 +5,7 @@ namespace Shaperon
     using System.IO;
     using System.Linq;
     using System;
+    using System.Text;
 
     public class ShapeContentTests
     {
@@ -45,7 +46,7 @@ namespace Shaperon
                 bytes
             );
 
-            var result = sut.ToBytes();
+            var result = sut.ToBytes(Encoding.UTF8);
 
             Assert.Equal(bytes, result);
         }

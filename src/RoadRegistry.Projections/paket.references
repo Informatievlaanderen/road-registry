@@ -30,3 +30,4 @@ Aiv.Vbr.ProjectionHandling.SqlStreamStore
 Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac
 
 NetTopologySuite
+System.Text.Encoding.CodePages

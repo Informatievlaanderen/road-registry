@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 
 namespace Shaperon
 {
@@ -20,12 +21,21 @@ namespace Shaperon
         public byte[] ToBytes()
         {
             using(var output = new MemoryStream())
+            using(var writer = new BinaryWriter(output))
             {
-                using(var writer = new BinaryWriter(output))
-                {
-                    Write(writer);
-                    writer.Flush();
-                }
+                Write(writer);
+                writer.Flush();
+                return output.ToArray();
+            }
+        }
+
+        public byte[] ToBytes(Encoding encoding)
+        {
+            using(var output = new MemoryStream())
+            using(var writer = new BinaryWriter(output, encoding))
+            {
+                Write(writer);
+                writer.Flush();
                 return output.ToArray();
             }
         }

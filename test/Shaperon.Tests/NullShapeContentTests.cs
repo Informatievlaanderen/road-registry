@@ -35,6 +35,60 @@ namespace Shaperon
         }
 
         [Fact]
+        public void ToBytesHasExpectedResult()
+        {
+            var sut = NullShapeContent.Instance;
+
+            var result = sut.ToBytes();
+
+            using(var stream = new MemoryStream())
+            using(var writer = new BinaryWriter(stream))
+            {
+                sut.Write(writer);
+                writer.Flush();
+
+                Assert.Equal(stream.ToArray(), result);
+            }
+        }
+
+        [Fact]
+        public void FromBytesHasExpectedResult()
+        {
+            var content = NullShapeContent.Instance;
+
+            var result = NullShapeContent.FromBytes(content.ToBytes());
+
+            Assert.Same(content, result);
+        }
+
+        [Fact]
+        public void ToBytesWithEncodingHasExpectedResult()
+        {
+            var sut = NullShapeContent.Instance;
+
+            var result = sut.ToBytes(Encoding.UTF8);
+
+            using(var stream = new MemoryStream())
+            using(var writer = new BinaryWriter(stream, Encoding.UTF8))
+            {
+                sut.Write(writer);
+                writer.Flush();
+
+                Assert.Equal(stream.ToArray(), result);
+            }
+        }
+
+        [Fact]
+        public void FromBytesWithEncodingHasExpectedResult()
+        {
+            var content = NullShapeContent.Instance;
+
+            var result = NullShapeContent.FromBytes(content.ToBytes(Encoding.UTF8), Encoding.UTF8);
+
+            Assert.Same(content, result);
+        }
+
+        [Fact]
         public void CanReadWriteNullShape()
         {
             var sut = NullShapeContent.Instance;

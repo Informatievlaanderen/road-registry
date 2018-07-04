@@ -2,6 +2,7 @@ namespace RoadRegistry.Projections.Tests
 {
     using System;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
@@ -52,7 +53,7 @@ namespace RoadRegistry.Projections.Tests
                             BEGINTIJD = {Value = importedRoadNode.Origin.Since},
                             BEGINORG = {Value = importedRoadNode.Origin.OrganizationId},
                             LBLBGNORG = {Value = importedRoadNode.Origin.Organization}
-                        }.ToBytes(),
+                        }.ToBytes(Encoding.UTF8),
                         ShapeRecordContent = pointShapeContent.ToBytes(),
                         ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32()
                     };
@@ -70,7 +71,8 @@ namespace RoadRegistry.Projections.Tests
                         HandleOrdinates = Ordinates.XYZM,
                         HandleSRID = true
                     },
-                    _roadNodeTypeTranslator)
+                    _roadNodeTypeTranslator,
+                    Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.ImportedRoadNode))
                 .Expect(data.Select(d => d.ExpectedRecord));

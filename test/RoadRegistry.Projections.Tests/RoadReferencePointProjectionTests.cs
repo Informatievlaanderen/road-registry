@@ -2,6 +2,7 @@ namespace RoadRegistry.Projections.Tests
 {
     using System;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
@@ -54,7 +55,7 @@ namespace RoadRegistry.Projections.Tests
                             BEGINTIJD = { Value = importedReferencePoint.Origin.Since },
                             BEGINORG = { Value = importedReferencePoint.Origin.OrganizationId },
                             LBLBGNORG = { Value = importedReferencePoint.Origin.Organization },
-                        }.ToBytes(),
+                        }.ToBytes(Encoding.UTF8),
                     };
 
                     return new {
@@ -69,7 +70,8 @@ namespace RoadRegistry.Projections.Tests
                         HandleOrdinates = Ordinates.XYZM,
                         HandleSRID = true
                     },
-                    _referencePointTypeTranslator)
+                    _referencePointTypeTranslator,
+                    Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.ImportedReferencePoint))
                 .Expect(data.Select(d => d.Expected).ToArray());

@@ -29,6 +29,12 @@ namespace Shaperon
         }
 
         [Fact]
+        public void LengthReturnsExpectedValue()
+        {
+            Assert.Equal(new WordLength(50), ShapeFileHeader.Length);
+        }
+
+        [Fact]
         public void WriterCanNotBeNull()
         {
             new GuardClauseAssertion(_fixture)

@@ -12,6 +12,7 @@ namespace RoadRegistry.Projections.Tests
     using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
     using GeoAPI.Geometries;
+    using System.Text;
 
     public class RoadSegmentProjectionTests
     {
@@ -78,7 +79,7 @@ namespace RoadRegistry.Projections.Tests
                             LBLBGNORG = { Value = importedRoadSegment.Origin.Organization },
                             TGBEP = { Value = _accessRestrictionTranslator.TranslateToIdentifier(importedRoadSegment.AccessRestriction) },
                             LBLTGBEP = { Value = _accessRestrictionTranslator.TranslateToDutchName(importedRoadSegment.AccessRestriction) }
-                        }.ToBytes(),
+                        }.ToBytes(Encoding.UTF8),
                     };
                     return new {importedRoadSegment, expected};
                 }).ToList();
@@ -93,7 +94,8 @@ namespace RoadRegistry.Projections.Tests
                     _morphologyTranslator,
                     _categoryTranslator,
                     _geometryDrawMethodTranslator,
-                    _accessRestrictionTranslator)
+                    _accessRestrictionTranslator,
+                    Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data.Select(d => d.expected).ToArray());

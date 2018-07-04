@@ -1,6 +1,7 @@
 namespace RoadRegistry.Projections
 {
     using System;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
@@ -18,13 +19,15 @@ namespace RoadRegistry.Projections
         private readonly RoadSegmentCategoryTranslator _segmentCategoryTranslator;
         private readonly RoadSegmentGeometryDrawMethodTranslator _geometryDrawMethodTranslator;
         private readonly RoadSegmentAccessRestrictionTranslator _accessRestrictionTranslator;
+        private readonly Encoding _encoding;
 
         public RoadSegmentRecordProjection(WKBReader wkbReader,
             RoadSegmentStatusTranslator segmentStatusTranslator,
             RoadSegmentMorphologyTranslator segmentMorphologyTranslator,
             RoadSegmentCategoryTranslator segmentCategoryTranslator,
             RoadSegmentGeometryDrawMethodTranslator geometryDrawMethodTranslator,
-            RoadSegmentAccessRestrictionTranslator accessRestrictionTranslator)
+            RoadSegmentAccessRestrictionTranslator accessRestrictionTranslator,
+            Encoding encoding)
         {
             _wkbReader = wkbReader ?? throw new ArgumentNullException(nameof(wkbReader));
             _segmentStatusTranslator = segmentStatusTranslator ?? throw new ArgumentNullException(nameof(segmentStatusTranslator));
@@ -32,7 +35,7 @@ namespace RoadRegistry.Projections
             _segmentCategoryTranslator = segmentCategoryTranslator ?? throw new ArgumentNullException(nameof(segmentCategoryTranslator));
             _geometryDrawMethodTranslator = geometryDrawMethodTranslator ?? throw new ArgumentNullException(nameof(geometryDrawMethodTranslator));
             _accessRestrictionTranslator = accessRestrictionTranslator ?? throw new ArgumentNullException(nameof(accessRestrictionTranslator));
-
+            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
             When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
         }
 
@@ -73,7 +76,7 @@ namespace RoadRegistry.Projections
                         LBLBGNORG = { Value = @event.Origin.Organization },
                         TGBEP = { Value = _accessRestrictionTranslator.TranslateToIdentifier(@event.AccessRestriction) },
                         LBLTGBEP = { Value = _accessRestrictionTranslator.TranslateToDutchName(@event.AccessRestriction) },
-                    }.ToBytes()
+                    }.ToBytes(_encoding)
                 },
                 token);
         }

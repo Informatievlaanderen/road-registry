@@ -35,6 +35,11 @@ namespace Shaperon
             return new Random(value).Next(0, Int32.MaxValue);
         }
 
+        public static int AsShapeRecordCountValue(this int value)
+        {
+            return new Random(value).Next(0, Int32.MaxValue);
+        }
+
         public static int AsDbaseRecordLengthValue(this int value)
         {
             return new Random(value).Next(0, 128 * 255);

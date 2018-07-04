@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
 
@@ -116,6 +117,25 @@
                 toPointIndex = fromPointIndex;
             }
             return new PolyLineMShapeContent(new MultiLineString(lines));
+        }
+
+
+        public static ShapeContent FromBytes(byte[] bytes)
+        {
+            using(var input = new MemoryStream(bytes))
+            using(var reader = new BinaryReader(input))
+            {
+                return Read(reader);
+            }
+        }
+        
+        public static ShapeContent FromBytes(byte[] bytes, Encoding encoding)
+        {
+            using(var input = new MemoryStream(bytes))
+            using(var reader = new BinaryReader(input, encoding))
+            {
+                return Read(reader);
+            }
         }
 
         public override void Write(BinaryWriter writer)

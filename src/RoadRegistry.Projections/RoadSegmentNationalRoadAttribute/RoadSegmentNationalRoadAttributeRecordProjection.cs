@@ -1,6 +1,8 @@
 namespace RoadRegistry.Projections
 {
+    using System;
     using System.Linq;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
@@ -9,8 +11,11 @@ namespace RoadRegistry.Projections
 
     public class RoadSegmentNationalRoadAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {
-        public RoadSegmentNationalRoadAttributeRecordProjection()
+        private readonly Encoding _encoding;
+        public RoadSegmentNationalRoadAttributeRecordProjection(Encoding encoding)
         {
+            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
+
             When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
         }
 
@@ -34,7 +39,7 @@ namespace RoadRegistry.Projections
                             BEGINTIJD = { Value = nationalRoad.Origin.Since },
                             BEGINORG = { Value = nationalRoad.Origin.OrganizationId },
                             LBLBGNORG = { Value = nationalRoad.Origin.Organization },
-                        }.ToBytes()
+                        }.ToBytes(_encoding)
                     });
 
             return context.AddRangeAsync(nationalRoadAttributes, token);
