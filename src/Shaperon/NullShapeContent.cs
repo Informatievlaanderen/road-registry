@@ -1,8 +1,9 @@
-﻿using System;
-using System.IO;
-
-namespace Shaperon
+﻿namespace Shaperon
 {
+    using System;
+    using System.IO;
+    using System.Text;
+
     public class NullShapeContent : ShapeContent
     {
         public static readonly ShapeContent Instance = new NullShapeContent();
@@ -27,6 +28,24 @@ namespace Shaperon
                 throw new ShapeRecordContentException("The Shape Type field does not indicate a Null shape.");
 
             return Instance;
+        }
+
+        public static ShapeContent FromBytes(byte[] bytes)
+        {
+            using(var input = new MemoryStream(bytes))
+            using(var reader = new BinaryReader(input))
+            {
+                return Read(reader);
+            }
+        }
+
+        public static ShapeContent FromBytes(byte[] bytes, Encoding encoding)
+        {
+            using(var input = new MemoryStream(bytes))
+            using(var reader = new BinaryReader(input, encoding))
+            {
+                return Read(reader);
+            }
         }
 
         public override void Write(BinaryWriter writer)

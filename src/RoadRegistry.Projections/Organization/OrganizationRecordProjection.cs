@@ -1,5 +1,7 @@
 namespace RoadRegistry.Projections
 {
+    using System;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
@@ -8,8 +10,11 @@ namespace RoadRegistry.Projections
 
     public class OrganizationRecordProjection : ConnectedProjection<ShapeContext>
     {
-        public OrganizationRecordProjection()
+        private readonly Encoding _encoding;
+
+        public OrganizationRecordProjection(Encoding encoding)
         {
+            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
             When<Envelope<ImportedOrganization>>((content, message, token) => HandleImportedOrganization(content, message.Message, token));
         }
 
@@ -22,7 +27,7 @@ namespace RoadRegistry.Projections
                 {
                     ORG = { Value = @event.Code },
                     LBLORG = { Value = @event.Name },
-                }.ToBytes()
+                }.ToBytes(_encoding)
             };
 
             return content.AddAsync(organization, token);

@@ -34,7 +34,7 @@ namespace RoadRegistry.Projections
             
             Fields = new DbaseField[]
             {
-                WK_OIDN, WK_UIDN, TYPE, LBLTYPE, BEGINTIJD, BEGINORG, LBLBGINORG
+                WK_OIDN, WK_UIDN, TYPE, LBLTYPE, BEGINTIJD, BEGINORG, LBLBGNORG
             };
         }
 

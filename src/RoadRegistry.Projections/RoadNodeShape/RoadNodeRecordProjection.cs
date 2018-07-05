@@ -1,6 +1,7 @@
 namespace RoadRegistry.Projections
 {
     using System;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
@@ -14,14 +15,16 @@ namespace RoadRegistry.Projections
     {
         private readonly RoadNodeTypeTranslator _roadNodeTypeTranslator;
         private readonly WKBReader _wkbReader;
+        private readonly Encoding _encoding;
 
         public RoadNodeRecordProjection(
             WKBReader wkbReader,
-            RoadNodeTypeTranslator roadNodeTypeTranslator)
+            RoadNodeTypeTranslator roadNodeTypeTranslator,
+            Encoding encoding)
         {
             _wkbReader = wkbReader ?? throw new ArgumentNullException(nameof(wkbReader));
             _roadNodeTypeTranslator = roadNodeTypeTranslator ?? throw new ArgumentNullException(nameof(roadNodeTypeTranslator));
-
+            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
             When<Envelope<ImportedRoadNode>>((context, message, token) => HandleImportedRoadNode(context, message.Message, token));
         }
 
@@ -47,7 +50,7 @@ namespace RoadRegistry.Projections
                 Id = @event.Id,
                 ShapeRecordContent = pointShapeContent.ToBytes(),
                 ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                DbaseRecord = dbaseRecord.ToBytes()
+                DbaseRecord = dbaseRecord.ToBytes(_encoding)
             }, token);
         }
     }

@@ -76,6 +76,15 @@ namespace Shaperon
                     ));
         }
 
+        public static void CustomizeShapeRecordCount(this IFixture fixture)
+        {
+            fixture.Customize<ShapeRecordCount>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => new ShapeRecordCount(value.AsShapeRecordCountValue())
+                    ));
+        }
+
         public static void CustomizeDbaseRecordLength(this IFixture fixture)
         {
             fixture.Customize<DbaseRecordLength>(

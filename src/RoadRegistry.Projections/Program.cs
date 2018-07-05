@@ -2,7 +2,9 @@ namespace RoadRegistry.Projections.Shape
 {
     using System;
     using System.IO;
+    using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using Autofac.Features.OwnedInstances;
@@ -17,9 +19,11 @@ namespace RoadRegistry.Projections.Shape
 
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.Projections.Shape");
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
                 Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
@@ -44,11 +48,18 @@ namespace RoadRegistry.Projections.Shape
 
             try
             {
-                app.GetService<RoadShapeRunner>()
-                    .Handle(app.GetService<IStreamStore>(), app.GetService<Func<Owned<ShapeContext>>>());
-
-                Console.WriteLine("Running...");
-                Console.ReadLine();
+                using (var runner = app.GetService<RoadShapeRunner>())
+                {
+                    runner.CatchupPageSize = 5000;
+                    using(var source = new CancellationTokenSource())
+                    {
+                        await runner.StartAsync(app.GetService<IStreamStore>(), app.GetService<Func<Owned<ShapeContext>>>(), source.Token);
+                        // runner.Handle(app.GetService<IStreamStore>(), app.GetService<Func<Owned<ShapeContext>>>());
+                        Console.WriteLine("Running...");
+                        Console.ReadLine();
+                        source.Cancel();
+                    }
+                }
             }
             catch (Exception e)
             {

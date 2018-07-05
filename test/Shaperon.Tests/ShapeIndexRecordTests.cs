@@ -17,6 +17,7 @@ namespace Shaperon
             _fixture = new Fixture();
             _fixture.CustomizeWordLength();
             _fixture.CustomizeWordOffset();
+            _fixture.CustomizeShapeRecordCount();
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
         }
@@ -33,6 +34,16 @@ namespace Shaperon
         {
             new GuardClauseAssertion(_fixture)
                 .Verify(new Methods<ShapeIndexRecord>().Select(instance => instance.Write(null)));
+        }
+
+        [Fact]
+        public void GetTotalLengthForRecordCountReturnsExpectedResult()
+        {
+            var count = _fixture.Create<ShapeRecordCount>();
+
+            var result = ShapeIndexRecord.GetTotalLengthForRecordCount(count);
+
+            Assert.Equal(new WordLength(count * 4), result);
         }
 
         [Fact]

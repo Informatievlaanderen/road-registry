@@ -5,6 +5,11 @@ namespace Shaperon
 {
     public class ShapeIndexRecord
     {
+        public static WordLength GetTotalLengthForRecordCount(ShapeRecordCount count)
+        {
+            return new WordLength(4 * count.ToInt32());
+        }
+
         public ShapeIndexRecord(WordOffset offset, WordLength contentLength)
         {
             Offset = offset;

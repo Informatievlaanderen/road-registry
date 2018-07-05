@@ -51,6 +51,67 @@ namespace Shaperon
                 .Verify(new Methods<PolyLineMShapeContent>().Select(instance => instance.Write(null)));
         }
 
+
+        [Fact]
+        public void ToBytesHasExpectedResult()
+        {
+            var sut = new PolyLineMShapeContent(_fixture.Create<MultiLineString>());
+
+            var result = sut.ToBytes();
+
+            using(var stream = new MemoryStream())
+            using(var writer = new BinaryWriter(stream))
+            {
+                sut.Write(writer);
+                writer.Flush();
+
+                Assert.Equal(stream.ToArray(), result);
+            }
+        }
+
+        [Fact]
+        public void FromBytesHasExpectedResult()
+        {
+            var content = new PolyLineMShapeContent(_fixture.Create<MultiLineString>());
+
+            var result = PolyLineMShapeContent.FromBytes(content.ToBytes());
+
+            var actual = Assert.IsType<PolyLineMShapeContent>(result);
+            Assert.Equal(content.Shape, actual.Shape);
+            Assert.Equal(content.ShapeType, actual.ShapeType);
+            Assert.Equal(content.ContentLength, actual.ContentLength);
+        }
+
+        [Fact]
+        public void ToBytesWithEncodingHasExpectedResult()
+        {
+            var sut = new PolyLineMShapeContent(_fixture.Create<MultiLineString>());
+
+            var result = sut.ToBytes(Encoding.UTF8);
+
+            using(var stream = new MemoryStream())
+            using(var writer = new BinaryWriter(stream, Encoding.UTF8))
+            {
+                sut.Write(writer);
+                writer.Flush();
+
+                Assert.Equal(stream.ToArray(), result);
+            }
+        }
+
+        [Fact]
+        public void FromBytesWithEncodingHasExpectedResult()
+        {
+            var content = new PolyLineMShapeContent(_fixture.Create<MultiLineString>());
+
+            var result = PolyLineMShapeContent.FromBytes(content.ToBytes(Encoding.UTF8), Encoding.UTF8);
+
+            var actual = Assert.IsType<PolyLineMShapeContent>(result);
+            Assert.Equal(content.Shape, actual.Shape);
+            Assert.Equal(content.ShapeType, actual.ShapeType);
+            Assert.Equal(content.ContentLength, actual.ContentLength);
+        }
+
         [Fact]
         public void CanReadWritePointShape()
         {

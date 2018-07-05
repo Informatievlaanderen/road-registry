@@ -1,9 +1,9 @@
-using System;
-using System.IO;
-using System.Linq;
-
 namespace Shaperon
 {
+    using System;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
 
     public abstract class DbaseRecord
     {
@@ -50,6 +50,15 @@ namespace Shaperon
             }
         }
 
+        public void FromBytes(byte[] bytes, Encoding encoding)
+        {
+            using(var input = new MemoryStream(bytes))
+            using(var reader = new BinaryReader(input, encoding))
+            {
+                Read(reader);
+            }
+        }
+
         public void Write(BinaryWriter writer)
         {
             if (writer == null)
@@ -74,15 +83,13 @@ namespace Shaperon
             }
         }
 
-        public byte[] ToBytes()
+        public byte[] ToBytes(Encoding encoding)
         {
             using(var output = new MemoryStream())
+            using(var writer = new BinaryWriter(output, encoding))
             {
-                using(var writer = new BinaryWriter(output))
-                {
-                    Write(writer);
-                    writer.Flush();
-                }
+                Write(writer);
+                writer.Flush();
                 return output.ToArray();
             }
         }

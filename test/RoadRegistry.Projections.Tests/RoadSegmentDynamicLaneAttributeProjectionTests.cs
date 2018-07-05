@@ -2,6 +2,7 @@ namespace RoadRegistry.Projections.Tests
 {
     using System;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
@@ -50,7 +51,7 @@ namespace RoadRegistry.Projections.Tests
                                 BEGINTIJD = { Value = lane.Origin.Since },
                                 BEGINORG = { Value = lane.Origin.OrganizationId },
                                 LBLBGNORG = { Value = lane.Origin.Organization },
-                            }.ToBytes()
+                            }.ToBytes(Encoding.UTF8)
                         });
 
                     return new
@@ -61,7 +62,7 @@ namespace RoadRegistry.Projections.Tests
 
                 }).ToList();
 
-            return new RoadSegmentDynamicLaneAttributeRecordProjection(_laneDirectionTranslator)
+            return new RoadSegmentDynamicLaneAttributeRecordProjection(_laneDirectionTranslator, Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -77,7 +78,7 @@ namespace RoadRegistry.Projections.Tests
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.Lanes = new RoadSegmentLaneProperties[0];
 
-            return new RoadSegmentDynamicLaneAttributeRecordProjection(_laneDirectionTranslator)
+            return new RoadSegmentDynamicLaneAttributeRecordProjection(_laneDirectionTranslator, Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new object[0]);

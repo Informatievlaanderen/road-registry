@@ -2,6 +2,7 @@ namespace Shaperon
 {
     using System;
     using System.IO;
+    using System.Text;
     using NetTopologySuite.Geometries;
 
     public class PointShapeContent : ShapeContent
@@ -48,6 +49,24 @@ namespace Shaperon
                     reader.ReadDoubleLittleEndian()));
         }
 
+        public static ShapeContent FromBytes(byte[] bytes)
+        {
+            using(var input = new MemoryStream(bytes))
+            using(var reader = new BinaryReader(input))
+            {
+                return Read(reader);
+            }
+        }
+
+        public static ShapeContent FromBytes(byte[] bytes, Encoding encoding)
+        {
+            using(var input = new MemoryStream(bytes))
+            using(var reader = new BinaryReader(input, encoding))
+            {
+                return Read(reader);
+            }
+        }
+
         public override void Write(BinaryWriter writer)
         {
             if (writer == null)
@@ -59,7 +78,5 @@ namespace Shaperon
             writer.WriteDoubleLittleEndian(Shape.X); // X Coordinate
             writer.WriteDoubleLittleEndian(Shape.Y); // Y Coordinate
         }
-
-        public override string ToString() => $"Point[{Shape.X};{Shape.Y}]";
     }
 }
