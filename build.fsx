@@ -31,7 +31,7 @@ let testWithDotNet path =
 
 Target "DotNetCli" (fun _ ->
   if not(DotNetCli.isInstalled()) then
-    customDotnetSdkPath <- Some <| DotNetCli.InstallDotNetSDK("2.0.6")
+    customDotnetSdkPath <- Some <| DotNetCli.InstallDotNetSDK("2.1.1")
 )
 
 Target "DockerLogin" (fun _ ->

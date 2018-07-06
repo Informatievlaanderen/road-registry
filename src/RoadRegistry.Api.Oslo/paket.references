@@ -12,7 +12,6 @@ Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore
 Microsoft.EntityFrameworkCore.SqlServer
 Microsoft.EntityFrameworkCore.InMemory
 Microsoft.EntityFrameworkCore.Design
-Microsoft.EntityFrameworkCore.Tools.DotNet
 
 Microsoft.VisualStudio.Web.BrowserLink
 

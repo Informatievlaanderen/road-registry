@@ -1,5 +1,4 @@
 Microsoft.EntityFrameworkCore.SqlServer
-Microsoft.EntityFrameworkCore.Tools.DotNet
 Microsoft.EntityFrameworkCore.InMemory
 
 Microsoft.Extensions.Configuration

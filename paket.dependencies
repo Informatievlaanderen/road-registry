@@ -14,28 +14,33 @@ source https://www.myget.org/F/nettopologysuite/api/v3/index.json
 // - It requires huge Docker base images to contain this new "GAC"
 // nuget Microsoft.AspNetCore.All 2.0.0
 
+// DOTNETCORE ISSUES
+nuget Microsoft.NETCore.App 2.1.1
+
 // PRODUCTION STUFF
-nuget Microsoft.AspNetCore 2.0.2
-nuget Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore 2.0.2
-nuget Microsoft.AspNetCore.Mvc.Core 2.0.3
-nuget Microsoft.AspNetCore.Mvc.Cors 2.0.3
-nuget Microsoft.AspNetCore.Mvc.Formatters.Json 2.0.3
-nuget Microsoft.AspNetCore.Mvc.Formatters.Xml 2.0.3
-nuget Microsoft.AspNetCore.Mvc.Versioning 2.2.0
+nuget Microsoft.AspNetCore 2.1.1
+nuget Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore 2.1.1
+nuget Microsoft.AspNetCore.Mvc.Core 2.1.1
+nuget Microsoft.AspNetCore.Mvc.Cors 2.1.1
+nuget Microsoft.AspNetCore.Mvc.Formatters.Json 2.1.1
+nuget Microsoft.AspNetCore.Mvc.Formatters.Xml 2.1.1
+nuget Microsoft.AspNetCore.Mvc.Versioning 2.3.0
 nuget Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer 2.2.0
-nuget Microsoft.AspNetCore.ResponseCompression 2.0.2
-nuget Microsoft.AspNetCore.StaticFiles 2.0.2
+nuget Microsoft.AspNetCore.ResponseCompression 2.1.1
+nuget Microsoft.AspNetCore.StaticFiles 2.1.1
 
-nuget Microsoft.EntityFrameworkCore.SqlServer 2.0.2
+nuget Microsoft.EntityFrameworkCore 2.1.1
+nuget Microsoft.EntityFrameworkCore.SqlServer 2.1.1
 
-nuget Microsoft.Extensions.Configuration 2.0.1
-nuget Microsoft.Extensions.Configuration.CommandLine 2.0.1
-nuget Microsoft.Extensions.Configuration.FileExtensions 2.0.1
-nuget Microsoft.Extensions.Configuration.Json 2.0.1
-nuget Microsoft.Extensions.Configuration.EnvironmentVariables 2.0.1
-nuget Microsoft.Extensions.Options.ConfigurationExtensions 2.0.1
+nuget Microsoft.Extensions.Configuration 2.1.1
+nuget Microsoft.Extensions.Configuration.CommandLine 2.1.1
+nuget Microsoft.Extensions.Configuration.FileExtensions 2.1.1
+nuget Microsoft.Extensions.Configuration.Json 2.1.1
+nuget Microsoft.Extensions.Configuration.EnvironmentVariables 2.1.1
+nuget Microsoft.Extensions.Options.ConfigurationExtensions 2.1.1
+nuget Microsoft.Extensions.Configuration.Binder 2.1.1
 
-nuget Microsoft.VisualStudio.Web.BrowserLink 2.0.2
+nuget Microsoft.VisualStudio.Web.BrowserLink 2.1.1
 
 nuget SqlStreamStore 1.1.2
 nuget SqlStreamStore.MsSql 1.1.2
@@ -44,22 +49,22 @@ nuget Autofac.Extensions.DependencyInjection 4.2.2
 
 nuget Newtonsoft.Json 11.0.2
 nuget Destructurama.JsonNet 1.2.1
+nuget Autofac 4.8.1
 
-nuget Serilog 2.6.0
+nuget Serilog 2.7.1
 nuget Serilog.Settings.Configuration 2.6.1
 nuget Serilog.Extensions.Logging 2.0.2
 nuget Serilog.Sinks.Console 3.1.1
 nuget Serilog.Enrichers.Thread 3.0.0
 nuget Serilog.Enrichers.Environment 2.1.2
 
-nuget Swashbuckle.AspNetCore 1.2.0
+nuget Swashbuckle.AspNetCore 2.5.0
 nuget Swashbuckle.AspNetCore.Examples 2.9.0
 
-nuget Microsoft.EntityFrameworkCore.Design 2.0.2
-clitool Microsoft.EntityFrameworkCore.Tools.DotNet 2.0.2
+nuget Microsoft.EntityFrameworkCore.Design 2.1.1
 
 nuget System.Threading.Tasks.Dataflow 4.8.0
-nuget System.Collections.Immutable 1.4.0
+nuget System.Collections.Immutable 1.5.0
 nuget System.Data.SqlClient
 
 nuget System.Text.Encoding.CodePages
@@ -69,11 +74,16 @@ nuget Albedo
 nuget NetTopologySuite 1.15.0-pre063
 
 // VBR STUFF
-nuget Aiv.Vbr.AggregateSource ~> 2.0
-nuget Aiv.Vbr.AggregateSource.ExplicitRouting ~> 2.0
-nuget Aiv.Vbr.AggregateSource.SqlStreamStore ~> 2.0
-nuget Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac ~> 2.0
-nuget Aiv.Vbr.Api ~> 2.0 copy_content_to_output_dir: never
+nuget Aiv.Vbr.AggregateSource ~> 2.2
+nuget Aiv.Vbr.AggregateSource.ExplicitRouting ~> 2.2
+nuget Aiv.Vbr.AggregateSource.SqlStreamStore ~> 2.2
+nuget Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac ~> 2.2
+nuget Aiv.Vbr.AggregateSource.Testing ~> 2.2
+nuget Aiv.Vbr.AggregateSource.Testing.CommandHandling ~> 2.2
+nuget Aiv.Vbr.AggregateSource.Testing.SqlStreamStore ~> 2.2
+nuget Aiv.Vbr.AggregateSource.Testing.SqlStreamStore.Autofac ~> 2.2
+nuget Aiv.Vbr.AggregateSource.Testing.Xunit ~> 2.2
+nuget Aiv.Vbr.Api ~> 3.1 copy_content_to_output_dir: never
 nuget Aiv.Vbr.AspNetCore.Mvc.Formatters.Csv ~> 2.0
 nuget Aiv.Vbr.AspNetCore.Mvc.Formatters.Json ~> 2.0
 nuget Aiv.Vbr.AspNetCore.Mvc.Logging ~> 2.0
@@ -87,36 +97,38 @@ nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.DefaultResponseCompressionQuality ~> 2.0
 nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.EnableRequestRewind ~> 2.0
 nuget Aiv.Vbr.AspNetCore.Mvc.ModelBinding.GuidHeader ~> 2.0
 nuget Aiv.Vbr.AspNetCore.Swagger ~> 2.0
-nuget Aiv.Vbr.CommandHandling ~> 2.0
-nuget Aiv.Vbr.CommandHandling.Idempotency ~> 2.0
-nuget Aiv.Vbr.CommandHandling.SqlStreamStore ~> 2.0
-nuget Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac ~> 2.0
+nuget Aiv.Vbr.CommandHandling ~> 2.2
+nuget Aiv.Vbr.CommandHandling.Idempotency ~> 2.2
+nuget Aiv.Vbr.CommandHandling.SqlStreamStore ~> 2.2
+nuget Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac ~> 2.2
 nuget Aiv.Vbr.EntityFrameworkCore.EntityTypeConfiguration ~> 2.0
 nuget Aiv.Vbr.EventHandling ~> 2.0
 nuget Aiv.Vbr.EventHandling.Autofac ~> 2.0
 nuget Aiv.Vbr.Generators.Guid.Deterministic ~> 2.0
-nuget Aiv.Vbr.ProjectionHandling.Connector ~> 4.0
-nuget Aiv.Vbr.ProjectionHandling.Connector.Testing ~> 4.0
-nuget Aiv.Vbr.ProjectionHandling.Runner ~> 4.0
-nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore ~> 4.0
-nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac ~> 4.0
+nuget Aiv.Vbr.ProjectionHandling.Connector ~> 4.1
+nuget Aiv.Vbr.ProjectionHandling.Connector.Testing ~> 4.1
+nuget Aiv.Vbr.ProjectionHandling.Testing.Xunit ~> 4.1
+nuget Aiv.Vbr.ProjectionHandling.Runner ~> 4.1
+nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore ~> 4.1
+nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac ~> 4.1
 nuget Aiv.Vbr.Utilities.HashCodeCalculator ~> 2.0
 nuget Aiv.Vbr.Utilities.HexByteConvertor ~> 2.0
+nuget Aiv.Vbr.Testing.Infrastructure.Events ~> 1.2.1
 
 // DOCS STUFF
 nuget Structurizr.Core 0.7.1
 
 // TEST STUFF
-nuget Microsoft.NET.Test.Sdk 15.7.0
+nuget Microsoft.NET.Test.Sdk 15.7.2
 nuget xunit 2.3.1
 nuget xunit.runner.visualstudio 2.3.1
 nuget xunit.categories 2.0.3
-nuget Microsoft.AspNetCore.TestHost 2.0.2
-nuget FluentAssertions 5.3.0
+nuget Microsoft.AspNetCore.TestHost 2.1.1
+nuget FluentAssertions 5.4.1
 nuget Microsoft.EntityFrameworkCore.InMemory 2.0.2
-nuget Moq 4.8.2
+nuget Moq 4.8.3
 nuget Shouldly 3.0.0
-nuget AutoFixture 4.2.1
+nuget AutoFixture 4.4.0
 nuget AutoFixture.Idioms 4.2.1
 
 clitool dotnet-xunit 2.3.1
