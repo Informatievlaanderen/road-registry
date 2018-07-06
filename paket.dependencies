@@ -97,10 +97,10 @@ nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.DefaultResponseCompressionQuality ~> 2.0
 nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.EnableRequestRewind ~> 2.0
 nuget Aiv.Vbr.AspNetCore.Mvc.ModelBinding.GuidHeader ~> 2.0
 nuget Aiv.Vbr.AspNetCore.Swagger ~> 2.0
-nuget Aiv.Vbr.CommandHandling ~> 2.2
-nuget Aiv.Vbr.CommandHandling.Idempotency ~> 2.2
-nuget Aiv.Vbr.CommandHandling.SqlStreamStore ~> 2.2
-nuget Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac ~> 2.2
+nuget Aiv.Vbr.CommandHandling ~> 3.0
+nuget Aiv.Vbr.CommandHandling.Idempotency ~> 3.0
+nuget Aiv.Vbr.CommandHandling.SqlStreamStore ~> 3.0
+nuget Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac ~> 3.0
 nuget Aiv.Vbr.EntityFrameworkCore.EntityTypeConfiguration ~> 2.0
 nuget Aiv.Vbr.EventHandling ~> 2.0
 nuget Aiv.Vbr.EventHandling.Autofac ~> 2.0
