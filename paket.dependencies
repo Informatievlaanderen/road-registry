@@ -101,7 +101,7 @@ nuget Aiv.Vbr.CommandHandling ~> 3.0
 nuget Aiv.Vbr.CommandHandling.Idempotency ~> 3.0
 nuget Aiv.Vbr.CommandHandling.SqlStreamStore ~> 3.0
 nuget Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac ~> 3.0
-nuget Aiv.Vbr.EntityFrameworkCore.EntityTypeConfiguration ~> 2.0
+nuget Aiv.Vbr.EntityFrameworkCore.EntityTypeConfiguration ~> 2.1
 nuget Aiv.Vbr.EventHandling ~> 2.0
 nuget Aiv.Vbr.EventHandling.Autofac ~> 2.0
 nuget Aiv.Vbr.Generators.Guid.Deterministic ~> 2.0
