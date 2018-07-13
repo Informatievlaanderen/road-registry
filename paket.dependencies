@@ -63,7 +63,7 @@ nuget Swashbuckle.AspNetCore.Examples 2.9.0
 
 nuget Microsoft.EntityFrameworkCore.Design 2.1.1
 
-nuget System.Threading.Tasks.Dataflow 4.8.0
+nuget System.Threading.Tasks.Dataflow 4.9.0
 nuget System.Collections.Immutable 1.5.0
 nuget System.Data.SqlClient
 
@@ -74,18 +74,18 @@ nuget Albedo
 nuget NetTopologySuite 1.15.0-pre063
 
 // VBR STUFF
-nuget Aiv.Vbr.AggregateSource ~> 2.2
-nuget Aiv.Vbr.AggregateSource.ExplicitRouting ~> 2.2
-nuget Aiv.Vbr.AggregateSource.SqlStreamStore ~> 2.2
-nuget Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac ~> 2.2
-nuget Aiv.Vbr.AggregateSource.Testing ~> 2.2
-nuget Aiv.Vbr.AggregateSource.Testing.CommandHandling ~> 2.2
-nuget Aiv.Vbr.AggregateSource.Testing.SqlStreamStore ~> 2.2
-nuget Aiv.Vbr.AggregateSource.Testing.SqlStreamStore.Autofac ~> 2.2
-nuget Aiv.Vbr.AggregateSource.Testing.Xunit ~> 2.2
-nuget Aiv.Vbr.Api ~> 3.1 copy_content_to_output_dir: never
+nuget Aiv.Vbr.AggregateSource ~> 3.1
+nuget Aiv.Vbr.AggregateSource.ExplicitRouting ~> 3.1
+nuget Aiv.Vbr.AggregateSource.SqlStreamStore ~> 3.1
+nuget Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac ~> 3.0
+nuget Aiv.Vbr.AggregateSource.Testing ~> 3.1
+nuget Aiv.Vbr.AggregateSource.Testing.CommandHandling ~> 3.1
+nuget Aiv.Vbr.AggregateSource.Testing.SqlStreamStore ~> 3.1
+nuget Aiv.Vbr.AggregateSource.Testing.SqlStreamStore.Autofac ~> 3.1
+nuget Aiv.Vbr.AggregateSource.Testing.Xunit ~> 3.1
+nuget Aiv.Vbr.Api ~> 4.0 copy_content_to_output_dir: never
 nuget Aiv.Vbr.AspNetCore.Mvc.Formatters.Csv ~> 2.0
-nuget Aiv.Vbr.AspNetCore.Mvc.Formatters.Json ~> 2.0
+nuget Aiv.Vbr.AspNetCore.Mvc.Formatters.Json ~> 2.1
 nuget Aiv.Vbr.AspNetCore.Mvc.Logging ~> 2.0
 nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddCorrelationId ~> 2.0
 nuget Aiv.Vbr.AspNetCore.Mvc.Middleware.AddCorrelationIdToLogContext ~> 2.0
@@ -116,7 +116,7 @@ nuget Aiv.Vbr.Utilities.HexByteConvertor ~> 2.0
 nuget Aiv.Vbr.Testing.Infrastructure.Events ~> 1.2.1
 
 // DOCS STUFF
-nuget Structurizr.Core 0.7.1
+nuget Structurizr.Core 0.7.2
 
 // TEST STUFF
 nuget Microsoft.NET.Test.Sdk 15.7.2
@@ -125,16 +125,16 @@ nuget xunit.runner.visualstudio 2.3.1
 nuget xunit.categories 2.0.3
 nuget Microsoft.AspNetCore.TestHost 2.1.1
 nuget FluentAssertions 5.4.1
-nuget Microsoft.EntityFrameworkCore.InMemory 2.0.2
+nuget Microsoft.EntityFrameworkCore.InMemory 2.1.1
 nuget Moq 4.8.3
 nuget Shouldly 3.0.0
-nuget AutoFixture 4.4.0
-nuget AutoFixture.Idioms 4.2.1
+nuget AutoFixture 4.5.0
+nuget AutoFixture.Idioms 4.5.0
 
 clitool dotnet-xunit 2.3.1
 
 // BUILD STUFF
-nuget FAKE 4.64.12
-nuget SourceLink.Embed.AllSourceFiles 2.8.1 copy_local: true
-nuget SourceLink.Copy.PdbFiles 2.8.1 copy_local: true
-clitool dotnet-sourcelink 2.8.1
+nuget FAKE 4.64.13
+nuget SourceLink.Embed.AllSourceFiles 2.8.3 copy_local: true
+nuget SourceLink.Copy.PdbFiles 2.8.3 copy_local: true
+clitool dotnet-sourcelink 2.8.3
