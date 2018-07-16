@@ -11,7 +11,6 @@ namespace RoadRegistry.Projections
 
     public class RoadSegmentDynamicLaneAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {
-        private readonly Encoding _encoding;
         private readonly LaneDirectionTranslator _laneDirectionTranslator;
         private readonly Encoding _encoding;
 

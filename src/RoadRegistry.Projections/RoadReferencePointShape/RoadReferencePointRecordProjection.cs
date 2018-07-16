@@ -14,7 +14,6 @@ namespace RoadRegistry.Projections
     public class RoadReferencePointRecordProjection: ConnectedProjection<ShapeContext>
     {
         private readonly WKBReader _wkbReader;
-        private readonly Encoding _encoding;
         private readonly ReferencePointTypeTranslator _referencePointTypeTranslator;
         private readonly Encoding _encoding;
 

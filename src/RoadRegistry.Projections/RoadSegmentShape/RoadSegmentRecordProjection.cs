@@ -15,7 +15,6 @@ namespace RoadRegistry.Projections
     public class RoadSegmentRecordProjection : ConnectedProjection<ShapeContext>
     {
         private readonly WKBReader _wkbReader;
-        private readonly Encoding _encoding;
         private readonly RoadSegmentStatusTranslator _segmentStatusTranslator;
         private readonly RoadSegmentMorphologyTranslator _segmentMorphologyTranslator;
         private readonly RoadSegmentCategoryTranslator _segmentCategoryTranslator;

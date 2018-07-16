@@ -11,7 +11,6 @@ namespace RoadRegistry.Projections
 
     public class RoadSegmentDynamicHardeningAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {
-        private readonly Encoding _encoding;
         private readonly HardeningTypeTranslator _hardeningTypeTranslator;
         private readonly Encoding _encoding;
 
