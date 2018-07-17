@@ -1,5 +1,6 @@
 Microsoft.EntityFrameworkCore.SqlServer
 Microsoft.EntityFrameworkCore.InMemory
+Microsoft.EntityFrameworkCore.Design
 
 Microsoft.Extensions.Configuration
 Microsoft.Extensions.Configuration.CommandLine

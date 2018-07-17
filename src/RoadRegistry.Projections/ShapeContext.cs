@@ -6,7 +6,7 @@ namespace RoadRegistry.Projections
 
     public class ShapeContext : RunnerDbContext<ShapeContext>
     {
-        public override string ProjectionStateSchema => Schema.Oslo;
+        public override string ProjectionStateSchema => Schema.ProjectionMetaData;
 
         public DbSet<RoadNodeRecord> RoadNodes { get; set; }
         public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
@@ -20,7 +20,7 @@ namespace RoadRegistry.Projections
         public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
         public DbSet<OrganizationRecord> Organizations { get; set; }
 
-        public ShapeContext() { }
+        public ShapeContext() {}
 
         // This needs to be DbContextOptions<T> for Autofac!
         public ShapeContext(DbContextOptions<ShapeContext> options)

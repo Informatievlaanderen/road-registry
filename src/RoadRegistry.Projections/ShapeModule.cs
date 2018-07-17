@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections
+namespace RoadRegistry.Projections
 {
     using System;
     using Autofac;
@@ -16,15 +16,15 @@
             ILoggerFactory loggerFactory)
         {
             var logger = loggerFactory.CreateLogger<ShapeModule>();
-            var osloProjectionsConnectionString = configuration.GetConnectionString("OsloProjections");
+            var projectionsConnectionString = configuration.GetConnectionString("ShapeProjections");
 
             services
                 .AddDbContext<ShapeContext>(options => options
                     .UseLoggerFactory(loggerFactory)
-                    .UseSqlServer(osloProjectionsConnectionString, sqlServerOptions =>
+                    .UseSqlServer(projectionsConnectionString, sqlServerOptions =>
                     {
                         sqlServerOptions.EnableRetryOnFailure();
-                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.Shape, Schema.Shape);
+                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.Shape, Schema.ProjectionMetaData);
                     }));
 
             logger.LogInformation(
@@ -32,8 +32,8 @@
                 Environment.NewLine +
                 "\tSchema: {Schema}" +
                 Environment.NewLine +
-                "\tTableName: {TableName}",
-                nameof(ShapeContext), Schema.Shape, MigrationTables.Shape);
+                "\tMigrationTable: {ProjectionMetaData}.{TableName}",
+                nameof(ShapeContext), Schema.Oslo, Schema.ProjectionMetaData, MigrationTables.Oslo);
         }
     }
 }

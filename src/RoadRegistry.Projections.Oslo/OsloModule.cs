@@ -24,7 +24,7 @@ namespace RoadRegistry.Projections.Oslo
                     .UseSqlServer(osloProjectionsConnectionString, sqlServerOptions =>
                     {
                         sqlServerOptions.EnableRetryOnFailure();
-                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.Oslo, Schema.Oslo);
+                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.Oslo, Schema.ProjectionMetaData);
                     }));
 
             logger.LogInformation(
@@ -32,8 +32,8 @@ namespace RoadRegistry.Projections.Oslo
                 Environment.NewLine +
                 "\tSchema: {Schema}" +
                 Environment.NewLine +
-                "\tTableName: {TableName}",
-                nameof(OsloContext), Schema.Oslo, MigrationTables.Oslo);
+                "\tMigrationTable: {ProjectionMetaData}.{TableName}",
+                nameof(OsloContext), Schema.Oslo, Schema.ProjectionMetaData, MigrationTables.Oslo);
         }
     }
 }

@@ -14,6 +14,7 @@ namespace RoadRegistry.Projections
                 .HasKey(p => p.Id)
                 .ForSqlServerIsClustered(false);
 
+            b.Property(p => p.Id).ValueGeneratedNever();
             b.Property(p => p.ShapeRecordContent);
             b.Property(p => p.ShapeRecordContentLength);
             b.Property(p => p.DbaseRecord);

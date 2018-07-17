@@ -1,8 +1,8 @@
-﻿using System.IO;
-using System.Text;
-
-namespace Shaperon
+﻿namespace Shaperon
 {
+    using System.IO;
+    using System.Text;
+
     public abstract class ShapeContent
     {
         protected ShapeContent() {}

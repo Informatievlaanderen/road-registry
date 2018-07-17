@@ -5,7 +5,6 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
     using Microsoft.Extensions.Logging;
-    using NetTopologySuite;
     using NetTopologySuite.IO;
 
     public class RoadShapeRunner : Runner<ShapeContext>

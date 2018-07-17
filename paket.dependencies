@@ -46,10 +46,10 @@ nuget SqlStreamStore 1.1.2
 nuget SqlStreamStore.MsSql 1.1.2
 
 nuget Autofac.Extensions.DependencyInjection 4.2.2
+nuget Autofac 4.8.1
 
 nuget Newtonsoft.Json 11.0.2
 nuget Destructurama.JsonNet 1.2.1
-nuget Autofac 4.8.1
 
 nuget Serilog 2.7.1
 nuget Serilog.Settings.Configuration 2.6.1

@@ -51,7 +51,10 @@ namespace RoadRegistry.LegacyStreamLoader
             var eventSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
             var typeMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
-            using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(connectionStringBuilder.ConnectionString)))
+            using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(connectionStringBuilder.ConnectionString)
+            {
+                Schema = "RoadRegistry"
+            }))
             {
                 await streamStore.CreateSchema();
 

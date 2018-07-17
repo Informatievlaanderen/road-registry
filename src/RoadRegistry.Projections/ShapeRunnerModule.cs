@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections
+namespace RoadRegistry.Projections
 {
     using Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac;
     using Aiv.Vbr.EventHandling;
@@ -6,10 +6,13 @@
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
+    using GeoAPI.Geometries;
     using Infrastructure;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using NetTopologySuite;
+    using NetTopologySuite.IO;
 
     public class ShapeRunnerModule : Module
     {
@@ -41,10 +44,16 @@
                 .RegisterModule(new EnvelopeModule());
 
             containerBuilder
-                .RegisterModule(new SqlStreamStoreModule(_configuration.GetConnectionString("Events"), Schema.Default));
+                .RegisterModule(new SqlStreamStoreModule(_configuration.GetConnectionString("Events"), Schema.Events));
 
             containerBuilder.RegisterType<RoadShapeRunner>()
                 .SingleInstance();
+
+            containerBuilder.RegisterInstance<WKBReader>(new WKBReader(new NtsGeometryServices())
+            {
+                HandleOrdinates = Ordinates.XYZM,
+                HandleSRID = true
+            });
 
             containerBuilder.Populate(_services);
         }

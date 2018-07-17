@@ -18,7 +18,6 @@ namespace RoadRegistry.Projections
         {
             _hardeningTypeTranslator = hardeningTypeTranslator ?? throw new ArgumentNullException(nameof(hardeningTypeTranslator));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-
             When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
         }
 
