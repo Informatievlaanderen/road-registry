@@ -24,7 +24,7 @@ namespace RoadRegistry.Api.Oslo.Infrastructure.Modules
                 .InstancePerLifetimeScope();
 
             containerBuilder
-                .RegisterModule(new SqlStreamStoreModule(_configuration.GetConnectionString("Events"), Schema.Default));
+                .RegisterModule(new SqlStreamStoreModule(_configuration.GetConnectionString("Events"), Schema.Events));
 
             CommandHandlerModules.Register(containerBuilder);
 

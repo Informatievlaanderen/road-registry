@@ -36,8 +36,8 @@ namespace RoadRegistry.Api.Oslo.Infrastructure.Modules
                 .RegisterModule(new IdempotencyModule(
                     _services,
                     _configuration.GetSection(IdempotencyConfiguration.Section).Get<IdempotencyConfiguration>().ConnectionString,
-                    new IdempotencyMigrationsTableInfo(Schema.Default),
-                    new IdempotencyTableInfo(Schema.Default),
+                    new IdempotencyMigrationsTableInfo(Schema.Events),
+                    new IdempotencyTableInfo(Schema.Events),
                     _loggerFactory));
 
             containerBuilder

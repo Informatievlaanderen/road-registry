@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections
+namespace RoadRegistry.Projections
 {
     using Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac;
     using Aiv.Vbr.EventHandling;
@@ -44,7 +44,7 @@
                 .RegisterModule(new EnvelopeModule());
 
             containerBuilder
-                .RegisterModule(new SqlStreamStoreModule(_configuration.GetConnectionString("Events"), Schema.Default));
+                .RegisterModule(new SqlStreamStoreModule(_configuration.GetConnectionString("Events"), Schema.Events));
 
             containerBuilder.RegisterType<RoadShapeRunner>()
                 .SingleInstance();

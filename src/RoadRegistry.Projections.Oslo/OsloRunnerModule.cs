@@ -41,7 +41,7 @@ namespace RoadRegistry.Projections.Oslo
                 .RegisterModule(new EnvelopeModule());
 
             containerBuilder
-                .RegisterModule(new SqlStreamStoreModule(_configuration.GetConnectionString("Events"), Schema.Default));
+                .RegisterModule(new SqlStreamStoreModule(_configuration.GetConnectionString("Events"), Schema.Events));
 
             containerBuilder.RegisterType<RoadOsloRunner>()
                 .SingleInstance();
