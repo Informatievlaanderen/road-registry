@@ -7,7 +7,7 @@ namespace RoadRegistry.Projections.Oslo
 
     public class OsloContext : RunnerDbContext<OsloContext>
     {
-        public override string ProjectionStateSchema => Schema.Oslo;
+        public override string ProjectionStateSchema => Schema.ProjectionMetaData;
 
         public DbSet<RoadListItem> RoadList { get; set; }
         public DbSet<Road.Road> Roads { get; set; }

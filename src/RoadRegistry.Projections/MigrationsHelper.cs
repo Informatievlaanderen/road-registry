@@ -14,7 +14,7 @@ namespace RoadRegistry.Projections
                     sqlServerOptions =>
                     {
                         sqlServerOptions.EnableRetryOnFailure();
-                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.Shape, Schema.Shape);
+                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.Shape, Schema.ProjectionMetaData);
                     });
 
             if (loggerFactory != null)

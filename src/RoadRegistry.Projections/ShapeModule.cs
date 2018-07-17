@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections
+namespace RoadRegistry.Projections
 {
     using System;
     using Autofac;
@@ -24,7 +24,7 @@
                     .UseSqlServer(projectionsConnectionString, sqlServerOptions =>
                     {
                         sqlServerOptions.EnableRetryOnFailure();
-                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.Shape, Schema.Shape);
+                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.Shape, Schema.ProjectionMetaData);
                     }));
 
             logger.LogInformation(
@@ -32,8 +32,8 @@
                 Environment.NewLine +
                 "\tSchema: {Schema}" +
                 Environment.NewLine +
-                "\tTableName: {TableName}",
-                nameof(ShapeContext), Schema.Shape, MigrationTables.Shape);
+                "\tMigrationTable: {ProjectionMetaData}.{TableName}",
+                nameof(ShapeContext), Schema.Oslo, Schema.ProjectionMetaData, MigrationTables.Oslo);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 using System.Collections.Generic;
@@ -10,14 +10,14 @@ namespace RoadRegistry.Projections.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "RoadRegistryOslo");
+                name: "RoadRegistryProjectionMetaData");
 
             migrationBuilder.EnsureSchema(
                 name: "RoadRegistryShape");
 
             migrationBuilder.CreateTable(
                 name: "ProjectionStates",
-                schema: "RoadRegistryOslo",
+                schema: "RoadRegistryProjectionMetaData",
                 columns: table => new
                 {
                     Name = table.Column<string>(nullable: false),
@@ -208,7 +208,7 @@ namespace RoadRegistry.Projections.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ProjectionStates",
-                schema: "RoadRegistryOslo");
+                schema: "RoadRegistryProjectionMetaData");
 
             migrationBuilder.DropTable(
                 name: "GradeSeparatedJunction",

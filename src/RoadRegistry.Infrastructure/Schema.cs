@@ -5,6 +5,8 @@ namespace RoadRegistry.Infrastructure
         public const string Default = "RoadRegistry";
         public const string Shape = "RoadRegistryShape";
         public const string Oslo = "RoadRegistryOslo";
+
+        public const string ProjectionMetaData = "RoadRegistryProjectionMetaData";
     }
 
     public class MigrationTables

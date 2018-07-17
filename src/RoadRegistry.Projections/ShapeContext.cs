@@ -6,7 +6,7 @@ namespace RoadRegistry.Projections
 
     public class ShapeContext : RunnerDbContext<ShapeContext>
     {
-        public override string ProjectionStateSchema => Schema.Oslo;
+        public override string ProjectionStateSchema => Schema.ProjectionMetaData;
 
         public DbSet<RoadNodeRecord> RoadNodes { get; set; }
         public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
