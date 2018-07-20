@@ -28,12 +28,12 @@ namespace RoadRegistry.Projections
                     }));
 
             logger.LogInformation(
-                "Added {Context} to services:" +
-                Environment.NewLine +
-                "\tSchema: {Schema}" +
-                Environment.NewLine +
+                "Added {Context} to services:" + Environment.NewLine +
+                "\tSchema: {Schema}" + Environment.NewLine +
                 "\tMigrationTable: {ProjectionMetaData}.{TableName}",
-                nameof(ShapeContext), Schema.Oslo, Schema.ProjectionMetaData, MigrationTables.Oslo);
+                nameof(ShapeContext),
+                Schema.Shape,
+                Schema.ProjectionMetaData, MigrationTables.Shape);
         }
     }
 }

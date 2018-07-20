@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <OutputType>Exe</OutputType>
+    <!-- <RuntimeIdentifier>win10-x64</RuntimeIdentifier> -->
+
+    <!-- Attempts to build with version 2.1.0 and breaks unless explicitly specified. Due to refenrencing 'RoadRegistry.Projections' -->
+    <RuntimeFrameworkVersion>2.1.1</RuntimeFrameworkVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netcoreapp2.1\RoadRegistry.Api.xml</DocumentationFile>
+    <NoWarn>1701;1702;1705;1591</NoWarn>
+    <DefineConstants>TRACE;DEBUG;NETCOREAPP;NETCOREAPP2_1</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netcoreapp2.1\RoadRegistry.Api.xml</DocumentationFile>
+    <NoWarn>1701;1702;1705;1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.Projections\RoadRegistry.Projections.csproj" />
+    <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>
