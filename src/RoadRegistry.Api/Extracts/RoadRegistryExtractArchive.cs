@@ -4,15 +4,14 @@ namespace RoadRegistry.Api.Extracts
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
-    using System.Linq;
+    using ExtractFiles;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Net.Http.Headers;
-    using Responses;
 
     public class RoadRegistryExtractArchive
     {
         private readonly string _name;
-        private readonly IList<RoadRegistryExtractFile> _files = new List<RoadRegistryExtractFile>();
+        private readonly IList<ExtractFile> _files = new List<ExtractFile>();
 
         public RoadRegistryExtractArchive(string name)
         {
@@ -22,18 +21,12 @@ namespace RoadRegistry.Api.Extracts
             _name = name.EndsWith(".zip") ? name : name.TrimEnd('.') + ".zip";
         }
 
-        public void Add(RoadRegistryExtractFile file)
+        public void Add(ExtractFile file)
         {
-            if (file?.Content == null)
-                return;
-
-            if (_files.Any(f => f.Name == file.Name))
-                throw new InvalidDataException($"File {file.Name} already exists in {_name}");
-
             _files.Add(file);
         }
 
-        public void Add(IEnumerable<RoadRegistryExtractFile> files)
+        public void Add(IEnumerable<ExtractFile> files)
         {
             foreach (var file in files)
             {
@@ -48,10 +41,13 @@ namespace RoadRegistry.Api.Extracts
             {
                 foreach (var file in _files)
                 {
-                    using (var archiveItem = archive.CreateEntry(file.Name).Open())
+                    using (file)
                     {
-                        file.Content.Position = 0;
-                        file.Content.CopyTo(archiveItem);
+                        var fileCompents = file.Flush();
+                        using (var archiveItem = archive.CreateEntry(fileCompents.Name).Open())
+                        {
+                            fileCompents.Content.CopyTo(archiveItem);
+                        }
                     }
                 }
             }

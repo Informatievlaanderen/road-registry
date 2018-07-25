@@ -2,7 +2,6 @@ namespace RoadRegistry.Api.Extracts
 {
     using System;
     using System.Collections.Generic;
-    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.Api;
@@ -45,20 +44,25 @@ namespace RoadRegistry.Api.Extracts
 
         {
             PrintMessage("Start processing request");
+            List<RoadSegmentRecord> roadSegments;
             // TODO: Make sure there's a transaction to ensure the count and iteration are in sync
-            var roadSegments = await context
+            // using (var transaction = context.Database.BeginTransaction())
+            //  {
+            roadSegments = await context
                 .RoadSegments
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
+            // }
             PrintMessage("Queried data");
 
 
             var fileBuilder = new RoadRegistryExtractsBuilder();
+            PrintMessage("Create roadregistry archive");
             var zip = new RoadRegistryExtractArchive("wegenregister");
-            PrintMessage("Open roadregistry archive");
 
+            PrintMessage("Start building files");
             zip.Add(fileBuilder.CreateRoadSegmentFiles(roadSegments.AsReadOnly()));
-            PrintMessage("Created road segments files");
+            PrintMessage("Added road segments files");
 
             PrintMessage("Create archive download");
             return zip.CreateResponse();
