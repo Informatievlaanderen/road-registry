@@ -1,5 +1,8 @@
 namespace RoadRegistry.Api.Extracts
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.Api;
@@ -8,6 +11,7 @@ namespace RoadRegistry.Api.Extracts
     using Infrastructure;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json.Converters;
     using Projections;
     using Responses;
@@ -31,7 +35,7 @@ namespace RoadRegistry.Api.Extracts
         /// <response code="200">Als wegenregister kan gedownload worden.</response>
         /// <response code="500">Als er een interne fout is opgetreden.</response>
         [HttpGet("")]
-        [ProducesResponseType(typeof(RoadRegistryResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BasicApiProblem), StatusCodes.Status500InternalServerError)]
         [SwaggerResponseExample(StatusCodes.Status200OK, typeof(RoadRegistryResponseExample), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
@@ -40,20 +44,31 @@ namespace RoadRegistry.Api.Extracts
             CancellationToken cancellationToken)
 
         {
+            PrintMessage("Start processing request");
+            // TODO: Make sure there's a transaction to ensure the count and iteration are in sync
+            var roadSegments = await context
+                .RoadSegments
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+            PrintMessage("Queried data");
 
-//            var roadNodes =
-//                await context
-//                    .RoadNodes
-//                    .AsNoTracking()
-//                    .ToListAsync(cancellationToken);
-//
-//            if (roadNodes == null)
-//                throw new ApiException("Er ging iets fout bij ophalen van de wegknooppunten.", StatusCodes.Status500InternalServerError);
 
-            var projectionPosition = await context.GetProjectionPositionAsync(cancellationToken);
-            return new OkWithETagResult(
-                new RoadRegistryResponse(),
-                projectionPosition.ToString());
+            var fileBuilder = new RoadRegistryExtractsBuilder();
+            var zip = new RoadRegistryExtractArchive("wegenregister");
+            PrintMessage("Open roadregistry archive");
+
+            zip.Add(fileBuilder.CreateRoadSegmentFiles(roadSegments.AsReadOnly()));
+            PrintMessage("Created road segments files");
+
+            PrintMessage("Create archive download");
+            return zip.CreateResponse();
+        }
+
+        private void PrintMessage(string message)
+        {
+#if DEBUG
+            Console.WriteLine(message);
+#endif
         }
     }
 }
