@@ -99,7 +99,7 @@ namespace RoadRegistry.Api.Extracts
                 foreach (var shxRecord in shxRecords)
                     shxRecord.Write(shxWriter);
                 shxWriter.Flush();
-                
+
                 return new[]
                 {
                     new RoadRegistryExtractFile($"{roadSegmentsFileName}.dbf", dbfFile),
