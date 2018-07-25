@@ -6,7 +6,6 @@ namespace RoadRegistry.Api.Extracts
     using Aiv.Vbr.Api.Exceptions;
     using Aiv.Vbr.CommandHandling;
     using Infrastructure;
-    using Infrastructure.ETag;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json.Converters;
