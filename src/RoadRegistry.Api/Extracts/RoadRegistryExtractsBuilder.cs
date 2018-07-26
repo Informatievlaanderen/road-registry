@@ -26,7 +26,7 @@ namespace RoadRegistry.Api.Extracts
                     DateTime.Now,
                     DbaseCodePage.WindowsANSI,
                     new DbaseRecordCount(roadSegments.Count),
-                    new RoadNodeDbaseSchema()
+                    new RoadSegmentDbaseSchema()
                 )
             );
             var shpFileLength = new WordLength(50);
@@ -107,7 +107,7 @@ namespace RoadRegistry.Api.Extracts
                     DateTime.Now,
                     DbaseCodePage.WindowsANSI,
                     new DbaseRecordCount(roadSegmentDynamicLaneAttributes.Count),
-                    new RoadNodeDbaseSchema()
+                    new RoadSegmentDynamicLaneAttributeDbaseSchema()
                 )
             );
             dbfFile.Write(roadSegmentDynamicLaneAttributes);
