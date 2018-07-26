@@ -58,15 +58,16 @@ namespace RoadRegistry.Api.Extracts
             PrintMessage("Create roadregistry archive");
             var zip = new RoadRegistryExtractArchive("wegenregister");
 
-            PrintMessage("Start building files");
-
             zip.Add(fileBuilder.CreateRoadSegmentFiles(roadSegments));
             PrintMessage("Added road segments files");
 
             zip.Add(fileBuilder.CreateRoadSegmentDynamicLaneAttributeFile(roadSegmentDynamicLaneAttributes));
-            PrintMessage("Added road lane attributes files");
+            PrintMessage("Added road lane attributes file");
 
-            PrintMessage("Create archive download");
+            zip.Add(fileBuilder.CreateLaneDirectionFile());
+            PrintMessage("Added road lane direction file");
+
+            PrintMessage("Create download");
             return zip.CreateResponse();
         }
 

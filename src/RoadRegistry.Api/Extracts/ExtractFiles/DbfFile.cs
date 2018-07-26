@@ -21,7 +21,7 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
             record.Write(Writer);
         }
 
-        public void Write<T>(IEnumerable<TDbaseRecord> records)
+        public void Write(IEnumerable<TDbaseRecord> records)
         {
             foreach (var record in records)
             {

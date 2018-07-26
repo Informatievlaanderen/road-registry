@@ -21,14 +21,12 @@ namespace RoadRegistry.Api.Extracts
         {
             const string roadSegmentsFileName = "Wegsegment";
 
-            var dbfFile = new DbfFile<RoadSegmentDbaseRecord>(
+
+
+            var dbfFile = CreateEmptyDbfFile<RoadSegmentDbaseRecord>(
                 roadSegmentsFileName,
-                new DbaseFileHeader(
-                    DateTime.Now,
-                    DbaseCodePage.WindowsANSI,
-                    new DbaseRecordCount(roadSegments.Count),
-                    new RoadSegmentDbaseSchema()
-                )
+                new RoadSegmentDbaseSchema(),
+                new DbaseRecordCount(roadSegments.Count)
             );
             var shpFileLength = new WordLength(50);
             var shpRecords = new List<ShapeRecord>();
@@ -100,20 +98,59 @@ namespace RoadRegistry.Api.Extracts
 
         public ExtractFile CreateRoadSegmentDynamicLaneAttributeFile(IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord> roadSegmentDynamicLaneAttributes)
         {
-            const string roadSegmentsFileName = "AttRijstroken";
+            return CreateDbfFile<RoadSegmentDynamicLaneAttributeDbaseRecord>(
+                "AttRijstroken",
+                new RoadSegmentDynamicLaneAttributeDbaseSchema(),
+                roadSegmentDynamicLaneAttributes.Select(record => record.DbaseRecord).ToArray());
+        }
 
-            var dbfFile = new DbfFile<RoadSegmentDynamicLaneAttributeDbaseRecord>(
-                roadSegmentsFileName,
+        public ExtractFile CreateLaneDirectionFile()
+        {
+            return CreateDbfFile(
+                "RijstrokenLktRichting",
+                TypeReferences.LaneDirections,
+                new LaneDirectionDbaseSchema()
+            );
+        }
+
+        private static ExtractFile CreateDbfFile<TRecord>(string fileName, DbaseSchema schema, IReadOnlyCollection<byte[]> records)
+            where TRecord : DbaseRecord, new()
+        {
+            var dbfFile = CreateEmptyDbfFile<TRecord>(
+                fileName,
+                schema,
+                new DbaseRecordCount(records.Count)
+            );
+            dbfFile.WriteBytesAs<TRecord>(records);
+
+            return dbfFile;
+        }
+
+        private static ExtractFile CreateDbfFile<TRecord>(string fileName, IReadOnlyCollection<TRecord> records, DbaseSchema schema)
+            where TRecord : DbaseRecord
+        {
+            var dbfFile = CreateEmptyDbfFile<TRecord>(
+                fileName,
+                schema,
+                new DbaseRecordCount(records.Count)
+            );
+            dbfFile.Write(records);
+
+            return dbfFile;
+        }
+
+        private static DbfFile<TRecord> CreateEmptyDbfFile<TRecord>(string fileName, DbaseSchema schema, DbaseRecordCount recordCount)
+            where TRecord : DbaseRecord
+        {
+            return new DbfFile<TRecord>(
+                fileName,
                 new DbaseFileHeader(
                     DateTime.Now,
                     DbaseCodePage.WindowsANSI,
-                    new DbaseRecordCount(roadSegmentDynamicLaneAttributes.Count),
-                    new RoadSegmentDynamicLaneAttributeDbaseSchema()
+                    recordCount,
+                    schema
                 )
             );
-            dbfFile.WriteBytesAs<RoadSegmentDynamicLaneAttributeDbaseRecord>(roadSegmentDynamicLaneAttributes.Select(record => record.DbaseRecord));
-
-            return dbfFile;
         }
     }
 }
