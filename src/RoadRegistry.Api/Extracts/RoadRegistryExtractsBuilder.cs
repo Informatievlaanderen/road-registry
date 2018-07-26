@@ -96,5 +96,23 @@ namespace RoadRegistry.Api.Extracts
                 shxFile
             };
         }
+
+        public ExtractFile CreateRoadSegmentDynamicLaneAttributeFile(IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord> roadSegmentDynamicLaneAttributes)
+        {
+            const string roadSegmentsFileName = "AttRijstroken";
+
+            var dbfFile = new DbfFile<RoadSegmentDynamicLaneAttributeDbaseRecord>(
+                roadSegmentsFileName,
+                new DbaseFileHeader(
+                    DateTime.Now,
+                    DbaseCodePage.WindowsANSI,
+                    new DbaseRecordCount(roadSegmentDynamicLaneAttributes.Count),
+                    new RoadNodeDbaseSchema()
+                )
+            );
+            dbfFile.Write(roadSegmentDynamicLaneAttributes);
+
+            return dbfFile;
+        }
     }
 }

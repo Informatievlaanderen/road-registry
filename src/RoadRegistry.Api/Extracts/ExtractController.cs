@@ -10,7 +10,6 @@ namespace RoadRegistry.Api.Extracts
     using Infrastructure;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json.Converters;
     using Projections;
     using Responses;
@@ -44,14 +43,13 @@ namespace RoadRegistry.Api.Extracts
 
         {
             PrintMessage("Start processing request");
-            List<RoadSegmentRecord> roadSegments;
+            IReadOnlyCollection<RoadSegmentRecord> roadSegments;
+            IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord> roadSegmentDynamicLaneAttributes;
             // TODO: Make sure there's a transaction to ensure the count and iteration are in sync
             // using (var transaction = context.Database.BeginTransaction())
             //  {
-            roadSegments = await context
-                .RoadSegments
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
+            roadSegments = await context.RoadSegments.AsUntrackedCollectionAsync();
+            roadSegmentDynamicLaneAttributes = await context.RoadLaneAttributes.AsUntrackedCollectionAsync();
             // }
             PrintMessage("Queried data");
 
@@ -61,8 +59,12 @@ namespace RoadRegistry.Api.Extracts
             var zip = new RoadRegistryExtractArchive("wegenregister");
 
             PrintMessage("Start building files");
-            zip.Add(fileBuilder.CreateRoadSegmentFiles(roadSegments.AsReadOnly()));
+
+            zip.Add(fileBuilder.CreateRoadSegmentFiles(roadSegments));
             PrintMessage("Added road segments files");
+
+            zip.Add(fileBuilder.CreateRoadSegmentDynamicLaneAttributeFile(roadSegmentDynamicLaneAttributes));
+            PrintMessage("Added road lane attributes files");
 
             PrintMessage("Create archive download");
             return zip.CreateResponse();
@@ -71,7 +73,7 @@ namespace RoadRegistry.Api.Extracts
         private void PrintMessage(string message)
         {
 #if DEBUG
-            Console.WriteLine($"{DateTime.Now:HH:mm:ss tt zz}: {message}");
+            Console.WriteLine($"[{DateTime.Now:HH:mm:ss:fff}]|> {message}");
 #endif
         }
     }

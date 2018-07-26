@@ -1,5 +1,6 @@
 namespace RoadRegistry.Api.Extracts.ExtractFiles
 {
+    using System.Collections.Generic;
     using System.Text;
     using Projections;
     using Shaperon;
@@ -22,6 +23,14 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
         {
             _dbaseRecord.FromBytes(record.DbaseRecord, Encoding);
             _dbaseRecord.Write(Writer);
+        }
+
+        public void Write(IEnumerable<IBinaryReadableRecord> records)
+        {
+            foreach (var record in records)
+            {
+                Write(record);
+            }
         }
 
         protected sealed override void BeforeFlush()
