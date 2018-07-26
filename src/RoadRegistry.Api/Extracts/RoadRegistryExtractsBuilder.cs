@@ -20,10 +20,8 @@ namespace RoadRegistry.Api.Extracts
         {
             const string roadSegmentsFileName = "Wegsegment";
 
-            var encoding = Encoding.GetEncoding(1252);
             var dbfFile = new DbfFile<RoadSegmentDbaseRecord>(
                 roadSegmentsFileName,
-                encoding,
                 new DbaseFileHeader(
                     DateTime.Now,
                     DbaseCodePage.WindowsANSI,

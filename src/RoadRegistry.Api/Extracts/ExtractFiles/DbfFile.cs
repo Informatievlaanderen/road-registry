@@ -7,20 +7,20 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
     public class DbfFile<T> : ExtractFile
         where T : DbaseRecord, new()
     {
-        private readonly Encoding _encoding;
+        private static Encoding Encoding => Encoding.GetEncoding(1252);
+
         private readonly T _dbaseRecord;
 
-        public DbfFile(string name, Encoding encoding, DbaseFileHeader header)
-            : base(name, ".dbf", encoding)
+        public DbfFile(string name, DbaseFileHeader header)
+            : base(name, ".dbf", Encoding)
         {
-            _encoding = encoding;
             _dbaseRecord = new T();
             header.Write(Writer);
         }
 
         public void Write(IBinaryReadableRecord record)
         {
-            _dbaseRecord.FromBytes(record.DbaseRecord, _encoding);
+            _dbaseRecord.FromBytes(record.DbaseRecord, Encoding);
             _dbaseRecord.Write(Writer);
         }
 
