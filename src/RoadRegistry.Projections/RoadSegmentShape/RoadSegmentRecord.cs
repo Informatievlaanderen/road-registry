@@ -1,6 +1,6 @@
 namespace RoadRegistry.Projections
 {
-    public class RoadSegmentRecord
+    public class RoadSegmentRecord : IBinaryReadableRecord
     {
         public int Id { get; set; }
         public byte[] ShapeRecordContent { get; set; }

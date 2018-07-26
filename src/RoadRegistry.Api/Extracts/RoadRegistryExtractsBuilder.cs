@@ -21,7 +21,7 @@ namespace RoadRegistry.Api.Extracts
             const string roadSegmentsFileName = "Wegsegment";
 
             var encoding = Encoding.GetEncoding(1252);
-            var dbfFile = new DbfFile(
+            var dbfFile = new DbfFile<RoadSegmentDbaseRecord>(
                 roadSegmentsFileName,
                 encoding,
                 new DbaseFileHeader(
@@ -32,7 +32,6 @@ namespace RoadRegistry.Api.Extracts
                 )
             );
             var shpFileLength = new WordLength(50);
-            var dbfRecord = new RoadSegmentDbaseRecord();
             var shpRecords = new List<ShapeRecord>();
             var shxRecords = new List<ShapeIndexRecord>();
             var envelope = new Envelope();
@@ -40,8 +39,7 @@ namespace RoadRegistry.Api.Extracts
             var offset = ShapeRecord.InitialOffset;
             foreach (var segment in roadSegments)
             {
-                dbfRecord.FromBytes(segment.DbaseRecord, encoding);
-                dbfFile.Write(dbfRecord);
+                dbfFile.Write(segment);
 
                 using (var stream = new MemoryStream(segment.ShapeRecordContent))
                 {
