@@ -71,7 +71,7 @@ namespace RoadRegistry.Api.Extracts
         private void PrintMessage(string message)
         {
 #if DEBUG
-            Console.WriteLine(message);
+            Console.WriteLine($"{DateTime.Now:HH:mm:ss tt zz}: {message}");
 #endif
         }
     }

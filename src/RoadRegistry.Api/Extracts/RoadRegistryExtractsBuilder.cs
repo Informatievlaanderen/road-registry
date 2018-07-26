@@ -21,8 +21,9 @@ namespace RoadRegistry.Api.Extracts
             const string roadSegmentsFileName = "Wegsegment";
 
             var encoding = Encoding.GetEncoding(1252);
-            var dbfFile = new DbfFile(roadSegmentsFileName, encoding);
-            dbfFile.Write(
+            var dbfFile = new DbfFile(
+                roadSegmentsFileName,
+                encoding,
                 new DbaseFileHeader(
                     DateTime.Now,
                     DbaseCodePage.WindowsANSI,
@@ -73,8 +74,8 @@ namespace RoadRegistry.Api.Extracts
             }
             dbfFile.Write(DbaseRecord.EndOfFile);
 
-            var shpFile = new ShpFile(roadSegmentsFileName);
-            shpFile.Write(
+            var shpFile = new ShpFile(
+                roadSegmentsFileName,
                 new ShapeFileHeader(
                     shpFileLength,
                     ShapeType.PolyLineM,
@@ -83,8 +84,8 @@ namespace RoadRegistry.Api.Extracts
             );
             shpFile.Write(shpRecords);
 
-            var shxFile = new ShxFile(roadSegmentsFileName);
-            shxFile.Write(
+            var shxFile = new ShxFile(
+                roadSegmentsFileName,
                 new ShapeFileHeader(
                     new WordLength(50 + 4 * shxRecords.Count),
                     ShapeType.PolyLineM,

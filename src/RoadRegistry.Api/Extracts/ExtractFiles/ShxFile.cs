@@ -2,16 +2,12 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
 {
     using System.Collections.Generic;
     using System.Text;
-    using ExtractFiles;
     using Shaperon;
 
     public class ShxFile : ExtractFile
     {
-        public ShxFile(string name)
+        public ShxFile(string name, ShapeFileHeader header)
             : base(name, ".shx", Encoding.ASCII)
-        { }
-
-        public void Write(ShapeFileHeader header)
         {
             header.Write(Writer);
         }
