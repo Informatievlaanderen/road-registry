@@ -11,14 +11,14 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
             header.Write(Writer);
         }
 
-        public void Write(byte value)
-        {
-            Writer.Write(value);
-        }
-
         public void Write(DbaseRecord record)
         {
             record.Write(Writer);
+        }
+
+        protected sealed override void BeforeFlush()
+        {
+            Writer.Write(DbaseRecord.EndOfFile);
         }
     }
 }

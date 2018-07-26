@@ -11,7 +11,6 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
         private readonly string _name;
         private readonly Stream _content;
 
-
         protected ExtractFile(string name, string extension, Encoding encoding)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -23,13 +22,18 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
             if (null == encoding)
                 throw new ArgumentNullException(nameof(encoding));
 
+
             _name = name.EndsWith(extension) ? name : name.TrimEnd('.') + extension;
             _content = new MemoryStream();
             Writer = new BinaryWriter(_content, encoding);
         }
 
+        protected abstract void BeforeFlush();
+
         public FileFlushResult Flush()
         {
+            BeforeFlush();
+
             Writer.Flush();
             _content.Position = 0;
             return new FileFlushResult(_name, _content);

@@ -19,5 +19,8 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
                 record.Write(Writer);
             }
         }
+
+        protected sealed override void BeforeFlush()
+        { }
     }
 }

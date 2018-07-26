@@ -72,7 +72,6 @@ namespace RoadRegistry.Api.Extracts
                     }
                 }
             }
-            dbfFile.Write(DbaseRecord.EndOfFile);
 
             var shpFile = new ShpFile(
                 roadSegmentsFileName,
