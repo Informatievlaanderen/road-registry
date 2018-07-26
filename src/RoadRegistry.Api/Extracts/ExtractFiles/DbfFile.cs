@@ -2,34 +2,47 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
 {
     using System.Collections.Generic;
     using System.Text;
-    using Projections;
     using Shaperon;
 
-    public class DbfFile<T> : ExtractFile
-        where T : DbaseRecord, new()
+    public class DbfFile<TDbaseRecord> : ExtractFile
+        where TDbaseRecord : DbaseRecord
     {
         private static Encoding Encoding => Encoding.GetEncoding(1252);
 
-        private readonly T _dbaseRecord;
 
         public DbfFile(string name, DbaseFileHeader header)
             : base(name, ".dbf", Encoding)
         {
-            _dbaseRecord = new T();
             header.Write(Writer);
         }
 
-        public void Write(IBinaryReadableRecord record)
+        public void Write(TDbaseRecord record)
         {
-            _dbaseRecord.FromBytes(record.DbaseRecord, Encoding);
-            _dbaseRecord.Write(Writer);
+            record.Write(Writer);
         }
 
-        public void Write(IEnumerable<IBinaryReadableRecord> records)
+        public void Write<T>(IEnumerable<TDbaseRecord> records)
         {
             foreach (var record in records)
             {
                 Write(record);
+            }
+        }
+
+        public void WriteBytesAs<T>(byte[] record)
+           where T : TDbaseRecord, new()
+        {
+            var dbaseRecord = new T();
+            dbaseRecord.FromBytes(record, Encoding);
+            Write(dbaseRecord);
+        }
+
+        public void WriteBytesAs<T>(IEnumerable<byte[]> records)
+            where T : TDbaseRecord, new()
+        {
+            foreach (var record in records)
+            {
+                WriteBytesAs<T>(record);
             }
         }
 

@@ -1,6 +1,6 @@
 namespace RoadRegistry.Projections
 {
-    public class RoadSegmentDynamicLaneAttributeRecord : IBinaryReadableRecord
+    public class RoadSegmentDynamicLaneAttributeRecord
     {
         public int Id { get; set; }
         public int RoadSegmentId { get; set; }

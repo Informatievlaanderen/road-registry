@@ -3,6 +3,7 @@ namespace RoadRegistry.Api.Extracts
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using ExtractFiles;
     using GeoAPI.Geometries;
@@ -37,7 +38,7 @@ namespace RoadRegistry.Api.Extracts
             var offset = ShapeRecord.InitialOffset;
             foreach (var segment in roadSegments)
             {
-                dbfFile.Write(segment);
+                dbfFile.WriteBytesAs<RoadSegmentDbaseRecord>(segment.DbaseRecord);
 
                 using (var stream = new MemoryStream(segment.ShapeRecordContent))
                 {
@@ -110,7 +111,7 @@ namespace RoadRegistry.Api.Extracts
                     new RoadSegmentDynamicLaneAttributeDbaseSchema()
                 )
             );
-            dbfFile.Write(roadSegmentDynamicLaneAttributes);
+            dbfFile.WriteBytesAs<RoadSegmentDynamicLaneAttributeDbaseRecord>(roadSegmentDynamicLaneAttributes.Select(record => record.DbaseRecord));
 
             return dbfFile;
         }
