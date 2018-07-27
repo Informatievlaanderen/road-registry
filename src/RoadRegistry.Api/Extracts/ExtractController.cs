@@ -40,14 +40,15 @@ namespace RoadRegistry.Api.Extracts
         public async Task<IActionResult> Get(
             [FromServices] ShapeContext context,
             CancellationToken cancellationToken)
-
         {
             PrintMessage("Start processing request");
+            IReadOnlyCollection<OrganizationRecord> organizations;
             IReadOnlyCollection<RoadSegmentRecord> roadSegments;
             IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord> roadSegmentDynamicLaneAttributes;
             // TODO: Make sure there's a transaction to ensure the count and iteration are in sync
             // using (var transaction = context.Database.BeginTransaction())
             //  {
+            organizations = await context.Organizations.AsUntrackedCollectionAsync();
             roadSegments = await context.RoadSegments.AsUntrackedCollectionAsync();
             roadSegmentDynamicLaneAttributes = await context.RoadLaneAttributes.AsUntrackedCollectionAsync();
             // }
@@ -57,6 +58,8 @@ namespace RoadRegistry.Api.Extracts
             PrintMessage("Create roadregistry archive");
             var zip = new RoadRegistryExtractArchive("wegenregister")
             {
+                fileBuilder.CreateOrganizationsFile(organizations),
+
                 // road nodes
                 fileBuilder.CreateRoadNodeTypesFile(),
 
@@ -79,7 +82,7 @@ namespace RoadRegistry.Api.Extracts
                 fileBuilder.CreateReferencePointTypesFile(),
 
                 fileBuilder.CreateLaneDirectionsFile(),
-                fileBuilder.CreateGradeSeperatedJuctionTypesFile(),
+                fileBuilder.CreateGradeSeperatedJuctionTypesFile()
             };
 
 

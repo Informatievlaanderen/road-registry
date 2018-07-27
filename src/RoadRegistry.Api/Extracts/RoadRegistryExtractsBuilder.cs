@@ -17,6 +17,15 @@ namespace RoadRegistry.Api.Extracts
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
+        public ExtractFile CreateOrganizationsFile(IReadOnlyCollection<OrganizationRecord> organisations)
+        {
+            return CreateDbfFile<OrganizationDbaseRecord>(
+                "LstOrg",
+                new OrganizationDbaseSchema(),
+                organisations.Select(org => org.DbaseRecord)
+            );
+        }
+
         public IEnumerable<ExtractFile> CreateRoadSegmentsFiles(IReadOnlyCollection<RoadSegmentRecord> roadSegments)
         {
             const string roadSegmentsFileName = "Wegsegment";
@@ -99,7 +108,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile<RoadSegmentDynamicLaneAttributeDbaseRecord>(
                 "AttRijstroken",
                 new RoadSegmentDynamicLaneAttributeDbaseSchema(),
-                roadSegmentDynamicLaneAttributes.Select(record => record.DbaseRecord).ToArray());
+                roadSegmentDynamicLaneAttributes.Select(record => record.DbaseRecord));
         }
 
         public ExtractFile CreateRoadNodeTypesFile()
@@ -199,6 +208,12 @@ namespace RoadRegistry.Api.Extracts
                 TypeReferences.LaneDirections,
                 new LaneDirectionDbaseSchema()
             );
+        }
+
+        private static ExtractFile CreateDbfFile<TRecord>(string fileName, DbaseSchema schema, IEnumerable<byte[]> records)
+            where TRecord : DbaseRecord, new()
+        {
+            return CreateDbfFile<TRecord>(fileName, schema, records.ToArray());
         }
 
         private static ExtractFile CreateDbfFile<TRecord>(string fileName, DbaseSchema schema, IReadOnlyCollection<byte[]> records)
