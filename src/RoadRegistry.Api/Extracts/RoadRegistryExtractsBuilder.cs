@@ -157,6 +157,16 @@ namespace RoadRegistry.Api.Extracts
             );
         }
 
+        public ExtractFile CreateGradeSeperatedJuctionsFile(IReadOnlyCollection<GradeSeparatedJunctionRecord> gradeSeparatedJunctionRecords)
+        {
+            return CreateDbfFile<GradeSeparatedJunctionDbaseRecord>(
+                "RltOgkruising",
+                new GradeSeparatedJunctionDbaseSchema(),
+                gradeSeparatedJunctionRecords.Select(record => record.DbaseRecord)
+            );
+
+        }
+
         public ExtractFile CreateRoadNodeTypesFile()
         {
             return CreateDbfFile(

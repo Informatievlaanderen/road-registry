@@ -50,6 +50,7 @@ namespace RoadRegistry.Api.Extracts
             IReadOnlyCollection<RoadSegmentNationalRoadAttributeRecord> roadSegmentNationalRoadAttributeRecords;
             IReadOnlyCollection<RoadSegmentEuropeanRoadAttributeRecord> roadSegmentEuropeanRoadAttributeRecords;
             IReadOnlyCollection<RoadSegmentNumberedRoadAttributeRecord> roadSegmentNumberedRoadAttributeRecords;
+            IReadOnlyCollection<GradeSeparatedJunctionRecord> gradeSeparatedJunctionRecords;
             // TODO: Make sure there's a transaction to ensure the count and iteration are in sync
             // using (var transaction = context.Database.BeginTransaction())
             //  {
@@ -61,6 +62,7 @@ namespace RoadRegistry.Api.Extracts
             roadSegmentNationalRoadAttributeRecords = await context.NationalRoadAttributes.AsUntrackedCollectionAsync();
             roadSegmentEuropeanRoadAttributeRecords = await context.EuropeanRoadAttributes.AsUntrackedCollectionAsync();
             roadSegmentNumberedRoadAttributeRecords = await context.NumberedRoadAttributes.AsUntrackedCollectionAsync();
+            gradeSeparatedJunctionRecords = await context.GradeSeparatedJunctions.AsUntrackedCollectionAsync();
             // }
             PrintMessage("Queried data");
 
@@ -91,8 +93,10 @@ namespace RoadRegistry.Api.Extracts
                 // reference points
                 fileBuilder.CreateReferencePointTypesFile(),
 
-                fileBuilder.CreateLaneDirectionsFile(),
-                fileBuilder.CreateGradeSeperatedJuctionTypesFile()
+                fileBuilder.CreateGradeSeperatedJuctionsFile(gradeSeparatedJunctionRecords),
+                fileBuilder.CreateGradeSeperatedJuctionTypesFile(),
+
+                fileBuilder.CreateLaneDirectionsFile()
             };
 
 
