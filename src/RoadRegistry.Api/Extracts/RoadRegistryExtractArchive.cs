@@ -1,6 +1,7 @@
 namespace RoadRegistry.Api.Extracts
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
@@ -8,7 +9,7 @@ namespace RoadRegistry.Api.Extracts
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Net.Http.Headers;
 
-    public class RoadRegistryExtractArchive
+    public class RoadRegistryExtractArchive : IEnumerable<ExtractFile>
     {
         private readonly string _name;
         private readonly IList<ExtractFile> _files = new List<ExtractFile>();
@@ -61,5 +62,14 @@ namespace RoadRegistry.Api.Extracts
             };
         }
 
+        public IEnumerator<ExtractFile> GetEnumerator()
+        {
+            return _files.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _files.GetEnumerator();
+        }
     }
 }

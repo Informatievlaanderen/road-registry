@@ -17,11 +17,9 @@ namespace RoadRegistry.Api.Extracts
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
-        public IEnumerable<ExtractFile> CreateRoadSegmentFiles(IReadOnlyCollection<RoadSegmentRecord> roadSegments)
+        public IEnumerable<ExtractFile> CreateRoadSegmentsFiles(IReadOnlyCollection<RoadSegmentRecord> roadSegments)
         {
             const string roadSegmentsFileName = "Wegsegment";
-
-
 
             var dbfFile = CreateEmptyDbfFile<RoadSegmentDbaseRecord>(
                 roadSegmentsFileName,
@@ -96,7 +94,7 @@ namespace RoadRegistry.Api.Extracts
             };
         }
 
-        public ExtractFile CreateRoadSegmentDynamicLaneAttributeFile(IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord> roadSegmentDynamicLaneAttributes)
+        public ExtractFile CreateRoadSegmentDynamicLaneAttributesFile(IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord> roadSegmentDynamicLaneAttributes)
         {
             return CreateDbfFile<RoadSegmentDynamicLaneAttributeDbaseRecord>(
                 "AttRijstroken",
@@ -104,7 +102,97 @@ namespace RoadRegistry.Api.Extracts
                 roadSegmentDynamicLaneAttributes.Select(record => record.DbaseRecord).ToArray());
         }
 
-        public ExtractFile CreateLaneDirectionFile()
+        public ExtractFile CreateRoadNodeTypesFile()
+        {
+            return CreateDbfFile(
+                "WegknoopLktType",
+                TypeReferences.RoadNodeTypes,
+                new RoadNodeTypeDbaseSchema()
+            );
+        }
+
+        public ExtractFile CreateRoadSegmentCategoriesFile()
+        {
+            return CreateDbfFile(
+                "WegsegmentLktWegcat",
+                TypeReferences.RoadSegmentCategories,
+                new RoadSegmentCategoryDbaseSchema()
+            );
+        }
+
+        public ExtractFile CreateRoadSegmentGeometryDrawMethdsFile()
+        {
+            return CreateDbfFile(
+                "WegsegmentLktMethode",
+                TypeReferences.RoadSegmentGeometryDrawMethods,
+                new RoadSegmentGeometryDrawMethodDbaseSchema()
+            );
+        }
+
+        public ExtractFile CreateRoadSegmentStatusesFile()
+        {
+            return CreateDbfFile(
+                "WegsegmentLktStatus",
+                TypeReferences.RoadSegmentStatuses,
+                new RoadSegmentStatusDbaseSchema()
+            );
+        }
+
+        public ExtractFile CreateRoadSegmentAccessRestrictionsFile()
+        {
+            return CreateDbfFile(
+                "WegsegmentLktTgbep",
+                TypeReferences.RoadSegmentAccessRestrictions,
+                new RoadSegmentAccessRestrictionDbaseSchema()
+            );
+        }
+
+        public ExtractFile CreateReferencePointTypesFile()
+        {
+            return CreateDbfFile(
+                "RefpuntLktType",
+                TypeReferences.ReferencePointTypes,
+                new ReferencePointTypeDbaseSchema()
+            );
+        }
+
+        public ExtractFile CreateRoadSegmentMorphologiesFile()
+        {
+            return CreateDbfFile(
+                "WegsegmentLktMorf",
+                TypeReferences.RoadSegmentMorphologies,
+                new RoadSegmentMorphologyDbaseSchema()
+            );
+        }
+
+        public ExtractFile CreateGradeSeperatedJuctionTypesFile()
+        {
+            return CreateDbfFile(
+                "OgkruisingLktType",
+                TypeReferences.GradeSeparatedJunctionTypes,
+                new GradeSeparatedJunctionTypeDbaseSchema()
+            );
+        }
+
+        public ExtractFile CreateNumberedRoadSegmentDirectionsFile()
+        {
+            return CreateDbfFile(
+                "GenumwegLktRichting",
+                TypeReferences.NumberedRoadSegmentDirections,
+                new NumberedRoadSegmentDirectionDbaseSchema()
+            );
+        }
+
+        public ExtractFile CreateHardeningTypesFile()
+        {
+            return CreateDbfFile(
+                "WegverhardLktType",
+                TypeReferences.HardeningTypes,
+                new HardeningTypeDbaseSchema()
+            );
+        }
+
+        public ExtractFile CreateLaneDirectionsFile()
         {
             return CreateDbfFile(
                 "RijstrokenLktRichting",

@@ -53,19 +53,35 @@ namespace RoadRegistry.Api.Extracts
             // }
             PrintMessage("Queried data");
 
-
             var fileBuilder = new RoadRegistryExtractsBuilder();
             PrintMessage("Create roadregistry archive");
-            var zip = new RoadRegistryExtractArchive("wegenregister");
+            var zip = new RoadRegistryExtractArchive("wegenregister")
+            {
+                // road nodes
+                fileBuilder.CreateRoadNodeTypesFile(),
 
-            zip.Add(fileBuilder.CreateRoadSegmentFiles(roadSegments));
-            PrintMessage("Added road segments files");
+                fileBuilder.CreateRoadSegmentsFiles(roadSegments),
+                fileBuilder.CreateRoadSegmentCategoriesFile(),
+                fileBuilder.CreateRoadSegmentAccessRestrictionsFile(),
+                fileBuilder.CreateRoadSegmentGeometryDrawMethdsFile(),
+                fileBuilder.CreateRoadSegmentMorphologiesFile(),
+                fileBuilder.CreateRoadSegmentStatusesFile(),
+                fileBuilder.CreateRoadSegmentDynamicLaneAttributesFile(roadSegmentDynamicLaneAttributes),
+                // add rest of the dynamic attrutes...
+                // add rest of the dynamic attrutes...
+                fileBuilder.CreateHardeningTypesFile(),
+                // national roads attr
+                // european roads attr
+                // numbered roads attr
+                fileBuilder.CreateNumberedRoadSegmentDirectionsFile(),
 
-            zip.Add(fileBuilder.CreateRoadSegmentDynamicLaneAttributeFile(roadSegmentDynamicLaneAttributes));
-            PrintMessage("Added road lane attributes file");
+                // reference points
+                fileBuilder.CreateReferencePointTypesFile(),
 
-            zip.Add(fileBuilder.CreateLaneDirectionFile());
-            PrintMessage("Added road lane direction file");
+                fileBuilder.CreateLaneDirectionsFile(),
+                fileBuilder.CreateGradeSeperatedJuctionTypesFile(),
+            };
+
 
             PrintMessage("Create download");
             return zip.CreateResponse();

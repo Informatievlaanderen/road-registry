@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadSegmentMorphologyDbaseSchema
+    public class RoadSegmentMorphologyDbaseSchema : DbaseSchema
     {
         public RoadSegmentMorphologyDbaseSchema()
         {
@@ -17,6 +17,13 @@ namespace RoadRegistry.Projections
             DEFMORF = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(DEFMORF)),
                 new DbaseFieldLength(254));
+
+            Fields = new[]
+            {
+                MORF,
+                LBLMORF,
+                DEFMORF
+            };
         }
 
         public DbaseField MORF { get; }

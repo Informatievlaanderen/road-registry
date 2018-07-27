@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadSegmentStatusDbaseSchema
+    public class RoadSegmentStatusDbaseSchema : DbaseSchema
     {
         public RoadSegmentStatusDbaseSchema()
         {
@@ -17,6 +17,13 @@ namespace RoadRegistry.Projections
             DEFSTATUS = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(DEFSTATUS)),
                 new DbaseFieldLength(254));
+
+            Fields = new[]
+            {
+                STATUS,
+                LBLSTATUS,
+                DEFSTATUS
+            };
         }
 
         public DbaseField STATUS { get; }
