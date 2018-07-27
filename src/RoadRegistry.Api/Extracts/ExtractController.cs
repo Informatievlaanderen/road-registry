@@ -45,12 +45,22 @@ namespace RoadRegistry.Api.Extracts
             IReadOnlyCollection<OrganizationRecord> organizations;
             IReadOnlyCollection<RoadSegmentRecord> roadSegments;
             IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord> roadSegmentDynamicLaneAttributes;
+            IReadOnlyCollection<RoadSegmentDynamicWidthAttributeRecord> roadSegmentDynamicWidthAttributeRecords;
+            IReadOnlyCollection<RoadSegmentDynamicHardeningAttributeRecord> roadSegmentDynamicHardeningAttributeRecords;
+            IReadOnlyCollection<RoadSegmentNationalRoadAttributeRecord> roadSegmentNationalRoadAttributeRecords;
+            IReadOnlyCollection<RoadSegmentEuropeanRoadAttributeRecord> roadSegmentEuropeanRoadAttributeRecords;
+            IReadOnlyCollection<RoadSegmentNumberedRoadAttributeRecord> roadSegmentNumberedRoadAttributeRecords;
             // TODO: Make sure there's a transaction to ensure the count and iteration are in sync
             // using (var transaction = context.Database.BeginTransaction())
             //  {
             organizations = await context.Organizations.AsUntrackedCollectionAsync();
             roadSegments = await context.RoadSegments.AsUntrackedCollectionAsync();
             roadSegmentDynamicLaneAttributes = await context.RoadLaneAttributes.AsUntrackedCollectionAsync();
+            roadSegmentDynamicWidthAttributeRecords = await context.RoadWidthAttributes.AsUntrackedCollectionAsync();
+            roadSegmentDynamicHardeningAttributeRecords = await context.RoadHardeningAttributes.AsUntrackedCollectionAsync();
+            roadSegmentNationalRoadAttributeRecords = await context.NationalRoadAttributes.AsUntrackedCollectionAsync();
+            roadSegmentEuropeanRoadAttributeRecords = await context.EuropeanRoadAttributes.AsUntrackedCollectionAsync();
+            roadSegmentNumberedRoadAttributeRecords = await context.NumberedRoadAttributes.AsUntrackedCollectionAsync();
             // }
             PrintMessage("Queried data");
 
@@ -70,12 +80,12 @@ namespace RoadRegistry.Api.Extracts
                 fileBuilder.CreateRoadSegmentMorphologiesFile(),
                 fileBuilder.CreateRoadSegmentStatusesFile(),
                 fileBuilder.CreateRoadSegmentDynamicLaneAttributesFile(roadSegmentDynamicLaneAttributes),
-                // add rest of the dynamic attrutes...
-                // add rest of the dynamic attrutes...
+                fileBuilder.CreateRoadSegmentDynamicWidtAttributesFile(roadSegmentDynamicWidthAttributeRecords),
+                fileBuilder.CreateRoadSegmentDynamicHardeningAttributesFile(roadSegmentDynamicHardeningAttributeRecords),
                 fileBuilder.CreateHardeningTypesFile(),
-                // national roads attr
-                // european roads attr
-                // numbered roads attr
+                fileBuilder.CreateRoadSegmentNationalRoadAttributesFile(roadSegmentNationalRoadAttributeRecords),
+                fileBuilder.CreateRoadSegmentEuropeanRoadAttributesFile(roadSegmentEuropeanRoadAttributeRecords),
+                fileBuilder.CreateRoadSegmentNumberedRoadAttributesFile(roadSegmentNumberedRoadAttributeRecords),
                 fileBuilder.CreateNumberedRoadSegmentDirectionsFile(),
 
                 // reference points

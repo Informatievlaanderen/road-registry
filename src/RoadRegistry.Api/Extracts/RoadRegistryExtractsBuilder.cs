@@ -108,7 +108,53 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile<RoadSegmentDynamicLaneAttributeDbaseRecord>(
                 "AttRijstroken",
                 new RoadSegmentDynamicLaneAttributeDbaseSchema(),
-                roadSegmentDynamicLaneAttributes.Select(record => record.DbaseRecord));
+                roadSegmentDynamicLaneAttributes.Select(record => record.DbaseRecord)
+            );
+        }
+
+        public ExtractFile CreateRoadSegmentDynamicWidtAttributesFile(IReadOnlyCollection<RoadSegmentDynamicWidthAttributeRecord> roadSegmentDynamicWidthAttributes)
+        {
+            return CreateDbfFile<RoadSegmentDynamicWidthAttributeDbaseRecord>(
+                "AttWegbreedte",
+                new RoadSegmentDynamicWidthAttributeDbaseSchema(),
+                roadSegmentDynamicWidthAttributes.Select(record => record.DbaseRecord)
+            );
+        }
+
+        public ExtractFile CreateRoadSegmentDynamicHardeningAttributesFile(IReadOnlyCollection<RoadSegmentDynamicHardeningAttributeRecord> roadSegmentDynamicHardeningAttributes)
+        {
+            return CreateDbfFile<RoadSegmentDynamicHardeningAttributeDbaseRecord>(
+                "AttWegverharding",
+                new RoadSegmentDynamicHardeningAttributeDbaseSchema(),
+                roadSegmentDynamicHardeningAttributes.Select(record => record.DbaseRecord)
+            );
+        }
+
+        public ExtractFile CreateRoadSegmentNationalRoadAttributesFile(IReadOnlyCollection<RoadSegmentNationalRoadAttributeRecord> roadSegmentNationalRoadAttributeRecords)
+        {
+            return CreateDbfFile<RoadSegmentNationalRoadAttributeDbaseRecord>(
+                "AttNationweg",
+                new RoadSegmentNationalRoadAttributeDbaseSchema(),
+                roadSegmentNationalRoadAttributeRecords.Select(record => record.DbaseRecord)
+            );
+        }
+
+        public ExtractFile CreateRoadSegmentEuropeanRoadAttributesFile(IReadOnlyCollection<RoadSegmentEuropeanRoadAttributeRecord> roadSegmentEuropeanRoadAttributeRecords)
+        {
+            return CreateDbfFile<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
+                "AttEuropweg",
+                new RoadSegmentEuropeanRoadAttributeDbaseSchema(),
+                roadSegmentEuropeanRoadAttributeRecords.Select(record => record.DbaseRecord)
+            );
+        }
+
+        public ExtractFile CreateRoadSegmentNumberedRoadAttributesFile(IReadOnlyCollection<RoadSegmentNumberedRoadAttributeRecord> roadSegmentNumberedRoadAttributeRecords)
+        {
+            return CreateDbfFile<RoadSegmentNumberedRoadAttributeDbaseRecord>(
+                "AttGenumweg",
+                new RoadSegmentNumberedRoadAttributeDbaseSchema(),
+                roadSegmentNumberedRoadAttributeRecords.Select(record => record.DbaseRecord)
+            );
         }
 
         public ExtractFile CreateRoadNodeTypesFile()
