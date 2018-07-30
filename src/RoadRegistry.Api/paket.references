@@ -27,7 +27,7 @@ Serilog.Enrichers.Thread
 Serilog.Enrichers.Environment
 
 Swashbuckle.AspNetCore
-Swashbuckle.AspNetCore.Examples
+Swashbuckle.AspNetCore.Filters
 
 Aiv.Vbr.AggregateSource
 Aiv.Vbr.AggregateSource.ExplicitRouting
@@ -46,6 +46,7 @@ Aiv.Vbr.AspNetCore.Mvc.Middleware.DefaultResponseCompressionQuality
 Aiv.Vbr.AspNetCore.Mvc.Middleware.EnableRequestRewind
 Aiv.Vbr.AspNetCore.Mvc.ModelBinding.GuidHeader
 Aiv.Vbr.AspNetCore.Swagger
+Aiv.Vbr.AspNetCore.Swagger.ReDoc
 Aiv.Vbr.CommandHandling
 Aiv.Vbr.CommandHandling.Idempotency
 Aiv.Vbr.CommandHandling.SqlStreamStore

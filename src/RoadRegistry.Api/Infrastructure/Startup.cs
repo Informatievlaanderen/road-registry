@@ -4,11 +4,14 @@ namespace RoadRegistry.Api.Infrastructure
     using System.Collections.Generic;
     using System.IO.Compression;
     using System.Linq;
+    using System.Reflection;
     using Aiv.Vbr.Api.Exceptions;
     using Aiv.Vbr.AspNetCore.Mvc.Formatters.Csv;
     using Aiv.Vbr.AspNetCore.Mvc.Formatters.Json;
     using Aiv.Vbr.AspNetCore.Mvc.Logging;
     using Aiv.Vbr.AspNetCore.Mvc.Middleware;
+    using Aiv.Vbr.AspNetCore.Swagger;
+    using Aiv.Vbr.AspNetCore.Swagger.ReDoc;
     using Aiv.Vbr.CommandHandling.Idempotency;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Autofac;
@@ -27,8 +30,7 @@ namespace RoadRegistry.Api.Infrastructure
     using Modules;
     using Serilog;
     using SqlStreamStore;
-    using Swagger;
-
+    using Swashbuckle.AspNetCore.Swagger;
 
 
     /// <summary>Represents the startup process for the application.</summary>
@@ -78,9 +80,9 @@ namespace RoadRegistry.Api.Infrastructure
                 .AddCors(options => options.AddPolicy(AllowSpecificOrigin, corsPolicy => corsPolicy
                     .AllowAnyOrigin() // TODO: Replace at a later stage with the below
                     //.WithOrigins("http://localhost:3000", "http://localhost:5000")
-                        //apiConfiguration.CorsEnableLocalhost
-                        //    ? new[] { apiConfiguration.CorsOrigin, "http://localhost:3000", "http://localhost:5000" }
-                        //    : new[] { apiConfiguration.CorsOrigin })
+                    //apiConfiguration.CorsEnableLocalhost
+                    //    ? new[] { apiConfiguration.CorsOrigin, "http://localhost:3000", "http://localhost:5000" }
+                    //    : new[] { apiConfiguration.CorsOrigin })
                     .WithMethods("GET", "POST", "PUT", "HEAD", "DELETE")
                     .WithHeaders(
                         "accept",
@@ -106,15 +108,32 @@ namespace RoadRegistry.Api.Infrastructure
                 //.Services
 
                 .AddApiExplorer()
-                .AddVersionedApiExplorer(options => options.GroupNameFormat = "'v'VVV")
+                .AddVersionedApiExplorer(options =>
+                {
+                    options.GroupNameFormat = "'v'VVV";
+                    options.SubstituteApiVersionInUrl = true;
+                })
                 .Services
 
-                // TODO: https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/370 Integrate better with Microsoft.AspNetCore.Mvc.Versioning
-                // https://github.com/xperiandri/FwDay2017/blob/master/Demo3End/Startup.cs
-                // https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/244#issuecomment-292405937
-                // TODO: Configure more, https://github.com/Microsoft/aspnet-api-versioning/wiki/API-Versioning-Options
                 .AddApiVersioning(x => x.ReportApiVersions = true)
-                .AddSwagger()
+                .AddSwagger<Startup>(
+                    (provider, description) => new Info
+                    {
+                        Version = description.ApiVersion.ToString(),
+                        Title = "Wegenregister API",
+                        Description = string.Empty,
+                        Contact = new Contact
+                        {
+                            Name = "Informatie Vlaanderen",
+                            Email = "informatie.vlaanderen@vlaanderen.be",
+                            Url = "https://oslo.basisregisters.vlaanderen"
+                        }
+                    },
+                    new List<string>
+                    {
+                        typeof(Startup).GetTypeInfo().Assembly.GetName().Name,
+                    })
+
 
                 .AddResponseCompression(options =>
                 {
@@ -199,15 +218,7 @@ namespace RoadRegistry.Api.Infrastructure
 
                 .UseMvc()
 
-                .UseSwagger(x => x.RouteTemplate = "docs/{documentName}/docs.json")
-                .UseSwaggerUI(x =>
-                {
-                    x.RoutePrefix = "docs";
-
-                    provider.ApiVersionDescriptions.ToList()
-                        .ForEach(description => x.SwaggerEndpoint($"/docs/{description.GroupName}/docs.json",
-                            $"Vlaamse basisregisters - RoadRegistry API {description.GroupName}"));
-                });
+                .UseSwaggerDocumentation(provider, groupName => $"Basisregisters.Vlaanderen - Wegenregister API {groupName}");
 
             RegisterApplicationLifetimeHandling(appLifetime);
         }
