@@ -64,6 +64,18 @@ namespace RoadRegistry.Api.Extracts
             );
         }
 
+        public IEnumerable<ExtractFile> CreateReferencePointsFiles(IReadOnlyCollection<RoadReferencePointRecord> referencePointRecords)
+        {
+            return CreateShapeFiles<RoadReferencePointDbaseRecord, PointShapeContent>(
+                "Refpunt",
+                ShapeType.Point,
+                new RoadReferencePointDbaseSchema(),
+                referencePointRecords.Select(referencePoint => new ShapeData{ DbaseRecord = referencePoint.DbaseRecord, Shape = referencePoint.ShapeRecordContent}),
+                PointShapeContent.Read,
+                content => content.Shape.EnvelopeInternal
+            );
+        }
+
         private class ShapeData
         {
             public byte[] DbaseRecord { get; set; }

@@ -44,6 +44,7 @@ namespace RoadRegistry.Api.Extracts
             PrintMessage("Start processing request");
             IReadOnlyCollection<OrganizationRecord> organizations;
             IReadOnlyCollection<RoadNodeRecord> nodeRecords;
+            IReadOnlyCollection<RoadReferencePointRecord> referencePointRecords;
             IReadOnlyCollection<RoadSegmentRecord> roadSegments;
             IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord> roadSegmentDynamicLaneAttributes;
             IReadOnlyCollection<RoadSegmentDynamicWidthAttributeRecord> roadSegmentDynamicWidthAttributeRecords;
@@ -57,6 +58,7 @@ namespace RoadRegistry.Api.Extracts
             //  {
             organizations = await context.Organizations.AsUntrackedCollectionAsync();
             nodeRecords = await context.RoadNodes.AsUntrackedCollectionAsync();
+            referencePointRecords = await context.RoadReferencePoints.AsUntrackedCollectionAsync();
             roadSegments = await context.RoadSegments.AsUntrackedCollectionAsync();
             roadSegmentDynamicLaneAttributes = await context.RoadLaneAttributes.AsUntrackedCollectionAsync();
             roadSegmentDynamicWidthAttributeRecords = await context.RoadWidthAttributes.AsUntrackedCollectionAsync();
@@ -92,7 +94,7 @@ namespace RoadRegistry.Api.Extracts
                 fileBuilder.CreateRoadSegmentNumberedRoadAttributesFile(roadSegmentNumberedRoadAttributeRecords),
                 fileBuilder.CreateNumberedRoadSegmentDirectionsFile(),
 
-                // reference points
+                fileBuilder.CreateReferencePointsFiles(referencePointRecords),
                 fileBuilder.CreateReferencePointTypesFile(),
 
                 fileBuilder.CreateGradeSeperatedJuctionsFile(gradeSeparatedJunctionRecords),
