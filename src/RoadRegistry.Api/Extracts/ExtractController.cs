@@ -43,6 +43,7 @@ namespace RoadRegistry.Api.Extracts
         {
             PrintMessage("Start processing request");
             IReadOnlyCollection<OrganizationRecord> organizations;
+            IReadOnlyCollection<RoadNodeRecord> nodeRecords;
             IReadOnlyCollection<RoadSegmentRecord> roadSegments;
             IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord> roadSegmentDynamicLaneAttributes;
             IReadOnlyCollection<RoadSegmentDynamicWidthAttributeRecord> roadSegmentDynamicWidthAttributeRecords;
@@ -55,6 +56,7 @@ namespace RoadRegistry.Api.Extracts
             // using (var transaction = context.Database.BeginTransaction())
             //  {
             organizations = await context.Organizations.AsUntrackedCollectionAsync();
+            nodeRecords = await context.RoadNodes.AsUntrackedCollectionAsync();
             roadSegments = await context.RoadSegments.AsUntrackedCollectionAsync();
             roadSegmentDynamicLaneAttributes = await context.RoadLaneAttributes.AsUntrackedCollectionAsync();
             roadSegmentDynamicWidthAttributeRecords = await context.RoadWidthAttributes.AsUntrackedCollectionAsync();
@@ -72,7 +74,7 @@ namespace RoadRegistry.Api.Extracts
             {
                 fileBuilder.CreateOrganizationsFile(organizations),
 
-                // road nodes
+                fileBuilder.CreateRoadNodesFiles(nodeRecords),
                 fileBuilder.CreateRoadNodeTypesFile(),
 
                 fileBuilder.CreateRoadSegmentsFiles(roadSegments),

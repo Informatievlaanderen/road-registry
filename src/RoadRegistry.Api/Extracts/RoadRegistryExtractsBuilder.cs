@@ -28,28 +28,86 @@ namespace RoadRegistry.Api.Extracts
 
         public IEnumerable<ExtractFile> CreateRoadSegmentsFiles(IReadOnlyCollection<RoadSegmentRecord> roadSegments)
         {
-            var fileData = new ShapeFilesData();
+            var shapeData = roadSegments.Select(segment =>
+                new ShapeData
+                {
+                    DbaseRecord = segment.DbaseRecord,
+                    Shape = segment.ShapeRecordContent
+                });
+
+            return CreateShapeFiles<RoadSegmentDbaseRecord, PolyLineMShapeContent>(
+                "Wegsegment",
+                ShapeType.PolyLineM,
+                new RoadSegmentDbaseSchema(),
+                shapeData,
+                PolyLineMShapeContent.Read,
+                content => content.Shape.EnvelopeInternal
+            );
+        }
+
+        public IEnumerable<ExtractFile> CreateRoadNodesFiles(IReadOnlyCollection<RoadNodeRecord> roadNodes)
+        {
+            var shapeData = roadNodes.Select(node =>
+                    new ShapeData
+                    {
+                        DbaseRecord = node.DbaseRecord,
+                        Shape =  node.ShapeRecordContent
+                    });
+
+            return CreateShapeFiles<RoadNodeDbaseRecord, PointShapeContent>(
+                "Wegknoop",
+                ShapeType.Point,
+                new RoadNodeDbaseSchema(),
+                shapeData,
+                PointShapeContent.Read,
+                content => content.Shape.EnvelopeInternal
+            );
+        }
+
+        private class ShapeData
+        {
+            public byte[] DbaseRecord { get; set; }
+            public byte[] Shape { get; set; }
+        }
+
+        private static IEnumerable<ExtractFile> CreateShapeFiles<TDbaseRecord, TShape>(
+            string fileName,
+            ShapeType shapeType,
+            DbaseSchema schema,
+            IEnumerable<ShapeData> shapeDataRecords,
+            Func<BinaryReader, ShapeContent> readShape,
+            Func<TShape, Envelope> getEnvelope
+        )
+            where TDbaseRecord : DbaseRecord, new()
+            where TShape : ShapeContent
+        {
+            var data = new
+            {
+                DbaseRecords = new List<byte[]>(),
+                ShapeRecords = new List<ShapeRecord>(),
+                ShapeIndexRecords = new List<ShapeIndexRecord>()
+            };
+            var envelope = new Envelope();
             var number = RecordNumber.Initial;
             var offset = ShapeRecord.InitialOffset;
-            foreach (var shapeRecordBinary in roadSegments)
+            foreach (var shapeData in shapeDataRecords)
             {
-                fileData.DbaseRecords.Add(shapeRecordBinary.DbaseRecord);
-
-                using (var stream = new MemoryStream(shapeRecordBinary.ShapeRecordContent))
+                data.DbaseRecords.Add(shapeData.DbaseRecord);
+                using (var stream = new MemoryStream(shapeData.Shape))
                 {
                     using (var reader = new BinaryReader(stream))
                     {
-                        var content = PolyLineMShapeContent.Read(reader);
-                        if (content is PolyLineMShapeContent shapeContent)
-                            fileData.Envelope.ExpandToInclude(shapeContent.Shape.EnvelopeInternal);
+                        var content = readShape(reader);
+                        if (typeof(TShape) != typeof(NullShapeContent) && content is TShape shapeContent)
+                            envelope.ExpandToInclude(getEnvelope(shapeContent));
 
-                        if (content is PolyLineMShapeContent || content is NullShapeContent)
+                        if (content is TShape || content is NullShapeContent)
                         {
                             var shapeRecord = content.RecordAs(number);
-                            fileData.Shapes.Add(shapeRecord);
+                            data.ShapeRecords.Add(shapeRecord);
 
                             var indexRecord = shapeRecord.IndexAt(offset);
-                            fileData.ShapeIndexes.Add(indexRecord);
+                            data.ShapeIndexRecords.Add(indexRecord);
 
                             number = number.Next();
                             offset = offset.Plus(shapeRecord.Length);
@@ -58,68 +116,37 @@ namespace RoadRegistry.Api.Extracts
                 }
             }
 
-            return CreateShapeFiles<RoadSegmentDbaseRecord>(
-                "Wegsegment",
-                ShapeType.PolyLineM,
-                fileData
-            );
-        }
-
-        private class ShapeFilesData
-        {
-            public ShapeFilesData()
-            {
-                DbaseRecords = new List<byte[]>();
-                Shapes = new List<ShapeRecord>();
-                ShapeIndexes = new List<ShapeIndexRecord>();
-                Envelope = new Envelope();
-            }
-
-            public IList<byte[]> DbaseRecords { get;  }
-            public IList<ShapeRecord> Shapes { get;  }
-            public IList<ShapeIndexRecord> ShapeIndexes { get; }
-            public Envelope Envelope { get; }
-        }
-
-        private static IEnumerable<ExtractFile> CreateShapeFiles<TDbaseRecord>(
-            string roadSegmentsFileName,
-            ShapeType shapeType,
-            ShapeFilesData data
-        )
-            where TDbaseRecord : DbaseRecord, new()
-        {
-
             var dbfFile = CreateDbfFile<TDbaseRecord>(
-                roadSegmentsFileName,
-                new RoadSegmentDbaseSchema(),
+                fileName,
+                schema,
                 data.DbaseRecords
             );
 
-            var boundingBox = new BoundingBox3D(data.Envelope.MinX, data.Envelope.MinY, data.Envelope.MaxX, data.Envelope.MaxY, 0, 0, 0, 0);
+            var boundingBox = new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, 0, 0);
 
-            var shpFileLength = data.Shapes.Aggregate(
+            var shpFileLength = data.ShapeRecords.Aggregate(
                 new WordLength(50),
                 (length, record) => length.Plus(record.Length)
             );
             var shpFile = new ShpFile(
-                roadSegmentsFileName,
+                fileName,
                 new ShapeFileHeader(
                     shpFileLength,
                     shapeType,
                     boundingBox
                 )
             );
-            shpFile.Write(data.Shapes);
+            shpFile.Write(data.ShapeRecords);
 
             var shxFile = new ShxFile(
-                roadSegmentsFileName,
+                fileName,
                 new ShapeFileHeader(
-                    new WordLength(50 + 4 * data.ShapeIndexes.Count),
+                    new WordLength(50 + 4 * data.ShapeIndexRecords.Count),
                     shapeType,
                     boundingBox
                 )
             );
-            shxFile.Write(data.ShapeIndexes);
+            shxFile.Write(data.ShapeIndexRecords);
 
             return new[]
             {
