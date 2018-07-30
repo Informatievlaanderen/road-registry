@@ -28,74 +28,100 @@ namespace RoadRegistry.Api.Extracts
 
         public IEnumerable<ExtractFile> CreateRoadSegmentsFiles(IReadOnlyCollection<RoadSegmentRecord> roadSegments)
         {
-            const string roadSegmentsFileName = "Wegsegment";
-
-            var dbfFile = CreateEmptyDbfFile<RoadSegmentDbaseRecord>(
-                roadSegmentsFileName,
-                new RoadSegmentDbaseSchema(),
-                new DbaseRecordCount(roadSegments.Count)
-            );
-            var shpFileLength = new WordLength(50);
-            var shpRecords = new List<ShapeRecord>();
-            var shxRecords = new List<ShapeIndexRecord>();
-            var envelope = new Envelope();
+            var fileData = new ShapeFilesData();
             var number = RecordNumber.Initial;
             var offset = ShapeRecord.InitialOffset;
-            foreach (var segment in roadSegments)
+            foreach (var shapeRecordBinary in roadSegments)
             {
-                dbfFile.WriteBytesAs<RoadSegmentDbaseRecord>(segment.DbaseRecord);
+                fileData.DbaseRecords.Add(shapeRecordBinary.DbaseRecord);
 
-                using (var stream = new MemoryStream(segment.ShapeRecordContent))
+                using (var stream = new MemoryStream(shapeRecordBinary.ShapeRecordContent))
                 {
                     using (var reader = new BinaryReader(stream))
                     {
-                        switch (PolyLineMShapeContent.Read(reader))
+                        var content = PolyLineMShapeContent.Read(reader);
+                        if (content is PolyLineMShapeContent shapeContent)
+                            fileData.Envelope.ExpandToInclude(shapeContent.Shape.EnvelopeInternal);
+
+                        if (content is PolyLineMShapeContent || content is NullShapeContent)
                         {
-                            case PolyLineMShapeContent content:
-                                envelope.ExpandToInclude(content.Shape.EnvelopeInternal);
-                                var shpRecord1 = content.RecordAs(number);
-                                shpFileLength = shpFileLength.Plus(shpRecord1.Length);
-                                var shxRecord1 = shpRecord1.IndexAt(offset);
-                                shpRecords.Add(shpRecord1);
-                                shxRecords.Add(shxRecord1);
-                                offset = offset.Plus(shpRecord1.Length);
-                                number = number.Next();
-                                break;
-                            case NullShapeContent content:
-                                var shpRecord2 = content.RecordAs(number);
-                                shpFileLength = shpFileLength.Plus(shpRecord2.Length);
-                                var shxRecord2 = shpRecord2.IndexAt(offset);
-                                shpRecords.Add(shpRecord2);
-                                shxRecords.Add(shxRecord2);
-                                offset = offset.Plus(shpRecord2.Length);
-                                number = number.Next();
-                                break;
+                            var shapeRecord = content.RecordAs(number);
+                            fileData.Shapes.Add(shapeRecord);
+
+                            var indexRecord = shapeRecord.IndexAt(offset);
+                            fileData.ShapeIndexes.Add(indexRecord);
+
+                            number = number.Next();
+                            offset = offset.Plus(shapeRecord.Length);
                         }
                     }
                 }
             }
 
+            return CreateShapeFiles<RoadSegmentDbaseRecord>(
+                "Wegsegment",
+                ShapeType.PolyLineM,
+                fileData
+            );
+        }
+
+        private class ShapeFilesData
+        {
+            public ShapeFilesData()
+            {
+                DbaseRecords = new List<byte[]>();
+                Shapes = new List<ShapeRecord>();
+                ShapeIndexes = new List<ShapeIndexRecord>();
+                Envelope = new Envelope();
+            }
+
+            public IList<byte[]> DbaseRecords { get;  }
+            public IList<ShapeRecord> Shapes { get;  }
+            public IList<ShapeIndexRecord> ShapeIndexes { get; }
+            public Envelope Envelope { get; }
+        }
+
+        private static IEnumerable<ExtractFile> CreateShapeFiles<TDbaseRecord>(
+            string roadSegmentsFileName,
+            ShapeType shapeType,
+            ShapeFilesData data
+        )
+            where TDbaseRecord : DbaseRecord, new()
+        {
+
+            var dbfFile = CreateDbfFile<TDbaseRecord>(
+                roadSegmentsFileName,
+                new RoadSegmentDbaseSchema(),
+                data.DbaseRecords
+            );
+
+            var boundingBox = new BoundingBox3D(data.Envelope.MinX, data.Envelope.MinY, data.Envelope.MaxX, data.Envelope.MaxY, 0, 0, 0, 0);
+
+            var shpFileLength = data.Shapes.Aggregate(
+                new WordLength(50),
+                (length, record) => length.Plus(record.Length)
+            );
             var shpFile = new ShpFile(
                 roadSegmentsFileName,
                 new ShapeFileHeader(
                     shpFileLength,
-                    ShapeType.PolyLineM,
-                    new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, 0, 0)
+                    shapeType,
+                    boundingBox
                 )
             );
-            shpFile.Write(shpRecords);
+            shpFile.Write(data.Shapes);
 
             var shxFile = new ShxFile(
                 roadSegmentsFileName,
                 new ShapeFileHeader(
-                    new WordLength(50 + 4 * shxRecords.Count),
-                    ShapeType.PolyLineM,
-                    new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, 0, 0)
+                    new WordLength(50 + 4 * data.ShapeIndexes.Count),
+                    shapeType,
+                    boundingBox
                 )
             );
-            shxFile.Write(shxRecords);
+            shxFile.Write(data.ShapeIndexes);
 
-            return new ExtractFile[]
+            return new[]
             {
                 dbfFile,
                 shpFile,
@@ -266,29 +292,29 @@ namespace RoadRegistry.Api.Extracts
             );
         }
 
-        private static ExtractFile CreateDbfFile<TRecord>(string fileName, DbaseSchema schema, IEnumerable<byte[]> records)
-            where TRecord : DbaseRecord, new()
+        private static ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, DbaseSchema schema, IEnumerable<byte[]> records)
+            where TDbaseRecord : DbaseRecord, new()
         {
-            return CreateDbfFile<TRecord>(fileName, schema, records.ToArray());
+            return CreateDbfFile<TDbaseRecord>(fileName, schema, records.ToArray());
         }
 
-        private static ExtractFile CreateDbfFile<TRecord>(string fileName, DbaseSchema schema, IReadOnlyCollection<byte[]> records)
-            where TRecord : DbaseRecord, new()
+        private static ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, DbaseSchema schema, IReadOnlyCollection<byte[]> records)
+            where TDbaseRecord : DbaseRecord, new()
         {
-            var dbfFile = CreateEmptyDbfFile<TRecord>(
+            var dbfFile = CreateEmptyDbfFile<TDbaseRecord>(
                 fileName,
                 schema,
                 new DbaseRecordCount(records.Count)
             );
-            dbfFile.WriteBytesAs<TRecord>(records);
+            dbfFile.WriteBytesAs<TDbaseRecord>(records);
 
             return dbfFile;
         }
 
-        private static ExtractFile CreateDbfFile<TRecord>(string fileName, IReadOnlyCollection<TRecord> records, DbaseSchema schema)
-            where TRecord : DbaseRecord
+        private static ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, IReadOnlyCollection<TDbaseRecord> records, DbaseSchema schema)
+            where TDbaseRecord : DbaseRecord
         {
-            var dbfFile = CreateEmptyDbfFile<TRecord>(
+            var dbfFile = CreateEmptyDbfFile<TDbaseRecord>(
                 fileName,
                 schema,
                 new DbaseRecordCount(records.Count)
@@ -298,10 +324,10 @@ namespace RoadRegistry.Api.Extracts
             return dbfFile;
         }
 
-        private static DbfFile<TRecord> CreateEmptyDbfFile<TRecord>(string fileName, DbaseSchema schema, DbaseRecordCount recordCount)
-            where TRecord : DbaseRecord
+        private static DbfFile<TDbaseRecord> CreateEmptyDbfFile<TDbaseRecord>(string fileName, DbaseSchema schema, DbaseRecordCount recordCount)
+            where TDbaseRecord : DbaseRecord
         {
-            return new DbfFile<TRecord>(
+            return new DbfFile<TDbaseRecord>(
                 fileName,
                 new DbaseFileHeader(
                     DateTime.Now,
