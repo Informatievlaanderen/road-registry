@@ -22,8 +22,11 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
             if (null == encoding)
                 throw new ArgumentNullException(nameof(encoding));
 
+            if (false == extension.StartsWith('.'))
+                extension = '.' + extension;
 
-            _name = name.EndsWith(extension) ? name : name.TrimEnd('.') + extension;
+            var nameIncludesExtension = name.ToLowerInvariant().EndsWith(extension.ToLowerInvariant());
+            _name = nameIncludesExtension ? name : name.TrimEnd('.') + extension;
             _content = new MemoryStream();
             Writer = new BinaryWriter(_content, encoding);
         }

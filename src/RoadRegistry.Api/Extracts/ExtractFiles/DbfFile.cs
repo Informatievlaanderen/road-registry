@@ -12,7 +12,7 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
 
 
         public DbfFile(string name, DbaseFileHeader header)
-            : base(name, ".dbf", Encoding)
+            : base(name, "dbf", Encoding)
         {
             header.Write(Writer);
         }

@@ -7,7 +7,7 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
     public class ShpFile : ExtractFile
     {
         public ShpFile(string name, ShapeFileHeader header)
-            : base(name, ".shp", Encoding.ASCII)
+            : base(name, "shp", Encoding.ASCII)
         {
             header.Write(Writer);
         }
