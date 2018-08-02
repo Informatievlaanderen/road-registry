@@ -1,19 +1,19 @@
 <template>
   <header :class="classes">
-    <wr-layout :mod-is-wide="true">
+    <register-layout :mod-is-wide="true">
       <slot></slot>
-    </wr-layout>
+    </register-layout>
   </header>
 </template>
 
 <script>
 
-import WrLayout from '../../frame/layout/Layout';
+import RegisterLayout from '../../frame/layout/Layout';
 
 export default {
   name: 'functional-header',
   components: {
-    WrLayout,
+    RegisterLayout,
   },
   props: {
     modHasActions: {

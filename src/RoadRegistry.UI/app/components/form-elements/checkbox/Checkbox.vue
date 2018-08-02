@@ -19,14 +19,11 @@
 </template>
 
 <script>
-import WrLabel from 'components/form-elements/label/Label';
 
 export default {
   components: {
-    WrLabel,
   },
   methods: {
-
   },
   name: 'checkbox',
   props: {

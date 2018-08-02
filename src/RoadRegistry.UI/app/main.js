@@ -11,14 +11,7 @@ import nl from './strings/nl';
 import App from './App';
 import router from './router';
 import store from './store';
-import {
-  CLEAR_ALERT,
-  CLEAR_REQUIRED_FIELDS,
-} from './store/mutation-types';
-
-import WrLayout from './components/frame/layout/Layout';
-import WrGrid from './components/frame/grid/Grid';
-import WrColumn from './components/frame/column/Column';
+import { CLEAR_ALERT } from './store/mutation-types';
 
 Vue.config.productionTip = false;
 
@@ -101,9 +94,6 @@ Vue.use(VeeValidate, validatorConfig);
 
 // Define the components name.
 const components = {
-  WrLayout,
-  WrGrid,
-  WrColumn,
 };
 
 // Iterate through them and add them to
@@ -125,7 +115,6 @@ sync(store, router);
 
 router.beforeEach((to, from, next) => {
   store.commit(CLEAR_ALERT);
-  store.commit(CLEAR_REQUIRED_FIELDS);
   next();
 });
 

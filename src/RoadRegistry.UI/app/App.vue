@@ -8,7 +8,7 @@
       </functional-header-actions>
 
       <functional-header-content>
-        <router-link slot="title" class="functional-header__title" :to="{ name: 'download' }">{{ title }}</router-link>
+        <router-link slot="title" class="functional-header__title" :to="{ name: 'downloads' }">{{ title }}</router-link>
       </functional-header-content>
 
       <functional-header-sub>
@@ -18,7 +18,7 @@
                      :cols="[{nom: 9, den: 12}, {nom: 8, den: 12, mod: 's'}, {nom: 1, den: 1, mod: 's'}]"
                      data-tabs-responsive-label="Navigatie">
             <header-tabs mod-is-functional-header>
-              <header-tab title="Download" exact :to="{ name: 'dowloads' }" />
+              <header-tab title="Download" exact :to="{ name: 'downloads' }" />
               <header-tab title="Opladen" :to="{ name: 'uploads' }" />
             </header-tabs>
           </registery-column>

@@ -21,10 +21,6 @@
 </template>
 
 <script>
-import {
-  SET_REQUIRED_FIELD_STATUS,
-  REMOVE_REQUIRED_FIELD_STATUS,
-} from 'store/mutation-types';
 
 export default {
   inject: ['$validator'],
@@ -79,7 +75,6 @@ export default {
     return {
       attributes: {},
       inputValue: '',
-      requiredFieldPushedToStore: false,
     };
   },
   methods: {
@@ -94,13 +89,6 @@ export default {
           isEmpty: !this.inputValue,
         };
         this.$store.commit(SET_REQUIRED_FIELD_STATUS, payload);
-        this.requiredFieldPushedToStore = true;
-      } else {
-        // avoid unnecessary REMOVE_REQUIRED_FIELD_STATUS mutations
-        if(this.requiredFieldPushedToStore){
-          this.$store.commit(REMOVE_REQUIRED_FIELD_STATUS, this.name);
-          this.requiredFieldPushedToStore = false;
-        }
       }
     }
   },
