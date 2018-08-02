@@ -18,7 +18,7 @@
                      :cols="[{nom: 9, den: 12}, {nom: 8, den: 12, mod: 's'}, {nom: 1, den: 1, mod: 's'}]"
                      data-tabs-responsive-label="Navigatie">
             <header-tabs mod-is-functional-header>
-              <header-tab title="Download" exact :to="{ name: 'downloads' }" />
+              <header-tab title="Downloaden" exact :to="{ name: 'downloads' }" />
               <header-tab title="Opladen" :to="{ name: 'uploads' }" />
             </header-tabs>
           </registery-column>

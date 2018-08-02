@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="h2 cta-title__title">Uploads</h1>
+    <h1 class="h2 cta-title__title">Opladen</h1>
   </div>
 </template>
 
