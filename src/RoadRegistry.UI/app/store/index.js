@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-// import api from 'services/wegenregisterApi';
+import api from 'services/wegenregisterApi';
 
 import alerts from './alerts';
-// import success from './successes';
+import success from './successes';
 
 import {
   SET_ALERT,
@@ -57,9 +57,19 @@ export default new Vuex.Store({
     },
     [DOWNLOAD_FULL_REGISTRY_STARTED](state) {
       state.activeDownloads.push(DOWNLOADS.FULL_REGISTRY);
+      state.alert = {
+        ...success.downloadRegistryStarted,
+        visible: true,
+      };
     },
     [DOWNLOAD_FULL_REGISTRY_STOPPED](state) {
-      state.activeDownloads = state.activeDownloads.filter(download => download !== DOWNLOADS.FULL_REGISTRY);
+      state.activeDownloads = state
+        .activeDownloads
+        .filter(download => download !== DOWNLOADS.FULL_REGISTRY);
+      state.alert = {
+        ...success.downloadRegistryCompleted,
+        visible: true,
+      };
     },
   },
   actions: {
@@ -67,16 +77,15 @@ export default new Vuex.Store({
       commit(LOADING_ON);
       commit(DOWNLOAD_FULL_REGISTRY_STARTED);
 
-      console.log('trigger download', commit, LOADING_ON);
-      // api.downloadCompleteRegistry()
-      //   // .then(() => { set downloading message })
-      //   .catch((error) => {
-      //     commit(SET_ALERT, alerts.toAlert(error));
-      //   })
-      //   .finally(() => {
-      //     commit(LOADING_OFF);
-      //     commit(DOWNLOAD_FULL_REGISTRY_STOPPED);
-      //   });
+      api.downloadCompleteRegistry()
+        // .then(() => { set downloading message })
+        .catch((error) => {
+          commit(SET_ALERT, alerts.toAlert(error));
+        })
+        .finally(() => {
+          commit(LOADING_OFF);
+          commit(DOWNLOAD_FULL_REGISTRY_STOPPED);
+        });
     },
   },
 });

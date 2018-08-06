@@ -1,8 +1,14 @@
 <template>
     <li class="col--4-12 col--6-12--m col--12-12--xs">
       <a
-        class="doormat doormat--graphic js-equal-height paragraph--type--doormat-graphic paragraph--view-mode--default"
-        :class="classes"
+        :class="{
+          'not-allowed': this.disabled,
+          'doormat' : true,
+          'doormat--graphic' : true,
+          'js-equal-height' : true,
+          'paragraph--type--doormat-graphic': true,
+          'paragraph--view-mode--default': true,
+        }"
         @click="onClickHandle">
         <div class="doormat__graphic-wrapper">
         </div>
@@ -35,21 +41,12 @@ export default {
   },
   methods:{
     onClickHandle(){
-      if(this.disabled)
-        return false;
+      if(false == this.disabled)
+        this.onClick();
 
-      this.onClick();
       return false;
     }
   },
-  data (){
-    return {
-      classes: {
-        'not-allowed': disabled,
-      }
-    }
-  }
-
 };
 </script>
 

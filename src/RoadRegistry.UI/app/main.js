@@ -17,9 +17,8 @@ Vue.config.productionTip = false;
 
 shim();
 
-axios.defaults.baseURL =
-  window.wegenregisterApiEndpoint ||
-  'https://api.dev.wegen.basisregisters.vlaanderen.be:2444/';
+axios.defaults.baseURL = window.wegenregisterApiEndpoint || ' http://127.0.0.1:2081';
+// 'https://api.dev.wegen.basisregisters.vlaanderen.be:2444/';
 
 // axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
@@ -27,40 +26,44 @@ axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 // retries by https://github.com/axios/axios/issues/164#issuecomment-327837467
 axios.interceptors.response.use(undefined, (err) => {
-  const config = err.config || {};
-
-  // TODO: I prefer to not have this here, this implies all requests will be retried instead of having to explicitly opt-in
-  config.retry = config.retry || 3;
-  config.retryDelay = err.config.retryDelay || 500;
-
   // If config does not exist or the retry option is not set, reject
-  if (!err.config || !err.config.retry) return Promise.reject(err);
+  if (!err.config || !err.config.retry) {
+    return Promise.reject(err);
+  }
 
   // If the response status is not 412, reject
   if (!err.response || (err.response.status !== 412 && err.response.status !== 404)) {
     return Promise.reject(err);
   }
 
-  // Set the variable for keeping track of the retry count
-  config.myRetryCount = config.myRetryCount || 0;
+  const {
+    // TODO: I prefer to not have this here, this implies all requests will be retried instead of having to explicitly opt-in
+    retry = 3,
+    retryDelay = 500,
+
+    // Set the variable for keeping track of the retry count
+    myRetryCount = 0,
+  } = err.config || {};
 
   // Check if we've maxed out the total number of retries
-  if (config.myRetryCount >= config.retry) {
+  if (myRetryCount >= retry) {
     // Reject with the error
     return Promise.reject(err);
   }
-
-  // Increase the retry count
-  config.myRetryCount += 1;
 
   // Create new promise to handle exponential backoff
   const backoff = new Promise((resolve) => {
     setTimeout(() => {
       resolve();
-    }, config.retryDelay || 1);
+    }, retryDelay || 1);
   });
 
   // Return the promise in which recalls axios to retry the request
+  const config = {
+    retry,
+    retryDelay,
+    myRetryCount: myRetryCount + 1,
+  };
   return backoff.then(() => axios(config));
 });
 
