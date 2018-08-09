@@ -40,16 +40,16 @@ namespace RoadRegistry.Api.Infrastructure
             if (environment == "Development")
             {
                 // ToDo: set correct development certificate
-                // var cert = new X509Certificate2("api.dev.weg.basisregisters.vlaanderen.be.pfx", "gemeenteregister!");
+                var cert = new X509Certificate2("develop-api.wegen.basisregisters.vlaanderen.be.pfx", "!!dev-wegen-register");
 
                 hostBuilder = hostBuilder
                     .UseKestrel(options =>
                     {
                         options.AddServerHeader = false;
 
-                        // Map localhost to api.dev.weg.basisregisters.vlaanderen.be
-                        // Then use https://api.dev.weg.basisregisters.vlaanderen.be:2443 in a browser
-                        // options.Listen(new IPEndPoint(IPAddress.Loopback, 2443), listenOptions => listenOptions.UseConnectionLogging().UseHttps(cert));
+                        // Map localhost to develop-api.wegen.basisregisters.vlaanderen.be
+                        // Then use https://develop-api.wegen.basisregisters.vlaanderen.be:2447 in a browser
+                        options.Listen(new IPEndPoint(IPAddress.Loopback, 2447), listenOptions => listenOptions.UseConnectionLogging().UseHttps(cert));
                         options.Listen(new IPEndPoint(IPAddress.Loopback, 2081), listenOptions => listenOptions.UseConnectionLogging());
                     });
             }

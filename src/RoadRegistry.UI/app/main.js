@@ -17,8 +17,7 @@ Vue.config.productionTip = false;
 
 shim();
 
-axios.defaults.baseURL = window.wegenregisterApiEndpoint || ' http://127.0.0.1:2081';
-// 'https://api.dev.wegen.basisregisters.vlaanderen.be:2444/';
+axios.defaults.baseURL = window.wegenregisterApiEndpoint || 'https://develop-api.wegen.basisregisters.vlaanderen.be:2447';
 
 // axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
