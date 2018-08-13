@@ -82,7 +82,7 @@ namespace RoadRegistry.Api.Extracts
                 fileBuilder.CreateRoadSegmentsFiles(roadSegments),
                 fileBuilder.CreateRoadSegmentCategoriesFile(),
                 fileBuilder.CreateRoadSegmentAccessRestrictionsFile(),
-                fileBuilder.CreateRoadSegmentGeometryDrawMethdsFile(),
+                fileBuilder.CreateRoadSegmentGeometryDrawMethodsFile(),
                 fileBuilder.CreateRoadSegmentMorphologiesFile(),
                 fileBuilder.CreateRoadSegmentStatusesFile(),
                 fileBuilder.CreateRoadSegmentDynamicLaneAttributesFile(roadSegmentDynamicLaneAttributes),
@@ -97,8 +97,8 @@ namespace RoadRegistry.Api.Extracts
                 fileBuilder.CreateReferencePointsFiles(referencePointRecords),
                 fileBuilder.CreateReferencePointTypesFile(),
 
-                fileBuilder.CreateGradeSeperatedJuctionsFile(gradeSeparatedJunctionRecords),
-                fileBuilder.CreateGradeSeperatedJuctionTypesFile(),
+                fileBuilder.CreateGradeSeperatedJunctionsFile(gradeSeparatedJunctionRecords),
+                fileBuilder.CreateGradeSeperatedJunctionTypesFile(),
 
                 fileBuilder.CreateLaneDirectionsFile()
             };

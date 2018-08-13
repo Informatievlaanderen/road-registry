@@ -222,7 +222,7 @@ namespace RoadRegistry.Api.Extracts
             );
         }
 
-        public ExtractFile CreateGradeSeperatedJuctionsFile(IReadOnlyCollection<GradeSeparatedJunctionRecord> gradeSeparatedJunctionRecords)
+        public ExtractFile CreateGradeSeperatedJunctionsFile(IReadOnlyCollection<GradeSeparatedJunctionRecord> gradeSeparatedJunctionRecords)
         {
             return CreateDbfFile<GradeSeparatedJunctionDbaseRecord>(
                 "RltOgkruising",
@@ -250,7 +250,7 @@ namespace RoadRegistry.Api.Extracts
             );
         }
 
-        public ExtractFile CreateRoadSegmentGeometryDrawMethdsFile()
+        public ExtractFile CreateRoadSegmentGeometryDrawMethodsFile()
         {
             return CreateDbfFile(
                 "WegsegmentLktMethode",
@@ -295,7 +295,7 @@ namespace RoadRegistry.Api.Extracts
             );
         }
 
-        public ExtractFile CreateGradeSeperatedJuctionTypesFile()
+        public ExtractFile CreateGradeSeperatedJunctionTypesFile()
         {
             return CreateDbfFile(
                 "OgkruisingLktType",
