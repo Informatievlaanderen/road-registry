@@ -10,28 +10,40 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(WK_OIDN)),
                 new DbaseFieldLength(15));
 
-            WK_UIDN = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(WK_UIDN)),
-                new DbaseFieldLength(18));
+            WK_UIDN = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(WK_UIDN)),
+                    new DbaseFieldLength(18))
+                .After(WK_OIDN);
 
-            TYPE = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(TYPE)),
-                new DbaseFieldLength(2));
+            TYPE = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(TYPE)),
+                    new DbaseFieldLength(2))
+                .After(WK_UIDN);
 
-            LBLTYPE = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLTYPE)),
-                new DbaseFieldLength(64));
+            LBLTYPE = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLTYPE)),
+                    new DbaseFieldLength(64))
+                .After(TYPE);
 
-            BEGINTIJD = DbaseField.CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD)));
+            BEGINTIJD = DbaseField
+                .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD)))
+                .After(LBLTYPE);
 
-            BEGINORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(BEGINORG)),
-                new DbaseFieldLength(18));
+            BEGINORG = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(BEGINORG)),
+                    new DbaseFieldLength(18))
+                .After(BEGINTIJD);
 
-            LBLBGNORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLBGNORG)),
-                new DbaseFieldLength(64));
-            
+            LBLBGNORG = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLBGNORG)),
+                    new DbaseFieldLength(64))
+                .After(BEGINORG);
+
             Fields = new DbaseField[]
             {
                 WK_OIDN, WK_UIDN, TYPE, LBLTYPE, BEGINTIJD, BEGINORG, LBLBGNORG

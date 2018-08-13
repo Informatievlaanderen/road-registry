@@ -83,6 +83,16 @@ namespace Shaperon
             DecimalCount = decimalCount;
         }
 
+        public DbaseField After(DbaseField field)
+        {
+            if (field == null)
+            {
+                throw new ArgumentNullException(nameof(field));
+            }
+
+            return new DbaseField(Name, FieldType, field.Offset.Plus(field.Length.ToByteLength()), Length, DecimalCount);
+        }
+
         public static DbaseField CreateStringField(DbaseFieldName name, DbaseFieldLength length)
         {
             return new DbaseField(name, DbaseFieldType.Character, new ByteOffset(0), length, new DbaseDecimalCount(0));

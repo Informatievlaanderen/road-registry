@@ -10,13 +10,17 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(TYPE)),
                 new DbaseFieldLength(2));
 
-            LBLTYPE = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLTYPE)),
-                new DbaseFieldLength(64));
+            LBLTYPE = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLTYPE)),
+                    new DbaseFieldLength(64))
+                .After(TYPE);
 
-            DEFTYPE = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(DEFTYPE)),
-                new DbaseFieldLength(254));
+            DEFTYPE = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(DEFTYPE)),
+                    new DbaseFieldLength(254))
+                .After(LBLTYPE);
 
             Fields = new[]
             {

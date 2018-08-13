@@ -10,13 +10,17 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(WEGCAT)),
                 new DbaseFieldLength(5));
 
-            LBLWEGCAT = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLWEGCAT)),
-                new DbaseFieldLength(64));
+            LBLWEGCAT = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLWEGCAT)),
+                    new DbaseFieldLength(64))
+                .After(WEGCAT);
 
-            DEFWEGCAT = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(DEFWEGCAT)),
-                new DbaseFieldLength(254));
+            DEFWEGCAT = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(DEFWEGCAT)),
+                    new DbaseFieldLength(254))
+                .After(LBLWEGCAT);
 
             Fields = new[]
             {

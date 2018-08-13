@@ -10,9 +10,11 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(ORG)),
                 new DbaseFieldLength(18));
 
-            LBLORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLORG)),
-                new DbaseFieldLength(64));
+            LBLORG = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLORG)),
+                    new DbaseFieldLength(64))
+                .After(ORG);
 
             Fields = new DbaseField[]
             {

@@ -10,13 +10,17 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(MORF)),
                 new DbaseFieldLength(3));
 
-            LBLMORF = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLMORF)),
-                new DbaseFieldLength(64));
+            LBLMORF = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLMORF)),
+                    new DbaseFieldLength(64))
+                .After(MORF);
 
-            DEFMORF = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(DEFMORF)),
-                new DbaseFieldLength(254));
+            DEFMORF = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(DEFMORF)),
+                    new DbaseFieldLength(254))
+                .After(LBLMORF);
 
             Fields = new[]
             {
