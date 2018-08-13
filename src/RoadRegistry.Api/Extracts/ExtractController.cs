@@ -2,6 +2,7 @@ namespace RoadRegistry.Api.Extracts
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.Api;
@@ -53,20 +54,54 @@ namespace RoadRegistry.Api.Extracts
             IReadOnlyCollection<RoadSegmentEuropeanRoadAttributeRecord> roadSegmentEuropeanRoadAttributeRecords;
             IReadOnlyCollection<RoadSegmentNumberedRoadAttributeRecord> roadSegmentNumberedRoadAttributeRecords;
             IReadOnlyCollection<GradeSeparatedJunctionRecord> gradeSeparatedJunctionRecords;
-            // TODO: Make sure there's a transaction to ensure the count and iteration are in sync
+            // TODO: Make sure there's a transaction to ensure the count and iteration are in sync (SNAPSHOT)
             // using (var transaction = context.Database.BeginTransaction())
             //  {
-            organizations = await context.Organizations.AsUntrackedCollectionAsync();
-            nodeRecords = await context.RoadNodes.AsUntrackedCollectionAsync();
-            referencePointRecords = await context.RoadReferencePoints.AsUntrackedCollectionAsync();
-            roadSegments = await context.RoadSegments.AsUntrackedCollectionAsync();
-            roadSegmentDynamicLaneAttributes = await context.RoadLaneAttributes.AsUntrackedCollectionAsync();
-            roadSegmentDynamicWidthAttributeRecords = await context.RoadWidthAttributes.AsUntrackedCollectionAsync();
-            roadSegmentDynamicHardeningAttributeRecords = await context.RoadHardeningAttributes.AsUntrackedCollectionAsync();
-            roadSegmentNationalRoadAttributeRecords = await context.NationalRoadAttributes.AsUntrackedCollectionAsync();
-            roadSegmentEuropeanRoadAttributeRecords = await context.EuropeanRoadAttributes.AsUntrackedCollectionAsync();
-            roadSegmentNumberedRoadAttributeRecords = await context.NumberedRoadAttributes.AsUntrackedCollectionAsync();
-            gradeSeparatedJunctionRecords = await context.GradeSeparatedJunctions.AsUntrackedCollectionAsync();
+
+            organizations = await context
+                .Organizations
+                .OrderBy(record => record.Code)
+                .AsReadOnlyAsync();
+            nodeRecords = await context
+                .RoadNodes
+                .OrderBy(record => record.Id)
+                .AsReadOnlyAsync();
+            referencePointRecords = await context
+                .RoadReferencePoints
+                .OrderBy(record => record.Id)
+                .AsReadOnlyAsync();
+            roadSegments = await context
+                .RoadSegments
+                .OrderBy(record => record.Id)
+                .AsReadOnlyAsync();
+            roadSegmentDynamicLaneAttributes = await context
+                .RoadLaneAttributes
+                .OrderBy(record => record.Id)
+                .AsReadOnlyAsync();
+            roadSegmentDynamicWidthAttributeRecords = await context
+                .RoadWidthAttributes
+                .OrderBy(record => record.Id)
+                .AsReadOnlyAsync();
+            roadSegmentDynamicHardeningAttributeRecords = await context
+                .RoadHardeningAttributes
+                .OrderBy(record => record.Id)
+                .AsReadOnlyAsync();
+            roadSegmentNationalRoadAttributeRecords = await context
+                .NationalRoadAttributes
+                .OrderBy(record => record.Id)
+                .AsReadOnlyAsync();
+            roadSegmentEuropeanRoadAttributeRecords = await context
+                .EuropeanRoadAttributes
+                .OrderBy(record => record.Id)
+                .AsReadOnlyAsync();
+            roadSegmentNumberedRoadAttributeRecords = await context
+                .NumberedRoadAttributes
+                .OrderBy(record => record.Id)
+                .AsReadOnlyAsync();
+            gradeSeparatedJunctionRecords = await context
+                .GradeSeparatedJunctions
+                .OrderBy(record => record.Id)
+                .AsReadOnlyAsync();
             // }
             PrintMessage("Queried data");
 
@@ -102,7 +137,6 @@ namespace RoadRegistry.Api.Extracts
 
                 fileBuilder.CreateLaneDirectionsFile()
             };
-
 
             PrintMessage("Create download");
             return zip.CreateResponse();

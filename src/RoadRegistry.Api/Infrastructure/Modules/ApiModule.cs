@@ -10,7 +10,6 @@ namespace RoadRegistry.Api.Infrastructure.Modules
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
-    using Projections;
 
     public class ApiModule : Module
     {
@@ -41,7 +40,7 @@ namespace RoadRegistry.Api.Infrastructure.Modules
                     _loggerFactory));
 
             containerBuilder
-                .RegisterModule(new ShapeModule(_configuration, _services, _loggerFactory));
+                .RegisterModule(new ExtractShapeModule(_configuration, _services, _loggerFactory));
 
             containerBuilder
                 .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
