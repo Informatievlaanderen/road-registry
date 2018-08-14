@@ -28,7 +28,7 @@ namespace Shaperon
         {
             return new AnonymousDbaseRecord(Schema.Fields);
         }
-        
+
         public static DbaseFileHeader Read(BinaryReader reader)
         {
             if (reader == null)
@@ -49,13 +49,13 @@ namespace Shaperon
                 throw new DbaseFileHeaderException($"The database file can not contain more than {DbaseSchema.MaximumFieldCount} fields.");
             }
             var recordLength = new DbaseRecordLength(reader.ReadInt16());
-            reader.ReadBytes(16);
+            reader.ReadBytes(17);
             var rawCodePage = reader.ReadByte();
             if(!DbaseCodePage.TryParse(rawCodePage, out DbaseCodePage codePage))
             {
                 throw new DbaseFileHeaderException($"The database code page {rawCodePage} is not supported.");
             }
-            reader.ReadBytes(3);
+            reader.ReadBytes(2);
             var fields = new DbaseField[fieldCount];
             for (var recordFieldIndex = 0; recordFieldIndex < fieldCount; recordFieldIndex++)
             {
@@ -91,9 +91,9 @@ namespace Shaperon
             var headerLength = HeaderMetaDataSize + (FieldMetaDataSize * Schema.Fields.Length);
             writer.Write(Convert.ToInt16(headerLength));
             writer.Write(Convert.ToInt16(Schema.Length));
-            writer.Write(new byte[16]);
+            writer.Write(new byte[17]);
             writer.Write(CodePage.ToByte());
-            writer.Write(new byte[3]);
+            writer.Write(new byte[2]);
             foreach(var recordField in Schema.Fields)
             {
                 recordField.Write(writer);

@@ -124,7 +124,7 @@ namespace Shaperon
                     var headerLength = DbaseFileHeader.HeaderMetaDataSize + (DbaseFileHeader.FieldMetaDataSize * 1);
                     writer.Write(Convert.ToInt16(headerLength));
                     writer.Write(Convert.ToInt16(0));
-                    writer.Write(new byte[16]);
+                    writer.Write(new byte[17]);
                     writer.Write(codePage);
 
                     writer.Flush();
@@ -224,9 +224,9 @@ namespace Shaperon
                     var headerLength = DbaseFileHeader.HeaderMetaDataSize + (DbaseFileHeader.FieldMetaDataSize * sut.Schema.Fields.Length);
                     writer.Write(Convert.ToInt16(headerLength));
                     writer.Write(Convert.ToInt16(length));
-                    writer.Write(new byte[16]);
+                    writer.Write(new byte[17]);
                     writer.Write(sut.CodePage.ToByte());
-                    writer.Write(new byte[3]);
+                    writer.Write(new byte[2]);
                     foreach(var recordField in sut.Schema.Fields)
                     {
                         recordField.Write(writer);
