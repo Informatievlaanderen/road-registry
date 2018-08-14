@@ -10,23 +10,33 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(EU_OIDN)),
                 new DbaseFieldLength(15));
 
-            WS_OIDN = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(WS_OIDN)),
-                new DbaseFieldLength(15));
+            WS_OIDN = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(WS_OIDN)),
+                    new DbaseFieldLength(15))
+                .After(EU_OIDN);
 
-            EUNUMMER = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(EUNUMMER)),
-                new DbaseFieldLength(4));
+            EUNUMMER = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(EUNUMMER)),
+                    new DbaseFieldLength(4))
+                .After(WS_OIDN);
 
-            BEGINTIJD = DbaseField.CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD)));
+            BEGINTIJD = DbaseField
+                .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD)))
+                .After(EUNUMMER);
 
-            BEGINORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(BEGINORG)),
-                new DbaseFieldLength(18));
+            BEGINORG = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(BEGINORG)),
+                    new DbaseFieldLength(18))
+                .After(BEGINTIJD);
 
-            LBLBGNORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLBGNORG)),
-                new DbaseFieldLength(64));
+            LBLBGNORG = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLBGNORG)),
+                    new DbaseFieldLength(64))
+                .After(BEGINORG);
 
             Fields = new DbaseField[]
             {

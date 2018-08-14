@@ -21,7 +21,6 @@ namespace Shaperon
         public override int GetHashCode() => _value;
         public int ToInt32() => _value;
         public byte ToByte() => Convert.ToByte(_value);
-        public ByteLength ToByteLength() => new ByteLength(ToByte());
         public override string ToString() => _value.ToString();
         public static implicit operator int(DbaseFieldLength instance) => instance.ToInt32();
         public static implicit operator byte(DbaseFieldLength instance) => instance.ToByte();

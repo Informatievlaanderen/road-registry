@@ -90,32 +90,37 @@ namespace Shaperon
                 throw new ArgumentNullException(nameof(field));
             }
 
-            return new DbaseField(Name, FieldType, field.Offset.Plus(field.Length.ToByteLength()), Length, DecimalCount);
+            return new DbaseField(Name, FieldType, field.Offset.Plus(field.Length), Length, DecimalCount);
+        }
+
+        public DbaseField At(ByteOffset offset)
+        {
+            return new DbaseField(Name, FieldType, offset, Length, DecimalCount);
         }
 
         public static DbaseField CreateStringField(DbaseFieldName name, DbaseFieldLength length)
         {
-            return new DbaseField(name, DbaseFieldType.Character, new ByteOffset(0), length, new DbaseDecimalCount(0));
+            return new DbaseField(name, DbaseFieldType.Character, ByteOffset.Initial, length, new DbaseDecimalCount(0));
         }
 
         public static DbaseField CreateInt32Field(DbaseFieldName name, DbaseFieldLength length)
         {
-            return new DbaseField(name, DbaseFieldType.Number, new ByteOffset(0), length, new DbaseDecimalCount(0));
+            return new DbaseField(name, DbaseFieldType.Number, ByteOffset.Initial, length, new DbaseDecimalCount(0));
         }
 
         public static DbaseField CreateDateTimeField(DbaseFieldName name)
         {
-            return new DbaseField(name, DbaseFieldType.DateTime, new ByteOffset(0), new DbaseFieldLength(15), new DbaseDecimalCount(0));
+            return new DbaseField(name, DbaseFieldType.DateTime, ByteOffset.Initial, new DbaseFieldLength(15), new DbaseDecimalCount(0));
         }
 
         public static DbaseField CreateDoubleField(DbaseFieldName name, DbaseFieldLength length, DbaseDecimalCount decimalCount)
         {
-            return new DbaseField(name, DbaseFieldType.Number, new ByteOffset(0), length, decimalCount);
+            return new DbaseField(name, DbaseFieldType.Number, ByteOffset.Initial, length, decimalCount);
         }
 
         public static DbaseField CreateSingleField(DbaseFieldName name, DbaseFieldLength length, DbaseDecimalCount decimalCount)
         {
-            return new DbaseField(name, DbaseFieldType.Float, new ByteOffset(0), length, decimalCount);
+            return new DbaseField(name, DbaseFieldType.Float, ByteOffset.Initial, length, decimalCount);
         }
 
         public DbaseFieldName Name { get; }

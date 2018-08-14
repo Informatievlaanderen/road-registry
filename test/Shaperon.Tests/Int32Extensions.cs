@@ -14,6 +14,11 @@ namespace Shaperon
                     : absolute + 1;
         }
 
+        public static int AsMaximumFieldCount(this int value)
+        {
+            return new Random(value).Next(0, DbaseSchema.MaximumFieldCount + 1);
+        }
+
         public static int AsRecordNumberValue(this int value)
         {
             var absolute = Math.Abs(value);

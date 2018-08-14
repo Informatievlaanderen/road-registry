@@ -172,7 +172,7 @@ namespace Shaperon
 
             Assert.Equal(name, result.Name);
             Assert.Equal(DbaseFieldType.Character, result.FieldType);
-            Assert.Equal(new ByteOffset(0), result.Offset);
+            Assert.Equal(ByteOffset.Initial, result.Offset);
             Assert.Equal(length, result.Length);
             Assert.Equal(new DbaseDecimalCount(0), result.DecimalCount);
         }
@@ -190,7 +190,7 @@ namespace Shaperon
 
             Assert.Equal(name, result.Name);
             Assert.Equal(DbaseFieldType.Number, result.FieldType);
-            Assert.Equal(new ByteOffset(0), result.Offset);
+            Assert.Equal(ByteOffset.Initial, result.Offset);
             Assert.Equal(length, result.Length);
             Assert.Equal(new DbaseDecimalCount(0), result.DecimalCount);
         }
@@ -204,7 +204,7 @@ namespace Shaperon
 
             Assert.Equal(name, result.Name);
             Assert.Equal(DbaseFieldType.DateTime, result.FieldType);
-            Assert.Equal(new ByteOffset(0), result.Offset);
+            Assert.Equal(ByteOffset.Initial, result.Offset);
             Assert.Equal(new DbaseFieldLength(15), result.Length);
             Assert.Equal(new DbaseDecimalCount(0), result.DecimalCount);
         }
@@ -223,7 +223,7 @@ namespace Shaperon
 
             Assert.Equal(name, result.Name);
             Assert.Equal(DbaseFieldType.Number, result.FieldType);
-            Assert.Equal(new ByteOffset(0), result.Offset);
+            Assert.Equal(ByteOffset.Initial, result.Offset);
             Assert.Equal(length, result.Length);
             Assert.Equal(decimalCount, result.DecimalCount);
         }
@@ -256,7 +256,7 @@ namespace Shaperon
 
             Assert.Equal(name, result.Name);
             Assert.Equal(DbaseFieldType.Float, result.FieldType);
-            Assert.Equal(new ByteOffset(0), result.Offset);
+            Assert.Equal(ByteOffset.Initial, result.Offset);
             Assert.Equal(length, result.Length);
             Assert.Equal(decimalCount, result.DecimalCount);
         }
@@ -357,6 +357,50 @@ namespace Shaperon
 
             Assert.Equal(sut, result.Field);
             Assert.IsType<DbaseDateTime>(result);
+        }
+
+        [Fact]
+        public void AfterReturnsExpectedResult()
+        {
+            var sut = _fixture.Create<DbaseField>();
+            var field = _fixture.Create<DbaseField>();
+
+            var result =  sut.After(field);
+
+            Assert.Equal(
+                new DbaseField(
+                    sut.Name,
+                    sut.FieldType,
+                    field.Offset.Plus(field.Length),
+                    sut.Length,
+                    sut.DecimalCount
+                ), result);
+        }
+
+        [Fact]
+        public void AtReturnsExpectedResult()
+        {
+            var sut = _fixture.Create<DbaseField>();
+            var offset = _fixture.Create<ByteOffset>();
+
+            var result =  sut.At(offset);
+
+            Assert.Equal(
+                new DbaseField(
+                    sut.Name,
+                    sut.FieldType,
+                    offset,
+                    sut.Length,
+                    sut.DecimalCount
+                ), result);
+        }
+
+        [Fact]
+        public void AfterDoesNotAcceptNull()
+        {
+            var sut = _fixture.Create<DbaseField>();
+
+            Assert.Throws<ArgumentNullException>(() => sut.After(null));
         }
 
         [Fact]

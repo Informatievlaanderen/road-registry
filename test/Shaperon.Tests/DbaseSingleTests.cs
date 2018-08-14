@@ -161,7 +161,7 @@ namespace Shaperon
                 new DbaseField(
                     _fixture.Create<DbaseFieldName>(),
                     DbaseFieldType.Float,
-                    new ByteOffset(0),
+                    ByteOffset.Initial,
                     length,
                     decimalCount
                 ),

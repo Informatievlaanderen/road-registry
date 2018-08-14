@@ -182,7 +182,7 @@ namespace Shaperon
                 new DbaseField(
                     _fixture.Create<DbaseFieldName>(),
                     _fixture.GenerateDbaseInt32FieldType(),
-                    new ByteOffset(0),
+                    ByteOffset.Initial,
                     new DbaseFieldLength(value.ToString(CultureInfo.InvariantCulture).Length),
                     new DbaseDecimalCount(0)
                 ),

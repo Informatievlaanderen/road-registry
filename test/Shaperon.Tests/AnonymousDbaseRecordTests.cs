@@ -59,7 +59,7 @@ namespace Shaperon
             {
                 sut.Write(writer);
                 writer.Flush();
-                
+
                 Assert.Equal(stream.ToArray(), result);
             }
         }
@@ -86,7 +86,7 @@ namespace Shaperon
                 new DbaseField(
                     _fixture.Create<DbaseFieldName>(),
                     DbaseFieldType.DateTime,
-                    new ByteOffset(0),
+                    ByteOffset.Initial,
                     new DbaseFieldLength(15),
                     new DbaseDecimalCount(0)
                 )
@@ -97,7 +97,7 @@ namespace Shaperon
                     value
                 )
             };
-            
+
             using(var stream = new MemoryStream())
             {
                 using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
@@ -113,7 +113,7 @@ namespace Shaperon
                     fields[0] = new DbaseField(
                         fields[0].Name,
                         DbaseFieldType.Character,
-                        new ByteOffset(0),
+                        ByteOffset.Initial,
                         new DbaseFieldLength(15),
                         new DbaseDecimalCount(0)
                     );

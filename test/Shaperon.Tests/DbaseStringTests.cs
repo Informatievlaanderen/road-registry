@@ -125,7 +125,7 @@ namespace Shaperon
                 new DbaseField(
                     _fixture.Create<DbaseFieldName>(),
                     DbaseFieldType.Character,
-                    new ByteOffset(0),
+                    ByteOffset.Initial,
                     new DbaseFieldLength(5),
                     new DbaseDecimalCount(0)
                 ),
