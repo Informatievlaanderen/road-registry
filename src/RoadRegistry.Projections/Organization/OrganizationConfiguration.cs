@@ -16,6 +16,7 @@ namespace RoadRegistry.Projections
 
             b.Property(p => p.Id).ValueGeneratedOnAdd();
             b.Property(p => p.Code);
+            b.Property(p => p.SortCode);
             b.Property(p => p.DbaseRecord);
         }
     }
