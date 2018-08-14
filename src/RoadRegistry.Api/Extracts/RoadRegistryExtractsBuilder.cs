@@ -370,7 +370,7 @@ namespace RoadRegistry.Api.Extracts
                 fileName,
                 new DbaseFileHeader(
                     DateTime.Now,
-                    DbaseCodePage.WindowsANSI,
+                    DbaseCodePage.Western_European_ANSI,
                     recordCount,
                     schema
                 )
