@@ -23,6 +23,15 @@ namespace Shaperon
                 {
                     throw new ArgumentException($"The value with ({value.Length}) fields exceeds the maximum number of fields ({MaximumFieldCount}).", nameof(value));
                 }
+                var offset = ByteOffset.Initial;
+                foreach(var field in value)
+                {
+                    if(field.Offset != offset)
+                    {
+                        throw new ArgumentException($"The field {field.Name} does not have the expected offset {offset}. Please ensure the offset has been properly set on each field and that the order in which they appear in the fields array matches the record field layout.", nameof(value));
+                    }
+                    offset = field.Offset.Plus(field.Length);
+                }
                 _fields = value;
             }
         }

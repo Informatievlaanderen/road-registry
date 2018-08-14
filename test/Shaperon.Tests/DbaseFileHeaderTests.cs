@@ -49,7 +49,7 @@ namespace Shaperon
             var sut = _fixture.Create<DbaseFileHeader>();
 
             var result = sut.CreateDbaseRecord();
-            
+
             var record = Assert.IsType<AnonymousDbaseRecord>(result);
             Assert.Equal(sut.Schema.Fields, record.Values.Select(value => value.Field));
         }

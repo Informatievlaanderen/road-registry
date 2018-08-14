@@ -10,13 +10,17 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(STATUS)),
                 new DbaseFieldLength(2));
 
-            LBLSTATUS = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLSTATUS)),
-                new DbaseFieldLength(64));
+            LBLSTATUS = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLSTATUS)),
+                    new DbaseFieldLength(64))
+                .After(STATUS);
 
-            DEFSTATUS = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(DEFSTATUS)),
-                new DbaseFieldLength(254));
+            DEFSTATUS = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(DEFSTATUS)),
+                    new DbaseFieldLength(254))
+                .After(LBLSTATUS);
 
             Fields = new[]
             {

@@ -10,98 +10,146 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(WS_OIDN)),
                 new DbaseFieldLength(15));
 
-            WS_UIDN = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(WS_UIDN)),
-                new DbaseFieldLength(18));
+            WS_UIDN = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(WS_UIDN)),
+                    new DbaseFieldLength(18))
+                .After(WS_OIDN);
 
-            WS_GIDN = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(WS_GIDN)),
-                new DbaseFieldLength(18));
+            WS_GIDN = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(WS_GIDN)),
+                    new DbaseFieldLength(18))
+                .After(WS_UIDN);
 
-            B_WK_OIDN = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(B_WK_OIDN)),
-                new DbaseFieldLength(15));
+            B_WK_OIDN = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(B_WK_OIDN)),
+                    new DbaseFieldLength(15))
+                .After(WS_GIDN);
 
-            E_WK_OIDN = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(E_WK_OIDN)),
-                new DbaseFieldLength(15));
+            E_WK_OIDN = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(E_WK_OIDN)),
+                    new DbaseFieldLength(15))
+                .After(B_WK_OIDN);
 
-            STATUS = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(STATUS)),
-                new DbaseFieldLength(2));
+            STATUS = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(STATUS)),
+                    new DbaseFieldLength(2))
+                .After(E_WK_OIDN);
 
-            LBLSTATUS = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLSTATUS)),
-                new DbaseFieldLength(64));
+            LBLSTATUS = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLSTATUS)),
+                    new DbaseFieldLength(64))
+                .After(STATUS);
 
-            MORF = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(MORF)),
-                new DbaseFieldLength(3));
+            MORF = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(MORF)),
+                    new DbaseFieldLength(3))
+                .After(LBLSTATUS);
 
-            LBLMORF = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLMORF)),
-                new DbaseFieldLength(64));
+            LBLMORF = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLMORF)),
+                    new DbaseFieldLength(64))
+                .After(MORF);
 
-            WEGCAT = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(WEGCAT)),
-                new DbaseFieldLength(5));
+            WEGCAT = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(WEGCAT)),
+                    new DbaseFieldLength(5))
+                .After(LBLMORF);
 
-            LBLWEGCAT = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLWEGCAT)),
-                new DbaseFieldLength(64));
+            LBLWEGCAT = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLWEGCAT)),
+                    new DbaseFieldLength(64))
+                .After(WEGCAT);
 
-            LSTRNMID = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(LSTRNMID)),
-                new DbaseFieldLength(15));
+            LSTRNMID = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(LSTRNMID)),
+                    new DbaseFieldLength(15))
+                .After(LBLWEGCAT);
 
-            LSTRNM = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LSTRNM)),
-                new DbaseFieldLength(80));
+            LSTRNM = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LSTRNM)),
+                    new DbaseFieldLength(80))
+                .After(LSTRNMID);
 
-            RSTRNMID = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(RSTRNMID)),
-                new DbaseFieldLength(15));
+            RSTRNMID = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(RSTRNMID)),
+                    new DbaseFieldLength(15))
+                .After(LSTRNM);
 
-            RSTRNM = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(RSTRNM)),
-                new DbaseFieldLength(80));
+            RSTRNM = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(RSTRNM)),
+                    new DbaseFieldLength(80))
+                .After(RSTRNMID);
 
-            BEHEER = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(BEHEER)),
-                new DbaseFieldLength(18));
+            BEHEER = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(BEHEER)),
+                    new DbaseFieldLength(18))
+                .After(RSTRNM);
 
-            LBLBEHEER = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLBEHEER)),
-                new DbaseFieldLength(64));
+            LBLBEHEER = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLBEHEER)),
+                    new DbaseFieldLength(64))
+                .After(BEHEER);
 
-            METHODE = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(METHODE)),
-                new DbaseFieldLength(2));
+            METHODE = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(METHODE)),
+                    new DbaseFieldLength(2))
+                .After(LBLBEHEER);
 
-            LBLMETHOD = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLMETHOD)),
-                new DbaseFieldLength(64));
+            LBLMETHOD = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLMETHOD)),
+                    new DbaseFieldLength(64))
+                .After(METHODE);
 
-            OPNDATUM = DbaseField.CreateDateTimeField(new DbaseFieldName(nameof(OPNDATUM)));
+            OPNDATUM = DbaseField
+                .CreateDateTimeField(new DbaseFieldName(nameof(OPNDATUM)))
+                .After(LBLMETHOD);
 
-            BEGINTIJD = DbaseField.CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD)));
+            BEGINTIJD = DbaseField
+                .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD)))
+                .After(OPNDATUM);
 
-            BEGINORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(BEGINORG)),
-                new DbaseFieldLength(18));
+            BEGINORG = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(BEGINORG)),
+                    new DbaseFieldLength(18))
+                .After(BEGINTIJD);
 
-            LBLBGNORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLBGNORG)),
-                new DbaseFieldLength(64));
+            LBLBGNORG = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLBGNORG)),
+                    new DbaseFieldLength(64))
+                .After(BEGINORG);
 
-            TGBEP = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(TGBEP)),
-                new DbaseFieldLength(2));
+            TGBEP = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(TGBEP)),
+                    new DbaseFieldLength(2))
+                .After(LBLBGNORG);
 
-            LBLTGBEP = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLTGBEP)),
-                new DbaseFieldLength(64));
-            
+            LBLTGBEP = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLTGBEP)),
+                    new DbaseFieldLength(64))
+                .After(TGBEP);
+
             Fields = new DbaseField[]
             {
                 WS_OIDN,

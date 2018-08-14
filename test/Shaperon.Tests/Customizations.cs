@@ -141,12 +141,38 @@ namespace Shaperon
             fixture.Customize<DbaseSchema>(
                 customization =>
                     customization.FromFactory<int>(
-                        value => 
-                            new AnonymousDbaseSchema(
-                                fixture
-                                    .CreateMany<DbaseField>(fixture.GenerateDbaseSchemaFieldCount())
-                                    .ToArray()
-                            )
+                        value => {
+                            var fields = fixture
+                                .CreateMany<DbaseField>(value.AsMaximumFieldCount())
+                                .ToArray();
+                            for(var index = 0; index < fields.Length; index++)
+                            {
+                                fields[index] = index == 0
+                                    ? fields[index].At(ByteOffset.Initial)
+                                    : fields[index].After(fields[index-1]);
+                            }
+                            return new AnonymousDbaseSchema(fields);
+                        }
+                    ));
+        }
+
+        public static void CustomizeAnonymousDbaseSchema(this IFixture fixture)
+        {
+            fixture.Customize<AnonymousDbaseSchema>(
+                customization =>
+                    customization.FromFactory<int>(
+                        value => {
+                            var fields = fixture
+                                .CreateMany<DbaseField>(value.AsMaximumFieldCount())
+                                .ToArray();
+                            for(var index = 0; index < fields.Length; index++)
+                            {
+                                fields[index] = index == 0
+                                    ? fields[index].At(ByteOffset.Initial)
+                                    : fields[index].After(fields[index-1]);
+                            }
+                            return new AnonymousDbaseSchema(fields);
+                        }
                     ));
         }
 
@@ -350,6 +376,27 @@ namespace Shaperon
                                 ), value)
                         )
                         .OmitAutoProperties());
+        }
+
+        public static DbaseField[] GenerateDbaseFields(this IFixture fixture)
+        {
+            var count = fixture.GenerateDbaseSchemaFieldCount();
+            var fields = fixture.CreateMany<DbaseField>(count).ToArray();
+            for(var index = 0; index < count; index++)
+            {
+                fields[index] = index == 0 ? fields[index].At(ByteOffset.Initial) : fields[index].After(fields[index - 1]);
+            }
+            return fields;
+        }
+
+        public static DbaseField[] GenerateDbaseFields(this IFixture fixture, int count)
+        {
+            var fields = fixture.CreateMany<DbaseField>(count).ToArray();
+            for(var index = 0; index < count; index++)
+            {
+                fields[index] = index == 0 ? fields[index].At(ByteOffset.Initial) : fields[index].After(fields[index - 1]);
+            }
+            return fields;
         }
     }
 }

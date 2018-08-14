@@ -4,6 +4,8 @@ namespace Shaperon
 {
     public readonly struct ByteOffset : IEquatable<ByteOffset>, IComparable<ByteOffset>
     {
+        public static readonly ByteOffset Initial = new ByteOffset(0);
+
         private readonly int _value;
 
         public ByteOffset(int value)
@@ -16,6 +18,11 @@ namespace Shaperon
         }
 
         public ByteOffset Plus(ByteLength other)
+        {
+            return new ByteOffset(_value + other.ToInt32());
+        }
+
+        public ByteOffset Plus(DbaseFieldLength other)
         {
             return new ByteOffset(_value + other.ToInt32());
         }

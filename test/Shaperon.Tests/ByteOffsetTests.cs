@@ -14,7 +14,15 @@ namespace Shaperon
             _fixture = new Fixture();
             _fixture.CustomizeByteOffset();
             _fixture.CustomizeByteLength();
+            _fixture.CustomizeDbaseFieldLength();
         }
+
+        [Fact]
+        public void InitialReturnsExpectedResult()
+        {
+            Assert.Equal(ByteOffset.Initial, new ByteOffset(0));
+        }
+
 
         [Theory]
         [InlineData(-1)]
@@ -50,6 +58,17 @@ namespace Shaperon
         public void PlusByteLengthReturnsExpectedValue()
         {
             var value = _fixture.Create<ByteLength>();
+            var sut = _fixture.Create<ByteOffset>();
+
+            var result = sut.Plus(value);
+
+            Assert.Equal(new ByteOffset(value.ToInt32() + sut.ToInt32()), result);
+        }
+
+        [Fact]
+        public void PlusDbaseFieldLengthReturnsExpectedValue()
+        {
+            var value = _fixture.Create<DbaseFieldLength>();
             var sut = _fixture.Create<ByteOffset>();
 
             var result = sut.Plus(value);

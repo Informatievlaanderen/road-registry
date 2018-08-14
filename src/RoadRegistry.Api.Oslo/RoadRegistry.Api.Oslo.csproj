@@ -13,6 +13,7 @@
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <OutputType>Exe</OutputType>
     <!-- <RuntimeIdentifier>win10-x64</RuntimeIdentifier> -->
+    <RuntimeFrameworkVersion>2.1.1</RuntimeFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>bin\Debug\netcoreapp2.0\RoadRegistry.Api.Oslo.xml</DocumentationFile>

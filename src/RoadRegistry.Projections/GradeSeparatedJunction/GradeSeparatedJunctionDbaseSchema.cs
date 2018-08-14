@@ -10,32 +10,46 @@ namespace RoadRegistry.Projections
                 new DbaseFieldName(nameof(OK_OIDN)),
                 new DbaseFieldLength(15));
 
-            TYPE = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(TYPE)),
-                new DbaseFieldLength(2));
+            TYPE = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(TYPE)),
+                    new DbaseFieldLength(2))
+                .After(OK_OIDN);
 
-            LBLTYPE = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLTYPE)),
-                new DbaseFieldLength(64));
+            LBLTYPE = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLTYPE)),
+                    new DbaseFieldLength(64))
+                .After(TYPE);
 
-            BO_WS_OIDN = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(BO_WS_OIDN)),
-                new DbaseFieldLength(15));
+            BO_WS_OIDN = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(BO_WS_OIDN)),
+                    new DbaseFieldLength(15))
+                .After(LBLTYPE);
 
-            ON_WS_OIDN = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(ON_WS_OIDN)),
-                new DbaseFieldLength(15));
+            ON_WS_OIDN = DbaseField
+                .CreateInt32Field(
+                    new DbaseFieldName(nameof(ON_WS_OIDN)),
+                    new DbaseFieldLength(15))
+                .After(BO_WS_OIDN);
 
-            BEGINTIJD = DbaseField.CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD)));
+            BEGINTIJD = DbaseField
+                .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD)))
+                .After(ON_WS_OIDN);
 
-            BEGINORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(BEGINORG)),
-                new DbaseFieldLength(18));
+            BEGINORG = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(BEGINORG)),
+                    new DbaseFieldLength(18))
+                .After(BEGINTIJD);
 
-            LBLBGNORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(LBLBGNORG)),
-                new DbaseFieldLength(64));
-            
+            LBLBGNORG = DbaseField
+                .CreateStringField(
+                    new DbaseFieldName(nameof(LBLBGNORG)),
+                    new DbaseFieldLength(64))
+                .After(BEGINORG);
+
             Fields = new DbaseField[]
             {
                 OK_OIDN, TYPE, LBLTYPE, BO_WS_OIDN, ON_WS_OIDN, BEGINTIJD, BEGINORG, LBLBGNORG
