@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadSegmentGeometryDrawMethodDbaseSchema
+    public class RoadSegmentGeometryDrawMethodDbaseSchema : DbaseSchema
     {
         public RoadSegmentGeometryDrawMethodDbaseSchema()
         {
@@ -17,6 +17,13 @@ namespace RoadRegistry.Projections
             DEFMETHOD = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(DEFMETHOD)),
                 new DbaseFieldLength(254));
+
+            Fields = new[]
+            {
+                METHODE,
+                LBLMETHOD,
+                DEFMETHOD,
+            };
         }
 
         public DbaseField METHODE { get; }

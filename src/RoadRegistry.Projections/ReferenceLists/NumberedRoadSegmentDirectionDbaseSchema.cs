@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class NumberedRoadSegmentDirectionDbaseSchema
+    public class NumberedRoadSegmentDirectionDbaseSchema : DbaseSchema
     {
         public NumberedRoadSegmentDirectionDbaseSchema()
         {
@@ -17,6 +17,13 @@ namespace RoadRegistry.Projections
             DEFRICHT = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(DEFRICHT)),
                 new DbaseFieldLength(254));
+
+            Fields = new[]
+            {
+                RICHTING,
+                LBLRICHT,
+                DEFRICHT
+            };
         }
 
         public DbaseField RICHTING { get; }

@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadSegmentCategoryDbaseSchema
+    public class RoadSegmentCategoryDbaseSchema : DbaseSchema
     {
         public RoadSegmentCategoryDbaseSchema()
         {
@@ -17,6 +17,13 @@ namespace RoadRegistry.Projections
             DEFWEGCAT = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(DEFWEGCAT)),
                 new DbaseFieldLength(254));
+
+            Fields = new[]
+            {
+                WEGCAT,
+                LBLWEGCAT,
+                DEFWEGCAT
+            };
         }
 
         public DbaseField WEGCAT { get; }

@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Shaperon;
 
-    public class RoadNodeTypeDbaseSchema
+    public class RoadNodeTypeDbaseSchema : DbaseSchema
     {
         public RoadNodeTypeDbaseSchema()
         {
@@ -17,6 +17,13 @@ namespace RoadRegistry.Projections
             DEFTYPE = DbaseField.CreateStringField(
                 new DbaseFieldName(nameof(DEFTYPE)),
                 new DbaseFieldLength(254));
+
+            Fields = new[]
+            {
+                TYPE,
+                LBLTYPE,
+                DEFTYPE
+            };
         }
 
         public DbaseField TYPE { get; }

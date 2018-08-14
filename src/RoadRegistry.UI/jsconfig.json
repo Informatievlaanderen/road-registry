@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "baseUrl": "./app/",
+    "paths": {
+      "app/*": ["./app/*"],
+      "components/*": ["./app/components/*"],
+      "pages/*": ["./app/pages/*"],
+      "services/*": ["./services/*"],
+      "store/*": ["./app/store/*"],
+      "strings/*": ["./app/strings/*"]
+    }
+  },
+  "include": [
+      "./app/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}

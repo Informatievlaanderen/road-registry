@@ -40,3 +40,7 @@ appsettings.BitTacklr002.json
 import-streams.json
 .local
 run-local.bat
+
+# don't check the dev certificates in
+*.cer
+*.pfx
