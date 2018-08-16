@@ -33,7 +33,7 @@ namespace RoadRegistry.Events
             {
                 { RoadSegmentStatus.Unknown, "Geen informatie beschikbaar" },
                 { RoadSegmentStatus.PermitRequested, "Geometrie komt voor op officieel document in behandeling." },
-                { RoadSegmentStatus.BuildingPermitGranted, "Geometrie komt voor op goedgekeurd, niet vervallen bouwdossier." },
+                { RoadSegmentStatus.BuildingPermitGranted, "Geometrie komt voor op goedgekeurd, niet vervallen bouwdossier" },
                 { RoadSegmentStatus.UnderConstruction, "Aanvang der werken is gemeld." },
                 { RoadSegmentStatus.InUse, "Werken zijn opgeleverd." },
                 { RoadSegmentStatus.OutOfUse, "Fysieke weg is buiten gebruik gesteld maar niet gesloopt." },
