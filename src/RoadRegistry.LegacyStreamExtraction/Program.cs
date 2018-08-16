@@ -476,7 +476,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                 await
                     new SqlCommand(
                         @"SELECT rp.[referentiepuntID] --0
-                            ,rp.[geometrie].STAsBinary() --1
+                            ,rp.[geometrie].AsBinaryZM() --1
                             ,rp.[ident8] --2
                             ,rp.[type] --3
                             ,rp.[opschrift] --4
