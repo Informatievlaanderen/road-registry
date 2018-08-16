@@ -322,8 +322,10 @@ namespace RoadRegistry.LegacyStreamExtraction
                             ,lo.[label]
                             ,rs.[begintijd]
                         FROM [dbo].[rijstroken] rs
-                        INNER JOIN [dbo].[wegsegment] ws ON rs.[wegsegmentID] = ws.[wegsegmentID] AND rs.[geometrieversie] = ws.[geometrieversie]
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON rs.[beginorganisatie] = lo.[code]", connection
+                        INNER JOIN [dbo].[wegsegment] ws ON rs.[wegsegmentID] = ws.[wegsegmentID]
+                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON rs.[beginorganisatie] = lo.[code]
+                        ORDER BY rs.[wegsegmentID], rs.[vanPositie]",
+                        connection
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
@@ -363,8 +365,10 @@ namespace RoadRegistry.LegacyStreamExtraction
                             ,lo.[label]
                             ,wb.[begintijd]
                         FROM [dbo].[wegbreedte] wb
-                        INNER JOIN [dbo].[wegsegment] ws ON wb.[wegsegmentID] = ws.[wegsegmentID] AND wb.[geometrieversie] = ws.[geometrieversie]
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wb.[beginorganisatie] = lo.[code]", connection
+                        INNER JOIN [dbo].[wegsegment] ws ON wb.[wegsegmentID] = ws.[wegsegmentID]
+                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wb.[beginorganisatie] = lo.[code]
+                        ORDER BY wb.[wegsegmentID], wb.[vanPositie]",
+                        connection
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
@@ -403,8 +407,10 @@ namespace RoadRegistry.LegacyStreamExtraction
                             ,lo.[label]
                             ,wv.[begintijd]
                         FROM [dbo].[wegverharding] wv
-                        INNER JOIN [dbo].[wegsegment] ws ON wv.[wegsegmentID] = ws.[wegsegmentID] AND wv.[geometrieversie] = ws.[geometrieversie]
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wv.[beginorganisatie] = lo.[code]", connection
+                        INNER JOIN [dbo].[wegsegment] ws ON wv.[wegsegmentID] = ws.[wegsegmentID]
+                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wv.[beginorganisatie] = lo.[code]
+                        ORDER BY wv.[wegsegmentID], wv.[vanPositie]",
+                        connection
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
