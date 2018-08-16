@@ -22,7 +22,7 @@ namespace RoadRegistry.Events
             {
                 { RoadSegmentStatus.Unknown, "niet gekend" },
                 { RoadSegmentStatus.PermitRequested, "vergunning aangevraagd" },
-                { RoadSegmentStatus.BuildingPermitGranted, "bouwvergunning" },
+                { RoadSegmentStatus.BuildingPermitGranted, "bouwvergunning verleend" },
                 { RoadSegmentStatus.UnderConstruction, "in aanbouw" },
                 { RoadSegmentStatus.InUse, "in gebruik" },
                 { RoadSegmentStatus.OutOfUse, "buiten gebruik" },
