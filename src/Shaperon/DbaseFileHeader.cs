@@ -61,6 +61,16 @@ namespace Shaperon
             {
                 fields[recordFieldIndex] = DbaseField.Read(reader);
             }
+            // verify field offsets are aligned
+            var offset = ByteOffset.Initial;
+            foreach(var field in fields)
+            {
+                if(field.Offset != offset)
+                {
+                    throw new DbaseFileHeaderException($"The field {field.Name} does not have the expected offset {offset} but instead {field.Offset}. Please ensure the offset has been properly set for each field and that the order in which they appear in the record field layout matches their offset.");
+                }
+                offset = field.Offset.Plus(field.Length);
+            }
             var schema = new AnonymousDbaseSchema(fields);
             if(recordLength != schema.Length)
             {

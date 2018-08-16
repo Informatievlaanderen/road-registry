@@ -245,5 +245,80 @@ namespace Shaperon
                 }
             }
         }
+
+        [Theory]
+        [MemberData(nameof(FieldOffsetMismatchCases))]
+        public void ReadExpectsCorrectFieldsOffsets(DbaseField[] fields)
+        {
+            var lastUpdated = _fixture.Create<DateTime>();
+            var codePage = _fixture.Create<DbaseCodePage>();
+            var recordCount = _fixture.Create<DbaseRecordCount>();
+            var length = fields.Aggregate(DbaseRecordLength.Initial, (current, field) => current.Plus(field.Length));
+
+            using(var stream = new MemoryStream())
+            {
+                using(var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+                {
+                    writer.Write(Convert.ToByte(3));
+                    writer.Write(Convert.ToByte(lastUpdated.Year - 1900));
+                    writer.Write(Convert.ToByte(lastUpdated.Month));
+                    writer.Write(Convert.ToByte(lastUpdated.Day));
+                    writer.Write(recordCount.ToInt32());
+                    var headerLength = DbaseFileHeader.HeaderMetaDataSize + (DbaseFileHeader.FieldMetaDataSize * fields.Length);
+                    writer.Write(Convert.ToInt16(headerLength));
+                    writer.Write(Convert.ToInt16(length));
+                    writer.Write(new byte[17]);
+                    writer.Write(codePage.ToByte());
+                    writer.Write(new byte[2]);
+                    foreach(var field in fields)
+                    {
+                        field.Write(writer);
+                    }
+                    writer.Write(DbaseFileHeader.Terminator);
+                    writer.Flush();
+                }
+
+                stream.Position = 0;
+
+                using(var reader = new BinaryReader(stream, Encoding.ASCII, true))
+                {
+                    Assert.Throws<DbaseFileHeaderException>(
+                        () => DbaseFileHeader.Read(reader)
+                    );
+                }
+            }
+        }
+
+        public static IEnumerable<object[]> FieldOffsetMismatchCases
+        {
+            get {
+                var fixture = new Fixture();
+                fixture.CustomizeByteOffset();
+                fixture.CustomizeDbaseFieldName();
+                fixture.CustomizeDbaseFieldLength();
+                fixture.CustomizeDbaseDecimalCount();
+                fixture.CustomizeDbaseField();
+
+                var count = new Generator<int>(fixture).First(specimen => specimen > 0 && specimen < DbaseSchema.MaximumFieldCount);
+                var fields = fixture.GenerateDbaseFields(count);
+                var offsetGenerator = new Generator<ByteOffset>(fixture);
+
+                for(var index = 0; index < count; index++)
+                {
+                    var current = fields[index];
+                    var mismatch = (DbaseField[])fields.Clone();
+                    if (index == 0)
+                    {
+                        mismatch[index] = current.At(offsetGenerator.First(specimen => specimen != ByteOffset.Initial));
+                    }
+                    else
+                    {
+                        var previous = fields[index - 1];
+                        mismatch[index] = current.At(offsetGenerator.First(specimen => specimen != previous.Offset.Plus(previous.Length)));
+                    }
+                    yield return new object[] { mismatch };
+                }
+            }
+        }
     }
 }

@@ -6,56 +6,48 @@ namespace RoadRegistry.Projections
     {
         public RoadNodeDbaseSchema()
         {
-            WK_OIDN = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(WK_OIDN)),
-                new DbaseFieldLength(15));
-
-            WK_UIDN = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(WK_UIDN)),
-                    new DbaseFieldLength(18))
-                .After(WK_OIDN);
-
-            TYPE = DbaseField
-                .CreateInt32Field(
-                    new DbaseFieldName(nameof(TYPE)),
-                    new DbaseFieldLength(2))
-                .After(WK_UIDN);
-
-            LBLTYPE = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(LBLTYPE)),
-                    new DbaseFieldLength(64))
-                .After(TYPE);
-
-            BEGINTIJD = DbaseField
-                .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD)))
-                .After(LBLTYPE);
-
-            BEGINORG = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(BEGINORG)),
-                    new DbaseFieldLength(18))
-                .After(BEGINTIJD);
-
-            LBLBGNORG = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(LBLBGNORG)),
-                    new DbaseFieldLength(64))
-                .After(BEGINORG);
-
             Fields = new DbaseField[]
             {
-                WK_OIDN, WK_UIDN, TYPE, LBLTYPE, BEGINTIJD, BEGINORG, LBLBGNORG
+                DbaseField.CreateInt32Field(
+                    new DbaseFieldName(nameof(WK_OIDN)),
+                    new DbaseFieldLength(15)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(WK_UIDN)),
+                        new DbaseFieldLength(18)),
+
+                DbaseField
+                    .CreateInt32Field(
+                        new DbaseFieldName(nameof(TYPE)),
+                        new DbaseFieldLength(2)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(LBLTYPE)),
+                        new DbaseFieldLength(64)),
+
+                DbaseField
+                    .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(BEGINORG)),
+                        new DbaseFieldLength(18)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(LBLBGNORG)),
+                        new DbaseFieldLength(64))
             };
         }
 
-        public DbaseField WK_OIDN { get; }
-        public DbaseField WK_UIDN { get; }
-        public DbaseField TYPE { get; }
-        public DbaseField LBLTYPE { get; }
-        public DbaseField BEGINTIJD { get; }
-        public DbaseField BEGINORG { get; }
-        public DbaseField LBLBGNORG { get; }
+        public DbaseField WK_OIDN => Fields[0];
+        public DbaseField WK_UIDN => Fields[1];
+        public DbaseField TYPE => Fields[2];
+        public DbaseField LBLTYPE => Fields[3];
+        public DbaseField BEGINTIJD => Fields[4];
+        public DbaseField BEGINORG => Fields[5];
+        public DbaseField LBLBGNORG => Fields[6];
     }
 }

@@ -6,73 +6,63 @@ namespace RoadRegistry.Projections
     {
         public RoadSegmentDynamicWidthAttributeDbaseSchema()
         {
-            WB_OIDN = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(WB_OIDN)),
-                new DbaseFieldLength(15));
-
-            WS_OIDN = DbaseField
-                .CreateInt32Field(
-                    new DbaseFieldName(nameof(WS_OIDN)),
-                    new DbaseFieldLength(15))
-                .After(WB_OIDN);
-
-            WS_GIDN = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(WS_GIDN)),
-                    new DbaseFieldLength(18))
-                .After(WS_OIDN);
-
-            BREEDTE = DbaseField
-                .CreateInt32Field(
-                    new DbaseFieldName(nameof(BREEDTE)),
-                    new DbaseFieldLength(2))
-                .After(WS_GIDN);
-
-            VANPOS = DbaseField
-                .CreateDoubleField(
-                    new DbaseFieldName(nameof(VANPOS)),
-                    new DbaseFieldLength(9),
-                    new DbaseDecimalCount(3))
-                .After(BREEDTE);
-
-            TOTPOS = DbaseField
-                .CreateDoubleField(
-                    new DbaseFieldName(nameof(TOTPOS)),
-                    new DbaseFieldLength(9),
-                    new DbaseDecimalCount(3))
-                .After(VANPOS);
-
-            BEGINTIJD = DbaseField
-                .CreateDateTimeField(
-                    new DbaseFieldName(nameof(BEGINTIJD)))
-                .After(TOTPOS);
-
-            BEGINORG = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(BEGINORG)),
-                    new DbaseFieldLength(18))
-                .After(BEGINTIJD);
-
-            LBLBGNORG = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(LBLBGNORG)),
-                    new DbaseFieldLength(64))
-                .After(BEGINORG);
-
             Fields = new DbaseField[]
             {
-                WB_OIDN, WS_OIDN, WS_GIDN, BREEDTE, VANPOS, TOTPOS, BEGINTIJD, BEGINORG, LBLBGNORG
+                DbaseField.CreateInt32Field(
+                    new DbaseFieldName(nameof(WB_OIDN)),
+                    new DbaseFieldLength(15)),
+
+                DbaseField
+                    .CreateInt32Field(
+                        new DbaseFieldName(nameof(WS_OIDN)),
+                        new DbaseFieldLength(15)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(WS_GIDN)),
+                        new DbaseFieldLength(18)),
+
+                DbaseField
+                    .CreateInt32Field(
+                        new DbaseFieldName(nameof(BREEDTE)),
+                        new DbaseFieldLength(2)),
+
+                DbaseField
+                    .CreateDoubleField(
+                        new DbaseFieldName(nameof(VANPOS)),
+                        new DbaseFieldLength(9),
+                        new DbaseDecimalCount(3)),
+
+                DbaseField
+                    .CreateDoubleField(
+                        new DbaseFieldName(nameof(TOTPOS)),
+                        new DbaseFieldLength(9),
+                        new DbaseDecimalCount(3)),
+
+                DbaseField
+                    .CreateDateTimeField(
+                        new DbaseFieldName(nameof(BEGINTIJD))),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(BEGINORG)),
+                        new DbaseFieldLength(18)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(LBLBGNORG)),
+                        new DbaseFieldLength(64))
             };
         }
 
-        public DbaseField WB_OIDN { get; set; }
-        public DbaseField WS_OIDN { get; set; }
-        public DbaseField WS_GIDN { get; set; }
-        public DbaseField BREEDTE { get; set; }
-        public DbaseField VANPOS { get; set; }
-        public DbaseField TOTPOS { get; set; }
-        public DbaseField BEGINTIJD { get; set; }
-        public DbaseField BEGINORG { get; set; }
-        public DbaseField LBLBGNORG { get; set; }
+        public DbaseField WB_OIDN => Fields[0];
+        public DbaseField WS_OIDN => Fields[1];
+        public DbaseField WS_GIDN => Fields[2];
+        public DbaseField BREEDTE => Fields[3];
+        public DbaseField VANPOS => Fields[4];
+        public DbaseField TOTPOS => Fields[5];
+        public DbaseField BEGINTIJD => Fields[6];
+        public DbaseField BEGINORG => Fields[7];
+        public DbaseField LBLBGNORG => Fields[8];
     }
 }

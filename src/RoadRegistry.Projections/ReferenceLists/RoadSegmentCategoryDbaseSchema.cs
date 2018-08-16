@@ -6,32 +6,26 @@ namespace RoadRegistry.Projections
     {
         public RoadSegmentCategoryDbaseSchema()
         {
-            WEGCAT = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(WEGCAT)),
-                new DbaseFieldLength(5));
-
-            LBLWEGCAT = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(LBLWEGCAT)),
-                    new DbaseFieldLength(64))
-                .After(WEGCAT);
-
-            DEFWEGCAT = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(DEFWEGCAT)),
-                    new DbaseFieldLength(254))
-                .After(LBLWEGCAT);
-
             Fields = new[]
             {
-                WEGCAT,
-                LBLWEGCAT,
-                DEFWEGCAT
+                DbaseField.CreateStringField(
+                    new DbaseFieldName(nameof(WEGCAT)),
+                    new DbaseFieldLength(5)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(LBLWEGCAT)),
+                        new DbaseFieldLength(64)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(DEFWEGCAT)),
+                        new DbaseFieldLength(254))
             };
         }
 
-        public DbaseField WEGCAT { get; }
-        public DbaseField LBLWEGCAT { get; }
-        public DbaseField DEFWEGCAT { get; }
+        public DbaseField WEGCAT => Fields[0];
+        public DbaseField LBLWEGCAT => Fields[1];
+        public DbaseField DEFWEGCAT => Fields[2];
     }
 }
