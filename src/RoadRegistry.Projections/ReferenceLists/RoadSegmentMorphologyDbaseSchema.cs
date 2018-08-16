@@ -6,32 +6,26 @@ namespace RoadRegistry.Projections
     {
         public RoadSegmentMorphologyDbaseSchema()
         {
-            MORF = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(MORF)),
-                new DbaseFieldLength(3));
-
-            LBLMORF = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(LBLMORF)),
-                    new DbaseFieldLength(64))
-                .After(MORF);
-
-            DEFMORF = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(DEFMORF)),
-                    new DbaseFieldLength(254))
-                .After(LBLMORF);
-
             Fields = new[]
             {
-                MORF,
-                LBLMORF,
-                DEFMORF
+                DbaseField.CreateInt32Field(
+                    new DbaseFieldName(nameof(MORF)),
+                    new DbaseFieldLength(3)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(LBLMORF)),
+                        new DbaseFieldLength(64)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(DEFMORF)),
+                        new DbaseFieldLength(254))
             };
         }
 
-        public DbaseField MORF { get; }
-        public DbaseField LBLMORF { get; }
-        public DbaseField DEFMORF { get; }
+        public DbaseField MORF => Fields[0];
+        public DbaseField LBLMORF => Fields[1];
+        public DbaseField DEFMORF => Fields[2];
     }
 }

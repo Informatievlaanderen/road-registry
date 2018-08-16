@@ -6,71 +6,61 @@ namespace RoadRegistry.Projections
     {
         public RoadReferencePointDbaseSchema()
         {
-            RP_OIDN = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(RP_OIDN)),
-                new DbaseFieldLength(15));
-
-            RP_UIDN = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(RP_UIDN)),
-                    new DbaseFieldLength(18))
-                .After(RP_OIDN);
-
-            IDENT8 =  DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(IDENT8)),
-                    new DbaseFieldLength(8))
-                .After(RP_UIDN);
-
-            OPSCHRIFT = DbaseField
-                .CreateDoubleField(
-                    new DbaseFieldName(nameof(OPSCHRIFT)),
-                    new DbaseFieldLength(5),
-                    new DbaseDecimalCount(1))
-                .After(IDENT8);
-
-            TYPE = DbaseField
-                .CreateInt32Field(
-                    new DbaseFieldName(nameof(TYPE)),
-                    new DbaseFieldLength(2))
-                .After(OPSCHRIFT);
-
-            LBLTYPE = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(LBLTYPE)),
-                    new DbaseFieldLength(64))
-                .After(TYPE);
-
-            BEGINTIJD = DbaseField
-                .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD)))
-                .After(LBLTYPE);
-
-            BEGINORG = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(BEGINORG)),
-                    new DbaseFieldLength(18))
-                .After(BEGINTIJD);
-
-            LBLBGNORG = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(LBLBGNORG)),
-                    new DbaseFieldLength(64))
-                .After(BEGINORG);
-
             Fields = new DbaseField[]
             {
-                RP_UIDN, RP_OIDN, IDENT8, OPSCHRIFT, TYPE, LBLTYPE, BEGINTIJD, BEGINORG, LBLBGNORG
+                DbaseField.CreateInt32Field(
+                    new DbaseFieldName(nameof(RP_OIDN)),
+                    new DbaseFieldLength(15)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(RP_UIDN)),
+                        new DbaseFieldLength(18)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(IDENT8)),
+                        new DbaseFieldLength(8)),
+
+                DbaseField
+                    .CreateDoubleField(
+                        new DbaseFieldName(nameof(OPSCHRIFT)),
+                        new DbaseFieldLength(5),
+                        new DbaseDecimalCount(1)),
+
+                DbaseField
+                    .CreateInt32Field(
+                        new DbaseFieldName(nameof(TYPE)),
+                        new DbaseFieldLength(2)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(LBLTYPE)),
+                        new DbaseFieldLength(64)),
+
+                DbaseField
+                    .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(BEGINORG)),
+                        new DbaseFieldLength(18)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(LBLBGNORG)),
+                        new DbaseFieldLength(64))
             };
         }
 
-        public DbaseField RP_UIDN { get; }
-        public DbaseField RP_OIDN { get; }
-        public DbaseField IDENT8 { get; }
-        public DbaseField OPSCHRIFT { get; }
-        public DbaseField TYPE { get; }
-        public DbaseField LBLTYPE { get; }
-        public DbaseField BEGINTIJD { get; }
-        public DbaseField BEGINORG { get; }
-        public DbaseField LBLBGNORG { get; }
+        public DbaseField RP_OIDN => Fields[0];
+        public DbaseField RP_UIDN => Fields[1];
+        public DbaseField IDENT8 => Fields[2];
+        public DbaseField OPSCHRIFT => Fields[3];
+        public DbaseField TYPE => Fields[4];
+        public DbaseField LBLTYPE => Fields[5];
+        public DbaseField BEGINTIJD => Fields[6];
+        public DbaseField BEGINORG => Fields[7];
+        public DbaseField LBLBGNORG => Fields[8];
     }
 }

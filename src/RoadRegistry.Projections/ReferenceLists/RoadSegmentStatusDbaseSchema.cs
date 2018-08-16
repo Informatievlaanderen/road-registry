@@ -6,32 +6,26 @@ namespace RoadRegistry.Projections
     {
         public RoadSegmentStatusDbaseSchema()
         {
-            STATUS = DbaseField.CreateInt32Field(
-                new DbaseFieldName(nameof(STATUS)),
-                new DbaseFieldLength(2));
-
-            LBLSTATUS = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(LBLSTATUS)),
-                    new DbaseFieldLength(64))
-                .After(STATUS);
-
-            DEFSTATUS = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(DEFSTATUS)),
-                    new DbaseFieldLength(254))
-                .After(LBLSTATUS);
-
             Fields = new[]
             {
-                STATUS,
-                LBLSTATUS,
-                DEFSTATUS
+                DbaseField.CreateInt32Field(
+                    new DbaseFieldName(nameof(STATUS)),
+                    new DbaseFieldLength(2)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(LBLSTATUS)),
+                        new DbaseFieldLength(64)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(DEFSTATUS)),
+                        new DbaseFieldLength(254))
             };
         }
 
-        public DbaseField STATUS { get; }
-        public DbaseField LBLSTATUS { get; }
-        public DbaseField DEFSTATUS { get; }
+        public DbaseField STATUS => Fields[0];
+        public DbaseField LBLSTATUS => Fields[1];
+        public DbaseField DEFSTATUS => Fields[2];
     }
 }

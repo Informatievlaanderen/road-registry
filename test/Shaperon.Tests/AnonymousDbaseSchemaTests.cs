@@ -44,15 +44,18 @@ namespace Shaperon
             Assert.Throws<ArgumentException>(() => new AnonymousDbaseSchema(fields));
         }
 
-
         [Theory]
-        [MemberData(nameof(FieldOffsetMismatchCases))]
-        public void FieldsOffsetMustMatchFieldPosition(DbaseField[] fields)
+        [MemberData(nameof(FieldOffsetAutoAssignedCases))]
+        public void FieldOffsetsAreAutoAssigned(DbaseField[] fields, ByteOffset[] expected)
         {
-            Assert.Throws<ArgumentException>(() => new AnonymousDbaseSchema(fields));
+            var sut = new AnonymousDbaseSchema(fields);
+
+            Assert.Equal(
+                sut.Fields.Select(field => field.Offset).ToArray(),
+                expected);
         }
 
-        public static IEnumerable<object[]> FieldOffsetMismatchCases
+        public static IEnumerable<object[]> FieldOffsetAutoAssignedCases
         {
             get {
                 var fixture = new Fixture();
@@ -65,6 +68,21 @@ namespace Shaperon
                 var count = new Generator<int>(fixture).First(specimen => specimen > 0 && specimen < DbaseSchema.MaximumFieldCount);
                 var fields = fixture.GenerateDbaseFields(count);
                 var offsetGenerator = new Generator<ByteOffset>(fixture);
+
+                var offsets = new ByteOffset[count];
+                var offset = ByteOffset.Initial;
+                for(var index = 0; index < count; index++)
+                {
+                    if(index == 0)
+                    {
+                        offsets[index] = offset;
+                    }
+                    else
+                    {
+                        offsets[index] = offset.Plus(fields[index - 1].Length);
+                    }
+                    offset = offsets[index];
+                }
 
                 for(var index = 0; index < count; index++)
                 {
@@ -79,7 +97,7 @@ namespace Shaperon
                         var previous = fields[index - 1];
                         mismatch[index] = current.At(offsetGenerator.First(specimen => specimen != previous.Offset.Plus(previous.Length)));
                     }
-                    yield return new object[] { mismatch };
+                    yield return new object[] { mismatch, offsets };
                 }
             }
         }

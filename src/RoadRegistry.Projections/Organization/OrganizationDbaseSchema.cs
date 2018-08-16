@@ -6,23 +6,20 @@ namespace RoadRegistry.Projections
     {
         public OrganizationDbaseSchema()
         {
-            ORG = DbaseField.CreateStringField(
-                new DbaseFieldName(nameof(ORG)),
-                new DbaseFieldLength(18));
-
-            LBLORG = DbaseField
-                .CreateStringField(
-                    new DbaseFieldName(nameof(LBLORG)),
-                    new DbaseFieldLength(64))
-                .After(ORG);
-
             Fields = new DbaseField[]
             {
-                ORG, LBLORG
+                DbaseField.CreateStringField(
+                    new DbaseFieldName(nameof(ORG)),
+                    new DbaseFieldLength(18)),
+
+                DbaseField
+                    .CreateStringField(
+                        new DbaseFieldName(nameof(LBLORG)),
+                        new DbaseFieldLength(64))
             };
         }
 
-        public DbaseField ORG { get; }
-        public DbaseField LBLORG { get; }
+        public DbaseField ORG => Fields[0];
+        public DbaseField LBLORG => Fields[1];
     }
 }
