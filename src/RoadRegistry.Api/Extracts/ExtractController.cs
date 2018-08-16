@@ -15,6 +15,8 @@ namespace RoadRegistry.Api.Extracts
     using Projections;
     using Responses;
     using Swashbuckle.AspNetCore.Examples;
+    using Microsoft.EntityFrameworkCore;
+    using System.Data;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]
@@ -55,54 +57,53 @@ namespace RoadRegistry.Api.Extracts
             IReadOnlyCollection<RoadSegmentNumberedRoadAttributeRecord> roadSegmentNumberedRoadAttributeRecords;
             IReadOnlyCollection<GradeSeparatedJunctionRecord> gradeSeparatedJunctionRecords;
             // TODO: Make sure there's a transaction to ensure the count and iteration are in sync (SNAPSHOT)
-            // using (var transaction = context.Database.BeginTransaction())
-            //  {
-
-            organizations = await context
-                .Organizations
-                .OrderBy(record => record.SortableCode)
-                .AsReadOnlyAsync();
-            nodeRecords = await context
-                .RoadNodes
-                .OrderBy(record => record.Id)
-                .AsReadOnlyAsync();
-            referencePointRecords = await context
-                .RoadReferencePoints
-                .OrderBy(record => record.Id)
-                .AsReadOnlyAsync();
-            roadSegments = await context
-                .RoadSegments
-                .OrderBy(record => record.Id)
-                .AsReadOnlyAsync();
-            roadSegmentDynamicLaneAttributes = await context
-                .RoadLaneAttributes
-                .OrderBy(record => record.Id)
-                .AsReadOnlyAsync();
-            roadSegmentDynamicWidthAttributeRecords = await context
-                .RoadWidthAttributes
-                .OrderBy(record => record.Id)
-                .AsReadOnlyAsync();
-            roadSegmentDynamicHardeningAttributeRecords = await context
-                .RoadHardeningAttributes
-                .OrderBy(record => record.Id)
-                .AsReadOnlyAsync();
-            roadSegmentNationalRoadAttributeRecords = await context
-                .NationalRoadAttributes
-                .OrderBy(record => record.Id)
-                .AsReadOnlyAsync();
-            roadSegmentEuropeanRoadAttributeRecords = await context
-                .EuropeanRoadAttributes
-                .OrderBy(record => record.Id)
-                .AsReadOnlyAsync();
-            roadSegmentNumberedRoadAttributeRecords = await context
-                .NumberedRoadAttributes
-                .OrderBy(record => record.Id)
-                .AsReadOnlyAsync();
-            gradeSeparatedJunctionRecords = await context
-                .GradeSeparatedJunctions
-                .OrderBy(record => record.Id)
-                .AsReadOnlyAsync();
-            // }
+            using (var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted))
+            {
+                organizations = await context
+                    .Organizations
+                    .OrderBy(record => record.SortableCode)
+                    .AsReadOnlyAsync();
+                nodeRecords = await context
+                    .RoadNodes
+                    .OrderBy(record => record.Id)
+                    .AsReadOnlyAsync();
+                referencePointRecords = await context
+                    .RoadReferencePoints
+                    .OrderBy(record => record.Id)
+                    .AsReadOnlyAsync();
+                roadSegments = await context
+                    .RoadSegments
+                    .OrderBy(record => record.Id)
+                    .AsReadOnlyAsync();
+                roadSegmentDynamicLaneAttributes = await context
+                    .RoadLaneAttributes
+                    .OrderBy(record => record.Id)
+                    .AsReadOnlyAsync();
+                roadSegmentDynamicWidthAttributeRecords = await context
+                    .RoadWidthAttributes
+                    .OrderBy(record => record.Id)
+                    .AsReadOnlyAsync();
+                roadSegmentDynamicHardeningAttributeRecords = await context
+                    .RoadHardeningAttributes
+                    .OrderBy(record => record.Id)
+                    .AsReadOnlyAsync();
+                roadSegmentNationalRoadAttributeRecords = await context
+                    .NationalRoadAttributes
+                    .OrderBy(record => record.Id)
+                    .AsReadOnlyAsync();
+                roadSegmentEuropeanRoadAttributeRecords = await context
+                    .EuropeanRoadAttributes
+                    .OrderBy(record => record.Id)
+                    .AsReadOnlyAsync();
+                roadSegmentNumberedRoadAttributeRecords = await context
+                    .NumberedRoadAttributes
+                    .OrderBy(record => record.Id)
+                    .AsReadOnlyAsync();
+                gradeSeparatedJunctionRecords = await context
+                    .GradeSeparatedJunctions
+                    .OrderBy(record => record.Id)
+                    .AsReadOnlyAsync();
+            }
             PrintMessage("Queried data");
 
             var fileBuilder = new RoadRegistryExtractsBuilder();

@@ -31,6 +31,7 @@ nuget Microsoft.AspNetCore.StaticFiles 2.1.1
 
 nuget Microsoft.EntityFrameworkCore 2.1.1
 nuget Microsoft.EntityFrameworkCore.SqlServer 2.1.1
+nuget Microsoft.EntityFrameworkCore.Relational 2.1.1
 
 nuget Microsoft.Extensions.Configuration 2.1.1
 nuget Microsoft.Extensions.Configuration.CommandLine 2.1.1
