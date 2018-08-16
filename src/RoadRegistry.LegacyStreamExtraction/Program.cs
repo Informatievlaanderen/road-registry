@@ -125,11 +125,11 @@ namespace RoadRegistry.LegacyStreamExtraction
                             ws.[categorie], --11
                             ws.[toegangsbeperking], --12
                             ws.[linksStraatnaamID], --13
-                            ls.[LOS], --14
+                            ISNULL(ls.[LOS], ''), --14 --streetname is empty string when not found
                             lg.[NISCode], --15
                             lg.[naam], --16
                             ws.[rechtsStraatnaamID], --17
-                            rs.[LOS], --18
+                            ISNULL(rs.[LOS], ''), --18 -streetname is empty string when not found
                             rg.[NISCode], --19
                             rg.[naam], --20
                             ws.[opnamedatum], --21
@@ -142,8 +142,8 @@ namespace RoadRegistry.LegacyStreamExtraction
                         LEFT OUTER JOIN [dbo].[gemeenteNIS] rg ON ws.[rechtsGemeente] = rg.[gemeenteId]
                         LEFT OUTER JOIN [dbo].[crabsnm] rs ON ws.[rechtsStraatnaamID] = rs.[EXN]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ws.[beginorganisatie] = lo.[code]
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] beheerders ON ws.[beheerder] = beheerders.[code]
-                        WHERE ws.[eindWegknoopID] IS NOT NULL", connection
+                        LEFT OUTER JOIN [dbo].[listOrganisatie] beheerders ON ws.[beheerder] = beheerders.[code]",
+                        connection
                     ).ForEachDataRecord(reader =>
                     {
                         var wellKnownBinary = wkbWriter.Write(wkbReader.Read(reader.GetAllBytes(4)));
