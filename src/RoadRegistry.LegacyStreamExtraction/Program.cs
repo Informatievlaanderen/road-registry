@@ -312,15 +312,16 @@ namespace RoadRegistry.LegacyStreamExtraction
                 await
                     new SqlCommand(
                         @"SELECT
-                            rs.[wegsegmentID]
-                            ,rs.[rijstrokenID]
-                            ,rs.[aantal]
-                            ,rs.[richting]
-                            ,rs.[vanPositie]
-                            ,rs.[totPositie]
-                            ,rs.[beginorganisatie]
-                            ,lo.[label]
-                            ,rs.[begintijd]
+                            rs.[wegsegmentID] --0
+                            ,rs.[rijstrokenID] --1
+                            ,rs.[aantal] --2
+                            ,rs.[richting] --3
+                            ,rs.[vanPositie] --4
+                            ,rs.[totPositie] --5
+                            ,rs.[geometrieversie] --6
+                            ,rs.[beginorganisatie] --7
+                            ,lo.[label] --8
+                            ,rs.[begintijd] --9
                         FROM [dbo].[rijstroken] rs
                         INNER JOIN [dbo].[wegsegment] ws ON rs.[wegsegmentID] = ws.[wegsegmentID]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON rs.[beginorganisatie] = lo.[code]
@@ -339,11 +340,12 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Direction = Translate.ToLaneDirection(reader.GetInt32(3)),
                             FromPosition = reader.GetDecimal(4),
                             ToPosition = reader.GetDecimal(5),
+                            LastUpdatedForSegmentGeometryVersion = reader.GetInt32(6),
                             Origin = new OriginProperties
                             {
-                                OrganizationId = reader.GetNullableString(6),
-                                Organization = reader.GetNullableString(7),
-                                Since = reader.GetDateTime(8)
+                                OrganizationId = reader.GetNullableString(7),
+                                Organization = reader.GetNullableString(8),
+                                Since = reader.GetDateTime(9)
                             }
                         };
 
@@ -356,14 +358,15 @@ namespace RoadRegistry.LegacyStreamExtraction
                 Console.WriteLine("Enriching segments with width information ...");
                 await
                     new SqlCommand(
-                        @"SELECT wb.[wegsegmentID]
-                            ,wb.[wegbreedteID]
-                            ,wb.[breedte]
-                            ,wb.[vanPositie]
-                            ,wb.[totPositie]
-                            ,wb.[beginorganisatie]
-                            ,lo.[label]
-                            ,wb.[begintijd]
+                        @"SELECT wb.[wegsegmentID] --0
+                            ,wb.[wegbreedteID] --1
+                            ,wb.[breedte] --2
+                            ,wb.[vanPositie] --3
+                            ,wb.[totPositie] --4
+                            ,wb.[geometrieversie] --5
+                            ,wb.[beginorganisatie] --6
+                            ,lo.[label] --7
+                            ,wb.[begintijd] --8
                         FROM [dbo].[wegbreedte] wb
                         INNER JOIN [dbo].[wegsegment] ws ON wb.[wegsegmentID] = ws.[wegsegmentID]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wb.[beginorganisatie] = lo.[code]
@@ -381,11 +384,12 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Width = reader.GetInt32(2),
                             FromPosition = reader.GetDecimal(3),
                             ToPosition = reader.GetDecimal(4),
+                            LastUpdatedForSegmentGeometryVersion = reader.GetInt32(5),
                             Origin = new OriginProperties
                             {
-                                OrganizationId = reader.GetNullableString(5),
-                                Organization = reader.GetNullableString(6),
-                                Since = reader.GetDateTime(7)
+                                OrganizationId = reader.GetNullableString(6),
+                                Organization = reader.GetNullableString(7),
+                                Since = reader.GetDateTime(8)
                             }
                         };
 
@@ -398,14 +402,15 @@ namespace RoadRegistry.LegacyStreamExtraction
                 Console.WriteLine("Enriching segments with hardening information ...");
                 await
                     new SqlCommand(
-                        @"SELECT wv.[wegsegmentID]
-                            ,wv.[wegverhardingID]
-                            ,wv.[type]
-                            ,wv.[vanPositie]
-                            ,wv.[totPositie]
-                            ,wv.[beginorganisatie]
-                            ,lo.[label]
-                            ,wv.[begintijd]
+                        @"SELECT wv.[wegsegmentID] --0
+                            ,wv.[wegverhardingID] --1
+                            ,wv.[type] --2
+                            ,wv.[vanPositie] --3
+                            ,wv.[totPositie] --4
+                            ,wv.[geometrieversie] --5
+                            ,wv.[beginorganisatie] --6
+                            ,lo.[label] --7
+                            ,wv.[begintijd] --8
                         FROM [dbo].[wegverharding] wv
                         INNER JOIN [dbo].[wegsegment] ws ON wv.[wegsegmentID] = ws.[wegsegmentID]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wv.[beginorganisatie] = lo.[code]
@@ -423,11 +428,12 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Type = Translate.ToHardeningType(reader.GetInt32(2)),
                             FromPosition = reader.GetDecimal(3),
                             ToPosition = reader.GetDecimal(4),
+                            LastUpdatedForSegmentGeometryVersion = reader.GetInt32(5),
                             Origin = new OriginProperties
                             {
-                                OrganizationId = reader.GetNullableString(5),
-                                Organization = reader.GetNullableString(6),
-                                Since = reader.GetDateTime(7)
+                                OrganizationId = reader.GetNullableString(6),
+                                Organization = reader.GetNullableString(7),
+                                Since = reader.GetDateTime(8)
                             }
                         };
 

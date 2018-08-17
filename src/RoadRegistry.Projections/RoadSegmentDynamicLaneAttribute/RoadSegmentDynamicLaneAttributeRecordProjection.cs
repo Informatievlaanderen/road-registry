@@ -36,7 +36,7 @@ namespace RoadRegistry.Projections
                     {
                         RS_OIDN = { Value = lane.AttributeId },
                         WS_OIDN = { Value = @event.Id },
-                        WS_GIDN = { Value = $"{@event.Id}_{@event.GeometryVersion}" },
+                        WS_GIDN = { Value = $"{@event.Id}_{lane.LastUpdatedForSegmentGeometryVersion}" },
                         AANTAL = { Value = lane.Count },
                         RICHTING = { Value = _laneDirectionTranslator.TranslateToIdentifier(lane.Direction) },
                         LBLRICHT = { Value = _laneDirectionTranslator.TranslateToDutchName(lane.Direction) },

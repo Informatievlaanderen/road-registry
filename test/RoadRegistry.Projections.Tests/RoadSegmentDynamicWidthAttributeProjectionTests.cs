@@ -40,7 +40,7 @@ namespace RoadRegistry.Projections.Tests
                             {
                                 WB_OIDN = { Value = width.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
-                                WS_GIDN = { Value = segment.Id + "_" + segment.GeometryVersion },
+                                WS_GIDN = { Value = segment.Id + "_" + width.LastUpdatedForSegmentGeometryVersion },
                                 BREEDTE =  { Value = width.Width },
                                 VANPOS = { Value = (double)width.FromPosition },
                                 TOTPOS = { Value = (double)width.ToPosition },
