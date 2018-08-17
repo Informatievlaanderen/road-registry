@@ -243,5 +243,48 @@ namespace Shaperon
                 }
             }
         }
+
+        [Fact]
+        public void WritesExcessDecimalsAsZero()
+        {
+            var length = new Generator<DbaseFieldLength>(_fixture)
+                .First(
+                    specimen =>
+                        specimen.ToInt32() > 2 &&
+                        specimen.ToInt32() < DbaseFieldLength.MaxLength
+                );
+            var decimalCount = new Generator<DbaseDecimalCount>(_fixture)
+                .First(
+                    specimen =>
+                        specimen.ToInt32() > 0 &&
+                        specimen.ToInt32() <= length.ToInt32() - 2
+                );
+            var sut = new DbaseDouble(
+                new DbaseField(
+                    _fixture.Create<DbaseFieldName>(),
+                    DbaseFieldType.Number,
+                    _fixture.Create<ByteOffset>(),
+                    length,
+                    decimalCount
+                ), 0.0);
+
+            using (var stream = new MemoryStream())
+            {
+                using (var writer = new BinaryWriter(stream, Encoding.ASCII, true))
+                {
+                    sut.Write(writer);
+                    writer.Flush();
+                }
+
+                stream.Position = 0;
+
+                Assert.Equal(
+                    new string(' ', length.ToInt32() - decimalCount.ToInt32() - 2)
+                    + "0."
+                    + new string('0', decimalCount.ToInt32()),
+                    Encoding.ASCII.GetString(stream.ToArray())
+                );
+            }
+        }
     }
 }

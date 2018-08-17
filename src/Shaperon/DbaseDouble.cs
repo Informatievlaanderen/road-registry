@@ -114,12 +114,26 @@ namespace Shaperon
 
                 //When decimal count = 0, the format is #--#
                 //where # appears length times
-
                 var format =
                     Field.DecimalCount > 0
                     ? "0.0##############"
                     : new string('#', Field.Length);
                 var unpadded = Value.Value.ToString(format, DoubleNumberFormat);
+                if(unpadded.Length < Field.Length && Field.DecimalCount > 0)
+                {
+                    //When space left after formatting and decimal count > 0,
+                    //attempt the format 0.0--0
+                    //
+                    //where 0 before the decimal separator appears once
+                    //      . appears once
+                    //      0 after the decimal separator appears decimal count times
+                    var altformat = "0." + new string('0', Field.DecimalCount.ToInt32());
+                    var altunpadded = Value.Value.ToString(altformat, DoubleNumberFormat);
+                    if(altunpadded.Length <= Field.Length)
+                    {
+                        unpadded = altunpadded;
+                    }
+                }
                 writer.WriteLeftPaddedString(unpadded, Field.Length, ' ');
             }
             else
