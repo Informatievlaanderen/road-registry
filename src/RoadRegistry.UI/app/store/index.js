@@ -13,7 +13,7 @@ import {
   LOADING_ON,
   DOWNLOAD_FULL_REGISTRY_STARTED,
   DOWNLOAD_FULL_REGISTRY_STOPPED,
-  DOWNLOAD_FULL_REGISTRY_ERRORED,
+  DOWNLOAD_FULL_REGISTRY_FAILED,
 } from './mutation-types';
 
 const DOWNLOADS = {
@@ -84,7 +84,7 @@ export default new Vuex.Store({
         visible: true,
       });
     },
-    [DOWNLOAD_FULL_REGISTRY_ERRORED](state, alert) {
+    [DOWNLOAD_FULL_REGISTRY_FAILED](state, alert) {
       state.activeDownloads = state
         .activeDownloads
         .filter(download => download !== DOWNLOADS.FULL_REGISTRY);
@@ -104,7 +104,7 @@ export default new Vuex.Store({
           commit(DOWNLOAD_FULL_REGISTRY_STOPPED);
         })
         .catch((error) => {
-          commit(DOWNLOAD_FULL_REGISTRY_ERRORED, alerts.toAlert(error));
+          commit(DOWNLOAD_FULL_REGISTRY_FAILED, alerts.toAlert(error));
         })
         .finally(() => {
           commit(LOADING_OFF);
