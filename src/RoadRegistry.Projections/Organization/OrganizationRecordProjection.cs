@@ -1,6 +1,7 @@
 namespace RoadRegistry.Projections
 {
     using System;
+    using System.Collections.Generic;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -23,6 +24,7 @@ namespace RoadRegistry.Projections
             var organization = new OrganizationRecord
             {
                 Code = @event.Code,
+                SortableCode = GetSortableCodeFor(@event.Code),
                 DbaseRecord = new OrganizationDbaseRecord
                 {
                     ORG = { Value = @event.Code },
@@ -32,5 +34,20 @@ namespace RoadRegistry.Projections
 
             return content.AddAsync(organization, token);
         }
+
+        private static readonly IDictionary<string, string> SortableCodeAnomalies =
+            new Dictionary<string, string>
+            {
+                { "-7", "00007" },
+                { "-8", "00008" },
+            };
+
+        public static string GetSortableCodeFor(string code)
+        {
+            return SortableCodeAnomalies.ContainsKey(code)
+                ? SortableCodeAnomalies[code]
+                : code;
+        }
+
     }
 }

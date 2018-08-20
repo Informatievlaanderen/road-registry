@@ -42,7 +42,7 @@ namespace RoadRegistry.Projections.Tests
                             {
                                 WV_OIDN = { Value = hardening.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
-                                WS_GIDN = { Value = segment.Id + "_" + segment.GeometryVersion },
+                                WS_GIDN = { Value = segment.Id + "_" + hardening.AsOfGeometryVersion },
                                 TYPE =  { Value = _hardeningTypeTranslator.TranslateToIdentifier(hardening.Type) },
                                 LBLTYPE =  { Value = _hardeningTypeTranslator.TranslateToDutchName(hardening.Type) },
                                 VANPOS = { Value = (double)hardening.FromPosition },

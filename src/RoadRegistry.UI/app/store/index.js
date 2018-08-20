@@ -13,6 +13,7 @@ import {
   LOADING_ON,
   DOWNLOAD_FULL_REGISTRY_STARTED,
   DOWNLOAD_FULL_REGISTRY_STOPPED,
+  DOWNLOAD_FULL_REGISTRY_FAILED,
 } from './mutation-types';
 
 const DOWNLOADS = {
@@ -21,16 +22,28 @@ const DOWNLOADS = {
 
 Vue.use(Vuex);
 
+
+function formatAlert(alert = {}) {
+  const {
+    title = '',
+    content = '',
+    type = '',
+    visible = false,
+  } = alert;
+
+  return {
+    title,
+    content,
+    type,
+    visible,
+  };
+}
+
 export default new Vuex.Store({
   state: {
     isLoading: false,
     activeDownloads: [],
-    alert: {
-      title: '',
-      content: '',
-      type: '',
-      visible: false,
-    },
+    alert: formatAlert({}),
   },
   getters: {
     alert: state => state.alert,
@@ -48,28 +61,37 @@ export default new Vuex.Store({
       state.alert = alerts.empty;
     },
     [SET_ALERT](state, alert) {
-      state.alert = {
+      state.alert = formatAlert({
         title: alert.title,
         content: alert.content,
         type: alert.type,
         visible: true,
-      };
+      });
     },
     [DOWNLOAD_FULL_REGISTRY_STARTED](state) {
       state.activeDownloads.push(DOWNLOADS.FULL_REGISTRY);
-      state.alert = {
+      state.alert = formatAlert({
         ...success.downloadRegistryStarted,
         visible: true,
-      };
+      });
     },
     [DOWNLOAD_FULL_REGISTRY_STOPPED](state) {
       state.activeDownloads = state
         .activeDownloads
         .filter(download => download !== DOWNLOADS.FULL_REGISTRY);
-      state.alert = {
+      state.alert = formatAlert({
         ...success.downloadRegistryCompleted,
         visible: true,
-      };
+      });
+    },
+    [DOWNLOAD_FULL_REGISTRY_FAILED](state, alert) {
+      state.activeDownloads = state
+        .activeDownloads
+        .filter(download => download !== DOWNLOADS.FULL_REGISTRY);
+      state.alert = formatAlert({
+        ...alert,
+        visible: true,
+      });
     },
   },
   actions: {
@@ -78,13 +100,14 @@ export default new Vuex.Store({
       commit(DOWNLOAD_FULL_REGISTRY_STARTED);
 
       api.downloadCompleteRegistry()
-        // .then(() => { set downloading message })
+        .then(() => {
+          commit(DOWNLOAD_FULL_REGISTRY_STOPPED);
+        })
         .catch((error) => {
-          commit(SET_ALERT, alerts.toAlert(error));
+          commit(DOWNLOAD_FULL_REGISTRY_FAILED, alerts.toAlert(error));
         })
         .finally(() => {
           commit(LOADING_OFF);
-          commit(DOWNLOAD_FULL_REGISTRY_STOPPED);
         });
     },
   },

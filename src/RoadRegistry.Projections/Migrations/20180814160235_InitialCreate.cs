@@ -1,7 +1,6 @@
+using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using System;
-using System.Collections.Generic;
 
 namespace RoadRegistry.Projections.Migrations
 {
@@ -50,8 +49,9 @@ namespace RoadRegistry.Projections.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    DbaseRecord = table.Column<byte[]>(nullable: true),
                     Code = table.Column<string>(nullable: true),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                    SortableCode = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -64,9 +64,9 @@ namespace RoadRegistry.Projections.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
                     ShapeRecordContent = table.Column<byte[]>(nullable: true),
-                    ShapeRecordContentLength = table.Column<int>(nullable: false)
+                    ShapeRecordContentLength = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -80,9 +80,9 @@ namespace RoadRegistry.Projections.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
                     ShapeRecordContent = table.Column<byte[]>(nullable: true),
-                    ShapeRecordContentLength = table.Column<int>(nullable: false)
+                    ShapeRecordContentLength = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -96,9 +96,9 @@ namespace RoadRegistry.Projections.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
                     ShapeRecordContent = table.Column<byte[]>(nullable: true),
-                    ShapeRecordContentLength = table.Column<int>(nullable: false)
+                    ShapeRecordContentLength = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -112,8 +112,8 @@ namespace RoadRegistry.Projections.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
-                    RoadSegmentId = table.Column<int>(nullable: false)
+                    RoadSegmentId = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -127,8 +127,8 @@ namespace RoadRegistry.Projections.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
-                    RoadSegmentId = table.Column<int>(nullable: false)
+                    RoadSegmentId = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -142,8 +142,8 @@ namespace RoadRegistry.Projections.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
-                    RoadSegmentId = table.Column<int>(nullable: false)
+                    RoadSegmentId = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -157,8 +157,8 @@ namespace RoadRegistry.Projections.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
-                    RoadSegmentId = table.Column<int>(nullable: false)
+                    RoadSegmentId = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -172,8 +172,8 @@ namespace RoadRegistry.Projections.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
-                    RoadSegmentId = table.Column<int>(nullable: false)
+                    RoadSegmentId = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -187,8 +187,8 @@ namespace RoadRegistry.Projections.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
-                    RoadSegmentId = table.Column<int>(nullable: false)
+                    RoadSegmentId = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
                 {
