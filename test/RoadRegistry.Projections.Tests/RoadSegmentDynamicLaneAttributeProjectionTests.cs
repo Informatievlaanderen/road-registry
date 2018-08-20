@@ -42,7 +42,7 @@ namespace RoadRegistry.Projections.Tests
                             {
                                 RS_OIDN = { Value = lane.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
-                                WS_GIDN = { Value = segment.Id + "_" + lane.LastUpdatedForSegmentGeometryVersion },
+                                WS_GIDN = { Value = segment.Id + "_" + lane.AsOfGeometryVersion },
                                 AANTAL =  { Value = lane.Count },
                                 RICHTING = { Value = _laneDirectionTranslator.TranslateToIdentifier(lane.Direction) },
                                 LBLRICHT = { Value = _laneDirectionTranslator.TranslateToDutchName(lane.Direction) },

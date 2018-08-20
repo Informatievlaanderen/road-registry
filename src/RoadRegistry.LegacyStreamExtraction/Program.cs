@@ -340,7 +340,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Direction = Translate.ToLaneDirection(reader.GetInt32(3)),
                             FromPosition = reader.GetDecimal(4),
                             ToPosition = reader.GetDecimal(5),
-                            LastUpdatedForSegmentGeometryVersion = reader.GetInt32(6),
+                            AsOfGeometryVersion = reader.GetInt32(6),
                             Origin = new OriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(7),
@@ -384,7 +384,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Width = reader.GetInt32(2),
                             FromPosition = reader.GetDecimal(3),
                             ToPosition = reader.GetDecimal(4),
-                            LastUpdatedForSegmentGeometryVersion = reader.GetInt32(5),
+                            AsOfGeometryVersion = reader.GetInt32(5),
                             Origin = new OriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(6),
@@ -428,7 +428,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Type = Translate.ToHardeningType(reader.GetInt32(2)),
                             FromPosition = reader.GetDecimal(3),
                             ToPosition = reader.GetDecimal(4),
-                            LastUpdatedForSegmentGeometryVersion = reader.GetInt32(5),
+                            AsOfGeometryVersion = reader.GetInt32(5),
                             Origin = new OriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(6),
