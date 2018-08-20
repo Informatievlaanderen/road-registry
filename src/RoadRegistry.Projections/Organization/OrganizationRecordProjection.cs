@@ -24,7 +24,7 @@ namespace RoadRegistry.Projections
             var organization = new OrganizationRecord
             {
                 Code = @event.Code,
-                SortCode = CalcualteSortCode(@event.Code),
+                SortableCode = GetSortableCodeFor(@event.Code),
                 DbaseRecord = new OrganizationDbaseRecord
                 {
                     ORG = { Value = @event.Code },
@@ -35,17 +35,17 @@ namespace RoadRegistry.Projections
             return content.AddAsync(organization, token);
         }
 
-        private static readonly IDictionary<string, string> SortCodeAnomalies =
+        private static readonly IDictionary<string, string> SortableCodeAnomalies =
             new Dictionary<string, string>
             {
                 { "-7", "00007" },
                 { "-8", "00008" },
             };
 
-        public static string CalcualteSortCode(string code)
+        public static string GetSortableCodeFor(string code)
         {
-            return SortCodeAnomalies.ContainsKey(code)
-                ? SortCodeAnomalies[code]
+            return SortableCodeAnomalies.ContainsKey(code)
+                ? SortableCodeAnomalies[code]
                 : code;
         }
 

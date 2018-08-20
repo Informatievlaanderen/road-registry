@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -51,7 +51,7 @@ namespace RoadRegistry.Projections.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     DbaseRecord = table.Column<byte[]>(nullable: true),
                     Code = table.Column<string>(nullable: true),
-                    SortCode = table.Column<string>(nullable: true)
+                    SortableCode = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

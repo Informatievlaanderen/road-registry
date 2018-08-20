@@ -60,7 +60,7 @@ namespace RoadRegistry.Api.Extracts
 
             organizations = await context
                 .Organizations
-                .OrderBy(record => record.SortCode)
+                .OrderBy(record => record.SortableCode)
                 .AsReadOnlyAsync();
             nodeRecords = await context
                 .RoadNodes

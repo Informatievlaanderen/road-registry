@@ -29,7 +29,7 @@ namespace RoadRegistry.Projections.Tests
                     {
                         Id = expectedGeneratedId,
                         Code = organization.Code,
-                        SortCode = OrganizationRecordProjection.CalcualteSortCode(organization.Code),
+                        SortableCode = OrganizationRecordProjection.GetSortableCodeFor(organization.Code),
                         DbaseRecord = new OrganizationDbaseRecord
                         {
                             ORG = { Value = organization.Code },
