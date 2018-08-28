@@ -5,14 +5,16 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Data.SqlClient;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using Events;
     using GeoAPI.Geometries;
     using GeoAPI.IO;
     using Microsoft.Extensions.Configuration;
     using NetTopologySuite;
+    using NetTopologySuite.Geometries;
+    using NetTopologySuite.Geometries.Implementation;
     using NetTopologySuite.IO;
-    using Newtonsoft.Json;
     using Shaperon;
 
     public class Program
@@ -28,8 +30,10 @@ namespace RoadRegistry.LegacyStreamExtraction
                 .AddEnvironmentVariables()
                 .AddCommandLine(args);
 
-            var services = new NtsGeometryServices();
-            services.DefaultSRID = SpatialReferenceSystemIdentifier.BelgeLambert1972;
+            var services = new NtsGeometryServices(
+                new DotSpatialAffineCoordinateSequenceFactory(Ordinates.XYZM),
+                new PrecisionModel(PrecisionModels.Floating),
+                SpatialReferenceSystemIdentifier.BelgeLambert1972);
             var wkbReader = new WKBReader(services)
             {
                 HandleOrdinates = Ordinates.XYZM,
