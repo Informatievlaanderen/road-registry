@@ -34,7 +34,7 @@
             });
 
             using (var fileStream = Output.OpenWrite())
-            using (var archive = new ZipArchive(fileStream))
+            using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create))
             {
                 var entry = archive.CreateEntry("streams.json", CompressionLevel.Optimal);
                 using (var entryStream = entry.Open())
