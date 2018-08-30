@@ -12,6 +12,7 @@ Serilog.Enrichers.Environment
 
 SqlStreamStore.MsSql
 System.Data.SqlClient
+System.IO.Compression
 Newtonsoft.Json
 
 Aiv.Vbr.EventHandling
