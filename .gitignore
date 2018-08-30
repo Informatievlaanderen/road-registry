@@ -38,6 +38,7 @@ Thumbs.db
 structurizr-*.json
 appsettings.BitTacklr002.json
 import-streams.json
+import-streams.zip
 .local
 run-local.bat
 
