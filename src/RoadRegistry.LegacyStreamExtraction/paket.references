@@ -4,5 +4,6 @@ Microsoft.Extensions.Configuration.Json
 Microsoft.Extensions.Configuration.EnvironmentVariables
 
 System.Data.SqlClient
+System.IO.Compression
 Newtonsoft.Json
 NetTopologySuite

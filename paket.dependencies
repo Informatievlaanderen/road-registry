@@ -66,6 +66,7 @@ nuget Microsoft.EntityFrameworkCore.Design 2.1.1
 nuget System.Threading.Tasks.Dataflow 4.9.0
 nuget System.Collections.Immutable 1.5.0
 nuget System.Data.SqlClient
+nuget System.IO.Compression
 
 nuget System.Text.Encoding.CodePages
 nuget Wkx

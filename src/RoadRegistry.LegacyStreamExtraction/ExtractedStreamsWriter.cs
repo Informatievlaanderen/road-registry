@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.IO.Compression;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
     using RoadRegistry.Events;
@@ -33,8 +34,11 @@
             });
 
             using (var fileStream = Output.OpenWrite())
+            using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create))
             {
-                using (var writer = new JsonTextWriter(new StreamWriter(fileStream)))
+                var entry = archive.CreateEntry("streams.json", CompressionLevel.Optimal);
+                using (var entryStream = entry.Open())
+                using (var writer = new JsonTextWriter(new StreamWriter(entryStream)))
                 {
                     await writer.WriteStartArrayAsync(); // begin all streams
 
@@ -107,7 +111,11 @@
                     await writer.WriteEndArrayAsync(); //end all streams
 
                     await writer.FlushAsync();
+
+                    await entryStream.FlushAsync();
                 }
+
+                await fileStream.FlushAsync();
             }
         }
     }

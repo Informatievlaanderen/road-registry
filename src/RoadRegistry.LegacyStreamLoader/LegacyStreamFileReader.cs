@@ -5,6 +5,7 @@ namespace RoadRegistry.LegacyStreamLoader
     using System.IO;
     using Newtonsoft.Json;
     using Events;
+    using System.IO.Compression;
 
     public class LegacyStreamFileReader
     {
@@ -21,8 +22,11 @@ namespace RoadRegistry.LegacyStreamLoader
 
             // Import the legacy stream from a json file
             using (var fileStream = file.OpenRead())
+            using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Read))
             {
-                using (var reader = new JsonTextReader(new StreamReader(fileStream)))
+                var entry = archive.GetEntry("streams.json");
+                using (var entryStream = entry.Open())
+                using (var reader = new JsonTextReader(new StreamReader(entryStream)))
                 {
                     reader.Read(); // StartArray
                     while (reader.Read() && reader.TokenType != JsonToken.EndArray) // StartObject
