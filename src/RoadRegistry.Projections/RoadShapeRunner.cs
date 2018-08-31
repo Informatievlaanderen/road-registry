@@ -5,11 +5,11 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
     using Microsoft.Extensions.Logging;
-    using NetTopologySuite.IO;
+    using Shaperon;
 
     public class RoadShapeRunner : Runner<ShapeContext>
     {
-        public RoadShapeRunner(EnvelopeFactory envelopeFactory, ILoggerFactory loggerFactory, WKBReader reader) :
+        public RoadShapeRunner(EnvelopeFactory envelopeFactory, ILoggerFactory loggerFactory, WellKnownBinaryReader reader) :
             base(
                 "RoadShapeRunner",
                 envelopeFactory,

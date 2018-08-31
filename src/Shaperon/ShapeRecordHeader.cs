@@ -20,7 +20,7 @@ namespace Shaperon
             {
                 throw new ArgumentNullException(nameof(reader));
             }
-            
+
             var recordNumber = new RecordNumber(reader.ReadInt32BigEndian());
             var contentLength = new WordLength(reader.ReadInt32BigEndian());
             return new ShapeRecordHeader(recordNumber, contentLength);

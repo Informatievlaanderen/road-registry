@@ -66,11 +66,7 @@ namespace RoadRegistry.Projections.Tests
                 }).ToList();
 
             return new RoadNodeRecordProjection(
-                    new WKBReader(new NtsGeometryServices())
-                    {
-                        HandleOrdinates = Ordinates.XYZM,
-                        HandleSRID = true
-                    },
+                    new WellKnownBinaryReader(),
                     _roadNodeTypeTranslator,
                     Encoding.UTF8)
                 .Scenario()

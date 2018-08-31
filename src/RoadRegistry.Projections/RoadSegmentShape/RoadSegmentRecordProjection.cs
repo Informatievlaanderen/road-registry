@@ -9,12 +9,11 @@ namespace RoadRegistry.Projections
     using Events;
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
-    using NetTopologySuite.IO;
     using Shaperon;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<ShapeContext>
     {
-        private readonly WKBReader _wkbReader;
+        private readonly WellKnownBinaryReader _wkbReader;
         private readonly RoadSegmentStatusTranslator _segmentStatusTranslator;
         private readonly RoadSegmentMorphologyTranslator _segmentMorphologyTranslator;
         private readonly RoadSegmentCategoryTranslator _segmentCategoryTranslator;
@@ -22,7 +21,7 @@ namespace RoadRegistry.Projections
         private readonly RoadSegmentAccessRestrictionTranslator _accessRestrictionTranslator;
         private readonly Encoding _encoding;
 
-        public RoadSegmentRecordProjection(WKBReader wkbReader,
+        public RoadSegmentRecordProjection(WellKnownBinaryReader wkbReader,
             RoadSegmentStatusTranslator segmentStatusTranslator,
             RoadSegmentMorphologyTranslator segmentMorphologyTranslator,
             RoadSegmentCategoryTranslator segmentCategoryTranslator,
@@ -42,15 +41,10 @@ namespace RoadRegistry.Projections
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
         {
-            MultiLineString geometry;
-            if(_wkbReader.TryReadAs<LineString>(@event.Geometry, out LineString line))
-            {
-                geometry = new MultiLineString(new ILineString[] { line });
-            }
-            else
-            {
-                geometry = _wkbReader.ReadAs<MultiLineString>(@event.Geometry);
-            }
+            var geometry = _wkbReader.TryReadAs(@event.Geometry, out LineString line)
+                ? new MultiLineString(new ILineString[] { line })
+                : _wkbReader.ReadAs<MultiLineString>(@event.Geometry);
+
             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
             return context.AddAsync(
                 new RoadSegmentRecord

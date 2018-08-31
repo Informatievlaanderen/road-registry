@@ -73,7 +73,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wk.[beginorganisatie] = lo.[code]", connection
                     ).ForEachDataRecord(reader =>
                     {
-                        var wellKnownBinary = spatialReferenceWriter.Write(reader.GetAllBytes(3));
+                        var wellKnownBinary = spatialReferenceWriter.WriteWithSpatialReference(reader.GetAllBytes(3));
                         var node = new ImportedRoadNode
                         {
                             Id = reader.GetInt32(0),
@@ -131,7 +131,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         connection
                     ).ForEachDataRecord(reader =>
                     {
-                        var wellKnownBinary = spatialReferenceWriter.Write(reader.GetAllBytes(4));
+                        var wellKnownBinary = spatialReferenceWriter.WriteWithSpatialReference(reader.GetAllBytes(4));
 
                         var segment = new ImportedRoadSegment
                         {
@@ -480,7 +480,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON rp.[beginorganisatie] = lo.[code]", connection
                     ).ForEachDataRecord(reader =>
                     {
-                        var wellKnownBinary = spatialReferenceWriter.Write(reader.GetAllBytes(1));
+                        var wellKnownBinary = spatialReferenceWriter.WriteWithSpatialReference(reader.GetAllBytes(1));
                         var point = new ImportedReferencePoint
                         {
                             Id = reader.GetInt32(0),

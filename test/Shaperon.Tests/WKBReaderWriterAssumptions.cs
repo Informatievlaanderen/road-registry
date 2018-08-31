@@ -3,12 +3,8 @@ namespace Shaperon
     using System;
     using System.Linq;
     using AutoFixture;
-    using GeoAPI;
     using GeoAPI.Geometries;
-    using GeoAPI.IO;
-    using NetTopologySuite;
     using NetTopologySuite.Geometries;
-    using NetTopologySuite.IO;
     using Xunit;
 
     public class WKBReaderWriterAssumptions
@@ -78,18 +74,11 @@ namespace Shaperon
         {
             var sut = _fixture.Create<Point>();
 
-            var writer = new WKBWriter(ByteOrder.LittleEndian, true)
-            {
-                HandleOrdinates = Ordinates.XYZM
-            };
+            var writer =  new WellKnownBinaryWriter();
 
             var extendedWellKnownBinary = writer.Write(sut);
 
-            var reader = new WKBReader(new NtsGeometryServices())
-            {
-                HandleOrdinates = Ordinates.XYZM,
-                HandleSRID = true
-            };
+            var reader = new WellKnownBinaryReader();
 
             var result = reader.Read(extendedWellKnownBinary);
 
@@ -104,18 +93,11 @@ namespace Shaperon
         {
             var sut = _fixture.Create<MultiLineString>();
 
-            var writer = new WKBWriter(ByteOrder.LittleEndian, true)
-            {
-                HandleOrdinates = Ordinates.XYZM
-            };
+            var writer = new WellKnownBinaryWriter();
 
             var extendedWellKnownBinary = writer.Write(sut);
 
-            var reader = new WKBReader(new NtsGeometryServices())
-            {
-                HandleOrdinates = Ordinates.XYZM,
-                HandleSRID = true
-            };
+            var reader = new WellKnownBinaryReader();
 
             var result = reader.Read(extendedWellKnownBinary);
 
