@@ -12,6 +12,7 @@ Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore
 Microsoft.EntityFrameworkCore.SqlServer
 Microsoft.EntityFrameworkCore.InMemory
 Microsoft.EntityFrameworkCore.Design
+Microsoft.EntityFrameworkCore.Relational
 
 Microsoft.VisualStudio.Web.BrowserLink
 
