@@ -1,8 +1,9 @@
-using System;
-using System.IO;
-
 namespace Shaperon
 {
+    using System.Linq;
+    using System;
+    using System.IO;
+
     public static class EndianBinaryReaderExtensions
     {
         public static int ReadInt32BigEndian(this BinaryReader reader)
