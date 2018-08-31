@@ -1,4 +1,4 @@
-﻿namespace Shaperon
+namespace Shaperon
 {
     using System;
     using System.IO;
@@ -9,6 +9,11 @@
 
     public class PolyLineMShapeContent : ShapeContent
     {
+        private static readonly ByteLength MeasureRangeByteLength = ByteLength.Doubles("Measure.Min", "Measure.Max");
+        private static readonly ByteLength BoundingBoxByteLength = ByteLength.Doubles("BoundingBox.MinX", "BoundingBox.MinY", "BoundingBox.MaxX", "BoundingBox.MaxY");
+
+        public MultiLineString Shape { get; }
+
         public PolyLineMShapeContent(MultiLineString shape)
         {
             Shape = shape ?? throw new ArgumentNullException(nameof(shape));
@@ -16,12 +21,40 @@
 
             var partCount = shape.NumGeometries;
             var pointCount = shape.NumPoints;
-            var measures = Shape.GetOrdinates(Ordinate.M);
-            ContentLength = measures.Length != 0 && !measures.All(measure => measure == Coordinate.NullOrdinate)
-                ? new ByteLength(44 + (4 * partCount) + (16 * pointCount) + 16 + (8 * pointCount)).ToWordLength()
-                : new ByteLength(44 + (4 * partCount) + (16 * pointCount)).ToWordLength();
+            var contenLength = ByteLength.Int32("ShapeType")
+                        .Plus(BoundingBoxByteLength)
+                        .Plus(ByteLength.Int32s("NumberOfParts", "NumberOfPoints"))
+                        .Plus(ByteLength.Int32("Part").Times(partCount))
+                        .Plus(ByteLength.Doubles("Point.X", "Point.Y").Times(pointCount))
+                        .ToWordLength();
+
+            ContentLength = GetMeasures().Any(MeasureHasValue)
+                ? contenLength
+                    .Plus(MeasureRangeByteLength)
+                    .Plus(ByteLength.Double("Point.M").Times(pointCount))
+                : contenLength;
         }
-        public MultiLineString Shape { get; }
+
+        private double[] GetMeasures()
+        {
+            return Shape.GetOrdinates(Ordinate.M);
+        }
+
+        private static bool MeasureHasValue(double measure)
+        {
+            // ReSharper disable once CompareOfFloatsByEqualityOperator : .Equals() yields different result
+            return measure != Coordinate.NullOrdinate;
+        }
+
+        private static void SkipMeasureRange(BinaryReader reader)
+        {
+            reader.ReadBytes(MeasureRangeByteLength);
+        }
+
+        private static void SkipBoundingBox(BinaryReader reader)
+        {
+            reader.ReadBytes(BoundingBoxByteLength);
+        }
 
         internal static ShapeContent ReadFromRecord(BinaryReader reader, ShapeRecordHeader header)
         {
@@ -30,14 +63,16 @@
                 throw new ArgumentNullException(nameof(reader));
             }
 
-            reader.ReadBytes(4 * 8); // skip bounding box
+            SkipBoundingBox(reader);
             var numParts = reader.ReadInt32LittleEndian();
             var numPoints = reader.ReadInt32LittleEndian();
+
             var parts = new Int32[numParts];
             for(var partIndex = 0; partIndex < numParts; partIndex++)
             {
                 parts[partIndex] = reader.ReadInt32LittleEndian();
             }
+
             var points = new Point[numPoints];
             for(var pointIndex = 0; pointIndex < numPoints; pointIndex++)
             {
@@ -49,13 +84,13 @@
             var requiredContentByteLength = new ByteLength(44 + (4 * numParts) + (16 * numPoints));
             if(header.ContentLength > requiredContentByteLength)
             {
-                reader.ReadBytes(2 * 8); // skip measure range
+                SkipMeasureRange(reader);
                 for(var measureIndex = 0; measureIndex < numPoints; measureIndex++)
                 {
                     points[measureIndex].M = reader.ReadDoubleLittleEndian();
                 }
             }
-            var lines = new LineString[numParts];
+            var lines = new ILineString[numParts];
             var coordinates = Array.ConvertAll(points, point => point.Coordinate);
             var toPointIndex = points.Length;
             for(var partIndex = numParts - 1; partIndex >= 0; partIndex--)
@@ -82,7 +117,7 @@
             if(((ShapeType)typeOfShape) != ShapeType.PolyLineM)
                 throw new ShapeRecordContentException("The Shape Type field does not indicate a PolyLineM shape.");
 
-            reader.ReadBytes(4 * 8); // skip bounding box
+            SkipBoundingBox(reader);
             var numParts = reader.ReadInt32LittleEndian();
             var numPoints = reader.ReadInt32LittleEndian();
             var parts = new Int32[numParts];
@@ -101,13 +136,13 @@
             var requiredContentByteLength = new ByteLength(44 + (4 * numParts) + (16 * numPoints));
             if(reader.BaseStream.CanSeek && reader.BaseStream.Position != reader.BaseStream.Length)
             {
-                reader.ReadBytes(2 * 8); // skip measure range
+                SkipMeasureRange(reader);
                 for(var measureIndex = 0; measureIndex < numPoints; measureIndex++)
                 {
                     points[measureIndex].M = reader.ReadDoubleLittleEndian();
                 }
             } //else try-catch-EndOfStreamException?? or only support seekable streams?
-            var lines = new LineString[numParts];
+            var lines = new ILineString[numParts];
             var coordinates = Array.ConvertAll(points, point => point.Coordinate);
             var toPointIndex = points.Length;
             for(var partIndex = numParts - 1; partIndex >= 0; partIndex--)
@@ -128,7 +163,7 @@
                 return Read(reader);
             }
         }
-        
+
         public static ShapeContent FromBytes(byte[] bytes, Encoding encoding)
         {
             using(var input = new MemoryStream(bytes))
@@ -172,8 +207,8 @@
                 writer.WriteDoubleLittleEndian(point.Y);
             }
             //has measures?
-            var measures = Shape.GetOrdinates(Ordinate.M);
-            if(measures.Length != 0 && !measures.All(measure => measure == Coordinate.NullOrdinate))
+            var measures = GetMeasures();
+            if(measures.Any(MeasureHasValue))
             {
                 // measure range
                 writer.WriteDoubleLittleEndian(measures.Min());
