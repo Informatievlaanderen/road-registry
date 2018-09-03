@@ -1,29 +1,15 @@
 namespace Shaperon
 {
     using GeoAPI.Geometries;
-    using NetTopologySuite;
-    using NetTopologySuite.Geometries;
-    using NetTopologySuite.Geometries.Implementation;
     using NetTopologySuite.IO;
 
     public class WellKnownBinaryReader
     {
         private readonly WKBReader _wkbReader;
 
-        private static readonly SpatialReferenceSystemIdentifier DefaultWkbSpatialReferenceSystemIdentifier = new SpatialReferenceSystemIdentifier(-1);
-
         public WellKnownBinaryReader()
-            : this(DefaultWkbSpatialReferenceSystemIdentifier)
-        { }
-
-        public WellKnownBinaryReader(SpatialReferenceSystemIdentifier spatialReferenceSystemIdentifier)
         {
-            var services = new NtsGeometryServices(
-                new DotSpatialAffineCoordinateSequenceFactory(Ordinates.XYZM),
-                new PrecisionModel(PrecisionModels.Floating),
-                spatialReferenceSystemIdentifier);
-
-            _wkbReader = new WKBReader(services)
+            _wkbReader = new WKBReader(GeometryConfiguration.GeometryFactory)
             {
                 HandleOrdinates = Ordinates.XYZM,
                 HandleSRID = true

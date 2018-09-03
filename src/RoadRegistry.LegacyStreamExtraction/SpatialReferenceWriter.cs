@@ -7,9 +7,9 @@ namespace RoadRegistry.LegacyStreamExtraction
         private readonly WellKnownBinaryReader _wkbReader;
         private readonly WellKnownBinaryWriter _wkbWriter;
 
-        public SpatialReferenceWriter(SpatialReferenceSystemIdentifier spatialReferenceSystemIdentifier)
+        public SpatialReferenceWriter()
         {
-            _wkbReader = new WellKnownBinaryReader(spatialReferenceSystemIdentifier);
+            _wkbReader = new WellKnownBinaryReader();
             _wkbWriter = new WellKnownBinaryWriter();
         }
 

@@ -20,21 +20,53 @@ namespace Shaperon
             _fixture = new Fixture();
             _fixture.Customize<Coordinate>(
                 customization => customization.FromFactory<int>(
-                    value => new Coordinate(new Random(value).Next(), new Random(value).Next())
+                    value =>
+                    {
+                        var random = new Random(value);
+                        return new Coordinate(random.Next(), random.Next(), random.Next());
+                    }).OmitAutoProperties()
+            );
+            _fixture.Customize<Point>(
+                customization => customization.FromFactory<int>(
+                    value => new Point(
+                        CreateCoordinateSequence(new Random(value), 1),
+                        GeometryConfiguration.GeometryFactory
+                    )
                 ).OmitAutoProperties()
             );
-            _fixture.Customize<LineString>(
+            _fixture.Customize<ICoordinateSequence>(composer => composer.FromFactory<int>(
+                value =>
+                {
+                    var random = new Random(value);
+                    return CreateCoordinateSequence(random, random.Next(2,20));
+                }).OmitAutoProperties()
+            );
+            _fixture.Customize<ILineString>(
                 customization => customization.FromFactory<int>(
-                    value => new LineString(_fixture.CreateMany<Coordinate>(new Random(value).Next(2, 10)).ToArray())
+                    value => new LineString(_fixture.Create<ICoordinateSequence>(), GeometryConfiguration.GeometryFactory)
                 ).OmitAutoProperties()
             );
             _fixture.Customize<MultiLineString>(
                 customization => customization.FromFactory<int>(
-                    value => new MultiLineString(_fixture.CreateMany<LineString>(new Random(value).Next(1,10)).ToArray())
+                    value => new MultiLineString(_fixture.CreateMany<ILineString>(new Random(value).Next(2,20)).ToArray())
                 ).OmitAutoProperties()
             );
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
+        }
+
+        private static ICoordinateSequence CreateCoordinateSequence(Random random, int numberOfPoints)
+        {
+            var coordinates = GeometryConfiguration.CoordinateSequenceFactory.Create(numberOfPoints, Ordinates.XYZM);
+            for (var i = 0; i < numberOfPoints; i++)
+            {
+                foreach (var ordinate in new[]{ Ordinate.X, Ordinate.Y, Ordinate.Z, Ordinate.M })
+                {
+                    coordinates.SetOrdinate(i, ordinate, random.NextDouble());
+                }
+            }
+
+            return coordinates;
         }
 
         [Fact]

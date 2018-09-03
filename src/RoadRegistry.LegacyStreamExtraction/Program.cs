@@ -23,7 +23,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                 .AddEnvironmentVariables()
                 .AddCommandLine(args);
 
-            var spatialReferenceWriter = new SpatialReferenceWriter(SpatialReferenceSystemIdentifier.BelgeLambert1972);
+            var spatialReferenceWriter = new SpatialReferenceWriter();
 
             var root = configurationBuilder.Build();
             var output = new FileInfo(root[LEGACY_STREAM_FILE]);

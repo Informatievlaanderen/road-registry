@@ -27,25 +27,22 @@ namespace Shaperon
             _fixture.Customize<Point>(customization =>
                 customization
                     .FromFactory<int>(value =>
+                        new Point(
+                            GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
+                                new[]
+                                {
+                                    new Coordinate(
+                                        _fixture.Create<Double>(),
+                                        _fixture.Create<Double>(),
+                                        _fixture.Create<Double>()
+                                    )
+                                }),
+                            GeometryConfiguration.GeometryFactory
+                        )
                         {
-                            var factory = new GeometryFactory(new PrecisionModel(), value);
-                            return new Point(
-                                factory.CoordinateSequenceFactory.Create(
-                                    new Coordinate[]
-                                    {
-                                        new Coordinate(
-                                            _fixture.Create<Double>(),
-                                            _fixture.Create<Double>(),
-                                            _fixture.Create<Double>()
-                                        )
-                                    }),
-                                factory)
-                            {
-                                M = _fixture.Create<Double>()
-                            };
+                            M = _fixture.Create<Double>()
                         }
-                    )
-                    .OmitAutoProperties());
+                    ).OmitAutoProperties());
             _fixture.Customize<LineString>(customization =>
                 customization
                     .FromFactory<int>(value =>
@@ -58,15 +55,11 @@ namespace Shaperon
                     .OmitAutoProperties());
             _fixture.Customize<MultiLineString>(customization =>
                 customization
-                    .FromFactory<int>(value =>
-                        {
-                            var factory = new GeometryFactory(new PrecisionModel(), value);
-                            return new MultiLineString(
-                                _fixture.CreateMany<LineString>(new Random(value).Next(0, 100)).ToArray(),
-                                factory);
-                        }
-                    )
-                    .OmitAutoProperties());
+                    .FromFactory<int>(value => new MultiLineString(
+                        _fixture.CreateMany<LineString>(new Random(value).Next(0, 100)).ToArray(),
+                        GeometryConfiguration.GeometryFactory
+                        )
+                    ).OmitAutoProperties());
         }
 
         [Fact]
