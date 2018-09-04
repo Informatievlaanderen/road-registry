@@ -52,94 +52,91 @@ Target "Restore" (fun _ ->
   DotNetCli.Restore(id)
 )
 
-Target "Api_Build" (fun _ ->
+Target "Build" (fun _ ->
   DotNetCli.Build(fun p ->
   { p with
-      Project = "src" @@ "RoadRegistry.Api.Oslo" @@ "RoadRegistry.Api.Oslo.csproj"
+      Project = "src" @@ "RoadRegistry.Api" @@ "RoadRegistry.Api.csproj"
       Configuration = "Release"
-      // Output = currentDirectory @@ buildDir @@ "RoadRegistry.Api"
+  })
+
+  DotNetCli.Build(fun p ->
+  { p with
+      Project = "src" @@ "RoadRegistry.UI" @@ "RoadRegistry.UI.csproj"
+      Configuration = "Release"
+  })
+
+  DotNetCli.Build(fun p ->
+  { p with
+      Project = "src" @@ "RoadRegistry.LegacyStreamExtraction" @@ "RoadRegistry.LegacyStreamExtraction.csproj"
+      Configuration = "Release"
+  })
+
+  DotNetCli.Build(fun p ->
+  { p with
+      Project = "src" @@ "RoadRegistry.LegacyStreamLoader" @@ "RoadRegistry.LegacyStreamLoader.csproj"
+      Configuration = "Release"
   })
 )
 
-Target "Api_Test" (fun _ ->
-  [ "test" @@ "RoadRegistry.Projections.Oslo.Tests"
-    "test" @@ "RoadRegistry.Projections.Tests"
+Target "Test" (fun _ ->
+  [ "test" @@ "RoadRegistry.Projections.Tests"
     "test" @@ "RoadRegistry.Tests"
     "test" @@ "Shaperon.Tests" ]
   |> List.iter testWithXunit
 )
 
-Target "Api_Publish" (fun _ ->
+Target "App_Publish" (fun _ ->
   DotNetCli.Publish(fun p ->
   { p with
-      Project = "src" @@ "RoadRegistry.Api.Oslo" @@ "RoadRegistry.Api.Oslo.csproj"
+      Project = "src" @@ "RoadRegistry.Api" @@ "RoadRegistry.Api.csproj"
       Configuration = "Release"
-      Output = currentDirectory @@ buildDir @@ "RoadRegistry.Api.Oslo" @@ "linux"
+      Output = currentDirectory @@ buildDir @@ "RoadRegistry.Api" @@ "linux"
       Runtime = "debian.8-x64"
   })
 
   DotNetCli.Publish(fun p ->
   { p with
-      Project = "src" @@ "RoadRegistry.Api.Oslo" @@ "RoadRegistry.Api.Oslo.csproj"
+      Project = "src" @@ "RoadRegistry.UI" @@ "RoadRegistry.UI.csproj"
       Configuration = "Release"
-      Output = currentDirectory @@ buildDir @@ "RoadRegistry.Api.Oslo" @@ "win"
+      Output = currentDirectory @@ buildDir @@ "RoadRegistry.UI" @@ "linux"
+      Runtime = "debian.8-x64"
+  })
+
+  DotNetCli.Publish(fun p ->
+  { p with
+      Project = "src" @@ "RoadRegistry.Api" @@ "RoadRegistry.Api.csproj"
+      Configuration = "Release"
+      Output = currentDirectory @@ buildDir @@ "RoadRegistry.Api" @@ "win"
+      Runtime = "win10-x64"
+  })
+
+  DotNetCli.Publish(fun p ->
+  { p with
+      Project = "src" @@ "RoadRegistry.UI" @@ "RoadRegistry.UI.csproj"
+      Configuration = "Release"
+      Output = currentDirectory @@ buildDir @@ "RoadRegistry.UI" @@ "win"
       Runtime = "win10-x64"
   })
 )
 
-Target "Api_Containerize" (fun _ ->
-  let result1 =
-    ExecProcess (fun info ->
-        info.FileName <- "docker"
-        info.Arguments <- sprintf "build --no-cache --tag %s/wegenregister/api-oslo:%s ." dockerRegistry buildNumber
-        info.WorkingDirectory <- currentDirectory @@ buildDir @@ "RoadRegistry.Api.Oslo" @@ "linux"
-    ) (System.TimeSpan.FromMinutes 5.)
-
-  if result1 <> 0 then failwith "Failed result from API Oslo Docker Build"
-
-  let result2 =
-    ExecProcess (fun info ->
-        info.FileName <- "docker"
-        info.Arguments <- sprintf "tag %s/wegenregister/api-oslo:%s %s/wegenregister/api-oslo:latest" dockerRegistry buildNumber dockerRegistry
-    ) (System.TimeSpan.FromMinutes 5.)
-
-  if result2 <> 0 then failwith "Failed result from API Oslo Docker Tag"
-)
-
-Target "Api_PushContainer" (fun _ ->
-  let result1 =
-    ExecProcess (fun info ->
-        info.FileName <- "docker"
-        info.Arguments <- sprintf "push %s/wegenregister/api-oslo:%s" dockerRegistry buildNumber
-    ) (System.TimeSpan.FromMinutes 5.)
-
-  if result1 <> 0 then failwith "Failed result from API Oslo Docker Push"
-
-  let result2 =
-    ExecProcess (fun info ->
-        info.FileName <- "docker"
-        info.Arguments <- sprintf "push %s/wegenregister/api-oslo:latest" dockerRegistry
-    ) (System.TimeSpan.FromMinutes 5.)
-
-  if result2 <> 0 then failwith "Failed result from API Oslo Docker Push Latest"
-)
-
-Target "PublishApi" DoNothing
+Target "App_Containerize" DoNothing
+Target "App_PushContainer" DoNothing
+Target "PublishApp" DoNothing
 Target "PublishAll" DoNothing
-Target "PackageApi" DoNothing
+Target "PackageApp" DoNothing
 Target "PackageSite" DoNothing
 Target "PackageAll" DoNothing
 Target "PushAll" DoNothing
 
 // Publish ends up with artifacts in the build folder
-"DotNetCli" ==> "Clean" ==> "Restore" ==> "Api_Build" ==> "Api_Test" ==> "Api_Publish" ==> "PublishApi"
-"PublishApi" ==> "PublishAll"
+"DotNetCli" ==> "Clean" ==> "Restore" ==> "Build" ==> "Test" ==> "App_Publish" ==> "PublishApp"
+"PublishApp" ==> "PublishAll"
 
 // Package ends up with local Docker images
-"PublishApi" ==> "Api_Containerize" ==> "PackageApi"
-"PackageApi" ==> "PackageAll"
+"PublishApp" ==> "App_Containerize" ==> "PackageApp"
+"PackageApp" ==> "PackageAll"
 
 // Push ends up with Docker images in AWS
-"PackageApi" ==> "DockerLogin" ==> "Api_PushContainer" ==> "PushAll"
+"PackageApp" ==> "DockerLogin" ==> "App_PushContainer" ==> "PushAll"
 
 RunTargetOrDefault "PackageAll"
