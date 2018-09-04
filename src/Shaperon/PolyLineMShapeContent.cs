@@ -91,12 +91,14 @@ namespace Shaperon
                 }
             }
             var lines = new ILineString[numParts];
-            var coordinates = Array.ConvertAll(points, point => point.Coordinate);
             var toPointIndex = points.Length;
             for(var partIndex = numParts - 1; partIndex >= 0; partIndex--)
             {
                 var fromPointIndex = parts[partIndex];
-                lines[partIndex] = new LineString(new ArraySegment<Coordinate>(coordinates, fromPointIndex, toPointIndex - fromPointIndex).ToArray());
+                lines[partIndex] = new LineString(
+                    new PointSequence(new ArraySegment<Point>(points, fromPointIndex, toPointIndex - fromPointIndex)),
+                    GeometryConfiguration.GeometryFactory
+                );
                 toPointIndex = fromPointIndex;
             }
             return new PolyLineMShapeContent(new MultiLineString(lines));
@@ -143,12 +145,14 @@ namespace Shaperon
                 }
             } //else try-catch-EndOfStreamException?? or only support seekable streams?
             var lines = new ILineString[numParts];
-            var coordinates = Array.ConvertAll(points, point => point.Coordinate);
             var toPointIndex = points.Length;
             for(var partIndex = numParts - 1; partIndex >= 0; partIndex--)
             {
                 var fromPointIndex = parts[partIndex];
-                lines[partIndex] = new LineString(new ArraySegment<Coordinate>(coordinates, fromPointIndex, toPointIndex - fromPointIndex).ToArray());
+                lines[partIndex] = new LineString(
+                    new PointSequence(new ArraySegment<Point>(points, fromPointIndex, toPointIndex - fromPointIndex)),
+                    GeometryConfiguration.GeometryFactory
+                );
                 toPointIndex = fromPointIndex;
             }
             return new PolyLineMShapeContent(new MultiLineString(lines));
