@@ -12,3 +12,5 @@ Aiv.Vbr.Generators.Guid.Deterministic
 
 System.Threading.Tasks.Dataflow
 System.Collections.Immutable
+CompareNetObjects
+FluentValidation

@@ -2,13 +2,13 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
-    using Aiv.Vbr.AggregateSource;
     using Events;
+    using Framework;
 
-    public class RoadNetwork : AggregateRootEntity
+    public class RoadNetwork : EventSource
     {
         public static readonly Func<RoadNetwork> Factory = () => new RoadNetwork();
-        
+
         private Dictionary<RoadNodeId, RoadNode> _nodes;
         private Dictionary<RoadSegmentId, RoadSegment> _segments;
 
@@ -17,22 +17,39 @@ namespace RoadRegistry.Model
             _nodes = new Dictionary<RoadNodeId, RoadNode>();
             _segments = new Dictionary<RoadSegmentId, RoadSegment>();
 
-            Register<ImportedRoadNode>(e =>
+            On<ImportedRoadNode>(e =>
             {
                 var id = new RoadNodeId(e.Id);
                 var node = new RoadNode(id);
                 _nodes.Add(id, node);
             });
 
-            Register<ImportedRoadSegment>(e =>
+            On<ImportedRoadSegment>(e =>
             {
                 var id = new RoadSegmentId(e.Id);
                 var start = new RoadNodeId(e.StartNodeId);
                 var end = new RoadNodeId(e.EndNodeId);
                 var segment = new RoadSegment(id, start, end);
                 _nodes[start] = _nodes[start].ConnectWith(id);
-                _nodes[end] = _nodes[end].ConnectWith(id);                
+                _nodes[end] = _nodes[end].ConnectWith(id);
                 _segments.Add(id, segment);
+            });
+        }
+
+        public void AddRoadNode(RoadNodeId id, RoadNodeType type, byte[] geometry)
+        {
+            Apply(new RoadNetworkChanged
+            {
+                Changeset = new[]
+                {
+                    new RoadNetworkChange
+                    {
+                        RoadNodeAdded = new RoadNodeAdded
+                        {
+                            Id = id.ToInt64(), Type = (Events.RoadNodeType) type.ToInt32(), Geometry = geometry
+                        }
+                    }
+                }
             });
         }
     }

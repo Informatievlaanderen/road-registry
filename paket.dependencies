@@ -75,6 +75,7 @@ nuget CompareNETObjects
 nuget Albedo
 nuget NetTopologySuite 1.15.1
 nuget Docker.DotNet
+nuget FluentValidation
 
 // pinned AWSSDK.Core to 3.3.25, because for some reason 3.3.25.1 , 3.3.25.2 and 3.3.25.3 won't download
 // and AWSSDK.S3 tries to download 3.3.25.3

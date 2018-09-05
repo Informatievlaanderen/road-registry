@@ -36,6 +36,5 @@ namespace RoadRegistry
         {
             return DutchDescriptions.ContainsKey(value) ? DutchDescriptions[value] : throw new NotImplementedException($"Description not set for {value}");
         }
-
     }
 }
