@@ -1,9 +1,10 @@
-namespace RoadRegistry
+namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Aiv.Vbr.AggregateSource;
     using Aiv.Vbr.EventHandling;
     using Framework;
     using Model;
@@ -15,12 +16,14 @@ namespace RoadRegistry
     {
         public static readonly StreamName Stream = new StreamName("roadnetwork");
 
+        private readonly ConcurrentUnitOfWork _unitOfWork;
         private readonly IStreamStore _store;
         private readonly JsonSerializerSettings _settings;
         private readonly EventMapping _mapping;
 
-        public RoadNetworks(IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
+        public RoadNetworks(ConcurrentUnitOfWork unitOfWork, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
         {
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _store = store ?? throw new ArgumentNullException(nameof(store));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
@@ -28,6 +31,10 @@ namespace RoadRegistry
 
         public async Task<RoadNetwork> Get(CancellationToken ct = default)
         {
+            if (_unitOfWork.TryGet(Stream, out Aggregate aggregate))
+            {
+                return (RoadNetwork)aggregate.Root;
+            }
             var page = await _store.ReadStreamForwards(Stream, StreamVersion.Start, 1024, ct);
             if (page.Status == PageReadStatus.StreamNotFound) return RoadNetwork.Factory();
             IEventSource root = RoadNetwork.Factory();
