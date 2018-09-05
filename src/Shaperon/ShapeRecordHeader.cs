@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 
 namespace Shaperon
@@ -21,8 +21,8 @@ namespace Shaperon
                 throw new ArgumentNullException(nameof(reader));
             }
 
-            var recordNumber = new RecordNumber(reader.ReadInt32BigEndian());
-            var contentLength = new WordLength(reader.ReadInt32BigEndian());
+            var recordNumber = new RecordNumber(reader.ReadInt32BigEndian("RecordNumber"));
+            var contentLength = new WordLength(reader.ReadInt32BigEndian("ContentLength"));
             return new ShapeRecordHeader(recordNumber, contentLength);
         }
 

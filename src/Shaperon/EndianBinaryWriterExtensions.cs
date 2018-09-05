@@ -2,11 +2,12 @@ namespace Shaperon
 {
     using System;
     using System.IO;
-    using System.Linq;
 
     public static class EndianBinaryWriterExtensions
     {
-        public static void WriteInt32BigEndian(this BinaryWriter writer, int value)
+        private const string NoDescription = "<unknown written value>";
+
+        public static void WriteInt32BigEndian(this BinaryWriter writer, int value, string description = NoDescription)
         {
             var bytes = BitConverter.GetBytes(value);
             if(BitConverter.IsLittleEndian)
@@ -16,7 +17,7 @@ namespace Shaperon
             writer.Write(bytes);
         }
 
-        public static void WriteDoubleBigEndian(this BinaryWriter writer, double value)
+        public static void WriteDoubleBigEndian(this BinaryWriter writer, double value, string description = NoDescription)
         {
             var bytes = BitConverter.GetBytes(value);
             if(BitConverter.IsLittleEndian)
@@ -26,7 +27,7 @@ namespace Shaperon
             writer.Write(bytes);
         }
 
-        public static void WriteInt32LittleEndian(this BinaryWriter writer, int value)
+        public static void WriteInt32LittleEndian(this BinaryWriter writer, int value, string description = NoDescription)
         {
             var bytes = BitConverter.GetBytes(value);
             if(!BitConverter.IsLittleEndian)
@@ -36,10 +37,10 @@ namespace Shaperon
             writer.Write(bytes);
         }
 
-        public static void WriteDoubleLittleEndian(this BinaryWriter writer, double value)
+        public static void WriteDoubleLittleEndian(this BinaryWriter writer, double value, string description = NoDescription)
         {
             var bytes = BitConverter.GetBytes(value);
-            if(!BitConverter.IsLittleEndian) 
+            if(!BitConverter.IsLittleEndian)
             {
                 Array.Reverse(bytes);
             }

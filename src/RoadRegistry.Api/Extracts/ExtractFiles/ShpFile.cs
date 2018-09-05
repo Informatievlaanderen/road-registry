@@ -16,8 +16,13 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
         {
             foreach (var record in records)
             {
-                record.Write(Writer);
+                Write(record);
             }
+        }
+
+        public void Write(ShapeRecord record)
+        {
+            record.Write(Writer);
         }
 
         protected sealed override void BeforeFlush()

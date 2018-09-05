@@ -28,7 +28,7 @@ namespace Shaperon
             }
 
             var header = ShapeRecordHeader.Read(reader);
-            var typeOfShape = reader.ReadInt32LittleEndian();
+            var typeOfShape = reader.ReadInt32LittleEndian("TypeOfShape");
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
                 throw new ShapeRecordContentException("The Shape Type field does not contain a known type of shape.");
             var content = NullShapeContent.Instance;
