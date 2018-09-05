@@ -6,12 +6,10 @@ namespace Shaperon
 
     public static class GeometryConfiguration
     {
-        public static readonly IPrecisionModel PrecisionModel = new PrecisionModel(PrecisionModels.Floating);
-        public static readonly ICoordinateSequenceFactory CoordinateSequenceFactory = new DotSpatialAffineCoordinateSequenceFactory(Ordinates.XYZM);
         public static readonly IGeometryFactory GeometryFactory = new GeometryFactory(
-                PrecisionModel,
+                new PrecisionModel(PrecisionModels.Floating),
                 SpatialReferenceSystemIdentifier.BelgeLambert1972,
-                CoordinateSequenceFactory
+                new DotSpatialAffineCoordinateSequenceFactory(Ordinates.XYZM)
             );
     }
 }

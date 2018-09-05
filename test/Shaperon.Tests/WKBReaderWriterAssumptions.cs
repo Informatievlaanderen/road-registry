@@ -4,6 +4,7 @@ namespace Shaperon
     using System.Linq;
     using AutoFixture;
     using GeoAPI.Geometries;
+    using Infrastucture;
     using NetTopologySuite.Geometries;
     using Xunit;
 
@@ -24,48 +25,37 @@ namespace Shaperon
                         )
                     )
                     .OmitAutoProperties());
-            _fixture.Customize<Point>(customization =>
-                customization
-                    .FromFactory<int>(value =>
-                        new Point(
-                            GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
-                                new[]
-                                {
-                                    new Coordinate(
-                                        _fixture.Create<Double>(),
-                                        _fixture.Create<Double>(),
-                                        _fixture.Create<Double>()
-                                    )
-                                }),
-                            GeometryConfiguration.GeometryFactory
-                        )
-                        {
-                            M = _fixture.Create<Double>()
-                        }
-                    ).OmitAutoProperties());
-            _fixture.Customize<LineString>(customization =>
-                customization
-                    .FromFactory<int>(value =>
-                        new LineString(
-                            _fixture
-                                .CreateMany<Coordinate>(new Random(value).Next(2, 50))
-                                .ToArray()
-                        )
+            _fixture.Customize<MeasuredPoint>(customization =>
+                customization.FromFactory(generator =>
+                    new MeasuredPoint(
+                        _fixture.Create<double>(),
+                        _fixture.Create<double>(),
+                        _fixture.Create<double>(),
+                        _fixture.Create<double>()
                     )
-                    .OmitAutoProperties());
-            _fixture.Customize<MultiLineString>(customization =>
-                customization
-                    .FromFactory<int>(value => new MultiLineString(
-                        _fixture.CreateMany<LineString>(new Random(value).Next(0, 100)).ToArray(),
+                ).OmitAutoProperties()
+            );
+            _fixture.Customize<ILineString>(customization =>
+                customization.FromFactory(generator =>
+                    new LineString(
+                        new PointSequence(_fixture.CreateMany<MeasuredPoint>(generator.Next(2, 10))),
                         GeometryConfiguration.GeometryFactory
-                        )
-                    ).OmitAutoProperties());
+                    )
+                ).OmitAutoProperties()
+            );
+            _fixture.Customize<MultiLineString>(customization =>
+                customization.FromFactory(generator =>
+				    new MultiLineString(
+                        _fixture.CreateMany<ILineString>(generator.Next(0, 100)).ToArray(),
+                        GeometryConfiguration.GeometryFactory
+                    )
+                ).OmitAutoProperties());
         }
 
         [Fact]
         public void PointAsExtendedWellKnownBinaryCanBeWrittenAndRead()
         {
-            var sut = _fixture.Create<Point>();
+            var sut = _fixture.Create<MeasuredPoint>();
 
             var writer =  new WellKnownBinaryWriter();
 
@@ -76,9 +66,9 @@ namespace Shaperon
             var result = reader.Read(extendedWellKnownBinary);
 
             Assert.NotNull(result);
-            Assert.Equal(sut, Assert.IsType<Point>(result));
-            Assert.Equal(sut.SRID, ((Point)result).SRID);
-            Assert.Equal(sut.M, ((Point)result).M);
+            Assert.Equal(sut, Assert.IsType<MeasuredPoint>(result));
+            Assert.Equal(sut.SRID, ((MeasuredPoint)result).SRID);
+            Assert.Equal(sut.M, ((MeasuredPoint)result).M);
         }
 
         [Fact]

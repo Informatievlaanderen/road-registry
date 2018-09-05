@@ -3,18 +3,17 @@ namespace Shaperon
     using System;
     using System.IO;
     using System.Text;
-    using NetTopologySuite.Geometries;
 
     public class PointShapeContent : ShapeContent
     {
-        public PointShapeContent(Point shape)
+        public PointShapeContent(MeasuredPoint shape)
         {
             Shape = shape ?? throw new ArgumentNullException(nameof(shape));
             ShapeType = ShapeType.Point;
             ContentLength = new WordLength(10);
         }
 
-        public Point Shape { get; }
+        public MeasuredPoint Shape { get; }
 
         internal static ShapeContent ReadFromRecord(BinaryReader reader, ShapeRecordHeader header)
         {
@@ -25,7 +24,7 @@ namespace Shaperon
 
             var x = reader.ReadDoubleLittleEndian();
             var y = reader.ReadDoubleLittleEndian();
-            return new PointShapeContent(new Point(x, y));
+            return new PointShapeContent(new MeasuredPoint(x, y));
         }
 
         public static ShapeContent Read(BinaryReader reader)
@@ -44,7 +43,7 @@ namespace Shaperon
                 throw new ShapeRecordContentException("The Shape Type field does not indicate a Point shape.");
 
             return new PointShapeContent(
-                new Point(
+                new MeasuredPoint(
                     reader.ReadDoubleLittleEndian(),
                     reader.ReadDoubleLittleEndian()));
         }

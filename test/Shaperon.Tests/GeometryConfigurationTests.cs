@@ -5,34 +5,31 @@ namespace Shaperon
 
     public class GeometryConfigurationTests
     {
-        [Fact]
-        public void ConfiguredPrecionModelTypeIsFloating()
+        private readonly IGeometryFactory _configuredFactory;
+
+        public GeometryConfigurationTests()
         {
-            Assert.Equal(PrecisionModels.Floating, GeometryConfiguration.PrecisionModel.PrecisionModelType);
+            _configuredFactory = GeometryConfiguration.GeometryFactory;
         }
 
         [Fact]
-        public void ConfiguredCoordinateSequenceFactoryUsesOrdinatesXYZM()
+        public void ConfiguredGeometryFactoryHasFloatingPrecision()
         {
-            Assert.Equal(Ordinates.XYZM, GeometryConfiguration.CoordinateSequenceFactory.Ordinates);
+            var factoryPrecisionModel = GeometryConfiguration.GeometryFactory.PrecisionModel;
+            Assert.Equal(PrecisionModels.Floating, factoryPrecisionModel.PrecisionModelType);
+        }
+
+        [Fact]
+        public void ConfiguredGeometryFactoryHasOrdinatesXYZM()
+        {
+            var coordinateSequenceFactory = GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory;
+            Assert.Equal(Ordinates.XYZM, coordinateSequenceFactory.Ordinates);
         }
 
         [Fact]
         public void ConfiguredGeometryFactoryUsesBelgeLambert1972SpatialRefernce()
         {
             Assert.Equal(SpatialReferenceSystemIdentifier.BelgeLambert1972, GeometryConfiguration.GeometryFactory.SRID);
-        }
-
-        [Fact]
-        public void ConfiguredGeometryFactoryUsesTheConfiguredPrecisionModel()
-        {
-            Assert.Same(GeometryConfiguration.PrecisionModel, GeometryConfiguration.GeometryFactory.PrecisionModel);
-        }
-
-        [Fact]
-        public void ConfiguredGeometryFactoryUsesTheConfiguredCoordinateSequenceFactory()
-        {
-            Assert.Equal(GeometryConfiguration.CoordinateSequenceFactory, GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory);
         }
     }
 }

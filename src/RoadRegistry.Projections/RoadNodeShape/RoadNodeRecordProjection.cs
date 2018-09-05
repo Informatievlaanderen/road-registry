@@ -42,7 +42,7 @@ namespace RoadRegistry.Projections
                 BEGINORG = {Value = @event.Origin.OrganizationId},
                 LBLBGNORG = {Value = @event.Origin.Organization}
             };
-            var pointShapeContent = new PointShapeContent(_wkbReader.ReadAs<Point>(@event.Geometry));
+            var pointShapeContent = new PointShapeContent(_wkbReader.ReadAs<MeasuredPoint>(@event.Geometry));
 
             return context.AddAsync(new RoadNodeRecord
             {

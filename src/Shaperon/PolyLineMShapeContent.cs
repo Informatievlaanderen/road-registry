@@ -73,10 +73,10 @@ namespace Shaperon
                 parts[partIndex] = reader.ReadInt32LittleEndian();
             }
 
-            var points = new Point[numPoints];
+            var points = new MeasuredPoint[numPoints];
             for(var pointIndex = 0; pointIndex < numPoints; pointIndex++)
             {
-                points[pointIndex] = new Point(
+                points[pointIndex] = new MeasuredPoint(
                     reader.ReadDoubleLittleEndian(),
                     reader.ReadDoubleLittleEndian()
                 );
@@ -87,7 +87,7 @@ namespace Shaperon
                 SkipMeasureRange(reader);
                 for(var measureIndex = 0; measureIndex < numPoints; measureIndex++)
                 {
-                    points[measureIndex].M = reader.ReadDoubleLittleEndian();
+                    points[measureIndex].ChangeMeasurement(reader.ReadDoubleLittleEndian($"Points[{measureIndex}].M"));
                 }
             }
             var lines = new ILineString[numParts];
@@ -96,7 +96,7 @@ namespace Shaperon
             {
                 var fromPointIndex = parts[partIndex];
                 lines[partIndex] = new LineString(
-                    new PointSequence(new ArraySegment<Point>(points, fromPointIndex, toPointIndex - fromPointIndex)),
+                    new PointSequence(new ArraySegment<MeasuredPoint>(points, fromPointIndex, toPointIndex - fromPointIndex)),
                     GeometryConfiguration.GeometryFactory
                 );
                 toPointIndex = fromPointIndex;
@@ -127,10 +127,10 @@ namespace Shaperon
             {
                 parts[partIndex] = reader.ReadInt32LittleEndian();
             }
-            var points = new Point[numPoints];
+            var points = new MeasuredPoint[numPoints];
             for(var pointIndex = 0; pointIndex < numPoints; pointIndex++)
             {
-                points[pointIndex] = new Point(
+                points[pointIndex] = new MeasuredPoint(
                     reader.ReadDoubleLittleEndian(),
                     reader.ReadDoubleLittleEndian()
                 );
@@ -141,7 +141,7 @@ namespace Shaperon
                 SkipMeasureRange(reader);
                 for(var measureIndex = 0; measureIndex < numPoints; measureIndex++)
                 {
-                    points[measureIndex].M = reader.ReadDoubleLittleEndian();
+                    points[measureIndex].ChangeMeasurement(reader.ReadDoubleLittleEndian());
                 }
             } //else try-catch-EndOfStreamException?? or only support seekable streams?
             var lines = new ILineString[numParts];
@@ -150,14 +150,13 @@ namespace Shaperon
             {
                 var fromPointIndex = parts[partIndex];
                 lines[partIndex] = new LineString(
-                    new PointSequence(new ArraySegment<Point>(points, fromPointIndex, toPointIndex - fromPointIndex)),
+                    new PointSequence(new ArraySegment<MeasuredPoint>(points, fromPointIndex, toPointIndex - fromPointIndex)),
                     GeometryConfiguration.GeometryFactory
                 );
                 toPointIndex = fromPointIndex;
             }
             return new PolyLineMShapeContent(new MultiLineString(lines));
         }
-
 
         public static ShapeContent FromBytes(byte[] bytes)
         {

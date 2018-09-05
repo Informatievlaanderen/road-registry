@@ -1,6 +1,7 @@
 namespace Shaperon
 {
     using GeoAPI.Geometries;
+    using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
 
     public class WellKnownBinaryReader
@@ -18,19 +19,23 @@ namespace Shaperon
 
         public IGeometry Read(byte[] data)
         {
-            return _wkbReader.Read(data);
+            var geometry = _wkbReader.Read(data);
+            if (geometry is Point point)
+                return new MeasuredPoint(point.X, point.Y, point.Z, point.M);
+
+            return geometry;
         }
 
         public TGeometry ReadAs<TGeometry>(byte[] value)
             where TGeometry : IGeometry
         {
-            return (TGeometry)_wkbReader.Read(value);
+            return (TGeometry)Read(value);
         }
 
         public bool TryReadAs<TGeometry>(byte[] value, out TGeometry geometry)
             where TGeometry : IGeometry
         {
-            var parsed = _wkbReader.Read(value);
+            var parsed = Read(value);
             if (parsed is TGeometry parsedGeometry)
             {
                 geometry = parsedGeometry;

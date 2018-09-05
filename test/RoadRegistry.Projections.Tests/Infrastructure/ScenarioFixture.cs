@@ -7,6 +7,7 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
     using Events;
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
+    using Shaperon;
 
     public class ScenarioFixture : Fixture
     {
@@ -26,28 +27,32 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             Customizations.Add(new LimitedLengthStringBuilder<ImportedOrganization>(organization => organization.Code, OrganizationDbaseRecord.Schema.ORG.Length));
             Customizations.Add(new LimitedLengthStringBuilder<ImportedOrganization>(organization => organization.Name, OrganizationDbaseRecord.Schema.LBLORG.Length));
 
-            Customize<Point>(customization =>
-                customization.FromFactory(generator =>
-                    new Point(generator.NextDouble(), generator.NextDouble())
-                ).OmitAutoProperties());
+            Customize<MeasuredPoint>(customization => 
+			    customization.FromFactory(
+                    generator => new MeasuredPoint(
+                        this.Create<double>(),
+                        this.Create<double>(),
+                        this.Create<double>(),
+                        this.Create<double>()
+                    )
+                ).OmitAutoProperties()
+            );
+
+            Customize<ILineString>(customization => 
+			    customization.FromFactory(
+                    generator => new LineString(
+                        new PointSequence(this.CreateMany<MeasuredPoint>(generator.Next(2,10))),
+                        GeometryConfiguration.GeometryFactory
+                    )
+                ).OmitAutoProperties()
+            );
 
             Customize<MultiLineString>(customization =>
                 customization.FromFactory(generator =>
                     new MultiLineString(this
                         .CreateMany<ILineString>(generator.Next(1,10))
                         .ToArray())
-                ).OmitAutoProperties());
-
-            Customize<ILineString>(customizations =>
-                customizations.FromFactory(generator =>
-                        new LineString(
-                            this.CreateMany<Coordinate>(generator.Next(2, 50))
-                                .ToArray()
-                        )
-                    ).OmitAutoProperties());
-
-            Customize<Coordinate>(customizations =>
-                customizations.OmitAutoProperties()
+                ).OmitAutoProperties()
             );
         }
     }

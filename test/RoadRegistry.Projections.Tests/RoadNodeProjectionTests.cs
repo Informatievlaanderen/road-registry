@@ -6,11 +6,7 @@ namespace RoadRegistry.Projections.Tests
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
-    using GeoAPI.Geometries;
     using Infrastructure;
-    using NetTopologySuite;
-    using NetTopologySuite.Geometries;
-    using NetTopologySuite.IO;
     using Shaperon;
     using Xunit;
 
@@ -28,13 +24,14 @@ namespace RoadRegistry.Projections.Tests
         [Fact]
         public Task When_road_nodes_were_imported()
         {
+            var wkbWriter = new WellKnownBinaryWriter();
             var data = _fixture
-                .CreateMany<Point>(new Random().Next(1,10))
+                .CreateMany<MeasuredPoint>(new Random().Next(1,10))
                 .Select(point =>
                 {
                     var importedRoadNode = _fixture
                         .Build<ImportedRoadNode>()
-                        .With(n => n.Geometry, point.ToBinary())
+                        .With(n => n.Geometry, wkbWriter.Write(point))
                         .Create();
 
                     var pointShapeContent = new PointShapeContent(point);

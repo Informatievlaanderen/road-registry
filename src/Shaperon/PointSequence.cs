@@ -4,13 +4,12 @@ namespace Shaperon
     using System.Collections.Generic;
     using System.Linq;
     using GeoAPI.Geometries;
-    using NetTopologySuite.Geometries;
 
     public class PointSequence : ICoordinateSequence
     {
-        private readonly Point[] _points;
+        private readonly MeasuredPoint[] _points;
 
-        public PointSequence(IEnumerable<Point> points)
+        public PointSequence(IEnumerable<MeasuredPoint> points)
         {
             _points = points.ToArray();
         }
@@ -77,21 +76,12 @@ namespace Shaperon
             if(index >= _points.Length)
                 return;
 
-            switch (ordinate)
-            {
-                case Ordinate.X:
-                    _points[index].X = value;
-                    break;
-                case Ordinate.Y:
-                    _points[index].Y = value;
-                    break;
-                case Ordinate.Z:
-                    _points[index].Z = value;
-                    break;
-                case Ordinate.M:
-                    _points[index].M = value;
-                    break;
-            }
+            _points[index] = new MeasuredPoint(
+                ordinate == Ordinate.X ? value : _points[index].X,
+                ordinate == Ordinate.Y ? value : _points[index].Y,
+                ordinate == Ordinate.Z ? value : _points[index].Z,
+                ordinate == Ordinate.M ? value : _points[index].M
+            );
         }
 
         public Coordinate[] ToCoordinateArray()

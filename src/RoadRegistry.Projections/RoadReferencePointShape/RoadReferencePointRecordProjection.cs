@@ -7,7 +7,6 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
-    using NetTopologySuite.Geometries;
     using Shaperon;
 
     public class RoadReferencePointRecordProjection: ConnectedProjection<ShapeContext>
@@ -32,7 +31,7 @@ namespace RoadRegistry.Projections
             ImportedReferencePoint @event,
             CancellationToken token)
         {
-            var pointShapeContent = new PointShapeContent(_wkbReader.ReadAs<Point>(@event.Geometry));
+            var pointShapeContent = new PointShapeContent(_wkbReader.ReadAs<MeasuredPoint>(@event.Geometry));
 
             return context.AddAsync(
                 new RoadReferencePointRecord
