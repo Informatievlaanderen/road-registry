@@ -1,19 +1,10 @@
 namespace RoadRegistry.Model
 {
-    using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Aiv.Vbr.EventHandling;
     using AutoFixture;
     using Events;
     using Commands;
-    using FluentValidation;
-    using Framework;
-    using Newtonsoft.Json;
-    using SqlStreamStore;
-    using SqlStreamStore.Streams;
     using Testing;
     using Xunit;
 
@@ -25,9 +16,8 @@ namespace RoadRegistry.Model
         {
             return Run(scenario => scenario
                 .GivenNone()
-                .When(new Message(new Dictionary<string, object>(), new ChangeRoadNetwork
-                {
-                    Changeset = new[]
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new[]
                     {
                         new Commands.RoadNetworkChange
                         {
@@ -39,7 +29,7 @@ namespace RoadRegistry.Model
                             }
                         }
                     }
-                }))
+                ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChanged
                 {
                     Changeset = new[]
