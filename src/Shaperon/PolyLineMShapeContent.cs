@@ -122,7 +122,7 @@ namespace Shaperon
                 {
                     points[measureIndex].ChangeMeasurement(reader.ReadDoubleLittleEndian()); // Points[i].M
                 }
-            }
+            } //else try-catch-EndOfStreamException?? or only support seekable streams?
             var lines = new ILineString[numberOfParts];
             var toPointIndex = points.Length;
             for (var partIndex = numberOfParts - 1; partIndex >= 0; partIndex--)
