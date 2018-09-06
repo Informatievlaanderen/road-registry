@@ -37,17 +37,16 @@ namespace Shaperon
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
                 throw new ShapeFileHeaderException("The Shape Type field does not contain a known type of shape.");
+
             var boundingBox = new BoundingBox3D(
-                reader.ReadDoubleLittleEndian("BoundingBox3D.xMin"),
-                reader.ReadDoubleLittleEndian("BoundingBox3D.yMin"),
-                reader.ReadDoubleLittleEndian("BoundingBox3D.xMax"),
-                reader.ReadDoubleLittleEndian("BoundingBox3D.yMax"),
-                //Z
-                reader.ReadDoubleLittleEndian("BoundingBox3D.zMin"),
-                reader.ReadDoubleLittleEndian("BoundingBox3D.zMax"),
-                //M
-                ParseNoData(reader.ReadDoubleLittleEndian("BoundingBox3D.mMin")),
-                ParseNoData(reader.ReadDoubleLittleEndian("BoundingBox3D.mMax"))
+                reader.ReadDoubleLittleEndian(), // xMin
+                reader.ReadDoubleLittleEndian(), // yMin
+                reader.ReadDoubleLittleEndian(), // xMax
+                reader.ReadDoubleLittleEndian(), // yMax
+                reader.ReadDoubleLittleEndian(), // zMin
+                reader.ReadDoubleLittleEndian(), // zMax
+                ParseNoData(reader.ReadDoubleLittleEndian()), // mMin
+                ParseNoData(reader.ReadDoubleLittleEndian())  // mMax
             );
             return new ShapeFileHeader(new WordLength(fileLength), (ShapeType)typeOfShape, boundingBox);
         }
