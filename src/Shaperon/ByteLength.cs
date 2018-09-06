@@ -47,9 +47,7 @@ namespace Shaperon
         public override string ToString() => _value.ToString();
         public static implicit operator int(ByteLength instance) => instance.ToInt32();
 
-        public static ByteLength Int32(string valueName) => Int32s(valueName);
-        public static ByteLength Int32s(params string[] valueNames) => valueNames.Aggregate(new ByteLength(0), (length, name) => length.Plus(new ByteLength(4)));
-        public static ByteLength Double(string valueName) => Doubles(valueName);
-        public static ByteLength Doubles(params string[] valueNames) => valueNames.Aggregate(new ByteLength(0), (length, name) => length.Plus(new ByteLength(8)));
+        public static ByteLength Int32 = new ByteLength(4);
+        public static ByteLength Double = new ByteLength(8);
     }
 }

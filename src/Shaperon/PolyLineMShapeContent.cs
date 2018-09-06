@@ -9,12 +9,9 @@ namespace Shaperon
 
     public class PolyLineMShapeContent : ShapeContent
     {
-        private static readonly ByteLength MeasureRangeByteLength = ByteLength.Doubles("Measure.Min", "Measure.Max");
-        private static readonly ByteLength BoundingBoxByteLength = ByteLength.Doubles("BoundingBox.MinX", "BoundingBox.MinY", "BoundingBox.MaxX", "BoundingBox.MaxY");
-        private static readonly ByteLength ContentHeaderLength =
-            ByteLength.Int32("ShapeType")
-                .Plus(BoundingBoxByteLength)
-                .Plus(ByteLength.Int32s("NumberOfParts", "NumberOfPoints"));
+        private static readonly ByteLength MeasureRangeByteLength = ByteLength.Double.Times(2); // Min, Max
+        private static readonly ByteLength BoundingBoxByteLength = ByteLength.Double.Times(4);  // MinX, MinY, MaxX, MaxY
+        private static readonly ByteLength ContentHeaderLength = ByteLength.Int32.Times(3).Plus(BoundingBoxByteLength); // ShapeType, NumberOfParts, NumberOfPoints, BoundingBox
 
         public MultiLineString Shape { get; }
 
@@ -27,10 +24,10 @@ namespace Shaperon
             var numberOfPoints = shape.NumPoints;
 
             ContentLength = new ByteLength(ContentHeaderLength)
-                .Plus(ByteLength.Int32("Part").Times(numberOfParts))
-                .Plus(ByteLength.Doubles("Point.X", "Point.Y").Times(numberOfPoints))
+                .Plus(ByteLength.Int32.Times(numberOfParts)) // Parts
+                .Plus(ByteLength.Double.Times(numberOfPoints * 2)) // Points(X,Y)
                 .Plus(MeasureRangeByteLength)
-                .Plus(ByteLength.Double("Point.M").Times(numberOfPoints))
+                .Plus(ByteLength.Double.Times(numberOfPoints)) // Points(M)
                 .ToWordLength();
         }
 
@@ -59,8 +56,8 @@ namespace Shaperon
             }
 
             var contentLengthWithoutMeasures = new ByteLength(ContentHeaderLength)
-                .Plus(ByteLength.Int32("Parts").Times(numberOfParts))
-                .Plus(ByteLength.Doubles("Point.X", "Point.Y").Times(numberOfPoints));
+                .Plus(ByteLength.Int32.Times(numberOfParts)) // Parts
+                .Plus(ByteLength.Double.Times(numberOfPoints * 2)); // Points(X,Y)
 
             if (header.ContentLength > contentLengthWithoutMeasures)
             {
