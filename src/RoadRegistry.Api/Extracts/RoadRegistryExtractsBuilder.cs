@@ -4,7 +4,6 @@ namespace RoadRegistry.Api.Extracts
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
     using ExtractFiles;
     using GeoAPI.Geometries;
     using Projections;
@@ -12,11 +11,6 @@ namespace RoadRegistry.Api.Extracts
 
     public class RoadRegistryExtractsBuilder
     {
-        public RoadRegistryExtractsBuilder()
-        {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        }
-
         public ExtractFile CreateOrganizationsFile(IReadOnlyCollection<OrganizationRecord> organisations)
         {
             return CreateDbfFile<OrganizationDbaseRecord>(

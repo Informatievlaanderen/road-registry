@@ -5,6 +5,7 @@ namespace RoadRegistry.Api.Infrastructure
     using System.IO.Compression;
     using System.Linq;
     using System.Reflection;
+    using System.Text;
     using Aiv.Vbr.Api.Exceptions;
     using Aiv.Vbr.AspNetCore.Mvc.Formatters.Csv;
     using Aiv.Vbr.AspNetCore.Mvc.Formatters.Json;
@@ -182,6 +183,7 @@ namespace RoadRegistry.Api.Infrastructure
             EnvelopeFactory envelopeFactory,
             IStreamStore streamStore)
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             EnsureSqlStreamStoreSchema(streamStore);
 
             if (env.IsDevelopment())
