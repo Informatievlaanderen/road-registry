@@ -100,7 +100,7 @@ namespace RoadRegistry.Events
                 { RoadSegmentCategory.SecondaryRoadType1, "De weg verzorgt een verbindende functie en verkleint een maas, maar functioneert niet als verbinding op Vlaams niveau, en wordt bijgevolg niet aangeduid als primaire weg I." },
                 { RoadSegmentCategory.SecondaryRoadType2, "De weg verzorgt een verzamelfunctie voor het kleinstedelijk gebied naar het hoofdwegennet, maar kan niet als primaire weg II worden geselecteerd." },
                 { RoadSegmentCategory.SecondaryRoadType3, "De weg verzorgt een verzamelfunctie voor een gebied dat niet geselecteerd is als stedelijk gebied, poort of toeristisch-recreatief knooppunt op Vlaams niveau en kan bijgevolg niet als primaire weg II geselecteerd worden." },
-                { RoadSegmentCategory.SecondaryRoadType4, "De weg had oorspronkelijk een verbindende functie op Vlaams niveau als “steenweg”. Deze functie wordt door een autosnelweg (hoofdweg) overgenomen. Momenteel heeft de weg een verbindings- en verzamelfunctie op (boven-)lokaal niveau." },
+                { RoadSegmentCategory.SecondaryRoadType4, "De weg had oorspronkelijk een verbindende functie op Vlaams niveau als \"steenweg\". Deze functie wordt door een autosnelweg (hoofdweg) overgenomen. Momenteel heeft de weg een verbindings- en verzamelfunctie op (boven-)lokaal niveau." },
             };
     }
 }
