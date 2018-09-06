@@ -7,18 +7,19 @@
     using System.Threading.Tasks;
     using Framework;
     using KellermanSoftware.CompareNetObjects;
+    using Model;
     using Newtonsoft.Json;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
 
     public class ScenarioRunner
     {
-        private readonly CommandHandlerResolver _resolver;
+        private readonly CommandHandlerResolver<TContext> _resolver;
         private readonly IStreamStore _store;
         private readonly JsonSerializerSettings _settings;
         private readonly StreamNameConverter _converter;
 
-        public ScenarioRunner(CommandHandlerResolver resolver, IStreamStore store, JsonSerializerSettings settings, StreamNameConverter converter)
+        public ScenarioRunner(CommandHandlerResolver<TContext> resolver, IStreamStore store, JsonSerializerSettings settings, StreamNameConverter converter)
         {
             _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
             _store = store ?? throw new ArgumentNullException(nameof(store));
@@ -29,6 +30,8 @@
         public async Task<object> RunAsync(ExpectEventsScenario scenario, CancellationToken ct = default)
         {
             var checkpoint = await WriteGivens(scenario.Givens);
+            var map = new EventSourcedEntityMap();
+            var context = new RoadRegistryContext(map, _store, _settings, )
             var exception = await Catch.Exception(() => _resolver(scenario.When).Handler(scenario.When, ct));
             if (exception != null)
             {

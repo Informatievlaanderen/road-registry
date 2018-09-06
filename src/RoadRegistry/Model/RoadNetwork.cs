@@ -5,7 +5,7 @@ namespace RoadRegistry.Model
     using Events;
     using Framework;
 
-    public class RoadNetwork : EventSource
+    public class RoadNetwork : EventSourcedEntity
     {
         public static readonly Func<RoadNetwork> Factory = () => new RoadNetwork();
 

@@ -4,13 +4,13 @@ namespace RoadRegistry.Framework
     using System.Threading;
     using System.Threading.Tasks;
 
-    public interface ICommandHandlerBuilder<TCommand>
+    public interface ICommandHandlerBuilder<TContext, TCommand>
     {
-        ICommandHandlerBuilder<TCommand> Pipe(
+        ICommandHandlerBuilder<TContext, TCommand> Pipe(
           Func<
-            Func<Message<TCommand>, CancellationToken, Task>,
-            Func<Message<TCommand>, CancellationToken, Task>> pipe);
+            Func<TContext, Message<TCommand>, CancellationToken, Task>,
+            Func<TContext, Message<TCommand>, CancellationToken, Task>> pipe);
 
-        void Handle(Func<Message<TCommand>, CancellationToken, Task> handler);
+        void Handle(Func<TContext, Message<TCommand>, CancellationToken, Task> handler);
     }
 }

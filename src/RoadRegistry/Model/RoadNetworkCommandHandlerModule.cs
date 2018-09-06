@@ -4,17 +4,15 @@ namespace RoadRegistry.Model
     using Commands;
     using Framework;
 
-    public class RoadNetworkCommandHandlerModule : CommandHandlerModule
+    public class RoadNetworkCommandHandlerModule : CommandHandlerModule<IRoadRegistryContext>
     {
-        public RoadNetworkCommandHandlerModule(IRoadNetworks networks)
+        public RoadNetworkCommandHandlerModule()
         {
-            if (networks == null) throw new ArgumentNullException(nameof(networks));
-
             For<ChangeRoadNetwork>()
                 .ValidateUsing(new ChangeRoadNetworkValidator())
-                .Handle(async (message, ct) =>
+                .Handle(async (context, message, ct) =>
                 {
-                    var network = await networks.Get(ct);
+                    var network = await context.RoadNetworks.Get(ct);
                     foreach (var change in message.Body.Changeset)
                     {
                         if (change.AddRoadNode != null)
@@ -25,7 +23,6 @@ namespace RoadRegistry.Model
                                 change.AddRoadNode.Geometry);
                         }
                     }
-
                 });
         }
     }

@@ -5,36 +5,36 @@ namespace RoadRegistry.Framework
     using System.Threading;
     using System.Threading.Tasks;
 
-    public abstract class CommandHandlerModule
+    public abstract class CommandHandlerModule<TContext>
     {
-        private readonly List<CommandHandler> _handlers;
+        private readonly List<CommandHandler<TContext>> _handlers;
 
         protected CommandHandlerModule()
         {
-            _handlers = new List<CommandHandler>();
+            _handlers = new List<CommandHandler<TContext>>();
         }
 
-        public CommandHandler[] Handlers => _handlers.ToArray();
+        public CommandHandler<TContext>[] Handlers => _handlers.ToArray();
 
-        protected void Handle<TCommand>(Func<Message<TCommand>, CancellationToken, Task> handler)
+        protected void Handle<TCommand>(Func<TContext, Message<TCommand>, CancellationToken, Task> handler)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
             _handlers.Add(
-                new CommandHandler(
+                new CommandHandler<TContext>(
                     typeof(TCommand),
-                    (message, ct) => handler(new Message<TCommand>(message), ct)
+                    (context, message, ct) => handler(context, new Message<TCommand>(message), ct)
             ));
         }
 
-        protected ICommandHandlerBuilder<TCommand> For<TCommand>()
+        protected ICommandHandlerBuilder<TContext, TCommand> For<TCommand>()
         {
-            return new CommandHandlerBuilder<TCommand>(handler =>
+            return new CommandHandlerBuilder<TContext, TCommand>(handler =>
             {
                 _handlers.Add(
-                    new CommandHandler(
+                    new CommandHandler<TContext>(
                         typeof(TCommand),
-                        (message, ct) => handler(new Message<TCommand>(message), ct)
+                        (context, message, ct) => handler(context, new Message<TCommand>(message), ct)
                 ));
             });
         }

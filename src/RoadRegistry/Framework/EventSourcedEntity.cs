@@ -2,7 +2,7 @@ namespace RoadRegistry.Framework
 {
     using System;
 
-    public abstract class EventSource : IEventSource
+    public abstract class EventSourcedEntity : IEventSourcedEntity
     {
         private readonly EventPlayer Player
           = new EventPlayer();
@@ -20,7 +20,7 @@ namespace RoadRegistry.Framework
             Recorder.Record(@event);
         }
         
-        void IEventSource.RestoreFromEvents(object[] events)
+        void IEventSourcedEntity.RestoreFromEvents(object[] events)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -33,7 +33,7 @@ namespace RoadRegistry.Framework
                 Player.Play(@event);
         }
 
-        object[] IEventSource.TakeEvents()
+        object[] IEventSourcedEntity.TakeEvents()
         {
             if (!Recorder.HasRecordedEvents)
                 return Array.Empty<object>();

@@ -16,14 +16,14 @@ namespace RoadRegistry.Model
     {
         public static readonly StreamName Stream = new StreamName("roadnetwork");
 
-        private readonly ConcurrentUnitOfWork _unitOfWork;
+        private readonly EventSourcedEntityMap _map;
         private readonly IStreamStore _store;
         private readonly JsonSerializerSettings _settings;
         private readonly EventMapping _mapping;
 
-        public RoadNetworks(ConcurrentUnitOfWork unitOfWork, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
+        public RoadNetworks(EventSourcedEntityMap map, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
         {
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _map = map ?? throw new ArgumentNullException(nameof(map));
             _store = store ?? throw new ArgumentNullException(nameof(store));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
@@ -31,13 +31,13 @@ namespace RoadRegistry.Model
 
         public async Task<RoadNetwork> Get(CancellationToken ct = default)
         {
-            if (_unitOfWork.TryGet(Stream, out Aggregate aggregate))
+            if (_map.TryGet(Stream, out EventSourcedEntityMapEntry entry))
             {
-                return (RoadNetwork)aggregate.Root;
+                return (RoadNetwork)entry.Entity;
             }
             var page = await _store.ReadStreamForwards(Stream, StreamVersion.Start, 1024, ct);
             if (page.Status == PageReadStatus.StreamNotFound) return RoadNetwork.Factory();
-            IEventSource root = RoadNetwork.Factory();
+            IEventSourcedEntity entity = RoadNetwork.Factory();
             var messages = new List<object>(page.Messages.Length);
             foreach (var message in page.Messages)
             {
@@ -47,7 +47,7 @@ namespace RoadRegistry.Model
                         _mapping.GetEventType(message.Type),
                         _settings));
             }
-            root.RestoreFromEvents(messages.ToArray());
+            entity.RestoreFromEvents(messages.ToArray());
             while (!page.IsEnd)
             {
                 messages.Clear();
@@ -61,9 +61,10 @@ namespace RoadRegistry.Model
                             _mapping.GetEventType(message.Type),
                             _settings));
                 }
-                root.RestoreFromEvents(messages.ToArray());
+                entity.RestoreFromEvents(messages.ToArray());
             }
-            return (RoadNetwork)root;
+            _map.Attach(new EventSourcedEntityMapEntry(entity, Stream, page.LastStreamVersion));
+            return (RoadNetwork)entity;
         }
     }
 }
