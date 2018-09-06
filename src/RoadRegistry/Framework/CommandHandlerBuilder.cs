@@ -4,17 +4,17 @@ namespace RoadRegistry.Framework
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class CommandHandlerBuilder<TContext, TCommand>
-      : ICommandHandlerBuilder<TContext, TCommand>
+    public class CommandHandlerBuilder<TCommand>
+      : ICommandHandlerBuilder<TCommand>
     {
-        internal CommandHandlerBuilder(Action<Func<TContext, Message<TCommand>, CancellationToken, Task>> builder)
+        internal CommandHandlerBuilder(Action<Func<Message<TCommand>, CancellationToken, Task>> builder)
         {
             Builder = builder ??
               throw new ArgumentNullException(nameof(builder));
         }
-        public Action<Func<TContext, Message<TCommand>, CancellationToken, Task>> Builder { get; }
+        public Action<Func<Message<TCommand>, CancellationToken, Task>> Builder { get; }
 
-        public void Handle(Func<TContext, Message<TCommand>, CancellationToken, Task> handler)
+        public void Handle(Func<Message<TCommand>, CancellationToken, Task> handler)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
@@ -22,10 +22,10 @@ namespace RoadRegistry.Framework
             Builder(handler);
         }
 
-        public ICommandHandlerBuilder<TContext, TCommand> Pipe(
+        public ICommandHandlerBuilder<TCommand> Pipe(
         Func<
-          Func<TContext, Message<TCommand>, CancellationToken, Task>,
-          Func<TContext, Message<TCommand>, CancellationToken, Task>> pipe)
+          Func<Message<TCommand>, CancellationToken, Task>,
+          Func<Message<TCommand>, CancellationToken, Task>> pipe)
         {
             if (pipe == null)
                 throw new ArgumentNullException(nameof(pipe));
@@ -33,23 +33,85 @@ namespace RoadRegistry.Framework
             return new WithPipeline(Builder, next => pipe(next));
         }
 
-        private class WithPipeline : ICommandHandlerBuilder<TContext, TCommand>
+        public ICommandHandlerBuilder<TContext, TCommand> Pipe<TContext>(
+            Func<
+                Func<TContext, Message<TCommand>, CancellationToken, Task>,
+                Func<Message<TCommand>, CancellationToken, Task>> pipe)
+        {
+            if (pipe == null)
+                throw new ArgumentNullException(nameof(pipe));
+
+            return new WithContextPipeline<TContext>(Builder, next => pipe(next));
+        }
+
+        private class WithPipeline : ICommandHandlerBuilder<TCommand>
         {
             public WithPipeline(
-              Action<Func<TContext, Message<TCommand>, CancellationToken, Task>> builder,
+              Action<Func<Message<TCommand>, CancellationToken, Task>> builder,
               Func<
-                Func<TContext, Message<TCommand>, CancellationToken, Task>,
-                Func<TContext, Message<TCommand>, CancellationToken, Task>> pipeline)
+                Func<Message<TCommand>, CancellationToken, Task>,
+                Func<Message<TCommand>, CancellationToken, Task>> pipeline)
             {
                 Builder = builder;
                 Pipeline = pipeline;
             }
 
-            public Action<Func<TContext, Message<TCommand>, CancellationToken, Task>> Builder { get; }
+            public Action<Func<Message<TCommand>, CancellationToken, Task>> Builder { get; }
 
             public Func<
-              Func<TContext, Message<TCommand>, CancellationToken, Task>,
-              Func<TContext, Message<TCommand>, CancellationToken, Task>> Pipeline
+              Func<Message<TCommand>, CancellationToken, Task>,
+              Func<Message<TCommand>, CancellationToken, Task>> Pipeline
+            { get; }
+
+            public ICommandHandlerBuilder<TCommand> Pipe(
+                Func<
+                    Func<Message<TCommand>, CancellationToken, Task>,
+                    Func<Message<TCommand>, CancellationToken, Task>> pipe)
+            {
+                if (pipe == null)
+                    throw new ArgumentNullException(nameof(pipe));
+
+                return new WithPipeline(Builder, next => Pipeline(pipe(next)));
+            }
+
+            public ICommandHandlerBuilder<TContext, TCommand> Pipe<TContext>(
+                Func<
+                    Func<TContext, Message<TCommand>, CancellationToken, Task>,
+                    Func<Message<TCommand>, CancellationToken, Task>> pipe)
+            {
+                if (pipe == null)
+                    throw new ArgumentNullException(nameof(pipe));
+
+                return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
+            }
+
+
+            public void Handle(Func<Message<TCommand>, CancellationToken, Task> handler)
+            {
+                if (handler == null)
+                    throw new ArgumentNullException(nameof(handler));
+
+                Builder(Pipeline(handler));
+            }
+        }
+
+        private class WithContextPipeline<TContext> : ICommandHandlerBuilder<TContext, TCommand>
+        {
+            public WithContextPipeline(
+                Action<Func<Message<TCommand>, CancellationToken, Task>> builder,
+                Func<
+                    Func<TContext, Message<TCommand>, CancellationToken, Task>,
+                    Func<Message<TCommand>, CancellationToken, Task>> pipeline)
+            {
+                Builder = builder;
+                Pipeline = pipeline;
+            }
+
+            public Action<Func<Message<TCommand>, CancellationToken, Task>> Builder { get; }
+
+            public Func<
+                Func<TContext, Message<TCommand>, CancellationToken, Task>,
+                Func<Message<TCommand>, CancellationToken, Task>> Pipeline
             { get; }
 
             public ICommandHandlerBuilder<TContext, TCommand> Pipe(
@@ -60,7 +122,7 @@ namespace RoadRegistry.Framework
                 if (pipe == null)
                     throw new ArgumentNullException(nameof(pipe));
 
-                return new WithPipeline(Builder, next => Pipeline(pipe(next)));
+                return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
             }
 
             public void Handle(Func<TContext, Message<TCommand>, CancellationToken, Task> handler)

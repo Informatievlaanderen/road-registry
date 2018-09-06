@@ -1,4 +1,4 @@
 namespace RoadRegistry.Framework
 {
-    public delegate CommandHandler<TContext> CommandHandlerResolver<TContext>(Message message);
+    public delegate CommandHandler CommandHandlerResolver(Message message);
 }

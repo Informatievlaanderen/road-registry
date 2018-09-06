@@ -1,6 +1,7 @@
 namespace RoadRegistry.Framework
 {
     using System;
+    using SqlStreamStore.Streams;
 
     public struct StreamName : IEquatable<StreamName>
     {
@@ -73,6 +74,11 @@ namespace RoadRegistry.Framework
         public static implicit operator string(StreamName instance)
         {
             return instance.ToString();
+        }
+
+        public static implicit operator StreamId(StreamName instance)
+        {
+            return new StreamId(instance.ToString());
         }
     }
 }

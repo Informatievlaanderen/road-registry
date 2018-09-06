@@ -14,6 +14,7 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_non_existent_node()
         {
+            var geometry = Fixture.CreateMany<byte>().ToArray();
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetwork(
@@ -25,7 +26,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = Events.RoadNodeType.FakeNode,
-                                Geometry = Fixture.CreateMany<byte>().ToArray()
+                                Geometry = geometry
                             }
                         }
                     }
@@ -40,7 +41,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = Events.RoadNodeType.FakeNode,
-                                Geometry = Fixture.CreateMany<byte>().ToArray()
+                                Geometry = geometry
                             }
                         }
                     }

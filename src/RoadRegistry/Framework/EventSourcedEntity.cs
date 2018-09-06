@@ -1,6 +1,7 @@
 namespace RoadRegistry.Framework
 {
     using System;
+    using SqlStreamStore.Streams;
 
     public abstract class EventSourcedEntity : IEventSourcedEntity
     {
@@ -11,7 +12,7 @@ namespace RoadRegistry.Framework
 
         protected void On<TEvent>(Action<TEvent> handler)
         {
-            Player.Register<TEvent>(handler);
+            Player.Register(handler);
         }
 
         protected void Apply(object @event)
@@ -19,7 +20,7 @@ namespace RoadRegistry.Framework
             Player.Play(@event);
             Recorder.Record(@event);
         }
-        
+
         void IEventSourcedEntity.RestoreFromEvents(object[] events)
         {
             if (events == null)

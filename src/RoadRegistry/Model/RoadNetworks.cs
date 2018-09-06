@@ -36,7 +36,12 @@ namespace RoadRegistry.Model
                 return (RoadNetwork)entry.Entity;
             }
             var page = await _store.ReadStreamForwards(Stream, StreamVersion.Start, 1024, ct);
-            if (page.Status == PageReadStatus.StreamNotFound) return RoadNetwork.Factory();
+            if (page.Status == PageReadStatus.StreamNotFound)
+            {
+                var network = RoadNetwork.Factory();
+                _map.Attach(new EventSourcedEntityMapEntry(network, Stream, ExpectedVersion.NoStream));
+                return network;
+            }
             IEventSourcedEntity entity = RoadNetwork.Factory();
             var messages = new List<object>(page.Messages.Length);
             foreach (var message in page.Messages)
@@ -52,7 +57,12 @@ namespace RoadRegistry.Model
             {
                 messages.Clear();
                 page = await page.ReadNext(ct);
-                if (page.Status == PageReadStatus.StreamNotFound) return RoadNetwork.Factory();
+                if (page.Status == PageReadStatus.StreamNotFound)
+                {
+                    var network = RoadNetwork.Factory();
+                    _map.Attach(new EventSourcedEntityMapEntry(network, Stream, ExpectedVersion.NoStream));
+                    return network;
+                }
                 foreach (var message in page.Messages)
                 {
                     messages.Add(

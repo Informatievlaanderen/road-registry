@@ -5,6 +5,8 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Aiv.Vbr.EventHandling;
+    using Aiv.Vbr.Generators.Guid;
     using Framework;
     using KellermanSoftware.CompareNetObjects;
     using Model;
@@ -14,24 +16,24 @@
 
     public class ScenarioRunner
     {
-        private readonly CommandHandlerResolver<TContext> _resolver;
+        private readonly CommandHandlerResolver _resolver;
         private readonly IStreamStore _store;
         private readonly JsonSerializerSettings _settings;
+        private readonly EventMapping _mapping;
         private readonly StreamNameConverter _converter;
 
-        public ScenarioRunner(CommandHandlerResolver<TContext> resolver, IStreamStore store, JsonSerializerSettings settings, StreamNameConverter converter)
+        public ScenarioRunner(CommandHandlerResolver resolver, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping, StreamNameConverter converter)
         {
             _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
             _store = store ?? throw new ArgumentNullException(nameof(store));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
             _converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
 
         public async Task<object> RunAsync(ExpectEventsScenario scenario, CancellationToken ct = default)
         {
             var checkpoint = await WriteGivens(scenario.Givens);
-            var map = new EventSourcedEntityMap();
-            var context = new RoadRegistryContext(map, _store, _settings, )
             var exception = await Catch.Exception(() => _resolver(scenario.When).Handler(scenario.When, ct));
             if (exception != null)
             {
@@ -39,10 +41,6 @@
             }
 
             var recordedEvents = await ReadThens(checkpoint);
-            if (scenario.Givens.Length != 0 && recordedEvents.Length != 0)
-            {
-                recordedEvents = recordedEvents.Skip(1).ToArray();
-            }
             var config = new ComparisonConfig
             {
                 MaxDifferences = int.MaxValue,
@@ -64,10 +62,6 @@
             if (exception == null)
             {
                 var recordedEvents = await ReadThens(checkpoint);
-                if (scenario.Givens.Length != 0 && recordedEvents.Length != 0)
-                {
-                    recordedEvents = recordedEvents.Skip(1).ToArray();
-                }
                 if (recordedEvents.Length != 0)
                 {
                     return scenario.ButRecordedEvents(recordedEvents);
@@ -100,12 +94,13 @@
                 var result = await _store.AppendToStream(
                     _converter(new StreamName(stream.Key)).ToString(),
                     ExpectedVersion.NoStream,
-                    stream.Select(given => new NewStreamMessage(
-                        Guid.NewGuid(),
-                        given.Event.GetType().FullName,
+                    stream.Select((given, index) => new NewStreamMessage(
+                        Deterministic.Create(Deterministic.Namespaces.Events,
+                            $"{given.Stream}-{index}"),
+                        _mapping.GetEventName(given.Event.GetType()),
                         JsonConvert.SerializeObject(given.Event, _settings)
                     )).ToArray());
-                checkpoint = result.CurrentPosition;
+                checkpoint = result.CurrentPosition + 1;
             }
             return checkpoint;
         }
@@ -114,17 +109,17 @@
         {
             var recorded = new List<RecordedEvent>();
             var page = await _store.ReadAllForwards(position, 1024);
-            foreach (var then in page.Messages.Where(message => message.Position != position))
+            foreach (var then in page.Messages)
             {
                 recorded.Add(
                     new RecordedEvent(
-                    new StreamName(then.StreamId),
-                    JsonConvert.DeserializeObject(
-                        await then.GetJsonData(),
-                        Type.GetType(then.Type, true),
-                        _settings
+                        new StreamName(then.StreamId),
+                        JsonConvert.DeserializeObject(
+                            await then.GetJsonData(),
+                            _mapping.GetEventType(then.Type),
+                            _settings
+                        )
                     )
-                )
                 );
             }
             while (!page.IsEnd)
@@ -134,13 +129,13 @@
                 {
                     recorded.Add(
                         new RecordedEvent(
-                        new StreamName(then.StreamId),
-                        JsonConvert.DeserializeObject(
-                            await then.GetJsonData(),
-                            Type.GetType(then.Type, true),
-                            _settings
+                            new StreamName(then.StreamId),
+                            JsonConvert.DeserializeObject(
+                                await then.GetJsonData(),
+                                _mapping.GetEventType(then.Type),
+                                _settings
+                            )
                         )
-                    )
                     );
                 }
             }

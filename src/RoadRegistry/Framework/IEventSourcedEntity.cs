@@ -1,6 +1,6 @@
 namespace RoadRegistry.Framework
 {
-    public interface IEventSourcedEntity 
+    public interface IEventSourcedEntity
     {
         void RestoreFromEvents(object[] events);
 

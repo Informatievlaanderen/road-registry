@@ -27,10 +27,10 @@ namespace RoadRegistry.Model
             Fixture = new ScenarioFixture();
             _store = new InMemoryStreamStore();
             _runner = new ScenarioRunner(
-                Resolve.WhenEqualToMessage(
-                    new RoadNetworkCommandHandlerModule(new RoadNetworks(_store, Settings, Mapping))),
+                Resolve.WhenEqualToMessage(new RoadNetworkCommandHandlerModule(_store)),
                 _store,
-                new JsonSerializerSettings(),
+                Settings,
+                Mapping,
                 StreamNameConversions.PassThru
             );
         }
