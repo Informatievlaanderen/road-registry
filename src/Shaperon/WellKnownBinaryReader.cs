@@ -21,7 +21,7 @@ namespace Shaperon
         {
             var geometry = _wkbReader.Read(data);
             if (geometry is Point point)
-                return new MeasuredPoint(point.X, point.Y, point.Z, point.M);
+                return new PointM(point.X, point.Y, point.Z, point.M);
 
             return geometry;
         }

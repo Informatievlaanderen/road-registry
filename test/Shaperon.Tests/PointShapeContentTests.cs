@@ -15,9 +15,9 @@ namespace Shaperon
         public PointShapeContentTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<MeasuredPoint>(customization =>
+            _fixture.Customize<PointM>(customization =>
                 customization.FromFactory(generator =>
-                    new MeasuredPoint(_fixture.Create<double>(), _fixture.Create<double>())
+                    new PointM(_fixture.Create<double>(), _fixture.Create<double>())
                 ).OmitAutoProperties()
             );
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
@@ -41,7 +41,7 @@ namespace Shaperon
         [Fact]
         public void ToBytesHasExpectedResult()
         {
-            var sut = new PointShapeContent(_fixture.Create<MeasuredPoint>());
+            var sut = new PointShapeContent(_fixture.Create<PointM>());
 
             var result = sut.ToBytes();
 
@@ -58,7 +58,7 @@ namespace Shaperon
         [Fact]
         public void FromBytesHasExpectedResult()
         {
-            var content = new PointShapeContent(_fixture.Create<MeasuredPoint>());
+            var content = new PointShapeContent(_fixture.Create<PointM>());
 
             var result = PointShapeContent.FromBytes(content.ToBytes());
 
@@ -71,7 +71,7 @@ namespace Shaperon
         [Fact]
         public void ToBytesWithEncodingHasExpectedResult()
         {
-            var sut = new PointShapeContent(_fixture.Create<MeasuredPoint>());
+            var sut = new PointShapeContent(_fixture.Create<PointM>());
 
             var result = sut.ToBytes(Encoding.UTF8);
 
@@ -88,7 +88,7 @@ namespace Shaperon
         [Fact]
         public void FromBytesWithEncodingHasExpectedResult()
         {
-            var content = new PointShapeContent(_fixture.Create<MeasuredPoint>());
+            var content = new PointShapeContent(_fixture.Create<PointM>());
 
             var result = PointShapeContent.FromBytes(content.ToBytes(Encoding.UTF8), Encoding.UTF8);
 
@@ -101,7 +101,7 @@ namespace Shaperon
         [Fact]
         public void CanReadWritePointShape()
         {
-            var sut = new PointShapeContent(_fixture.Create<MeasuredPoint>());
+            var sut = new PointShapeContent(_fixture.Create<PointM>());
 
             using(var stream = new MemoryStream())
             {

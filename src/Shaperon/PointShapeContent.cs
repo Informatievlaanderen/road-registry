@@ -6,14 +6,14 @@ namespace Shaperon
 
     public class PointShapeContent : ShapeContent
     {
-        public PointShapeContent(MeasuredPoint shape)
+        public PointShapeContent(PointM shape)
         {
             Shape = shape ?? throw new ArgumentNullException(nameof(shape));
             ShapeType = ShapeType.Point;
             ContentLength = new WordLength(10);
         }
 
-        public MeasuredPoint Shape { get; }
+        public PointM Shape { get; }
 
         internal static ShapeContent ReadFromRecord(BinaryReader reader, ShapeRecordHeader header)
         {
@@ -24,7 +24,7 @@ namespace Shaperon
 
             var x = reader.ReadDoubleLittleEndian();
             var y = reader.ReadDoubleLittleEndian();
-            return new PointShapeContent(new MeasuredPoint(x, y));
+            return new PointShapeContent(new PointM(x, y));
         }
 
         public static ShapeContent Read(BinaryReader reader)
@@ -43,7 +43,7 @@ namespace Shaperon
                 throw new ShapeRecordContentException("The Shape Type field does not indicate a Point shape.");
 
             return new PointShapeContent(
-                new MeasuredPoint(
+                new PointM(
                     reader.ReadDoubleLittleEndian(),
                     reader.ReadDoubleLittleEndian()));
         }

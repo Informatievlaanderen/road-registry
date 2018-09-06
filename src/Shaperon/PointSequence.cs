@@ -7,9 +7,9 @@ namespace Shaperon
 
     public class PointSequence : ICoordinateSequence
     {
-        private readonly MeasuredPoint[] _points;
+        private readonly PointM[] _points;
 
-        public PointSequence(IEnumerable<MeasuredPoint> points)
+        public PointSequence(IEnumerable<PointM> points)
         {
             _points = points.ToArray();
         }
@@ -76,7 +76,7 @@ namespace Shaperon
             if(index >= _points.Length)
                 return;
 
-            _points[index] = new MeasuredPoint(
+            _points[index] = new PointM(
                 ordinate == Ordinate.X ? value : _points[index].X,
                 ordinate == Ordinate.Y ? value : _points[index].Y,
                 ordinate == Ordinate.Z ? value : _points[index].Z,

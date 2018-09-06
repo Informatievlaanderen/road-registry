@@ -93,10 +93,10 @@ namespace Shaperon
             {
                 parts[partIndex] = reader.ReadInt32LittleEndian($"Part[{partIndex}]");
             }
-            var points = new MeasuredPoint[numberOfPoints];
+            var points = new PointM[numberOfPoints];
             for (var pointIndex = 0; pointIndex < numberOfPoints; pointIndex++)
             {
-                points[pointIndex] = new MeasuredPoint(
+                points[pointIndex] = new PointM(
                     reader.ReadDoubleLittleEndian($"Points[{pointIndex}].X"),
                     reader.ReadDoubleLittleEndian($"Points[{pointIndex}].Y")
                 );
@@ -120,7 +120,7 @@ namespace Shaperon
             {
                 var fromPointIndex = parts[partIndex];
                 lines[partIndex] = new LineString(
-                    new PointSequence(new ArraySegment<MeasuredPoint>(points, fromPointIndex, toPointIndex - fromPointIndex)),
+                    new PointSequence(new ArraySegment<PointM>(points, fromPointIndex, toPointIndex - fromPointIndex)),
                     GeometryConfiguration.GeometryFactory
                 );
                 toPointIndex = fromPointIndex;

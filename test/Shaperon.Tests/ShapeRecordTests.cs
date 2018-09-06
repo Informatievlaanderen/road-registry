@@ -22,9 +22,9 @@ namespace Shaperon
             _fixture.CustomizeRecordNumber();
             _fixture.CustomizeWordLength();
             _fixture.CustomizeWordOffset();
-            _fixture.Customize<MeasuredPoint>(customization =>
+            _fixture.Customize<PointM>(customization =>
                 customization.FromFactory(generator =>
-                    new MeasuredPoint(
+                    new PointM(
                         _fixture.Create<double>(),
                         _fixture.Create<double>(),
                         _fixture.Create<double>(),
@@ -35,7 +35,7 @@ namespace Shaperon
             _fixture.Customize<ILineString>(customization =>
                 customization.FromFactory(generator =>
                     new LineString(
-                        new PointSequence(_fixture.CreateMany<MeasuredPoint>()),
+                        new PointSequence(_fixture.CreateMany<PointM>()),
                         GeometryConfiguration.GeometryFactory)
                 ).OmitAutoProperties()
             );
@@ -53,7 +53,7 @@ namespace Shaperon
                             content = NullShapeContent.Instance;
                             break;
                         case 1:
-                            content = new PointShapeContent(_fixture.Create<MeasuredPoint>());
+                            content = new PointShapeContent(_fixture.Create<PointM>());
                             break;
                         case 2:
                             content = new PolyLineMShapeContent(_fixture.Create<MultiLineString>());

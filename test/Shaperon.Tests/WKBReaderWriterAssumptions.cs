@@ -25,9 +25,9 @@ namespace Shaperon
                         )
                     )
                     .OmitAutoProperties());
-            _fixture.Customize<MeasuredPoint>(customization =>
+            _fixture.Customize<PointM>(customization =>
                 customization.FromFactory(generator =>
-                    new MeasuredPoint(
+                    new PointM(
                         _fixture.Create<double>(),
                         _fixture.Create<double>(),
                         _fixture.Create<double>(),
@@ -38,7 +38,7 @@ namespace Shaperon
             _fixture.Customize<ILineString>(customization =>
                 customization.FromFactory(generator =>
                     new LineString(
-                        new PointSequence(_fixture.CreateMany<MeasuredPoint>(generator.Next(2, 10))),
+                        new PointSequence(_fixture.CreateMany<PointM>(generator.Next(2, 10))),
                         GeometryConfiguration.GeometryFactory
                     )
                 ).OmitAutoProperties()
@@ -55,7 +55,7 @@ namespace Shaperon
         [Fact]
         public void PointAsExtendedWellKnownBinaryCanBeWrittenAndRead()
         {
-            var sut = _fixture.Create<MeasuredPoint>();
+            var sut = _fixture.Create<PointM>();
 
             var writer =  new WellKnownBinaryWriter();
 
@@ -66,9 +66,9 @@ namespace Shaperon
             var result = reader.Read(extendedWellKnownBinary);
 
             Assert.NotNull(result);
-            Assert.Equal(sut, Assert.IsType<MeasuredPoint>(result));
-            Assert.Equal(sut.SRID, ((MeasuredPoint)result).SRID);
-            Assert.Equal(sut.M, ((MeasuredPoint)result).M);
+            Assert.Equal(sut, Assert.IsType<PointM>(result));
+            Assert.Equal(sut.SRID, ((PointM)result).SRID);
+            Assert.Equal(sut.M, ((PointM)result).M);
         }
 
         [Fact]

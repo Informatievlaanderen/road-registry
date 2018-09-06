@@ -27,9 +27,9 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             Customizations.Add(new LimitedLengthStringBuilder<ImportedOrganization>(organization => organization.Code, OrganizationDbaseRecord.Schema.ORG.Length));
             Customizations.Add(new LimitedLengthStringBuilder<ImportedOrganization>(organization => organization.Name, OrganizationDbaseRecord.Schema.LBLORG.Length));
 
-            Customize<MeasuredPoint>(customization => 
+            Customize<PointM>(customization => 
 			    customization.FromFactory(
-                    generator => new MeasuredPoint(
+                    generator => new PointM(
                         this.Create<double>(),
                         this.Create<double>(),
                         this.Create<double>(),
@@ -41,7 +41,7 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
             Customize<ILineString>(customization => 
 			    customization.FromFactory(
                     generator => new LineString(
-                        new PointSequence(this.CreateMany<MeasuredPoint>(generator.Next(2,10))),
+                        new PointSequence(this.CreateMany<PointM>(generator.Next(2,10))),
                         GeometryConfiguration.GeometryFactory
                     )
                 ).OmitAutoProperties()

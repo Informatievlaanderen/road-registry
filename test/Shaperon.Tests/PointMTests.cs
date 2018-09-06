@@ -7,7 +7,7 @@ namespace Shaperon
 
     public class WhenCreatingAPointFromAnCoordinateSequence
     {
-        private readonly MeasuredPoint _SUT;
+        private readonly PointM _SUT;
         private readonly Fixture _fixture;
         private readonly ICoordinateSequence _xySequence;
 
@@ -20,7 +20,7 @@ namespace Shaperon
             _xySequence.SetOrdinate(0, Ordinate.Y, _fixture.Create<double>());
             _xySequence.SetOrdinate(0, Ordinate.Z, _fixture.Create<double>());
 
-            _SUT = new MeasuredPoint(_xySequence);
+            _SUT = new PointM(_xySequence);
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace Shaperon
 
     public class WhenCreatingAPointFromACoordinate
     {
-        private readonly MeasuredPoint _SUT;
+        private readonly PointM _SUT;
         private readonly Fixture _fixture;
         private readonly Coordinate _coordinate;
 
@@ -65,7 +65,7 @@ namespace Shaperon
                 _fixture.Create<double>(),
                 _fixture.Create<double>()
                 );
-            _SUT = new MeasuredPoint(_coordinate);
+            _SUT = new PointM(_coordinate);
         }
 
         [Fact]
@@ -97,7 +97,7 @@ namespace Shaperon
 
     public class WhenCreatingAPointFromXYValues
     {
-        private readonly MeasuredPoint _SUT;
+        private readonly PointM _SUT;
         private readonly Fixture _fixture;
         private readonly double _x, _y;
 
@@ -107,7 +107,7 @@ namespace Shaperon
 
             _x = _fixture.Create<double>();
             _y = _fixture.Create<double>();
-            _SUT = new MeasuredPoint(_x, _y);
+            _SUT = new PointM(_x, _y);
         }
 
         [Fact]
@@ -139,7 +139,7 @@ namespace Shaperon
 
     public class WhenCreatingAPointFromXYZValues
     {
-        private readonly MeasuredPoint _SUT;
+        private readonly PointM _SUT;
         private readonly Fixture _fixture;
         private readonly double _x, _y, _z;
 
@@ -150,7 +150,7 @@ namespace Shaperon
             _x = _fixture.Create<double>();
             _y = _fixture.Create<double>();
             _z = _fixture.Create<double>();
-            _SUT = new MeasuredPoint(_x, _y, _z);
+            _SUT = new PointM(_x, _y, _z);
         }
 
         [Fact]
@@ -182,7 +182,7 @@ namespace Shaperon
 
     public class WhenCreatingAPointFromXYZMValues
     {
-        private readonly MeasuredPoint _SUT;
+        private readonly PointM _SUT;
         private readonly Fixture _fixture;
         private readonly double _x, _y, _z, _m;
 
@@ -194,7 +194,7 @@ namespace Shaperon
             _y = _fixture.Create<double>();
             _z = _fixture.Create<double>();
             _m = _fixture.Create<double>();
-            _SUT = new MeasuredPoint(_x, _y, _z, _m);
+            _SUT = new PointM(_x, _y, _z, _m);
         }
 
         [Fact]

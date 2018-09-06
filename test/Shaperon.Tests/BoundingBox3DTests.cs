@@ -109,9 +109,9 @@ namespace Shaperon
             get
             {
                 var fixture = new Fixture();
-                fixture.Customize<MeasuredPoint>(customization =>
+                fixture.Customize<PointM>(customization =>
 				    customization.FromFactory(generator =>
-					     new MeasuredPoint(
+					     new PointM(
                             fixture.Create<double>(),
                             fixture.Create<double>(),
                             fixture.Create<double>(),
@@ -123,7 +123,7 @@ namespace Shaperon
                 fixture.Customize<ILineString>(customization =>
 				    customization.FromFactory(generator =>
 					    new LineString(
-                            new PointSequence(fixture.CreateMany<MeasuredPoint>()),
+                            new PointSequence(fixture.CreateMany<PointM>()),
                             GeometryConfiguration.GeometryFactory)
                     ).OmitAutoProperties()
                 );
@@ -132,7 +132,7 @@ namespace Shaperon
                         new MultiLineString(fixture.CreateMany<ILineString>(generator.Next(1,10)).ToArray())
                     ).OmitAutoProperties()
                 );
-                var point1 = new MeasuredPoint(
+                var point1 = new PointM(
                     fixture.Create<double>(),
                     fixture.Create<double>(),
                     fixture.Create<double>(),
@@ -154,7 +154,7 @@ namespace Shaperon
                     )
                 };
 
-                var point2 = new MeasuredPoint(
+                var point2 = new PointM(
                     fixture.Create<double>(),
                     fixture.Create<double>(),
                     double.NaN,
@@ -199,8 +199,8 @@ namespace Shaperon
                         new LineString(
                             new PointSequence(
                                 fixture
-                                    .CreateMany<MeasuredPoint>(generator.Next(2, 10))
-                                    .Select(point => new MeasuredPoint(point.X, point.Y, double.NaN, double.NaN))
+                                    .CreateMany<PointM>(generator.Next(2, 10))
+                                    .Select(point => new PointM(point.X, point.Y, double.NaN, double.NaN))
                                 ),
                              GeometryConfiguration.GeometryFactory
                         )

@@ -26,7 +26,7 @@ namespace RoadRegistry.Projections.Tests
         {
             var wkbWriter = new WellKnownBinaryWriter();
             var data = _fixture
-                .CreateMany<MeasuredPoint>(new Random().Next(1,10))
+                .CreateMany<PointM>(new Random().Next(1,10))
                 .Select(point =>
                 {
                     var importedRoadNode = _fixture

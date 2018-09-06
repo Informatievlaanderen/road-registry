@@ -21,9 +21,9 @@ namespace Shaperon
         public PolyLineMShapeContentTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<MeasuredPoint>(customization =>
+            _fixture.Customize<PointM>(customization =>
                 customization.FromFactory(generator =>
-                    new MeasuredPoint(
+                    new PointM(
                         _fixture.Create<double>(),
                         _fixture.Create<double>(),
                         _fixture.Create<double>(),
@@ -34,7 +34,7 @@ namespace Shaperon
             _fixture.Customize<ILineString>(customization =>
                 customization.FromFactory(generator =>
                     new LineString(
-                        new PointSequence(_fixture.CreateMany<MeasuredPoint>(generator.Next(2, 10))),
+                        new PointSequence(_fixture.CreateMany<PointM>(generator.Next(2, 10))),
                         GeometryConfiguration.GeometryFactory
                     )
                 ).OmitAutoProperties()

@@ -8,30 +8,30 @@ namespace Shaperon
     // Point uses a ICoordinateSequence as underlaying type
     // The default ICoordinateSequenceFactory from NetTopologySuite used to create the underlaying ICoordinateSequence is configured for Ordinate.XYZ
 
-    public class MeasuredPoint : Point
+    public class PointM : Point
     {
-        public MeasuredPoint(Coordinate coordinate)
+        public PointM(Coordinate coordinate)
             : base(
                 GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(new []{ coordinate }),
                 GeometryConfiguration.GeometryFactory
             )
         { }
 
-        public MeasuredPoint(double x, double y, double z, double m)
+        public PointM(double x, double y, double z, double m)
             : this(new Coordinate(x, y, z))
         {
             ChangeMeasurement(m);
         }
 
-        public MeasuredPoint(double x, double y, double z)
+        public PointM(double x, double y, double z)
             : this(new Coordinate(x, y, z))
         { }
 
-        public MeasuredPoint(double x, double y)
+        public PointM(double x, double y)
             : this(new Coordinate(x, y))
         { }
 
-        public MeasuredPoint(ICoordinateSequence coordinatesSequence)
+        public PointM(ICoordinateSequence coordinatesSequence)
             : this(coordinatesSequence.GetCoordinate(0))
         { }
 
