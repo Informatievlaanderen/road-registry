@@ -11,6 +11,10 @@ namespace Shaperon
     {
         private static readonly ByteLength MeasureRangeByteLength = ByteLength.Doubles("Measure.Min", "Measure.Max");
         private static readonly ByteLength BoundingBoxByteLength = ByteLength.Doubles("BoundingBox.MinX", "BoundingBox.MinY", "BoundingBox.MaxX", "BoundingBox.MaxY");
+        private static readonly ByteLength ContentHeaderLength =
+            ByteLength.Int32("ShapeType")
+                .Plus(BoundingBoxByteLength)
+                .Plus(ByteLength.Int32s("NumberOfParts", "NumberOfPoints"));
 
         public MultiLineString Shape { get; }
 
@@ -22,11 +26,10 @@ namespace Shaperon
             var numberOfParts = shape.NumGeometries;
             var numberOfPoints = shape.NumPoints;
 
-            ContentLength = ByteLength.Int32("ShapeType")
-                .Plus(BoundingBoxByteLength)
-                .Plus(ByteLength.Int32s("NumberOfParts", "NumberOfPoints"))
+            ContentLength = new ByteLength(ContentHeaderLength)
                 .Plus(ByteLength.Int32("Part").Times(numberOfParts))
                 .Plus(ByteLength.Doubles("Point.X", "Point.Y").Times(numberOfPoints))
+                .Plus(MeasureRangeByteLength)
                 .Plus(ByteLength.Double("Point.M").Times(numberOfPoints))
                 .ToWordLength();
         }
