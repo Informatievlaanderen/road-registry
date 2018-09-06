@@ -194,8 +194,11 @@ namespace Shaperon
             }
 
             var measures = Shape.GetOrdinates(Ordinate.M).ToArray();
-            writer.WriteDoubleLittleEndian(measures.Concat(new []{ double.PositiveInfinity }).Min()); // Measure.Min
-            writer.WriteDoubleLittleEndian(measures.Concat(new []{ double.NegativeInfinity }).Max()); // Measure.Max
+            var validMeasureValues = measures
+                .Where(number => false == double.IsNaN(number))
+                .ToArray();
+            writer.WriteDoubleLittleEndian(validMeasureValues.DefaultIfEmpty(double.PositiveInfinity).Min()); // Measure.Min
+            writer.WriteDoubleLittleEndian(validMeasureValues.DefaultIfEmpty(double.NegativeInfinity).Max()); // Measure.Max
             foreach (var measure in measures)
             {
                 writer.WriteDoubleLittleEndian(measure); // Points[i].M
