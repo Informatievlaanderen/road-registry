@@ -2,6 +2,7 @@ namespace RoadRegistry.LegacyStreamExtraction
 {
     using System;
     using RoadRegistry.Events;
+    using Shared;
 
     internal static class Translate
     {

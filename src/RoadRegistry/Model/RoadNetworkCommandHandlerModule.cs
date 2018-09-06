@@ -1,6 +1,7 @@
 namespace RoadRegistry.Model
 {
     using System;
+    using System.Collections.Generic;
     using Commands;
     using Framework;
     using SqlStreamStore;
@@ -17,16 +18,22 @@ namespace RoadRegistry.Model
                 .Handle(async (context, message, ct) =>
                 {
                     var network = await context.RoadNetworks.Get(ct);
-                    foreach (var change in message.Body.Changeset)
+                    var changes = new IRoadNetworkChange[message.Body.Changeset.Length];
+                    for (var index = 0; index < message.Body.Changeset.Length; index++)
                     {
-                        if (change.AddRoadNode != null)
+                        switch (message.Body.Changeset[index].PickChange())
                         {
-                            network.AddRoadNode(
-                                new RoadNodeId(change.AddRoadNode.Id),
-                                RoadNodeType.Parse((int)change.AddRoadNode.Type),
-                                change.AddRoadNode.Geometry);
+                            case Commands.AddRoadNode addRoadNode:
+                                changes[index] = new AddRoadNode
+                                (
+                                    new RoadNodeId(addRoadNode.Id),
+                                    RoadNodeType.Parse((int) addRoadNode.Type),
+                                    addRoadNode.Geometry
+                                );
+                                break;
                         }
                     }
+                    network.Change(changes);
                 });
         }
     }

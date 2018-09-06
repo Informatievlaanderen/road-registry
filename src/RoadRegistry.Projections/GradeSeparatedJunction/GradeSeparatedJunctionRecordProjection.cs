@@ -7,6 +7,7 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
+    using Shared;
 
     public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<ShapeContext>
     {

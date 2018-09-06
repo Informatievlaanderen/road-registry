@@ -5,6 +5,7 @@
     using System.Linq;
     using Events;
     using Aiv.Vbr.Shaperon;
+    using Shared;
     using Xunit;
 
     public class ReferenceDataTests

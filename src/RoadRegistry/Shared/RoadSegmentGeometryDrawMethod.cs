@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-
-namespace RoadRegistry.Events
+namespace RoadRegistry.Shared
 {
+    using System.Collections.Generic;
+
     public enum RoadSegmentGeometryDrawMethod
     {
         Outlined = 1,

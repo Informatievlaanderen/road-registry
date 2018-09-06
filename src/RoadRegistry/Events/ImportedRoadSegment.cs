@@ -2,6 +2,7 @@ namespace RoadRegistry.Events
 {
     using System;
     using Aiv.Vbr.EventHandling;
+    using Shared;
 
     [EventName("ImportedRoadSegment")]
     [EventDescription("Indicates a road network segment was imported.")]

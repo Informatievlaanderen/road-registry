@@ -1,6 +1,7 @@
 namespace RoadRegistry.Events
 {
     using Aiv.Vbr.EventHandling;
+    using Shared;
 
     [EventName("ImportedRoadNode")]
     [EventDescription("Indicates a road network node was imported.")]

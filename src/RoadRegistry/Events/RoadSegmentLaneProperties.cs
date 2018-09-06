@@ -1,5 +1,7 @@
 namespace RoadRegistry.Events
 {
+    using Shared;
+
     public class RoadSegmentLaneProperties
     {
         public int AttributeId { get; set; }

@@ -7,6 +7,7 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Events;
     using Aiv.Vbr.Shaperon;
+    using Shared;
     using Xunit;
 
     public class RoadNodeProjectionTests

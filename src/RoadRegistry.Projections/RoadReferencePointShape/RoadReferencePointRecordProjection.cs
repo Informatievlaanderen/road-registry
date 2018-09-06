@@ -8,6 +8,7 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
     using Aiv.Vbr.Shaperon;
+    using Shared;
 
     public class RoadReferencePointRecordProjection: ConnectedProjection<ShapeContext>
     {

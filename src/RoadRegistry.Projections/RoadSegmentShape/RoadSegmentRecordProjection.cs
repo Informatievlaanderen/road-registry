@@ -10,6 +10,7 @@ namespace RoadRegistry.Projections
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
     using Aiv.Vbr.Shaperon;
+    using Shared;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<ShapeContext>
     {

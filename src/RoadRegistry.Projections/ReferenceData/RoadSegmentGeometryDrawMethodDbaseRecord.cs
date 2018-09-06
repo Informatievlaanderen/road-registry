@@ -2,6 +2,7 @@ namespace RoadRegistry.Projections
 {
     using Events;
     using Aiv.Vbr.Shaperon;
+    using Shared;
 
     public class RoadSegmentGeometryDrawMethodDbaseRecord : DbaseRecord
     {

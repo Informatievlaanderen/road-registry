@@ -1,5 +1,7 @@
 namespace RoadRegistry.Events
 {
+    using Shared;
+
     public class RoadNodeAdded
     {
         public long Id { get; set;  }

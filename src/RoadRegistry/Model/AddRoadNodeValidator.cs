@@ -3,7 +3,7 @@ namespace RoadRegistry.Model
     using Commands;
     using FluentValidation;
 
-    public class AddRoadNodeValidator : AbstractValidator<AddRoadNode>
+    public class AddRoadNodeValidator : AbstractValidator<Commands.AddRoadNode>
     {
         public AddRoadNodeValidator()
         {

@@ -11,7 +11,8 @@ namespace RoadRegistry.Events
             typeof(ImportedReferencePoint),
             typeof(ImportedRoadNode),
             typeof(ImportedRoadSegment),
-            typeof(ImportedOrganization)
+            typeof(ImportedOrganization),
+            typeof(RoadNetworkChanged)
         };
     }
 }

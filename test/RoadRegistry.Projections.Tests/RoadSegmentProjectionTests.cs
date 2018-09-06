@@ -9,6 +9,7 @@ namespace RoadRegistry.Projections.Tests
     using Xunit;
     using NetTopologySuite.Geometries;
     using System.Text;
+    using Shared;
 
     public class RoadSegmentProjectionTests
     {

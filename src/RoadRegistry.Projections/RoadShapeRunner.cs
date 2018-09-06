@@ -6,6 +6,8 @@ namespace RoadRegistry.Projections
     using Events;
     using Microsoft.Extensions.Logging;
     using Aiv.Vbr.Shaperon;
+    using NetTopologySuite.IO;
+    using Shared;
 
     public class RoadShapeRunner : Runner<ShapeContext>
     {

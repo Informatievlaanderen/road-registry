@@ -48,11 +48,11 @@ namespace RoadRegistry.Model
                                 @event =>
                                     new NewStreamMessage(
                                         Deterministic.Create(Deterministic.Namespaces.Events,
-                                            $"{RoadNetworks.Stream}-{version++}"),
+                                            $"{entry.Stream}-{version++}"),
                                         Mapping.GetEventName(@event.GetType()),
                                         JsonConvert.SerializeObject(@event, Settings)
                                     ));
-                            await store.AppendToStream(RoadNetworks.Stream, entry.ExpectedVersion, messages, ct);
+                            await store.AppendToStream(entry.Stream, entry.ExpectedVersion, messages, ct);
                         }
                     }
 

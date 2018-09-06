@@ -1,5 +1,7 @@
 namespace RoadRegistry.Events
 {
+    using Shared;
+
     public class RoadSegmentHardeningProperties
     {
         public int AttributeId { get; set; }

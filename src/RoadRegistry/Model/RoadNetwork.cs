@@ -2,6 +2,7 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using Events;
     using Framework;
 
@@ -9,19 +10,19 @@ namespace RoadRegistry.Model
     {
         public static readonly Func<RoadNetwork> Factory = () => new RoadNetwork();
 
-        private Dictionary<RoadNodeId, RoadNode> _nodes;
-        private Dictionary<RoadSegmentId, RoadSegment> _segments;
+        private ImmutableDictionary<RoadNodeId, RoadNode> _nodes;
+        private ImmutableDictionary<RoadSegmentId, RoadSegment> _segments;
 
         private RoadNetwork()
         {
-            _nodes = new Dictionary<RoadNodeId, RoadNode>();
-            _segments = new Dictionary<RoadSegmentId, RoadSegment>();
+            _nodes = ImmutableDictionary<RoadNodeId, RoadNode>.Empty;
+            _segments = ImmutableDictionary<RoadSegmentId, RoadSegment>.Empty;
 
             On<ImportedRoadNode>(e =>
             {
                 var id = new RoadNodeId(e.Id);
                 var node = new RoadNode(id);
-                _nodes.Add(id, node);
+                _nodes = _nodes.Add(id, node);
             });
 
             On<ImportedRoadSegment>(e =>
@@ -30,27 +31,79 @@ namespace RoadRegistry.Model
                 var start = new RoadNodeId(e.StartNodeId);
                 var end = new RoadNodeId(e.EndNodeId);
                 var segment = new RoadSegment(id, start, end);
-                _nodes[start] = _nodes[start].ConnectWith(id);
-                _nodes[end] = _nodes[end].ConnectWith(id);
-                _segments.Add(id, segment);
+                var startNode = _nodes[start];
+                var endNode = _nodes[end];
+                _nodes = _nodes
+                    .Remove(start)
+                    .Add(start, startNode.ConnectWith(id))
+                    .Remove(end)
+                    .Add(end, endNode.ConnectWith(id));
+                _segments = _segments.Add(id, segment);
             });
-        }
 
-        public void AddRoadNode(RoadNodeId id, RoadNodeType type, byte[] geometry)
-        {
-            Apply(new RoadNetworkChanged
+            On<RoadNetworkChanged>(e =>
             {
-                Changeset = new[]
+                foreach (var change in e.Changeset)
                 {
-                    new RoadNetworkChange
+                    if (change.RoadNodeAdded != null)
                     {
-                        RoadNodeAdded = new RoadNodeAdded
-                        {
-                            Id = id.ToInt64(), Type = (Events.RoadNodeType) type.ToInt32(), Geometry = geometry
-                        }
+                        var id = new RoadNodeId(change.RoadNodeAdded.Id);
+                        var node = new RoadNode(id);
+                        _nodes = _nodes.Add(id, node);
                     }
                 }
             });
+        }
+
+        public void Change(IRoadNetworkChange[] changes)
+        {
+            var changed = new List<RoadNetworkChange>();
+            foreach (var change in changes)
+            {
+                switch (change)
+                {
+                    case AddRoadNode addRoadNode:
+                        if (_nodes.ContainsKey(addRoadNode.Id))
+                        {
+                            throw new RoadNodeIdTakenException(addRoadNode.Id);
+                        }
+
+                        changed.Add(new RoadNetworkChange
+                        {
+                            RoadNodeAdded = new RoadNodeAdded
+                            {
+                                Id = addRoadNode.Id.ToInt64(),
+                                Type = (Shared.RoadNodeType) addRoadNode.Type.ToInt32(),
+                                Geometry = addRoadNode.Geometry
+                            }
+                        });
+                        break;
+                }
+            }
+
+            Apply(new RoadNetworkChanged
+            {
+                Changeset = changed.ToArray()
+            });
+        }
+    }
+
+    public interface IRoadNetworkChange
+    {
+
+    }
+
+    public class AddRoadNode : IRoadNetworkChange
+    {
+        public RoadNodeId Id { get; }
+        public RoadNodeType Type { get; }
+        public byte[] Geometry { get; }
+
+        public AddRoadNode(RoadNodeId id, RoadNodeType type, byte[] geometry)
+        {
+            Id = id;
+            Type = type ?? throw new ArgumentNullException(nameof(type));
+            Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
         }
     }
 }

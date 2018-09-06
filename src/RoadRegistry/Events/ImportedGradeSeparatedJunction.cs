@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Events
 {
     using Aiv.Vbr.EventHandling;
+    using Shared;
 
     [EventName("ImportedGradeSeparatedJunction")]
     [EventDescription("Indicates a road network grade separated junction was imported.")]

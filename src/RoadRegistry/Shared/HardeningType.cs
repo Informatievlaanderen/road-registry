@@ -1,4 +1,4 @@
-namespace RoadRegistry.Events
+namespace RoadRegistry.Shared
 {
     using System.Collections.Generic;
 

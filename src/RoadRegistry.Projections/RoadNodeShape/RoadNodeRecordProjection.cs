@@ -9,6 +9,7 @@ namespace RoadRegistry.Projections
     using Events;
     using NetTopologySuite.Geometries;
     using Aiv.Vbr.Shaperon;
+    using Shared;
 
     public class RoadNodeRecordProjection : ConnectedProjection<ShapeContext>
     {

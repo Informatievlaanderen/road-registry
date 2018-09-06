@@ -31,7 +31,7 @@ namespace RoadRegistry.Model
 
         public async Task<RoadNetwork> Get(CancellationToken ct = default)
         {
-            if (_map.TryGet(Stream, out EventSourcedEntityMapEntry entry))
+            if (_map.TryGet(Stream, out var entry))
             {
                 return (RoadNetwork)entry.Entity;
             }

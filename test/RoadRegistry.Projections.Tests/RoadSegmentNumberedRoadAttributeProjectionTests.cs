@@ -6,6 +6,8 @@ namespace RoadRegistry.Projections.Tests
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
+    using Infrastructure;
+    using Shared;
     using Xunit;
 
     public class RoadSegmentNumberedRoadAttributeProjectionTests

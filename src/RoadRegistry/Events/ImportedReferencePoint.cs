@@ -1,6 +1,7 @@
 namespace RoadRegistry.Events
 {
     using Aiv.Vbr.EventHandling;
+    using Shared;
 
     [EventName("ImportedReferencePoint")]
     [EventDescription("Indicates a road network reference point was imported.")]
