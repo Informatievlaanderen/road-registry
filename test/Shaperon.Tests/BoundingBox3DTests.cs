@@ -5,8 +5,10 @@ namespace Shaperon
     using System.Linq;
     using AutoFixture;
     using AutoFixture.Idioms;
+    using GeoAPI;
     using GeoAPI.Geometries;
     using Infrastucture;
+    using NetTopologySuite;
     using NetTopologySuite.Geometries;
     using Xunit;
 
@@ -17,6 +19,13 @@ namespace Shaperon
         public BoundingBox3DTests()
         {
             _fixture = new Fixture();
+            GeometryServiceProvider.SetInstanceIfNotAlreadySetDirectly(
+                new NtsGeometryServices(
+                    GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory,
+                    GeometryConfiguration.GeometryFactory.PrecisionModel,
+                    GeometryConfiguration.GeometryFactory.SRID
+                )
+            );
         }
 
         [Fact]

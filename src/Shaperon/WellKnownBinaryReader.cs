@@ -1,6 +1,8 @@
 namespace Shaperon
 {
+    using GeoAPI;
     using GeoAPI.Geometries;
+    using NetTopologySuite;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
 
@@ -10,11 +12,12 @@ namespace Shaperon
 
         public WellKnownBinaryReader()
         {
-            _wkbReader = new WKBReader(GeometryConfiguration.GeometryFactory)
-            {
-                HandleOrdinates = Ordinates.XYZM,
-                HandleSRID = true
-            };
+            _wkbReader = new WKBReader(new NtsGeometryServices(
+                    GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory,
+                    GeometryConfiguration.GeometryFactory.PrecisionModel,
+                    GeometryConfiguration.GeometryFactory.SRID
+                )
+            );
         }
 
         public IGeometry Read(byte[] data)
