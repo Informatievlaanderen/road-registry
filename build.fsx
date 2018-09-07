@@ -1,136 +1,92 @@
-// include Fake lib
-#r "packages/FAKE/tools/FakeLib.dll"
+#load "packages/Aiv.Vbr.Build.Pipeline/Content/build-generic.fsx"
+
 open Fake
-open Fake.FileSystemHelper
 open Fake.NpmHelper
+open ``Build-generic``
 
-// Properties
-let buildNumber = environVarOrDefault "BUILD_BUILDNUMBER" "develop"
-let buildDir = "./dist/"
-let dockerRegistry = "921707234258.dkr.ecr.eu-west-1.amazonaws.com"
+let dockerRepository = "roadregistry"
+let assemblyVersionNumber = (sprintf "2.0.0.%s")
+let nugetVersionNumber = (sprintf "2.0.%s")
 
-let mutable customDotnetSdkPath : Option<string> = None
-
-let testWithXunit path =
-  DotNetCli.RunCommand
-    (fun p ->
-       { p with
-          ToolPath =
-            match customDotnetSdkPath with
-            | None -> p.ToolPath
-            | Some sdkPath -> sdkPath
-          WorkingDir = path })
-    "xunit -configuration Release -xml test-results/TestResults.xml"
-
-let testWithDotNet path =
-  DotNetCli.Test
-    (fun p ->
-      { p with
-          Project = path
-          AdditionalArgs = ["-l trx"] })
-
-Target "DotNetCli" (fun _ ->
-  if not(DotNetCli.isInstalled()) then
-    customDotnetSdkPath <- Some <| DotNetCli.InstallDotNetSDK("2.1.1")
-)
-
-Target "DockerLogin" (fun _ ->
-  let dockerLogin =
-    ExecProcess (fun info ->
-        info.FileName <- "bash"
-        info.Arguments <- "docker_login.sh"
-    ) (System.TimeSpan.FromMinutes 5.)
-
-  if dockerLogin <> 0 then failwith "Failed result from Docker Login"
-)
+let containerize = containerize dockerRepository
+let push = push dockerRepository
+let build = build assemblyVersionNumber
+let publish = publish assemblyVersionNumber
+let pack = pack nugetVersionNumber
 
 Target "Clean" (fun _ ->
   CleanDir buildDir
+  CleanDir ("src" @@ "RoadRegistry.Api" @@ "wwwroot")
 )
 
-Target "Restore" (fun _ ->
-  DotNetCli.Restore(id)
+Target "Build_CoreComponents" (fun _ ->
+  [
+    "Shaperon"
+    "RoadRegistry"
+  ] |> List.iter build
 )
 
-Target "Build" (fun _ ->
-  DotNetCli.Build(fun p ->
-  { p with
-      Project = "src" @@ "RoadRegistry.Api" @@ "RoadRegistry.Api.csproj"
-      Configuration = "Release"
-  })
+Target "Build_Core" DoNothing
+Target "Build_LegacyDataExtraction" (fun _ -> build "RoadRegistry.LegacyStreamExtraction")
+Target "Build_LegacyDataLoader" (fun _ -> build "RoadRegistry.LegacyStreamLoader")
+Target "Build_Projections" (fun _ -> build "RoadRegistry.Projections")
 
-  DotNetCli.Build(fun p ->
-  { p with
-      Project = "src" @@ "RoadRegistry.UI" @@ "RoadRegistry.UI.csproj"
-      Configuration = "Release"
-  })
-
-  DotNetCli.Build(fun p ->
-  { p with
-      Project = "src" @@ "RoadRegistry.LegacyStreamExtraction" @@ "RoadRegistry.LegacyStreamExtraction.csproj"
-      Configuration = "Release"
-  })
-
-  DotNetCli.Build(fun p ->
-  { p with
-      Project = "src" @@ "RoadRegistry.LegacyStreamLoader" @@ "RoadRegistry.LegacyStreamLoader.csproj"
-      Configuration = "Release"
-  })
+Target "Build_Site" (fun _ ->
+  [
+    "RoadRegistry.Api"
+    "RoadRegistry.UI"
+  ] |> List.iter build
 )
 
-Target "Test" (fun _ ->
-  [ "test" @@ "RoadRegistry.Projections.Tests"
+Target "Test_CoreComponents" (fun _ ->
+  [
+    "test" @@ "Shaperon.Tests"
     "test" @@ "RoadRegistry.Tests"
-    "test" @@ "Shaperon.Tests" ]
+  ] |> List.iter testWithXunit
+)
+
+Target "Test_LegacyDataExtraction" DoNothing
+Target "Test_LegacyDataLoader" DoNothing
+
+Target "Test_Projections" (fun _ ->
+  [ "test" @@ "RoadRegistry.Projections.Tests" ]
   |> List.iter testWithXunit
 )
 
-Target "App_Publish" (fun _ ->
-  DotNetCli.Publish(fun p ->
-  { p with
-      Project = "src" @@ "RoadRegistry.Api" @@ "RoadRegistry.Api.csproj"
-      Configuration = "Release"
-      Output = currentDirectory @@ buildDir @@ "RoadRegistry.Api" @@ "linux"
-      Runtime = "debian.8-x64"
-  })
+Target "Test_Site" DoNothing
 
-  DotNetCli.Publish(fun p ->
-  { p with
-      Project = "src" @@ "RoadRegistry.UI" @@ "RoadRegistry.UI.csproj"
-      Configuration = "Release"
-      Output = currentDirectory @@ buildDir @@ "RoadRegistry.UI" @@ "linux"
-      Runtime = "debian.8-x64"
-  })
+Target "Publish_LegacyDataExtraction" (fun _ -> publish "RoadRegistry.LegacyStreamExtraction")
+Target "Publish_LegacyDataLoader" (fun _ -> publish "RoadRegistry.LegacyStreamLoader")
+Target "Publish_Projections" (fun _ -> publish "RoadRegistry.Projections")
 
-  DotNetCli.Publish(fun p ->
-  { p with
-      Project = "src" @@ "RoadRegistry.Api" @@ "RoadRegistry.Api.csproj"
-      Configuration = "Release"
-      Output = currentDirectory @@ buildDir @@ "RoadRegistry.Api" @@ "win"
-      Runtime = "win10-x64"
-  })
-
-  DotNetCli.Publish(fun p ->
-  { p with
-      Project = "src" @@ "RoadRegistry.UI" @@ "RoadRegistry.UI.csproj"
-      Configuration = "Release"
-      Output = currentDirectory @@ buildDir @@ "RoadRegistry.UI" @@ "win"
-      Runtime = "win10-x64"
-  })
+Target "Publish_Site" (fun _ ->
+  publish "RoadRegistry.Api"
+  publish "RoadRegistry.UI"
 )
 
-Target "App_Containerize" DoNothing
-Target "App_PushContainer" DoNothing
-Target "PublishApp" DoNothing
 Target "PublishAll" DoNothing
-Target "PackageApp" DoNothing
-Target "PackageSite" DoNothing
+
 Target "PackageAll" DoNothing
 Target "PushAll" DoNothing
 
-// Publish ends up with artifacts in the build folder
-"DotNetCli" ==> "Clean" ==> "Restore" ==> "Build" ==> "Test" ==> "App_Publish" ==> "PublishApp"
-"PublishApp" ==> "PublishAll"
+
+// Publish artefacts to build folder
+"DotNetCli" ==> "Clean" ==> "Restore" ==> "Build_CoreComponents" ==> "Test_CoreComponents" ==> "Build_Core"
+"Build_Core" ==> "Build_LegacyDataExtraction" ==> "Test_LegacyDataExtraction" ==> "Publish_LegacyDataExtraction"
+"Build_Core" ==> "Build_LegacyDataLoader" ==> "Test_LegacyDataLoader" ==> "Publish_LegacyDataLoader"
+"Build_Core" ==> "Build_Projections" ==> "Test_Projections" ==> "Publish_Projections"
+"Build_Core" ==> "Build_Site" ==> "Test_Site" ==> "Publish_Site"
+
+"Publish_LegacyDataExtraction" ==> "PublishAll"
+"Publish_LegacyDataLoader" ==> "PublishAll"
+"Publish_Projections" ==> "PublishAll"
+"Publish_Site" ==> "PublishAll"
+
+(* DISABLED "PushAll" for now, replaced it with just excuting the "PublishAll"
+
+Target "App_Containerize" DoNothing
+Target "App_PushContainer" DoNothing
+Target "PackageApp" DoNothing
 
 // Package ends up with local Docker images
 "PublishApp" ==> "App_Containerize" ==> "PackageApp"
@@ -138,5 +94,9 @@ Target "PushAll" DoNothing
 
 // Push ends up with Docker images in AWS
 "PackageApp" ==> "DockerLogin" ==> "App_PushContainer" ==> "PushAll"
+
+*)
+
+"PublishAll" ==> "PushAll"
 
 RunTargetOrDefault "PackageAll"

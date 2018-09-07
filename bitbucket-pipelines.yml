@@ -1,0 +1,29 @@
+image:
+  name: basisregisters/build-agent:latest
+
+pipelines:
+  branches:
+    master:
+      - step:
+          script:
+            - ./build.sh PushAll
+          services:
+            - docker
+          caches:
+            - dotnetcore
+            - paket
+            - docker
+
+    # swap 'wr-121-setup-pipelines' to '**' once done
+    # '**':
+    'wr-121-setup-pipelines':
+      - step:
+          script:
+            - ./build.sh PublishAll
+          caches:
+            - dotnetcore
+            - paket
+
+definitions:
+  caches:
+    paket: packages
