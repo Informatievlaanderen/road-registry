@@ -8,14 +8,22 @@ let dockerRepository = "roadregistry"
 let assemblyVersionNumber = (sprintf "2.0.0.%s")
 let nugetVersionNumber = (sprintf "2.0.%s")
 
+let containerize = containerize dockerRepository
+let push = push dockerRepository
+let build = build assemblyVersionNumber
+let publish = publish assemblyVersionNumber
+let pack = pack nugetVersionNumber
+
 Target "Clean" (fun _ ->
   CleanDir buildDir
   CleanDir ("src" @@ "RoadRegistry.Api" @@ "wwwroot")
 )
 
 Target "Build_CoreComponents" (fun _ ->
-  build "Shaperon"
-  build "RoadRegistry"
+  [
+    "Shaperon"
+    "RoadRegistry"
+  ] |> List.iter build
 )
 
 Target "Build_LegacyDataExtraction" (fun _ -> build "RoadRegistry.LegacyStreamExtraction")
@@ -23,8 +31,10 @@ Target "Build_LegacyDataLoader" (fun _ -> build "RoadRegistry.LegacyStreamLoader
 Target "Build_Projections" (fun _ -> build "RoadRegistry.Projections")
 
 Target "Build_Site" (fun _ ->
-  build "RoadRegistry.Api"
-  build "RoadRegistry.UI"
+  [
+    "RoadRegistry.Api"
+    "RoadRegistry.UI"
+  ] |> List.iter build
 )
 
 Target "Test_CoreComponents" (fun _ ->
