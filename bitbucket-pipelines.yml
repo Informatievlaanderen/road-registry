@@ -1,0 +1,34 @@
+image:
+  name: basisregisters/build-agent:latest
+
+pipelines:
+  default:
+    - step:
+      script:
+        - echo "we have lift off! WIP or not, please remove this nonsense."
+        
+  branches:
+    # WIP
+
+    # master:
+    #   - step:
+    #       script:
+    #         - ./build.sh PushAll
+    #       services:
+    #         - docker
+    #       caches:
+    #         - dotnetcore
+    #         - paket
+    #         - docker
+
+    'wr-121-setup-pipelines':
+      - step:
+          script:
+            - ./build.sh PublishAll
+          caches:
+            - dotnetcore
+            - paket
+
+definitions:
+  caches:
+    paket: packages
