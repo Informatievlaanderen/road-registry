@@ -26,6 +26,7 @@ Target "Build_CoreComponents" (fun _ ->
   ] |> List.iter build
 )
 
+Target "Build_Core" DoNothing
 Target "Build_LegacyDataExtraction" (fun _ -> build "RoadRegistry.LegacyStreamExtraction")
 Target "Build_LegacyDataLoader" (fun _ -> build "RoadRegistry.LegacyStreamLoader")
 Target "Build_Projections" (fun _ -> build "RoadRegistry.Projections")
@@ -70,11 +71,11 @@ Target "PushAll" DoNothing
 
 
 // Publish artefacts to build folder
-"DotNetCli" ==> "Clean" ==> "Restore" ==> "Build_CoreComponents" ==> "Test_CoreComponents" ==> "Build_CoreComponents"
-"Build_CoreComponents" ==> "Build_LegacyDataExtraction" ==> "Test_LegacyDataExtraction" ==> "Publish_LegacyDataExtraction"
-"Build_CoreComponents" ==> "Build_LegacyDataLoader" ==> "Test_LegacyDataLoader" ==> "Publish_LegacyDataLoader"
-"Build_CoreComponents" ==> "Build_Projections" ==> "Test_Projections" ==> "Publish_Projections"
-"Build_CoreComponents" ==> "Build_Site" ==> "Test_Site" ==> "Publish_Site"
+"DotNetCli" ==> "Clean" ==> "Restore" ==> "Build_CoreComponents" ==> "Test_CoreComponents" ==> "Build_Core"
+"Build_Core" ==> "Build_LegacyDataExtraction" ==> "Test_LegacyDataExtraction" ==> "Publish_LegacyDataExtraction"
+"Build_Core" ==> "Build_LegacyDataLoader" ==> "Test_LegacyDataLoader" ==> "Publish_LegacyDataLoader"
+"Build_Core" ==> "Build_Projections" ==> "Test_Projections" ==> "Publish_Projections"
+"Build_Core" ==> "Build_Site" ==> "Test_Site" ==> "Publish_Site"
 
 "Publish_LegacyDataExtraction" ==> "PublishAll"
 "Publish_LegacyDataLoader" ==> "PublishAll"
