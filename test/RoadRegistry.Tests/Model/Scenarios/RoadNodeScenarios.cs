@@ -1,20 +1,26 @@
 namespace RoadRegistry.Model
 {
-    using System.Linq;
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
-    using Commands;
+    using NetTopologySuite.Geometries;
+    using Aiv.Vbr.Shaperon;
     using Testing;
     using Xunit;
 
     public class RoadNodeScenarios : RoadRegistryFixture
     {
+        public RoadNodeScenarios()
+        {
+            Fixture.CustomizePointM();
+            Fixture.CustomizePolylineM();
+        }
+
         [Fact]
         public Task when_adding_a_node_with_an_id_that_has_not_been_taken()
         {
-            //TODO: Make sure we use a point geometry
-            var geometry = Fixture.CreateMany<byte>().ToArray();
+            var pointM = Fixture.Create<PointM>();
+            var geometry = pointM.ToBytes();
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetwork(
@@ -51,12 +57,13 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_node_with_an_id_taken_after_an_import()
         {
+            var geometry = Fixture.Create<PointM>().ToBytes();
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new ImportedRoadNode
                 {
                     Id = 1,
                     Type = Shared.RoadNodeType.RealNode,
-                    Geometry = Fixture.CreateMany<byte>().ToArray()
+                    Geometry = geometry
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new[]
@@ -67,7 +74,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = Shared.RoadNodeType.FakeNode,
-                                Geometry = Fixture.CreateMany<byte>().ToArray()
+                                Geometry = geometry
                             }
                         }
                     }
@@ -78,6 +85,7 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_node_with_an_id_taken_after_a_change()
         {
+            var geometry = Fixture.Create<PointM>().ToBytes();
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChanged
                 {
@@ -89,7 +97,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = Shared.RoadNodeType.RealNode,
-                                Geometry = Fixture.CreateMany<byte>().ToArray()
+                                Geometry = geometry
                             }
                         }
                     }
@@ -103,7 +111,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = Shared.RoadNodeType.FakeNode,
-                                Geometry = Fixture.CreateMany<byte>().ToArray()
+                                Geometry = geometry
                             }
                         }
                     }
@@ -114,6 +122,7 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_node_with_a_geometry_that_is_not_a_point()
         {
+            var geometry = Fixture.Create<MultiLineString>().ToBytes();
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetwork(
@@ -125,7 +134,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = Shared.RoadNodeType.FakeNode,
-                                Geometry = Fixture.CreateMany<byte>().ToArray()
+                                Geometry = geometry
                             }
                         }
                     }
@@ -136,9 +145,8 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_multiple_nodes_with_an_id_that_has_not_been_taken()
         {
-            //TODO: Make sure we use a point geometry
-            var geometry1 = Fixture.CreateMany<byte>().ToArray();
-            var geometry2 = Fixture.CreateMany<byte>().ToArray();
+            var geometry1 = Fixture.Create<PointM>().ToBytes();
+            var geometry2 = Fixture.Create<PointM>().ToBytes();
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetwork(

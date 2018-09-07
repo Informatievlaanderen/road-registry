@@ -7,6 +7,7 @@ namespace RoadRegistry.Model
     using Events;
     using Framework;
     using Newtonsoft.Json;
+    using Aiv.Vbr.Shaperon;
     using SqlStreamStore;
     using Testing;
 
@@ -24,10 +25,12 @@ namespace RoadRegistry.Model
 
         protected RoadRegistryFixture()
         {
-            Fixture = new ScenarioFixture();
+            Fixture = new Fixture();
+            Fixture.CustomizeRoadNodeType();
+
             _store = new InMemoryStreamStore();
             _runner = new ScenarioRunner(
-                Resolve.WhenEqualToMessage(new RoadNetworkCommandHandlerModule(_store)),
+                Resolve.WhenEqualToMessage(new RoadNetworkCommandHandlerModule(_store, new WellKnownBinaryReader())),
                 _store,
                 Settings,
                 Mapping,

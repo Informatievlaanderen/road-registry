@@ -5,6 +5,7 @@ namespace RoadRegistry.Model
     using System.Collections.Immutable;
     using Events;
     using Framework;
+    using Aiv.Vbr.Shaperon;
 
     public class RoadNetwork : EventSourcedEntity
     {
@@ -57,6 +58,7 @@ namespace RoadRegistry.Model
 
         public void Change(IRoadNetworkChange[] changes)
         {
+            var writer = new WellKnownBinaryWriter();
             var changed = new List<RoadNetworkChange>();
             foreach (var change in changes)
             {
@@ -74,7 +76,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = addRoadNode.Id.ToInt64(),
                                 Type = (Shared.RoadNodeType) addRoadNode.Type.ToInt32(),
-                                Geometry = addRoadNode.Geometry
+                                Geometry = writer.Write(addRoadNode.Geometry)
                             }
                         });
                         break;
@@ -85,25 +87,6 @@ namespace RoadRegistry.Model
             {
                 Changeset = changed.ToArray()
             });
-        }
-    }
-
-    public interface IRoadNetworkChange
-    {
-
-    }
-
-    public class AddRoadNode : IRoadNetworkChange
-    {
-        public RoadNodeId Id { get; }
-        public RoadNodeType Type { get; }
-        public byte[] Geometry { get; }
-
-        public AddRoadNode(RoadNodeId id, RoadNodeType type, byte[] geometry)
-        {
-            Id = id;
-            Type = type ?? throw new ArgumentNullException(nameof(type));
-            Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
         }
     }
 }

@@ -14,3 +14,5 @@ System.Threading.Tasks.Dataflow
 System.Collections.Immutable
 CompareNetObjects
 FluentValidation
+
+NetTopologySuite

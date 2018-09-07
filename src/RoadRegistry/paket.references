@@ -14,3 +14,5 @@ Aiv.Vbr.Shaperon
 System.Threading.Tasks.Dataflow
 System.Collections.Immutable
 FluentValidation
+
+NetTopologySuite

@@ -1,16 +1,17 @@
 namespace RoadRegistry.Model
 {
     using System;
-    using System.Collections.Generic;
     using Commands;
     using Framework;
+    using Aiv.Vbr.Shaperon;
     using SqlStreamStore;
 
     public class RoadNetworkCommandHandlerModule : CommandHandlerModule
     {
-        public RoadNetworkCommandHandlerModule(IStreamStore store)
+        public RoadNetworkCommandHandlerModule(IStreamStore store, WellKnownBinaryReader reader)
         {
             if (store == null) throw new ArgumentNullException(nameof(store));
+            if (reader == null) throw new ArgumentNullException(nameof(reader));
 
             For<ChangeRoadNetwork>()
                 .UseValidator(new ChangeRoadNetworkValidator())
@@ -24,11 +25,16 @@ namespace RoadRegistry.Model
                         switch (message.Body.Changeset[index].PickChange())
                         {
                             case Commands.AddRoadNode addRoadNode:
+                                var id = new RoadNodeId(addRoadNode.Id);
+                                if (!reader.TryReadAs(addRoadNode.Geometry, out PointM point))
+                                {
+                                    throw new RoadNodeGeometryMismatchException(id);
+                                }
                                 changes[index] = new AddRoadNode
                                 (
-                                    new RoadNodeId(addRoadNode.Id),
+                                    id,
                                     RoadNodeType.Parse((int) addRoadNode.Type),
-                                    addRoadNode.Geometry
+                                    point
                                 );
                                 break;
                         }

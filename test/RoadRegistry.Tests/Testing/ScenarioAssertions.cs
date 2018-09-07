@@ -34,7 +34,18 @@ namespace RoadRegistry.Testing
                     }
                     else
                     {
-                        messageBuilder.AppendLine("Expected events to match but found differences");
+                        messageBuilder.AppendLine("Expected events to match but found differences.");
+                        messageBuilder.AppendLine("Expected:");
+                        foreach (var then in recorded.Scenario.Thens)
+                        {
+                            messageBuilder.AppendLine($"\t{then.Stream} - {then.Event.GetType().Name} {JsonConvert.SerializeObject(then.Event)}");
+
+                        }
+                        messageBuilder.AppendLine("Actual:");
+                        foreach (var actual in recorded.Actual)
+                        {
+                            messageBuilder.AppendLine($"\t{actual.Stream} - {actual.Event.GetType().Name} {JsonConvert.SerializeObject(actual.Event)}");
+                        }
                     }
                     throw new XunitException(messageBuilder.ToString());
             }
@@ -56,9 +67,9 @@ namespace RoadRegistry.Testing
                 case ScenarioExpectedExceptionButRecordedEvents recorded:
                     var messageBuilder = new StringBuilder();
                     messageBuilder.AppendLine("Expected exception but recorded these events:");
-                    foreach (var recordedEvent in recorded.Actual)
+                    foreach (var actual in recorded.Actual)
                     {
-                        messageBuilder.AppendLine($"\t{recordedEvent.Stream} - {recordedEvent.Event.GetType().Name} - {JsonConvert.SerializeObject(recordedEvent.Event)}");
+                        messageBuilder.AppendLine($"\t{actual.Stream} - {actual.Event.GetType().Name} {JsonConvert.SerializeObject(actual.Event)}");
                     }
                     throw new XunitException(messageBuilder.ToString());
             }
