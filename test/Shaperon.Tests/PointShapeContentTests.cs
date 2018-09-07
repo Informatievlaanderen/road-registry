@@ -6,8 +6,7 @@ namespace Shaperon
     using Xunit;
     using System.IO;
     using System.Text;
-    using System;
-    using NetTopologySuite.Geometries;
+    using Infrastucture;
 
     public class PointShapeContentTests
     {
@@ -16,12 +15,10 @@ namespace Shaperon
         public PointShapeContentTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<Point>(
-                customization => customization
-                    .FromFactory<int>(
-                        value => new Point(new Random(value).Next(), new Random(value).Next())
-                    )
-                    .OmitAutoProperties()
+            _fixture.Customize<PointM>(customization =>
+                customization.FromFactory(generator =>
+                    new PointM(_fixture.Create<double>(), _fixture.Create<double>())
+                ).OmitAutoProperties()
             );
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
             _fixture.Register(() => new BinaryWriter(new MemoryStream()));
@@ -44,7 +41,7 @@ namespace Shaperon
         [Fact]
         public void ToBytesHasExpectedResult()
         {
-            var sut = new PointShapeContent(_fixture.Create<Point>());
+            var sut = new PointShapeContent(_fixture.Create<PointM>());
 
             var result = sut.ToBytes();
 
@@ -61,7 +58,7 @@ namespace Shaperon
         [Fact]
         public void FromBytesHasExpectedResult()
         {
-            var content = new PointShapeContent(_fixture.Create<Point>());
+            var content = new PointShapeContent(_fixture.Create<PointM>());
 
             var result = PointShapeContent.FromBytes(content.ToBytes());
 
@@ -74,7 +71,7 @@ namespace Shaperon
         [Fact]
         public void ToBytesWithEncodingHasExpectedResult()
         {
-            var sut = new PointShapeContent(_fixture.Create<Point>());
+            var sut = new PointShapeContent(_fixture.Create<PointM>());
 
             var result = sut.ToBytes(Encoding.UTF8);
 
@@ -91,7 +88,7 @@ namespace Shaperon
         [Fact]
         public void FromBytesWithEncodingHasExpectedResult()
         {
-            var content = new PointShapeContent(_fixture.Create<Point>());
+            var content = new PointShapeContent(_fixture.Create<PointM>());
 
             var result = PointShapeContent.FromBytes(content.ToBytes(Encoding.UTF8), Encoding.UTF8);
 
@@ -104,7 +101,7 @@ namespace Shaperon
         [Fact]
         public void CanReadWritePointShape()
         {
-            var sut = new PointShapeContent(_fixture.Create<Point>());
+            var sut = new PointShapeContent(_fixture.Create<PointM>());
 
             using(var stream = new MemoryStream())
             {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 
 namespace Shaperon
@@ -31,6 +31,7 @@ namespace Shaperon
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
                 throw new ShapeRecordContentException("The Shape Type field does not contain a known type of shape.");
+
             var content = NullShapeContent.Instance;
             switch((ShapeType)typeOfShape)
             {

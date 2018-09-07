@@ -73,7 +73,7 @@ nuget System.Text.Encoding.CodePages
 nuget Wkx
 nuget CompareNETObjects
 nuget Albedo
-nuget NetTopologySuite 1.15.0-pre063
+nuget NetTopologySuite 1.15.1-pre006
 
 // VBR STUFF
 nuget Aiv.Vbr.AggregateSource ~> 3.1

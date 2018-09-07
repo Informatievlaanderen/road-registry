@@ -57,7 +57,7 @@ namespace RoadRegistry.Api.Extracts
             IReadOnlyCollection<RoadSegmentNumberedRoadAttributeRecord> roadSegmentNumberedRoadAttributeRecords;
             IReadOnlyCollection<GradeSeparatedJunctionRecord> gradeSeparatedJunctionRecords;
             // TODO: Make sure there's a transaction to ensure the count and iteration are in sync (SNAPSHOT)
-            using (var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted))
+            using (var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
             {
                 organizations = await context
                     .Organizations

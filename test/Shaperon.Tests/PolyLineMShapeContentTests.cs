@@ -7,9 +7,12 @@ namespace Shaperon
     using System.IO;
     using System.Text;
     using System;
+    using System.Collections.Generic;
     using NetTopologySuite.Geometries;
     using GeoAPI.Geometries;
     using System.Linq;
+    using Infrastucture;
+    using KellermanSoftware.CompareNetObjects;
 
     public class PolyLineMShapeContentTests
     {
@@ -18,19 +21,27 @@ namespace Shaperon
         public PolyLineMShapeContentTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<Coordinate>(
-                customization => customization.FromFactory<int>(
-                    value => new Coordinate(new Random(value).Next(), new Random(value).Next())
+            _fixture.Customize<PointM>(customization =>
+                customization.FromFactory(generator =>
+                    new PointM(
+                        _fixture.Create<double>(),
+                        _fixture.Create<double>(),
+                        _fixture.Create<double>(),
+                        _fixture.Create<double>()
+                    )
                 ).OmitAutoProperties()
             );
-            _fixture.Customize<LineString>(
-                customization => customization.FromFactory<int>(
-                    value => new LineString(_fixture.CreateMany<Coordinate>(new Random(value).Next(2, 10)).ToArray())
+            _fixture.Customize<ILineString>(customization =>
+                customization.FromFactory(generator =>
+                    new LineString(
+                        new PointSequence(_fixture.CreateMany<PointM>(generator.Next(2, 10))),
+                        GeometryConfiguration.GeometryFactory
+                    )
                 ).OmitAutoProperties()
             );
-            _fixture.Customize<MultiLineString>(
-                customization => customization.FromFactory<int>(
-                    value => new MultiLineString(_fixture.CreateMany<LineString>(new Random(value).Next(1,10)).ToArray())
+            _fixture.Customize<MultiLineString>(customization =>
+                customization.FromFactory(generator =>
+                    new MultiLineString(_fixture.CreateMany<ILineString>(generator.Next(2,20)).ToArray())
                 ).OmitAutoProperties()
             );
             _fixture.Register(() => new BinaryReader(new MemoryStream()));
@@ -159,6 +170,40 @@ namespace Shaperon
                     Assert.Equal(NullShapeContent.Instance, result);
                 }
             }
+        }
+
+        [Fact]
+        public void ToBytesWithEncodingMatchedDataFromBytesWithEncoding()
+        {
+            var content = new PolyLineMShapeContent(_fixture.Create<MultiLineString>());
+            // check if M values are generated
+            Assert.NotEmpty(content
+                    .Shape
+                    .GetOrdinates(Ordinate.M)
+                    .Where(measure => false == double.IsNaN(measure))
+            );
+
+            var binaryContent = content.ToBytes(Encoding.UTF8);
+            var readAsContent = (PolyLineMShapeContent)PolyLineMShapeContent.FromBytes(binaryContent, Encoding.UTF8);
+
+            Assert.True(content.Shape.EqualsExact(readAsContent.Shape, double.Epsilon));
+        }
+
+        [Fact]
+        public void ToBytesMatchedDataFromBytes()
+        {
+            var content = new PolyLineMShapeContent(_fixture.Create<MultiLineString>());
+            // check if M values are generated
+            Assert.NotEmpty(content
+                .Shape
+                .GetOrdinates(Ordinate.M)
+                .Where(measure => false == double.IsNaN(measure))
+            );
+
+            var binaryContent = content.ToBytes();
+            var readAsContent = (PolyLineMShapeContent)PolyLineMShapeContent.FromBytes(binaryContent);
+
+            Assert.True(content.Shape.EqualsExact(readAsContent.Shape, double.Epsilon));
         }
 
         [Theory]

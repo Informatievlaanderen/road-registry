@@ -70,11 +70,6 @@ namespace RoadRegistry.LegacyStreamLoader
 
                 foreach (var batch in reader.Read(legacyStreamFile).Batch(1000))
                 {
-                    // foreach(var item in batch)
-                    // {
-                    //     Console.WriteLine("{0}:{1}", item.Stream, item.Event.GetType().Name);
-                    // }
-
                     foreach(var stream in batch.GroupBy(item => item.Stream, item => item.Event))
                     {
                         int expectedVersion;

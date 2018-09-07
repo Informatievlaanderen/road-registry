@@ -13,6 +13,7 @@ namespace RoadRegistry.Projections
     using Microsoft.Extensions.Logging;
     using NetTopologySuite;
     using NetTopologySuite.IO;
+    using Shaperon;
 
     public class ShapeRunnerModule : Module
     {
@@ -49,11 +50,8 @@ namespace RoadRegistry.Projections
             containerBuilder.RegisterType<RoadShapeRunner>()
                 .SingleInstance();
 
-            containerBuilder.RegisterInstance<WKBReader>(new WKBReader(new NtsGeometryServices())
-            {
-                HandleOrdinates = Ordinates.XYZM,
-                HandleSRID = true
-            });
+            containerBuilder.RegisterType<WellKnownBinaryReader>()
+                .SingleInstance();
 
             containerBuilder.Populate(_services);
         }

@@ -25,7 +25,7 @@ namespace RoadRegistry.Events
         private static readonly IDictionary<ReferencePointType, string> _dutchDescriptions =
             new Dictionary<ReferencePointType, string>
             {
-                { ReferencePointType.Unknown, "Geen informatie beschikbaar" },
+                { ReferencePointType.Unknown, "Geen informatie beschikbaar." },
                 { ReferencePointType.KilometerMarker, "Paaltje met aanduiding van het aantal kilometer vanaf het begin van de weg en van de code van de weg." },
                 { ReferencePointType.HectometerMarker, "Paaltje met aanduiding van het aantal kilometer resp. hectometer vanaf het begin van de weg." },
             };

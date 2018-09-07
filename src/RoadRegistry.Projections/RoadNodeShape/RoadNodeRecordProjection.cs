@@ -8,17 +8,16 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Events;
     using NetTopologySuite.Geometries;
-    using NetTopologySuite.IO;
     using Shaperon;
 
     public class RoadNodeRecordProjection : ConnectedProjection<ShapeContext>
     {
         private readonly RoadNodeTypeTranslator _roadNodeTypeTranslator;
-        private readonly WKBReader _wkbReader;
+        private readonly WellKnownBinaryReader _wkbReader;
         private readonly Encoding _encoding;
 
         public RoadNodeRecordProjection(
-            WKBReader wkbReader,
+            WellKnownBinaryReader wkbReader,
             RoadNodeTypeTranslator roadNodeTypeTranslator,
             Encoding encoding)
         {
@@ -43,7 +42,7 @@ namespace RoadRegistry.Projections
                 BEGINORG = {Value = @event.Origin.OrganizationId},
                 LBLBGNORG = {Value = @event.Origin.Organization}
             };
-            var pointShapeContent = new PointShapeContent(_wkbReader.ReadAs<Point>(@event.Geometry));
+            var pointShapeContent = new PointShapeContent(_wkbReader.ReadAs<PointM>(@event.Geometry));
 
             return context.AddAsync(new RoadNodeRecord
             {

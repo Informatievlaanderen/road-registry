@@ -5,7 +5,10 @@ namespace Shaperon
     using System.Linq;
     using AutoFixture;
     using AutoFixture.Idioms;
+    using GeoAPI;
     using GeoAPI.Geometries;
+    using Infrastucture;
+    using NetTopologySuite;
     using NetTopologySuite.Geometries;
     using Xunit;
 
@@ -16,6 +19,13 @@ namespace Shaperon
         public BoundingBox3DTests()
         {
             _fixture = new Fixture();
+            GeometryServiceProvider.SetInstanceIfNotAlreadySetDirectly(
+                new NtsGeometryServices(
+                    GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory,
+                    GeometryConfiguration.GeometryFactory.PrecisionModel,
+                    GeometryConfiguration.GeometryFactory.SRID
+                )
+            );
         }
 
         [Fact]
@@ -39,9 +49,9 @@ namespace Shaperon
             Assert.Equal(expected, result);
         }
 
-        public static IEnumerable<object[]> ExpandWithCases 
+        public static IEnumerable<object[]> ExpandWithCases
         {
-            get 
+            get
             {
                 var fixture = new Fixture();
                 var generator = new Generator<double>(fixture);
@@ -76,14 +86,14 @@ namespace Shaperon
                         sut.MMax - 1
                     );
 
-                yield return new object[] 
+                yield return new object[]
                 {
                     sut,
                     bigger,
                     bigger
                 };
 
-                yield return new object[] 
+                yield return new object[]
                 {
                     sut,
                     smaller,
@@ -103,45 +113,42 @@ namespace Shaperon
             Assert.Equal(expected, result);
         }
 
-        public static IEnumerable<object[]> FromGeometryCases 
+        public static IEnumerable<object[]> FromGeometryCases
         {
-            get 
+            get
             {
                 var fixture = new Fixture();
-                fixture.Customize<Coordinate>(
-                    customization => customization.FromFactory<int>(
-                        value => new Coordinate(new Random(value).Next(), new Random(value).Next(), new Random(value).Next())
-                    ).OmitAutoProperties()
-                );
-                fixture.Customize<LineString>(
-                    customization => customization.FromFactory<int>(
-                        value => 
-                        {
-                            var result = new LineString(fixture.CreateMany<Coordinate>(new Random(value).Next(2, 10)).ToArray());
-                            for(var index = 0; index < result.NumPoints; index++)
-                            {
-                                result.GetPointN(index).Z = fixture.Create<double>();
-                                result.GetPointN(index).M = fixture.Create<double>();
-                            }
-                            return result;
-                        }
-                    ).OmitAutoProperties()
-                );
-                fixture.Customize<MultiLineString>(
-                    customization => customization.FromFactory<int>(
-                        value => new MultiLineString(fixture.CreateMany<LineString>(new Random(value).Next(1,10)).ToArray())
-                    ).OmitAutoProperties()
-                );
-                var point1 = new Point(
-                    new Coordinate(
-                        fixture.Create<double>(),
-                        fixture.Create<double>(),
-                        fixture.Create<double>()
+                fixture.Customize<PointM>(customization =>
+				    customization.FromFactory(generator =>
+					     new PointM(
+                            fixture.Create<double>(),
+                            fixture.Create<double>(),
+                            fixture.Create<double>(),
+                            fixture.Create<double>()
+                        )
                     )
                 );
-                point1.M = fixture.Create<double>();
 
-                yield return new object[] 
+                fixture.Customize<ILineString>(customization =>
+				    customization.FromFactory(generator =>
+					    new LineString(
+                            new PointSequence(fixture.CreateMany<PointM>()),
+                            GeometryConfiguration.GeometryFactory)
+                    ).OmitAutoProperties()
+                );
+                fixture.Customize<MultiLineString>(customization =>
+                    customization.FromFactory(generator =>
+                        new MultiLineString(fixture.CreateMany<ILineString>(generator.Next(1,10)).ToArray())
+                    ).OmitAutoProperties()
+                );
+                var point1 = new PointM(
+                    fixture.Create<double>(),
+                    fixture.Create<double>(),
+                    fixture.Create<double>(),
+                    fixture.Create<double>()
+                );
+
+                yield return new object[]
                 {
                     point1,
                     new BoundingBox3D(
@@ -156,16 +163,14 @@ namespace Shaperon
                     )
                 };
 
-                var point2 = new Point(
-                    new Coordinate(
-                        fixture.Create<double>(),
-                        fixture.Create<double>(),
-                        Double.NaN
-                    )
+                var point2 = new PointM(
+                    fixture.Create<double>(),
+                    fixture.Create<double>(),
+                    double.NaN,
+                    double.NaN
                 );
-                point2.M = Double.NaN;
-                
-                yield return new object[] 
+
+                yield return new object[]
                 {
                     point2,
                     new BoundingBox3D(
@@ -173,17 +178,17 @@ namespace Shaperon
                         point2.Y,
                         point2.X,
                         point2.Y,
-                        Double.NaN,
-                        Double.NaN,
-                        Double.NaN,
-                        Double.NaN
+                        double.NaN,
+                        double.NaN,
+                        double.NaN,
+                        double.NaN
                     )
                 };
 
 
                 var linestring1 = fixture.Create<MultiLineString>();
-                
-                yield return new object[] 
+
+                yield return new object[]
                 {
                     linestring1,
                     new BoundingBox3D(
@@ -198,24 +203,22 @@ namespace Shaperon
                     )
                 };
 
-                fixture.Customize<LineString>(
-                    customization => customization.FromFactory<int>(
-                        value => 
-                        {
-                            var result = new LineString(fixture.CreateMany<Coordinate>(new Random(value).Next(2, 10)).ToArray());
-                            for(var index = 0; index < result.NumPoints; index++)
-                            {
-                                result.GetPointN(index).Z = Double.NaN;
-                                result.GetPointN(index).M = Double.NaN;
-                            }
-                            return result;
-                        }
+                fixture.Customize<ILineString>(customization =>
+                    customization.FromFactory(generator =>
+                        new LineString(
+                            new PointSequence(
+                                fixture
+                                    .CreateMany<PointM>(generator.Next(2, 10))
+                                    .Select(point => new PointM(point.X, point.Y, double.NaN, double.NaN))
+                                ),
+                             GeometryConfiguration.GeometryFactory
+                        )
                     ).OmitAutoProperties()
                 );
 
                 var linestring2 = fixture.Create<MultiLineString>();
-                
-                yield return new object[] 
+
+                yield return new object[]
                 {
                     linestring2,
                     new BoundingBox3D(

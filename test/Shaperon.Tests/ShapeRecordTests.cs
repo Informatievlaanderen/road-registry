@@ -8,6 +8,7 @@ namespace Shaperon
     using AutoFixture;
     using AutoFixture.Idioms;
     using GeoAPI.Geometries;
+    using Infrastucture;
     using NetTopologySuite.Geometries;
     using Xunit;
 
@@ -21,24 +22,26 @@ namespace Shaperon
             _fixture.CustomizeRecordNumber();
             _fixture.CustomizeWordLength();
             _fixture.CustomizeWordOffset();
-            _fixture.Customize<Coordinate>(
-                customization => customization.FromFactory<int>(
-                    value => new Coordinate(new Random(value).Next(), new Random(value).Next())
+            _fixture.Customize<PointM>(customization =>
+                customization.FromFactory(generator =>
+                    new PointM(
+                        _fixture.Create<double>(),
+                        _fixture.Create<double>(),
+                        _fixture.Create<double>(),
+                        _fixture.Create<double>()
+                    )
                 ).OmitAutoProperties()
             );
-            _fixture.Customize<Point>(
-                customization => customization.FromFactory<int>(
-                    value => new Point(new Random(value).Next(), new Random(value).Next())
+            _fixture.Customize<ILineString>(customization =>
+                customization.FromFactory(generator =>
+                    new LineString(
+                        new PointSequence(_fixture.CreateMany<PointM>()),
+                        GeometryConfiguration.GeometryFactory)
                 ).OmitAutoProperties()
             );
-            _fixture.Customize<LineString>(
-                customization => customization.FromFactory<int>(
-                    value => new LineString(_fixture.CreateMany<Coordinate>(new Random(value).Next(2, 10)).ToArray())
-                ).OmitAutoProperties()
-            );
-            _fixture.Customize<MultiLineString>(
-                customization => customization.FromFactory<int>(
-                    value => new MultiLineString(_fixture.CreateMany<LineString>(new Random(value).Next(1,10)).ToArray())
+            _fixture.Customize<MultiLineString>(customization =>
+                customization.FromFactory(generator =>
+                    new MultiLineString(_fixture.CreateMany<ILineString>(generator.Next(1,10)).ToArray())
                 ).OmitAutoProperties()
             );
             _fixture.Customize<ShapeContent>(customization =>
@@ -50,7 +53,7 @@ namespace Shaperon
                             content = NullShapeContent.Instance;
                             break;
                         case 1:
-                            content = new PointShapeContent(_fixture.Create<Point>());
+                            content = new PointShapeContent(_fixture.Create<PointM>());
                             break;
                         case 2:
                             content = new PolyLineMShapeContent(_fixture.Create<MultiLineString>());

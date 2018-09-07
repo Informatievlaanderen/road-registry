@@ -4,7 +4,6 @@ namespace RoadRegistry.Api.Extracts
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
     using ExtractFiles;
     using GeoAPI.Geometries;
     using Projections;
@@ -12,11 +11,6 @@ namespace RoadRegistry.Api.Extracts
 
     public class RoadRegistryExtractsBuilder
     {
-        public RoadRegistryExtractsBuilder()
-        {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        }
-
         public ExtractFile CreateOrganizationsFile(IReadOnlyCollection<OrganizationRecord> organisations)
         {
             return CreateDbfFile<OrganizationDbaseRecord>(
@@ -134,10 +128,12 @@ namespace RoadRegistry.Api.Extracts
                 data.DbaseRecords
             );
 
-            var boundingBox = new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, 0, 0);
+            var mMin = shapeType == ShapeType.PolyLineM ? double.NegativeInfinity : 0;
+            var mMax = shapeType == ShapeType.PolyLineM ? double.PositiveInfinity : 0;
+            var boundingBox = new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, mMin, mMax);
 
             var shpFileLength = data.ShapeRecords.Aggregate(
-                new WordLength(50),
+                new WordLength(ShapeRecord.InitialOffset),
                 (length, record) => length.Plus(record.Length)
             );
             var shpFile = new ShpFile(
@@ -153,7 +149,7 @@ namespace RoadRegistry.Api.Extracts
             var shxFile = new ShxFile(
                 fileName,
                 new ShapeFileHeader(
-                    new WordLength(50 + 4 * data.ShapeIndexRecords.Count),
+                    new WordLength(ShapeRecord.InitialOffset + (4 * data.ShapeIndexRecords.Count)),
                     shapeType,
                     boundingBox
                 )

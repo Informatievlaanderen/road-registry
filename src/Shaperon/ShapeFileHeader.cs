@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 
 namespace Shaperon
@@ -37,17 +37,16 @@ namespace Shaperon
             var typeOfShape = reader.ReadInt32LittleEndian();
             if(!Enum.IsDefined(typeof(ShapeType), typeOfShape))
                 throw new ShapeFileHeaderException("The Shape Type field does not contain a known type of shape.");
+
             var boundingBox = new BoundingBox3D(
-                reader.ReadDoubleLittleEndian(),
-                reader.ReadDoubleLittleEndian(),
-                reader.ReadDoubleLittleEndian(),
-                reader.ReadDoubleLittleEndian(),
-                //Z
-                reader.ReadDoubleLittleEndian(),
-                reader.ReadDoubleLittleEndian(),
-                //M
-                ParseNoData(reader.ReadDoubleLittleEndian()),
-                ParseNoData(reader.ReadDoubleLittleEndian())
+                reader.ReadDoubleLittleEndian(), // xMin
+                reader.ReadDoubleLittleEndian(), // yMin
+                reader.ReadDoubleLittleEndian(), // xMax
+                reader.ReadDoubleLittleEndian(), // yMax
+                reader.ReadDoubleLittleEndian(), // zMin
+                reader.ReadDoubleLittleEndian(), // zMax
+                ParseNoData(reader.ReadDoubleLittleEndian()), // mMin
+                ParseNoData(reader.ReadDoubleLittleEndian())  // mMax
             );
             return new ShapeFileHeader(new WordLength(fileLength), (ShapeType)typeOfShape, boundingBox);
         }
@@ -79,12 +78,12 @@ namespace Shaperon
 
         private static double ParseNoData(double value)
         {
-            return value < -10e38 ? Double.NaN : value;
+            return value < -10e38 ? double.NaN : value;
         }
 
         private static double EscapeNoData(double value)
         {
-            return value == Double.NaN ? -10e39 : value;
+            return value == double.NaN ? -10e39 : value;
         }
     }
 }

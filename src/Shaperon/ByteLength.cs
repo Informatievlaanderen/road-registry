@@ -2,6 +2,8 @@ using System;
 
 namespace Shaperon
 {
+    using System.Linq;
+
     public readonly struct ByteLength : IEquatable<ByteLength>
     {
         private readonly int _value;
@@ -29,6 +31,11 @@ namespace Shaperon
             return new ByteLength(_value + other.ToByteLength().ToInt32());
         }
 
+        public ByteLength Times(int times)
+        {
+            return new ByteLength(_value * times);
+        }
+
         public int ToInt32() => _value;
         public WordLength ToWordLength()
         {
@@ -39,5 +46,8 @@ namespace Shaperon
         public override int GetHashCode() => _value;
         public override string ToString() => _value.ToString();
         public static implicit operator int(ByteLength instance) => instance.ToInt32();
+
+        public static ByteLength Int32 = new ByteLength(4);
+        public static ByteLength Double = new ByteLength(8);
     }
 }

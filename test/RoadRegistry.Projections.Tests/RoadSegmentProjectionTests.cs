@@ -8,10 +8,7 @@ namespace RoadRegistry.Projections.Tests
     using Infrastructure;
     using Shaperon;
     using Xunit;
-    using NetTopologySuite;
     using NetTopologySuite.Geometries;
-    using NetTopologySuite.IO;
-    using GeoAPI.Geometries;
     using System.Text;
 
     public class RoadSegmentProjectionTests
@@ -37,6 +34,7 @@ namespace RoadRegistry.Projections.Tests
         [Fact]
         public Task When_road_segments_are_imported()
         {
+            var wkbWriter = new WellKnownBinaryWriter();
             var data = _fixture
                 .CreateMany<MultiLineString>(new Random().Next(1, 10))
                 .Select(multiLineString =>
@@ -44,7 +42,7 @@ namespace RoadRegistry.Projections.Tests
                     var polyLineMShapeContent = new PolyLineMShapeContent(multiLineString);
                     var importedRoadSegment = _fixture
                         .Build<ImportedRoadSegment>()
-                        .With(segment => segment.Geometry, multiLineString.ToBinary())
+                        .With(segment => segment.Geometry, wkbWriter.Write(multiLineString))
                         .Create();
 
                     var expected = new RoadSegmentRecord
@@ -85,11 +83,7 @@ namespace RoadRegistry.Projections.Tests
                 }).ToList();
 
             return new RoadSegmentRecordProjection(
-                    new WKBReader(new NtsGeometryServices())
-                    {
-                        HandleOrdinates = Ordinates.XYZM,
-                        HandleSRID = true
-                    },
+                    new WellKnownBinaryReader(),
                     _segmentStatusTranslator,
                     _morphologyTranslator,
                     _categoryTranslator,
