@@ -27,7 +27,7 @@ Target "Build_Site" (fun _ ->
   build "RoadRegistry.UI"
 )
 
-Target "Test_CoreComponents" (fun ->
+Target "Test_CoreComponents" (fun _ ->
   [
     "test" @@ "Shaperon.Tests"
     "test" @@ "RoadRegistry.Tests"
