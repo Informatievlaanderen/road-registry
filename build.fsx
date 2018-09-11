@@ -13,7 +13,6 @@ let push = push dockerRepository
 let build = build assemblyVersionNumber
 let publish = publish assemblyVersionNumber
 let pack = pack nugetVersionNumber
-let toDo message = printf "!! To Do: %s !!\n" message
 
 Target "Clean" (fun _ ->
   CleanDir buildDir
@@ -43,8 +42,8 @@ Target "Publish_LegacyDataExtraction" (fun _ -> publish "RoadRegistry.LegacyStre
 Target "Build_LegacyDataLoader" (fun _ -> build "RoadRegistry.LegacyStreamLoader")
 Target "Test_LegacyDataLoader" DoNothing
 Target "Publish_LegacyDataLoader" (fun _ -> publish "RoadRegistry.LegacyStreamLoader")
-Target "Package_LegacyDataLoader" (fun _ -> toDo "CONTAINERIZE LEGACY STREAM LOADER")
-Target "PushContainer_LegacyDataLoader" (fun _ -> toDo "PUSH LEGACY STREAM LOADER CONAINTER TO AWS")
+Target "Package_LegacyDataLoader" (fun _ -> containerize "RoadRegistry.LegacyStreamLoader" "legacy-stream-loader")
+Target "PushContainer_LegacyDataLoader" (fun _ -> push "legacy-stream-loader")
 
 // Projections
 Target "Build_Projections" (fun _ -> build "RoadRegistry.Projections")
@@ -53,8 +52,8 @@ Target "Test_Projections" (fun _ ->
   |> List.iter testWithXunit
 )
 Target "Publish_Projections" (fun _ -> publish "RoadRegistry.Projections")
-Target "Package_Projections" (fun _ -> toDo "CONTAINERIZE PROJECTIONS")
-Target "PushContainer_Projections" (fun _ -> toDo "PUSH PROJECTIONS CONAINTER TO AWS")
+Target "Package_Projections" (fun _ -> containerize "RoadRegistry.Projections" "projections")
+Target "PushContainer_Projections" (fun _ -> push "projections")
 
 // Site (api + ui)
 Target "Build_Site" (fun _ ->
@@ -70,8 +69,18 @@ Target "Publish_Site" (fun _ ->
     "RoadRegistry.UI"
   ] |> List.iter publish
 )
-Target "Package_Site" (fun _ -> toDo "CONTAINERIZE SITE")
-Target "PushContainer_Site" (fun _ -> toDo "PUSH SITE CONAINTER TO AWS")
+Target "Package_Site" (fun _ ->
+  [
+    ("RoadRegistry.Api", "api")
+    ("RoadRegistry.UI", "ui")
+  ] |> List.iter (fun (project, containerName) -> containerize project containerName)
+)
+Target "PushContainer_Site" (fun _ ->
+  [
+    "api"
+    "ui"
+  ] |> List.iter push
+)
 
 // Combined Targets
 Target "BuildCore" DoNothing
