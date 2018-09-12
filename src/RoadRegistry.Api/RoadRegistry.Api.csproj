@@ -40,5 +40,10 @@
     <ProjectReference Include="..\RoadRegistry.Projections\RoadRegistry.Projections.csproj" />
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

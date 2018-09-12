@@ -24,5 +24,10 @@
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
     <ProjectReference Include="..\Shaperon\Shaperon.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

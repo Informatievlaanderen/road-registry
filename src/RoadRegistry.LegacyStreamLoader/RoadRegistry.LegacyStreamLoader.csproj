@@ -34,6 +34,9 @@
     <None Update="appsettings.seabeast.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />
