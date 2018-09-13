@@ -7,3 +7,4 @@ System.Data.SqlClient
 System.IO.Compression
 Newtonsoft.Json
 NetTopologySuite
+AWSSDK.S3
