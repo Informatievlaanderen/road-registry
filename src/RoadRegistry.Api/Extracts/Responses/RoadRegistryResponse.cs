@@ -1,6 +1,6 @@
 namespace RoadRegistry.Api.Extracts.Responses
 {
-    using Swashbuckle.AspNetCore.Examples;
+    using Swashbuckle.AspNetCore.Filters;
 
     public class RoadRegistryResponseExample : IExamplesProvider
     {

@@ -122,6 +122,7 @@ nuget Aiv.Vbr.Build.Pipeline ~> 2.1
 
 // DOCS STUFF
 nuget Structurizr.Core 0.8.0
+nuget Structurizr.Client 0.8.0
 
 // TEST STUFF
 nuget Microsoft.NET.Test.Sdk 15.8.0
