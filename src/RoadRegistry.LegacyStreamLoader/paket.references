@@ -15,6 +15,7 @@ System.Data.SqlClient
 System.IO.Compression
 Newtonsoft.Json
 AWSSDK.S3
+AWSSDK.Extensions.NETCore.Setup
 
 Aiv.Vbr.EventHandling
 Aiv.Vbr.Generators.Guid.Deterministic

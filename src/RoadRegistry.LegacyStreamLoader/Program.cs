@@ -15,19 +15,27 @@ namespace RoadRegistry.LegacyStreamLoader
     using SqlStreamStore.Streams;
     using System.Linq;
     using System.Collections.Concurrent;
+    using System.Threading;
+    using Amazon.S3;
+    using Amazon.S3.Model;
+
 
     public class Program
     {
-        const string LEGACY_STREAM_FILE = "LegacyStreamFile";
+        const string USE_LOCAL_FILE = "UseLocalFile";
+        const string LOCAL_LEGACY_STREAM_FILE = "LocalLegacyStreamFile";
+        const string REMOTE_LEGACY_STREAM_FILE_BUCKET = "RemoteLegacyStreamFileBucket";
+        const string REMOTE_LEGACY_STREAM_FILE = "RemoteLegacyStreamFile";
 
         private static async Task Main(string[] args)
         {
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
-                .AddJsonFile($"appsettings.{Environment.MachineName}.json", true, true)
+                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args);
+
 
             var root = configurationBuilder.Build();
 
@@ -46,19 +54,16 @@ namespace RoadRegistry.LegacyStreamLoader
             {
                 await streamStore.CreateSchema();
 
-                var legacyStreamFile = GetLegacyStreamsArchive(root);
-                await ImportStreams(legacyStreamFile, streamStore);
+                var legacyStreamsArchiveInfo = GetLegacyStreamsArchiveInfo(root);
+                await ImportStreams(legacyStreamsArchiveInfo, streamStore, root);
             }
         }
 
-        private static async Task ImportStreams(FileInfo legacyStreamArchive, MsSqlStreamStore streamStore)
+        private static async Task ImportStreams(FileInfo legacyStreamArchive, MsSqlStreamStore streamStore, IConfigurationRoot root)
         {
-            if (null == legacyStreamArchive)
-                return;
-
-            Console.WriteLine($"Importing from {legacyStreamArchive.FullName}");
             var eventSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-            var typeMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+            var typeMapping =
+                new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
             var reader = new LegacyStreamFileReader(
                 new JsonSerializerSettings
                 {
@@ -67,13 +72,17 @@ namespace RoadRegistry.LegacyStreamLoader
                     DateTimeZoneHandling = DateTimeZoneHandling.Unspecified,
                     DateParseHandling = DateParseHandling.DateTime,
                     DefaultValueHandling = DefaultValueHandling.Ignore
-                });
+                },
+                Console.WriteLine);
 
             var expectedVersions = new ConcurrentDictionary<string, int>();
             var innerWatch = Stopwatch.StartNew();
             var outerWatch = Stopwatch.StartNew();
 
-            foreach (var batch in reader.Read(legacyStreamArchive).Batch(1000))
+            var events = bool.TryParse(root[USE_LOCAL_FILE], out var useLocalFile) && useLocalFile
+                ? reader.Read(GetLegacyStreamsArchiveInfo(root))
+                : reader.Read(await GetS3LegacyStreamArchive(root));
+            foreach (var batch in events.Batch(1000))
             {
                 foreach (var stream in batch.GroupBy(item => item.Stream, item => item.Event))
                 {
@@ -90,7 +99,8 @@ namespace RoadRegistry.LegacyStreamLoader
                         expectedVersion,
                         stream
                             .Select(@event => new NewStreamMessage(
-                                Deterministic.Create(Deterministic.Namespaces.Events, $"{stream.Key}-{expectedVersion++}"),
+                                Deterministic.Create(Deterministic.Namespaces.Events,
+                                    $"{stream.Key}-{expectedVersion++}"),
                                 typeMapping.GetEventName(@event.GetType()),
                                 JsonConvert.SerializeObject(@event, eventSettings),
                                 JsonConvert.SerializeObject(new Dictionary<string, string>
@@ -113,22 +123,50 @@ namespace RoadRegistry.LegacyStreamLoader
             Console.WriteLine("Total append took {0}ms", outerWatch.ElapsedMilliseconds);
         }
 
-        private static FileInfo GetLegacyStreamsArchive(IConfigurationRoot root)
+        private static Task<GetObjectResponse> GetS3LegacyStreamArchive(IConfigurationRoot root)
         {
-            var legacyStreamFilePath = root[LEGACY_STREAM_FILE];
+            var bucketName = root[REMOTE_LEGACY_STREAM_FILE_BUCKET];
+            var file = root[REMOTE_LEGACY_STREAM_FILE];
+
             try
             {
-                var archive = new FileInfo(legacyStreamFilePath);
-                if (archive.Exists)
-                    return archive;
+                var s3Client = root
+                    .GetAWSOptions()
+                    .CreateServiceClient<IAmazonS3>();
+
+                var request = new GetObjectRequest
+                {
+                    BucketName = bucketName,
+                    Key = file
+                };
+                return s3Client.GetObjectAsync(request, CancellationToken.None);
+
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"Error retrieving S3:{bucketName}/{file}: {exception}");
+                return null;
+            }
+
+        }
+
+        private static FileInfo GetLegacyStreamsArchiveInfo(IConfiguration root)
+        {
+            var legacyStreamFilePath = root[LOCAL_LEGACY_STREAM_FILE];
+
+            try
+            {
+                var legacyStreamsArchiveInfo = new FileInfo(legacyStreamFilePath);
+                if(false == legacyStreamsArchiveInfo.Exists)
+                    Console.WriteLine($"Import file '{legacyStreamsArchiveInfo.FullName}' does not exist");
+
+                return legacyStreamsArchiveInfo;
             }
             catch
             {
                 Console.WriteLine($"Import file path '{legacyStreamFilePath}' is not valid");
+                return null;
             }
-
-            Console.WriteLine($"Import file '{legacyStreamFilePath}' does not exist");
-            return null;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace RoadRegistry.LegacyStreamExtraction
     {
         private static async Task Main(string[] args)
         {
-            const string LEGACY_STREAM_FILE = "LegacyStreamFile";
+            const string LOCAL_LEGACY_STREAM_FILE = "LocalLegacyStreamFile";
 
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -26,7 +26,7 @@ namespace RoadRegistry.LegacyStreamExtraction
             var spatialReferenceWriter = new SpatialReferenceWriter();
 
             var root = configurationBuilder.Build();
-            var output = new FileInfo(root[LEGACY_STREAM_FILE]);
+            var output = new FileInfo(root[LOCAL_LEGACY_STREAM_FILE]);
             var connectionString = root.GetConnectionString("Legacy");
             var nodes = new List<ImportedRoadNode>();
             var points = new List<ImportedReferencePoint>();
