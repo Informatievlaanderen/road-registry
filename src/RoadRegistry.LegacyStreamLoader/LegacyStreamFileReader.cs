@@ -36,7 +36,7 @@ namespace RoadRegistry.LegacyStreamLoader
             if (null == s3Response)
                 return new StreamEvent[0];
 
-            _log($"Reading from remote file S3:{s3Response.BucketName}");
+            _log($"Reading from downloaded file S3:{s3Response.BucketName}/{s3Response.Key}");
             return Read(() => s3Response.ResponseStream);
         }
 

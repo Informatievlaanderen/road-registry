@@ -139,6 +139,7 @@ namespace RoadRegistry.LegacyStreamLoader
                     .GetAWSOptions()
                     .CreateServiceClient<IAmazonS3>();
 
+                Console.WriteLine($"Start download S3:{bucketName}/{file} ...");
                 return s3Client.GetObjectAsync(
                     new GetObjectRequest
                     {
@@ -151,7 +152,7 @@ namespace RoadRegistry.LegacyStreamLoader
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Error retrieving S3:{bucketName}/{file}: {exception}");
+                Console.WriteLine($"Error downlading S3:{bucketName}/{file}: {exception}");
                 return null;
             }
 
