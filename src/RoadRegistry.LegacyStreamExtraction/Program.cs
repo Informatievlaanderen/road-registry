@@ -516,6 +516,7 @@ namespace RoadRegistry.LegacyStreamExtraction
 
                 if (UploadToS3(root))
                 {
+                    Console.WriteLine("Uploading to S3 started ...");
                     watch.Restart();
                     var bucketName = root[LEGACY_STREAM_FILE_BUCKET];
                     try
@@ -524,13 +525,11 @@ namespace RoadRegistry.LegacyStreamExtraction
                             .GetAWSOptions()
                             .CreateServiceClient<IAmazonS3>();
 
-                        await s3Client.PutObjectAsync(
-                            new PutObjectRequest
-                            {
-                                Key = output.Name,
-                                BucketName = bucketName,
-                                ContentType = "application/zip"
-                            },
+                        await s3Client.UploadObjectFromStreamAsync(
+                            bucketName,
+                            output.Name,
+                            output.OpenRead(),
+                            new Dictionary<string, object>(),
                             CancellationToken.None
                         );
 
