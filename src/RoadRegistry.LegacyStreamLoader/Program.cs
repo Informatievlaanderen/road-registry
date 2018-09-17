@@ -23,9 +23,9 @@ namespace RoadRegistry.LegacyStreamLoader
     public class Program
     {
         const string USE_LOCAL_FILE = "UseLocalFile";
-        const string LOCAL_LEGACY_STREAM_FILE = "LocalLegacyStreamFile";
-        const string REMOTE_LEGACY_STREAM_FILE_BUCKET = "RemoteLegacyStreamFileBucket";
-        const string REMOTE_LEGACY_STREAM_FILE = "RemoteLegacyStreamFile";
+        const string LEGACY_STREAM_FILE_NAME = "LegacyStreamFileName";
+        const string LEGACY_STREAM_FILE_BUCKET = "LegacyStreamFileBucket";
+        const string LEGACY_STREAM_FILE_DIRECTORY = "LegacyStreamDirectory";
 
         private static async Task Main(string[] args)
         {
@@ -79,7 +79,7 @@ namespace RoadRegistry.LegacyStreamLoader
             var innerWatch = Stopwatch.StartNew();
             var outerWatch = Stopwatch.StartNew();
 
-            var events = bool.TryParse(root[USE_LOCAL_FILE], out var useLocalFile) && useLocalFile
+            var events = UseLocalLegacyStream(root)
                 ? reader.Read(GetLegacyStreamsArchiveInfo(root))
                 : reader.Read(await GetS3LegacyStreamArchive(root));
             foreach (var batch in events.Batch(1000))
@@ -123,10 +123,15 @@ namespace RoadRegistry.LegacyStreamLoader
             Console.WriteLine("Total append took {0}ms", outerWatch.ElapsedMilliseconds);
         }
 
-        private static Task<GetObjectResponse> GetS3LegacyStreamArchive(IConfigurationRoot root)
+        private static bool UseLocalLegacyStream(IConfiguration root)
         {
-            var bucketName = root[REMOTE_LEGACY_STREAM_FILE_BUCKET];
-            var file = root[REMOTE_LEGACY_STREAM_FILE];
+            return bool.TryParse(root[USE_LOCAL_FILE], out var useLocalFile) && useLocalFile;
+        }
+
+        private static Task<GetObjectResponse> GetS3LegacyStreamArchive(IConfiguration root)
+        {
+            var bucketName = root[LEGACY_STREAM_FILE_BUCKET];
+            var file = root[LEGACY_STREAM_FILE_NAME];
 
             try
             {
@@ -134,12 +139,14 @@ namespace RoadRegistry.LegacyStreamLoader
                     .GetAWSOptions()
                     .CreateServiceClient<IAmazonS3>();
 
-                var request = new GetObjectRequest
-                {
-                    BucketName = bucketName,
-                    Key = file
-                };
-                return s3Client.GetObjectAsync(request, CancellationToken.None);
+                return s3Client.GetObjectAsync(
+                    new GetObjectRequest
+                    {
+                        BucketName = bucketName,
+                        Key = file
+                    },
+                    CancellationToken.None
+                );
 
             }
             catch (Exception exception)
@@ -152,11 +159,13 @@ namespace RoadRegistry.LegacyStreamLoader
 
         private static FileInfo GetLegacyStreamsArchiveInfo(IConfiguration root)
         {
-            var legacyStreamFilePath = root[LOCAL_LEGACY_STREAM_FILE];
+            var directory = root[LEGACY_STREAM_FILE_DIRECTORY] ?? string.Empty;
+            var fileName = root[LEGACY_STREAM_FILE_NAME] ?? string.Empty;
+            var filePath = Path.Combine(directory, fileName);
 
             try
             {
-                var legacyStreamsArchiveInfo = new FileInfo(legacyStreamFilePath);
+                var legacyStreamsArchiveInfo = new FileInfo(filePath);
                 if(false == legacyStreamsArchiveInfo.Exists)
                     Console.WriteLine($"Import file '{legacyStreamsArchiveInfo.FullName}' does not exist");
 
@@ -164,7 +173,7 @@ namespace RoadRegistry.LegacyStreamLoader
             }
             catch
             {
-                Console.WriteLine($"Import file path '{legacyStreamFilePath}' is not valid");
+                Console.WriteLine($"Import file path '{filePath}' is not valid");
                 return null;
             }
         }
