@@ -17,6 +17,7 @@ namespace RoadRegistry.LegacyStreamLoader
     using System.Collections.Concurrent;
     using System.Threading;
     using Amazon.S3;
+    using Amazon.S3.Model;
 
 
     public class Program
@@ -143,22 +144,35 @@ namespace RoadRegistry.LegacyStreamLoader
                     .GetAWSOptions()
                     .CreateServiceClient<IAmazonS3>();
 
-                return () =>
-                {
-                    Console.WriteLine($"Start download S3:{bucketName}/{file} ...");
-                    return s3Client.GetObjectStreamAsync(
-                        bucketName,
-                        file,
-                        new Dictionary<string, object>(),
+                var s3Files = s3Client
+                    .ListObjectsAsync(
+                        new ListObjectsRequest { BucketName = bucketName },
                         CancellationToken.None
-                    ).GetAwaiter().GetResult(); // ToDo: change to asynchronous if it's worth the ripple in the code
-                };
+                    ).GetAwaiter().GetResult() // ToDo: change to asynchronous if it's worth the ripple in the code
+                    .S3Objects;
+
+                if (s3Files.Any(s3File => s3File.Key == file))
+                {
+                    return () =>
+                    {
+                        Console.WriteLine($"Start download S3:{bucketName}/{file} ...");
+                        return s3Client.GetObjectStreamAsync(
+                            bucketName,
+                            file,
+                            new Dictionary<string, object>(),
+                            CancellationToken.None
+                        ).GetAwaiter().GetResult(); // ToDo: change to asynchronous if it's worth the ripple in the code
+                    };
+                }
+
+                Console.WriteLine($"File S3:{bucketName}/{file} does not exist");
             }
             catch (Exception exception)
             {
                 Console.WriteLine($"Error downlading S3:{bucketName}/{file}: {exception}");
-                return null;
             }
+
+            return null;
         }
 
         private static Func<Stream> GetLocalLegacyStream(IConfiguration root)
