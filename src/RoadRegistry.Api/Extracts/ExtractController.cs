@@ -14,9 +14,9 @@ namespace RoadRegistry.Api.Extracts
     using Newtonsoft.Json.Converters;
     using Projections;
     using Responses;
-    using Swashbuckle.AspNetCore.Examples;
     using Microsoft.EntityFrameworkCore;
     using System.Data;
+    using Swashbuckle.AspNetCore.Filters;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]

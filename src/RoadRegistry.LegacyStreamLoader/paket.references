@@ -2,6 +2,7 @@ Microsoft.Extensions.Configuration
 Microsoft.Extensions.Configuration.CommandLine
 Microsoft.Extensions.Configuration.Json
 Microsoft.Extensions.Configuration.EnvironmentVariables
+Microsoft.Extensions.Configuration.Binder
 
 Serilog
 Serilog.Settings.Configuration
@@ -14,6 +15,8 @@ SqlStreamStore.MsSql
 System.Data.SqlClient
 System.IO.Compression
 Newtonsoft.Json
+AWSSDK.S3
+AWSSDK.Extensions.NETCore.Setup
 
 Aiv.Vbr.EventHandling
 Aiv.Vbr.Generators.Guid.Deterministic

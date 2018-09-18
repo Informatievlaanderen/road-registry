@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.LegacyStreamExtraction
+namespace RoadRegistry.LegacyStreamExtraction
 {
     using System;
     using System.Collections.Generic;

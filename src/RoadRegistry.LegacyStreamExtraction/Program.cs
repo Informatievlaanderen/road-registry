@@ -5,28 +5,32 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Data.SqlClient;
     using System.Diagnostics;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
+    using Amazon.S3;
     using Events;
     using Microsoft.Extensions.Configuration;
-    using Shaperon;
 
     public class Program
     {
+        const string EXPORT_TO_LOCAL_FILE = "ExportToLocalFile";
+        const string LEGACY_STREAM_FILE_NAME = "LegacyStreamFileName";
+        const string LEGACY_STREAM_FILE_BUCKET = "LegacyStreamFileBucket";
+
         private static async Task Main(string[] args)
         {
-            const string LEGACY_STREAM_FILE = "LegacyStreamFile";
 
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
-                .AddJsonFile($"appsettings.{Environment.MachineName}.json", true, true)
+                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args);
 
             var spatialReferenceWriter = new SpatialReferenceWriter();
 
             var root = configurationBuilder.Build();
-            var output = new FileInfo(root[LEGACY_STREAM_FILE]);
+            var output = new FileInfo(root[LEGACY_STREAM_FILE_NAME]);
             var connectionString = root.GetConnectionString("Legacy");
             var nodes = new List<ImportedRoadNode>();
             var points = new List<ImportedReferencePoint>();
@@ -507,7 +511,41 @@ namespace RoadRegistry.LegacyStreamExtraction
                 await new ExtractedStreamsWriter(output)
                     .WriteAsync(organizations, nodes, segments.Values, junctions, points);
                 Console.WriteLine("Writing stream to json took {0}ms", watch.ElapsedMilliseconds);
+
+
+                if (UploadToS3(root))
+                {
+                    Console.WriteLine("Upload to S3 started ...");
+                    watch.Restart();
+                    var bucketName = root[LEGACY_STREAM_FILE_BUCKET];
+                    try
+                    {
+                        var s3Client = root
+                            .GetAWSOptions()
+                            .CreateServiceClient<IAmazonS3>();
+
+                        await s3Client.UploadObjectFromStreamAsync(
+                            bucketName,
+                            output.Name,
+                            output.OpenRead(),
+                            new Dictionary<string, object>(),
+                            CancellationToken.None
+                        );
+
+                        File.Delete(output.FullName);
+                        Console.WriteLine($"Upload {output.Name} to S3:{bucketName}/{output.Name} took {watch.ElapsedMilliseconds}ms");
+                    }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine($"Upload {output.FullName} to S3:{bucketName}/{output.Name} failed after {watch.ElapsedMilliseconds}ms: {exception}");
+                    }
+                }
             }
+        }
+
+        private static bool UploadToS3(IConfiguration root)
+        {
+            return false == root.GetValue<bool>(EXPORT_TO_LOCAL_FILE);
         }
     }
 }

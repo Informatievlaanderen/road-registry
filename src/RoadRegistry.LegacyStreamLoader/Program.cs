@@ -15,19 +15,27 @@ namespace RoadRegistry.LegacyStreamLoader
     using SqlStreamStore.Streams;
     using System.Linq;
     using System.Collections.Concurrent;
+    using System.Threading;
+    using Amazon.S3;
+    using Amazon.S3.Model;
+
 
     public class Program
     {
-        const string LEGACY_STREAM_FILE = "LegacyStreamFile";
+        const string USE_LOCAL_FILE = "UseLocalFile";
+        const string LEGACY_STREAM_FILE_NAME = "LegacyStreamFileName";
+        const string LEGACY_STREAM_FILE_BUCKET = "LegacyStreamFileBucket";
+        const string LEGACY_STREAM_FILE_DIRECTORY = "LegacyStreamDirectory";
 
         private static async Task Main(string[] args)
         {
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
-                .AddJsonFile($"appsettings.{Environment.MachineName}.json", true, true)
+                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args);
+
 
             var root = configurationBuilder.Build();
 
@@ -45,20 +53,15 @@ namespace RoadRegistry.LegacyStreamLoader
             }))
             {
                 await streamStore.CreateSchema();
-
-                var legacyStreamFile = GetLegacyStreamsArchive(root);
-                await ImportStreams(legacyStreamFile, streamStore);
+                await ImportStreams(root, streamStore);
             }
         }
 
-        private static async Task ImportStreams(FileInfo legacyStreamArchive, MsSqlStreamStore streamStore)
+        private static async Task ImportStreams(IConfiguration root, MsSqlStreamStore streamStore)
         {
-            if (null == legacyStreamArchive)
-                return;
-
-            Console.WriteLine($"Importing from {legacyStreamArchive.FullName}");
             var eventSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-            var typeMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+            var typeMapping =
+                new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
             var reader = new LegacyStreamFileReader(
                 new JsonSerializerSettings
                 {
@@ -67,67 +70,136 @@ namespace RoadRegistry.LegacyStreamLoader
                     DateTimeZoneHandling = DateTimeZoneHandling.Unspecified,
                     DateParseHandling = DateParseHandling.DateTime,
                     DefaultValueHandling = DefaultValueHandling.Ignore
-                });
+                }
+            );
 
             var expectedVersions = new ConcurrentDictionary<string, int>();
             var innerWatch = Stopwatch.StartNew();
             var outerWatch = Stopwatch.StartNew();
 
-            foreach (var batch in reader.Read(legacyStreamArchive).Batch(1000))
+
+            var getEventStream = GetLegacyEventStream(root);
+            if (null != getEventStream)
             {
-                foreach (var stream in batch.GroupBy(item => item.Stream, item => item.Event))
+                foreach (var batch in reader.Read(getEventStream).Batch(1000))
                 {
-                    int expectedVersion;
-                    if (!expectedVersions.TryGetValue(stream.Key, out expectedVersion))
+                    foreach (var stream in batch.GroupBy(item => item.Stream, item => item.Event))
                     {
-                        expectedVersion = ExpectedVersion.NoStream;
+                        if (!expectedVersions.TryGetValue(stream.Key, out var expectedVersion))
+                        {
+                            expectedVersion = ExpectedVersion.NoStream;
+                        }
+
+                        innerWatch.Restart();
+
+                        var appendResult = await streamStore.AppendToStream(
+                            new StreamId(stream.Key),
+                            expectedVersion,
+                            stream
+                                .Select(@event => new NewStreamMessage(
+                                    Deterministic.Create(Deterministic.Namespaces.Events,
+                                        $"{stream.Key}-{expectedVersion++}"),
+                                    typeMapping.GetEventName(@event.GetType()),
+                                    JsonConvert.SerializeObject(@event, eventSettings),
+                                    JsonConvert.SerializeObject(new Dictionary<string, string>
+                                    {
+                                        {"$version", "0"}
+                                    }, eventSettings)
+                                ))
+                                .ToArray()
+                        );
+
+                        Console.WriteLine("Append took {0}ms for stream {1}@{2}",
+                            innerWatch.ElapsedMilliseconds,
+                            stream.Key,
+                            appendResult.CurrentVersion);
+
+                        expectedVersions[stream.Key] = appendResult.CurrentVersion;
                     }
-
-                    innerWatch.Restart();
-
-                    var appendResult = await streamStore.AppendToStream(
-                        new StreamId(stream.Key),
-                        expectedVersion,
-                        stream
-                            .Select(@event => new NewStreamMessage(
-                                Deterministic.Create(Deterministic.Namespaces.Events, $"{stream.Key}-{expectedVersion++}"),
-                                typeMapping.GetEventName(@event.GetType()),
-                                JsonConvert.SerializeObject(@event, eventSettings),
-                                JsonConvert.SerializeObject(new Dictionary<string, string>
-                                {
-                                    {"$version", "0"}
-                                }, eventSettings)
-                            ))
-                            .ToArray()
-                    );
-
-                    Console.WriteLine("Append took {0}ms for stream {1}@{2}",
-                        innerWatch.ElapsedMilliseconds,
-                        stream.Key,
-                        appendResult.CurrentVersion);
-
-                    expectedVersions[stream.Key] = appendResult.CurrentVersion;
                 }
-            }
 
-            Console.WriteLine("Total append took {0}ms", outerWatch.ElapsedMilliseconds);
+                Console.WriteLine("Total append took {0}ms", outerWatch.ElapsedMilliseconds);
+            }
+            else
+            {
+                Console.WriteLine("No event stream found");
+            }
         }
 
-        private static FileInfo GetLegacyStreamsArchive(IConfigurationRoot root)
+        private static Func<Stream> GetLegacyEventStream(IConfiguration root)
         {
-            var legacyStreamFilePath = root[LEGACY_STREAM_FILE];
+            return root.GetValue<bool>(USE_LOCAL_FILE)
+                ? GetLocalLegacyStream(root)
+                : GetS3LegacyStream(root);
+        }
+
+        private static Func<Stream> GetS3LegacyStream(IConfiguration root)
+        {
+            var bucketName = root[LEGACY_STREAM_FILE_BUCKET];
+            var file = root[LEGACY_STREAM_FILE_NAME];
+
             try
             {
-                var archive = new FileInfo(legacyStreamFilePath);
-                if (archive.Exists)
-                    return archive;
+                var s3Client = root
+                    .GetAWSOptions()
+                    .CreateServiceClient<IAmazonS3>();
+
+                var s3Files = s3Client
+                    .ListObjectsAsync(
+                        new ListObjectsRequest { BucketName = bucketName },
+                        CancellationToken.None
+                    ).GetAwaiter().GetResult() // ToDo: change to asynchronous if it's worth the ripple in the code
+                    .S3Objects;
+
+                if (s3Files.Any(s3File => s3File.Key == file))
+                {
+                    return () =>
+                    {
+                        Console.WriteLine($"Start download S3:{bucketName}/{file} ...");
+                        return s3Client.GetObjectStreamAsync(
+                            bucketName,
+                            file,
+                            new Dictionary<string, object>(),
+                            CancellationToken.None
+                        ).GetAwaiter().GetResult(); // ToDo: change to asynchronous if it's worth the ripple in the code
+                    };
+                }
+
+                Console.WriteLine($"File S3:{bucketName}/{file} does not exist");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"Error downlading S3:{bucketName}/{file}: {exception}");
+            }
+
+            return null;
+        }
+
+        private static Func<Stream> GetLocalLegacyStream(IConfiguration root)
+        {
+            var directory = root[LEGACY_STREAM_FILE_DIRECTORY] ?? string.Empty;
+            var fileName = root[LEGACY_STREAM_FILE_NAME] ?? string.Empty;
+            var filePath = Path.Combine(directory, fileName);
+
+            try
+            {
+                var legacyStreamsArchiveInfo = new FileInfo(filePath);
+                if (legacyStreamsArchiveInfo.Exists)
+                {
+                    return () =>
+                    {
+                        Console.WriteLine($"Open {legacyStreamsArchiveInfo.FullName}");
+                        return legacyStreamsArchiveInfo.OpenRead();
+                    };
+                }
+
+                Console.WriteLine($"Import file '{legacyStreamsArchiveInfo.FullName}' does not exist");
             }
             catch
             {
-                Console.WriteLine($"Import file path '{legacyStreamFilePath}' is not valid");
+                Console.WriteLine($"Import file path '{filePath}' is not valid");
             }
 
-            Console.WriteLine($"Import file '{legacyStreamFilePath}' does not exist");
             return null;
         }
     }

@@ -9,6 +9,7 @@ namespace RoadRegistry.LegacyStreamLoader
 
     public class LegacyStreamFileReader
     {
+
         public LegacyStreamFileReader(JsonSerializerSettings settings)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -16,13 +17,16 @@ namespace RoadRegistry.LegacyStreamLoader
 
         public JsonSerializerSettings Settings { get; }
 
-        public IEnumerable<StreamEvent> Read(FileInfo file)
+        public IEnumerable<StreamEvent> Read(Func<Stream> getZipContentStream)
         {
+            if(null == getZipContentStream)
+                yield break;
+
             var serializer = JsonSerializer.Create(Settings);
 
             // Import the legacy stream from a json file
-            using (var fileStream = file.OpenRead())
-            using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Read))
+            using (var zipContent = getZipContentStream())
+            using (var archive = new ZipArchive(zipContent, ZipArchiveMode.Read))
             {
                 var entry = archive.GetEntry("streams.json");
                 using (var entryStream = entry.Open())

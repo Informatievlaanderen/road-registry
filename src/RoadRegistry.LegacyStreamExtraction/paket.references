@@ -2,8 +2,11 @@ Microsoft.Extensions.Configuration
 Microsoft.Extensions.Configuration.CommandLine
 Microsoft.Extensions.Configuration.Json
 Microsoft.Extensions.Configuration.EnvironmentVariables
+Microsoft.Extensions.Configuration.Binder
 
 System.Data.SqlClient
 System.IO.Compression
 Newtonsoft.Json
 NetTopologySuite
+AWSSDK.S3
+AWSSDK.Extensions.NETCore.Setup
