@@ -6,46 +6,26 @@ namespace RoadRegistry.LegacyStreamLoader
     using Newtonsoft.Json;
     using Events;
     using System.IO.Compression;
-    using Amazon.S3.Model;
 
     public class LegacyStreamFileReader
     {
-        private readonly Action<string> _log;
 
-        public LegacyStreamFileReader(
-            JsonSerializerSettings settings,
-            Action<string> logAction)
+        public LegacyStreamFileReader(JsonSerializerSettings settings)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _log = logAction ?? throw new ArgumentNullException(nameof(logAction));
         }
 
         public JsonSerializerSettings Settings { get; }
 
-        public IEnumerable<StreamEvent> Read(FileInfo file)
+        public IEnumerable<StreamEvent> Read(Func<Stream> getZipContentStream)
         {
-            if (null == file || false == file.Exists)
-                return new StreamEvent[0];
+            if(null == getZipContentStream)
+                yield break;
 
-            _log($"Reading from {file.FullName}");
-            return Read(file.OpenRead);
-        }
-
-        public IEnumerable<StreamEvent> Read(GetObjectResponse s3Response)
-        {
-            if (null == s3Response)
-                return new StreamEvent[0];
-
-            _log($"Reading from downloaded file S3:{s3Response.BucketName}/{s3Response.Key}");
-            return Read(() => s3Response.ResponseStream);
-        }
-
-        public IEnumerable<StreamEvent> Read(Func<Stream> getZipContent)
-        {
             var serializer = JsonSerializer.Create(Settings);
 
             // Import the legacy stream from a json file
-            using (var zipContent = getZipContent())
+            using (var zipContent = getZipContentStream())
             using (var archive = new ZipArchive(zipContent, ZipArchiveMode.Read))
             {
                 var entry = archive.GetEntry("streams.json");
