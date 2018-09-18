@@ -8,7 +8,6 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Threading;
     using System.Threading.Tasks;
     using Amazon.S3;
-    using Amazon.S3.Model;
     using Events;
     using Microsoft.Extensions.Configuration;
 
@@ -516,7 +515,7 @@ namespace RoadRegistry.LegacyStreamExtraction
 
                 if (UploadToS3(root))
                 {
-                    Console.WriteLine("Uploading to S3 started ...");
+                    Console.WriteLine("Upload to S3 started ...");
                     watch.Restart();
                     var bucketName = root[LEGACY_STREAM_FILE_BUCKET];
                     try
@@ -534,11 +533,11 @@ namespace RoadRegistry.LegacyStreamExtraction
                         );
 
                         File.Delete(output.FullName);
-                        Console.WriteLine($"Uploading {output.Name} to S3:{bucketName}/{output.Name} took {watch.ElapsedMilliseconds}ms");
+                        Console.WriteLine($"Upload {output.Name} to S3:{bucketName}/{output.Name} took {watch.ElapsedMilliseconds}ms");
                     }
                     catch (Exception exception)
                     {
-                        Console.WriteLine($"Uploading {output.FullName} to S3:{bucketName}/{output.Name} failed after {watch.ElapsedMilliseconds}ms: {exception}");
+                        Console.WriteLine($"Upload {output.FullName} to S3:{bucketName}/{output.Name} failed after {watch.ElapsedMilliseconds}ms: {exception}");
                     }
                 }
             }
@@ -546,7 +545,7 @@ namespace RoadRegistry.LegacyStreamExtraction
 
         private static bool UploadToS3(IConfiguration root)
         {
-            return false == (bool.TryParse(root[EXPORT_TO_LOCAL_FILE], out var useLocalFile) && useLocalFile);
+            return false == root.GetValue<bool>(EXPORT_TO_LOCAL_FILE);
         }
     }
 }
