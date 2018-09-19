@@ -18,7 +18,7 @@ namespace RoadRegistry.UI
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddJsonFile($"appsettings.{Environment.MachineName}.json", optional: true)
+                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", optional: true)
                 .AddEnvironmentVariables();
 
             Configuration = builder.Build();

@@ -39,7 +39,7 @@ namespace RoadRegistry.Projections.Shape
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
                 //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{Environment.MachineName}.json", true, true)
+                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args)
                 .Build();
