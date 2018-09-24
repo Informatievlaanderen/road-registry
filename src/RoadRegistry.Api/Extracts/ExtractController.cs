@@ -1,7 +1,6 @@
 namespace RoadRegistry.Api.Extracts
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -45,102 +44,92 @@ namespace RoadRegistry.Api.Extracts
             CancellationToken cancellationToken)
         {
             PrintMessage("Start processing request");
-            IReadOnlyCollection<OrganizationRecord> organizations;
-            IReadOnlyCollection<RoadNodeRecord> nodeRecords;
-            IReadOnlyCollection<RoadReferencePointRecord> referencePointRecords;
-            IReadOnlyCollection<RoadSegmentRecord> roadSegments;
-            IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord> roadSegmentDynamicLaneAttributes;
-            IReadOnlyCollection<RoadSegmentDynamicWidthAttributeRecord> roadSegmentDynamicWidthAttributeRecords;
-            IReadOnlyCollection<RoadSegmentDynamicHardeningAttributeRecord> roadSegmentDynamicHardeningAttributeRecords;
-            IReadOnlyCollection<RoadSegmentNationalRoadAttributeRecord> roadSegmentNationalRoadAttributeRecords;
-            IReadOnlyCollection<RoadSegmentEuropeanRoadAttributeRecord> roadSegmentEuropeanRoadAttributeRecords;
-            IReadOnlyCollection<RoadSegmentNumberedRoadAttributeRecord> roadSegmentNumberedRoadAttributeRecords;
-            IReadOnlyCollection<GradeSeparatedJunctionRecord> gradeSeparatedJunctionRecords;
-            // TODO: Make sure there's a transaction to ensure the count and iteration are in sync (SNAPSHOT)
             using (var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
             {
-                organizations = await context
-                    .Organizations
-                    .OrderBy(record => record.SortableCode)
-                    .AsReadOnlyAsync();
-                nodeRecords = await context
-                    .RoadNodes
-                    .OrderBy(record => record.Id)
-                    .AsReadOnlyAsync();
-                referencePointRecords = await context
-                    .RoadReferencePoints
-                    .OrderBy(record => record.Id)
-                    .AsReadOnlyAsync();
-                roadSegments = await context
-                    .RoadSegments
-                    .OrderBy(record => record.Id)
-                    .AsReadOnlyAsync();
-                roadSegmentDynamicLaneAttributes = await context
-                    .RoadLaneAttributes
-                    .OrderBy(record => record.Id)
-                    .AsReadOnlyAsync();
-                roadSegmentDynamicWidthAttributeRecords = await context
-                    .RoadWidthAttributes
-                    .OrderBy(record => record.Id)
-                    .AsReadOnlyAsync();
-                roadSegmentDynamicHardeningAttributeRecords = await context
-                    .RoadHardeningAttributes
-                    .OrderBy(record => record.Id)
-                    .AsReadOnlyAsync();
-                roadSegmentNationalRoadAttributeRecords = await context
-                    .NationalRoadAttributes
-                    .OrderBy(record => record.Id)
-                    .AsReadOnlyAsync();
-                roadSegmentEuropeanRoadAttributeRecords = await context
-                    .EuropeanRoadAttributes
-                    .OrderBy(record => record.Id)
-                    .AsReadOnlyAsync();
-                roadSegmentNumberedRoadAttributeRecords = await context
-                    .NumberedRoadAttributes
-                    .OrderBy(record => record.Id)
-                    .AsReadOnlyAsync();
-                gradeSeparatedJunctionRecords = await context
-                    .GradeSeparatedJunctions
-                    .OrderBy(record => record.Id)
-                    .AsReadOnlyAsync();
+                var fileBuilder = new RoadRegistryExtractsBuilder(PrintMessage);
+                PrintMessage("Create roadregistry archive");
+                var zip = new RoadRegistryExtractArchive("wegenregister")
+                {
+                    () => fileBuilder
+                        .CreateOrganizationsFileAsync(context
+                            .Organizations
+                            .OrderBy(record => record.SortableCode)
+                            .AsReadOnlyAsync(cancellationToken)
+                        ),
+                    () => fileBuilder
+                        .CreateRoadNodesFilesAsync(context
+                            .RoadNodes
+                            .OrderBy(record => record.Id)
+                            .AsReadOnlyAsync(cancellationToken)
+                        ),
+                    () => fileBuilder
+                        .CreateRoadSegmentsFilesAsync(context
+                            .RoadSegments
+                            .OrderBy(record => record.Id)
+                            .AsReadOnlyAsync(cancellationToken)
+                        ),
+                    () => fileBuilder
+                        .CreateRoadSegmentDynamicLaneAttributesFileAsync(context
+                            .RoadLaneAttributes
+                            .OrderBy(record => record.Id)
+                            .AsReadOnlyAsync(cancellationToken)
+                        ),
+                    () => fileBuilder
+                        .CreateRoadSegmentDynamicWidtAttributesFileAsync(context
+                            .RoadWidthAttributes
+                            .OrderBy(record => record.Id)
+                            .AsReadOnlyAsync(cancellationToken)
+                        ),
+                    () => fileBuilder
+                        .CreateRoadSegmentDynamicHardeningAttributesFileAsync(context
+                            .RoadHardeningAttributes
+                            .OrderBy(record => record.Id)
+                            .AsReadOnlyAsync(cancellationToken)
+                        ),
+                    () => fileBuilder
+                        .CreateRoadSegmentNationalRoadAttributesFileAsync(context
+                            .NationalRoadAttributes
+                            .OrderBy(record => record.Id)
+                            .AsReadOnlyAsync(cancellationToken)
+                        ),
+                    () => fileBuilder
+                        .CreateRoadSegmentEuropeanRoadAttributesFileAsync(context
+                            .EuropeanRoadAttributes
+                            .OrderBy(record => record.Id)
+                            .AsReadOnlyAsync(cancellationToken)
+                        ),
+                    () => fileBuilder
+                        .CreateRoadSegmentNumberedRoadAttributesFileAsync(context
+                            .NumberedRoadAttributes
+                            .OrderBy(record => record.Id)
+                            .AsReadOnlyAsync(cancellationToken)
+                        ),
+                    () => fileBuilder
+                        .CreateReferencePointsFilesAsync(context
+                            .RoadReferencePoints
+                            .OrderBy(record => record.Id)
+                            .AsReadOnlyAsync(cancellationToken)
+                        ),
+                    () => fileBuilder
+                        .CreateGradeSeperatedJunctionsFileAsync(context
+                            .GradeSeparatedJunctions
+                            .OrderBy(record => record.Id)
+                            .AsReadOnlyAsync(cancellationToken)
+                        ),
+                    () => fileBuilder.CreateRoadNodeTypesFile(),
+                    () => fileBuilder.CreateHardeningTypesFile(),
+                    () => fileBuilder.CreateNumberedRoadSegmentDirectionsFile(),
+                    () => fileBuilder.CreateReferencePointTypesFile(),
+                    () => fileBuilder.CreateRoadSegmentCategoriesFile(),
+                    () => fileBuilder.CreateRoadSegmentAccessRestrictionsFile(),
+                    () => fileBuilder.CreateRoadSegmentGeometryDrawMethodsFile(),
+                    () => fileBuilder.CreateRoadSegmentMorphologiesFile(),
+                    () => fileBuilder.CreateRoadSegmentStatusesFile(),
+                    () => fileBuilder.CreateGradeSeperatedJunctionTypesFile(),
+                    () => fileBuilder.CreateLaneDirectionsFile()
+                };
+                return zip.CreateCallbackFileStreamResult();
             }
-            PrintMessage("Queried data");
-
-            var fileBuilder = new RoadRegistryExtractsBuilder();
-            PrintMessage("Create roadregistry archive");
-            var zip = new RoadRegistryExtractArchive("wegenregister")
-            {
-                fileBuilder.CreateOrganizationsFile(organizations),
-
-                fileBuilder.CreateRoadNodesFiles(nodeRecords),
-                fileBuilder.CreateRoadNodeTypesFile(),
-
-                fileBuilder.CreateRoadSegmentsFiles(roadSegments),
-                fileBuilder.CreateRoadSegmentCategoriesFile(),
-                fileBuilder.CreateRoadSegmentAccessRestrictionsFile(),
-                fileBuilder.CreateRoadSegmentGeometryDrawMethodsFile(),
-                fileBuilder.CreateRoadSegmentMorphologiesFile(),
-                fileBuilder.CreateRoadSegmentStatusesFile(),
-                fileBuilder.CreateRoadSegmentDynamicLaneAttributesFile(roadSegmentDynamicLaneAttributes),
-                fileBuilder.CreateRoadSegmentDynamicWidtAttributesFile(roadSegmentDynamicWidthAttributeRecords),
-                fileBuilder.CreateRoadSegmentDynamicHardeningAttributesFile(roadSegmentDynamicHardeningAttributeRecords),
-                fileBuilder.CreateHardeningTypesFile(),
-                fileBuilder.CreateRoadSegmentNationalRoadAttributesFile(roadSegmentNationalRoadAttributeRecords),
-                fileBuilder.CreateRoadSegmentEuropeanRoadAttributesFile(roadSegmentEuropeanRoadAttributeRecords),
-                fileBuilder.CreateRoadSegmentNumberedRoadAttributesFile(roadSegmentNumberedRoadAttributeRecords),
-                fileBuilder.CreateNumberedRoadSegmentDirectionsFile(),
-
-                fileBuilder.CreateReferencePointsFiles(referencePointRecords),
-                fileBuilder.CreateReferencePointTypesFile(),
-
-                fileBuilder.CreateGradeSeperatedJunctionsFile(gradeSeparatedJunctionRecords),
-                fileBuilder.CreateGradeSeperatedJunctionTypesFile(),
-
-                fileBuilder.CreateLaneDirectionsFile()
-            };
-
-            PrintMessage("Create download");
-            return zip.CreateResponse();
         }
 
         private void PrintMessage(string message)

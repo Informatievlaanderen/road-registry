@@ -6,7 +6,7 @@ namespace RoadRegistry.Api.Extracts.Responses
     {
         public object GetExamples()
         {
-            return new RoadRegistryExtractArchive("wegenregister").CreateResponse();
+            return new RoadRegistryExtractArchive("wegenregister").CreateCallbackFileStreamResult();
         }
     }
 }

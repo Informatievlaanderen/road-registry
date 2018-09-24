@@ -33,6 +33,8 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
 
         protected abstract void BeforeFlush();
 
+        public string Name => _name;
+
         public FileFlushResult Flush()
         {
             BeforeFlush();
