@@ -31,15 +31,10 @@ namespace RoadRegistry.Model
                 var id = new RoadSegmentId(e.Id);
                 var start = new RoadNodeId(e.StartNodeId);
                 var end = new RoadNodeId(e.EndNodeId);
-                var segment = new RoadSegment(id, start, end);
-                var startNode = _nodes[start];
-                var endNode = _nodes[end];
                 _nodes = _nodes
-                    .Remove(start)
-                    .Add(start, startNode.ConnectWith(id))
-                    .Remove(end)
-                    .Add(end, endNode.ConnectWith(id));
-                _segments = _segments.Add(id, segment);
+                    .TryReplaceValue(start, node => node.ConnectWith(id))
+                    .TryReplaceValue(end, node => node.ConnectWith(id));
+                _segments = _segments.Add(id, new RoadSegment(id, start, end));
             });
 
             On<RoadNetworkChanged>(e =>
@@ -49,8 +44,7 @@ namespace RoadRegistry.Model
                     if (change.RoadNodeAdded != null)
                     {
                         var id = new RoadNodeId(change.RoadNodeAdded.Id);
-                        var node = new RoadNode(id);
-                        _nodes = _nodes.Add(id, node);
+                        _nodes = _nodes.Add(id, new RoadNode(id));
                     }
                 }
             });
