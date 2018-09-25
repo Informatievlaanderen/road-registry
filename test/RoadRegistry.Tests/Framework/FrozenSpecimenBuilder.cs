@@ -1,5 +1,6 @@
 namespace RoadRegistry
 {
+    using System;
     using AutoFixture.Kernel;
 
     public class FrozenSpecimenBuilder<T> : ISpecimenBuilder
@@ -13,8 +14,17 @@ namespace RoadRegistry
 
         public object Create(object request, ISpecimenContext context)
         {
-            if (request != null && request.Equals(typeof(T)))
+            if (request is SeededRequest seededRequest)
+            {
+                if (seededRequest.Request is Type type && type == typeof(T))
+                {
+                    return Value;
+                }
+            }
+            else if (request != null && request.Equals(typeof(T)))
+            {
                 return Value;
+            }
 
             return new NoSpecimen();
         }

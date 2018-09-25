@@ -33,16 +33,17 @@ namespace RoadRegistry
             var self = Builder.CreateAnonymous(type);
             var other = Builder.CreateAnonymous(type);
 
+            object result;
             try
             {
-                var result = (bool)method.Invoke(null, new[] { self, other });
-                if (result)
-                    throw new EqualityOperatorException(type);
+                result = method.Invoke(null, new[] { self, other });
             }
             catch (Exception exception)
             {
                 throw new EqualityOperatorException(type, $"The equality operator of type {type.Name} threw an exception", exception);
             }
+
+            if ((bool)result) throw new EqualityOperatorException(type);
         }
     }
 }

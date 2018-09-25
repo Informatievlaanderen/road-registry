@@ -9,6 +9,7 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Threading.Tasks;
     using Amazon.S3;
     using Events;
+    using Shared;
     using Microsoft.Extensions.Configuration;
 
     public class Program

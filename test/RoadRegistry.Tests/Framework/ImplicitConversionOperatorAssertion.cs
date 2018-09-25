@@ -42,18 +42,19 @@ namespace RoadRegistry
 
             var instance = composedBuilder.CreateAnonymous(type);
 
+            object result;
             try
             {
-
-                var result = (TResult)method.Invoke(null, new[] { instance });
-                if (!result.Equals(value))
-                    throw new ImplicitConversionOperatorException(type, typeof(TResult));
+                result = method.Invoke(null, new[] { instance });
             }
             catch (Exception exception)
             {
                 throw new ImplicitConversionOperatorException(type, typeof(TResult),
                     $"The implicit conversion operator to type '{typeof(TResult).Name}' of type '{type.Name}' threw an exception.", exception);
             }
+
+            if (!((TResult)result).Equals(value))
+                throw new ImplicitConversionOperatorException(type, typeof(TResult));
         }
     }
 }

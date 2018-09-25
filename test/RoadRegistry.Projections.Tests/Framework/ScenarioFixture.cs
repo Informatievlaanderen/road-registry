@@ -5,6 +5,7 @@ namespace RoadRegistry.Projections
     using AutoFixture;
     using AutoFixture.Dsl;
     using Events;
+    using Shared;
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
     using Aiv.Vbr.Shaperon;

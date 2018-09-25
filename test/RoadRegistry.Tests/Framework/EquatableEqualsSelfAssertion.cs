@@ -26,7 +26,7 @@ namespace RoadRegistry
             var method = equatableType.GetMethods().Single();
             var self = Builder.CreateAnonymous(type);
 
-            object result = null;
+            object result;
             try
             {
                 result = method.Invoke(self, new[] { self });

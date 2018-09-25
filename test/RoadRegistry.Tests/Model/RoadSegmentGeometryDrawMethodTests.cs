@@ -6,15 +6,15 @@ namespace RoadRegistry.Model
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class RoadNodeTypeTests
+    public class RoadSegmentGeometryDrawMethodTests
     {
         private readonly Fixture _fixture;
         private readonly int[] _knownValues;
 
-        public RoadNodeTypeTests()
+        public RoadSegmentGeometryDrawMethodTests()
         {
             _fixture = new Fixture();
-            _knownValues = Array.ConvertAll(RoadNodeType.All, type => type.ToInt32());
+            _knownValues = Array.ConvertAll(RoadSegmentGeometryDrawMethod.All, type => type.ToInt32());
         }
 
         [Fact]
@@ -36,37 +36,25 @@ namespace RoadRegistry.Model
                 new EqualsOtherAssertion(_fixture),
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
-            ).Verify(typeof(RoadNodeType));
+            ).Verify(typeof(RoadSegmentGeometryDrawMethod));
         }
 
         [Fact]
-        public static void RealNodeReturnsExpectedResult()
+        public static void OutlinedReturnsExpectedResult()
         {
-            Assert.Equal(1, RoadNodeType.RealNode);
+            Assert.Equal(1, RoadSegmentGeometryDrawMethod.Outlined);
         }
 
         [Fact]
-        public static void FakeNodeReturnsExpectedResult()
+        public static void MeasuredReturnsExpectedResult()
         {
-            Assert.Equal(2, RoadNodeType.FakeNode);
+            Assert.Equal(2, RoadSegmentGeometryDrawMethod.Measured);
         }
 
         [Fact]
-        public static void EndNodeReturnsExpectedResult()
+        public static void Measured_according_to_GRB_specificationsReturnsExpectedResult()
         {
-            Assert.Equal(3, RoadNodeType.EndNode);
-        }
-
-        [Fact]
-        public static void MiniRoundaboutReturnsExpectedResult()
-        {
-            Assert.Equal(4, RoadNodeType.MiniRoundabout);
-        }
-
-        [Fact]
-        public static void TurnLoopNodeReturnsExpectedResult()
-        {
-            Assert.Equal(5, RoadNodeType.TurnLoopNode);
+            Assert.Equal(3, RoadSegmentGeometryDrawMethod.Measured_according_to_GRB_specifications);
         }
 
         [Fact]
@@ -75,20 +63,18 @@ namespace RoadRegistry.Model
             Assert.Equal(
                 new []
                 {
-                    RoadNodeType.RealNode,
-                    RoadNodeType.FakeNode,
-                    RoadNodeType.EndNode,
-                    RoadNodeType.MiniRoundabout,
-                    RoadNodeType.TurnLoopNode,
+                    RoadSegmentGeometryDrawMethod.Outlined,
+                    RoadSegmentGeometryDrawMethod.Measured,
+                    RoadSegmentGeometryDrawMethod.Measured_according_to_GRB_specifications
                 },
-                RoadNodeType.All);
+                RoadSegmentGeometryDrawMethod.All);
         }
 
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
-            var sut = RoadNodeType.Parse(value);
+            var sut = RoadSegmentGeometryDrawMethod.Parse(value);
             var result = sut.ToString();
 
             Assert.Equal(value.ToString(), result);
@@ -98,21 +84,21 @@ namespace RoadRegistry.Model
         public void ParseReturnsExpectedResultWhenValueIsWellKnown()
         {
             var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
-            Assert.NotNull(RoadNodeType.Parse(value));
+            Assert.NotNull(RoadSegmentGeometryDrawMethod.Parse(value));
         }
 
         [Fact]
         public void ParseReturnsExpectedResultWhenValueIsUnknown()
         {
             var value = new Generator<int>(_fixture).First(candidate => !_knownValues.Contains(candidate));
-            Assert.Throws<FormatException>(() => RoadNodeType.Parse(value));
+            Assert.Throws<FormatException>(() => RoadSegmentGeometryDrawMethod.Parse(value));
         }
 
         [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsWellKnown()
         {
             var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
-            var result = RoadNodeType.TryParse(value, out RoadNodeType parsed);
+            var result = RoadSegmentGeometryDrawMethod.TryParse(value, out RoadSegmentGeometryDrawMethod parsed);
             Assert.True(result);
             Assert.NotNull(parsed);
             Assert.Equal(value, parsed.ToInt32());
@@ -122,7 +108,7 @@ namespace RoadRegistry.Model
         public void TryParseReturnsExpectedResultWhenValueIsUnknown()
         {
             var value = new Generator<int>(_fixture).First(candidate => !_knownValues.Contains(candidate));
-            var result = RoadNodeType.TryParse(value, out RoadNodeType parsed);
+            var result = RoadSegmentGeometryDrawMethod.TryParse(value, out RoadSegmentGeometryDrawMethod parsed);
             Assert.False(result);
             Assert.Null(parsed);
         }

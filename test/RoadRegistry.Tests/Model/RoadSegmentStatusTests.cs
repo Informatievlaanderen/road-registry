@@ -21,9 +21,7 @@ namespace RoadRegistry.Model
         public void VerifyBehavior()
         {
             _fixture.Customizations.Add(
-                new RandomNumericSequenceGenerator(
-                    RoadSegmentStatus.PermitRequested.ToInt32(), 
-                    RoadSegmentStatus.OutOfUse.ToInt32()));
+                new FiniteSequenceGenerator<int>(_knownValues));
             new CompositeIdiomaticAssertion(
                 new ImplicitConversionOperatorAssertion<Int32>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),

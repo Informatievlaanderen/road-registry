@@ -27,7 +27,7 @@ namespace RoadRegistry
             var self = Builder.CreateAnonymous(type);
             var other = Builder.CreateAnonymous(type);
 
-            object result = null;
+            object result;
             try
             {
                 result = method.Invoke(self, new[] { other });
