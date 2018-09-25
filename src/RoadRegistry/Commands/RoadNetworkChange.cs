@@ -6,6 +6,6 @@ namespace RoadRegistry.Commands
     public class RoadNetworkChange
     {
         public AddRoadNode AddRoadNode { get; set; }
-        public AddRoadNode AddRoadNode2 { get; set; }
+        public AddRoadSegment AddRoadSegment { get; set; }
     }
 }
