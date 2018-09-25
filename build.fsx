@@ -22,13 +22,11 @@ Target "Clean" (fun _ ->
 // Core: shape-library, domain-library
 Target "Build_CoreComponents" (fun _ ->
   [
-    "Shaperon"
     "RoadRegistry"
   ] |> List.iter build
 )
 Target "Test_CoreComponents" (fun _ ->
   [
-    "test" @@ "Shaperon.Tests"
     "test" @@ "RoadRegistry.Tests"
   ] |> List.iter testWithXunit
 )
