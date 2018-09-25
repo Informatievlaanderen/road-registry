@@ -27,16 +27,16 @@ namespace RoadRegistry
             var self = Builder.CreateAnonymous(type);
             var other = Builder.CreateAnonymous(type);
 
+            object result = null;
             try
             {
-                var result = (bool)method.Invoke(self, new[] { other });
-                if (result)
-                    throw new EquatableEqualsException(type);
+                result = method.Invoke(self, new[] { other });
             }
             catch (Exception exception)
             {
-                throw new EquatableEqualsException(type, $"The IEquatable<{type.Name}>.Equals method of type {type.Name} threw an exception.", exception);
+                throw new EquatableEqualsException(type, $"The IEquatable<{type.Name}>.Equals method of type {type.Name} threw an exception: {exception}", exception);
             }
+            if ((bool)result) throw new EquatableEqualsException(type);
         }
     }
 }

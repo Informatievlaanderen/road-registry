@@ -29,7 +29,7 @@ namespace RoadRegistry.Model
         {
             if (!TryParse(value, out var parsed))
             {
-                throw new FormatException($"The value {value} is not a well known road not type.");
+                throw new FormatException($"The value {value} is not a well known road node type.");
             }
             return parsed;
         }

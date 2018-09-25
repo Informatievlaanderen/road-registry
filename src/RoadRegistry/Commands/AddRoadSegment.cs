@@ -23,38 +23,4 @@ namespace RoadRegistry.Commands
         public RoadSegmentWidthProperties[] Widths { get; set; }
         public RoadSegmentHardeningProperties[] Hardenings { get; set; }
     }
-
-    public class RoadSegmentSideProperties
-    {
-        public int? StreetNameId { get; set; }
-    }
-
-    public class RoadSegmentEuropeanRoadProperties
-    {
-        public int AttributeId { get; set; }
-        public string RoadNumber { get; set; }
-    }
-
-    public class RoadSegmentHardeningProperties
-    {
-        public int AttributeId { get; set; }
-        public HardeningType Type { get; set; }
-        public decimal FromPosition { get; set; }
-        public decimal ToPosition { get; set; }
-    }
-
-    public class RoadSegmentLaneProperties
-    {
-        public int AttributeId { get; set; }
-        public int Count { get; set; }
-        public LaneDirection Direction { get; set; }
-        public decimal FromPosition { get; set; }
-        public decimal ToPosition { get; set; }
-    }
-    
-    public class RoadSegmentNationalRoadProperties
-    {
-        public int AttributeId { get; set; }
-        public string Ident2 { get; set; }
-    }
 }
