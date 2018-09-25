@@ -8,7 +8,7 @@ namespace RoadRegistry.Api.Extracts
     using ExtractFiles;
     using GeoAPI.Geometries;
     using Projections;
-    using Shaperon;
+    using Aiv.Vbr.Shaperon;
 
     public class RoadRegistryExtractsBuilder
     {

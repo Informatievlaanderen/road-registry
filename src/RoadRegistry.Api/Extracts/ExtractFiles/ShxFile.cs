@@ -2,7 +2,7 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
 {
     using System.Collections.Generic;
     using System.Text;
-    using Shaperon;
+    using Aiv.Vbr.Shaperon;
 
     public class ShxFile : ExtractFile
     {

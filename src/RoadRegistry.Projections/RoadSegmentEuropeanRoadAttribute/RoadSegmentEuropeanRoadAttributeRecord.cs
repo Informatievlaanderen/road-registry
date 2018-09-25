@@ -1,6 +1,6 @@
 namespace RoadRegistry.Projections
 {
-    using Shaperon;
+    using Aiv.Vbr.Shaperon;
 
     public class RoadSegmentEuropeanRoadAttributeRecord
     {

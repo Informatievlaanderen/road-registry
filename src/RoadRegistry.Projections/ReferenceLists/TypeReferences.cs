@@ -4,7 +4,7 @@ namespace RoadRegistry.Projections
     using System.Globalization;
     using System.Linq;
     using Events;
-    using Shaperon;
+    using Aiv.Vbr.Shaperon;
 
     public class TypeReferences
     {

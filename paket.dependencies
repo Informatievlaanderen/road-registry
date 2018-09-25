@@ -126,6 +126,7 @@ nuget Aiv.Vbr.Utilities.HashCodeCalculator ~> 2.0
 nuget Aiv.Vbr.Utilities.HexByteConvertor ~> 2.0
 nuget Aiv.Vbr.Testing.Infrastructure.Events ~> 1.2.1
 nuget Aiv.Vbr.Build.Pipeline ~> 2.1
+nuget Aiv.Vbr.Shaperon ~> 1.0
 
 // DOCS STUFF
 nuget Structurizr.Core 0.8.0

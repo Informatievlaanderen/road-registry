@@ -10,3 +10,5 @@ Newtonsoft.Json
 NetTopologySuite
 AWSSDK.S3
 AWSSDK.Extensions.NETCore.Setup
+
+Aiv.Vbr.Shaperon

@@ -154,6 +154,8 @@ NUGET
       Microsoft.EntityFrameworkCore (>= 2.1.1)
       Microsoft.Extensions.Logging (>= 2.1.1)
       xunit (>= 2.4)
+    Aiv.Vbr.Shaperon (1.0.0)
+      NetTopologySuite (1.15.1-pre006)
     Aiv.Vbr.Testing.Infrastructure.Events (1.2.4)
       Aiv.Vbr.AggregateSource (>= 3.1.6)
       Aiv.Vbr.EventHandling (>= 2.0.2)
