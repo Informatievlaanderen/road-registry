@@ -4,6 +4,7 @@ namespace RoadRegistry.Api.Extracts
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
     using ExtractFiles;
     using GeoAPI.Geometries;
     using Projections;
@@ -11,18 +12,25 @@ namespace RoadRegistry.Api.Extracts
 
     public class RoadRegistryExtractsBuilder
     {
-        public ExtractFile CreateOrganizationsFile(IReadOnlyCollection<OrganizationRecord> organisations)
+        private readonly Action<ExtractFile> _showWriteFilesContentMessage;
+
+        public RoadRegistryExtractsBuilder(Action<string> showMessage)
+        {
+            _showWriteFilesContentMessage = file => showMessage?.Invoke($"Write file {file.Name}");
+        }
+
+        public async Task<ExtractFile> CreateOrganizationsFileAsync(Task<IReadOnlyCollection<OrganizationRecord>> organisations)
         {
             return CreateDbfFile<OrganizationDbaseRecord>(
                 "LstOrg",
                 new OrganizationDbaseSchema(),
-                organisations.Select(org => org.DbaseRecord)
+                (await organisations).Select(org => org.DbaseRecord)
             );
         }
 
-        public IEnumerable<ExtractFile> CreateRoadSegmentsFiles(IReadOnlyCollection<RoadSegmentRecord> roadSegments)
+        public async Task<IEnumerable<ExtractFile>> CreateRoadSegmentsFilesAsync(Task<IReadOnlyCollection<RoadSegmentRecord>> roadSegments)
         {
-            var shapeData = roadSegments.Select(segment =>
+            var shapeData = (await roadSegments).Select(segment =>
                 new ShapeData
                 {
                     DbaseRecord = segment.DbaseRecord,
@@ -39,9 +47,9 @@ namespace RoadRegistry.Api.Extracts
             );
         }
 
-        public IEnumerable<ExtractFile> CreateRoadNodesFiles(IReadOnlyCollection<RoadNodeRecord> roadNodes)
+        public async Task<IEnumerable<ExtractFile>> CreateRoadNodesFilesAsync(Task<IReadOnlyCollection<RoadNodeRecord>> roadNodes)
         {
-            var shapeData = roadNodes.Select(node =>
+            var shapeData = (await roadNodes).Select(node =>
                     new ShapeData
                     {
                         DbaseRecord = node.DbaseRecord,
@@ -58,13 +66,13 @@ namespace RoadRegistry.Api.Extracts
             );
         }
 
-        public IEnumerable<ExtractFile> CreateReferencePointsFiles(IReadOnlyCollection<RoadReferencePointRecord> referencePointRecords)
+        public async Task<IEnumerable<ExtractFile>> CreateReferencePointsFilesAsync(Task<IReadOnlyCollection<RoadReferencePointRecord>> referencePointRecords)
         {
             return CreateShapeFiles<RoadReferencePointDbaseRecord, PointShapeContent>(
                 "Refpunt",
                 ShapeType.Point,
                 new RoadReferencePointDbaseSchema(),
-                referencePointRecords.Select(referencePoint => new ShapeData{ DbaseRecord = referencePoint.DbaseRecord, Shape = referencePoint.ShapeRecordContent}),
+                (await referencePointRecords).Select(referencePoint => new ShapeData{ DbaseRecord = referencePoint.DbaseRecord, Shape = referencePoint.ShapeRecordContent}),
                 PointShapeContent.Read,
                 content => content.Shape.EnvelopeInternal
             );
@@ -76,7 +84,7 @@ namespace RoadRegistry.Api.Extracts
             public byte[] Shape { get; set; }
         }
 
-        private static IEnumerable<ExtractFile> CreateShapeFiles<TDbaseRecord, TShape>(
+        private IEnumerable<ExtractFile> CreateShapeFiles<TDbaseRecord, TShape>(
             string fileName,
             ShapeType shapeType,
             DbaseSchema schema,
@@ -144,6 +152,7 @@ namespace RoadRegistry.Api.Extracts
                     boundingBox
                 )
             );
+            _showWriteFilesContentMessage(shpFile);
             shpFile.Write(data.ShapeRecords);
 
             var shxFile = new ShxFile(
@@ -154,6 +163,7 @@ namespace RoadRegistry.Api.Extracts
                     boundingBox
                 )
             );
+            _showWriteFilesContentMessage(shxFile);
             shxFile.Write(data.ShapeIndexRecords);
 
             return new[]
@@ -164,176 +174,176 @@ namespace RoadRegistry.Api.Extracts
             };
         }
 
-        public ExtractFile CreateRoadSegmentDynamicLaneAttributesFile(IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord> roadSegmentDynamicLaneAttributes)
+        public async Task<ExtractFile> CreateRoadSegmentDynamicLaneAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord>> roadSegmentDynamicLaneAttributes)
         {
             return CreateDbfFile<RoadSegmentDynamicLaneAttributeDbaseRecord>(
                 "AttRijstroken",
                 new RoadSegmentDynamicLaneAttributeDbaseSchema(),
-                roadSegmentDynamicLaneAttributes.Select(record => record.DbaseRecord)
+                (await roadSegmentDynamicLaneAttributes).Select(record => record.DbaseRecord)
             );
         }
 
-        public ExtractFile CreateRoadSegmentDynamicWidtAttributesFile(IReadOnlyCollection<RoadSegmentDynamicWidthAttributeRecord> roadSegmentDynamicWidthAttributes)
+        public async Task<ExtractFile> CreateRoadSegmentDynamicWidtAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentDynamicWidthAttributeRecord>> roadSegmentDynamicWidthAttributes)
         {
             return CreateDbfFile<RoadSegmentDynamicWidthAttributeDbaseRecord>(
                 "AttWegbreedte",
                 new RoadSegmentDynamicWidthAttributeDbaseSchema(),
-                roadSegmentDynamicWidthAttributes.Select(record => record.DbaseRecord)
+                (await roadSegmentDynamicWidthAttributes).Select(record => record.DbaseRecord)
             );
         }
 
-        public ExtractFile CreateRoadSegmentDynamicHardeningAttributesFile(IReadOnlyCollection<RoadSegmentDynamicHardeningAttributeRecord> roadSegmentDynamicHardeningAttributes)
+        public async Task<ExtractFile> CreateRoadSegmentDynamicHardeningAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentDynamicHardeningAttributeRecord>> roadSegmentDynamicHardeningAttributes)
         {
             return CreateDbfFile<RoadSegmentDynamicHardeningAttributeDbaseRecord>(
                 "AttWegverharding",
                 new RoadSegmentDynamicHardeningAttributeDbaseSchema(),
-                roadSegmentDynamicHardeningAttributes.Select(record => record.DbaseRecord)
+                (await roadSegmentDynamicHardeningAttributes).Select(record => record.DbaseRecord)
             );
         }
 
-        public ExtractFile CreateRoadSegmentNationalRoadAttributesFile(IReadOnlyCollection<RoadSegmentNationalRoadAttributeRecord> roadSegmentNationalRoadAttributeRecords)
+        public async Task<ExtractFile> CreateRoadSegmentNationalRoadAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentNationalRoadAttributeRecord>> roadSegmentNationalRoadAttributeRecords)
         {
             return CreateDbfFile<RoadSegmentNationalRoadAttributeDbaseRecord>(
                 "AttNationweg",
                 new RoadSegmentNationalRoadAttributeDbaseSchema(),
-                roadSegmentNationalRoadAttributeRecords.Select(record => record.DbaseRecord)
+                (await roadSegmentNationalRoadAttributeRecords).Select(record => record.DbaseRecord)
             );
         }
 
-        public ExtractFile CreateRoadSegmentEuropeanRoadAttributesFile(IReadOnlyCollection<RoadSegmentEuropeanRoadAttributeRecord> roadSegmentEuropeanRoadAttributeRecords)
+        public async Task<ExtractFile> CreateRoadSegmentEuropeanRoadAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentEuropeanRoadAttributeRecord>> roadSegmentEuropeanRoadAttributeRecords)
         {
             return CreateDbfFile<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
                 "AttEuropweg",
                 new RoadSegmentEuropeanRoadAttributeDbaseSchema(),
-                roadSegmentEuropeanRoadAttributeRecords.Select(record => record.DbaseRecord)
+                (await roadSegmentEuropeanRoadAttributeRecords).Select(record => record.DbaseRecord)
             );
         }
 
-        public ExtractFile CreateRoadSegmentNumberedRoadAttributesFile(IReadOnlyCollection<RoadSegmentNumberedRoadAttributeRecord> roadSegmentNumberedRoadAttributeRecords)
+        public async Task<ExtractFile> CreateRoadSegmentNumberedRoadAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentNumberedRoadAttributeRecord>> roadSegmentNumberedRoadAttributeRecords)
         {
             return CreateDbfFile<RoadSegmentNumberedRoadAttributeDbaseRecord>(
                 "AttGenumweg",
                 new RoadSegmentNumberedRoadAttributeDbaseSchema(),
-                roadSegmentNumberedRoadAttributeRecords.Select(record => record.DbaseRecord)
+                (await roadSegmentNumberedRoadAttributeRecords).Select(record => record.DbaseRecord)
             );
         }
 
-        public ExtractFile CreateGradeSeperatedJunctionsFile(IReadOnlyCollection<GradeSeparatedJunctionRecord> gradeSeparatedJunctionRecords)
+        public async Task<ExtractFile> CreateGradeSeperatedJunctionsFileAsync(Task<IReadOnlyCollection<GradeSeparatedJunctionRecord>> gradeSeparatedJunctionRecords)
         {
             return CreateDbfFile<GradeSeparatedJunctionDbaseRecord>(
                 "RltOgkruising",
                 new GradeSeparatedJunctionDbaseSchema(),
-                gradeSeparatedJunctionRecords.Select(record => record.DbaseRecord)
+                (await gradeSeparatedJunctionRecords).Select(record => record.DbaseRecord)
             );
 
         }
 
-        public ExtractFile CreateRoadNodeTypesFile()
+        public Task<ExtractFile> CreateRoadNodeTypesFile()
         {
-            return CreateDbfFile(
+            return Task.Run(() => CreateDbfFile(
                 "WegknoopLktType",
                 TypeReferences.RoadNodeTypes,
                 new RoadNodeTypeDbaseSchema()
-            );
+            ));
         }
 
-        public ExtractFile CreateRoadSegmentCategoriesFile()
+        public Task<ExtractFile> CreateRoadSegmentCategoriesFile()
         {
-            return CreateDbfFile(
+            return Task.Run(() => CreateDbfFile(
                 "WegsegmentLktWegcat",
                 TypeReferences.RoadSegmentCategories,
                 new RoadSegmentCategoryDbaseSchema()
-            );
+            ));
         }
 
-        public ExtractFile CreateRoadSegmentGeometryDrawMethodsFile()
+        public Task<ExtractFile> CreateRoadSegmentGeometryDrawMethodsFile()
         {
-            return CreateDbfFile(
+            return Task.Run(() => CreateDbfFile(
                 "WegsegmentLktMethode",
                 TypeReferences.RoadSegmentGeometryDrawMethods,
                 new RoadSegmentGeometryDrawMethodDbaseSchema()
-            );
+            ));
         }
 
-        public ExtractFile CreateRoadSegmentStatusesFile()
+        public Task<ExtractFile> CreateRoadSegmentStatusesFile()
         {
-            return CreateDbfFile(
+            return Task.Run(() => CreateDbfFile(
                 "WegsegmentLktStatus",
                 TypeReferences.RoadSegmentStatuses,
                 new RoadSegmentStatusDbaseSchema()
-            );
+            ));
         }
 
-        public ExtractFile CreateRoadSegmentAccessRestrictionsFile()
+        public Task<ExtractFile> CreateRoadSegmentAccessRestrictionsFile()
         {
-            return CreateDbfFile(
+            return Task.Run(() => CreateDbfFile(
                 "WegsegmentLktTgbep",
                 TypeReferences.RoadSegmentAccessRestrictions,
                 new RoadSegmentAccessRestrictionDbaseSchema()
-            );
+            ));
         }
 
-        public ExtractFile CreateReferencePointTypesFile()
+        public Task<ExtractFile> CreateReferencePointTypesFile()
         {
-            return CreateDbfFile(
+            return Task.Run(() => CreateDbfFile(
                 "RefpuntLktType",
                 TypeReferences.ReferencePointTypes,
                 new ReferencePointTypeDbaseSchema()
-            );
+            ));
         }
 
-        public ExtractFile CreateRoadSegmentMorphologiesFile()
+        public Task<ExtractFile> CreateRoadSegmentMorphologiesFile()
         {
-            return CreateDbfFile(
+            return Task.Run(() => CreateDbfFile(
                 "WegsegmentLktMorf",
                 TypeReferences.RoadSegmentMorphologies,
                 new RoadSegmentMorphologyDbaseSchema()
-            );
+            ));
         }
 
-        public ExtractFile CreateGradeSeperatedJunctionTypesFile()
+        public Task<ExtractFile> CreateGradeSeperatedJunctionTypesFile()
         {
-            return CreateDbfFile(
+            return Task.Run(() => CreateDbfFile(
                 "OgkruisingLktType",
                 TypeReferences.GradeSeparatedJunctionTypes,
                 new GradeSeparatedJunctionTypeDbaseSchema()
-            );
+            ));
         }
 
-        public ExtractFile CreateNumberedRoadSegmentDirectionsFile()
+        public Task<ExtractFile> CreateNumberedRoadSegmentDirectionsFile()
         {
-            return CreateDbfFile(
+            return Task.Run(() => CreateDbfFile(
                 "GenumwegLktRichting",
                 TypeReferences.NumberedRoadSegmentDirections,
                 new NumberedRoadSegmentDirectionDbaseSchema()
-            );
+            ));
         }
 
-        public ExtractFile CreateHardeningTypesFile()
+        public Task<ExtractFile> CreateHardeningTypesFile()
         {
-            return CreateDbfFile(
+            return Task.Run(() => CreateDbfFile(
                 "WegverhardLktType",
                 TypeReferences.HardeningTypes,
                 new HardeningTypeDbaseSchema()
-            );
+            ));
         }
 
-        public ExtractFile CreateLaneDirectionsFile()
+        public Task<ExtractFile> CreateLaneDirectionsFile()
         {
-            return CreateDbfFile(
+            return Task.Run(() => CreateDbfFile(
                 "RijstrokenLktRichting",
                 TypeReferences.LaneDirections,
                 new LaneDirectionDbaseSchema()
-            );
+            ));
         }
 
-        private static ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, DbaseSchema schema, IEnumerable<byte[]> records)
+        private ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, DbaseSchema schema, IEnumerable<byte[]> records)
             where TDbaseRecord : DbaseRecord, new()
         {
             return CreateDbfFile<TDbaseRecord>(fileName, schema, records.ToArray());
         }
 
-        private static ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, DbaseSchema schema, IReadOnlyCollection<byte[]> records)
+        private ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, DbaseSchema schema, IReadOnlyCollection<byte[]> records)
             where TDbaseRecord : DbaseRecord, new()
         {
             var dbfFile = CreateEmptyDbfFile<TDbaseRecord>(
@@ -341,12 +351,13 @@ namespace RoadRegistry.Api.Extracts
                 schema,
                 new DbaseRecordCount(records.Count)
             );
+            _showWriteFilesContentMessage(dbfFile);
             dbfFile.WriteBytesAs<TDbaseRecord>(records);
 
             return dbfFile;
         }
 
-        private static ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, IReadOnlyCollection<TDbaseRecord> records, DbaseSchema schema)
+        private ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, IReadOnlyCollection<TDbaseRecord> records, DbaseSchema schema)
             where TDbaseRecord : DbaseRecord
         {
             var dbfFile = CreateEmptyDbfFile<TDbaseRecord>(
@@ -354,6 +365,7 @@ namespace RoadRegistry.Api.Extracts
                 schema,
                 new DbaseRecordCount(records.Count)
             );
+            _showWriteFilesContentMessage(dbfFile);
             dbfFile.Write(records);
 
             return dbfFile;

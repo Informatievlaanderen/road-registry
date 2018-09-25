@@ -9,8 +9,6 @@ namespace RoadRegistry.Projections.Shape
     using Autofac.Extensions.DependencyInjection;
     using Autofac.Features.OwnedInstances;
     using Destructurama;
-    using Infrastructure;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -19,9 +17,15 @@ namespace RoadRegistry.Projections.Shape
 
     public class Program
     {
+        private static readonly AutoResetEvent Closing = new AutoResetEvent(false);
+        private static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
+
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.Projections.Shape");
+            var cancellationToken = CancellationTokenSource.Token;
+            cancellationToken.Register(() => Closing.Set());
+            Console.CancelKeyPress += (sender, eventArgs) => CancellationTokenSource.Cancel();
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -35,7 +39,7 @@ namespace RoadRegistry.Projections.Shape
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
                 //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{Environment.MachineName}.json", true, true)
+                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args)
                 .Build();
@@ -44,21 +48,22 @@ namespace RoadRegistry.Projections.Shape
             var app = ConfigureServices(services, configuration);
             var logger = app.GetService<ILogger<Program>>();
 
-            MigrationsHelper.Run(configuration.GetConnectionString("ShapeProjectionsAdmin"), app.GetService<ILoggerFactory>());
+            MigrationsHelper.Run(
+                configuration.GetConnectionString("ShapeProjectionsAdmin"),
+                app.GetService<ILoggerFactory>());
 
             try
             {
                 using (var runner = app.GetService<RoadShapeRunner>())
                 {
                     runner.CatchupPageSize = 5000;
-                    using(var source = new CancellationTokenSource())
-                    {
-                        await runner.StartAsync(app.GetService<IStreamStore>(), app.GetService<Func<Owned<ShapeContext>>>(), source.Token);
-                        // runner.Handle(app.GetService<IStreamStore>(), app.GetService<Func<Owned<ShapeContext>>>());
-                        Console.WriteLine("Running...");
-                        Console.ReadLine();
-                        source.Cancel();
-                    }
+                    await runner.StartAsync(
+                        app.GetService<IStreamStore>(),
+                        app.GetService<Func<Owned<ShapeContext>>>(),
+                        cancellationToken);
+
+                    Console.WriteLine("Running... Press CTRL + C to exit.");
+                    Closing.WaitOne();
                 }
             }
             catch (Exception e)
@@ -69,6 +74,9 @@ namespace RoadRegistry.Projections.Shape
                 Thread.Sleep(1000);
                 throw;
             }
+
+            Console.WriteLine("\nStopping...");
+            Closing.Close();
         }
 
         private static IServiceProvider ConfigureServices(

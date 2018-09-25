@@ -40,5 +40,22 @@
     <ProjectReference Include="..\RoadRegistry.Projections\RoadRegistry.Projections.csproj" />
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.aocws207.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.aocws255.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.aocws277.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.AOCWS977.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

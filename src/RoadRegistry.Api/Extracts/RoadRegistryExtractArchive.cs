@@ -5,71 +5,74 @@ namespace RoadRegistry.Api.Extracts
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
+    using System.Linq;
+    using System.Threading.Tasks;
     using ExtractFiles;
+    using Infrastructure;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Net.Http.Headers;
 
-    public class RoadRegistryExtractArchive : IEnumerable<ExtractFile>
+    public class RoadRegistryExtractArchive : IEnumerable
     {
-        private readonly string _name;
-        private readonly IList<ExtractFile> _files = new List<ExtractFile>();
+        private readonly string _fileName;
+        private readonly IList<Func<Task<IEnumerable<ExtractFile>>>> _createFileBatches = new List<Func<Task<IEnumerable<ExtractFile>>>>();
 
         public RoadRegistryExtractArchive(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
 
-            _name = name.EndsWith(".zip") ? name : name.TrimEnd('.') + ".zip";
+            _fileName = name.EndsWith(".zip") ? name : name.TrimEnd('.') + ".zip";
         }
 
-        public void Add(ExtractFile file)
+        public void Add(Func<Task<ExtractFile>> createFile)
         {
-            _files.Add(file);
+            if (null != createFile)
+                _createFileBatches.Add(async () => new []{ await createFile() });
         }
 
-        public void Add(IEnumerable<ExtractFile> files)
+        public void Add(Func<Task<IEnumerable<ExtractFile>>> createFiles)
         {
-            foreach (var file in files)
+            if(null != createFiles)
+                _createFileBatches.Add(createFiles);
+        }
+
+        public FileResult CreateCallbackFileStreamResult()
+        {
+            return new FileCallbackResult(
+                new MediaTypeHeaderValue("application/octet-stream"),
+                WriteArchiveContentAsync
+            )
             {
-                Add(file);
-            }
+                FileDownloadName = _fileName
+            };
         }
 
-        public FileStreamResult CreateResponse()
+        private async Task WriteArchiveContentAsync(Stream archiveStream, ActionContext _)
         {
-            var archiveStream = new MemoryStream();
-            using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create, leaveOpen: true))
+            using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create))
             {
-                foreach (var file in _files)
+                foreach (var createFileBatch in _createFileBatches)
                 {
-                    using (file)
+                    var extractFiles = (await createFileBatch())?.Where(file => file != null) ?? new ExtractFile[0];
+                    foreach (var file in extractFiles)
                     {
-                        var fileCompents = file.Flush();
-                        using (var archiveItem = archive.CreateEntry(fileCompents.Name).Open())
+                        using (file)
                         {
-                            fileCompents.Content.CopyTo(archiveItem);
+                            var fileCompents = file.Flush();
+                            using (var archiveItem = archive.CreateEntry(fileCompents.Name).Open())
+                            {
+                                fileCompents.Content.CopyTo(archiveItem);
+                            }
                         }
                     }
                 }
             }
-
-            // argh! FileStreamResult does a Stream.CopyTo (which copies 0 bytes if you don't reset the position)
-            archiveStream.Position = 0;
-
-            return new FileStreamResult(archiveStream, new MediaTypeHeaderValue("application/zip"))
-            {
-                FileDownloadName = _name
-            };
-        }
-
-        public IEnumerator<ExtractFile> GetEnumerator()
-        {
-            return _files.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _files.GetEnumerator();
+            return _createFileBatches.GetEnumerator();
         }
     }
 }
