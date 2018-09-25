@@ -40,25 +40,25 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public static void OutlinedReturnsExpectedResult()
+        public void OutlinedReturnsExpectedResult()
         {
             Assert.Equal(1, RoadSegmentGeometryDrawMethod.Outlined);
         }
 
         [Fact]
-        public static void MeasuredReturnsExpectedResult()
+        public void MeasuredReturnsExpectedResult()
         {
             Assert.Equal(2, RoadSegmentGeometryDrawMethod.Measured);
         }
 
         [Fact]
-        public static void Measured_according_to_GRB_specificationsReturnsExpectedResult()
+        public void Measured_according_to_GRB_specificationsReturnsExpectedResult()
         {
             Assert.Equal(3, RoadSegmentGeometryDrawMethod.Measured_according_to_GRB_specifications);
         }
 
         [Fact]
-        public static void AllReturnsExpectedResult()
+        public void AllReturnsExpectedResult()
         {
             Assert.Equal(
                 new []

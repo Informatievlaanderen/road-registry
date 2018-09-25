@@ -40,43 +40,43 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public static void UnknownReturnsExpectedResult()
+        public void UnknownReturnsExpectedResult()
         {
             Assert.Equal(-8, RoadSegmentStatus.Unknown);
         }
 
         [Fact]
-        public static void PermitRequestedReturnsExpectedResult()
+        public void PermitRequestedReturnsExpectedResult()
         {
             Assert.Equal(1, RoadSegmentStatus.PermitRequested);
         }
 
         [Fact]
-        public static void BuildingPermitGrantedReturnsExpectedResult()
+        public void BuildingPermitGrantedReturnsExpectedResult()
         {
             Assert.Equal(2, RoadSegmentStatus.BuildingPermitGranted);
         }
 
         [Fact]
-        public static void UnderConstructionReturnsExpectedResult()
+        public void UnderConstructionReturnsExpectedResult()
         {
             Assert.Equal(3, RoadSegmentStatus.UnderConstruction);
         }
 
         [Fact]
-        public static void InUseReturnsExpectedResult()
+        public void InUseReturnsExpectedResult()
         {
             Assert.Equal(4, RoadSegmentStatus.InUse);
         }
 
         [Fact]
-        public static void OutOfUseReturnsExpectedResult()
+        public void OutOfUseReturnsExpectedResult()
         {
             Assert.Equal(5, RoadSegmentStatus.OutOfUse);
         }
 
         [Fact]
-        public static void AllReturnsExpectedResult()
+        public void AllReturnsExpectedResult()
         {
             Assert.Equal(
                 new []

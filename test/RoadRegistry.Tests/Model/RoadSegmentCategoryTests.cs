@@ -40,115 +40,115 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public static void UnknownReturnsExpectedResult()
+        public void UnknownReturnsExpectedResult()
         {
             Assert.Equal("-8", RoadSegmentCategory.Unknown);
         }
 
         [Fact]
-        public static void NotApplicableReturnsExpectedResult()
+        public void NotApplicableReturnsExpectedResult()
         {
             Assert.Equal("-9", RoadSegmentCategory.NotApplicable);
         }
 
         [Fact]
-        public static void MainRoadReturnsExpectedResult()
+        public void MainRoadReturnsExpectedResult()
         {
             Assert.Equal("H", RoadSegmentCategory.MainRoad);
         }
 
         [Fact]
-        public static void LocalRoadReturnsExpectedResult()
+        public void LocalRoadReturnsExpectedResult()
         {
             Assert.Equal("L", RoadSegmentCategory.LocalRoad);
         }
 
         [Fact]
-        public static void LocalRoadType1ReturnsExpectedResult()
+        public void LocalRoadType1ReturnsExpectedResult()
         {
             Assert.Equal("L1", RoadSegmentCategory.LocalRoadType1);
         }
 
         [Fact]
-        public static void LocalRoadType2ReturnsExpectedResult()
+        public void LocalRoadType2ReturnsExpectedResult()
         {
             Assert.Equal("L2", RoadSegmentCategory.LocalRoadType2);
         }
 
         [Fact]
-        public static void LocalRoadType3ReturnsExpectedResult()
+        public void LocalRoadType3ReturnsExpectedResult()
         {
             Assert.Equal("L3", RoadSegmentCategory.LocalRoadType3);
         }
 
         [Fact]
-        public static void PrimaryRoadIReturnsExpectedResult()
+        public void PrimaryRoadIReturnsExpectedResult()
         {
             Assert.Equal("PI", RoadSegmentCategory.PrimaryRoadI);
         }
 
         [Fact]
-        public static void PrimaryRoadIIReturnsExpectedResult()
+        public void PrimaryRoadIIReturnsExpectedResult()
         {
             Assert.Equal("PII", RoadSegmentCategory.PrimaryRoadII);
         }
 
         [Fact]
-        public static void PrimaryRoadIIType1ReturnsExpectedResult()
+        public void PrimaryRoadIIType1ReturnsExpectedResult()
         {
             Assert.Equal("PII-1", RoadSegmentCategory.PrimaryRoadIIType1);
         }
 
         [Fact]
-        public static void PrimaryRoadIIType2ReturnsExpectedResult()
+        public void PrimaryRoadIIType2ReturnsExpectedResult()
         {
             Assert.Equal("PII-2", RoadSegmentCategory.PrimaryRoadIIType2);
         }
 
         [Fact]
-        public static void PrimaryRoadIIType3ReturnsExpectedResult()
+        public void PrimaryRoadIIType3ReturnsExpectedResult()
         {
             Assert.Equal("PII-3", RoadSegmentCategory.PrimaryRoadIIType3);
         }
 
         [Fact]
-        public static void PrimaryRoadIIType4ReturnsExpectedResult()
+        public void PrimaryRoadIIType4ReturnsExpectedResult()
         {
             Assert.Equal("PII-4", RoadSegmentCategory.PrimaryRoadIIType4);
         }
 
         [Fact]
-        public static void SecondaryRoadReturnsExpectedResult()
+        public void SecondaryRoadReturnsExpectedResult()
         {
             Assert.Equal("S", RoadSegmentCategory.SecondaryRoad);
         }
 
         [Fact]
-        public static void SecondaryRoadType1ReturnsExpectedResult()
+        public void SecondaryRoadType1ReturnsExpectedResult()
         {
             Assert.Equal("S1", RoadSegmentCategory.SecondaryRoadType1);
         }
 
         [Fact]
-        public static void SecondaryRoadType2ReturnsExpectedResult()
+        public void SecondaryRoadType2ReturnsExpectedResult()
         {
             Assert.Equal("S2", RoadSegmentCategory.SecondaryRoadType2);
         }
 
          [Fact]
-        public static void SecondaryRoadType3ReturnsExpectedResult()
+        public void SecondaryRoadType3ReturnsExpectedResult()
         {
             Assert.Equal("S3", RoadSegmentCategory.SecondaryRoadType3);
         }
 
          [Fact]
-        public static void SecondaryRoadType4ReturnsExpectedResult()
+        public void SecondaryRoadType4ReturnsExpectedResult()
         {
             Assert.Equal("S4", RoadSegmentCategory.SecondaryRoadType4);
         }
 
         [Fact]
-        public static void AllReturnsExpectedResult()
+        public void AllReturnsExpectedResult()
         {
             Assert.Equal(
                 new []

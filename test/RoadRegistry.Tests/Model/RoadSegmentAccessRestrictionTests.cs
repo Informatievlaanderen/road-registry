@@ -40,43 +40,43 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public static void PublicRoadReturnsExpectedResult()
+        public void PublicRoadReturnsExpectedResult()
         {
             Assert.Equal(1, RoadSegmentAccessRestriction.PublicRoad);
         }
 
         [Fact]
-        public static void PhysicallyImpossibleReturnsExpectedResult()
+        public void PhysicallyImpossibleReturnsExpectedResult()
         {
             Assert.Equal(2, RoadSegmentAccessRestriction.PhysicallyImpossible);
         }
 
         [Fact]
-        public static void LegallyForbiddenReturnsExpectedResult()
+        public void LegallyForbiddenReturnsExpectedResult()
         {
             Assert.Equal(3, RoadSegmentAccessRestriction.LegallyForbidden);
         }
 
         [Fact]
-        public static void PrivateRoadReturnsExpectedResult()
+        public void PrivateRoadReturnsExpectedResult()
         {
             Assert.Equal(4, RoadSegmentAccessRestriction.PrivateRoad);
         }
 
         [Fact]
-        public static void SeasonalReturnsExpectedResult()
+        public void SeasonalReturnsExpectedResult()
         {
             Assert.Equal(5, RoadSegmentAccessRestriction.Seasonal);
         }
 
         [Fact]
-        public static void TollReturnsExpectedResult()
+        public void TollReturnsExpectedResult()
         {
             Assert.Equal(6, RoadSegmentAccessRestriction.Toll);
         }
 
         [Fact]
-        public static void AllReturnsExpectedResult()
+        public void AllReturnsExpectedResult()
         {
             Assert.Equal(
                 new []
