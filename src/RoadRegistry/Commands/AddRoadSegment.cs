@@ -8,7 +8,7 @@ namespace RoadRegistry.Commands
         public int StartNodeId { get; set; }
         public int EndNodeId { get; set; }
         public byte[] Geometry { get; set; }
-        public Maintainer Maintainer { get; set; }
+        public string Maintainer { get; set; }
         public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; set; }
         public RoadSegmentMorphology Morphology { get; set; }
         public RoadSegmentStatus Status { get; set; }
