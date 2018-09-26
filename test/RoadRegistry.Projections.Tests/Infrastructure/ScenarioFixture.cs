@@ -7,7 +7,7 @@ namespace RoadRegistry.Projections.Tests.Infrastructure
     using Events;
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
-    using Shaperon;
+    using Aiv.Vbr.Shaperon;
 
     public class ScenarioFixture : Fixture
     {

@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
-    <ProjectReference Include="..\Shaperon\Shaperon.csproj" />
   </ItemGroup>
 
   <ItemGroup>

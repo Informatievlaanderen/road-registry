@@ -1,7 +1,7 @@
 namespace RoadRegistry.Projections
 {
     using Events;
-    using Shaperon;
+    using Aiv.Vbr.Shaperon;
 
     public class HardeningTypeDbaseRecord : DbaseRecord
     {

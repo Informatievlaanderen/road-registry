@@ -3,7 +3,7 @@ namespace RoadRegistry.Api.Extracts.ExtractFiles
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Shaperon;
+    using Aiv.Vbr.Shaperon;
 
     public class DbfFile<TDbaseRecord> : ExtractFile
         where TDbaseRecord : DbaseRecord

@@ -1,13 +1,13 @@
-namespace RoadRegistry.Projections.Tests
+﻿namespace RoadRegistry.Projections.Tests
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using Events;
-    using Shaperon;
+    using Aiv.Vbr.Shaperon;
     using Xunit;
 
-    public class TypeRefenceTests
+    public class TypeReferenceTests
     {
         [Fact]
         public void All_road_node_type_records_are_defined()

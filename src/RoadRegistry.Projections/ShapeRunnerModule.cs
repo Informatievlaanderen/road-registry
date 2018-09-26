@@ -13,7 +13,7 @@ namespace RoadRegistry.Projections
     using Microsoft.Extensions.Logging;
     using NetTopologySuite;
     using NetTopologySuite.IO;
-    using Shaperon;
+    using Aiv.Vbr.Shaperon;
 
     public class ShapeRunnerModule : Module
     {

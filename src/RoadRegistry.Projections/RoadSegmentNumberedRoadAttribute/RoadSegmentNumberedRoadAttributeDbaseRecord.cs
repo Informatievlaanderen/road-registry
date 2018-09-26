@@ -1,6 +1,6 @@
 namespace RoadRegistry.Projections
 {
-    using Shaperon;
+    using Aiv.Vbr.Shaperon;
     public class RoadSegmentNumberedRoadAttributeDbaseRecord : DbaseRecord
     {
         public static readonly RoadSegmentNumberedRoadAttributeDbaseSchema Schema = new RoadSegmentNumberedRoadAttributeDbaseSchema();
