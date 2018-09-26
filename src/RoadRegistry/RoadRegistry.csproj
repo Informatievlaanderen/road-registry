@@ -10,5 +10,9 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
   </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include=".\Model\ident2.txt" />
+    <EmbeddedResource Include=".\Model\ident8.txt" />
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
