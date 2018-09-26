@@ -6,7 +6,6 @@ framework: auto-detect
 
 source https://informatievlaanderen.myget.org/F/nuget-mirror/api/v3/index.json username: "%MYGET_FEED_USER%" password: "%MYGET_FEED_PASS%" authtype: "basic"
 source https://informatievlaanderen.myget.org/F/basisregisters/api/v3/index.json username: "%MYGET_FEED_USER%" password: "%MYGET_FEED_PASS%" authtype: "basic"
-source https://www.myget.org/F/nettopologysuite/api/v3/index.json
 
 // This is what Microsoft likes to do from now on, except it makes no sense
 // - It does not work for self contained apps
