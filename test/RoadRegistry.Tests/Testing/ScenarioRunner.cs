@@ -88,7 +88,7 @@
 
         private async Task<long> WriteGivens(RecordedEvent[] givens)
         {
-            var checkpoint = Position.Start;
+            var checkpoint = SqlStreamStore.Streams.Position.Start;
             foreach (var stream in givens.GroupBy(given => given.Stream))
             {
                 var result = await _store.AppendToStream(
