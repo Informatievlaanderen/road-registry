@@ -14,8 +14,8 @@ namespace RoadRegistry.Commands
         public RoadSegmentStatus Status { get; set; }
         public RoadSegmentCategory Category { get; set; }
         public RoadSegmentAccessRestriction AccessRestriction { get; set; }
-        public RoadSegmentSideProperties LeftSide { get; set; }
-        public RoadSegmentSideProperties RightSide { get; set; }
+        public int? LeftSideStreetNameId { get; set; }
+        public int? RightSideStreetNameId { get; set; }
         public RoadSegmentEuropeanRoadProperties[] PartOfEuropeanRoads { get; set; }
         public RoadSegmentNationalRoadProperties[] PartOfNationalRoads { get; set; }
         public RoadSegmentNumberedRoadProperties[] PartOfNumberedRoads { get; set; }

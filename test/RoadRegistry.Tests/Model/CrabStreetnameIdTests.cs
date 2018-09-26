@@ -5,11 +5,11 @@ namespace RoadRegistry.Model
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class RoadNodeIdTests
+    public class CrabStreetnameIdTests
     {
         private readonly Fixture _fixture;
 
-        public RoadNodeIdTests()
+        public CrabStreetnameIdTests()
         {
             _fixture = new Fixture();
         }
@@ -18,9 +18,9 @@ namespace RoadRegistry.Model
         public void VerifyBehavior()
         {
             new CompositeIdiomaticAssertion(
-                new GuardClauseAssertion(_fixture, new NegativeInt64BehaviorExpectation()),
-                new ImplicitConversionOperatorAssertion<Int64>(_fixture),
-                new ExplicitConversionMethodAssertion<Int64>(_fixture),
+                new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation()),
+                new ImplicitConversionOperatorAssertion<Int32>(_fixture),
+                new ExplicitConversionMethodAssertion<Int32>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -32,30 +32,17 @@ namespace RoadRegistry.Model
                 new EqualsSelfAssertion(_fixture),
                 new EqualsOtherAssertion(_fixture),
                 new EqualsSuccessiveAssertion(_fixture),
-                new GetHashCodeSuccessiveAssertion(_fixture),
-                new ComparableCompareToSelfAssertion(_fixture)
-            ).Verify(typeof(RoadNodeId));
+                new GetHashCodeSuccessiveAssertion(_fixture)
+            ).Verify(typeof(CrabStreetnameId));
         }
 
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
-            var value = _fixture.Create<Int64>();
-            var sut = new RoadNodeId(value);
+            var value = _fixture.Create<Int32>();
+            var sut = new CrabStreetnameId(value);
 
-            Assert.Equal("RN-" + value, sut.ToString());
-        }
-
-        [Theory]
-        [InlineData(1L, 2L, -1)]
-        [InlineData(2L, 1L, 1)]
-        public void CompareToReturnsExpectedResult(Int64 left, Int64 right, Int32 expected)
-        {
-            var sut = new RoadNodeId(left);
-
-            var result = sut.CompareTo(new RoadNodeId(right));
-
-            Assert.Equal(expected, result);
+            Assert.Equal(value.ToString(), sut.ToString());
         }
     }
 }
