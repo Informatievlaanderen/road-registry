@@ -63,33 +63,6 @@ namespace RoadRegistry.Model
             return composer.FromFactory<int>(value => factory(new Random(value)));
         }
 
-        public static void CustomizePosition(this Fixture fixture)
-        {
-            fixture.Customize<RoadSegmentPosition>(customization =>
-                customization.FromFactory<double>(
-                    value => new RoadSegmentPosition(Math.Abs(value))
-                )
-            );            
-        }
-
-        public static void CustomizeLaneCount(this Fixture fixture)
-        {
-            fixture.Customize<RoadSegmentLaneCount>(customization =>
-                customization.FromFactory<int>(
-                    value => new RoadSegmentLaneCount(Math.Abs(value))
-                )
-            );            
-        }
-
-        public static void CustomizeWidth(this Fixture fixture)
-        {
-            fixture.Customize<RoadSegmentWidth>(customization =>
-                customization.FromFactory<int>(
-                    value => new RoadSegmentWidth(Math.Abs(value))
-                )
-            );            
-        }
-
         public static void CustomizeRoadSegmentAccessRestriction(this Fixture fixture)
         {
             fixture.Customize<RoadSegmentAccessRestriction>(customization =>
@@ -117,6 +90,33 @@ namespace RoadRegistry.Model
             );
         }
 
+        public static void CustomizeRoadSegmentHardeningType(this Fixture fixture)
+        {
+            fixture.Customize<RoadSegmentHardeningType>(customization =>
+                customization.FromFactory(generator =>
+                    RoadSegmentHardeningType.All[generator.Next() % RoadSegmentHardeningType.All.Length]
+                )
+            );
+        }
+
+        public static void CustomizeRoadSegmentLaneDirection(this Fixture fixture)
+        {
+            fixture.Customize<RoadSegmentLaneDirection>(customization =>
+                customization.FromFactory(generator =>
+                    RoadSegmentLaneDirection.All[generator.Next() % RoadSegmentLaneDirection.All.Length]
+                )
+            );
+        }
+
+        public static void CustomizeRoadSegmentLaneCount(this Fixture fixture)
+        {
+            fixture.Customize<RoadSegmentLaneCount>(customization =>
+                customization.FromFactory<int>(
+                    value => new RoadSegmentLaneCount(Math.Abs(value))
+                )
+            );            
+        }
+
         public static void CustomizeRoadSegmentMorphology(this Fixture fixture)
         {
             fixture.Customize<RoadSegmentMorphology>(customization =>
@@ -126,6 +126,24 @@ namespace RoadRegistry.Model
             );
         }
 
+        public static void CustomizeRoadSegmentNumberedRoadDirection(this Fixture fixture)
+        {
+            fixture.Customize<RoadSegmentNumberedRoadDirection>(customization =>
+                customization.FromFactory(generator =>
+                    RoadSegmentNumberedRoadDirection.All[generator.Next() % RoadSegmentNumberedRoadDirection.All.Length]
+                )
+            );
+        }
+
+        public static void CustomizeRoadSegmentPosition(this Fixture fixture)
+        {
+            fixture.Customize<RoadSegmentPosition>(customization =>
+                customization.FromFactory<double>(
+                    value => new RoadSegmentPosition(Math.Abs(value))
+                )
+            );            
+        }
+
         public static void CustomizeRoadSegmentStatus(this Fixture fixture)
         {
             fixture.Customize<RoadSegmentStatus>(customization =>
@@ -133,6 +151,15 @@ namespace RoadRegistry.Model
                     RoadSegmentStatus.All[generator.Next() % RoadSegmentStatus.All.Length]
                 )
             );
+        }
+
+        public static void CustomizeRoadSegmentWidth(this Fixture fixture)
+        {
+            fixture.Customize<RoadSegmentWidth>(customization =>
+                customization.FromFactory<int>(
+                    value => new RoadSegmentWidth(Math.Abs(value))
+                )
+            );            
         }
     }
 }
