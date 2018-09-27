@@ -17,7 +17,8 @@ namespace RoadRegistry.Model
         public int ToInt32() => _value;
         public bool Equals(Width other) => _value == other._value;
         public override bool Equals(object other) => other is Width revision && Equals(revision);
-        public override int GetHashCode() => _value.GetHashCode();
+        public override int GetHashCode() => _value;
+        public override string ToString() => _value.ToString();
         public static bool operator ==(Width left, Width right) => left.Equals(right);
         public static bool operator !=(Width left, Width right) => !left.Equals(right);
         public static implicit operator int(Width instance) => instance._value;

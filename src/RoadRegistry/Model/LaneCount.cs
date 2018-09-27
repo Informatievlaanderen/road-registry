@@ -17,7 +17,8 @@ namespace RoadRegistry.Model
         public int ToInt32() => _value;
         public bool Equals(LaneCount other) => _value == other._value;
         public override bool Equals(object other) => other is LaneCount revision && Equals(revision);
-        public override int GetHashCode() => _value.GetHashCode();
+        public override int GetHashCode() => _value;
+        public override string ToString() => _value.ToString();
         public static bool operator ==(LaneCount left, LaneCount right) => left.Equals(right);
         public static bool operator !=(LaneCount left, LaneCount right) => !left.Equals(right);
         public static implicit operator int(LaneCount instance) => instance._value;
