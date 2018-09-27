@@ -3,9 +3,11 @@ namespace RoadRegistry.Api.Extracts
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.IO.Compression;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using ExtractFiles;
     using Infrastructure;
@@ -15,7 +17,8 @@ namespace RoadRegistry.Api.Extracts
     public class RoadRegistryExtractArchive : IEnumerable
     {
         private readonly string _fileName;
-        private readonly IList<Func<Task<IEnumerable<ExtractFile>>>> _createFileBatches = new List<Func<Task<IEnumerable<ExtractFile>>>>();
+        private readonly List<ExtractFile> _files = new List<ExtractFile>();
+        private readonly Stopwatch _watch;
 
         public RoadRegistryExtractArchive(string name)
         {
@@ -23,56 +26,59 @@ namespace RoadRegistry.Api.Extracts
                 throw new ArgumentNullException(nameof(name));
 
             _fileName = name.EndsWith(".zip") ? name : name.TrimEnd('.') + ".zip";
+            _watch = Stopwatch.StartNew();
+            Console.WriteLine($"-- Create {_fileName}");
         }
 
-        public void Add(Func<Task<ExtractFile>> createFile)
+        public void Add(ExtractFile fileWriter)
         {
-            if (null != createFile)
-                _createFileBatches.Add(async () => new []{ await createFile() });
+            if (null != fileWriter)
+                _files.Add(fileWriter);
         }
 
-        public void Add(Func<Task<IEnumerable<ExtractFile>>> createFiles)
+        public void Add(IEnumerable<ExtractFile> files)
         {
-            if(null != createFiles)
-                _createFileBatches.Add(createFiles);
+            if (null != files)
+                _files.AddRange(files);
         }
 
-        public FileResult CreateCallbackFileStreamResult()
+        public FileResult CreateCallbackFileStreamResult(CancellationToken token)
         {
             return new FileCallbackResult(
                 new MediaTypeHeaderValue("application/octet-stream"),
-                WriteArchiveContentAsync
+                (stream, _) => Task.Run(() => WriteArchiveContent(stream, token), token)
             )
             {
                 FileDownloadName = _fileName
             };
         }
 
-        private async Task WriteArchiveContentAsync(Stream archiveStream, ActionContext _)
+        private void WriteArchiveContent(Stream archiveStream, CancellationToken token)
         {
+            Console.WriteLine($"-- Start writing to {_fileName} ({_watch.ElapsedMilliseconds}ms)");
             using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create))
             {
-                foreach (var createFileBatch in _createFileBatches)
+                foreach (var file in _files.Where(writer => null != writer))
                 {
-                    var extractFiles = (await createFileBatch())?.Where(file => file != null) ?? new ExtractFile[0];
-                    foreach (var file in extractFiles)
+                    if (token.IsCancellationRequested)
+                        break;
+
+                    Console.WriteLine($"Writing {file.Name}");
+                    _watch.Restart();
+                    using (var dbfFileStream = archive.CreateEntry(file.Name).Open())
                     {
-                        using (file)
-                        {
-                            var fileCompents = file.Flush();
-                            using (var archiveItem = archive.CreateEntry(fileCompents.Name).Open())
-                            {
-                                fileCompents.Content.CopyTo(archiveItem);
-                            }
-                        }
+                        file.WriteTo(dbfFileStream, token);
                     }
+                    Console.WriteLine($"--> finished in {_watch.ElapsedMilliseconds}ms");
                 }
+
+                Console.WriteLine($"-- Finished writing {_fileName}");
             }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _createFileBatches.GetEnumerator();
+            return _files.GetEnumerator();
         }
     }
 }

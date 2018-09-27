@@ -4,7 +4,6 @@ namespace RoadRegistry.Api.Extracts
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Threading.Tasks;
     using ExtractFiles;
     using GeoAPI.Geometries;
     using Projections;
@@ -12,377 +11,616 @@ namespace RoadRegistry.Api.Extracts
 
     public class RoadRegistryExtractsBuilder
     {
-        private readonly Action<ExtractFile> _showWriteFilesContentMessage;
-
-        public RoadRegistryExtractsBuilder(Action<string> showMessage)
+        public IEnumerable<ExtractFile> CreateRoadSegmentsFiles(ShapeContext context)
         {
-            _showWriteFilesContentMessage = file => showMessage?.Invoke($"Write file {file.Name}");
+            const string fileName = "Wegsegment";
+            const ShapeType shapeType = ShapeType.PolyLineM;
+            Func<BinaryReader, ShapeContent> readShape = PolyLineMShapeContent.Read;
+            int SegmentId(RoadSegmentRecord record) => record.Id;
+
+            // ToDo get projected record count so dbset is not executed
+            var recordCount = context.RoadSegments.Count();
+
+            yield return CreateDbfFile<RoadSegmentDbaseRecord>(
+                fileName,
+                new RoadSegmentDbaseSchema(),
+                context
+                    .RoadSegments
+                    .OrderBy(SegmentId)
+                    .Select(record => record.DbaseRecord),
+                new DbaseRecordCount(recordCount));
+
+            // ToDo get projected header values
+            var headerValues = CalculateShapeHeaderValues<RoadSegmentRecord, PolyLineMShapeContent>(
+                shapeType,
+                context.RoadSegments,
+                record => record.ShapeRecordContent,
+                readShape,
+                content => content.Shape.EnvelopeInternal);
+
+            yield return CreateShapeFile<PolyLineMShapeContent>(
+                fileName,
+                shapeType,
+                context
+                    .RoadSegments
+                    .OrderBy(SegmentId)
+                    .Select(record => record.ShapeRecordContent),
+                readShape,
+                headerValues.ShapeFileLength,
+                headerValues.BoundingBox);
+
+            yield return CreateShapeIndexFile<PolyLineMShapeContent>(
+                fileName,
+                shapeType,
+                context
+                    .RoadSegments
+                    .OrderBy(SegmentId)
+                    .Select(record => record.ShapeRecordContent),
+                readShape,
+                headerValues.ShapeIndexFileLegth,
+                headerValues.BoundingBox);
         }
 
-        public async Task<ExtractFile> CreateOrganizationsFileAsync(Task<IReadOnlyCollection<OrganizationRecord>> organisations)
+        public IEnumerable<ExtractFile> CreateRoadNodesFiles(ShapeContext context)
         {
+            const string fileName = "Wegknoop";
+            const ShapeType shapeType = ShapeType.Point;
+            Func<BinaryReader, ShapeContent> readShape = PointShapeContent.Read;
+            int NodeId(RoadNodeRecord record) => record.Id;
+
+            // ToDo get projected record count so dbset is not executed
+            var recordCount = context.RoadNodes.Count();
+
+            yield return CreateDbfFile<RoadNodeDbaseRecord>(
+                fileName,
+                new RoadNodeDbaseSchema(),
+                context
+                    .RoadNodes
+                    .OrderBy(NodeId)
+                    .Select(record => record.DbaseRecord),
+                new DbaseRecordCount(recordCount));
+
+            // ToDo get projected header values
+            var headerValues = CalculateShapeHeaderValues<RoadNodeRecord, PointShapeContent>(
+                shapeType,
+                context.RoadNodes,
+                record => record.ShapeRecordContent,
+                readShape,
+                content => content.Shape.EnvelopeInternal);
+
+            yield return CreateShapeFile<PointShapeContent>(
+                fileName,
+                shapeType,
+                context
+                    .RoadNodes
+                    .OrderBy(NodeId)
+                    .Select(record => record.ShapeRecordContent),
+                readShape,
+                headerValues.ShapeFileLength,
+                headerValues.BoundingBox);
+
+            yield return CreateShapeIndexFile<PointShapeContent>(
+                fileName,
+                shapeType,
+                context
+                    .RoadNodes
+                    .OrderBy(NodeId)
+                    .Select(record => record.ShapeRecordContent),
+                readShape,
+                headerValues.ShapeIndexFileLegth,
+                headerValues.BoundingBox);
+        }
+
+        public IEnumerable<ExtractFile> CreateReferencePointsFiles(ShapeContext context)
+        {
+            const string fileName = "Refpunt";
+            const ShapeType shapeType = ShapeType.Point;
+            int ReferencePointId(RoadReferencePointRecord record) => record.Id;
+            Func<BinaryReader, ShapeContent> readShape = PointShapeContent.Read;
+
+            // ToDo get projected record count so dbset is not executed
+            var recordCount = context.RoadReferencePoints.Count();
+
+            yield return CreateDbfFile<RoadReferencePointDbaseRecord>(
+                fileName,
+                new RoadReferencePointDbaseSchema(),
+                context
+                    .RoadReferencePoints
+                    .OrderBy(ReferencePointId)
+                    .Select(record => record.DbaseRecord),
+                new DbaseRecordCount(recordCount));
+
+            // ToDo get projected header values
+            var headerValues = CalculateShapeHeaderValues<RoadReferencePointRecord, PointShapeContent>(
+                shapeType,
+                context.RoadReferencePoints,
+                record => record.ShapeRecordContent,
+                readShape,
+                content => content.Shape.EnvelopeInternal);
+
+            yield return CreateShapeFile<PointShapeContent>(
+                fileName,
+                shapeType,
+                context
+                    .RoadReferencePoints
+                    .OrderBy(ReferencePointId)
+                    .Select(record => record.ShapeRecordContent),
+                readShape,
+                headerValues.ShapeFileLength,
+                headerValues.BoundingBox);
+
+            yield return CreateShapeIndexFile<PointShapeContent>(
+                fileName,
+                shapeType,
+                context
+                    .RoadReferencePoints
+                    .OrderBy(ReferencePointId)
+                    .Select(record => record.ShapeRecordContent),
+                readShape,
+                headerValues.ShapeIndexFileLegth,
+                headerValues.BoundingBox);
+        }
+
+        public ExtractFile CreateOrganizationsFile(ShapeContext context)
+        {
+            // ToDo get projected record count so set is not executed
+            var recordCount = context.Organizations.Count();
+
             return CreateDbfFile<OrganizationDbaseRecord>(
                 "LstOrg",
                 new OrganizationDbaseSchema(),
-                (await organisations).Select(org => org.DbaseRecord)
+                context
+                    .Organizations
+                    .OrderBy(record => record.SortableCode)
+                    .Select(record => record.DbaseRecord),
+                new DbaseRecordCount(recordCount)
             );
         }
 
-        public async Task<IEnumerable<ExtractFile>> CreateRoadSegmentsFilesAsync(Task<IReadOnlyCollection<RoadSegmentRecord>> roadSegments)
+        public ExtractFile CreateRoadSegmentDynamicLaneAttributesFile(ShapeContext context)
         {
-            var shapeData = (await roadSegments).Select(segment =>
-                new ShapeData
-                {
-                    DbaseRecord = segment.DbaseRecord,
-                    Shape = segment.ShapeRecordContent
-                });
+            // ToDo get projected record count so dbset is not executed
+            var recordCount = context.RoadLaneAttributes.Count();
 
-            return CreateShapeFiles<RoadSegmentDbaseRecord, PolyLineMShapeContent>(
-                "Wegsegment",
-                ShapeType.PolyLineM,
-                new RoadSegmentDbaseSchema(),
-                shapeData,
-                PolyLineMShapeContent.Read,
-                content => content.Shape.EnvelopeInternal
-            );
-        }
-
-        public async Task<IEnumerable<ExtractFile>> CreateRoadNodesFilesAsync(Task<IReadOnlyCollection<RoadNodeRecord>> roadNodes)
-        {
-            var shapeData = (await roadNodes).Select(node =>
-                    new ShapeData
-                    {
-                        DbaseRecord = node.DbaseRecord,
-                        Shape =  node.ShapeRecordContent
-                    });
-
-            return CreateShapeFiles<RoadNodeDbaseRecord, PointShapeContent>(
-                "Wegknoop",
-                ShapeType.Point,
-                new RoadNodeDbaseSchema(),
-                shapeData,
-                PointShapeContent.Read,
-                content => content.Shape.EnvelopeInternal
-            );
-        }
-
-        public async Task<IEnumerable<ExtractFile>> CreateReferencePointsFilesAsync(Task<IReadOnlyCollection<RoadReferencePointRecord>> referencePointRecords)
-        {
-            return CreateShapeFiles<RoadReferencePointDbaseRecord, PointShapeContent>(
-                "Refpunt",
-                ShapeType.Point,
-                new RoadReferencePointDbaseSchema(),
-                (await referencePointRecords).Select(referencePoint => new ShapeData{ DbaseRecord = referencePoint.DbaseRecord, Shape = referencePoint.ShapeRecordContent}),
-                PointShapeContent.Read,
-                content => content.Shape.EnvelopeInternal
-            );
-        }
-
-        private class ShapeData
-        {
-            public byte[] DbaseRecord { get; set; }
-            public byte[] Shape { get; set; }
-        }
-
-        private IEnumerable<ExtractFile> CreateShapeFiles<TDbaseRecord, TShape>(
-            string fileName,
-            ShapeType shapeType,
-            DbaseSchema schema,
-            IEnumerable<ShapeData> shapeDataRecords,
-            Func<BinaryReader, ShapeContent> readShape,
-            Func<TShape, Envelope> getEnvelope
-        )
-            where TDbaseRecord : DbaseRecord, new()
-            where TShape : ShapeContent
-        {
-            var data = new
-            {
-                DbaseRecords = new List<byte[]>(),
-                ShapeRecords = new List<ShapeRecord>(),
-                ShapeIndexRecords = new List<ShapeIndexRecord>()
-            };
-            var envelope = new Envelope();
-            var number = RecordNumber.Initial;
-            var offset = ShapeRecord.InitialOffset;
-            foreach (var shapeData in shapeDataRecords)
-            {
-                data.DbaseRecords.Add(shapeData.DbaseRecord);
-                using (var stream = new MemoryStream(shapeData.Shape))
-                {
-                    using (var reader = new BinaryReader(stream))
-                    {
-                        var content = readShape(reader);
-                        if (typeof(TShape) != typeof(NullShapeContent) && content is TShape shapeContent)
-                            envelope.ExpandToInclude(getEnvelope(shapeContent));
-
-                        if (content is TShape || content is NullShapeContent)
-                        {
-                            var shapeRecord = content.RecordAs(number);
-                            data.ShapeRecords.Add(shapeRecord);
-
-                            var indexRecord = shapeRecord.IndexAt(offset);
-                            data.ShapeIndexRecords.Add(indexRecord);
-
-                            number = number.Next();
-                            offset = offset.Plus(shapeRecord.Length);
-                        }
-                    }
-                }
-            }
-
-            var dbfFile = CreateDbfFile<TDbaseRecord>(
-                fileName,
-                schema,
-                data.DbaseRecords
-            );
-
-            var mMin = shapeType == ShapeType.PolyLineM ? double.NegativeInfinity : 0;
-            var mMax = shapeType == ShapeType.PolyLineM ? double.PositiveInfinity : 0;
-            var boundingBox = new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, mMin, mMax);
-
-            var shpFileLength = data.ShapeRecords.Aggregate(
-                new WordLength(ShapeRecord.InitialOffset),
-                (length, record) => length.Plus(record.Length)
-            );
-            var shpFile = new ShpFile(
-                fileName,
-                new ShapeFileHeader(
-                    shpFileLength,
-                    shapeType,
-                    boundingBox
-                )
-            );
-            _showWriteFilesContentMessage(shpFile);
-            shpFile.Write(data.ShapeRecords);
-
-            var shxFile = new ShxFile(
-                fileName,
-                new ShapeFileHeader(
-                    new WordLength(ShapeRecord.InitialOffset + (4 * data.ShapeIndexRecords.Count)),
-                    shapeType,
-                    boundingBox
-                )
-            );
-            _showWriteFilesContentMessage(shxFile);
-            shxFile.Write(data.ShapeIndexRecords);
-
-            return new[]
-            {
-                dbfFile,
-                shpFile,
-                shxFile
-            };
-        }
-
-        public async Task<ExtractFile> CreateRoadSegmentDynamicLaneAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentDynamicLaneAttributeRecord>> roadSegmentDynamicLaneAttributes)
-        {
             return CreateDbfFile<RoadSegmentDynamicLaneAttributeDbaseRecord>(
                 "AttRijstroken",
                 new RoadSegmentDynamicLaneAttributeDbaseSchema(),
-                (await roadSegmentDynamicLaneAttributes).Select(record => record.DbaseRecord)
+                context
+                    .RoadLaneAttributes
+                    .OrderBy(record => record.Id)
+                    .Select(record => record.DbaseRecord),
+                new DbaseRecordCount(recordCount)
             );
         }
 
-        public async Task<ExtractFile> CreateRoadSegmentDynamicWidtAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentDynamicWidthAttributeRecord>> roadSegmentDynamicWidthAttributes)
+        public ExtractFile CreateRoadSegmentDynamicWidtAttributesFile(ShapeContext context)
         {
+            // ToDo get projected record count so dbset is not executed
+            var recordCount = context.RoadWidthAttributes.Count();
+
             return CreateDbfFile<RoadSegmentDynamicWidthAttributeDbaseRecord>(
                 "AttWegbreedte",
                 new RoadSegmentDynamicWidthAttributeDbaseSchema(),
-                (await roadSegmentDynamicWidthAttributes).Select(record => record.DbaseRecord)
-            );
+                context
+                    .RoadWidthAttributes
+                    .OrderBy(record => record.Id)
+                    .Select(record => record.DbaseRecord),
+                new DbaseRecordCount(recordCount));
         }
 
-        public async Task<ExtractFile> CreateRoadSegmentDynamicHardeningAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentDynamicHardeningAttributeRecord>> roadSegmentDynamicHardeningAttributes)
+        public ExtractFile CreateRoadSegmentDynamicHardeningAttributesFile(ShapeContext context)
         {
+            // ToDo get projected record count so dbset is not executed
+            var recordCount = context.RoadHardeningAttributes.Count();
+
             return CreateDbfFile<RoadSegmentDynamicHardeningAttributeDbaseRecord>(
                 "AttWegverharding",
                 new RoadSegmentDynamicHardeningAttributeDbaseSchema(),
-                (await roadSegmentDynamicHardeningAttributes).Select(record => record.DbaseRecord)
-            );
+                context
+                    .RoadHardeningAttributes
+                    .OrderBy(record => record.Id)
+                    .Select(record => record.DbaseRecord),
+                new DbaseRecordCount(recordCount));
         }
 
-        public async Task<ExtractFile> CreateRoadSegmentNationalRoadAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentNationalRoadAttributeRecord>> roadSegmentNationalRoadAttributeRecords)
+        public ExtractFile CreateRoadSegmentNationalRoadAttributesFile(ShapeContext context)
         {
+            // ToDo get projected record count so dbset is not executed
+            var recordCount = context.NationalRoadAttributes.Count();
+
             return CreateDbfFile<RoadSegmentNationalRoadAttributeDbaseRecord>(
                 "AttNationweg",
                 new RoadSegmentNationalRoadAttributeDbaseSchema(),
-                (await roadSegmentNationalRoadAttributeRecords).Select(record => record.DbaseRecord)
-            );
+                context
+                    .NationalRoadAttributes
+                    .OrderBy(record => record.Id)
+                    .Select(record => record.DbaseRecord),
+                new DbaseRecordCount(recordCount));
         }
 
-        public async Task<ExtractFile> CreateRoadSegmentEuropeanRoadAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentEuropeanRoadAttributeRecord>> roadSegmentEuropeanRoadAttributeRecords)
+        public ExtractFile CreateRoadSegmentEuropeanRoadAttributesFile(ShapeContext context)
         {
+            // ToDo get projected record count so dbset is not executed
+            var recordCount = context.EuropeanRoadAttributes.Count();
+
             return CreateDbfFile<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
                 "AttEuropweg",
                 new RoadSegmentEuropeanRoadAttributeDbaseSchema(),
-                (await roadSegmentEuropeanRoadAttributeRecords).Select(record => record.DbaseRecord)
-            );
+                context
+                    .EuropeanRoadAttributes
+                    .OrderBy(record => record.Id)
+                    .Select(record => record.DbaseRecord),
+                new DbaseRecordCount(recordCount));
         }
 
-        public async Task<ExtractFile> CreateRoadSegmentNumberedRoadAttributesFileAsync(Task<IReadOnlyCollection<RoadSegmentNumberedRoadAttributeRecord>> roadSegmentNumberedRoadAttributeRecords)
+        public ExtractFile CreateRoadSegmentNumberedRoadAttributesFile(ShapeContext context)
         {
+            // ToDo get projected record count so dbset is not executed
+            var recordCount = context.NumberedRoadAttributes.Count();
+
             return CreateDbfFile<RoadSegmentNumberedRoadAttributeDbaseRecord>(
                 "AttGenumweg",
                 new RoadSegmentNumberedRoadAttributeDbaseSchema(),
-                (await roadSegmentNumberedRoadAttributeRecords).Select(record => record.DbaseRecord)
-            );
+                context
+                    .NumberedRoadAttributes
+                    .OrderBy(record => record.Id)
+                    .Select(record => record.DbaseRecord),
+                new DbaseRecordCount(recordCount));
         }
 
-        public async Task<ExtractFile> CreateGradeSeperatedJunctionsFileAsync(Task<IReadOnlyCollection<GradeSeparatedJunctionRecord>> gradeSeparatedJunctionRecords)
+        public ExtractFile CreateGradeSeperatedJunctionsFile(ShapeContext context)
         {
+            // ToDo get projected record count so dbset is not executed
+            var recordCount = context.GradeSeparatedJunctions.Count();
+
             return CreateDbfFile<GradeSeparatedJunctionDbaseRecord>(
                 "RltOgkruising",
                 new GradeSeparatedJunctionDbaseSchema(),
-                (await gradeSeparatedJunctionRecords).Select(record => record.DbaseRecord)
-            );
-
+                context
+                    .GradeSeparatedJunctions
+                    .OrderBy(record => record.Id)
+                    .Select(record => record.DbaseRecord),
+                new DbaseRecordCount(recordCount));
         }
 
-        public Task<ExtractFile> CreateRoadNodeTypesFile()
+        public ExtractFile CreateRoadNodeTypesFile()
         {
-            return Task.Run(() => CreateDbfFile(
+            return CreateDbfFile(
                 "WegknoopLktType",
+                new RoadNodeTypeDbaseSchema(),
                 TypeReferences.RoadNodeTypes,
-                new RoadNodeTypeDbaseSchema()
-            ));
+                new DbaseRecordCount(TypeReferences.RoadNodeTypes.Length)
+            );
         }
 
-        public Task<ExtractFile> CreateRoadSegmentCategoriesFile()
+        public ExtractFile CreateRoadSegmentCategoriesFile()
         {
-            return Task.Run(() => CreateDbfFile(
+            return CreateDbfFile(
                 "WegsegmentLktWegcat",
+                new RoadSegmentCategoryDbaseSchema(),
                 TypeReferences.RoadSegmentCategories,
-                new RoadSegmentCategoryDbaseSchema()
-            ));
+                new DbaseRecordCount(TypeReferences.RoadSegmentCategories.Length)
+            );
         }
 
-        public Task<ExtractFile> CreateRoadSegmentGeometryDrawMethodsFile()
+        public ExtractFile CreateRoadSegmentGeometryDrawMethodsFile()
         {
-            return Task.Run(() => CreateDbfFile(
+            return CreateDbfFile(
                 "WegsegmentLktMethode",
+                new RoadSegmentGeometryDrawMethodDbaseSchema(),
                 TypeReferences.RoadSegmentGeometryDrawMethods,
-                new RoadSegmentGeometryDrawMethodDbaseSchema()
-            ));
+                new DbaseRecordCount(TypeReferences.RoadSegmentGeometryDrawMethods.Length)
+            );
         }
 
-        public Task<ExtractFile> CreateRoadSegmentStatusesFile()
+        public ExtractFile CreateRoadSegmentStatusesFile()
         {
-            return Task.Run(() => CreateDbfFile(
+            return CreateDbfFile(
                 "WegsegmentLktStatus",
+                new RoadSegmentStatusDbaseSchema(),
                 TypeReferences.RoadSegmentStatuses,
-                new RoadSegmentStatusDbaseSchema()
-            ));
+                new DbaseRecordCount(TypeReferences.RoadSegmentStatuses.Length)
+            );
         }
 
-        public Task<ExtractFile> CreateRoadSegmentAccessRestrictionsFile()
+        public ExtractFile CreateRoadSegmentAccessRestrictionsFile()
         {
-            return Task.Run(() => CreateDbfFile(
+            return CreateDbfFile(
                 "WegsegmentLktTgbep",
+                new RoadSegmentAccessRestrictionDbaseSchema(),
                 TypeReferences.RoadSegmentAccessRestrictions,
-                new RoadSegmentAccessRestrictionDbaseSchema()
-            ));
+                new DbaseRecordCount(TypeReferences.RoadSegmentAccessRestrictions.Length)
+            );
         }
 
-        public Task<ExtractFile> CreateReferencePointTypesFile()
+        public ExtractFile CreateReferencePointTypesFile()
         {
-            return Task.Run(() => CreateDbfFile(
+            return CreateDbfFile(
                 "RefpuntLktType",
+                new ReferencePointTypeDbaseSchema(),
                 TypeReferences.ReferencePointTypes,
-                new ReferencePointTypeDbaseSchema()
-            ));
+                new DbaseRecordCount(TypeReferences.ReferencePointTypes.Length)
+            );
         }
 
-        public Task<ExtractFile> CreateRoadSegmentMorphologiesFile()
+        public ExtractFile CreateRoadSegmentMorphologiesFile()
         {
-            return Task.Run(() => CreateDbfFile(
+            return CreateDbfFile(
                 "WegsegmentLktMorf",
+                new RoadSegmentMorphologyDbaseSchema(),
                 TypeReferences.RoadSegmentMorphologies,
-                new RoadSegmentMorphologyDbaseSchema()
-            ));
+                new DbaseRecordCount(TypeReferences.RoadSegmentMorphologies.Length)
+            );
         }
 
-        public Task<ExtractFile> CreateGradeSeperatedJunctionTypesFile()
+        public ExtractFile CreateGradeSeperatedJunctionTypesFile()
         {
-            return Task.Run(() => CreateDbfFile(
+            return CreateDbfFile(
                 "OgkruisingLktType",
+                new GradeSeparatedJunctionTypeDbaseSchema(),
                 TypeReferences.GradeSeparatedJunctionTypes,
-                new GradeSeparatedJunctionTypeDbaseSchema()
-            ));
+                new DbaseRecordCount(TypeReferences.GradeSeparatedJunctionTypes.Length)
+            );
         }
 
-        public Task<ExtractFile> CreateNumberedRoadSegmentDirectionsFile()
+        public ExtractFile CreateNumberedRoadSegmentDirectionsFile()
         {
-            return Task.Run(() => CreateDbfFile(
+            return CreateDbfFile(
                 "GenumwegLktRichting",
+                new NumberedRoadSegmentDirectionDbaseSchema(),
                 TypeReferences.NumberedRoadSegmentDirections,
-                new NumberedRoadSegmentDirectionDbaseSchema()
-            ));
+                new DbaseRecordCount(TypeReferences.NumberedRoadSegmentDirections.Length)
+            );
         }
 
-        public Task<ExtractFile> CreateHardeningTypesFile()
+        public ExtractFile CreateHardeningTypesFile()
         {
-            return Task.Run(() => CreateDbfFile(
+            return CreateDbfFile(
                 "WegverhardLktType",
+                new HardeningTypeDbaseSchema(),
                 TypeReferences.HardeningTypes,
-                new HardeningTypeDbaseSchema()
-            ));
+                new DbaseRecordCount(TypeReferences.HardeningTypes.Length)
+            );
         }
 
-        public Task<ExtractFile> CreateLaneDirectionsFile()
+        public ExtractFile CreateLaneDirectionsFile()
         {
-            return Task.Run(() => CreateDbfFile(
+            return CreateDbfFile(
                 "RijstrokenLktRichting",
+                new LaneDirectionDbaseSchema(),
                 TypeReferences.LaneDirections,
-                new LaneDirectionDbaseSchema()
-            ));
-        }
-
-        private ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, DbaseSchema schema, IEnumerable<byte[]> records)
-            where TDbaseRecord : DbaseRecord, new()
-        {
-            return CreateDbfFile<TDbaseRecord>(fileName, schema, records.ToArray());
-        }
-
-        private ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, DbaseSchema schema, IReadOnlyCollection<byte[]> records)
-            where TDbaseRecord : DbaseRecord, new()
-        {
-            var dbfFile = CreateEmptyDbfFile<TDbaseRecord>(
-                fileName,
-                schema,
-                new DbaseRecordCount(records.Count)
+                new DbaseRecordCount(TypeReferences.LaneDirections.Length)
             );
-            _showWriteFilesContentMessage(dbfFile);
-            dbfFile.WriteBytesAs<TDbaseRecord>(records);
-
-            return dbfFile;
         }
 
-        private ExtractFile CreateDbfFile<TDbaseRecord>(string fileName, IReadOnlyCollection<TDbaseRecord> records, DbaseSchema schema)
+        private ExtractFile CreateDbfFile<TDbaseRecord>(
+            string fileName,
+            DbaseSchema schema,
+            IEnumerable<byte[]> records,
+            DbaseRecordCount recordCount
+        ) where TDbaseRecord : DbaseRecord, new()
+        {
+            return new ExtractFile(
+                new DbfFileName(fileName),
+                (stream, token) =>
+                {
+                    var dbfFile = CreateDbfFileWriter<TDbaseRecord>(
+                        schema,
+                        recordCount,
+                        stream
+                    );
+
+                    foreach (var record in records)
+                    {
+                        if (token.IsCancellationRequested)
+                            return;
+
+                        dbfFile.WriteBytesAs<TDbaseRecord>(record);
+                    }
+                    dbfFile.WriteEndOfFile();
+                }
+            );
+        }
+
+        private ExtractFile CreateDbfFile<TDbaseRecord>(
+            string fileName,
+            DbaseSchema schema,
+            IEnumerable<TDbaseRecord> records,
+            DbaseRecordCount recordCount
+        ) where TDbaseRecord : DbaseRecord
+        {
+            return new ExtractFile(
+                new DbfFileName(fileName),
+                (stream, token) =>
+                {
+                    var dbfFileWriter = CreateDbfFileWriter<TDbaseRecord>(
+                        schema,
+                        recordCount,
+                        stream
+                    );
+
+                    foreach (var record in records)
+                    {
+                        if (token.IsCancellationRequested)
+                            return;
+
+                        dbfFileWriter.Write(record);
+                    }
+                    dbfFileWriter.WriteEndOfFile();
+                }
+            );
+        }
+
+        private static DbfFileWriter<TDbaseRecord> CreateDbfFileWriter<TDbaseRecord>(DbaseSchema schema, DbaseRecordCount recordCount, Stream writeStream)
             where TDbaseRecord : DbaseRecord
         {
-            var dbfFile = CreateEmptyDbfFile<TDbaseRecord>(
-                fileName,
-                schema,
-                new DbaseRecordCount(records.Count)
-            );
-            _showWriteFilesContentMessage(dbfFile);
-            dbfFile.Write(records);
-
-            return dbfFile;
-        }
-
-        private static DbfFile<TDbaseRecord> CreateEmptyDbfFile<TDbaseRecord>(string fileName, DbaseSchema schema, DbaseRecordCount recordCount)
-            where TDbaseRecord : DbaseRecord
-        {
-            return new DbfFile<TDbaseRecord>(
-                fileName,
+            return new DbfFileWriter<TDbaseRecord>(
                 new DbaseFileHeader(
                     DateTime.Now,
                     DbaseCodePage.Western_European_ANSI,
                     recordCount,
                     schema
-                )
+                ),
+                writeStream
             );
+        }
+
+        private static ExtractFile CreateShapeFile<TShape>(
+            string fileName,
+            ShapeType shapeType,
+            IEnumerable<byte[]> shapes,
+            Func<BinaryReader, ShapeContent> readShape,
+            WordLength shapeFileLength,
+            BoundingBox3D boundingBox
+        ) where TShape : ShapeContent
+        {
+            return new ExtractFile(
+                new ShpFileName(fileName),
+                (stream, token) =>
+                {
+                    var shpFile = new ShpFileWriter(
+                        new ShapeFileHeader(
+                            shapeFileLength,
+                            shapeType,
+                            boundingBox
+                        ),
+                        stream
+                    );
+
+                    var number = RecordNumber.Initial;
+                    foreach (var shape in shapes)
+                    {
+                        if (token.IsCancellationRequested)
+                            break;
+
+                        using (var shapeStream = new MemoryStream(shape))
+                        using (var reader = new BinaryReader(shapeStream))
+                        {
+                            var content = readShape(reader);
+                            if (content is TShape || content is NullShapeContent)
+                            {
+                                var shapeRecord = content.RecordAs(number);
+                                shpFile.Write(shapeRecord);
+
+                                number = number.Next();
+                            }
+                        }
+                    }
+                }
+            );
+        }
+
+        private static ExtractFile CreateShapeIndexFile<TShape>(
+            string fileName,
+            ShapeType shapeType,
+            IEnumerable<byte[]> shapes,
+            Func<BinaryReader, ShapeContent> readShape,
+            WordLength indexFileLegth,
+            BoundingBox3D boundingBox
+        ) where TShape : ShapeContent
+        {
+            return new ExtractFile(
+                new ShxFileName(fileName),
+                (stream, token) =>
+                {
+                    var shxFileWriter = new ShxFileWriter(
+                        new ShapeFileHeader(
+                            indexFileLegth,
+                            shapeType,
+                            boundingBox
+                        ),
+                        stream
+                    );
+
+                    var number = RecordNumber.Initial;
+                    var offset = ShapeRecord.InitialOffset;
+                    foreach (var shapeBytes in shapes)
+                    {
+                        if (token.IsCancellationRequested)
+                            break;
+
+                        using (var shapeStream = new MemoryStream(shapeBytes))
+                        using (var reader = new BinaryReader(shapeStream))
+                        {
+                            var content = readShape(reader);
+                            if (content is TShape || content is NullShapeContent)
+                            {
+                                var shapeRecord = content.RecordAs(number);
+
+                                var indexRecord = shapeRecord.IndexAt(offset);
+                                shxFileWriter.Write(indexRecord);
+
+                                number = number.Next();
+                                offset = offset.Plus(shapeRecord.Length);
+                            }
+                        }
+                    }
+                }
+            );
+        }
+
+        private static ShapeHeaderValues CalculateShapeHeaderValues<TRecord, TShape>(
+            ShapeType shapeType,
+            IEnumerable<TRecord> records,
+            Func<TRecord, byte[]> getShapeBytes,
+            Func<BinaryReader, ShapeContent> readShape,
+            Func<TShape, Envelope> getEnvelope
+        ) where TShape : ShapeContent
+        {
+            var envelope = new Envelope();
+            var shapeFileLength = new WordLength(ShapeRecord.InitialOffset);
+            var indexFileLegth = new WordLength(ShapeRecord.InitialOffset);
+
+            var number = RecordNumber.Initial;
+            foreach (var record in records)
+            {
+                using (var stream = new MemoryStream(getShapeBytes(record)))
+                using (var reader = new BinaryReader(stream))
+                {
+                    var content = readShape(reader);
+                    if (typeof(TShape) != typeof(NullShapeContent) && content is TShape shapeContent)
+                        envelope.ExpandToInclude(getEnvelope(shapeContent));
+
+                    if (content is TShape || content is NullShapeContent)
+                    {
+                        var shapeRecord = content.RecordAs(number);
+                        shapeFileLength = shapeFileLength.Plus(shapeRecord.Length);
+                        indexFileLegth = indexFileLegth.Plus(new WordLength(4));
+
+                        number = number.Next();
+                    }
+                }
+            }
+
+            var mMin = shapeType == ShapeType.PolyLineM ? double.NegativeInfinity : 0;
+            var mMax = shapeType == ShapeType.PolyLineM ? double.PositiveInfinity : 0;
+            var boundingBox = new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, mMin, mMax);
+
+            // ToDo get projected shp file length
+            // ToDo get projected shx file length
+            // ToDo get projected boundingbox
+            return new ShapeHeaderValues(
+                shapeFileLength,
+                indexFileLegth,
+                boundingBox
+            );
+        }
+
+        private class ShapeHeaderValues
+        {
+            internal WordLength ShapeFileLength { get; }
+            internal WordLength ShapeIndexFileLegth { get; }
+            internal BoundingBox3D BoundingBox { get; }
+
+            public ShapeHeaderValues(
+                WordLength shapeFileLength,
+                WordLength shapeIndexFileLegth,
+                BoundingBox3D boundingBox)
+            {
+                ShapeFileLength = shapeFileLength;
+                ShapeIndexFileLegth = shapeIndexFileLegth;
+                BoundingBox = boundingBox;
+            }
         }
     }
 }
