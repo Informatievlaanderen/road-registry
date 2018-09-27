@@ -6,7 +6,7 @@ namespace RoadRegistry.Commands
     {
         public int Count { get; set; }
         public LaneDirection Direction { get; set; }
-        public decimal FromPosition { get; set; }
-        public decimal ToPosition { get; set; }
+        public double FromPosition { get; set; }
+        public double ToPosition { get; set; }
     }
 }

@@ -7,8 +7,8 @@ namespace RoadRegistry.Model
     {
         public ChangeRoadNetworkValidator()
         {
-            RuleFor(c => c.Changeset).NotNull();
-            RuleForEach(c => c.Changeset).NotNull().SetValidator(new RoadNetworkChangeValidator());
+            RuleFor(c => c.Changes).NotNull();
+            RuleForEach(c => c.Changes).NotNull().SetValidator(new RoadNetworkChangeValidator());
         }
     }
 }

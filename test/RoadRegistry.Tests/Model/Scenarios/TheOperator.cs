@@ -10,7 +10,7 @@ namespace RoadRegistry.Model
         {
             return new Message(new Dictionary<string, object>(), new ChangeRoadNetwork
             {
-                Changeset = changeset
+                Changes = changeset
             });
         }
     }

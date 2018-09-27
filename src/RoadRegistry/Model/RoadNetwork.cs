@@ -37,9 +37,9 @@ namespace RoadRegistry.Model
                 _segments = _segments.Add(id, new RoadSegment(id, start, end));
             });
 
-            On<RoadNetworkChanged>(e =>
+            On<RoadNetworkChangesAccepted>(e =>
             {
-                foreach (var change in e.Changeset)
+                foreach (var change in e.Changes)
                 {
                     if (change.RoadNodeAdded != null)
                     {
@@ -77,9 +77,9 @@ namespace RoadRegistry.Model
                 }
             }
 
-            Apply(new RoadNetworkChanged
+            Apply(new RoadNetworkChangesAccepted
             {
-                Changeset = changed.ToArray()
+                Changes = changed.ToArray()
             });
         }
     }

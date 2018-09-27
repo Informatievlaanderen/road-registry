@@ -12,7 +12,7 @@ namespace RoadRegistry.Events
             typeof(ImportedRoadNode),
             typeof(ImportedRoadSegment),
             typeof(ImportedOrganization),
-            typeof(RoadNetworkChanged)
+            typeof(RoadNetworkChangesAccepted)
         };
     }
 }

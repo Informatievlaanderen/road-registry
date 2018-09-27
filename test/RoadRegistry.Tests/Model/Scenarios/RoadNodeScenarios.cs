@@ -37,9 +37,9 @@ namespace RoadRegistry.Model
                         }
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChanged
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    Changeset = new[]
+                    Changes = new[]
                     {
                         new Events.RoadNetworkChange
                         {
@@ -87,9 +87,9 @@ namespace RoadRegistry.Model
         {
             var geometry = Fixture.Create<PointM>().ToBytes();
             return Run(scenario => scenario
-                .Given(RoadNetworks.Stream, new RoadNetworkChanged
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    Changeset = new[]
+                    Changes = new[]
                     {
                         new Events.RoadNetworkChange
                         {
@@ -172,9 +172,9 @@ namespace RoadRegistry.Model
                         }
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChanged
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    Changeset = new[]
+                    Changes = new[]
                     {
                         new Events.RoadNetworkChange
                         {

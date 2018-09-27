@@ -142,6 +142,15 @@ namespace RoadRegistry.Model
             );
         }
 
+        public static void CustomizeRoadSegmentNumberedRoadOrdinal(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentNumberedRoadOrdinal>(customization =>
+                customization.FromFactory<int>(
+                    value => new RoadSegmentNumberedRoadOrdinal(Math.Abs(value))
+                )
+            );            
+        }
+
         public static void CustomizeRoadSegmentPosition(this IFixture fixture)
         {
             fixture.Customize<RoadSegmentPosition>(customization =>

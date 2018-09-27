@@ -6,7 +6,8 @@ namespace RoadRegistry.Model
     {
         public RoadNetworkChangeValidator()
         {
-            RuleFor(c => c.AddRoadNode).NotNull().SetValidator(new AddRoadNodeValidator());
+            RuleFor(c => c.AddRoadNode).SetValidator(new AddRoadNodeValidator());
+            RuleFor(c => c.AddRoadSegment).SetValidator(new AddRoadSegmentValidator());
         }
     }
 }

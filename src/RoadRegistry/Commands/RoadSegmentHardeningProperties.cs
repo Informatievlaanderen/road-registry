@@ -5,7 +5,7 @@ namespace RoadRegistry.Commands
     public class RoadSegmentHardeningProperties
     {
         public HardeningType Type { get; set; }
-        public decimal FromPosition { get; set; }
-        public decimal ToPosition { get; set; }
+        public double FromPosition { get; set; }
+        public double ToPosition { get; set; }
     }
 }
