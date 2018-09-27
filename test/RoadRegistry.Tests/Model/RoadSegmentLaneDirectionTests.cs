@@ -1,4 +1,4 @@
-namespace RoadRegistry.Model
+﻿namespace RoadRegistry.Model
 {
     using System;
     using System.Linq;
@@ -6,15 +6,15 @@ namespace RoadRegistry.Model
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class NumberedRoadSegmentDirectionTests
+    public class RoadSegmentLaneDirectionTests
     {
         private readonly Fixture _fixture;
         private readonly int[] _knownValues;
 
-        public NumberedRoadSegmentDirectionTests()
+        public RoadSegmentLaneDirectionTests()
         {
             _fixture = new Fixture();
-            _knownValues = Array.ConvertAll(NumberedRoadSegmentDirection.All, type => type.ToInt32());
+            _knownValues = Array.ConvertAll(RoadSegmentLaneDirection.All, type => type.ToInt32());
         }
 
         [Fact]
@@ -36,25 +36,31 @@ namespace RoadRegistry.Model
                 new EqualsOtherAssertion(_fixture),
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
-            ).Verify(typeof(NumberedRoadSegmentDirection));
+            ).Verify(typeof(RoadSegmentLaneDirection));
         }
 
         [Fact]
         public static void UnknownReturnsExpectedResult()
         {
-            Assert.Equal(-8, NumberedRoadSegmentDirection.Unknown);
+            Assert.Equal(-8, RoadSegmentLaneDirection.Unknown);
         }
 
         [Fact]
         public static void ForwardReturnsExpectedResult()
         {
-            Assert.Equal(1, NumberedRoadSegmentDirection.Forward);
+            Assert.Equal(1, RoadSegmentLaneDirection.Forward);
         }
 
         [Fact]
         public static void BackwardReturnsExpectedResult()
         {
-            Assert.Equal(2, NumberedRoadSegmentDirection.Backward);
+            Assert.Equal(2, RoadSegmentLaneDirection.Backward);
+        }
+
+        [Fact]
+        public static void IndependentReturnsExpectedResult()
+        {
+            Assert.Equal(3, RoadSegmentLaneDirection.Independent);
         }
 
         [Fact]
@@ -63,18 +69,19 @@ namespace RoadRegistry.Model
             Assert.Equal(
                 new []
                 {
-                    NumberedRoadSegmentDirection.Unknown,
-                    NumberedRoadSegmentDirection.Forward,
-                    NumberedRoadSegmentDirection.Backward
+                    RoadSegmentLaneDirection.Unknown,
+                    RoadSegmentLaneDirection.Forward,
+                    RoadSegmentLaneDirection.Backward,
+                    RoadSegmentLaneDirection.Independent
                 },
-                NumberedRoadSegmentDirection.All);
+                RoadSegmentLaneDirection.All);
         }
 
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
-            var sut = NumberedRoadSegmentDirection.Parse(value);
+            var sut = RoadSegmentLaneDirection.Parse(value);
             var result = sut.ToString();
 
             Assert.Equal(value.ToString(), result);
@@ -84,21 +91,21 @@ namespace RoadRegistry.Model
         public void ParseReturnsExpectedResultWhenValueIsWellKnown()
         {
             var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
-            Assert.NotNull(NumberedRoadSegmentDirection.Parse(value));
+            Assert.NotNull(RoadSegmentLaneDirection.Parse(value));
         }
 
         [Fact]
         public void ParseReturnsExpectedResultWhenValueIsUnknown()
         {
             var value = new Generator<int>(_fixture).First(candidate => !_knownValues.Contains(candidate));
-            Assert.Throws<FormatException>(() => NumberedRoadSegmentDirection.Parse(value));
+            Assert.Throws<FormatException>(() => RoadSegmentLaneDirection.Parse(value));
         }
 
         [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsWellKnown()
         {
             var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
-            var result = NumberedRoadSegmentDirection.TryParse(value, out NumberedRoadSegmentDirection parsed);
+            var result = RoadSegmentLaneDirection.TryParse(value, out RoadSegmentLaneDirection parsed);
             Assert.True(result);
             Assert.NotNull(parsed);
             Assert.Equal(value, parsed.ToInt32());
@@ -108,7 +115,7 @@ namespace RoadRegistry.Model
         public void TryParseReturnsExpectedResultWhenValueIsUnknown()
         {
             var value = new Generator<int>(_fixture).First(candidate => !_knownValues.Contains(candidate));
-            var result = NumberedRoadSegmentDirection.TryParse(value, out NumberedRoadSegmentDirection parsed);
+            var result = RoadSegmentLaneDirection.TryParse(value, out RoadSegmentLaneDirection parsed);
             Assert.False(result);
             Assert.Null(parsed);
         }

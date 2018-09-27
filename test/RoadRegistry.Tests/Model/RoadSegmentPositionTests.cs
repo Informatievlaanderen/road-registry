@@ -1,15 +1,15 @@
-namespace RoadRegistry.Model
+﻿namespace RoadRegistry.Model
 {
     using System;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class PositionTests
+    public class RoadSegmentPositionTests
     {
         private readonly Fixture _fixture;
 
-        public PositionTests()
+        public RoadSegmentPositionTests()
         {
             _fixture = new Fixture();
         }
@@ -38,14 +38,14 @@ namespace RoadRegistry.Model
                 new LessThanOrEqualOperatorCompareToSelfAssertion(_fixture),
                 new GreaterThanOperatorCompareToSelfAssertion(_fixture),
                 new GreaterThanOrEqualOperatorCompareToSelfAssertion(_fixture)
-            ).Verify(typeof(Position));
+            ).Verify(typeof(RoadSegmentPosition));
         }
 
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = _fixture.Create<Double>();
-            var sut = new Position(value);
+            var sut = new RoadSegmentPosition(value);
 
             Assert.Equal(value.ToString(), sut.ToString());
         }
@@ -56,9 +56,9 @@ namespace RoadRegistry.Model
         [InlineData(1.0, 1.0, 0)]
         public void CompareToReturnsExpectedResult(Double left, Double right, Int32 expected)
         {
-            var sut = new Position(left);
+            var sut = new RoadSegmentPosition(left);
 
-            var result = sut.CompareTo(new Position(right));
+            var result = sut.CompareTo(new RoadSegmentPosition(right));
 
             Assert.Equal(expected, result);
         }

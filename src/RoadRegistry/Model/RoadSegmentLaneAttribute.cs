@@ -3,10 +3,10 @@ namespace RoadRegistry.Model
     public class RoadSegmentLaneAttribute : DynamicRoadSegmentAttribute
     {
         public RoadSegmentLaneAttribute(
-            LaneCount count,
-            LaneDirection direction,
-            Position from,
-            Position to,
+            RoadSegmentLaneCount count,
+            RoadSegmentLaneDirection direction,
+            RoadSegmentPosition from,
+            RoadSegmentPosition to,
             GeometryVersion asOfGeometryVersion
         ) : base(from, to, asOfGeometryVersion)
         {
@@ -14,7 +14,7 @@ namespace RoadRegistry.Model
             Direction = direction;
         }
 
-        public LaneCount Count { get; }
-        public LaneDirection Direction { get; }
+        public RoadSegmentLaneCount Count { get; }
+        public RoadSegmentLaneDirection Direction { get; }
     }
 }

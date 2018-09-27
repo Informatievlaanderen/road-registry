@@ -3,15 +3,15 @@ namespace RoadRegistry.Model
     public class RoadSegmentHardeningAttribute : DynamicRoadSegmentAttribute
     {
         public RoadSegmentHardeningAttribute(
-            HardeningType type,
-            Position from, 
-            Position to, 
+            RoadSegmentHardeningType type,
+            RoadSegmentPosition from, 
+            RoadSegmentPosition to, 
             GeometryVersion asOfGeometryVersion
         ) : base(from, to, asOfGeometryVersion)
         {
             Type = type;
         }
 
-        public HardeningType Type { get; }
+        public RoadSegmentHardeningType Type { get; }
     }
 }

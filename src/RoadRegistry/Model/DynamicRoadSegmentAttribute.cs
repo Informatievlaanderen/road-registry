@@ -5,8 +5,8 @@ namespace RoadRegistry.Model
     public abstract class DynamicRoadSegmentAttribute
     {
         protected DynamicRoadSegmentAttribute(
-            Position from,
-            Position to,
+            RoadSegmentPosition from,
+            RoadSegmentPosition to,
             GeometryVersion asOfGeometryVersion
         )
         {
@@ -17,9 +17,9 @@ namespace RoadRegistry.Model
             }
         }
 
-        public Position From { get; }
+        public RoadSegmentPosition From { get; }
 
-        public Position To { get; }
+        public RoadSegmentPosition To { get; }
 
         public GeometryVersion AsOfGeometryVersion { get; }
     }

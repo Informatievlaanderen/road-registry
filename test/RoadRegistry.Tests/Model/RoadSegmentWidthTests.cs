@@ -1,15 +1,15 @@
-namespace RoadRegistry.Model
+﻿namespace RoadRegistry.Model
 {
     using System;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class WidthTests
+    public class RoadSegmentWidthTests
     {
         private readonly Fixture _fixture;
 
-        public WidthTests()
+        public RoadSegmentWidthTests()
         {
             _fixture = new Fixture();
         }
@@ -33,14 +33,14 @@ namespace RoadRegistry.Model
                 new EqualsOtherAssertion(_fixture),
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
-            ).Verify(typeof(Width));
+            ).Verify(typeof(RoadSegmentWidth));
         }
 
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = _fixture.Create<Int32>();
-            var sut = new Width(value);
+            var sut = new RoadSegmentWidth(value);
 
             Assert.Equal(value.ToString(), sut.ToString());
         }

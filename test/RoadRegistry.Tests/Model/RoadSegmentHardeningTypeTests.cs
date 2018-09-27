@@ -1,4 +1,4 @@
-namespace RoadRegistry.Model
+﻿namespace RoadRegistry.Model
 {
     using System;
     using System.Linq;
@@ -6,15 +6,15 @@ namespace RoadRegistry.Model
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class HardeningTypeTests
+    public class RoadSegmentHardeningTypeTests
     {
         private readonly Fixture _fixture;
         private readonly int[] _knownValues;
 
-        public HardeningTypeTests()
+        public RoadSegmentHardeningTypeTests()
         {
             _fixture = new Fixture();
-            _knownValues = Array.ConvertAll(HardeningType.All, type => type.ToInt32());
+            _knownValues = Array.ConvertAll(RoadSegmentHardeningType.All, type => type.ToInt32());
         }
 
         [Fact]
@@ -36,31 +36,31 @@ namespace RoadRegistry.Model
                 new EqualsOtherAssertion(_fixture),
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
-            ).Verify(typeof(HardeningType));
+            ).Verify(typeof(RoadSegmentHardeningType));
         }
 
         [Fact]
         public static void NotApplicableReturnsExpectedResult()
         {
-            Assert.Equal(-9, HardeningType.NotApplicable);
+            Assert.Equal(-9, RoadSegmentHardeningType.NotApplicable);
         }
 
         [Fact]
         public static void UnknownReturnsExpectedResult()
         {
-            Assert.Equal(-8, HardeningType.Unknown);
+            Assert.Equal(-8, RoadSegmentHardeningType.Unknown);
         }
 
         [Fact]
         public static void SolidHardeningReturnsExpectedResult()
         {
-            Assert.Equal(1, HardeningType.SolidHardening);
+            Assert.Equal(1, RoadSegmentHardeningType.SolidHardening);
         }
 
         [Fact]
         public static void LooseHardeningReturnsExpectedResult()
         {
-            Assert.Equal(2, HardeningType.LooseHardening);
+            Assert.Equal(2, RoadSegmentHardeningType.LooseHardening);
         }
 
         [Fact]
@@ -69,19 +69,19 @@ namespace RoadRegistry.Model
             Assert.Equal(
                 new []
                 {
-                    HardeningType.NotApplicable,
-                    HardeningType.Unknown,
-                    HardeningType.SolidHardening,
-                    HardeningType.LooseHardening
+                    RoadSegmentHardeningType.NotApplicable,
+                    RoadSegmentHardeningType.Unknown,
+                    RoadSegmentHardeningType.SolidHardening,
+                    RoadSegmentHardeningType.LooseHardening
                 },
-                HardeningType.All);
+                RoadSegmentHardeningType.All);
         }
 
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
-            var sut = HardeningType.Parse(value);
+            var sut = RoadSegmentHardeningType.Parse(value);
             var result = sut.ToString();
 
             Assert.Equal(value.ToString(), result);
@@ -91,21 +91,21 @@ namespace RoadRegistry.Model
         public void ParseReturnsExpectedResultWhenValueIsWellKnown()
         {
             var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
-            Assert.NotNull(HardeningType.Parse(value));
+            Assert.NotNull(RoadSegmentHardeningType.Parse(value));
         }
 
         [Fact]
         public void ParseReturnsExpectedResultWhenValueIsUnknown()
         {
             var value = new Generator<int>(_fixture).First(candidate => !_knownValues.Contains(candidate));
-            Assert.Throws<FormatException>(() => HardeningType.Parse(value));
+            Assert.Throws<FormatException>(() => RoadSegmentHardeningType.Parse(value));
         }
 
         [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsWellKnown()
         {
             var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
-            var result = HardeningType.TryParse(value, out HardeningType parsed);
+            var result = RoadSegmentHardeningType.TryParse(value, out RoadSegmentHardeningType parsed);
             Assert.True(result);
             Assert.NotNull(parsed);
             Assert.Equal(value, parsed.ToInt32());
@@ -115,7 +115,7 @@ namespace RoadRegistry.Model
         public void TryParseReturnsExpectedResultWhenValueIsUnknown()
         {
             var value = new Generator<int>(_fixture).First(candidate => !_knownValues.Contains(candidate));
-            var result = HardeningType.TryParse(value, out HardeningType parsed);
+            var result = RoadSegmentHardeningType.TryParse(value, out RoadSegmentHardeningType parsed);
             Assert.False(result);
             Assert.Null(parsed);
         }
