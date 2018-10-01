@@ -18,6 +18,8 @@ namespace RoadRegistry.Projections
             b.Property(p => p.ShapeRecordContent);
             b.Property(p => p.ShapeRecordContentLength);
             b.Property(p => p.DbaseRecord);
+
+            b.OwnsOne(p => p.Envelope);
         }
     }
 }
