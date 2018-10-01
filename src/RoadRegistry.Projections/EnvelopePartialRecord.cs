@@ -12,11 +12,10 @@ namespace RoadRegistry.Projections
         public static EnvelopePartialRecord From(Envelope envelope) => new EnvelopePartialRecord
         {
             MinimumX = envelope.MinX,
-            MaximumX = envelope.MaxX,
             MinimumY = envelope.MinY,
+            MaximumX = envelope.MaxX,
             MaximumY = envelope.MaxY
         };
-
 
         public override bool Equals(object obj)
         {
@@ -26,8 +25,8 @@ namespace RoadRegistry.Projections
         protected bool Equals(EnvelopePartialRecord other)
         {
             return MinimumX.Equals(other.MinimumX)
-                   && MaximumX.Equals(other.MaximumX)
                    && MinimumY.Equals(other.MinimumY)
+                   && MaximumX.Equals(other.MaximumX)
                    && MaximumY.Equals(other.MaximumY);
         }
 
@@ -36,8 +35,8 @@ namespace RoadRegistry.Projections
             unchecked
             {
                 var hashCode = MinimumX.GetHashCode();
-                hashCode = (hashCode * 397) ^ MaximumX.GetHashCode();
                 hashCode = (hashCode * 397) ^ MinimumY.GetHashCode();
+                hashCode = (hashCode * 397) ^ MaximumX.GetHashCode();
                 hashCode = (hashCode * 397) ^ MaximumY.GetHashCode();
                 return hashCode;
             }

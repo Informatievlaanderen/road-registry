@@ -2,10 +2,10 @@ namespace RoadRegistry.Api.Extracts
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using ExtractFiles;
-    using GeoAPI.Geometries;
     using Projections;
     using Aiv.Vbr.Shaperon;
 
@@ -19,7 +19,7 @@ namespace RoadRegistry.Api.Extracts
             int SegmentId(RoadSegmentRecord record) => record.Id;
 
             // ToDo get projected record count so dbset is not executed
-            var recordCount = context.RoadSegments.Count();
+            var recordCount = new DbaseRecordCount(context.RoadSegments.Count());
 
             yield return CreateDbfFile<RoadSegmentDbaseRecord>(
                 fileName,
@@ -28,15 +28,23 @@ namespace RoadRegistry.Api.Extracts
                     .RoadSegments
                     .OrderBy(SegmentId)
                     .Select(record => record.DbaseRecord),
-                new DbaseRecordCount(recordCount));
+                recordCount
+            );
 
-            // ToDo get projected header values
-            var headerValues = CalculateShapeHeaderValues<RoadSegmentRecord, PolyLineMShapeContent>(
-                shapeType,
-                context.RoadSegments,
-                record => record.ShapeRecordContent,
-                readShape,
-                content => content.Shape.EnvelopeInternal);
+            // ToDo get values from a single DB call, project boundries instead of making 4 calls
+            Console.WriteLine($"-- Calculating {fileName} boundry values");
+            var stopwatch = Stopwatch.StartNew();
+            var boundingBox = new BoundingBox3D(
+                context.RoadSegments.Min(record => record.Envelope.MinimumX),
+                context.RoadSegments.Min(record => record.Envelope.MinimumY),
+                context.RoadSegments.Max(record => record.Envelope.MaximumX),
+                context.RoadSegments.Max(record => record.Envelope.MaximumY),
+                0,
+                0,
+                double.NegativeInfinity,
+                double.PositiveInfinity
+            );
+            Console.WriteLine($"-- It took {stopwatch.ElapsedMilliseconds}ms to calculate {fileName} boundry values");
 
             yield return CreateShapeFile<PolyLineMShapeContent>(
                 fileName,
@@ -46,8 +54,11 @@ namespace RoadRegistry.Api.Extracts
                     .OrderBy(SegmentId)
                     .Select(record => record.ShapeRecordContent),
                 readShape,
-                headerValues.ShapeFileLength,
-                headerValues.BoundingBox);
+                context
+                    .RoadSegments
+                    .Select(record => record.ShapeRecordContentLength),
+                boundingBox
+            );
 
             yield return CreateShapeIndexFile<PolyLineMShapeContent>(
                 fileName,
@@ -57,8 +68,9 @@ namespace RoadRegistry.Api.Extracts
                     .OrderBy(SegmentId)
                     .Select(record => record.ShapeRecordContent),
                 readShape,
-                headerValues.ShapeIndexFileLegth,
-                headerValues.BoundingBox);
+                recordCount,
+                boundingBox
+            );
         }
 
         public IEnumerable<ExtractFile> CreateRoadNodesFiles(ShapeContext context)
@@ -69,7 +81,7 @@ namespace RoadRegistry.Api.Extracts
             int NodeId(RoadNodeRecord record) => record.Id;
 
             // ToDo get projected record count so dbset is not executed
-            var recordCount = context.RoadNodes.Count();
+            var recordCount = new DbaseRecordCount(context.RoadNodes.Count());
 
             yield return CreateDbfFile<RoadNodeDbaseRecord>(
                 fileName,
@@ -78,15 +90,23 @@ namespace RoadRegistry.Api.Extracts
                     .RoadNodes
                     .OrderBy(NodeId)
                     .Select(record => record.DbaseRecord),
-                new DbaseRecordCount(recordCount));
+                recordCount
+            );
 
-            // ToDo get projected header values
-            var headerValues = CalculateShapeHeaderValues<RoadNodeRecord, PointShapeContent>(
-                shapeType,
-                context.RoadNodes,
-                record => record.ShapeRecordContent,
-                readShape,
-                content => content.Shape.EnvelopeInternal);
+            // ToDo get values from a single DB call, project boundries instead of making 4 calls
+            Console.WriteLine($"-- Calculating {fileName} boundry values");
+            var stopwatch = Stopwatch.StartNew();
+            var boundingBox = new BoundingBox3D(
+                context.RoadNodes.Min(record => record.Envelope.MinimumX),
+                context.RoadNodes.Min(record => record.Envelope.MinimumY),
+                context.RoadNodes.Max(record => record.Envelope.MaximumX),
+                context.RoadNodes.Max(record => record.Envelope.MaximumY),
+                0,
+                0,
+                0,
+                0
+            );
+            Console.WriteLine($"-- It took {stopwatch.ElapsedMilliseconds}ms to calculate {fileName} boundry values");
 
             yield return CreateShapeFile<PointShapeContent>(
                 fileName,
@@ -96,8 +116,11 @@ namespace RoadRegistry.Api.Extracts
                     .OrderBy(NodeId)
                     .Select(record => record.ShapeRecordContent),
                 readShape,
-                headerValues.ShapeFileLength,
-                headerValues.BoundingBox);
+                context
+                    .RoadNodes
+                    .Select(record => record.ShapeRecordContentLength),
+                boundingBox
+            );
 
             yield return CreateShapeIndexFile<PointShapeContent>(
                 fileName,
@@ -107,8 +130,9 @@ namespace RoadRegistry.Api.Extracts
                     .OrderBy(NodeId)
                     .Select(record => record.ShapeRecordContent),
                 readShape,
-                headerValues.ShapeIndexFileLegth,
-                headerValues.BoundingBox);
+                recordCount,
+                boundingBox
+            );
         }
 
         public IEnumerable<ExtractFile> CreateReferencePointsFiles(ShapeContext context)
@@ -119,7 +143,7 @@ namespace RoadRegistry.Api.Extracts
             Func<BinaryReader, ShapeContent> readShape = PointShapeContent.Read;
 
             // ToDo get projected record count so dbset is not executed
-            var recordCount = context.RoadReferencePoints.Count();
+            var recordCount = new DbaseRecordCount(context.RoadReferencePoints.Count());
 
             yield return CreateDbfFile<RoadReferencePointDbaseRecord>(
                 fileName,
@@ -128,15 +152,23 @@ namespace RoadRegistry.Api.Extracts
                     .RoadReferencePoints
                     .OrderBy(ReferencePointId)
                     .Select(record => record.DbaseRecord),
-                new DbaseRecordCount(recordCount));
+                recordCount
+            );
 
-            // ToDo get projected header values
-            var headerValues = CalculateShapeHeaderValues<RoadReferencePointRecord, PointShapeContent>(
-                shapeType,
-                context.RoadReferencePoints,
-                record => record.ShapeRecordContent,
-                readShape,
-                content => content.Shape.EnvelopeInternal);
+            // ToDo get values from a single DB call, project boundries instead of making 4 calls
+            Console.WriteLine($"-- Calculating {fileName} boundry values");
+            var stopwatch = Stopwatch.StartNew();
+            var boundingBox = new BoundingBox3D(
+                context.RoadReferencePoints.Min(record => record.Envelope.MinimumX),
+                context.RoadReferencePoints.Min(record => record.Envelope.MinimumY),
+                context.RoadReferencePoints.Max(record => record.Envelope.MaximumX),
+                context.RoadReferencePoints.Max(record => record.Envelope.MaximumY),
+                0,
+                0,
+                0,
+                0
+            );
+            Console.WriteLine($"-- It took {stopwatch.ElapsedMilliseconds}ms to calculate {fileName} boundry values");
 
             yield return CreateShapeFile<PointShapeContent>(
                 fileName,
@@ -146,8 +178,11 @@ namespace RoadRegistry.Api.Extracts
                     .OrderBy(ReferencePointId)
                     .Select(record => record.ShapeRecordContent),
                 readShape,
-                headerValues.ShapeFileLength,
-                headerValues.BoundingBox);
+                context
+                    .RoadReferencePoints
+                    .Select(record => record.ShapeRecordContentLength),
+                boundingBox
+            );
 
             yield return CreateShapeIndexFile<PointShapeContent>(
                 fileName,
@@ -157,8 +192,9 @@ namespace RoadRegistry.Api.Extracts
                     .OrderBy(ReferencePointId)
                     .Select(record => record.ShapeRecordContent),
                 readShape,
-                headerValues.ShapeIndexFileLegth,
-                headerValues.BoundingBox);
+                recordCount,
+                boundingBox
+            );
         }
 
         public ExtractFile CreateOrganizationsFile(ShapeContext context)
@@ -470,7 +506,7 @@ namespace RoadRegistry.Api.Extracts
             ShapeType shapeType,
             IEnumerable<byte[]> shapes,
             Func<BinaryReader, ShapeContent> readShape,
-            WordLength shapeFileLength,
+            IEnumerable<int> shapeLengths,
             BoundingBox3D boundingBox
         ) where TShape : ShapeContent
         {
@@ -480,7 +516,7 @@ namespace RoadRegistry.Api.Extracts
                 {
                     var shpFile = new ShpFileWriter(
                         new ShapeFileHeader(
-                            shapeFileLength,
+                            new WordLength(ShapeRecord.InitialOffset).Plus(new WordLength(shapeLengths.Sum())),
                             shapeType,
                             boundingBox
                         ),
@@ -515,7 +551,7 @@ namespace RoadRegistry.Api.Extracts
             ShapeType shapeType,
             IEnumerable<byte[]> shapes,
             Func<BinaryReader, ShapeContent> readShape,
-            WordLength indexFileLegth,
+            DbaseRecordCount recordCount,
             BoundingBox3D boundingBox
         ) where TShape : ShapeContent
         {
@@ -525,7 +561,7 @@ namespace RoadRegistry.Api.Extracts
                 {
                     var shxFileWriter = new ShxFileWriter(
                         new ShapeFileHeader(
-                            indexFileLegth,
+                            new WordLength(ShapeRecord.InitialOffset).Plus(new WordLength(recordCount * 4)),
                             shapeType,
                             boundingBox
                         ),
@@ -557,70 +593,6 @@ namespace RoadRegistry.Api.Extracts
                     }
                 }
             );
-        }
-
-        private static ShapeHeaderValues CalculateShapeHeaderValues<TRecord, TShape>(
-            ShapeType shapeType,
-            IEnumerable<TRecord> records,
-            Func<TRecord, byte[]> getShapeBytes,
-            Func<BinaryReader, ShapeContent> readShape,
-            Func<TShape, Envelope> getEnvelope
-        ) where TShape : ShapeContent
-        {
-            var envelope = new Envelope();
-            var shapeFileLength = new WordLength(ShapeRecord.InitialOffset);
-            var indexFileLegth = new WordLength(ShapeRecord.InitialOffset);
-
-            var number = RecordNumber.Initial;
-            foreach (var record in records)
-            {
-                using (var stream = new MemoryStream(getShapeBytes(record)))
-                using (var reader = new BinaryReader(stream))
-                {
-                    var content = readShape(reader);
-                    if (typeof(TShape) != typeof(NullShapeContent) && content is TShape shapeContent)
-                        envelope.ExpandToInclude(getEnvelope(shapeContent));
-
-                    if (content is TShape || content is NullShapeContent)
-                    {
-                        var shapeRecord = content.RecordAs(number);
-                        shapeFileLength = shapeFileLength.Plus(shapeRecord.Length);
-                        indexFileLegth = indexFileLegth.Plus(new WordLength(4));
-
-                        number = number.Next();
-                    }
-                }
-            }
-
-            var mMin = shapeType == ShapeType.PolyLineM ? double.NegativeInfinity : 0;
-            var mMax = shapeType == ShapeType.PolyLineM ? double.PositiveInfinity : 0;
-            var boundingBox = new BoundingBox3D(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY, 0, 0, mMin, mMax);
-
-            // ToDo get projected shp file length
-            // ToDo get projected shx file length
-            // ToDo get projected boundingbox
-            return new ShapeHeaderValues(
-                shapeFileLength,
-                indexFileLegth,
-                boundingBox
-            );
-        }
-
-        private class ShapeHeaderValues
-        {
-            internal WordLength ShapeFileLength { get; }
-            internal WordLength ShapeIndexFileLegth { get; }
-            internal BoundingBox3D BoundingBox { get; }
-
-            public ShapeHeaderValues(
-                WordLength shapeFileLength,
-                WordLength shapeIndexFileLegth,
-                BoundingBox3D boundingBox)
-            {
-                ShapeFileLength = shapeFileLength;
-                ShapeIndexFileLegth = shapeIndexFileLegth;
-                BoundingBox = boundingBox;
-            }
         }
     }
 }
