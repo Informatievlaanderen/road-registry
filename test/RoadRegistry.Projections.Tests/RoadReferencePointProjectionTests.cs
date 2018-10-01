@@ -41,6 +41,7 @@ namespace RoadRegistry.Projections.Tests
                         Id = importedReferencePoint.Id,
                         ShapeRecordContent = pointShapeContent.ToBytes(),
                         ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
+                        Envelope = EnvelopePartialRecord.From(pointShapeContent.Shape.EnvelopeInternal),
                         DbaseRecord = new RoadReferencePointDbaseRecord
                         {
                             RP_OIDN = { Value = importedReferencePoint.Id },

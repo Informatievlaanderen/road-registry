@@ -52,6 +52,7 @@ namespace RoadRegistry.Projections
                     Id = @event.Id,
                     ShapeRecordContent = polyLineMShapeContent.ToBytes(),
                     ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
+                    Envelope = EnvelopePartialRecord.From(polyLineMShapeContent.Shape.EnvelopeInternal),
                     DbaseRecord = new RoadSegmentDbaseRecord
                     {
                         WS_OIDN = { Value = @event.Id },

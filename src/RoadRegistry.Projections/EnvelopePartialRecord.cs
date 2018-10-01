@@ -17,5 +17,30 @@ namespace RoadRegistry.Projections
             MaximumY = envelope.MaxY
         };
 
+
+        public override bool Equals(object obj)
+        {
+            return obj is EnvelopePartialRecord envelope && Equals(envelope);
+        }
+
+        protected bool Equals(EnvelopePartialRecord other)
+        {
+            return MinimumX.Equals(other.MinimumX)
+                   && MaximumX.Equals(other.MaximumX)
+                   && MinimumY.Equals(other.MinimumY)
+                   && MaximumY.Equals(other.MaximumY);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = MinimumX.GetHashCode();
+                hashCode = (hashCode * 397) ^ MaximumX.GetHashCode();
+                hashCode = (hashCode * 397) ^ MinimumY.GetHashCode();
+                hashCode = (hashCode * 397) ^ MaximumY.GetHashCode();
+                return hashCode;
+            }
+        }
     }
 }
