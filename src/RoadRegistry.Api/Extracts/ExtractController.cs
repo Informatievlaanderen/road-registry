@@ -43,11 +43,9 @@ namespace RoadRegistry.Api.Extracts
             [FromServices] ShapeContext context,
             CancellationToken cancellationToken)
         {
-            PrintMessage("Start processing request");
             using (var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
             {
                 var fileBuilder = new RoadRegistryExtractsBuilder();
-                PrintMessage("Create roadregistry archive");
                 var zip = new RoadRegistryExtractArchive("wegenregister")
                 {
                     fileBuilder.CreateOrganizationsFile(context),
@@ -74,41 +72,6 @@ namespace RoadRegistry.Api.Extracts
                     fileBuilder.CreateLaneDirectionsFile()
                 };
                 return zip.CreateCallbackFileStreamResult(cancellationToken);
-            }
-        }
-
-        private void PrintMessage(string message)
-        {
-#if DEBUG
-            Console.WriteLine($"[{DateTime.Now:HH:mm:ss:fff}]|> {message}");
-#endif
-        }
-
-        [HttpGet("test")]
-        public async Task<IActionResult> TestGet(
-            [FromServices] ShapeContext context,
-            CancellationToken cancellationToken)
-        {
-            PrintMessage("Start processing request");
-            using (var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
-            {
-                var fileBuilder = new RoadRegistryExtractsBuilder();
-                PrintMessage("Create roadregistry archive");
-                return new RoadRegistryExtractArchive("wegenregister")
-                {
-                    fileBuilder.CreateOrganizationsFile(context),
-//                    fileBuilder.CreateRoadNodeTypesFile(),
-//                    fileBuilder.CreateHardeningTypesFile(),
-//                    fileBuilder.CreateNumberedRoadSegmentDirectionsFile(),
-//                    fileBuilder.CreateReferencePointTypesFile(),
-//                    fileBuilder.CreateRoadSegmentCategoriesFile(),
-//                    fileBuilder.CreateRoadSegmentAccessRestrictionsFile(),
-//                    fileBuilder.CreateRoadSegmentGeometryDrawMethodsFile(),
-//                    fileBuilder.CreateRoadSegmentMorphologiesFile(),
-//                    fileBuilder.CreateRoadSegmentStatusesFile(),
-//                    fileBuilder.CreateGradeSeperatedJunctionTypesFile(),
-//                    fileBuilder.CreateLaneDirectionsFile()
-                }.CreateCallbackFileStreamResult(cancellationToken);
             }
         }
     }
