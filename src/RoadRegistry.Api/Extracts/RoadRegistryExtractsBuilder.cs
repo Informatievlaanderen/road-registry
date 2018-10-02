@@ -511,9 +511,10 @@ namespace RoadRegistry.Api.Extracts
                 new ShpFileName(fileName),
                 (stream, token) =>
                 {
+                    var totalShapeRecordsLength = shapeLengths.Sum(shapeLength => shapeLength + ShapeRecord.HeaderLength);
                     var shpFile = new ShpFileWriter(
                         new ShapeFileHeader(
-                            new WordLength(ShapeRecord.InitialOffset).Plus(new WordLength(shapeLengths.Sum())),
+                            new WordLength(ShapeRecord.InitialOffset).Plus(new WordLength(totalShapeRecordsLength)),
                             shapeType,
                             boundingBox
                         ),
