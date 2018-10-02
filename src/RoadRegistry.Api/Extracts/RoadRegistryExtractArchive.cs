@@ -18,7 +18,6 @@ namespace RoadRegistry.Api.Extracts
     {
         private readonly string _fileName;
         private readonly List<ExtractFile> _files = new List<ExtractFile>();
-        private readonly Stopwatch _watch;
 
         public RoadRegistryExtractArchive(string name)
         {
@@ -26,8 +25,6 @@ namespace RoadRegistry.Api.Extracts
                 throw new ArgumentNullException(nameof(name));
 
             _fileName = name.EndsWith(".zip") ? name : name.TrimEnd('.') + ".zip";
-            _watch = Stopwatch.StartNew();
-            Console.WriteLine($"-- Create {_fileName}");
         }
 
         public void Add(ExtractFile fileWriter)
@@ -55,24 +52,25 @@ namespace RoadRegistry.Api.Extracts
 
         private void WriteArchiveContent(Stream archiveStream, CancellationToken token)
         {
-            Console.WriteLine($"-- Start writing to {_fileName} ({_watch.ElapsedMilliseconds}ms)");
             using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create))
             {
-                foreach (var file in _files.Where(writer => null != writer))
+                var watch = Stopwatch.StartNew();
+                foreach (var file in _files.Where(file => null != file))
                 {
                     if (token.IsCancellationRequested)
                         break;
 
-                    Console.WriteLine($"Writing {file.Name}");
-                    _watch.Restart();
+                    Console.Write($"Writing {file.Name}");
+                    watch.Restart();
                     using (var dbfFileStream = archive.CreateEntry(file.Name).Open())
                     {
                         file.WriteTo(dbfFileStream, token);
                     }
-                    Console.WriteLine($"--> finished in {_watch.ElapsedMilliseconds}ms");
+                    Console.WriteLine($": {watch.ElapsedMilliseconds}ms");
                 }
 
-                Console.WriteLine($"-- Finished writing {_fileName}");
+                Console.WriteLine($"-- Finished writing {_fileName} content");
+                watch.Stop();
             }
         }
 
