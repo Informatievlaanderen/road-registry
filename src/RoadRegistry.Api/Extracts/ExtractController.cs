@@ -1,7 +1,5 @@
 namespace RoadRegistry.Api.Extracts
 {
-    using System;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.Api;
@@ -48,17 +46,17 @@ namespace RoadRegistry.Api.Extracts
                 var fileBuilder = new RoadRegistryExtractsBuilder();
                 var zip = new RoadRegistryExtractArchive("wegenregister")
                 {
-                    fileBuilder.CreateOrganizationsFile(context),
+                    fileBuilder.CreateOrganizationsFile(context.Organizations),
                     fileBuilder.CreateRoadNodesFiles(context),
                     fileBuilder.CreateRoadSegmentsFiles(context),
-                    fileBuilder.CreateRoadSegmentDynamicLaneAttributesFile(context),
-                    fileBuilder.CreateRoadSegmentDynamicWidtAttributesFile(context),
-                    fileBuilder.CreateRoadSegmentDynamicHardeningAttributesFile(context),
-                    fileBuilder.CreateRoadSegmentNationalRoadAttributesFile(context),
-                    fileBuilder.CreateRoadSegmentEuropeanRoadAttributesFile(context),
-                    fileBuilder.CreateRoadSegmentNumberedRoadAttributesFile(context),
+                    fileBuilder.CreateRoadSegmentDynamicLaneAttributesFile(context.RoadLaneAttributes),
+                    fileBuilder.CreateRoadSegmentDynamicWidtAttributesFile(context.RoadWidthAttributes),
+                    fileBuilder.CreateRoadSegmentDynamicHardeningAttributesFile(context.RoadHardeningAttributes),
+                    fileBuilder.CreateRoadSegmentNationalRoadAttributesFile(context.NationalRoadAttributes),
+                    fileBuilder.CreateRoadSegmentEuropeanRoadAttributesFile(context.EuropeanRoadAttributes),
+                    fileBuilder.CreateRoadSegmentNumberedRoadAttributesFile(context.NumberedRoadAttributes),
                     fileBuilder.CreateReferencePointsFiles(context),
-                    fileBuilder.CreateGradeSeperatedJunctionsFile(context),
+                    fileBuilder.CreateGradeSeperatedJunctionsFile(context.GradeSeparatedJunctions),
                     fileBuilder.CreateRoadNodeTypesFile(),
                     fileBuilder.CreateHardeningTypesFile(),
                     fileBuilder.CreateNumberedRoadSegmentDirectionsFile(),

@@ -8,6 +8,7 @@ namespace RoadRegistry.Api.Extracts
     using ExtractFiles;
     using Projections;
     using Aiv.Vbr.Shaperon;
+    using Microsoft.EntityFrameworkCore;
 
     public class RoadRegistryExtractsBuilder
     {
@@ -194,126 +195,99 @@ namespace RoadRegistry.Api.Extracts
             );
         }
 
-        public ExtractFile CreateOrganizationsFile(ShapeContext context)
+        public ExtractFile CreateOrganizationsFile(DbSet<OrganizationRecord> organizations)
         {
-            // ToDo get projected record count so set is not executed
-            var recordCount = context.Organizations.Count();
-
             return CreateDbfFile<OrganizationDbaseRecord>(
                 "LstOrg",
                 new OrganizationDbaseSchema(),
-                context
-                    .Organizations
+                organizations
                     .OrderBy(record => record.SortableCode)
                     .Select(record => record.DbaseRecord),
-                new DbaseRecordCount(recordCount)
+                organizations.Count
             );
         }
 
-        public ExtractFile CreateRoadSegmentDynamicLaneAttributesFile(ShapeContext context)
+        public ExtractFile CreateRoadSegmentDynamicLaneAttributesFile(DbSet<RoadSegmentDynamicLaneAttributeRecord> roadLaneAttributes)
         {
-            // ToDo get projected record count so dbset is not executed
-            var recordCount = context.RoadLaneAttributes.Count();
-
             return CreateDbfFile<RoadSegmentDynamicLaneAttributeDbaseRecord>(
                 "AttRijstroken",
                 new RoadSegmentDynamicLaneAttributeDbaseSchema(),
-                context
-                    .RoadLaneAttributes
+                roadLaneAttributes
                     .OrderBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
-                new DbaseRecordCount(recordCount)
+                roadLaneAttributes.Count
             );
         }
 
-        public ExtractFile CreateRoadSegmentDynamicWidtAttributesFile(ShapeContext context)
+        public ExtractFile CreateRoadSegmentDynamicWidtAttributesFile(DbSet<RoadSegmentDynamicWidthAttributeRecord> roadWidthAttributes)
         {
-            // ToDo get projected record count so dbset is not executed
-            var recordCount = context.RoadWidthAttributes.Count();
-
             return CreateDbfFile<RoadSegmentDynamicWidthAttributeDbaseRecord>(
                 "AttWegbreedte",
                 new RoadSegmentDynamicWidthAttributeDbaseSchema(),
-                context
-                    .RoadWidthAttributes
+                roadWidthAttributes
                     .OrderBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
-                new DbaseRecordCount(recordCount));
+                roadWidthAttributes.Count);
         }
 
-        public ExtractFile CreateRoadSegmentDynamicHardeningAttributesFile(ShapeContext context)
+        public ExtractFile CreateRoadSegmentDynamicHardeningAttributesFile(DbSet<RoadSegmentDynamicHardeningAttributeRecord> roadHardeningAttributes)
         {
-            // ToDo get projected record count so dbset is not executed
-            var recordCount = context.RoadHardeningAttributes.Count();
-
             return CreateDbfFile<RoadSegmentDynamicHardeningAttributeDbaseRecord>(
                 "AttWegverharding",
                 new RoadSegmentDynamicHardeningAttributeDbaseSchema(),
-                context
-                    .RoadHardeningAttributes
+                roadHardeningAttributes
                     .OrderBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
-                new DbaseRecordCount(recordCount));
+                roadHardeningAttributes.Count
+            );
         }
 
-        public ExtractFile CreateRoadSegmentNationalRoadAttributesFile(ShapeContext context)
+        public ExtractFile CreateRoadSegmentNationalRoadAttributesFile(DbSet<RoadSegmentNationalRoadAttributeRecord> nationalRoadAttributes)
         {
-            // ToDo get projected record count so dbset is not executed
-            var recordCount = context.NationalRoadAttributes.Count();
-
             return CreateDbfFile<RoadSegmentNationalRoadAttributeDbaseRecord>(
                 "AttNationweg",
                 new RoadSegmentNationalRoadAttributeDbaseSchema(),
-                context
-                    .NationalRoadAttributes
+                nationalRoadAttributes
                     .OrderBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
-                new DbaseRecordCount(recordCount));
+                nationalRoadAttributes.Count
+            );
         }
 
-        public ExtractFile CreateRoadSegmentEuropeanRoadAttributesFile(ShapeContext context)
+        public ExtractFile CreateRoadSegmentEuropeanRoadAttributesFile(DbSet<RoadSegmentEuropeanRoadAttributeRecord> europeanRoadAttributes)
         {
-            // ToDo get projected record count so dbset is not executed
-            var recordCount = context.EuropeanRoadAttributes.Count();
-
             return CreateDbfFile<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
                 "AttEuropweg",
                 new RoadSegmentEuropeanRoadAttributeDbaseSchema(),
-                context
-                    .EuropeanRoadAttributes
+                europeanRoadAttributes
                     .OrderBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
-                new DbaseRecordCount(recordCount));
+                europeanRoadAttributes.Count
+            );
         }
 
-        public ExtractFile CreateRoadSegmentNumberedRoadAttributesFile(ShapeContext context)
+        public ExtractFile CreateRoadSegmentNumberedRoadAttributesFile(DbSet<RoadSegmentNumberedRoadAttributeRecord> numberedRoadAttributes)
         {
-            // ToDo get projected record count so dbset is not executed
-            var recordCount = context.NumberedRoadAttributes.Count();
-
             return CreateDbfFile<RoadSegmentNumberedRoadAttributeDbaseRecord>(
                 "AttGenumweg",
                 new RoadSegmentNumberedRoadAttributeDbaseSchema(),
-                context
-                    .NumberedRoadAttributes
+                numberedRoadAttributes
                     .OrderBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
-                new DbaseRecordCount(recordCount));
+                numberedRoadAttributes.Count
+            );
         }
 
-        public ExtractFile CreateGradeSeperatedJunctionsFile(ShapeContext context)
+        public ExtractFile CreateGradeSeperatedJunctionsFile(DbSet<GradeSeparatedJunctionRecord> gradeSeparatedJunctions)
         {
-            // ToDo get projected record count so dbset is not executed
-            var recordCount = context.GradeSeparatedJunctions.Count();
-
             return CreateDbfFile<GradeSeparatedJunctionDbaseRecord>(
                 "RltOgkruising",
                 new GradeSeparatedJunctionDbaseSchema(),
-                context
-                    .GradeSeparatedJunctions
+                gradeSeparatedJunctions
                     .OrderBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
-                new DbaseRecordCount(recordCount));
+                gradeSeparatedJunctions.Count
+            );
         }
 
         public ExtractFile CreateRoadNodeTypesFile()
@@ -458,6 +432,35 @@ namespace RoadRegistry.Api.Extracts
         private ExtractFile CreateDbfFile<TDbaseRecord>(
             string fileName,
             DbaseSchema schema,
+            IEnumerable<byte[]> records,
+            Func<int> getRecordCount
+        ) where TDbaseRecord : DbaseRecord, new()
+        {
+            return new ExtractFile(
+                new DbfFileName(fileName),
+                (stream, token) =>
+                {
+                    var dbfFile = CreateDbfFileWriter<TDbaseRecord>(
+                        schema,
+                        new DbaseRecordCount(getRecordCount()),
+                        stream
+                    );
+
+                    foreach (var record in records)
+                    {
+                        if (token.IsCancellationRequested)
+                            return;
+
+                        dbfFile.WriteBytesAs<TDbaseRecord>(record);
+                    }
+                    dbfFile.WriteEndOfFile();
+                }
+            );
+        }
+
+        private ExtractFile CreateDbfFile<TDbaseRecord>(
+            string fileName,
+            DbaseSchema schema,
             IEnumerable<TDbaseRecord> records,
             DbaseRecordCount recordCount
         ) where TDbaseRecord : DbaseRecord
@@ -484,8 +487,11 @@ namespace RoadRegistry.Api.Extracts
             );
         }
 
-        private static DbfFileWriter<TDbaseRecord> CreateDbfFileWriter<TDbaseRecord>(DbaseSchema schema, DbaseRecordCount recordCount, Stream writeStream)
-            where TDbaseRecord : DbaseRecord
+        private static DbfFileWriter<TDbaseRecord> CreateDbfFileWriter<TDbaseRecord>(
+            DbaseSchema schema,
+            DbaseRecordCount recordCount,
+            Stream writeStream
+        ) where TDbaseRecord : DbaseRecord
         {
             return new DbfFileWriter<TDbaseRecord>(
                 new DbaseFileHeader(
