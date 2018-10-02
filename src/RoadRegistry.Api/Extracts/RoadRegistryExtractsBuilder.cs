@@ -60,14 +60,13 @@ namespace RoadRegistry.Api.Extracts
                 boundingBox
             );
 
-            yield return CreateShapeIndexFile<PolyLineMShapeContent>(
+            yield return CreateShapeIndexFile(
                 fileName,
                 shapeType,
                 context
                     .RoadSegments
                     .OrderBy(SegmentId)
-                    .Select(record => record.ShapeRecordContent),
-                readShape,
+                    .Select(record => record.ShapeRecordContentLength),
                 recordCount,
                 boundingBox
             );
@@ -122,14 +121,13 @@ namespace RoadRegistry.Api.Extracts
                 boundingBox
             );
 
-            yield return CreateShapeIndexFile<PointShapeContent>(
+            yield return CreateShapeIndexFile(
                 fileName,
                 shapeType,
                 context
                     .RoadNodes
                     .OrderBy(NodeId)
-                    .Select(record => record.ShapeRecordContent),
-                readShape,
+                    .Select(record => record.ShapeRecordContentLength),
                 recordCount,
                 boundingBox
             );
@@ -184,14 +182,13 @@ namespace RoadRegistry.Api.Extracts
                 boundingBox
             );
 
-            yield return CreateShapeIndexFile<PointShapeContent>(
+            yield return CreateShapeIndexFile(
                 fileName,
                 shapeType,
                 context
                     .RoadReferencePoints
                     .OrderBy(ReferencePointId)
-                    .Select(record => record.ShapeRecordContent),
-                readShape,
+                    .Select(record => record.ShapeRecordContentLength),
                 recordCount,
                 boundingBox
             );
@@ -546,14 +543,13 @@ namespace RoadRegistry.Api.Extracts
             );
         }
 
-        private static ExtractFile CreateShapeIndexFile<TShape>(
+        private static ExtractFile CreateShapeIndexFile(
             string fileName,
             ShapeType shapeType,
-            IEnumerable<byte[]> shapes,
-            Func<BinaryReader, ShapeContent> readShape,
+            IEnumerable<int> shapesLengths,
             DbaseRecordCount recordCount,
             BoundingBox3D boundingBox
-        ) where TShape : ShapeContent
+        )
         {
             return new ExtractFile(
                 new ShxFileName(fileName),
@@ -568,28 +564,16 @@ namespace RoadRegistry.Api.Extracts
                         stream
                     );
 
-                    var number = RecordNumber.Initial;
                     var offset = ShapeRecord.InitialOffset;
-                    foreach (var shapeBytes in shapes)
+                    foreach (var shapeLength in shapesLengths)
                     {
                         if (token.IsCancellationRequested)
                             break;
 
-                        using (var shapeStream = new MemoryStream(shapeBytes))
-                        using (var reader = new BinaryReader(shapeStream))
-                        {
-                            var content = readShape(reader);
-                            if (content is TShape || content is NullShapeContent)
-                            {
-                                var shapeRecord = content.RecordAs(number);
+                        var indexRecord = new ShapeIndexRecord(offset, new WordLength(shapeLength));
+                        shxFileWriter.Write(indexRecord);
 
-                                var indexRecord = shapeRecord.IndexAt(offset);
-                                shxFileWriter.Write(indexRecord);
-
-                                number = number.Next();
-                                offset = offset.Plus(shapeRecord.Length);
-                            }
-                        }
+                        offset = offset.Plus(indexRecord.ContentLength.Plus(ShapeRecord.HeaderLength));
                     }
                 }
             );
