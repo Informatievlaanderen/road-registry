@@ -5,9 +5,11 @@ namespace RoadRegistry.Api.Extracts
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Linq.Expressions;
     using ExtractFiles;
     using Projections;
     using Aiv.Vbr.Shaperon;
+    using Infrastructure;
     using Microsoft.EntityFrameworkCore;
 
     public class RoadRegistryExtractsBuilder
@@ -17,19 +19,16 @@ namespace RoadRegistry.Api.Extracts
             const string fileName = "Wegsegment";
             const ShapeType shapeType = ShapeType.PolyLineM;
             Func<BinaryReader, ShapeContent> readShape = PolyLineMShapeContent.Read;
-            int SegmentId(RoadSegmentRecord record) => record.Id;
-
-            // ToDo get projected record count so dbset is not executed
-            var recordCount = new DbaseRecordCount(context.RoadSegments.Count());
+            Expression<Func<RoadSegmentRecord, int>> segmentId = record => record.Id;
 
             yield return CreateDbfFile<RoadSegmentDbaseRecord>(
                 fileName,
                 new RoadSegmentDbaseSchema(),
                 context
                     .RoadSegments
-                    .OrderBy(SegmentId)
+                    .OrderQueryBy(segmentId)
                     .Select(record => record.DbaseRecord),
-                recordCount
+                context.RoadSegments.Count
             );
 
             // ToDo get values from a single DB call, project boundries instead of making 4 calls
@@ -52,7 +51,7 @@ namespace RoadRegistry.Api.Extracts
                 shapeType,
                 context
                     .RoadSegments
-                    .OrderBy(SegmentId)
+                    .OrderQueryBy(segmentId)
                     .Select(record => record.ShapeRecordContent),
                 readShape,
                 context
@@ -66,9 +65,9 @@ namespace RoadRegistry.Api.Extracts
                 shapeType,
                 context
                     .RoadSegments
-                    .OrderBy(SegmentId)
+                    .OrderQueryBy(segmentId)
                     .Select(record => record.ShapeRecordContentLength),
-                recordCount,
+                context.RoadSegments.Count,
                 boundingBox
             );
         }
@@ -78,19 +77,16 @@ namespace RoadRegistry.Api.Extracts
             const string fileName = "Wegknoop";
             const ShapeType shapeType = ShapeType.Point;
             Func<BinaryReader, ShapeContent> readShape = PointShapeContent.Read;
-            int NodeId(RoadNodeRecord record) => record.Id;
-
-            // ToDo get projected record count so dbset is not executed
-            var recordCount = new DbaseRecordCount(context.RoadNodes.Count());
+            Expression<Func<RoadNodeRecord,int>> nodeId = record => record.Id;
 
             yield return CreateDbfFile<RoadNodeDbaseRecord>(
                 fileName,
                 new RoadNodeDbaseSchema(),
                 context
                     .RoadNodes
-                    .OrderBy(NodeId)
+                    .OrderQueryBy(nodeId)
                     .Select(record => record.DbaseRecord),
-                recordCount
+                context.RoadNodes.Count
             );
 
             // ToDo get values from a single DB call, project boundries instead of making 4 calls
@@ -113,7 +109,7 @@ namespace RoadRegistry.Api.Extracts
                 shapeType,
                 context
                     .RoadNodes
-                    .OrderBy(NodeId)
+                    .OrderQueryBy(nodeId)
                     .Select(record => record.ShapeRecordContent),
                 readShape,
                 context
@@ -127,9 +123,9 @@ namespace RoadRegistry.Api.Extracts
                 shapeType,
                 context
                     .RoadNodes
-                    .OrderBy(NodeId)
+                    .OrderQueryBy(nodeId)
                     .Select(record => record.ShapeRecordContentLength),
-                recordCount,
+                context.RoadNodes.Count,
                 boundingBox
             );
         }
@@ -138,20 +134,17 @@ namespace RoadRegistry.Api.Extracts
         {
             const string fileName = "Refpunt";
             const ShapeType shapeType = ShapeType.Point;
-            int ReferencePointId(RoadReferencePointRecord record) => record.Id;
+            Expression<Func<RoadReferencePointRecord, int>> referencePointId = record => record.Id;
             Func<BinaryReader, ShapeContent> readShape = PointShapeContent.Read;
-
-            // ToDo get projected record count so dbset is not executed
-            var recordCount = new DbaseRecordCount(context.RoadReferencePoints.Count());
 
             yield return CreateDbfFile<RoadReferencePointDbaseRecord>(
                 fileName,
                 new RoadReferencePointDbaseSchema(),
                 context
                     .RoadReferencePoints
-                    .OrderBy(ReferencePointId)
+                    .OrderQueryBy(referencePointId)
                     .Select(record => record.DbaseRecord),
-                recordCount
+                context.RoadReferencePoints.Count
             );
 
             // ToDo get values from a single DB call, project boundries instead of making 4 calls
@@ -174,7 +167,7 @@ namespace RoadRegistry.Api.Extracts
                 shapeType,
                 context
                     .RoadReferencePoints
-                    .OrderBy(ReferencePointId)
+                    .OrderQueryBy(referencePointId)
                     .Select(record => record.ShapeRecordContent),
                 readShape,
                 context
@@ -188,9 +181,9 @@ namespace RoadRegistry.Api.Extracts
                 shapeType,
                 context
                     .RoadReferencePoints
-                    .OrderBy(ReferencePointId)
+                    .OrderQueryBy(referencePointId)
                     .Select(record => record.ShapeRecordContentLength),
-                recordCount,
+                context.RoadReferencePoints.Count,
                 boundingBox
             );
         }
@@ -201,7 +194,7 @@ namespace RoadRegistry.Api.Extracts
                 "LstOrg",
                 new OrganizationDbaseSchema(),
                 organizations
-                    .OrderBy(record => record.SortableCode)
+                    .OrderQueryBy(record => record.SortableCode)
                     .Select(record => record.DbaseRecord),
                 organizations.Count
             );
@@ -213,7 +206,7 @@ namespace RoadRegistry.Api.Extracts
                 "AttRijstroken",
                 new RoadSegmentDynamicLaneAttributeDbaseSchema(),
                 roadLaneAttributes
-                    .OrderBy(record => record.Id)
+                    .OrderQueryBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
                 roadLaneAttributes.Count
             );
@@ -225,7 +218,7 @@ namespace RoadRegistry.Api.Extracts
                 "AttWegbreedte",
                 new RoadSegmentDynamicWidthAttributeDbaseSchema(),
                 roadWidthAttributes
-                    .OrderBy(record => record.Id)
+                    .OrderQueryBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
                 roadWidthAttributes.Count);
         }
@@ -236,7 +229,7 @@ namespace RoadRegistry.Api.Extracts
                 "AttWegverharding",
                 new RoadSegmentDynamicHardeningAttributeDbaseSchema(),
                 roadHardeningAttributes
-                    .OrderBy(record => record.Id)
+                    .OrderQueryBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
                 roadHardeningAttributes.Count
             );
@@ -248,7 +241,7 @@ namespace RoadRegistry.Api.Extracts
                 "AttNationweg",
                 new RoadSegmentNationalRoadAttributeDbaseSchema(),
                 nationalRoadAttributes
-                    .OrderBy(record => record.Id)
+                    .OrderQueryBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
                 nationalRoadAttributes.Count
             );
@@ -260,7 +253,7 @@ namespace RoadRegistry.Api.Extracts
                 "AttEuropweg",
                 new RoadSegmentEuropeanRoadAttributeDbaseSchema(),
                 europeanRoadAttributes
-                    .OrderBy(record => record.Id)
+                    .OrderQueryBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
                 europeanRoadAttributes.Count
             );
@@ -272,7 +265,7 @@ namespace RoadRegistry.Api.Extracts
                 "AttGenumweg",
                 new RoadSegmentNumberedRoadAttributeDbaseSchema(),
                 numberedRoadAttributes
-                    .OrderBy(record => record.Id)
+                    .OrderQueryBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
                 numberedRoadAttributes.Count
             );
@@ -284,7 +277,7 @@ namespace RoadRegistry.Api.Extracts
                 "RltOgkruising",
                 new GradeSeparatedJunctionDbaseSchema(),
                 gradeSeparatedJunctions
-                    .OrderBy(record => record.Id)
+                    .OrderQueryBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
                 gradeSeparatedJunctions.Count
             );
@@ -295,8 +288,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile(
                 "WegknoopLktType",
                 new RoadNodeTypeDbaseSchema(),
-                TypeReferences.RoadNodeTypes,
-                new DbaseRecordCount(TypeReferences.RoadNodeTypes.Length)
+                TypeReferences.RoadNodeTypes
             );
         }
 
@@ -305,8 +297,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile(
                 "WegsegmentLktWegcat",
                 new RoadSegmentCategoryDbaseSchema(),
-                TypeReferences.RoadSegmentCategories,
-                new DbaseRecordCount(TypeReferences.RoadSegmentCategories.Length)
+                TypeReferences.RoadSegmentCategories
             );
         }
 
@@ -315,8 +306,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile(
                 "WegsegmentLktMethode",
                 new RoadSegmentGeometryDrawMethodDbaseSchema(),
-                TypeReferences.RoadSegmentGeometryDrawMethods,
-                new DbaseRecordCount(TypeReferences.RoadSegmentGeometryDrawMethods.Length)
+                TypeReferences.RoadSegmentGeometryDrawMethods
             );
         }
 
@@ -325,8 +315,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile(
                 "WegsegmentLktStatus",
                 new RoadSegmentStatusDbaseSchema(),
-                TypeReferences.RoadSegmentStatuses,
-                new DbaseRecordCount(TypeReferences.RoadSegmentStatuses.Length)
+                TypeReferences.RoadSegmentStatuses
             );
         }
 
@@ -335,8 +324,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile(
                 "WegsegmentLktTgbep",
                 new RoadSegmentAccessRestrictionDbaseSchema(),
-                TypeReferences.RoadSegmentAccessRestrictions,
-                new DbaseRecordCount(TypeReferences.RoadSegmentAccessRestrictions.Length)
+                TypeReferences.RoadSegmentAccessRestrictions
             );
         }
 
@@ -345,8 +333,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile(
                 "RefpuntLktType",
                 new ReferencePointTypeDbaseSchema(),
-                TypeReferences.ReferencePointTypes,
-                new DbaseRecordCount(TypeReferences.ReferencePointTypes.Length)
+                TypeReferences.ReferencePointTypes
             );
         }
 
@@ -355,8 +342,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile(
                 "WegsegmentLktMorf",
                 new RoadSegmentMorphologyDbaseSchema(),
-                TypeReferences.RoadSegmentMorphologies,
-                new DbaseRecordCount(TypeReferences.RoadSegmentMorphologies.Length)
+                TypeReferences.RoadSegmentMorphologies
             );
         }
 
@@ -365,8 +351,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile(
                 "OgkruisingLktType",
                 new GradeSeparatedJunctionTypeDbaseSchema(),
-                TypeReferences.GradeSeparatedJunctionTypes,
-                new DbaseRecordCount(TypeReferences.GradeSeparatedJunctionTypes.Length)
+                TypeReferences.GradeSeparatedJunctionTypes
             );
         }
 
@@ -375,8 +360,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile(
                 "GenumwegLktRichting",
                 new NumberedRoadSegmentDirectionDbaseSchema(),
-                TypeReferences.NumberedRoadSegmentDirections,
-                new DbaseRecordCount(TypeReferences.NumberedRoadSegmentDirections.Length)
+                TypeReferences.NumberedRoadSegmentDirections
             );
         }
 
@@ -385,8 +369,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile(
                 "WegverhardLktType",
                 new HardeningTypeDbaseSchema(),
-                TypeReferences.HardeningTypes,
-                new DbaseRecordCount(TypeReferences.HardeningTypes.Length)
+                TypeReferences.HardeningTypes
             );
         }
 
@@ -395,8 +378,7 @@ namespace RoadRegistry.Api.Extracts
             return CreateDbfFile(
                 "RijstrokenLktRichting",
                 new LaneDirectionDbaseSchema(),
-                TypeReferences.LaneDirections,
-                new DbaseRecordCount(TypeReferences.LaneDirections.Length)
+                TypeReferences.LaneDirections
             );
         }
 
@@ -461,8 +443,7 @@ namespace RoadRegistry.Api.Extracts
         private ExtractFile CreateDbfFile<TDbaseRecord>(
             string fileName,
             DbaseSchema schema,
-            IEnumerable<TDbaseRecord> records,
-            DbaseRecordCount recordCount
+            IReadOnlyCollection<TDbaseRecord> records
         ) where TDbaseRecord : DbaseRecord
         {
             return new ExtractFile(
@@ -471,7 +452,7 @@ namespace RoadRegistry.Api.Extracts
                 {
                     var dbfFileWriter = CreateDbfFileWriter<TDbaseRecord>(
                         schema,
-                        recordCount,
+                        new DbaseRecordCount(records.Count),
                         stream
                     );
 
@@ -554,7 +535,7 @@ namespace RoadRegistry.Api.Extracts
             string fileName,
             ShapeType shapeType,
             IEnumerable<int> shapesLengths,
-            DbaseRecordCount recordCount,
+            Func<int> getRecordCount,
             BoundingBox3D boundingBox
         )
         {
@@ -564,7 +545,7 @@ namespace RoadRegistry.Api.Extracts
                 {
                     var shxFileWriter = new ShxFileWriter(
                         new ShapeFileHeader(
-                            new WordLength(ShapeRecord.InitialOffset).Plus(new WordLength(recordCount * 4)),
+                            new WordLength(ShapeRecord.InitialOffset).Plus(new WordLength(getRecordCount() * 4)),
                             shapeType,
                             boundingBox
                         ),
