@@ -1,21 +1,9 @@
 import axios from 'axios';
 import fileSaver from 'file-saver';
 
-function updateDownloadRegistryProgress(lastUpdate, loaded) {
-  const KB = Math.round(loaded / 1024);
-  const MB = Math.round(KB / 102.4) / 10;
-  const minimumProgress = 0.14;
-
-  if (MB < 1 || MB > lastUpdate + minimumProgress) {
-    console.log(`Downloaded: ${MB} MB`);
-    return MB;
-  }
-  return lastUpdate;
-}
-
 export default {
-  downloadCompleteRegistry() {
-    let progress = 0;
+  downloadCompleteRegistry(configuration) {
+    const { onDownloadProgress = () => {} } = configuration;
 
     return axios
       .get(
@@ -26,10 +14,7 @@ export default {
             delete headers.common.Accept;
             return data;
           }],
-          onDownloadProgress: ({ loaded }) => {
-            progress = updateDownloadRegistryProgress(progress, loaded);
-          },
-
+          onDownloadProgress,
           headers: {
             // 'Access-Control-Expose-Headers': 'Content-Disposition',
             'Content-Type': 'application/zip',
