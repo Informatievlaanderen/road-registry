@@ -31,9 +31,6 @@ namespace RoadRegistry.Api.Extracts
                 context.RoadSegments.Count
             );
 
-            // ToDo get values from a single DB call, project boundries instead of making 4 calls
-            Console.WriteLine($"-- Calculating {fileName} boundry values");
-            var stopwatch = Stopwatch.StartNew();
             var boundingBox = new BoundingBox3D(
                 context.RoadSegments.Min(record => record.Envelope.MinimumX),
                 context.RoadSegments.Min(record => record.Envelope.MinimumY),
@@ -44,7 +41,6 @@ namespace RoadRegistry.Api.Extracts
                 double.NegativeInfinity,
                 double.PositiveInfinity
             );
-            Console.WriteLine($"-- It took {stopwatch.ElapsedMilliseconds}ms to calculate {fileName} boundry values");
 
             yield return CreateShapeFile<PolyLineMShapeContent>(
                 fileName,
@@ -89,9 +85,6 @@ namespace RoadRegistry.Api.Extracts
                 context.RoadNodes.Count
             );
 
-            // ToDo get values from a single DB call, project boundries instead of making 4 calls
-            Console.WriteLine($"-- Calculating {fileName} boundry values");
-            var stopwatch = Stopwatch.StartNew();
             var boundingBox = new BoundingBox3D(
                 context.RoadNodes.Min(record => record.Envelope.MinimumX),
                 context.RoadNodes.Min(record => record.Envelope.MinimumY),
@@ -102,7 +95,6 @@ namespace RoadRegistry.Api.Extracts
                 0,
                 0
             );
-            Console.WriteLine($"-- It took {stopwatch.ElapsedMilliseconds}ms to calculate {fileName} boundry values");
 
             yield return CreateShapeFile<PointShapeContent>(
                 fileName,
@@ -147,9 +139,6 @@ namespace RoadRegistry.Api.Extracts
                 context.RoadReferencePoints.Count
             );
 
-            // ToDo get values from a single DB call, project boundries instead of making 4 calls
-            Console.WriteLine($"-- Calculating {fileName} boundry values");
-            var stopwatch = Stopwatch.StartNew();
             var boundingBox = new BoundingBox3D(
                 context.RoadReferencePoints.Min(record => record.Envelope.MinimumX),
                 context.RoadReferencePoints.Min(record => record.Envelope.MinimumY),
@@ -160,7 +149,6 @@ namespace RoadRegistry.Api.Extracts
                 0,
                 0
             );
-            Console.WriteLine($"-- It took {stopwatch.ElapsedMilliseconds}ms to calculate {fileName} boundry values");
 
             yield return CreateShapeFile<PointShapeContent>(
                 fileName,

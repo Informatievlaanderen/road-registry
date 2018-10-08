@@ -54,23 +54,16 @@ namespace RoadRegistry.Api.Extracts
         {
             using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create))
             {
-                var watch = Stopwatch.StartNew();
                 foreach (var file in _files.Where(file => null != file))
                 {
                     if (token.IsCancellationRequested)
                         break;
 
-                    Console.Write($"Writing {file.Name}");
-                    watch.Restart();
                     using (var dbfFileStream = archive.CreateEntry(file.Name).Open())
                     {
                         file.WriteTo(dbfFileStream, token);
                     }
-                    Console.WriteLine($": {watch.ElapsedMilliseconds}ms");
                 }
-
-                Console.WriteLine($"-- Finished writing {_fileName} content");
-                watch.Stop();
             }
         }
 
