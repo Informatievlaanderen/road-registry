@@ -3,9 +3,11 @@ namespace RoadRegistry.Api.Extracts
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.IO.Compression;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using ExtractFiles;
     using Infrastructure;
@@ -15,7 +17,7 @@ namespace RoadRegistry.Api.Extracts
     public class RoadRegistryExtractArchive : IEnumerable
     {
         private readonly string _fileName;
-        private readonly IList<Func<Task<IEnumerable<ExtractFile>>>> _createFileBatches = new List<Func<Task<IEnumerable<ExtractFile>>>>();
+        private readonly List<ExtractFile> _files = new List<ExtractFile>();
 
         public RoadRegistryExtractArchive(string name)
         {
@@ -25,46 +27,41 @@ namespace RoadRegistry.Api.Extracts
             _fileName = name.EndsWith(".zip") ? name : name.TrimEnd('.') + ".zip";
         }
 
-        public void Add(Func<Task<ExtractFile>> createFile)
+        public void Add(ExtractFile fileWriter)
         {
-            if (null != createFile)
-                _createFileBatches.Add(async () => new []{ await createFile() });
+            if (null != fileWriter)
+                _files.Add(fileWriter);
         }
 
-        public void Add(Func<Task<IEnumerable<ExtractFile>>> createFiles)
+        public void Add(IEnumerable<ExtractFile> files)
         {
-            if(null != createFiles)
-                _createFileBatches.Add(createFiles);
+            if (null != files)
+                _files.AddRange(files);
         }
 
-        public FileResult CreateCallbackFileStreamResult()
+        public FileResult CreateCallbackFileStreamResult(CancellationToken token)
         {
             return new FileCallbackResult(
                 new MediaTypeHeaderValue("application/octet-stream"),
-                WriteArchiveContentAsync
+                (stream, _) => Task.Run(() => WriteArchiveContent(stream, token), token)
             )
             {
                 FileDownloadName = _fileName
             };
         }
 
-        private async Task WriteArchiveContentAsync(Stream archiveStream, ActionContext _)
+        private void WriteArchiveContent(Stream archiveStream, CancellationToken token)
         {
             using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create))
             {
-                foreach (var createFileBatch in _createFileBatches)
+                foreach (var file in _files.Where(file => null != file))
                 {
-                    var extractFiles = (await createFileBatch())?.Where(file => file != null) ?? new ExtractFile[0];
-                    foreach (var file in extractFiles)
+                    if (token.IsCancellationRequested)
+                        break;
+
+                    using (var dbfFileStream = archive.CreateEntry(file.Name).Open())
                     {
-                        using (file)
-                        {
-                            var fileCompents = file.Flush();
-                            using (var archiveItem = archive.CreateEntry(fileCompents.Name).Open())
-                            {
-                                fileCompents.Content.CopyTo(archiveItem);
-                            }
-                        }
+                        file.WriteTo(dbfFileStream, token);
                     }
                 }
             }
@@ -72,7 +69,7 @@ namespace RoadRegistry.Api.Extracts
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _createFileBatches.GetEnumerator();
+            return _files.GetEnumerator();
         }
     }
 }

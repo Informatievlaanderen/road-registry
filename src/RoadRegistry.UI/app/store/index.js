@@ -2,18 +2,16 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import api from 'services/wegenregisterApi';
-
 import alerts from './alerts';
 import success from './successes';
 
 import {
   SET_ALERT,
   CLEAR_ALERT,
-  LOADING_OFF,
-  LOADING_ON,
   DOWNLOAD_FULL_REGISTRY_STARTED,
-  DOWNLOAD_FULL_REGISTRY_STOPPED,
+  DOWNLOAD_FULL_REGISTRY_FINISHED,
   DOWNLOAD_FULL_REGISTRY_FAILED,
+  UPDATE_DOWNLOAD_PROGRESS,
 } from './mutation-types';
 
 const DOWNLOADS = {
@@ -39,24 +37,23 @@ function formatAlert(alert = {}) {
   };
 }
 
+function getFullRegistryDownload(state) {
+  return state
+    .activeDownloads
+    .filter(download => download.Name === DOWNLOADS.FULL_REGISTRY)[0] || null;
+}
+
 export default new Vuex.Store({
   state: {
-    isLoading: false,
     activeDownloads: [],
     alert: formatAlert({}),
   },
   getters: {
     alert: state => state.alert,
-    isLoading: state => state.isLoading,
-    downloadFullRegistryInProcess: state => state.activeDownloads.includes(DOWNLOADS.FULL_REGISTRY),
+    downloadFullRegistryProcess: state => (getFullRegistryDownload(state) || {}).Progress || 0,
+    downloadFullRegistryInProcess: state => getFullRegistryDownload(state) !== null,
   },
   mutations: {
-    [LOADING_ON](state) {
-      state.isLoading = true;
-    },
-    [LOADING_OFF](state) {
-      state.isLoading = false;
-    },
     [CLEAR_ALERT](state) {
       state.alert = alerts.empty;
     },
@@ -69,16 +66,18 @@ export default new Vuex.Store({
       });
     },
     [DOWNLOAD_FULL_REGISTRY_STARTED](state) {
-      state.activeDownloads.push(DOWNLOADS.FULL_REGISTRY);
-      state.alert = formatAlert({
-        ...success.downloadRegistryStarted,
-        visible: true,
+      state.activeDownloads.push({
+        Name: DOWNLOADS.FULL_REGISTRY,
+        Progress: 0,
       });
+      if (state.alert.title === success.downloadRegistryCompleted.title) {
+        state.alert = alerts.empty;
+      }
     },
-    [DOWNLOAD_FULL_REGISTRY_STOPPED](state) {
+    [DOWNLOAD_FULL_REGISTRY_FINISHED](state) {
       state.activeDownloads = state
         .activeDownloads
-        .filter(download => download !== DOWNLOADS.FULL_REGISTRY);
+        .filter(download => download.Name !== DOWNLOADS.FULL_REGISTRY);
       state.alert = formatAlert({
         ...success.downloadRegistryCompleted,
         visible: true,
@@ -93,21 +92,37 @@ export default new Vuex.Store({
         visible: true,
       });
     },
+    [UPDATE_DOWNLOAD_PROGRESS](state, downloadProgress) {
+      const downloadStatus = state
+        .activeDownloads
+        .filter(download => download.Name === downloadProgress.Name)[0];
+
+      if (downloadStatus) {
+        downloadStatus.Progress = downloadProgress.Progress;
+      }
+    },
   },
   actions: {
     downloadRoadRegistery({ commit }) {
-      commit(LOADING_ON);
-      commit(DOWNLOAD_FULL_REGISTRY_STARTED);
+      let lastUpdate = 0;
+      const onDownloadProgress = ({ loaded }) => {
+        const kb = Math.round(loaded / 1024);
+        if (kb > (lastUpdate + 1024) || kb > (lastUpdate * 1.1)) {
+          lastUpdate = kb;
+          commit(UPDATE_DOWNLOAD_PROGRESS, {
+            Name: DOWNLOADS.FULL_REGISTRY,
+            Progress: kb,
+          });
+        }
+      };
 
-      api.downloadCompleteRegistry()
+      commit(DOWNLOAD_FULL_REGISTRY_STARTED);
+      api.downloadCompleteRegistry({ onDownloadProgress })
         .then(() => {
-          commit(DOWNLOAD_FULL_REGISTRY_STOPPED);
+          commit(DOWNLOAD_FULL_REGISTRY_FINISHED);
         })
         .catch((error) => {
           commit(DOWNLOAD_FULL_REGISTRY_FAILED, alerts.toAlert(error));
-        })
-        .finally(() => {
-          commit(LOADING_OFF);
         });
     },
   },

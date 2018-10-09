@@ -49,7 +49,8 @@ namespace RoadRegistry.Projections
                 Id = @event.Id,
                 ShapeRecordContent = pointShapeContent.ToBytes(),
                 ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                DbaseRecord = dbaseRecord.ToBytes(_encoding)
+                DbaseRecord = dbaseRecord.ToBytes(_encoding),
+                Envelope = EnvelopePartialRecord.From(pointShapeContent.Shape.EnvelopeInternal)
             }, token);
         }
     }

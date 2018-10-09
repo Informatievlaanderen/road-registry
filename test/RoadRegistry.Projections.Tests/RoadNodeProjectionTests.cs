@@ -52,7 +52,8 @@ namespace RoadRegistry.Projections.Tests
                             LBLBGNORG = {Value = importedRoadNode.Origin.Organization}
                         }.ToBytes(Encoding.UTF8),
                         ShapeRecordContent = pointShapeContent.ToBytes(),
-                        ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32()
+                        ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
+                        Envelope = EnvelopePartialRecord.From(pointShapeContent.Shape.EnvelopeInternal)
                     };
 
                     return new

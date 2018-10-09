@@ -2,7 +2,9 @@ import axios from 'axios';
 import fileSaver from 'file-saver';
 
 export default {
-  downloadCompleteRegistry() {
+  downloadCompleteRegistry(configuration) {
+    const { onDownloadProgress = () => {} } = configuration;
+
     return axios
       .get(
         '/v1/extracten',
@@ -12,7 +14,7 @@ export default {
             delete headers.common.Accept;
             return data;
           }],
-
+          onDownloadProgress,
           headers: {
             // 'Access-Control-Expose-Headers': 'Content-Disposition',
             'Content-Type': 'application/zip',

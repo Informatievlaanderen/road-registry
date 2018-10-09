@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections.Tests
+namespace RoadRegistry.Projections.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -193,13 +193,14 @@
                 });
         }
 
-        private void AssertDbaseRecordCollectionsContainSameElements<TDbaseRecord>(TDbaseRecord[] actualRecords, TDbaseRecord[] expectedRecords)
+        private void AssertDbaseRecordCollectionsContainSameElements<TDbaseRecord>(IReadOnlyCollection<TDbaseRecord> actualRecords, TDbaseRecord[] expectedRecords)
             where TDbaseRecord : DbaseRecord
         {
-            Assert.Equal(expectedRecords.Length, actualRecords.Length);
+            Assert.Equal(expectedRecords.Length, actualRecords.Count);
+            var records = actualRecords.ToArray();
             for (var i = 0; i < expectedRecords.Length; i++)
             {
-                Assert.Equal(expectedRecords[i], actualRecords[i], new DbaseRecordComparer<TDbaseRecord>());
+                Assert.Equal(expectedRecords[i], records[i], new DbaseRecordComparer<TDbaseRecord>());
             }
         }
     }

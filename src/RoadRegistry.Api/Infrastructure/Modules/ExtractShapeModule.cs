@@ -25,7 +25,7 @@ namespace RoadRegistry.Api.Infrastructure.Modules
                     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                     .UseSqlServer(projectionsConnectionString, sqlServerOptions =>
                     {
-                        sqlServerOptions.EnableRetryOnFailure();
+//                        sqlServerOptions.EnableRetryOnFailure();
                         sqlServerOptions.MigrationsHistoryTable(MigrationTables.Shape, Schema.ProjectionMetaData);
                     }));
 
