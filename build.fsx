@@ -50,8 +50,8 @@ Target "Test_Projections" (fun _ ->
   |> List.iter testWithXunit
 )
 Target "Publish_Projections" (fun _ -> publish "RoadRegistry.Projections")
-Target "Package_Projections" (fun _ -> containerize "RoadRegistry.Projections" "projections")
-Target "PushContainer_Projections" (fun _ -> push "projections")
+Target "Package_Projections" (fun _ -> containerize "RoadRegistry.Projections" "projections-legacy")
+Target "PushContainer_Projections" (fun _ -> push "projections-legacy")
 
 // Site (api + ui)
 Target "Build_Site" (fun _ ->
@@ -69,13 +69,13 @@ Target "Publish_Site" (fun _ ->
 )
 Target "Package_Site" (fun _ ->
   [
-    ("RoadRegistry.Api", "api")
+    ("RoadRegistry.Api", "api-legacy")
     ("RoadRegistry.UI", "ui")
   ] |> List.iter (fun (project, containerName) -> containerize project containerName)
 )
 Target "PushContainer_Site" (fun _ ->
   [
-    "api"
+    "api-legacy"
     "ui"
   ] |> List.iter push
 )
