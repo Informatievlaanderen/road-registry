@@ -2,28 +2,36 @@
   <div>
     <h1 class="h2 cta-title__title">Downloaden</h1>
     <tile-grid style="clear: both">
-      <button-tile
+      <download-button-tile
         :on-click="clickDownloadRegistry"
         title="Register dump"
-        :disabled=this.$store.getters.downloadFullRegistryInProcess>
+        :progress=downloadFullRegistryProcess
+        :downloading=downloadFullRegistryInProcess>
         Download het volledige wegenregister als zip&#8209;bestand.
-      </button-tile>
+      </download-button-tile>
     </tile-grid>
   </div>
 </template>
 
 <script>
 import TileGrid from '../../components/frame/tiles/Grid'
-import ButtonTile from '../../components/frame/tiles/Button'
+import DownloadButtonTile from '../../components/frame/tiles/DownloadButton'
+import { mapGetters } from 'vuex';
 export default {
   components: {
     TileGrid,
-    ButtonTile,
+    DownloadButtonTile,
   },
   methods: {
     clickDownloadRegistry(){
       this.$store.dispatch('downloadRoadRegistery');
     }
-  }
+  },
+  computed: {
+    ...mapGetters({
+      downloadFullRegistryProcess: 'downloadFullRegistryProcess',
+      downloadFullRegistryInProcess: 'downloadFullRegistryInProcess',
+    }),
+  },
 };
 </script>

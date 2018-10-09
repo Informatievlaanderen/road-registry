@@ -2,17 +2,14 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import api from 'services/wegenregisterApi';
-
 import alerts from './alerts';
 import success from './successes';
 
 import {
   SET_ALERT,
   CLEAR_ALERT,
-  LOADING_OFF,
-  LOADING_ON,
   DOWNLOAD_FULL_REGISTRY_STARTED,
-  DOWNLOAD_FULL_REGISTRY_STOPPED,
+  DOWNLOAD_FULL_REGISTRY_FINISHED,
   DOWNLOAD_FULL_REGISTRY_FAILED,
   UPDATE_DOWNLOAD_PROGRESS,
 } from './mutation-types';
@@ -48,23 +45,15 @@ function getFullRegistryDownload(state) {
 
 export default new Vuex.Store({
   state: {
-    isLoading: false,
     activeDownloads: [],
     alert: formatAlert({}),
   },
   getters: {
     alert: state => state.alert,
-    isLoading: state => state.isLoading,
     downloadFullRegistryProcess: state => (getFullRegistryDownload(state) || {}).Progress || 0,
     downloadFullRegistryInProcess: state => getFullRegistryDownload(state) !== null,
   },
   mutations: {
-    [LOADING_ON](state) {
-      state.isLoading = true;
-    },
-    [LOADING_OFF](state) {
-      state.isLoading = false;
-    },
     [CLEAR_ALERT](state) {
       state.alert = alerts.empty;
     },
@@ -81,12 +70,11 @@ export default new Vuex.Store({
         Name: DOWNLOADS.FULL_REGISTRY,
         Progress: 0,
       });
-      state.alert = formatAlert({
-        ...success.downloadRegistryStarted,
-        visible: true,
-      });
+      if (state.alert.title === success.downloadRegistryCompleted.title) {
+        state.alert = alerts.empty;
+      }
     },
-    [DOWNLOAD_FULL_REGISTRY_STOPPED](state) {
+    [DOWNLOAD_FULL_REGISTRY_FINISHED](state) {
       state.activeDownloads = state
         .activeDownloads
         .filter(download => download.Name !== DOWNLOADS.FULL_REGISTRY);
@@ -116,9 +104,6 @@ export default new Vuex.Store({
   },
   actions: {
     downloadRoadRegistery({ commit }) {
-      commit(LOADING_ON);
-      commit(DOWNLOAD_FULL_REGISTRY_STARTED);
-
       let lastUpdate = 0;
       const onDownloadProgress = ({ loaded }) => {
         const kb = Math.round(loaded / 1024);
@@ -131,15 +116,13 @@ export default new Vuex.Store({
         }
       };
 
+      commit(DOWNLOAD_FULL_REGISTRY_STARTED);
       api.downloadCompleteRegistry({ onDownloadProgress })
         .then(() => {
-          commit(DOWNLOAD_FULL_REGISTRY_STOPPED);
+          commit(DOWNLOAD_FULL_REGISTRY_FINISHED);
         })
         .catch((error) => {
           commit(DOWNLOAD_FULL_REGISTRY_FAILED, alerts.toAlert(error));
-        })
-        .finally(() => {
-          commit(LOADING_OFF);
         });
     },
   },
