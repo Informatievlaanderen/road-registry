@@ -2,8 +2,8 @@ import alertTypes from './alert-types';
 
 export default {
   downloadRegistryCompleted: {
-    title: 'Download wegenregister klaar',
-    content: 'Het wegenregister werd gedownload.',
+    title: 'Wegenregister gedownload',
+    content: 'De download van het volledige wegenregister is afgerond.',
     type: alertTypes.success,
   },
 };
