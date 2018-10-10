@@ -16,7 +16,7 @@ let pack = pack nugetVersionNumber
 
 Target "Clean" (fun _ ->
   CleanDir buildDir
-  CleanDir ("src" @@ "RoadRegistry.Api" @@ "wwwroot")
+  CleanDir ("src" @@ "RoadRegistry.UI" @@ "wwwroot")
 )
 
 // Core: shape-library, domain-library
@@ -55,6 +55,20 @@ Target "PushContainer_Projections" (fun _ -> push "projections-legacy")
 
 // Site (api + ui)
 Target "Build_Site" (fun _ ->
+  let uiProjectDirectory = "src" @@ "RoadRegistry.UI"
+  Npm (fun p ->
+    { p with
+        Command = Install Standard
+        WorkingDirectory = uiProjectDirectory
+    }
+  )
+  Npm (fun p ->
+    { p with
+        Command = (Run "build")
+        WorkingDirectory = uiProjectDirectory
+    }
+  )
+
   [
     "RoadRegistry.Api"
     "RoadRegistry.UI"
