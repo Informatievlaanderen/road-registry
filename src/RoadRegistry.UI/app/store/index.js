@@ -86,7 +86,7 @@ export default new Vuex.Store({
     [DOWNLOAD_FULL_REGISTRY_FAILED](state, alert) {
       state.activeDownloads = state
         .activeDownloads
-        .filter(download => download !== DOWNLOADS.FULL_REGISTRY);
+        .filter(download => download.Name !== DOWNLOADS.FULL_REGISTRY);
       state.alert = formatAlert({
         ...alert,
         visible: true,
