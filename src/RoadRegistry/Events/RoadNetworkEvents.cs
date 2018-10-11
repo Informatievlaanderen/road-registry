@@ -1,10 +1,12 @@
-﻿namespace RoadRegistry.Events
+namespace RoadRegistry.Events
 {
     using System;
 
     public static class RoadNetworkEvents
     {
         public static readonly Type[] All = {
+            typeof(ImportLegacyRegistryStarted),
+            typeof(ImportLegacyRegistryFinished),
             typeof(ImportedGradeSeparatedJunction),
             typeof(ImportedReferencePoint),
             typeof(ImportedRoadNode),

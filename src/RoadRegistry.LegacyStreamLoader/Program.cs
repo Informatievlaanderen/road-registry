@@ -60,8 +60,7 @@ namespace RoadRegistry.LegacyStreamLoader
         private static async Task ImportStreams(IConfiguration root, MsSqlStreamStore streamStore)
         {
             var eventSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-            var typeMapping =
-                new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+            var typeMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
             var reader = new LegacyStreamFileReader(
                 new JsonSerializerSettings
                 {
@@ -73,7 +72,8 @@ namespace RoadRegistry.LegacyStreamLoader
                 }
             );
 
-            var expectedVersions = new ConcurrentDictionary<string, int>();
+            var legacyImportStream = new StreamId("legacy-roadnetwork-import");
+            var expectedVersions = new ConcurrentDictionary<StreamId, int>();
             var innerWatch = Stopwatch.StartNew();
             var outerWatch = Stopwatch.StartNew();
 
@@ -81,42 +81,41 @@ namespace RoadRegistry.LegacyStreamLoader
             var getEventStream = GetLegacyEventStream(root);
             if (null != getEventStream)
             {
+                await appendEventStream(
+                    legacyImportStream,
+                    new[] { new ImportLegacyRegistryStarted { StartedAt = DateTime.UtcNow } },
+                    streamStore,
+                    eventSettings,
+                    typeMapping,
+                    expectedVersions,
+                    innerWatch
+                );
+
                 foreach (var batch in reader.Read(getEventStream).Batch(1000))
                 {
                     foreach (var stream in batch.GroupBy(item => item.Stream, item => item.Event))
                     {
-                        if (!expectedVersions.TryGetValue(stream.Key, out var expectedVersion))
-                        {
-                            expectedVersion = ExpectedVersion.NoStream;
-                        }
-
-                        innerWatch.Restart();
-
-                        var appendResult = await streamStore.AppendToStream(
+                        await appendEventStream(
                             new StreamId(stream.Key),
-                            expectedVersion,
-                            stream
-                                .Select(@event => new NewStreamMessage(
-                                    Deterministic.Create(Deterministic.Namespaces.Events,
-                                        $"{stream.Key}-{expectedVersion++}"),
-                                    typeMapping.GetEventName(@event.GetType()),
-                                    JsonConvert.SerializeObject(@event, eventSettings),
-                                    JsonConvert.SerializeObject(new Dictionary<string, string>
-                                    {
-                                        {"$version", "0"}
-                                    }, eventSettings)
-                                ))
-                                .ToArray()
+                            stream,
+                            streamStore,
+                            eventSettings,
+                            typeMapping,
+                            expectedVersions,
+                            innerWatch
                         );
-
-                        Console.WriteLine("Append took {0}ms for stream {1}@{2}",
-                            innerWatch.ElapsedMilliseconds,
-                            stream.Key,
-                            appendResult.CurrentVersion);
-
-                        expectedVersions[stream.Key] = appendResult.CurrentVersion;
                     }
                 }
+
+                await appendEventStream(
+                    legacyImportStream,
+                    new[] { new ImportLegacyRegistryFinished { FinishedAt = DateTime.UtcNow } },
+                    streamStore,
+                    eventSettings,
+                    typeMapping,
+                    expectedVersions,
+                    innerWatch
+                );
 
                 Console.WriteLine("Total append took {0}ms", outerWatch.ElapsedMilliseconds);
             }
@@ -124,6 +123,44 @@ namespace RoadRegistry.LegacyStreamLoader
             {
                 Console.WriteLine("No event stream found");
             }
+        }
+
+        private static async Task appendEventStream(
+            StreamId streamId,
+            IEnumerable<object> stream,
+            MsSqlStreamStore streamStore,
+            JsonSerializerSettings eventSettings,
+            EventMapping typeMapping,
+            ConcurrentDictionary<StreamId, int> expectedVersions,
+            Stopwatch watch
+        )
+        {
+            if (!expectedVersions.TryGetValue(streamId, out var expectedVersion))
+            {
+                expectedVersion = ExpectedVersion.NoStream;
+            }
+
+            watch.Restart();
+
+            var appendResult = await streamStore.AppendToStream(
+                streamId,
+                expectedVersion,
+                stream
+                    .Select(@event => new NewStreamMessage(
+                        Deterministic.Create(Deterministic.Namespaces.Events,$"{streamId}-{expectedVersion++}"),
+                        typeMapping.GetEventName(@event.GetType()),
+                        JsonConvert.SerializeObject(@event, eventSettings),
+                        JsonConvert.SerializeObject(new Dictionary<string, string>{ {"$version", "0"} }, eventSettings)
+                    ))
+                    .ToArray()
+            );
+
+            Console.WriteLine("Append took {0}ms for stream {1}@{2}",
+                watch.ElapsedMilliseconds,
+                streamId,
+                appendResult.CurrentVersion);
+
+            expectedVersions[streamId] = appendResult.CurrentVersion;
         }
 
         private static Func<Stream> GetLegacyEventStream(IConfiguration root)
