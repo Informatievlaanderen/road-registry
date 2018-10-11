@@ -27,6 +27,9 @@ namespace RoadRegistry.LegacyStreamLoader
         const string LEGACY_STREAM_FILE_BUCKET = "LegacyStreamFileBucket";
         const string LEGACY_STREAM_FILE_DIRECTORY = "LegacyStreamDirectory";
 
+        private static readonly StreamId _legacyImportStream = new StreamId("legacy-roadnetwork-import");
+
+
         private static async Task Main(string[] args)
         {
             var configurationBuilder = new ConfigurationBuilder()
@@ -53,7 +56,12 @@ namespace RoadRegistry.LegacyStreamLoader
             }))
             {
                 await streamStore.CreateSchema();
-                await ImportStreams(root, streamStore);
+
+                var legacyImportStreamMetaData = await streamStore.GetStreamMetadata(_legacyImportStream);
+                if (legacyImportStreamMetaData.MetadataStreamVersion == ExpectedVersion.NoStream)
+                    await ImportStreams(root, streamStore);
+                else
+                    Console.WriteLine("Legacy streams already imported. Aborted import");
             }
         }
 
@@ -72,17 +80,15 @@ namespace RoadRegistry.LegacyStreamLoader
                 }
             );
 
-            var legacyImportStream = new StreamId("legacy-roadnetwork-import");
             var expectedVersions = new ConcurrentDictionary<StreamId, int>();
             var innerWatch = Stopwatch.StartNew();
             var outerWatch = Stopwatch.StartNew();
-
 
             var getEventStream = GetLegacyEventStream(root);
             if (null != getEventStream)
             {
                 await appendEventStream(
-                    legacyImportStream,
+                    _legacyImportStream,
                     new[] { new ImportLegacyRegistryStarted { StartedAt = DateTime.UtcNow } },
                     streamStore,
                     eventSettings,
@@ -108,7 +114,7 @@ namespace RoadRegistry.LegacyStreamLoader
                 }
 
                 await appendEventStream(
-                    legacyImportStream,
+                    _legacyImportStream,
                     new[] { new ImportLegacyRegistryFinished { FinishedAt = DateTime.UtcNow } },
                     streamStore,
                     eventSettings,
