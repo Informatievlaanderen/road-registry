@@ -85,6 +85,24 @@ namespace RoadRegistry.LegacyStreamLoader
                                         Event = serializer.Deserialize<ImportedRoadSegment>(reader)
                                     };
                                     break;
+
+                                case nameof(ImportLegacyRegistryStarted):
+                                    reader.Read(); // StartObject (move to content for deserializer to work)
+                                    yield return new StreamEvent
+                                    {
+                                        Stream = stream,
+                                        Event = serializer.Deserialize<ImportLegacyRegistryStarted>(reader)
+                                    };
+                                    break;
+
+                                case nameof(ImportLegacyRegistryFinished):
+                                    reader.Read(); // StartObject (move to content for deserializer to work)
+                                    yield return new StreamEvent
+                                    {
+                                        Stream = stream,
+                                        Event = serializer.Deserialize<ImportLegacyRegistryFinished>(reader)
+                                    };
+                                    break;
                             }
 
                             reader.Read(); //EndObject
