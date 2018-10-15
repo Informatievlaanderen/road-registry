@@ -40,7 +40,16 @@ namespace RoadRegistry.LegacyStreamExtraction
                 using (var entryStream = entry.Open())
                 using (var writer = new JsonTextWriter(new StreamWriter(entryStream)))
                 {
+                    const string roadNetworkStreamName = "roadnetwork";
+
                     await writer.WriteStartArrayAsync(); // begin all streams
+
+                    await WriteStream(
+                        writer,
+                        serializer,
+                        roadNetworkStreamName,
+                        new[] { new ImportLegacyRegistryStarted() }
+                    );
 
                     foreach (var organization in organizations)
                     {
@@ -55,7 +64,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                     await WriteStream(
                         writer,
                         serializer,
-                        "roadnetwork",
+                        roadNetworkStreamName,
                         async (wr, ser) =>
                         {
                             await WriteEvents(wr, ser, nodes);
@@ -63,6 +72,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             await WriteEvents(wr, ser, junctions);
                             await WriteEvents(wr, ser, points);
                             await WriteEvents(wr, ser, nodes);
+                            await WriteEvents(wr, ser, new[] { new ImportLegacyRegistryFinished() });
                         }
                     );
 

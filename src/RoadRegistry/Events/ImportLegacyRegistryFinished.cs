@@ -6,7 +6,5 @@ namespace RoadRegistry.Events
     [EventName("ImportLegacyRegistryFinished")]
     [EventDescription("Indicates the import of the legacy registry was finished.")]
     public class ImportLegacyRegistryFinished
-    {
-        public DateTime FinishedAt { get; set; }
-    }
+    {}
 }

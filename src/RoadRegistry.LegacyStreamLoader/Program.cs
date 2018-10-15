@@ -27,9 +27,6 @@ namespace RoadRegistry.LegacyStreamLoader
         const string LEGACY_STREAM_FILE_BUCKET = "LegacyStreamFileBucket";
         const string LEGACY_STREAM_FILE_DIRECTORY = "LegacyStreamDirectory";
 
-        private static readonly StreamId _legacyImportStream = new StreamId("legacy-roadnetwork-import");
-
-
         private static async Task Main(string[] args)
         {
             var configurationBuilder = new ConfigurationBuilder()
@@ -57,11 +54,11 @@ namespace RoadRegistry.LegacyStreamLoader
             {
                 await streamStore.CreateSchema();
 
-                var legacyImportStreamMetaData = await streamStore.GetStreamMetadata(_legacyImportStream);
+                var legacyImportStreamMetaData = await streamStore.GetStreamMetadata("roadnetwork");
                 if (legacyImportStreamMetaData.MetadataStreamVersion == ExpectedVersion.NoStream)
                     await ImportStreams(root, streamStore);
                 else
-                    Console.WriteLine("Legacy streams already imported. Aborted import");
+                    Console.WriteLine("Cannot import in an existing RoadNetwork. Aborted import");
             }
         }
 
@@ -87,16 +84,6 @@ namespace RoadRegistry.LegacyStreamLoader
             var getEventStream = GetLegacyEventStream(root);
             if (null != getEventStream)
             {
-                await appendEventStream(
-                    _legacyImportStream,
-                    new[] { new ImportLegacyRegistryStarted { StartedAt = DateTime.UtcNow } },
-                    streamStore,
-                    eventSettings,
-                    typeMapping,
-                    expectedVersions,
-                    innerWatch
-                );
-
                 foreach (var batch in reader.Read(getEventStream).Batch(1000))
                 {
                     foreach (var stream in batch.GroupBy(item => item.Stream, item => item.Event))
@@ -112,17 +99,6 @@ namespace RoadRegistry.LegacyStreamLoader
                         );
                     }
                 }
-
-                await appendEventStream(
-                    _legacyImportStream,
-                    new[] { new ImportLegacyRegistryFinished { FinishedAt = DateTime.UtcNow } },
-                    streamStore,
-                    eventSettings,
-                    typeMapping,
-                    expectedVersions,
-                    innerWatch
-                );
-
                 Console.WriteLine("Total append took {0}ms", outerWatch.ElapsedMilliseconds);
             }
             else
