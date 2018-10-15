@@ -44,69 +44,27 @@ namespace RoadRegistry.LegacyStreamExtraction
 
                     foreach (var organization in organizations)
                     {
-                        await writer.WriteStartObjectAsync(); // begin stream
-
-                        await writer.WritePropertyNameAsync("Stream");
-                        await writer.WriteValueAsync("organization-" + organization.Code.ToLowerInvariant());
-
-                        await writer.WritePropertyNameAsync("Events");
-
-                        await writer.WriteStartArrayAsync(); // begin events
-
-                        await writer.WriteStartObjectAsync(); // begin event
-                        await writer.WritePropertyNameAsync(nameof(ImportedOrganization));
-                        serializer.Serialize(writer, organization);
-                        await writer.WriteEndObjectAsync(); // end event
-
-                        await writer.WriteEndArrayAsync(); // end events
-
-                        await writer.WriteEndObjectAsync(); // end stream
+                        await WriteStream(
+                            writer,
+                            serializer,
+                            "organization-" + organization.Code.ToLowerInvariant(),
+                            new[] { organization }
+                        );
                     }
 
-                    await writer.WriteStartObjectAsync(); // begin stream
-
-                    await writer.WritePropertyNameAsync("Stream");
-                    await writer.WriteValueAsync("roadnetwork");
-
-                    await writer.WritePropertyNameAsync("Events");
-
-                    await writer.WriteStartArrayAsync(); // begin events
-
-                    foreach (var node in nodes)
-                    {
-                        await writer.WriteStartObjectAsync();
-                        await writer.WritePropertyNameAsync(nameof(ImportedRoadNode));
-                        serializer.Serialize(writer, node);
-                        await writer.WriteEndObjectAsync();
-                    }
-
-                    foreach (var segment in segments)
-                    {
-                        await writer.WriteStartObjectAsync();
-                        await writer.WritePropertyNameAsync(nameof(ImportedRoadSegment));
-                        serializer.Serialize(writer, segment);
-                        await writer.WriteEndObjectAsync();
-                    }
-
-                    foreach (var junction in junctions)
-                    {
-                        await writer.WriteStartObjectAsync();
-                        await writer.WritePropertyNameAsync(nameof(ImportedGradeSeparatedJunction));
-                        serializer.Serialize(writer, junction);
-                        await writer.WriteEndObjectAsync();
-                    }
-
-                    foreach (var point in points)
-                    {
-                        await writer.WriteStartObjectAsync();
-                        await writer.WritePropertyNameAsync(nameof(ImportedReferencePoint));
-                        serializer.Serialize(writer, point);
-                        await writer.WriteEndObjectAsync();
-                    }
-
-                    await writer.WriteEndArrayAsync(); // end events
-
-                    await writer.WriteEndObjectAsync(); // end stream
+                    await WriteStream(
+                        writer,
+                        serializer,
+                        "roadnetwork",
+                        async (wr, ser) =>
+                        {
+                            await WriteEvents(wr, ser, nodes);
+                            await WriteEvents(wr, ser, segments);
+                            await WriteEvents(wr, ser, junctions);
+                            await WriteEvents(wr, ser, points);
+                            await WriteEvents(wr, ser, nodes);
+                        }
+                    );
 
                     await writer.WriteEndArrayAsync(); //end all streams
 
@@ -116,6 +74,56 @@ namespace RoadRegistry.LegacyStreamExtraction
                 }
 
                 await fileStream.FlushAsync();
+            }
+        }
+
+        private static async Task WriteStream<TEvent>(
+            JsonTextWriter writer,
+            JsonSerializer serializer,
+            string stream,
+            IEnumerable<TEvent> events
+        )
+        {
+            await WriteStream(
+                writer,
+                serializer,
+                stream,
+                async (wr, ser) => { await WriteEvents(wr, ser, events); }
+            );
+        }
+
+        private static async Task WriteStream(
+            JsonTextWriter writer,
+            JsonSerializer serializer,
+            string stream,
+            Func<JsonTextWriter, JsonSerializer, Task> writeEvents
+        )
+        {
+            await writer.WriteStartObjectAsync(); // begin stream
+
+            await writer.WritePropertyNameAsync("Stream");
+            await writer.WriteValueAsync(stream);
+            await writer.WritePropertyNameAsync("Events");
+            await writer.WriteStartArrayAsync(); // begin events
+
+            await writeEvents(writer, serializer);
+
+            await writer.WriteEndArrayAsync(); // end events
+            await writer.WriteEndObjectAsync(); // end stream
+        }
+
+        private static async Task WriteEvents<TEvent>(
+            JsonTextWriter writer,
+            JsonSerializer serializer,
+            IEnumerable<TEvent> events
+        )
+        {
+            foreach(var @event in events)
+            {
+                await writer.WriteStartObjectAsync(); // begin event
+                await writer.WritePropertyNameAsync(typeof(TEvent).Name);
+                serializer.Serialize(writer, @event);
+                await writer.WriteEndObjectAsync(); // end event
             }
         }
     }
