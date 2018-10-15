@@ -43,6 +43,9 @@ namespace RoadRegistry.Api.Extracts
         {
             using (var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
             {
+                if ((await context.RoadRegistryImportStates.SingleOrDefaultAsync(cancellationToken))?.ImportComplete ?? false)
+                    return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
                 var fileBuilder = new RoadRegistryExtractsBuilder();
                 var zip = new RoadRegistryExtractArchive("wegenregister")
                 {
