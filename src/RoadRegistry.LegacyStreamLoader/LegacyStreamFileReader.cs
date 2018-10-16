@@ -86,21 +86,21 @@ namespace RoadRegistry.LegacyStreamLoader
                                     };
                                     break;
 
-                                case nameof(ImportLegacyRegistryStarted):
+                                case nameof(BeganRoadNetworkImport):
                                     reader.Read(); // StartObject (move to content for deserializer to work)
                                     yield return new StreamEvent
                                     {
                                         Stream = stream,
-                                        Event = serializer.Deserialize<ImportLegacyRegistryStarted>(reader)
+                                        Event = serializer.Deserialize<BeganRoadNetworkImport>(reader)
                                     };
                                     break;
 
-                                case nameof(ImportLegacyRegistryFinished):
+                                case nameof(CompletedRoadNetworkImport):
                                     reader.Read(); // StartObject (move to content for deserializer to work)
                                     yield return new StreamEvent
                                     {
                                         Stream = stream,
-                                        Event = serializer.Deserialize<ImportLegacyRegistryFinished>(reader)
+                                        Event = serializer.Deserialize<CompletedRoadNetworkImport>(reader)
                                     };
                                     break;
                             }

@@ -6,6 +6,6 @@ namespace RoadRegistry.Projections
         public byte[] ShapeRecordContent { get; set; }
         public int ShapeRecordContentLength { get; set; }
         public byte[] DbaseRecord { get; set; }
-        public EnvelopePartialRecord Envelope { get; set; }
+        public BoundingBox2D Envelope { get; set; }
     }
 }

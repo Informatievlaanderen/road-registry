@@ -5,7 +5,7 @@ namespace RoadRegistry.Projections
 
     public class ReferencePointTypeDbaseRecord : DbaseRecord
     {
-        private static readonly ReferencePointTypeDbaseSchema Schema = new ReferencePointTypeDbaseSchema();
+        public static readonly ReferencePointTypeDbaseSchema Schema = new ReferencePointTypeDbaseSchema();
         private static readonly ReferencePointTypeTranslator Translator = new ReferencePointTypeTranslator();
 
         public ReferencePointTypeDbaseRecord(ReferencePointType type)

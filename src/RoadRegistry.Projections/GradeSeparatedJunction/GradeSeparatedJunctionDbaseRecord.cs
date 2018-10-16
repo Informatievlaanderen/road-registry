@@ -4,7 +4,7 @@ namespace RoadRegistry.Projections
 
     public class GradeSeparatedJunctionDbaseRecord : DbaseRecord
     {
-        private static readonly GradeSeparatedJunctionDbaseSchema Schema = new GradeSeparatedJunctionDbaseSchema();
+        public static readonly GradeSeparatedJunctionDbaseSchema Schema = new GradeSeparatedJunctionDbaseSchema();
 
         public GradeSeparatedJunctionDbaseRecord()
         {

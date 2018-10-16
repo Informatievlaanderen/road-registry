@@ -43,7 +43,7 @@ namespace RoadRegistry.Api.Extracts
         {
             using (var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
             {
-                if ((await context.RoadRegistryImportStates.SingleOrDefaultAsync(cancellationToken))?.ImportComplete ?? false)
+                if ((await context.RoadNetworkInfo.SingleOrDefaultAsync(cancellationToken))?.CompletedImport ?? false)
                     return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
                 var fileBuilder = new RoadRegistryExtractsBuilder();

@@ -39,7 +39,7 @@ namespace RoadRegistry.Projections
                     Id = @event.Id,
                     ShapeRecordContent = pointShapeContent.ToBytes(),
                     ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                    Envelope = EnvelopePartialRecord.From(pointShapeContent.Shape.EnvelopeInternal),
+                    Envelope = BoundingBox2D.From(pointShapeContent.Shape.EnvelopeInternal),
                     DbaseRecord = new RoadReferencePointDbaseRecord
                     {
                         RP_OIDN = { Value = @event.Id },

@@ -52,7 +52,8 @@ namespace RoadRegistry.Projections
                 new GradeSeparatedJunctionRecordProjection(
                     new GradeSeparatedJunctionTypeTranslator(),
                     Encoding.GetEncoding(1252)
-                ))
+                ),
+                new RoadNetworkInfoProjection(reader))
             { }
     }
 }
