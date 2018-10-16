@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests
+﻿namespace RoadRegistry.Projections.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -7,13 +7,13 @@ namespace RoadRegistry.Projections.Tests
     using Aiv.Vbr.Shaperon;
     using Xunit;
 
-    public class TypeReferenceTests
+    public class ReferenceDataTests
     {
         [Fact]
         public void All_road_node_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.RoadNodeTypes,
+                ReferenceData.RoadNodeTypes,
                 new[]
                 {
                     new RoadNodeTypeDbaseRecord(RoadNodeType.RealNode),
@@ -28,7 +28,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_road_segment_access_restriction_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.RoadSegmentAccessRestrictions,
+                ReferenceData.RoadSegmentAccessRestrictions,
                 new[]
                 {
                     new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.PublicRoad),
@@ -44,7 +44,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_road_segment_geometry_draw_method_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.RoadSegmentGeometryDrawMethods,
+                ReferenceData.RoadSegmentGeometryDrawMethods,
                 new[]
                 {
                     new RoadSegmentGeometryDrawMethodDbaseRecord(RoadSegmentGeometryDrawMethod.Outlined),
@@ -57,7 +57,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_road_segment_status_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.RoadSegmentStatuses,
+                ReferenceData.RoadSegmentStatuses,
                 new[]
                 {
                     new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.Unknown),
@@ -73,7 +73,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_road_segment_morphology_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.RoadSegmentMorphologies,
+                ReferenceData.RoadSegmentMorphologies,
                 new[]
                 {
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Unknown),
@@ -102,7 +102,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_road_segment_category_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.RoadSegmentCategories,
+                ReferenceData.RoadSegmentCategories,
                 new[]
                 {
                     new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.Unknown),
@@ -130,7 +130,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_hardening_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.HardeningTypes,
+                ReferenceData.HardeningTypes,
                 new[]
                 {
                     new HardeningTypeDbaseRecord(HardeningType.NotApplicable),
@@ -144,7 +144,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_lane_direction_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.LaneDirections,
+                ReferenceData.LaneDirections,
                 new[]
                 {
                     new LaneDirectionDbaseRecord(LaneDirection.Unknown),
@@ -158,7 +158,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_numbered_road_segement_direction_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.NumberedRoadSegmentDirections,
+                ReferenceData.NumberedRoadSegmentDirections,
                 new[]
                 {
                     new NumberedRoadSegmentDirectionDbaseRecord(NumberedRoadSegmentDirection.Unknown),
@@ -171,7 +171,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_reference_point_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.ReferencePointTypes,
+                ReferenceData.ReferencePointTypes,
                 new[]
                 {
                     new ReferencePointTypeDbaseRecord(ReferencePointType.Unknown),
@@ -184,7 +184,7 @@ namespace RoadRegistry.Projections.Tests
         public void All_grade_separated_junction_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                TypeReferences.GradeSeparatedJunctionTypes,
+                ReferenceData.GradeSeparatedJunctionTypes,
                 new[]
                 {
                     new GradeSeparatedJunctionTypeDbaseRecord(GradeSeparatedJunctionType.Unknown),
@@ -193,22 +193,21 @@ namespace RoadRegistry.Projections.Tests
                 });
         }
 
-        private void AssertDbaseRecordCollectionsContainSameElements<TDbaseRecord>(IReadOnlyCollection<TDbaseRecord> actualRecords, TDbaseRecord[] expectedRecords)
-            where TDbaseRecord : DbaseRecord
+        private void AssertDbaseRecordCollectionsContainSameElements(IReadOnlyCollection<DbaseRecord> actualRecords, DbaseRecord[] expectedRecords)
         {
             Assert.Equal(expectedRecords.Length, actualRecords.Count);
+            var comparer = new DbaseRecordComparer();
             var records = actualRecords.ToArray();
             for (var i = 0; i < expectedRecords.Length; i++)
             {
-                Assert.Equal(expectedRecords[i], records[i], new DbaseRecordComparer<TDbaseRecord>());
+                Assert.Equal(expectedRecords[i], records[i], comparer);
             }
         }
     }
 
-    internal class DbaseRecordComparer<TDbaseRecord> : IEqualityComparer<TDbaseRecord>
-        where TDbaseRecord :DbaseRecord
+    internal class DbaseRecordComparer : IEqualityComparer<DbaseRecord>
     {
-        public bool Equals(TDbaseRecord x, TDbaseRecord y)
+        public bool Equals(DbaseRecord x, DbaseRecord y)
         {
             if (null == x && null == y)
                 return true;
@@ -262,12 +261,12 @@ namespace RoadRegistry.Projections.Tests
             throw new NotImplementedException($"No equality impelemented for {x.GetType().FullName}");
         }
 
-        public int GetHashCode(TDbaseRecord obj)
+        public int GetHashCode(DbaseRecord obj)
         {
             unchecked
             {
                 return
-                    typeof(TDbaseRecord).Name.GetHashCode()
+                    obj.GetType().Name.GetHashCode()
                     ^ (obj?.IsDeleted.GetHashCode() ?? 0 * 397)
                     ^ GetValuesHash(obj?.Values);
             }

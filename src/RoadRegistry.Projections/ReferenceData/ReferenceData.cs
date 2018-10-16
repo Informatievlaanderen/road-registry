@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections
+﻿namespace RoadRegistry.Projections
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +7,7 @@ namespace RoadRegistry.Projections
     using Events;
     using Aiv.Vbr.Shaperon;
 
-    public class TypeReferences
+    public class ReferenceData
     {
         public static IReadOnlyCollection<RoadNodeTypeDbaseRecord> RoadNodeTypes => CreateDbaseRecords<RoadNodeTypeDbaseRecord, RoadNodeType>();
         public static IReadOnlyCollection<RoadSegmentAccessRestrictionDbaseRecord> RoadSegmentAccessRestrictions => CreateDbaseRecords<RoadSegmentAccessRestrictionDbaseRecord, RoadSegmentAccessRestriction>();
