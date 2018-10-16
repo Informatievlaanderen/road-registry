@@ -7,6 +7,8 @@ namespace RoadRegistry.Model
     using Aiv.Vbr.Shaperon;
     using Testing;
     using Xunit;
+    using FluentValidation;
+    using FluentValidation.Results;
 
     public class RoadNodeScenarios : RoadRegistryFixture
     {
@@ -139,7 +141,11 @@ namespace RoadRegistry.Model
                         }
                     }
                 ))
-                .Throws(new RoadNodeGeometryMismatchException(new RoadNodeId(1))));
+                .Throws(new ValidationException(
+                    new []
+                    {
+                        new ValidationFailure("Changes[0].AddRoadNode.Geometry", "The 'Geometry' is not a PointM.")
+                    })));
         }
 
         [Fact]

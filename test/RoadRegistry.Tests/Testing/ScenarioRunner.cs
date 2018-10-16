@@ -78,7 +78,8 @@
                     "StackTrace",
                     "Source",
                     "TargetSite"
-                }
+                },
+                IgnoreObjectTypes = true
             };
             var comparer = new CompareLogic(config);
             var result = comparer.Compare(scenario.Throws, exception);

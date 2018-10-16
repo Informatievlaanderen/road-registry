@@ -16,7 +16,7 @@ namespace RoadRegistry.Model
             var translator = new ChangeRoadNetworkTranslator(reader);
 
             For<ChangeRoadNetwork>()
-                .UseValidator(new ChangeRoadNetworkValidator())
+                .UseValidator(new ChangeRoadNetworkValidator(reader))
                 .UseRoadRegistryContext(store)
                 .Handle(async (context, message, ct) =>
                 {
@@ -25,19 +25,19 @@ namespace RoadRegistry.Model
                         message.Body.Changes,
                         item =>
                         {
-                            IRoadNetworkChange result;
+                            IRoadNetworkChange change;
                             switch (item.PickChange())
                             {
-                                case Commands.AddRoadNode change:
-                                    result = translator.Translate(change);
+                                case Commands.AddRoadNode command:
+                                    change = translator.Translate(command);
                                     break;
-                                case Commands.AddRoadSegment change:
-                                    result = translator.Translate(change);
+                                case Commands.AddRoadSegment command:
+                                    change = translator.Translate(command);
                                     break;
                                 default:
                                     throw new InvalidOperationException("...");
                             }
-                            return result;
+                            return change;
                         });
                     network.Change(changes);
                 });

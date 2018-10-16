@@ -4,7 +4,7 @@ namespace RoadRegistry.Model
     using Aiv.Vbr.Shaperon;
     using NetTopologySuite.Geometries;
 
-    public class ChangeRoadNetworkTranslator
+    internal class ChangeRoadNetworkTranslator
     {
         public ChangeRoadNetworkTranslator(WellKnownBinaryReader reader)
         {

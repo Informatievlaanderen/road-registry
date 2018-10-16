@@ -6,11 +6,11 @@ namespace RoadRegistry.Model
 
     public static class TheOperator
     {
-        public static Message ChangesTheRoadNetwork(Commands.RoadNetworkChange[] changeset)
+        public static Message ChangesTheRoadNetwork(Commands.RoadNetworkChange[] changes)
         {
             return new Message(new Dictionary<string, object>(), new ChangeRoadNetwork
             {
-                Changes = changeset
+                Changes = changes
             });
         }
     }
