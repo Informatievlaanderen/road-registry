@@ -92,7 +92,7 @@ namespace RoadRegistry.Projections.Tests
                     Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
-                .Expect(data.Select(d => d.expected).ToArray());
+                .Expect(data.Select(d => d.expected));
         }
     }
 }

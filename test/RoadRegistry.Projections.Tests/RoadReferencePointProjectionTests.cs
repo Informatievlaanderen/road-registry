@@ -67,7 +67,7 @@ namespace RoadRegistry.Projections.Tests
                     Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.ImportedReferencePoint))
-                .Expect(data.Select(d => d.Expected).ToArray());
+                .Expect(data.Select(d => d.Expected));
         }
     }
 }
