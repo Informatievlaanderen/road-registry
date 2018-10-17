@@ -1,12 +1,11 @@
-namespace RoadRegistry.Projections.Tests.Infrastructure
+namespace RoadRegistry.Projections
 {
-    using System.Collections.Generic;
     using System.Text;
     using KellermanSoftware.CompareNetObjects;
 
     public static class ComparisonResultExtensions
     {
-        public static string CreateDifferenceMessage(this ComparisonResult result, IEnumerable<object> actual, IEnumerable<object> expected)
+        public static string CreateDifferenceMessage(this ComparisonResult result, object[] actual, object[] expected)
         {
             var message = new StringBuilder();
             message

@@ -6,6 +6,7 @@ namespace RoadRegistry.Structurizr
     using System.Linq;
     using System.Reflection;
     using Aiv.Vbr.EventHandling;
+    using Events;
     using Microsoft.Extensions.Configuration;
     using global::Structurizr;
     using global::Structurizr.Api;
@@ -63,6 +64,7 @@ namespace RoadRegistry.Structurizr
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
                 .Build();
 
             _workspaceId = long.Parse(configuration["Structurizr:WorkspaceId"]);
@@ -311,12 +313,7 @@ namespace RoadRegistry.Structurizr
 
         private static IEnumerable<EventInfo> FindAllEvents()
         {
-            var events = typeof(DomainAssemblyMarker)
-                .GetTypeInfo()
-                .Assembly
-                .GetExportedTypes()
-                .Where(x => x.AssemblyQualifiedName.Contains("RoadRegistry.Road.Events"))
-                .ToList();
+            var events = RoadNetworkEvents.All;
 
             return events.Select(x => new EventInfo
             {
@@ -334,14 +331,14 @@ namespace RoadRegistry.Structurizr
                 .GetTypeInfo()
                 .Assembly
                 .GetExportedTypes()
-                .Where(x => x.AssemblyQualifiedName.Contains("RoadRegistry.Road.Commands"))
+                .Where(x => x.AssemblyQualifiedName.Contains("RoadRegistry.Commands"))
                 .ToList();
 
             return events.Select(x => new EventInfo
             {
                 Name = x.Name,
                 //Description = x.GetCustomAttribute<EventDescriptionAttribute>().Value,
-                Description = x.FullName.Replace("RoadRegistry.Road.Commands.", string.Empty),
+                Description = x.FullName.Replace("RoadRegistry.Commands.", string.Empty),
                 Type = x,
                 Properties = x.GetProperties().Select(y => y.Name).ToList()
             });

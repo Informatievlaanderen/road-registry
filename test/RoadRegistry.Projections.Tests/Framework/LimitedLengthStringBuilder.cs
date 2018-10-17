@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Tests.Infrastructure
+namespace RoadRegistry.Projections
 {
     using System;
     using System.Linq.Expressions;

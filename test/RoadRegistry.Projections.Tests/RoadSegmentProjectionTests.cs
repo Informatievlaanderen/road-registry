@@ -5,7 +5,6 @@ namespace RoadRegistry.Projections.Tests
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
-    using Infrastructure;
     using Aiv.Vbr.Shaperon;
     using Xunit;
     using NetTopologySuite.Geometries;

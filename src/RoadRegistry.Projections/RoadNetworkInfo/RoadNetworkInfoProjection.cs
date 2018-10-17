@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Projections
 {
     using System;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
@@ -20,30 +21,33 @@
                 throw new ArgumentNullException(nameof(reader));
             }
 
-            When<Envelope<BeganRoadNetworkImport>>((context, envelope, token) => 
+            When<Envelope<BeganRoadNetworkImport>>((context, envelope, token) =>
                 context.AddAsync(new RoadNetworkInfo(), token)
             );
-            When<Envelope<CompletedRoadNetworkImport>>(async (context, envelope, token) => 
+            When<Envelope<CompletedRoadNetworkImport>>(async (context, envelope, token) =>
             {
-                var info = await context.RoadNetworkInfo.SingleAsync(token);
+                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
+                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
                 info.CompletedImport = true;
             });
-            When<Envelope<ImportedRoadNode>>(async (context, envelope, token) => 
+            When<Envelope<ImportedRoadNode>>(async (context, envelope, token) =>
             {
-                var info = await context.RoadNetworkInfo.SingleAsync(token);
+                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
+                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
                 info.RoadNodeCount += 1;
-                info.TotalRoadNodeShapeLength += 
+                info.TotalRoadNodeShapeLength +=
                     new PointShapeContent(
                         reader.ReadAs<PointM>(envelope.Message.Geometry)
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32();
             });
-            When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) => 
+            When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
-                var info = await context.RoadNetworkInfo.SingleAsync(token);
+                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
+                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
                 info.RoadSegmentCount += 1;
-                info.TotalRoadSegmentShapeLength += 
+                info.TotalRoadSegmentShapeLength +=
                     new PolyLineMShapeContent(
                         reader.TryReadAs(envelope.Message.Geometry, out LineString line)
                         ? new MultiLineString(new ILineString[] { line })
@@ -58,25 +62,28 @@
                 info.RoadSegmentNationalRoadAttributeCount += envelope.Message.PartOfNationalRoads.Length;
                 info.RoadSegmentNumberedRoadAttributeCount += envelope.Message.PartOfNumberedRoads.Length;
             });
-            When<Envelope<ImportedReferencePoint>>(async (context, envelope, token) => 
+            When<Envelope<ImportedReferencePoint>>(async (context, envelope, token) =>
             {
-                var info = await context.RoadNetworkInfo.SingleAsync(token);
+                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
+                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
                 info.ReferencePointCount += 1;
-                info.TotalReferencePointShapeLength =
+                info.TotalReferencePointShapeLength +=
                     new PointShapeContent(
                         reader.ReadAs<PointM>(envelope.Message.Geometry)
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32();
             });
-            When<Envelope<ImportedGradeSeparatedJunction>>(async (context, envelope, token) => 
+            When<Envelope<ImportedGradeSeparatedJunction>>(async (context, envelope, token) =>
             {
-                var info = await context.RoadNetworkInfo.SingleAsync(token);
+                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
+                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
                 info.GradeSeparatedJunctionCount += 1;
             });
-            When<Envelope<ImportedOrganization>>(async (context, envelope, token) => 
+            When<Envelope<ImportedOrganization>>(async (context, envelope, token) =>
             {
-                var info = await context.RoadNetworkInfo.SingleAsync(token);
+                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
+                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
                 info.OrganizationCount += 1;
             });
         }

@@ -14,7 +14,7 @@
                 .HasIndex(p => p.Id)
                 .ForSqlServerIsClustered(false);
 
-            b.Property(p => p.Id).ValueGeneratedOnAdd();
+            b.Property(p => p.Id).ValueGeneratedNever().HasDefaultValue(0);
             b.Property(p => p.CompletedImport).HasDefaultValue(false);
             b.Property(p => p.OrganizationCount).HasDefaultValue(0);
             b.Property(p => p.RoadNodeCount).HasDefaultValue(0);
