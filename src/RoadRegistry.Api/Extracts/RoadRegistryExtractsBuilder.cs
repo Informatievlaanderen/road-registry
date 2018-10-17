@@ -31,16 +31,21 @@ namespace RoadRegistry.Api.Extracts
                 context.RoadSegments.Count
             );
 
-            var boundingBox = new BoundingBox3D(
-                context.RoadSegments.Min(record => record.Envelope.MinimumX),
-                context.RoadSegments.Min(record => record.Envelope.MinimumY),
-                context.RoadSegments.Max(record => record.Envelope.MaximumX),
-                context.RoadSegments.Max(record => record.Envelope.MaximumY),
-                0,
-                0,
-                double.NegativeInfinity,
-                double.PositiveInfinity
-            );
+            var boundingBox =
+                (
+                    from record in context.RoadSegments
+                    group record by true
+                    into all_records
+                    select new BoundingBox2D
+                    {
+                        MinimumX = all_records.Min(record => record.Envelope.MinimumX),
+                        MaximumX = all_records.Max(record => record.Envelope.MaximumX),
+                        MinimumY = all_records.Min(record => record.Envelope.MinimumY),
+                        MaximumY = all_records.Max(record => record.Envelope.MaximumY)
+                    }
+                )
+                .Single()
+                .ToBoundingBox3D(double.NegativeInfinity, double.PositiveInfinity);
 
             yield return CreateShapeFile<PolyLineMShapeContent>(
                 fileName,
@@ -85,16 +90,21 @@ namespace RoadRegistry.Api.Extracts
                 context.RoadNodes.Count
             );
 
-            var boundingBox = new BoundingBox3D(
-                context.RoadNodes.Min(record => record.Envelope.MinimumX),
-                context.RoadNodes.Min(record => record.Envelope.MinimumY),
-                context.RoadNodes.Max(record => record.Envelope.MaximumX),
-                context.RoadNodes.Max(record => record.Envelope.MaximumY),
-                0,
-                0,
-                0,
-                0
-            );
+            var boundingBox =
+                (
+                    from record in context.RoadNodes
+                    group record by true
+                    into all_records
+                    select new BoundingBox2D
+                    {
+                        MinimumX = all_records.Min(record => record.Envelope.MinimumX),
+                        MaximumX = all_records.Max(record => record.Envelope.MaximumX),
+                        MinimumY = all_records.Min(record => record.Envelope.MinimumY),
+                        MaximumY = all_records.Max(record => record.Envelope.MaximumY)
+                    }
+                )
+                .Single()
+                .ToBoundingBox3D();
 
             yield return CreateShapeFile<PointShapeContent>(
                 fileName,
@@ -139,16 +149,21 @@ namespace RoadRegistry.Api.Extracts
                 context.RoadReferencePoints.Count
             );
 
-            var boundingBox = new BoundingBox3D(
-                context.RoadReferencePoints.Min(record => record.Envelope.MinimumX),
-                context.RoadReferencePoints.Min(record => record.Envelope.MinimumY),
-                context.RoadReferencePoints.Max(record => record.Envelope.MaximumX),
-                context.RoadReferencePoints.Max(record => record.Envelope.MaximumY),
-                0,
-                0,
-                0,
-                0
-            );
+            var boundingBox =
+                (
+                    from record in context.RoadReferencePoints
+                    group record by true
+                    into all_records
+                    select new BoundingBox2D
+                    {
+                        MinimumX = all_records.Min(record => record.Envelope.MinimumX),
+                        MaximumX = all_records.Max(record => record.Envelope.MaximumX),
+                        MinimumY = all_records.Min(record => record.Envelope.MinimumY),
+                        MaximumY = all_records.Max(record => record.Envelope.MaximumY)
+                    }
+                )
+                .Single()
+                .ToBoundingBox3D();
 
             yield return CreateShapeFile<PointShapeContent>(
                 fileName,
