@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Infrastructure.Modules
+namespace RoadRegistry.Api.Modules
 {
     using Aiv.Vbr.AggregateSource;
     using Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac;

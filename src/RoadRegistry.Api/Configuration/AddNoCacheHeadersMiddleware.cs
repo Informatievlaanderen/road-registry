@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Infrastructure.Configuration
+namespace RoadRegistry.Api.Configuration
 {
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;

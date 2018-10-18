@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Extracts.Responses
+namespace RoadRegistry.Api.Downloads.Responses
 {
     using System.Threading;
     using Swashbuckle.AspNetCore.Filters;

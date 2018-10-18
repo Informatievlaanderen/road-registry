@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Infrastructure
+namespace RoadRegistry.Api
 {
     using System;
     using System.IO;

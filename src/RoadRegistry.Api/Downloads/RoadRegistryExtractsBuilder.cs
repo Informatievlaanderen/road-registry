@@ -1,16 +1,15 @@
-namespace RoadRegistry.Api.Extracts
+namespace RoadRegistry.Api.Downloads
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
-    using ExtractFiles;
-    using Projections;
     using Aiv.Vbr.Shaperon;
+    using ExtractFiles;
     using Infrastructure;
     using Microsoft.EntityFrameworkCore;
+    using Projections;
 
     public class RoadRegistryExtractsBuilder
     {
@@ -44,8 +43,8 @@ namespace RoadRegistry.Api.Extracts
                         MaximumY = all_records.Max(record => record.Envelope.MaximumY)
                     }
                 )
-                .Single()
-                .ToBoundingBox3D(double.NegativeInfinity, double.PositiveInfinity);
+                .SingleOrDefault()?.ToBoundingBox3D() ??
+                new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, double.NegativeInfinity, double.PositiveInfinity);
 
             yield return CreateShapeFile<PolyLineMShapeContent>(
                 fileName,
@@ -103,8 +102,8 @@ namespace RoadRegistry.Api.Extracts
                         MaximumY = all_records.Max(record => record.Envelope.MaximumY)
                     }
                 )
-                .Single()
-                .ToBoundingBox3D();
+                .SingleOrDefault()?.ToBoundingBox3D() ??
+                new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
             yield return CreateShapeFile<PointShapeContent>(
                 fileName,
@@ -162,8 +161,8 @@ namespace RoadRegistry.Api.Extracts
                         MaximumY = all_records.Max(record => record.Envelope.MaximumY)
                     }
                 )
-                .Single()
-                .ToBoundingBox3D();
+                .SingleOrDefault()?.ToBoundingBox3D() ??
+                new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
             yield return CreateShapeFile<PointShapeContent>(
                 fileName,

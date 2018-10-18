@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Extracts.ExtractFiles
+namespace RoadRegistry.Api.Downloads.ExtractFiles
 {
     using System;
 

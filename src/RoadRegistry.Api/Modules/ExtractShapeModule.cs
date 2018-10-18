@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Infrastructure.Modules
+namespace RoadRegistry.Api.Modules
 {
     using System;
     using Autofac;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -59,6 +59,33 @@ namespace RoadRegistry.Projections.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RoadNetworkInfo",
+                schema: "RoadRegistryShape",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false, defaultValue: 0),
+                    CompletedImport = table.Column<bool>(nullable: false, defaultValue: false),
+                    OrganizationCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    RoadNodeCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    TotalRoadNodeShapeLength = table.Column<int>(nullable: false),
+                    RoadSegmentCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    TotalRoadSegmentShapeLength = table.Column<int>(nullable: false),
+                    RoadSegmentEuropeanRoadAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    RoadSegmentNumberedRoadAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    RoadSegmentNationalRoadAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    RoadSegmentDynamicLaneAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    RoadSegmentDynamicWidthAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    RoadSegmentDynamicHardeningAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    ReferencePointCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    TotalReferencePointShapeLength = table.Column<int>(nullable: false),
+                    GradeSeparatedJunctionCount = table.Column<int>(nullable: false, defaultValue: 0)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoadNetworkInfo", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoadNode",
                 schema: "RoadRegistryShape",
                 columns: table => new
@@ -66,7 +93,11 @@ namespace RoadRegistry.Projections.Migrations
                     Id = table.Column<int>(nullable: false),
                     ShapeRecordContent = table.Column<byte[]>(nullable: true),
                     ShapeRecordContentLength = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                    DbaseRecord = table.Column<byte[]>(nullable: true),
+                    Envelope_MinimumX = table.Column<double>(nullable: false),
+                    Envelope_MaximumX = table.Column<double>(nullable: false),
+                    Envelope_MinimumY = table.Column<double>(nullable: false),
+                    Envelope_MaximumY = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -82,7 +113,11 @@ namespace RoadRegistry.Projections.Migrations
                     Id = table.Column<int>(nullable: false),
                     ShapeRecordContent = table.Column<byte[]>(nullable: true),
                     ShapeRecordContentLength = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                    DbaseRecord = table.Column<byte[]>(nullable: true),
+                    Envelope_MinimumX = table.Column<double>(nullable: false),
+                    Envelope_MaximumX = table.Column<double>(nullable: false),
+                    Envelope_MinimumY = table.Column<double>(nullable: false),
+                    Envelope_MaximumY = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -98,7 +133,11 @@ namespace RoadRegistry.Projections.Migrations
                     Id = table.Column<int>(nullable: false),
                     ShapeRecordContent = table.Column<byte[]>(nullable: true),
                     ShapeRecordContentLength = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                    DbaseRecord = table.Column<byte[]>(nullable: true),
+                    Envelope_MinimumX = table.Column<double>(nullable: false),
+                    Envelope_MaximumX = table.Column<double>(nullable: false),
+                    Envelope_MinimumY = table.Column<double>(nullable: false),
+                    Envelope_MaximumY = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -202,6 +241,13 @@ namespace RoadRegistry.Projections.Migrations
                 table: "Organization",
                 column: "Id")
                 .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoadNetworkInfo_Id",
+                schema: "RoadRegistryShape",
+                table: "RoadNetworkInfo",
+                column: "Id")
+                .Annotation("SqlServer:Clustered", false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -216,6 +262,10 @@ namespace RoadRegistry.Projections.Migrations
 
             migrationBuilder.DropTable(
                 name: "Organization",
+                schema: "RoadRegistryShape");
+
+            migrationBuilder.DropTable(
+                name: "RoadNetworkInfo",
                 schema: "RoadRegistryShape");
 
             migrationBuilder.DropTable(

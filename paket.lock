@@ -209,6 +209,10 @@ NUGET
       Microsoft.NETCore.App (>= 1.1.2) - restriction: || (== netcoreapp2.1) (&& (== netstandard2.0) (>= netcoreapp1.1))
       Newtonsoft.Json (>= 10.0.3)
       Serilog (>= 2.5)
+    Docker.DotNet (3.125.2)
+      Newtonsoft.Json (>= 9.0.1)
+      System.Buffers (>= 4.4)
+      System.ValueTuple (>= 4.4)
     dotnet-sourcelink (2.8.3) - clitool: true
       Microsoft.Extensions.CommandLineUtils (>= 1.1.1) - restriction: || (== netcoreapp2.1) (&& (== netstandard2.0) (>= netcoreapp1.0))
       Microsoft.NETCore.App (>= 2.0) - restriction: || (== netcoreapp2.1) (&& (== netstandard2.0) (>= netcoreapp2.0))

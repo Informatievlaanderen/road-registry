@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Infrastructure.Modules
+namespace RoadRegistry.Api.Modules
 {
     using Aiv.Vbr.CommandHandling.Idempotency;
     using Aiv.Vbr.EventHandling;

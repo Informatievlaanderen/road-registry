@@ -1,18 +1,18 @@
-namespace RoadRegistry.Api.Extracts.ExtractFiles
+namespace RoadRegistry.Api.Downloads.ExtractFiles
 {
     using System.IO;
     using System.Text;
     using Aiv.Vbr.Shaperon;
 
-    public class ShpFileWriter : ExtractFileWriter
+    public class ShxFileWriter : ExtractFileWriter
     {
-        public ShpFileWriter(ShapeFileHeader header, Stream writeStream)
+        public ShxFileWriter(ShapeFileHeader header, Stream writeStream)
             : base(Encoding.ASCII, writeStream)
         {
             header.Write(Writer);
         }
 
-        public void Write(ShapeRecord record)
+        public void Write(ShapeIndexRecord record)
         {
             record.Write(Writer);
         }

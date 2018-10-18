@@ -1,37 +1,32 @@
-namespace RoadRegistry.Api.Extracts
+namespace RoadRegistry.Api.Downloads
 {
+    using System.Data;
     using System.Threading;
     using System.Threading.Tasks;
     using Aiv.Vbr.Api;
     using Aiv.Vbr.Api.Exceptions;
-    using Aiv.Vbr.CommandHandling;
-    using Infrastructure;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json.Converters;
     using Projections;
     using Responses;
-    using Microsoft.EntityFrameworkCore;
-    using System.Data;
     using Swashbuckle.AspNetCore.Filters;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]
-    [ApiRoute("extracten")]
-    [ApiExplorerSettings(GroupName = "Extracten")]
-    public class ExtractController : ApiBusController
+    [ApiRoute("download")]
+    [ApiExplorerSettings(GroupName = "Downloads")]
+    public class DownloadController : ControllerBase
     {
-        public ExtractController(ICommandHandlerResolver bus)
-            : base(bus)
-        { }
-
         /// <summary>
-        /// Vraag een dump van het volledige register op.
+        /// Request an archive of the entire road registry for shape editing purposes.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="cancellationToken"></param>
-        /// <response code="200">Als wegenregister kan gedownload worden.</response>
-        /// <response code="500">Als er een interne fout is opgetreden.</response>
+        /// <param name="context">The database context to query data with<//param>
+        /// <param name="cancellationToken">The token that controls request cancellation.</param>
+        /// <response code="200">Returned if the road registry can be downloaded.</response>
+        /// <response code="500">Returned if the road registry can not be downloaded due to an unforeseen server error.</response>
+        /// <response code="503">Returned if the road registry can not yet be downloaded (e.g. because the import has not yet completed).</response>
         [HttpGet("")]
         [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BasicApiProblem), StatusCodes.Status500InternalServerError)]
@@ -41,9 +36,10 @@ namespace RoadRegistry.Api.Extracts
             [FromServices] ShapeContext context,
             CancellationToken cancellationToken)
         {
-            using (var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
+            using (await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
             {
-                if ((await context.RoadNetworkInfo.SingleOrDefaultAsync(cancellationToken))?.CompletedImport ?? false)
+                var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(cancellationToken);
+                if(info == null || !info.CompletedImport)
                     return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
                 var fileBuilder = new RoadRegistryExtractsBuilder();

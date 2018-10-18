@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Extracts
+namespace RoadRegistry.Api.Downloads
 {
     using System;
     using System.Collections;
