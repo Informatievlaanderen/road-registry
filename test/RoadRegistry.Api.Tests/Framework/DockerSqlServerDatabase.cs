@@ -12,7 +12,7 @@ namespace RoadRegistry.Api.Tests.Framework
         private readonly DockerContainer _sqlServerContainer;
         private readonly string _password;
         private const string Image = "microsoft/mssql-server-linux";
-        private const string Tag = "2017-CU9";
+        private const string Tag = "2017-latest";
         private const int Port = 11433;
 
         public DockerSqlServerDatabase(string databaseName)
@@ -25,15 +25,18 @@ namespace RoadRegistry.Api.Tests.Framework
                 {1433, Port}
             };
 
-            _sqlServerContainer = new DockerContainer(
-                Image,
-                Tag,
-                HealthCheck,
-                ports)
+            if (Environment.GetEnvironmentVariable("CI") == null)
             {
-                ContainerName = "roadregistry-api-tests",
-                Env = new[] {"ACCEPT_EULA=Y", $"SA_PASSWORD={_password}"}
-            };
+                _sqlServerContainer = new DockerContainer(
+                    Image,
+                    Tag,
+                    HealthCheck,
+                    ports)
+                {
+                    ContainerName = "roadregistry-api-tests",
+                    Env = new[] {"ACCEPT_EULA=Y", $"SA_PASSWORD={_password}"}
+                };
+            }
         }
 
         public SqlConnection CreateMasterConnection()
@@ -52,7 +55,10 @@ namespace RoadRegistry.Api.Tests.Framework
 
         public async Task CreateDatabase(CancellationToken cancellationToken = default)
         {
-            await _sqlServerContainer.TryStart(cancellationToken);
+            if (Environment.GetEnvironmentVariable("CI") == null)
+            {
+                await _sqlServerContainer.TryStart(cancellationToken);
+            }
 
             using (var connection = CreateMasterConnection())
             {
