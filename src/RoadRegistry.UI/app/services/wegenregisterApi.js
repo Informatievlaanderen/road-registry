@@ -7,7 +7,7 @@ export default {
 
     return axios
       .get(
-        '/v1/extracten',
+        '/v1/download',
         {
           transformRequest: [(data, headers) => {
             // eslint-disable-next-line
