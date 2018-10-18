@@ -47,14 +47,14 @@ namespace RoadRegistry.Api.Tests.Framework
                 ? new SqlConnectionStringBuilder(
                     $"server=localhost,{Port};User Id=sa;Password={_password};Initial Catalog=master")
                 : new SqlConnectionStringBuilder(
-                    $"server=localhost,1433;User Id=sa;Password={_password};Initial Catalog=master");
+                    $"server=127.0.0.1,1433;User Id=sa;Password={_password};Initial Catalog=master");
 
         public SqlConnectionStringBuilder CreateConnectionStringBuilder()
             => Environment.GetEnvironmentVariable("CI") == null
                 ? new SqlConnectionStringBuilder(
                     $"server=localhost,{Port};User Id=sa;Password={_password};Initial Catalog={_databaseName}")
                 : new SqlConnectionStringBuilder(
-                    $"server=localhost,{1433};User Id=sa;Password={_password};Initial Catalog={_databaseName}");
+                    $"server=127.0.0.1,1433;User Id=sa;Password={_password};Initial Catalog={_databaseName}");
 
         public async Task CreateDatabase(CancellationToken cancellationToken = default)
         {
