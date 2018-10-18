@@ -13,7 +13,7 @@ namespace RoadRegistry.Api.Tests.Framework
         private readonly string _password;
         private const string Image = "microsoft/mssql-server-linux";
         private const string Tag = "2017-latest";
-        private const int Port = 1433;
+        private const int Port = 11433;
 
         public DockerSqlServerDatabase(string databaseName)
         {
@@ -43,15 +43,18 @@ namespace RoadRegistry.Api.Tests.Framework
             => new SqlConnection(CreateMasterConnectionStringBuilder().ConnectionString);
 
         public SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
-            => new SqlConnectionStringBuilder(
-                $"server=localhost,{Port};User Id=sa;Password={_password};Initial Catalog=master");
-
-        public SqlConnection CreateConnection()
-            => new SqlConnection(CreateConnectionStringBuilder().ConnectionString);
+            => Environment.GetEnvironmentVariable("CI") == null
+                ? new SqlConnectionStringBuilder(
+                    $"server=localhost,{Port};User Id=sa;Password={_password};Initial Catalog=master")
+                : new SqlConnectionStringBuilder(
+                    $"server=localhost,1433;User Id=sa;Password={_password};Initial Catalog=master");
 
         public SqlConnectionStringBuilder CreateConnectionStringBuilder()
-            => new SqlConnectionStringBuilder(
-                $"server=localhost,{Port};User Id=sa;Password={_password};Initial Catalog={_databaseName}");
+            => Environment.GetEnvironmentVariable("CI") == null
+                ? new SqlConnectionStringBuilder(
+                    $"server=localhost,{Port};User Id=sa;Password={_password};Initial Catalog={_databaseName}")
+                : new SqlConnectionStringBuilder(
+                    $"server=localhost,{1433};User Id=sa;Password={_password};Initial Catalog={_databaseName}");
 
         public async Task CreateDatabase(CancellationToken cancellationToken = default)
         {

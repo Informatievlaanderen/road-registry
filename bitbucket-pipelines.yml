@@ -30,7 +30,7 @@ definitions:
     paket: packages
   services:
     mssql:
-      image: microsoft/mssql-server-linux:2017-latest
+      image: microsoft/mssql-server-linux:2017-CU9
       environment:
         ACCEPT_EULA: 'Y'
         SA_PASSWORD: 'E@syP@ssw0rd'
