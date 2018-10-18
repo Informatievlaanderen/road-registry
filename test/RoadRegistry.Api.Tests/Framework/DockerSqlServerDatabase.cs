@@ -13,7 +13,7 @@ namespace RoadRegistry.Api.Tests.Framework
         private readonly string _password;
         private const string Image = "microsoft/mssql-server-linux";
         private const string Tag = "2017-latest";
-        private const int Port = 11433;
+        private const int Port = 1433;
 
         public DockerSqlServerDatabase(string databaseName)
         {
