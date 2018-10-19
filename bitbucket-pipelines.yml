@@ -9,6 +9,7 @@ pipelines:
             - ./build.sh PushAll
           services:
             - docker
+            - mssql
           caches:
             - dotnetcore
             - paket
@@ -25,3 +26,9 @@ pipelines:
 definitions:
   caches:
     paket: packages
+  services:
+    mssql:
+      image: microsoft/mssql-server-linux:2017-latest
+      environment:
+        ACCEPT_EULA: 'Y'
+        SA_PASSWORD: 'E@syP@ssw0rd'

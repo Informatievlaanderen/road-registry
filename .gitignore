@@ -13,7 +13,7 @@
 [Xx]64/
 [Dd]ist/
 
-src/Roadregistry.UI/wwwroot/
+src/RoadRegistry.UI/wwwroot/
 
 *.suo
 *.user
