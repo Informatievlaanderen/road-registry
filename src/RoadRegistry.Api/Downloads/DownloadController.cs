@@ -22,7 +22,7 @@ namespace RoadRegistry.Api.Downloads
         /// <summary>
         /// Request an archive of the entire road registry for shape editing purposes.
         /// </summary>
-        /// <param name="context">The database context to query data with<//param>
+        /// <param name="context">The database context to query data with.</param>
         /// <param name="cancellationToken">The token that controls request cancellation.</param>
         /// <response code="200">Returned if the road registry can be downloaded.</response>
         /// <response code="500">Returned if the road registry can not be downloaded due to an unforeseen server error.</response>
