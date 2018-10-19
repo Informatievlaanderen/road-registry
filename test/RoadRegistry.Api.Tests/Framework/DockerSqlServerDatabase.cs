@@ -61,6 +61,13 @@ namespace RoadRegistry.Api.Tests.Framework
             if (Environment.GetEnvironmentVariable("CI") == null)
             {
                 await _sqlServerContainer.TryStart(cancellationToken);
+            } 
+            else
+            {
+                while (!await HealthCheck(cancellationToken).ConfigureAwait(false))
+                {
+                    await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken).ConfigureAwait(false);
+                }
             }
 
             using (var connection = CreateMasterConnection())

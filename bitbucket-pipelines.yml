@@ -5,6 +5,7 @@ pipelines:
   branches:
     master:
       - step:
+          size: 2x
           script:
             - ./build.sh PushAll
           services:
@@ -30,7 +31,9 @@ definitions:
     paket: packages
   services:
     mssql:
-      image: microsoft/mssql-server-linux:2017-CU9
+      memory: 2048
+      image: microsoft/mssql-server-linux:2017-latest
       environment:
         ACCEPT_EULA: 'Y'
         SA_PASSWORD: 'E@syP@ssw0rd'
+        MSSQL_SA_PASSWORD: 'E@syP@ssw0rd'
