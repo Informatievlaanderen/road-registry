@@ -14,11 +14,11 @@
 
     public class DownloadControllerTests : IAsyncLifetime
     {
-        private readonly DockerSqlServerDatabase _database;
+        private readonly SqlServerDatabase _database;
 
         public DownloadControllerTests()
         {
-            _database = new DockerSqlServerDatabase(Guid.NewGuid().ToString("N"));
+            _database = new SqlServerDatabase(Guid.NewGuid().ToString("N"));
         }
 
         [Fact]
@@ -76,7 +76,7 @@
                 var result = await controller.Get(context, CancellationToken.None);
 
                 var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
-                Assert.Equal(fileCallbackResult.FileDownloadName, "wegenregister.zip");
+                Assert.Equal("wegenregister.zip", fileCallbackResult.FileDownloadName);
             }
         }
 

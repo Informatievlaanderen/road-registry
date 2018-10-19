@@ -6,69 +6,52 @@ namespace RoadRegistry.Api.Tests.Framework
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class DockerSqlServerDatabase
+    /// <summary>
+    /// MsSql Server database provisioned via docker on localhost:11433.
+    /// </summary>
+    public class EmbeddedDockerSqlServerDatabase : ISqlServerDatabase
     {
         private readonly string _databaseName;
         private readonly DockerContainer _sqlServerContainer;
-        private readonly string _password;
+        private const string Password =  "E@syP@ssw0rd";
         private const string Image = "microsoft/mssql-server-linux";
         private const string Tag = "2017-latest";
         private const int Port = 11433;
 
-        public DockerSqlServerDatabase(string databaseName)
+        public EmbeddedDockerSqlServerDatabase(string databaseName)
         {
             _databaseName = databaseName;
-            _password = "E@syP@ssw0rd";
 
             var ports = new Dictionary<int, int>
             {
                 {1433, Port}
             };
 
-            if (Environment.GetEnvironmentVariable("CI") == null)
+            _sqlServerContainer = new DockerContainer(
+                Image,
+                Tag,
+                HealthCheck,
+                ports)
             {
-                _sqlServerContainer = new DockerContainer(
-                    Image,
-                    Tag,
-                    HealthCheck,
-                    ports)
-                {
-                    ContainerName = "roadregistry-api-tests",
-                    Env = new[] {"ACCEPT_EULA=Y", $"SA_PASSWORD={_password}"}
-                };
-            }
+                ContainerName = "roadregistry-api-tests",
+                Env = new[] {"ACCEPT_EULA=Y", $"SA_PASSWORD={Password}"}
+            };
         }
 
         public SqlConnection CreateMasterConnection()
             => new SqlConnection(CreateMasterConnectionStringBuilder().ConnectionString);
 
         public SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
-            => Environment.GetEnvironmentVariable("CI") == null
-                ? new SqlConnectionStringBuilder(
-                    $"server=localhost,{Port};User Id=sa;Password={_password};Initial Catalog=master")
-                : new SqlConnectionStringBuilder(
-                    $"server=localhost,1433;User Id=sa;Password={_password};Initial Catalog=master");
+            => new SqlConnectionStringBuilder(
+                    $"server=localhost,{Port};User Id=sa;Password={Password};Initial Catalog=master");
 
         public SqlConnectionStringBuilder CreateConnectionStringBuilder()
-            => Environment.GetEnvironmentVariable("CI") == null
-                ? new SqlConnectionStringBuilder(
-                    $"server=localhost,{Port};User Id=sa;Password={_password};Initial Catalog={_databaseName}")
-                : new SqlConnectionStringBuilder(
-                    $"server=localhost,1433;User Id=sa;Password={_password};Initial Catalog={_databaseName}");
+            => new SqlConnectionStringBuilder(
+                    $"server=localhost,{Port};User Id=sa;Password={Password};Initial Catalog={_databaseName}");
 
         public async Task CreateDatabase(CancellationToken cancellationToken = default)
         {
-            if (Environment.GetEnvironmentVariable("CI") == null)
-            {
-                await _sqlServerContainer.TryStart(cancellationToken);
-            } 
-            else
-            {
-                while (!await HealthCheck(cancellationToken).ConfigureAwait(false))
-                {
-                    await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken).ConfigureAwait(false);
-                }
-            }
+            await _sqlServerContainer.TryStart(cancellationToken);
 
             using (var connection = CreateMasterConnection())
             {
