@@ -12,10 +12,10 @@ services:
     depends_on:
       - mssql
     environment:
-      CONNECTIONSTRINGS__STREAMSTORE: Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__STREAMSTORE: 'Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;'
       USELOCALFILE: 'True'
-      LEGACYSTREAMFILENAME: import-streams.zip
-      LEGACYSTREAMDIRECTORY: /var/lib/RoadRegistry.LegacyStreamExtraction
+      LEGACYSTREAMFILENAME: 'import-streams.zip'
+      LEGACYSTREAMDIRECTORY: '/var/lib/RoadRegistry.LegacyStreamExtraction'
     volumes:
       - ./src/RoadRegistry.LegacyStreamExtraction:/var/lib/RoadRegistry.LegacyStreamExtraction
   projections:
@@ -24,19 +24,19 @@ services:
       - mssql
       - legacystreamloader
     environment:
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-      CONNECTIONSTRINGS__SHAPEPROJECTIONS: Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-      CONNECTIONSTRINGS__SHAPEPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__EVENTS: 'Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;'
+      CONNECTIONSTRINGS__SHAPEPROJECTIONS: 'Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;'
+      CONNECTIONSTRINGS__SHAPEPROJECTIONSADMIN: 'Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;'
   api:
     build: dist/RoadRegistry.Api/linux
     depends_on:
       - mssql
       - projections
     environment:
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-      CONNECTIONSTRINGS__SHAPEPROJECTIONS: Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-      CONNECTIONSTRINGS__SHAPEPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-      IDEMPOTENCY__CONNECTIONSTRING: Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__EVENTS: 'Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;'
+      CONNECTIONSTRINGS__SHAPEPROJECTIONS: 'Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;'
+      CONNECTIONSTRINGS__SHAPEPROJECTIONSADMIN: 'Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;'
+      IDEMPOTENCY__CONNECTIONSTRING: 'Data Source=tcp:mssql,1433;Database=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;'
     ports:
       - "5002:5000"
   ui:

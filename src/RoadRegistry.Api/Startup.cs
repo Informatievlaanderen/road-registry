@@ -190,7 +190,7 @@ namespace RoadRegistry.Api
             var connectionStringBuilder = new SqlConnectionStringBuilder(config.GetConnectionString("Events"));
             WaitForSqlServer(connectionStringBuilder);
 
-            EnsureSqlStreamStoreSchema(streamStore);
+            //EnsureSqlStreamStoreSchema(streamStore);
 
             if (env.IsDevelopment())
                 app
