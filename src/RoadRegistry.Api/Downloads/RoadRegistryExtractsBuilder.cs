@@ -31,18 +31,16 @@ namespace RoadRegistry.Api.Downloads
             );
 
             var boundingBox =
-                (
-                    from record in context.RoadSegments
-                    group record by true
-                    into all_records
-                    select new BoundingBox2D
-                    {
-                        MinimumX = all_records.Min(record => record.Envelope.MinimumX),
-                        MaximumX = all_records.Max(record => record.Envelope.MaximumX),
-                        MinimumY = all_records.Min(record => record.Envelope.MinimumY),
-                        MaximumY = all_records.Max(record => record.Envelope.MaximumY)
-                    }
-                )
+                context
+                    .RoadSegments
+                    .GroupBy(record => 1)
+                    .Select(all_records => new BoundingBox2D
+                {
+                    MinimumX = all_records.Min(record => record.Envelope.MinimumX),
+                    MaximumX = all_records.Max(record => record.Envelope.MaximumX),
+                    MinimumY = all_records.Min(record => record.Envelope.MinimumY),
+                    MaximumY = all_records.Max(record => record.Envelope.MaximumY)
+                })
                 .SingleOrDefault()?.ToBoundingBox3D() ??
                 new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, double.NegativeInfinity, double.PositiveInfinity);
 
@@ -90,18 +88,16 @@ namespace RoadRegistry.Api.Downloads
             );
 
             var boundingBox =
-                (
-                    from record in context.RoadNodes
-                    group record by true
-                    into all_records
-                    select new BoundingBox2D
-                    {
-                        MinimumX = all_records.Min(record => record.Envelope.MinimumX),
-                        MaximumX = all_records.Max(record => record.Envelope.MaximumX),
-                        MinimumY = all_records.Min(record => record.Envelope.MinimumY),
-                        MaximumY = all_records.Max(record => record.Envelope.MaximumY)
-                    }
-                )
+                context
+                    .RoadNodes
+                    .GroupBy(record => 1)
+                    .Select(all_records => new BoundingBox2D
+                {
+                    MinimumX = all_records.Min(record => record.Envelope.MinimumX),
+                    MaximumX = all_records.Max(record => record.Envelope.MaximumX),
+                    MinimumY = all_records.Min(record => record.Envelope.MinimumY),
+                    MaximumY = all_records.Max(record => record.Envelope.MaximumY)
+                })
                 .SingleOrDefault()?.ToBoundingBox3D() ??
                 new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -149,18 +145,16 @@ namespace RoadRegistry.Api.Downloads
             );
 
             var boundingBox =
-                (
-                    from record in context.RoadReferencePoints
-                    group record by true
-                    into all_records
-                    select new BoundingBox2D
-                    {
-                        MinimumX = all_records.Min(record => record.Envelope.MinimumX),
-                        MaximumX = all_records.Max(record => record.Envelope.MaximumX),
-                        MinimumY = all_records.Min(record => record.Envelope.MinimumY),
-                        MaximumY = all_records.Max(record => record.Envelope.MaximumY)
-                    }
-                )
+                context
+                    .RoadReferencePoints
+                    .GroupBy(record => 1)
+                    .Select(all_records => new BoundingBox2D
+                {
+                    MinimumX = all_records.Min(record => record.Envelope.MinimumX),
+                    MaximumX = all_records.Max(record => record.Envelope.MaximumX),
+                    MinimumY = all_records.Min(record => record.Envelope.MinimumY),
+                    MaximumY = all_records.Max(record => record.Envelope.MaximumY)
+                })
                 .SingleOrDefault()?.ToBoundingBox3D() ??
                 new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 

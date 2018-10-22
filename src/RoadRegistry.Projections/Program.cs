@@ -49,10 +49,10 @@ namespace RoadRegistry.Projections.Shape
                 new SqlConnectionStringBuilder(configuration.GetConnectionString("Events"))
                 {
                     ConnectRetryCount = 120,
-                    ConnectRetryInterval = 5
+                    ConnectRetryInterval = 30
                 };
 
-            await WaitForSqlServer(connectionStringBuilder);
+            await WaitForStreamStore(connectionStringBuilder);
 
             var services = new ServiceCollection();
             var app = ConfigureServices(services, configuration);
@@ -126,16 +126,19 @@ namespace RoadRegistry.Projections.Shape
             logging.AddSerilog(logger);
         }
 
-        private static async Task WaitForSqlServer(SqlConnectionStringBuilder builder, CancellationToken token = default)
+        private static async Task WaitForStreamStore(SqlConnectionStringBuilder builder, CancellationToken token = default)
         {
             var exit = false;
             while(!exit)
             {
                 try
                 {
-                    using (var connection = new SqlConnection(builder.ConnectionString))
+                    using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(builder.ConnectionString)
                     {
-                        await connection.OpenAsync(token).ConfigureAwait(false);
+                        Schema = "RoadRegistry"
+                    }))
+                    {
+                        await streamStore.ReadHeadPosition(token);
                         exit = true;
                     }
                 }

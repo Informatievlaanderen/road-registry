@@ -7,6 +7,7 @@ namespace RoadRegistry.Api
     using System.Linq;
     using System.Reflection;
     using System.Text;
+    using System.Threading;
     using Aiv.Vbr.Api.Exceptions;
     using Aiv.Vbr.AspNetCore.Mvc.Formatters.Csv;
     using Aiv.Vbr.AspNetCore.Mvc.Formatters.Json;
@@ -188,7 +189,7 @@ namespace RoadRegistry.Api
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             
             var connectionStringBuilder = new SqlConnectionStringBuilder(config.GetConnectionString("Events"));
-            WaitForSqlServer(connectionStringBuilder);
+            WaitForStreamStore(connectionStringBuilder);
 
             //EnsureSqlStreamStoreSchema(streamStore);
 
@@ -261,16 +262,19 @@ namespace RoadRegistry.Api
                 msSqlStreamStore.CreateSchema().GetAwaiter().GetResult();
         }
 
-        private static void WaitForSqlServer(SqlConnectionStringBuilder builder)
+        private static void WaitForStreamStore(SqlConnectionStringBuilder builder)
         {
             var exit = false;
             while(!exit)
             {
                 try
                 {
-                    using (var connection = new SqlConnection(builder.ConnectionString))
+                    using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(builder.ConnectionString)
                     {
-                        connection.Open();
+                        Schema = "RoadRegistry"
+                    }))
+                    {
+                        streamStore.ReadHeadPosition(CancellationToken.None).GetAwaiter().GetResult();
                         exit = true;
                     }
                 }

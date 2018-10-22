@@ -38,12 +38,13 @@ namespace RoadRegistry.LegacyStreamLoader
 
 
             var root = configurationBuilder.Build();
+            var connectionString = root.GetConnectionString("StreamStore");
 
-            var masterConnectionStringBuilder = new SqlConnectionStringBuilder(root.GetConnectionString("StreamStore"))
+            var masterConnectionStringBuilder = new SqlConnectionStringBuilder(connectionString)
                 {
                     InitialCatalog = "master",
                     ConnectRetryCount = 120,
-                    ConnectRetryInterval = 5
+                    ConnectRetryInterval = 1
                 };
 
             await WaitForSqlServer(masterConnectionStringBuilder);
@@ -65,20 +66,20 @@ END",
 
             // Attempt to reconnect every 30 seconds, for an hour - could be set in the connection string as well.
             var connectionStringBuilder =
-                new SqlConnectionStringBuilder(root.GetConnectionString("StreamStore"))
+                new SqlConnectionStringBuilder(connectionString)
                 {
                     ConnectRetryCount = 120,
-                    ConnectRetryInterval = 5
+                    ConnectRetryInterval = 30
                 };
             using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(connectionStringBuilder.ConnectionString)
             {
                 Schema = "RoadRegistry"
             }))
             {
-                await streamStore.CreateSchema();
+                await streamStore.CreateSchema().ConfigureAwait(false);
 
-                var legacyImportStreamMetaData = await streamStore.GetStreamMetadata("roadnetwork");
-                if (legacyImportStreamMetaData.MetadataStreamVersion == ExpectedVersion.NoStream)
+                var page = await streamStore.ReadStreamForwards("roadnetwork", StreamVersion.Start, 1).ConfigureAwait(false);
+                if (page.Status == PageReadStatus.StreamNotFound)
                     await ImportStreams(root, streamStore);
                 else
                     Console.WriteLine("Cannot import in an existing RoadNetwork. Aborted import");
