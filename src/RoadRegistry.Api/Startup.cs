@@ -2,6 +2,7 @@ namespace RoadRegistry.Api
 {
     using System;
     using System.Collections.Generic;
+    using System.Data.SqlClient;
     using System.IO.Compression;
     using System.Linq;
     using System.Reflection;
@@ -181,9 +182,14 @@ namespace RoadRegistry.Api
             ILoggerFactory loggerFactory,
             IApiVersionDescriptionProvider provider,
             EnvelopeFactory envelopeFactory,
-            IStreamStore streamStore)
+            IStreamStore streamStore,
+            IConfiguration config)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            
+            var connectionStringBuilder = new SqlConnectionStringBuilder(config.GetConnectionString("Events"));
+            WaitForSqlServer(connectionStringBuilder);
+
             EnsureSqlStreamStoreSchema(streamStore);
 
             if (env.IsDevelopment())
@@ -253,6 +259,25 @@ namespace RoadRegistry.Api
             var checkSchemaResult = msSqlStreamStore.CheckSchema().GetAwaiter().GetResult();
             if (!checkSchemaResult.IsMatch())
                 msSqlStreamStore.CreateSchema().GetAwaiter().GetResult();
+        }
+
+        private static void WaitForSqlServer(SqlConnectionStringBuilder builder)
+        {
+            var exit = false;
+            while(!exit)
+            {
+                try
+                {
+                    using (var connection = new SqlConnection(builder.ConnectionString))
+                    {
+                        connection.Open();
+                        exit = true;
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
         }
     }
 }

@@ -39,14 +39,37 @@ namespace RoadRegistry.LegacyStreamLoader
 
             var root = configurationBuilder.Build();
 
+            var masterConnectionStringBuilder = new SqlConnectionStringBuilder(root.GetConnectionString("StreamStore"))
+                {
+                    InitialCatalog = "master",
+                    ConnectRetryCount = 120,
+                    ConnectRetryInterval = 5
+                };
+
+            await WaitForSqlServer(masterConnectionStringBuilder);
+
+            using(var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString))
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+
+                using(var command = new SqlCommand(
+@"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'RoadRegistry')
+BEGIN
+    CREATE DATABASE [RoadRegistry]
+END",
+                    connection))
+                {
+                    await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+            }
+
             // Attempt to reconnect every 30 seconds, for an hour - could be set in the connection string as well.
             var connectionStringBuilder =
                 new SqlConnectionStringBuilder(root.GetConnectionString("StreamStore"))
                 {
                     ConnectRetryCount = 120,
-                    ConnectRetryInterval = 30
+                    ConnectRetryInterval = 5
                 };
-
             using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(connectionStringBuilder.ConnectionString)
             {
                 Schema = "RoadRegistry"
@@ -167,7 +190,7 @@ namespace RoadRegistry.LegacyStreamLoader
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Error downlading S3:{bucketName}/{file}: {exception}");
+                Console.WriteLine($"Error downloading S3:{bucketName}/{file}: {exception}");
             }
 
             return null;
@@ -199,6 +222,25 @@ namespace RoadRegistry.LegacyStreamLoader
             }
 
             return null;
+        }
+    
+        private static async Task WaitForSqlServer(SqlConnectionStringBuilder builder, CancellationToken token = default)
+        {
+            var exit = false;
+            while(!exit)
+            {
+                try
+                {
+                    using (var connection = new SqlConnection(builder.ConnectionString))
+                    {
+                        await connection.OpenAsync(token).ConfigureAwait(false);
+                        exit = true;
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
         }
     }
 }

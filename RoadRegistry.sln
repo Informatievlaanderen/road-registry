@@ -33,6 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		install_deps.sh = install_deps.sh
 		README = README
 		bitbucket-pipelines.yml = bitbucket-pipelines.yml
+		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.LegacyStreamExtraction", "src\RoadRegistry.LegacyStreamExtraction\RoadRegistry.LegacyStreamExtraction.csproj", "{B5267E8A-DB8F-44C3-9046-69573A75B104}"
