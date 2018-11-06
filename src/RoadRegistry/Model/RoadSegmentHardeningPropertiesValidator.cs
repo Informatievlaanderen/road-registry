@@ -5,5 +5,11 @@ namespace RoadRegistry.Model
 
     public class RoadSegmentHardeningPropertiesValidator : AbstractValidator<RoadSegmentHardeningProperties>
     {
+        public RoadSegmentHardeningPropertiesValidator()
+        {
+            RuleFor(c => c.FromPosition).GreaterThanOrEqualTo(0.0);
+            RuleFor(c => c.ToPosition).GreaterThan(_ => _.FromPosition);
+            RuleFor(c => c.Type).IsInEnum();
+        }
     }
 }
