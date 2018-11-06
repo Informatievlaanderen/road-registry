@@ -1,6 +1,7 @@
 namespace RoadRegistry.Model
 {
     using System;
+    using System.Threading;
     using Aiv.Vbr.Shaperon;
     using FluentValidation;
     using NetTopologySuite.Geometries;
@@ -25,7 +26,7 @@ namespace RoadRegistry.Model
                     {
                         try
                         {
-                            acceptable = reader.TryReadAs<MultiLineString>(data, out MultiLineString ignored);
+                            acceptable = reader.TryReadAs<MultiLineString>(data, out _);
                         }
                         catch
                         {
@@ -47,12 +48,105 @@ namespace RoadRegistry.Model
             RuleForEach(c => c.PartOfNationalRoads).NotNull().SetValidator(new RoadSegmentNationalRoadPropertiesValidator());
             RuleFor(c => c.PartOfNumberedRoads).NotNull();
             RuleForEach(c => c.PartOfNumberedRoads).NotNull().SetValidator(new RoadSegmentNumberedRoadPropertiesValidator());
-            RuleFor(c => c.Lanes).NotNull();
+            RuleFor(c => c.Lanes)
+                .NotNull()
+                .Must(BeAdjacent)
+                    .When(c => c.Lanes != null, ApplyConditionTo.CurrentValidator)
+                    .WithMessage("The lanes must be adjacent to one another, meaning their positions must line up.");
             RuleForEach(c => c.Lanes).NotNull().SetValidator(new RoadSegmentLanePropertiesValidator());
-            RuleFor(c => c.Widths).NotNull();
+            RuleFor(c => c.Widths)
+                .NotNull()
+                .Must(BeAdjacent)
+                    .When(c => c.Widths != null, ApplyConditionTo.CurrentValidator)
+                    .WithMessage("The widths must be adjacent to one another, meaning their positions must line up.");
             RuleForEach(c => c.Widths).NotNull().SetValidator(new RoadSegmentWidthPropertiesValidator());
-            RuleFor(c => c.Hardenings).NotNull();
+            RuleFor(c => c.Hardenings)
+                .NotNull()
+                .Must(BeAdjacent)
+                    .When(c => c.Hardenings != null, ApplyConditionTo.CurrentValidator)
+                    .WithMessage("The hardenings must be adjacent to one another, meaning their positions must line up.");
             RuleForEach(c => c.Hardenings).NotNull().SetValidator(new RoadSegmentHardeningPropertiesValidator());
+        }
+
+        private static bool BeAdjacent(Commands.RoadSegmentLaneProperties[] properties)
+        {
+            var position = new RoadSegmentPosition(0.0);
+            foreach (var property in properties)
+            {
+                if (property == null)
+                {
+                    return false;
+                }
+
+                if(!RoadSegmentPosition.IsWellformed(property.FromPosition)
+                    || !RoadSegmentPosition.IsWellformed(property.ToPosition))
+                {
+                    return false;
+                }
+
+                if (new RoadSegmentPosition(property.FromPosition) != position)
+                {
+                    return false;
+                }
+
+                position = new RoadSegmentPosition(property.ToPosition);
+            }
+
+            return true;
+        }
+
+        private static bool BeAdjacent(Commands.RoadSegmentWidthProperties[] properties)
+        {
+            var position = new RoadSegmentPosition(0.0);
+            foreach (var property in properties)
+            {
+                if (property == null)
+                {
+                    return false;
+                }
+
+                if(!RoadSegmentPosition.IsWellformed(property.FromPosition)
+                   || !RoadSegmentPosition.IsWellformed(property.ToPosition))
+                {
+                    return false;
+                }
+
+                if (new RoadSegmentPosition(property.FromPosition) != position)
+                {
+                    return false;
+                }
+
+                position = new RoadSegmentPosition(property.ToPosition);
+            }
+
+            return true;
+        }
+
+        private static bool BeAdjacent(Commands.RoadSegmentHardeningProperties[] properties)
+        {
+            var position = new RoadSegmentPosition(0.0);
+            foreach (var property in properties)
+            {
+                if (property == null)
+                {
+                    return false;
+                }
+
+                if(!RoadSegmentPosition.IsWellformed(property.FromPosition)
+                   || !RoadSegmentPosition.IsWellformed(property.ToPosition))
+                {
+                    return false;
+                }
+
+                if (new RoadSegmentPosition(property.FromPosition) != position)
+                {
+                    return false;
+                }
+
+                position = new RoadSegmentPosition(property.ToPosition);
+            }
+
+            return true;
         }
     }
 }

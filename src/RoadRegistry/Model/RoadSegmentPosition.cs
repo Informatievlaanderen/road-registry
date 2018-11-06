@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Model
 {
     using System;
+    using System.Globalization;
 
     public readonly struct RoadSegmentPosition : IEquatable<RoadSegmentPosition>, IComparable<RoadSegmentPosition>
     {
@@ -14,11 +15,16 @@
             _value = value;
         }
 
+        public static bool IsWellformed(double value)
+        {
+            return value >= 0.0;
+        }
+
         public double ToDouble() => _value;
         public bool Equals(RoadSegmentPosition other) => Math.Abs(_value - other._value) < double.Epsilon;
         public override bool Equals(object other) => other is RoadSegmentPosition id && Equals(id);
         public override int GetHashCode() => _value.GetHashCode();
-        public override string ToString() => _value.ToString();
+        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
         public int CompareTo(RoadSegmentPosition other) => _value.CompareTo(other._value);
         public static bool operator ==(RoadSegmentPosition left, RoadSegmentPosition right) => left.Equals(right);
         public static bool operator !=(RoadSegmentPosition left, RoadSegmentPosition right) => !left.Equals(right);

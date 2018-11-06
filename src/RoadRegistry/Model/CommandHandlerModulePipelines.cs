@@ -42,13 +42,17 @@ namespace RoadRegistry.Model
                         var events = entry.Entity.TakeEvents();
                         if (events.Length != 0)
                         {
+                            var messageId =
+                                message.Head.TryGetValue("MessageId", out object value)
+                                    ? value.ToString()
+                                    : Guid.NewGuid().ToString("N");
                             var version = entry.ExpectedVersion;
                             var messages = Array.ConvertAll(
                                 events,
                                 @event =>
                                     new NewStreamMessage(
                                         Deterministic.Create(Deterministic.Namespaces.Events,
-                                            $"{entry.Stream}-{version++}"),
+                                            $"{messageId}-{version++}"),
                                         Mapping.GetEventName(@event.GetType()),
                                         JsonConvert.SerializeObject(@event, Settings)
                                     ));

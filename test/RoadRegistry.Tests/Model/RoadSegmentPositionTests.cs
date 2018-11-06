@@ -41,6 +41,18 @@
             ).Verify(typeof(RoadSegmentPosition));
         }
 
+        [Theory]
+        [InlineData(double.MinValue, false)]
+        [InlineData(-0.1, false)]
+        [InlineData(0.0, true)]
+        [InlineData(0.1, true)]
+        [InlineData(double.MaxValue, true)]
+        public void IsWellformedReturnsExpectedResult(double value, bool expected)
+        {
+            var result = RoadSegmentPosition.IsWellformed(value);
+            Assert.Equal(expected, result);
+        }
+
         [Fact]
         public void ToStringReturnsExpectedResult()
         {

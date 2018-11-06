@@ -22,7 +22,7 @@ namespace RoadRegistry.Model
                     var acceptable = false;
                     try
                     {
-                        acceptable = reader.TryReadAs<PointM>(data, out PointM ignored);
+                        acceptable = reader.TryReadAs<PointM>(data, out _);
                     }
                     catch
                     {

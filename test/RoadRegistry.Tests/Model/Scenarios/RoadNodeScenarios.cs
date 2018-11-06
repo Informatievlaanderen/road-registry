@@ -140,6 +140,40 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
+        public Task when_adding_a_node_with_a_geometry_that_has_been_taken()
+        {
+            var geometry = Fixture.Create<PointM>();
+            return Run(scenario => scenario
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                {
+                    Changes = new[]
+                    {
+                        new Events.RoadNetworkChange
+                        {
+                            RoadNodeAdded = new RoadNodeAdded
+                            {
+                                Id = 1,
+                                Type = Shared.RoadNodeType.RealNode,
+                                Geometry = geometry.ToBytes()
+                            }
+                        }
+                    }
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Commands.RoadNetworkChange
+                    {
+                        AddRoadNode = new Commands.AddRoadNode
+                        {
+                            Id = 2,
+                            Type = Shared.RoadNodeType.FakeNode,
+                            Geometry = geometry.ToBytes()
+                        }
+                    }
+                ))
+                .Throws(new RoadNodeGeometryTakenException(new RoadNodeId(2), new RoadNodeId(1), geometry)));
+        }
+
+        [Fact]
         public Task when_adding_multiple_nodes_with_an_id_that_has_not_been_taken()
         {
             var geometry1 = Fixture.Create<PointM>().ToBytes();

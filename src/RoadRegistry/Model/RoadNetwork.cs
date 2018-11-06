@@ -13,11 +13,15 @@ namespace RoadRegistry.Model
 
         private ImmutableDictionary<RoadNodeId, RoadNode> _nodes;
         private ImmutableDictionary<RoadSegmentId, RoadSegment> _segments;
+        private ImmutableDictionary<PointM, RoadNodeId> _node_geometries;
+        private readonly WellKnownBinaryReader _reader;
 
         private RoadNetwork()
         {
+            _reader = new WellKnownBinaryReader();
             _nodes = ImmutableDictionary<RoadNodeId, RoadNode>.Empty;
             _segments = ImmutableDictionary<RoadSegmentId, RoadSegment>.Empty;
+            _node_geometries = ImmutableDictionary<PointM, RoadNodeId>.Empty;
 
             On<ImportedRoadNode>(e =>
             {
@@ -45,6 +49,10 @@ namespace RoadRegistry.Model
                     {
                         var id = new RoadNodeId(change.RoadNodeAdded.Id);
                         _nodes = _nodes.Add(id, new RoadNode(id));
+                        _node_geometries = _node_geometries.Add(
+                            _reader.ReadAs<PointM>(change.RoadNodeAdded.Geometry),
+                            id
+                        );
                     }
                 }
             });
@@ -63,6 +71,15 @@ namespace RoadRegistry.Model
                         {
                             throw new RoadNodeIdTakenException(addRoadNode.Id);
                         }
+
+                        if (_node_geometries.TryGetValue(addRoadNode.Geometry, out var conflictsWithId))
+                        {
+                            throw new RoadNodeGeometryTakenException(
+                                addRoadNode.Id,
+                                conflictsWithId,
+                                addRoadNode.Geometry);
+                        }
+
 
                         changed.Add(new RoadNetworkChange
                         {
