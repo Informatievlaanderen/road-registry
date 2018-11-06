@@ -14,6 +14,56 @@ namespace RoadRegistry.Model
         public AddRoadSegmentValidatorTests()
         {
             Fixture = new Fixture();
+            Fixture.Customize<Commands.RoadSegmentEuropeanRoadProperties>(composer =>
+                composer.Do(instance =>
+                {
+                    instance.RoadNumber =
+                        EuropeanRoadNumber.All[new Random().Next(0, EuropeanRoadNumber.All.Length)]
+                            .ToString();
+                }).OmitAutoProperties());
+            Fixture.Customize<Commands.RoadSegmentNationalRoadProperties>(composer =>
+                composer.Do(instance =>
+                {
+                    instance.Ident2 =
+                        NationalRoadNumber.All[new Random().Next(0, NationalRoadNumber.All.Length)]
+                           .ToString();
+                }).OmitAutoProperties());
+            Fixture.Customize<Commands.RoadSegmentNumberedRoadProperties>(composer =>
+                composer.Do(instance =>
+                {
+                    instance.Ident8 =
+                        NumberedRoadNumber.All[new Random().Next(0, NumberedRoadNumber.All.Length)]
+                            .ToString();
+                    instance.Direction = Fixture.Create<Shared.NumberedRoadSegmentDirection>();
+                    instance.Ordinal = new Generator<int>(Fixture).First(candidate => candidate >= 0);
+                }).OmitAutoProperties());
+            Fixture.Customize<Commands.RoadSegmentLaneProperties>(composer =>
+                composer.Do(instance =>
+                {
+                    var positionGenerator = new Generator<double>(Fixture);
+                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0);
+                    instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                    instance.Count = new Generator<int>(Fixture)
+                        .First(candidate => candidate >= 0 || candidate == -8 || candidate == -9);
+                    instance.Direction = Fixture.Create<Shared.LaneDirection>();
+                }).OmitAutoProperties());
+            Fixture.Customize<Commands.RoadSegmentWidthProperties>(composer =>
+                composer.Do(instance =>
+                {
+                    var positionGenerator = new Generator<double>(Fixture);
+                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0);
+                    instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                    instance.Width = new Generator<int>(Fixture)
+                        .First(candidate => candidate >= 0 || candidate == -8 || candidate == -9);
+                }).OmitAutoProperties());
+            Fixture.Customize<Commands.RoadSegmentHardeningProperties>(composer =>
+                composer.Do(instance =>
+                {
+                    var positionGenerator = new Generator<double>(Fixture);
+                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0);
+                    instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                    instance.Type = Fixture.Create<Shared.HardeningType>();
+                }).OmitAutoProperties());
             Validator = new AddRoadSegmentValidator(new WellKnownBinaryReader());
         }
 
@@ -59,7 +109,7 @@ namespace RoadRegistry.Model
             var writer = new WellKnownBinaryWriter();
             var geometry = Fixture.Create<PointM>();
             var value = writer.Write(geometry);
-            
+
             Validator.ShouldHaveValidationErrorFor(c => c.Geometry, value);
         }
 
@@ -73,7 +123,7 @@ namespace RoadRegistry.Model
         public void GeometryDrawMethodMustBeWithinDomain()
         {
             var acceptable = Array.ConvertAll(RoadSegmentGeometryDrawMethod.All, candidate => candidate.ToInt32());
-            var value = new Generator<Int32>(Fixture).First(candidate => !acceptable.Contains(candidate));
+            var value = new Generator<int>(Fixture).First(candidate => !acceptable.Contains(candidate));
             Validator.ShouldHaveValidationErrorFor(c => c.GeometryDrawMethod, (Shared.RoadSegmentGeometryDrawMethod)value);
         }
 
@@ -81,7 +131,7 @@ namespace RoadRegistry.Model
         public void MorphologyMustBeWithinDomain()
         {
             var acceptable = Array.ConvertAll(RoadSegmentMorphology.All, candidate => candidate.ToInt32());
-            var value = new Generator<Int32>(Fixture).First(candidate => !acceptable.Contains(candidate));
+            var value = new Generator<int>(Fixture).First(candidate => !acceptable.Contains(candidate));
             Validator.ShouldHaveValidationErrorFor(c => c.Morphology, (Shared.RoadSegmentMorphology)value);
         }
 
@@ -89,7 +139,7 @@ namespace RoadRegistry.Model
         public void StatusMustBeWithinDomain()
         {
             var acceptable = Array.ConvertAll(RoadSegmentStatus.All, candidate => candidate.ToInt32());
-            var value = new Generator<Int32>(Fixture).First(candidate => !acceptable.Contains(candidate));
+            var value = new Generator<int>(Fixture).First(candidate => !acceptable.Contains(candidate));
             Validator.ShouldHaveValidationErrorFor(c => c.Status, (Shared.RoadSegmentStatus)value);
         }
 
@@ -99,9 +149,9 @@ namespace RoadRegistry.Model
             var acceptable = Enum
                 .GetValues(typeof(Shared.RoadSegmentCategory))
                 .Cast<Shared.RoadSegmentCategory>()
-                .Cast<Int32>()
+                .Cast<int>()
                 .ToArray();
-            var value = new Generator<Int32>(Fixture).First(candidate => !acceptable.Contains(candidate));
+            var value = new Generator<int>(Fixture).First(candidate => !acceptable.Contains(candidate));
             Validator.ShouldHaveValidationErrorFor(c => c.Category, (Shared.RoadSegmentCategory)value);
         }
 
@@ -109,7 +159,7 @@ namespace RoadRegistry.Model
         public void AccessRestrictionMustBeWithinDomain()
         {
             var acceptable = Array.ConvertAll(RoadSegmentAccessRestriction.All, candidate => candidate.ToInt32());
-            var value = new Generator<Int32>(Fixture).First(candidate => !acceptable.Contains(candidate));
+            var value = new Generator<int>(Fixture).First(candidate => !acceptable.Contains(candidate));
             Validator.ShouldHaveValidationErrorFor(c => c.AccessRestriction, (Shared.RoadSegmentAccessRestriction)value);
         }
 
@@ -254,9 +304,9 @@ namespace RoadRegistry.Model
 
             var data = new Commands.AddRoadSegment
             {
-                Id = new Generator<Int32>(Fixture).First(candidate => candidate >= 0),
-                StartNodeId = new Generator<Int32>(Fixture).First(candidate => candidate >= 0),
-                EndNodeId = new Generator<Int32>(Fixture).First(candidate => candidate >= 0),
+                Id = new Generator<int>(Fixture).First(candidate => candidate >= 0),
+                StartNodeId = new Generator<int>(Fixture).First(candidate => candidate >= 0),
+                EndNodeId = new Generator<int>(Fixture).First(candidate => candidate >= 0),
                 Geometry = writer.Write(Fixture.Create<MultiLineString>()),
                 Maintainer = Fixture.Create<string>(),
                 GeometryDrawMethod = Fixture.Create<Shared.RoadSegmentGeometryDrawMethod>(),

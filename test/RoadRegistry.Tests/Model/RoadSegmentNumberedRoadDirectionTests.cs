@@ -23,7 +23,7 @@
             _fixture.Customizations.Add(
                 new FiniteSequenceGenerator<int>(_knownValues));
             new CompositeIdiomaticAssertion(
-                new ImplicitConversionOperatorAssertion<Int32>(_fixture),
+                new ImplicitConversionOperatorAssertion<int>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),

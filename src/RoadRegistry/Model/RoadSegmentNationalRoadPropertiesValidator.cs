@@ -5,5 +5,12 @@ namespace RoadRegistry.Model
 
     public class RoadSegmentNationalRoadPropertiesValidator : AbstractValidator<RoadSegmentNationalRoadProperties>
     {
+        public RoadSegmentNationalRoadPropertiesValidator()
+        {
+            RuleFor(c => c.Ident2)
+                .NotEmpty()
+                .Must(NationalRoadNumber.CanParse)
+                .When(c => c.Ident2 != null, ApplyConditionTo.CurrentValidator);
+        }
     }
 }

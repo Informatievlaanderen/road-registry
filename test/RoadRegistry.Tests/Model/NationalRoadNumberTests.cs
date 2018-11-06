@@ -23,7 +23,7 @@ namespace RoadRegistry.Model
             _fixture.Customizations.Add(
                 new FiniteSequenceGenerator<string>(_knownValues));
             new CompositeIdiomaticAssertion(
-                new ImplicitConversionOperatorAssertion<String>(_fixture),
+                new ImplicitConversionOperatorAssertion<string>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -56,7 +56,13 @@ namespace RoadRegistry.Model
             var sut = NationalRoadNumber.Parse(value);
             var result = sut.ToString();
 
-            Assert.Equal(value.ToString(), result);
+            Assert.Equal(value, result);
+        }
+
+        [Fact]
+        public void ParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => NationalRoadNumber.Parse(null));
         }
 
         [Fact]
@@ -73,6 +79,12 @@ namespace RoadRegistry.Model
         {
             var value = new Generator<string>(_fixture).First(candidate => !_knownValues.Contains(candidate));
             Assert.Throws<FormatException>(() => NationalRoadNumber.Parse(value));
+        }
+
+        [Fact]
+        public void TryParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => NationalRoadNumber.TryParse(null, out _));
         }
 
         [Fact]
@@ -94,6 +106,30 @@ namespace RoadRegistry.Model
             var result = NationalRoadNumber.TryParse(value, out NationalRoadNumber parsed);
             Assert.False(result);
             Assert.Null(parsed);
+        }
+
+        [Fact]
+        public void CanParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => NationalRoadNumber.CanParse(null));
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+        {
+            _fixture.Customizations.Add(
+                new FiniteSequenceGenerator<string>(_knownValues));
+            var value = _fixture.Create<string>();
+            var result = NationalRoadNumber.CanParse(value);
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+        {
+            var value = new Generator<string>(_fixture).First(candidate => !_knownValues.Contains(candidate));
+            var result = NationalRoadNumber.CanParse(value);
+            Assert.False(result);
         }
     }
 }

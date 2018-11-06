@@ -63,23 +63,21 @@ namespace RoadRegistry.Model
         public void DirectionMustBeWithinDomain()
         {
             var acceptable = Array.ConvertAll(RoadSegmentLaneDirection.All, candidate => candidate.ToInt32());
-            var value = new Generator<Int32>(Fixture).First(candidate => !acceptable.Contains(candidate));
+            var value = new Generator<int>(Fixture).First(candidate => !acceptable.Contains(candidate));
             Validator.ShouldHaveValidationErrorFor(c => c.Direction, (Shared.LaneDirection)value);
         }
 
         [Fact]
         public void VerifyValid()
         {
-            Fixture.CustomizePolylineM();
-
-            var positionGenerator = new Generator<Double>(Fixture);
+            var positionGenerator = new Generator<double>(Fixture);
             var from = positionGenerator.First(candidate => candidate >= 0.0);
 
             var data = new Commands.RoadSegmentLaneProperties
             {
                 FromPosition = from,
                 ToPosition = positionGenerator.First(candidate => candidate > from),
-                Count = new Generator<Int32>(Fixture).First(candidate => candidate >= 0 || candidate == -8 || candidate == -9),
+                Count = new Generator<int>(Fixture).First(candidate => candidate >= 0 || candidate == -8 || candidate == -9),
                 Direction = Fixture.Create<Shared.LaneDirection>()
             };
 

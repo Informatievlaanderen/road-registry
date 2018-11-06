@@ -20,19 +20,16 @@ namespace RoadRegistry.Model
                 .NotNull()
                 .Must(data => {
                     var acceptable = false;
-                    if(data != null)
+                    try
                     {
-                        try
-                        {
-                            acceptable = reader.TryReadAs<PointM>(data, out PointM ignored);
-                        }
-                        catch
-                        {
-                            acceptable = false;
-                        }
+                        acceptable = reader.TryReadAs<PointM>(data, out PointM ignored);
+                    }
+                    catch
+                    {
                     }
                     return acceptable;
                 })
+                .When(c => c.Geometry != null, ApplyConditionTo.CurrentValidator)
                 .WithMessage("The 'Geometry' is not a PointM.");
         }
     }

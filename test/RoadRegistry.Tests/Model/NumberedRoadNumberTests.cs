@@ -23,7 +23,7 @@ namespace RoadRegistry.Model
             _fixture.Customizations.Add(
                 new FiniteSequenceGenerator<string>(_knownValues));
             new CompositeIdiomaticAssertion(
-                new ImplicitConversionOperatorAssertion<String>(_fixture),
+                new ImplicitConversionOperatorAssertion<string>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -56,7 +56,13 @@ namespace RoadRegistry.Model
             var sut = NumberedRoadNumber.Parse(value);
             var result = sut.ToString();
 
-            Assert.Equal(value.ToString(), result);
+            Assert.Equal(value, result);
+        }
+
+        [Fact]
+        public void ParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => NumberedRoadNumber.Parse(null));
         }
 
         [Fact]
@@ -76,12 +82,18 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
+        public void TryParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => NumberedRoadNumber.TryParse(null, out _));
+        }
+
+        [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsWellKnown()
         {
             _fixture.Customizations.Add(
                 new FiniteSequenceGenerator<string>(_knownValues));
             var value = _fixture.Create<string>();
-            var result = NumberedRoadNumber.TryParse(value, out NumberedRoadNumber parsed);
+            var result = NumberedRoadNumber.TryParse(value, out var parsed);
             Assert.True(result);
             Assert.NotNull(parsed);
             Assert.Equal(value, parsed.ToString());
@@ -91,9 +103,33 @@ namespace RoadRegistry.Model
         public void TryParseReturnsExpectedResultWhenValueIsUnknown()
         {
             var value = new Generator<string>(_fixture).First(candidate => !_knownValues.Contains(candidate));
-            var result = NumberedRoadNumber.TryParse(value, out NumberedRoadNumber parsed);
+            var result = NumberedRoadNumber.TryParse(value, out var parsed);
             Assert.False(result);
             Assert.Null(parsed);
+        }
+
+        [Fact]
+        public void CanParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => NumberedRoadNumber.CanParse(null));
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+        {
+            var value = new Generator<string>(_fixture).First(candidate => !_knownValues.Contains(candidate));
+            var result = NumberedRoadNumber.CanParse(value);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+        {
+            _fixture.Customizations.Add(
+                new FiniteSequenceGenerator<string>(_knownValues));
+            var value = _fixture.Create<string>();
+            var result = NumberedRoadNumber.CanParse(value);
+            Assert.True(result);
         }
     }
 }

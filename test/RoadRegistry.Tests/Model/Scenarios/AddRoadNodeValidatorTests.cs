@@ -33,7 +33,7 @@ namespace RoadRegistry.Model
         public void TypeMustBeWithinDomain()
         {
             var types = Array.ConvertAll(RoadNodeType.All, candidate => candidate.ToInt32());
-            var value = new Generator<Int32>(Fixture).First(candidate => !types.Contains(candidate));
+            var value = new Generator<int>(Fixture).First(candidate => !types.Contains(candidate));
             Validator.ShouldHaveValidationErrorFor(c => c.Type, (Shared.RoadNodeType)value);
         }
 
@@ -70,7 +70,7 @@ namespace RoadRegistry.Model
 
             var data = new Commands.AddRoadNode
             {
-                Id = new Generator<Int32>(Fixture).First(candidate => candidate >= 0),
+                Id = new Generator<int>(Fixture).First(candidate => candidate >= 0),
                 Type = Fixture.Create<Shared.RoadNodeType>(),
                 Geometry = writer.Write(Fixture.Create<PointM>())
             };

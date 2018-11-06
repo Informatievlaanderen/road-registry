@@ -19,8 +19,8 @@ namespace RoadRegistry.Model
         {
             new CompositeIdiomaticAssertion(
                 new GuardClauseAssertion(_fixture, new NegativeInt64BehaviorExpectation()),
-                new ImplicitConversionOperatorAssertion<Int64>(_fixture),
-                new ExplicitConversionMethodAssertion<Int64>(_fixture),
+                new ImplicitConversionOperatorAssertion<long>(_fixture),
+                new ExplicitConversionMethodAssertion<long>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),

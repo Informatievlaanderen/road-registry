@@ -19,8 +19,8 @@
         {
             new CompositeIdiomaticAssertion(
                 new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation()),
-                new ImplicitConversionOperatorAssertion<Int32>(_fixture),
-                new ExplicitConversionMethodAssertion<Int32>(_fixture),
+                new ImplicitConversionOperatorAssertion<int>(_fixture),
+                new ExplicitConversionMethodAssertion<int>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -39,7 +39,7 @@
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
-            var value = _fixture.Create<Int32>();
+            var value = _fixture.Create<int>();
             var sut = new RoadSegmentLaneCount(value);
 
             Assert.Equal(value.ToString(), sut.ToString());

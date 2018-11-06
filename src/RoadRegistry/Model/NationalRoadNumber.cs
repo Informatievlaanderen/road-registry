@@ -37,14 +37,22 @@ namespace RoadRegistry.Model
             _value = value;
         }
 
+        public static bool CanParse(string value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            return Array.Find(All, candidate => candidate._value == value) != null;
+        }
+
         public static bool TryParse(string value, out NationalRoadNumber parsed)
         {
+            if (value == null) throw new ArgumentNullException(nameof(value));
             parsed = Array.Find(All, candidate => candidate._value == value);
             return parsed != null;
         }
 
         public static NationalRoadNumber Parse(string value)
         {
+            if (value == null) throw new ArgumentNullException(nameof(value));
             if (!TryParse(value, out var parsed))
             {
                 throw new FormatException($"The value {value} is not a well known national road number.");

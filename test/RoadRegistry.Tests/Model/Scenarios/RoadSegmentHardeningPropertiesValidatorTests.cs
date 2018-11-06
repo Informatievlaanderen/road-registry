@@ -44,16 +44,14 @@ namespace RoadRegistry.Model
         public void TypeMustBeWithinDomain()
         {
             var acceptable = Array.ConvertAll(RoadSegmentHardeningType.All, candidate => candidate.ToInt32());
-            var value = new Generator<Int32>(Fixture).First(candidate => !acceptable.Contains(candidate));
+            var value = new Generator<int>(Fixture).First(candidate => !acceptable.Contains(candidate));
             Validator.ShouldHaveValidationErrorFor(c => c.Type, (Shared.HardeningType)value);
         }
 
         [Fact]
         public void VerifyValid()
         {
-            Fixture.CustomizePolylineM();
-
-            var positionGenerator = new Generator<Double>(Fixture);
+            var positionGenerator = new Generator<double>(Fixture);
             var from = positionGenerator.First(candidate => candidate >= 0.0);
 
             var data = new Commands.RoadSegmentHardeningProperties

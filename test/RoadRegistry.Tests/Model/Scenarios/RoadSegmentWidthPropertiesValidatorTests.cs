@@ -62,16 +62,14 @@ namespace RoadRegistry.Model
         [Fact]
         public void VerifyValid()
         {
-            Fixture.CustomizePolylineM();
-
-            var positionGenerator = new Generator<Double>(Fixture);
+            var positionGenerator = new Generator<double>(Fixture);
             var from = positionGenerator.First(candidate => candidate >= 0.0);
 
             var data = new Commands.RoadSegmentWidthProperties
             {
                 FromPosition = from,
                 ToPosition = positionGenerator.First(candidate => candidate > from),
-                Width = new Generator<Int32>(Fixture).First(candidate => candidate >= 0 || candidate == -8 || candidate == -9)
+                Width = new Generator<int>(Fixture).First(candidate => candidate >= 0 || candidate == -8 || candidate == -9)
             };
 
             Validator.ValidateAndThrow(data);
