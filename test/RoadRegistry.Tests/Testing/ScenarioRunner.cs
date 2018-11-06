@@ -7,8 +7,10 @@
     using System.Threading.Tasks;
     using Aiv.Vbr.EventHandling;
     using Aiv.Vbr.Generators.Guid;
+    using FluentValidation.Results;
     using Framework;
     using KellermanSoftware.CompareNetObjects;
+    using KellermanSoftware.CompareNetObjects.TypeComparers;
     using Model;
     using Newtonsoft.Json;
     using SqlStreamStore;
@@ -79,12 +81,51 @@
                     "Source",
                     "TargetSite"
                 },
-                IgnoreObjectTypes = true
+                IgnoreObjectTypes = true,
+                CustomComparers = new List<BaseTypeComparer>
+                {
+                    new ValidationFailureComparer(RootComparerFactory.GetRootComparer())
+                }
             };
             var comparer = new CompareLogic(config);
             var result = comparer.Compare(scenario.Throws, exception);
             if (result.AreEqual) return scenario.Pass();
             return scenario.ButThrewException(exception);
+        }
+
+        private class ValidationFailureComparer : BaseTypeComparer
+        {
+            public ValidationFailureComparer(RootComparer comparer)
+                :base(comparer)
+            {
+            }
+
+            public override void CompareType(CompareParms parms)
+            {
+                var left = (ValidationFailure)parms.Object1;
+                var right = (ValidationFailure)parms.Object2;
+                if(!Equals(left.PropertyName, right.PropertyName) 
+                || !Equals(left.ErrorMessage, right.ErrorMessage))
+                {
+                    var difference = new Difference
+                    {
+                        Object1 = left,
+                        Object1TypeName = left.GetType().Name,
+                        Object1Value = left.ToString(),
+                        Object2 = right,
+                        Object2TypeName = right.GetType().Name,
+                        Object2Value = right.ToString(),
+                        ParentObject1 = parms.ParentObject1,
+                        ParentObject2 = parms.ParentObject2
+                    };
+                    parms.Result.Differences.Add(difference);
+                }
+            }
+
+            public override bool IsTypeMatch(Type type1, Type type2)
+            {
+                return type1 == typeof(ValidationFailure) && type2 == typeof(ValidationFailure);
+            }
         }
 
         private async Task<long> WriteGivens(RecordedEvent[] givens)

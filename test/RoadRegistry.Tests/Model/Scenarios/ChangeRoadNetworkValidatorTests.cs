@@ -89,11 +89,17 @@ namespace RoadRegistry.Model
         [Fact]
         public void ChangeCanNotBeNull()
         {
-            var changes = Fixture.CreateMany<Commands.RoadNetworkChange>().ToArray();
-            var index = new Random().Next(0, changes.Length + 1);
-            changes[index] = null;
+            var data = Fixture.CreateMany<Commands.RoadNetworkChange>().ToArray();
+            var index = new Random().Next(0, data.Length);
+            data[index] = null;
 
-            Validator.ShouldHaveValidationErrorFor(c => c.Changes, changes);
+            Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        }
+
+        [Fact]
+        public void ChangesHasExpectedValidator()
+        {
+            Validator.ShouldHaveChildValidator(c => c.Changes, typeof(RoadNetworkChangeValidator));
         }
 
         // [Fact]

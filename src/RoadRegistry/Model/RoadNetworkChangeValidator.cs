@@ -14,7 +14,7 @@ namespace RoadRegistry.Model
             }
 
             RuleFor(c => c.AddRoadNode).SetValidator(new AddRoadNodeValidator(reader));
-            RuleFor(c => c.AddRoadSegment).SetValidator(new AddRoadSegmentValidator());
+            RuleFor(c => c.AddRoadSegment).SetValidator(new AddRoadSegmentValidator(reader));
         }
     }
 }

@@ -18,7 +18,7 @@ namespace RoadRegistry.Model
         {
             _value = value;
         }
-
+        
         public static bool TryParse(int value, out RoadNodeType parsed)
         {
             parsed = Array.Find(All, candidate => candidate._value == value);

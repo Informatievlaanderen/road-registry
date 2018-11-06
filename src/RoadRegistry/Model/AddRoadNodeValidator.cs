@@ -18,7 +18,21 @@ namespace RoadRegistry.Model
             RuleFor(c => c.Type).IsInEnum();
             RuleFor(c => c.Geometry)
                 .NotNull()
-                .Must(data => data != null && reader.TryReadAs<PointM>(data, out PointM ignored))
+                .Must(data => {
+                    var acceptable = false;
+                    if(data != null)
+                    {
+                        try
+                        {
+                            acceptable = reader.TryReadAs<PointM>(data, out PointM ignored);
+                        }
+                        catch
+                        {
+                            acceptable = false;
+                        }
+                    }
+                    return acceptable;
+                })
                 .WithMessage("The 'Geometry' is not a PointM.");
         }
     }

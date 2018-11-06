@@ -56,6 +56,12 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
+        public void GeometryMustBeWellformed()
+        {
+            Validator.ShouldHaveValidationErrorFor(c => c.Geometry, Fixture.CreateMany<byte>().ToArray());
+        }
+
+        [Fact]
         public void VerifyValid()
         {
             Fixture.CustomizePointM();

@@ -26,16 +26,13 @@ namespace RoadRegistry.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetwork(
-                    new[]
+                    new Commands.RoadNetworkChange
                     {
-                        new Commands.RoadNetworkChange
+                        AddRoadNode = new Commands.AddRoadNode
                         {
-                            AddRoadNode = new Commands.AddRoadNode
-                            {
-                                Id = 1,
-                                Type = Shared.RoadNodeType.FakeNode,
-                                Geometry = geometry
-                            }
+                            Id = 1,
+                            Type = Shared.RoadNodeType.FakeNode,
+                            Geometry = geometry
                         }
                     }
                 ))
@@ -105,16 +102,13 @@ namespace RoadRegistry.Model
                     }
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
-                    new[]
+                    new Commands.RoadNetworkChange
                     {
-                        new Commands.RoadNetworkChange
+                        AddRoadNode = new Commands.AddRoadNode
                         {
-                            AddRoadNode = new Commands.AddRoadNode
-                            {
-                                Id = 1,
-                                Type = Shared.RoadNodeType.FakeNode,
-                                Geometry = geometry
-                            }
+                            Id = 1,
+                            Type = Shared.RoadNodeType.FakeNode,
+                            Geometry = geometry
                         }
                     }
                 ))
@@ -128,16 +122,13 @@ namespace RoadRegistry.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetwork(
-                    new[]
+                    new Commands.RoadNetworkChange
                     {
-                        new Commands.RoadNetworkChange
+                        AddRoadNode = new Commands.AddRoadNode
                         {
-                            AddRoadNode = new Commands.AddRoadNode
-                            {
-                                Id = 1,
-                                Type = Shared.RoadNodeType.FakeNode,
-                                Geometry = geometry
-                            }
+                            Id = 1,
+                            Type = Shared.RoadNodeType.FakeNode,
+                            Geometry = geometry
                         }
                     }
                 ))
@@ -156,25 +147,22 @@ namespace RoadRegistry.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetwork(
-                    new[]
+                    new Commands.RoadNetworkChange
                     {
-                        new Commands.RoadNetworkChange
+                        AddRoadNode = new Commands.AddRoadNode
                         {
-                            AddRoadNode = new Commands.AddRoadNode
-                            {
-                                Id = 1,
-                                Type = Shared.RoadNodeType.FakeNode,
-                                Geometry = geometry1
-                            }
-                        },
-                        new Commands.RoadNetworkChange
+                            Id = 1,
+                            Type = Shared.RoadNodeType.FakeNode,
+                            Geometry = geometry1
+                        }
+                    },
+                    new Commands.RoadNetworkChange
+                    {
+                        AddRoadNode = new Commands.AddRoadNode
                         {
-                            AddRoadNode = new Commands.AddRoadNode
-                            {
-                                Id = 2,
-                                Type = Shared.RoadNodeType.FakeNode,
-                                Geometry = geometry2
-                            }
+                            Id = 2,
+                            Type = Shared.RoadNodeType.FakeNode,
+                            Geometry = geometry2
                         }
                     }
                 ))
