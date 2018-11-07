@@ -77,7 +77,7 @@ namespace RoadRegistry.Model
                     }))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    Rejections = new[]
+                    Changes = new[]
                     {
                         new RejectedChange
                         {
@@ -131,7 +131,7 @@ namespace RoadRegistry.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    Rejections = new[]
+                    Changes = new[]
                     {
                         new RejectedChange
                         {
@@ -208,7 +208,7 @@ namespace RoadRegistry.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    Rejections = new[]
+                    Changes = new[]
                     {
                         new RejectedChange
                         {
@@ -222,7 +222,7 @@ namespace RoadRegistry.Model
                                     {
                                         new ReasonParameter
                                         {
-                                            Name = "ConflictsWithNodeId",
+                                            Name = "ByOtherNode",
                                             Value = "1"
                                         }
                                     }

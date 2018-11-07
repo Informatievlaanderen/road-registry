@@ -3,6 +3,7 @@ namespace RoadRegistry.Model
     using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Linq;
     using Framework;
     using Aiv.Vbr.Shaperon;
     using Messages;
@@ -68,57 +69,25 @@ namespace RoadRegistry.Model
                 switch (change)
                 {
                     case AddRoadNode addRoadNode:
-                        var reasons = new List<Reason>();
+                        var reasons = RejectionReasons.None;
 
                         if (_nodes.ContainsKey(addRoadNode.Id))
                         {
-                            reasons.Add(new Reason
-                            {
-                                Because= "RoadNodeIdTaken",
-                                Parameters = new ReasonParameter[0]
-                            });
+                            reasons = reasons.BecauseRoadNodeIdTaken();
                         }
 
-                        if (_node_geometries.TryGetValue(addRoadNode.Geometry, out var conflictsWithId))
+                        if (_node_geometries.TryGetValue(addRoadNode.Geometry, out var byOtherNode))
                         {
-                            reasons.Add(new Reason
-                            {
-                                Because= "RoadNodeGeometryTaken",
-                                Parameters = new []
-                                {
-                                    new ReasonParameter
-                                    {
-                                        Name = "ConflictsWithNodeId",
-                                        Value =  conflictsWithId.ToInt32().ToString()
-                                    }
-                                }
-                            });
+                            reasons = reasons.BecauseRoadNodeGeometryTaken(byOtherNode);
                         }
 
-                        if (reasons.Count == 0)
+                        if (reasons == RejectionReasons.None)
                         {
-                            acceptedChanges.Add(new AcceptedChange
-                            {
-                                RoadNodeAdded = new RoadNodeAdded
-                                {
-                                    Id = addRoadNode.Id.ToInt32(),
-                                    Type = (Messages.RoadNodeType) addRoadNode.Type.ToInt32(),
-                                    Geometry = writer.Write(addRoadNode.Geometry)
-                                }
-                            });
+                            acceptedChanges.Add(addRoadNode.Accept(writer));
                         }
                         else
                         {
-                            rejectedChanges.Add(new RejectedChange
-                            {
-                                AddRoadNode = new Messages.AddRoadNode
-                                {
-                                    Id = addRoadNode.Id.ToInt32(),
-                                    Type = (Messages.RoadNodeType) addRoadNode.Type.ToInt32(),
-                                    Geometry = writer.Write(addRoadNode.Geometry)
-                                },
-                                Reasons = reasons.ToArray()
-                            });
+                            rejectedChanges.Add(addRoadNode.Reject(writer, reasons));
                         }
 
                         break;
@@ -136,7 +105,7 @@ namespace RoadRegistry.Model
             {
                 Apply(new RoadNetworkChangesRejected
                 {
-                    Rejections = rejectedChanges.ToArray()
+                    Changes = rejectedChanges.ToArray()
                 });
             }
         }

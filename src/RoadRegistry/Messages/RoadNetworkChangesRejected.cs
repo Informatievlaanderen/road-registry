@@ -6,7 +6,7 @@
     [EventDescription("Indicates the road network changes were rejected.")]
     public class RoadNetworkChangesRejected
     {
-        public RejectedChange[] Rejections { get; set; }
+        public RejectedChange[] Changes { get; set; }
     }
 
 }

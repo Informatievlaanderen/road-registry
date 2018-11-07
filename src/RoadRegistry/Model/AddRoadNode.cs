@@ -1,6 +1,8 @@
 namespace RoadRegistry.Model
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Aiv.Vbr.Shaperon;
 
     public class AddRoadNode : IRequestedChange
@@ -16,16 +18,30 @@ namespace RoadRegistry.Model
         public RoadNodeType Type { get; }
         public PointM Geometry { get; }
 
-        public Messages.AcceptedChange Accept()
+        public Messages.AcceptedChange Accept(WellKnownBinaryWriter writer)
         {
             return new Messages.AcceptedChange
             {
                 RoadNodeAdded = new Messages.RoadNodeAdded
                 {
                     Id = Id,
-                    Geometry = Geometry.ToBinary(),
-                    Type = (Messages.RoadNodeType) (int) Type
+                    Type = (Messages.RoadNodeType) Type.ToInt32(),
+                    Geometry = writer.Write(Geometry)
                 }
+            };
+        }
+
+        public Messages.RejectedChange Reject(WellKnownBinaryWriter writer, IEnumerable<Messages.Reason> reasons)
+        {
+            return new Messages.RejectedChange
+            {
+                AddRoadNode = new Messages.AddRoadNode
+                {
+                    Id = Id,
+                    Type = (Messages.RoadNodeType) Type.ToInt32(),
+                    Geometry = writer.Write(Geometry)
+                },
+                Reasons = reasons.ToArray()
             };
         }
     }
