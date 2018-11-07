@@ -1,5 +1,6 @@
 namespace RoadRegistry.Model
 {
+    using System;
     using System.Threading.Tasks;
     using AutoFixture;
     using NetTopologySuite.Geometries;
@@ -285,6 +286,72 @@ namespace RoadRegistry.Model
                         }
                     }
                 }));
+        }
+
+        [Fact]
+        public Task when_adding_a_node_that_is_within_two_meters_of_another_node()
+        {
+            var geometry1 = Fixture.Create<PointM>();
+            var random = new Random();
+            var geometry2 = new PointM(
+                geometry1.X + random.NextDouble() * RoadNetwork.TooCloseDistance,
+                geometry1.Y + random.NextDouble() * RoadNetwork.TooCloseDistance,
+                geometry1.Z + random.NextDouble() * RoadNetwork.TooCloseDistance
+            );
+            var addRoadNode = new Messages.AddRoadNode
+            {
+                Id = 2,
+                Type = Messages.RoadNodeType.FakeNode,
+                Geometry = geometry2.ToBytes()
+            };
+            return Run(scenario => scenario
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                {
+                    Changes = new[]
+                    {
+                        new AcceptedChange
+                        {
+                            RoadNodeAdded = new RoadNodeAdded
+                            {
+                                Id = 1,
+                                Type = Messages.RoadNodeType.RealNode,
+                                Geometry = geometry1.ToBytes()
+                            }
+                        }
+                    }
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new RequestedChange
+                    {
+                        AddRoadNode = addRoadNode
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+                {
+                    Changes = new[]
+                    {
+                        new RejectedChange
+                        {
+                            AddRoadNode = addRoadNode,
+                            Reasons = new []
+                            {
+                                new Reason
+                                {
+                                    Because = "RoadNodeTooClose",
+                                    Parameters = new[]
+                                    {
+                                        new ReasonParameter
+                                        {
+                                            Name = "ToOtherNode",
+                                            Value = "1"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+            );
         }
     }
 }

@@ -1,3 +1,4 @@
+// ReSharper disable ImpureMethodCallOnReadonlyValueField
 namespace RoadRegistry.Model
 {
     using System.Collections;
@@ -42,6 +43,26 @@ namespace RoadRegistry.Model
                             {
                                 Name = "ByOtherNode",
                                 Value = byOtherNode.ToInt32().ToString()
+                            }
+                        }
+                    }
+                )
+            );
+        }
+
+        public RejectionReasons BecauseRoadNodeTooClose(RoadNodeId toOtherNode)
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadNodeTooClose",
+                        Parameters = new []
+                        {
+                            new ReasonParameter
+                            {
+                                Name = "ToOtherNode",
+                                Value = toOtherNode.ToInt32().ToString()
                             }
                         }
                     }

@@ -11,23 +11,22 @@ namespace RoadRegistry.Model
     public class RoadNetwork : EventSourcedEntity
     {
         public static readonly Func<RoadNetwork> Factory = () => new RoadNetwork();
+        public static readonly double TooCloseDistance = 2.0;
 
         private ImmutableDictionary<RoadNodeId, RoadNode> _nodes;
         private ImmutableDictionary<RoadSegmentId, RoadSegment> _segments;
-        private ImmutableDictionary<PointM, RoadNodeId> _node_geometries;
-        private readonly WellKnownBinaryReader _reader;
 
         private RoadNetwork()
         {
-            _reader = new WellKnownBinaryReader();
+            var reader = new WellKnownBinaryReader();
+
             _nodes = ImmutableDictionary<RoadNodeId, RoadNode>.Empty;
             _segments = ImmutableDictionary<RoadSegmentId, RoadSegment>.Empty;
-            _node_geometries = ImmutableDictionary<PointM, RoadNodeId>.Empty;
 
             On<ImportedRoadNode>(e =>
             {
                 var id = new RoadNodeId(e.Id);
-                var node = new RoadNode(id);
+                var node = new RoadNode(id, reader.ReadAs<PointM>(e.Geometry));
                 _nodes = _nodes.Add(id, node);
             });
 
@@ -49,11 +48,7 @@ namespace RoadRegistry.Model
                     if (change.RoadNodeAdded != null)
                     {
                         var id = new RoadNodeId(change.RoadNodeAdded.Id);
-                        _nodes = _nodes.Add(id, new RoadNode(id));
-                        _node_geometries = _node_geometries.Add(
-                            _reader.ReadAs<PointM>(change.RoadNodeAdded.Geometry),
-                            id
-                        );
+                        _nodes = _nodes.Add(id, new RoadNode(id, reader.ReadAs<PointM>(change.RoadNodeAdded.Geometry)));
                     }
                 }
             });
@@ -76,9 +71,20 @@ namespace RoadRegistry.Model
                             reasons = reasons.BecauseRoadNodeIdTaken();
                         }
 
-                        if (_node_geometries.TryGetValue(addRoadNode.Geometry, out var byOtherNode))
+                        var byOtherNode =
+                            _nodes.Values.FirstOrDefault(node => node.Geometry.EqualsExact(addRoadNode.Geometry));
+                        if (byOtherNode != null)
                         {
-                            reasons = reasons.BecauseRoadNodeGeometryTaken(byOtherNode);
+                            reasons = reasons.BecauseRoadNodeGeometryTaken(byOtherNode.Id);
+                        }
+                        else
+                        {
+                            var toOtherNode =
+                                _nodes.Values.FirstOrDefault(node => node.Geometry.EqualsExact(addRoadNode.Geometry, TooCloseDistance));
+                            if (toOtherNode != null)
+                            {
+                                reasons = reasons.BecauseRoadNodeTooClose(toOtherNode.Id);
+                            }
                         }
 
                         if (reasons == RejectionReasons.None)
