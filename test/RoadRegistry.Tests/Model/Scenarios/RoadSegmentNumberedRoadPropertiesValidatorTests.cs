@@ -45,7 +45,7 @@ namespace RoadRegistry.Model
         [Fact]
         public void VerifyValid()
         {
-            var data = new Commands.RoadSegmentNumberedRoadProperties
+            var data = new Shared.RoadSegmentNumberedRoadProperties
             {
                 Ident8 = NumberedRoadNumber.All[new Random().Next(0, NumberedRoadNumber.All.Length)].ToString(),
                 Direction = Fixture.Create<Shared.NumberedRoadSegmentDirection>(),

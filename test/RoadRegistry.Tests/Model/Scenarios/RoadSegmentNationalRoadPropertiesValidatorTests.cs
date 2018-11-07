@@ -29,7 +29,7 @@ namespace RoadRegistry.Model
         [Fact]
         public void VerifyValid()
         {
-            var data = new Commands.RoadSegmentNationalRoadProperties
+            var data = new Shared.RoadSegmentNationalRoadProperties
             {
                 Ident2 = NationalRoadNumber.All[new Random().Next(0, NationalRoadNumber.All.Length)].ToString()
             };

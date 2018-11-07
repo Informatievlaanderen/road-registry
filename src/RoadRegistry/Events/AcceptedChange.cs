@@ -1,6 +1,6 @@
-namespace RoadRegistry.Events
+﻿namespace RoadRegistry.Events
 {
-    public class RoadNetworkChange
+    public class AcceptedChange
     {
         public RoadNodeAdded RoadNodeAdded { get; set; }
     }

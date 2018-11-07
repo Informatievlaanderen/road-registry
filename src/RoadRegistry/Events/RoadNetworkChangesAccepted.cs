@@ -6,7 +6,7 @@
     [EventDescription("Indicates the road network changes were accepted.")]
     public class RoadNetworkChangesAccepted
     {
-        public RoadNetworkChange[] Changes { get; set; }
+        public AcceptedChange[] Changes { get; set; }
     }
 
 }

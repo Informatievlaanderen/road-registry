@@ -1,19 +1,19 @@
-namespace RoadRegistry.Model
+﻿namespace RoadRegistry.Model
 {
     using System;
     using Aiv.Vbr.Shaperon;
     using NetTopologySuite.Geometries;
 
-    internal class ChangeRoadNetworkTranslator
+    internal class RequestedChangeTranslator
     {
-        public ChangeRoadNetworkTranslator(WellKnownBinaryReader reader)
+        public RequestedChangeTranslator(WellKnownBinaryReader reader)
         {
             Reader = reader ?? throw new ArgumentNullException(nameof(reader));
         }
 
         public WellKnownBinaryReader Reader { get; }
 
-        public IRoadNetworkChange Translate(Commands.AddRoadNode command)
+        public IRequestedChange Translate(Shared.AddRoadNode command)
         {
             var id = new RoadNodeId(command.Id);
             var geometry = Reader.ReadAs<PointM>(command.Geometry);
@@ -25,7 +25,7 @@ namespace RoadRegistry.Model
             );
         }
 
-        public IRoadNetworkChange Translate(Commands.AddRoadSegment command)
+        public IRequestedChange Translate(Shared.AddRoadSegment command)
         {
             var id = new RoadSegmentId(command.Id);
             var startNode = new RoadNodeId(command.StartNodeId);

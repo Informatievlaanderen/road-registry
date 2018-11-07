@@ -15,11 +15,6 @@
             _value = value;
         }
 
-        public static bool IsWellformed(double value)
-        {
-            return value >= 0.0;
-        }
-
         public double ToDouble() => _value;
         public bool Equals(RoadSegmentPosition other) => Math.Abs(_value - other._value) < double.Epsilon;
         public override bool Equals(object other) => other is RoadSegmentPosition id && Equals(id);

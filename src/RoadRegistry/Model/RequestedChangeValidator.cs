@@ -1,12 +1,12 @@
-namespace RoadRegistry.Model
+﻿namespace RoadRegistry.Model
 {
     using System;
     using Aiv.Vbr.Shaperon;
     using FluentValidation;
 
-    public class RoadNetworkChangeValidator : AbstractValidator<Commands.RoadNetworkChange>
+    public class RequestedChangeValidator : AbstractValidator<Commands.RequestedChange>
     {
-        public RoadNetworkChangeValidator(WellKnownBinaryReader reader)
+        public RequestedChangeValidator(WellKnownBinaryReader reader)
         {
             if (reader == null)
             {

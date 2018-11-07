@@ -1,7 +1,5 @@
-namespace RoadRegistry.Commands
+namespace RoadRegistry.Shared
 {
-    using Shared;
-
     public class AddRoadNode
     {
         public int Id { get; set; }

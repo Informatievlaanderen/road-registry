@@ -26,9 +26,9 @@ namespace RoadRegistry.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetwork(
-                    new Commands.RoadNetworkChange
+                    new Commands.RequestedChange
                     {
-                        AddRoadNode = new Commands.AddRoadNode
+                        AddRoadNode = new Shared.AddRoadNode
                         {
                             Id = 1,
                             Type = Shared.RoadNodeType.FakeNode,
@@ -40,7 +40,7 @@ namespace RoadRegistry.Model
                 {
                     Changes = new[]
                     {
-                        new Events.RoadNetworkChange
+                        new Events.AcceptedChange
                         {
                             RoadNodeAdded = new RoadNodeAdded
                             {
@@ -67,9 +67,9 @@ namespace RoadRegistry.Model
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new[]
                     {
-                        new Commands.RoadNetworkChange
+                        new Commands.RequestedChange
                         {
-                            AddRoadNode = new Commands.AddRoadNode
+                            AddRoadNode = new Shared.AddRoadNode
                             {
                                 Id = 1,
                                 Type = Shared.RoadNodeType.FakeNode,
@@ -90,7 +90,7 @@ namespace RoadRegistry.Model
                 {
                     Changes = new[]
                     {
-                        new Events.RoadNetworkChange
+                        new Events.AcceptedChange
                         {
                             RoadNodeAdded = new RoadNodeAdded
                             {
@@ -102,9 +102,9 @@ namespace RoadRegistry.Model
                     }
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
-                    new Commands.RoadNetworkChange
+                    new Commands.RequestedChange
                     {
-                        AddRoadNode = new Commands.AddRoadNode
+                        AddRoadNode = new Shared.AddRoadNode
                         {
                             Id = 1,
                             Type = Shared.RoadNodeType.FakeNode,
@@ -122,9 +122,9 @@ namespace RoadRegistry.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetwork(
-                    new Commands.RoadNetworkChange
+                    new Commands.RequestedChange
                     {
-                        AddRoadNode = new Commands.AddRoadNode
+                        AddRoadNode = new Shared.AddRoadNode
                         {
                             Id = 1,
                             Type = Shared.RoadNodeType.FakeNode,
@@ -148,7 +148,7 @@ namespace RoadRegistry.Model
                 {
                     Changes = new[]
                     {
-                        new Events.RoadNetworkChange
+                        new Events.AcceptedChange
                         {
                             RoadNodeAdded = new RoadNodeAdded
                             {
@@ -160,9 +160,9 @@ namespace RoadRegistry.Model
                     }
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
-                    new Commands.RoadNetworkChange
+                    new Commands.RequestedChange
                     {
-                        AddRoadNode = new Commands.AddRoadNode
+                        AddRoadNode = new Shared.AddRoadNode
                         {
                             Id = 2,
                             Type = Shared.RoadNodeType.FakeNode,
@@ -181,18 +181,18 @@ namespace RoadRegistry.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetwork(
-                    new Commands.RoadNetworkChange
+                    new Commands.RequestedChange
                     {
-                        AddRoadNode = new Commands.AddRoadNode
+                        AddRoadNode = new Shared.AddRoadNode
                         {
                             Id = 1,
                             Type = Shared.RoadNodeType.FakeNode,
                             Geometry = geometry1
                         }
                     },
-                    new Commands.RoadNetworkChange
+                    new Commands.RequestedChange
                     {
-                        AddRoadNode = new Commands.AddRoadNode
+                        AddRoadNode = new Shared.AddRoadNode
                         {
                             Id = 2,
                             Type = Shared.RoadNodeType.FakeNode,
@@ -204,7 +204,7 @@ namespace RoadRegistry.Model
                 {
                     Changes = new[]
                     {
-                        new Events.RoadNetworkChange
+                        new Events.AcceptedChange
                         {
                             RoadNodeAdded = new RoadNodeAdded
                             {
@@ -213,7 +213,7 @@ namespace RoadRegistry.Model
                                 Geometry = geometry1
                             }
                         },
-                        new Events.RoadNetworkChange
+                        new Events.AcceptedChange
                         {
                             RoadNodeAdded = new RoadNodeAdded
                             {

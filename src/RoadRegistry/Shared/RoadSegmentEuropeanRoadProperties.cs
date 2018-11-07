@@ -1,4 +1,4 @@
-namespace RoadRegistry.Commands
+namespace RoadRegistry.Shared
 {
     public class RoadSegmentEuropeanRoadProperties
     {

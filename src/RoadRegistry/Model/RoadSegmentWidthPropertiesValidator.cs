@@ -3,7 +3,7 @@ namespace RoadRegistry.Model
     using FluentValidation;
     using RoadRegistry.Commands;
 
-    public class RoadSegmentWidthPropertiesValidator : AbstractValidator<RoadSegmentWidthProperties>
+    public class RoadSegmentWidthPropertiesValidator : AbstractValidator<Shared.RoadSegmentWidthProperties>
     {
         public const int Unknown = -8;
         public const int NotApplicable = -9;

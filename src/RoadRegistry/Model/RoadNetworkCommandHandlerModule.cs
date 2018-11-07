@@ -13,7 +13,7 @@ namespace RoadRegistry.Model
             if (store == null) throw new ArgumentNullException(nameof(store));
             if (reader == null) throw new ArgumentNullException(nameof(reader));
 
-            var translator = new ChangeRoadNetworkTranslator(reader);
+            var translator = new RequestedChangeTranslator(reader);
 
             For<ChangeRoadNetwork>()
                 .UseValidator(new ChangeRoadNetworkValidator(reader))
@@ -25,13 +25,13 @@ namespace RoadRegistry.Model
                         message.Body.Changes,
                         item =>
                         {
-                            IRoadNetworkChange change;
+                            IRequestedChange change;
                             switch (item.PickChange())
                             {
-                                case Commands.AddRoadNode command:
+                                case Shared.AddRoadNode command:
                                     change = translator.Translate(command);
                                     break;
-                                case Commands.AddRoadSegment command:
+                                case Shared.AddRoadSegment command:
                                     change = translator.Translate(command);
                                     break;
                                 default:

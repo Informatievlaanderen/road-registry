@@ -32,7 +32,7 @@ namespace RoadRegistry.Model
         [InlineData(0.1, 0.1)]
         public void ToPositionMustBeGreaterThanFromPosition(double from, double to)
         {
-            var data = new Commands.RoadSegmentHardeningProperties
+            var data = new Shared.RoadSegmentHardeningProperties
             {
                 FromPosition = from,
                 ToPosition = to
@@ -54,7 +54,7 @@ namespace RoadRegistry.Model
             var positionGenerator = new Generator<double>(Fixture);
             var from = positionGenerator.First(candidate => candidate >= 0.0);
 
-            var data = new Commands.RoadSegmentHardeningProperties
+            var data = new Shared.RoadSegmentHardeningProperties
             {
                 FromPosition = from,
                 ToPosition = positionGenerator.First(candidate => candidate > from),

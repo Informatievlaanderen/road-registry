@@ -58,10 +58,10 @@ namespace RoadRegistry.Model
             });
         }
 
-        public void Change(IRoadNetworkChange[] changes)
+        public void Change(IRequestedChange[] changes)
         {
             var writer = new WellKnownBinaryWriter();
-            var changed = new List<RoadNetworkChange>();
+            var changed = new List<AcceptedChange>();
             foreach (var change in changes)
             {
                 switch (change)
@@ -81,7 +81,7 @@ namespace RoadRegistry.Model
                         }
 
 
-                        changed.Add(new RoadNetworkChange
+                        changed.Add(new AcceptedChange
                         {
                             RoadNodeAdded = new RoadNodeAdded
                             {

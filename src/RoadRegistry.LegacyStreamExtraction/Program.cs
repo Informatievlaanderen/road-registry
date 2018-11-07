@@ -9,7 +9,6 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Threading.Tasks;
     using Amazon.S3;
     using Events;
-    using Shared;
     using Microsoft.Extensions.Configuration;
 
     public class Program
@@ -146,7 +145,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             EndNodeId = reader.GetInt32(3),
                             Geometry = wellKnownBinary,
                             GeometryVersion = reader.GetInt32(5),
-                            Maintainer = new Maintainer
+                            Maintainer = new Shared.Maintainer
                             {
                                 Code = reader.GetString(6),
                                 Name = reader.GetString(7)

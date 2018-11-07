@@ -15,7 +15,7 @@ namespace RoadRegistry.Model
             }
 
             RuleFor(c => c.Changes).NotNull();
-            RuleForEach(c => c.Changes).NotNull().SetValidator(new RoadNetworkChangeValidator(reader));
+            RuleForEach(c => c.Changes).NotNull().SetValidator(new RequestedChangeValidator(reader));
         }
     }
 }

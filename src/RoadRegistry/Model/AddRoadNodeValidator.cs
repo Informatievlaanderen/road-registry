@@ -5,7 +5,7 @@ namespace RoadRegistry.Model
     using Commands;
     using FluentValidation;
 
-    public class AddRoadNodeValidator : AbstractValidator<Commands.AddRoadNode>
+    public class AddRoadNodeValidator : AbstractValidator<Shared.AddRoadNode>
     {
         public AddRoadNodeValidator(WellKnownBinaryReader reader)
         {

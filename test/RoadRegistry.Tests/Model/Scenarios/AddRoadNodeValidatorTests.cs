@@ -68,7 +68,7 @@ namespace RoadRegistry.Model
 
             var writer = new WellKnownBinaryWriter();
 
-            var data = new Commands.AddRoadNode
+            var data = new Shared.AddRoadNode
             {
                 Id = new Generator<int>(Fixture).First(candidate => candidate >= 0),
                 Type = Fixture.Create<Shared.RoadNodeType>(),

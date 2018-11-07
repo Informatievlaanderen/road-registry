@@ -1,6 +1,4 @@
-using RoadRegistry.Shared;
-
-namespace RoadRegistry.Commands
+namespace RoadRegistry.Shared
 {
     public class RoadSegmentNumberedRoadProperties
     {

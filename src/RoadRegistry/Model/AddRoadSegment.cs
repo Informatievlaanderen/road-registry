@@ -5,7 +5,7 @@ namespace RoadRegistry.Model
     using Aiv.Vbr.Shaperon;
     using NetTopologySuite.Geometries;
 
-    public class AddRoadSegment : IRoadNetworkChange
+    public class AddRoadSegment : IRequestedChange
     {
         public AddRoadSegment(
             RoadSegmentId id,

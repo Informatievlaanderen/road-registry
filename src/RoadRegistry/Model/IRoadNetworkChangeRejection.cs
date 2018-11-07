@@ -1,6 +1,6 @@
 namespace RoadRegistry.Model
 {
-    public interface IRoadNetworkChangeRejection
+    public interface IRejectedChange
     {
 
     }
