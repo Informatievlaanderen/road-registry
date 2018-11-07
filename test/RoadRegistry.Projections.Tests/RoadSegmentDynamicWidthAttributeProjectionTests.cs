@@ -26,7 +26,7 @@ namespace RoadRegistry.Projections.Tests
                 .Select(segment =>
                 {
                     segment.Widths = _fixture
-                        .CreateMany<RoadSegmentWidthProperties>(random.Next(1, 5))
+                        .CreateMany<ImportedRoadSegmentWidthProperties>(random.Next(1, 5))
                         .ToArray();
 
                     var expected = segment
@@ -71,7 +71,7 @@ namespace RoadRegistry.Projections.Tests
         public Task When_importing_a_road_node_without_widths()
         {
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-            importedRoadSegment.Widths = new RoadSegmentWidthProperties[0];
+            importedRoadSegment.Widths = new ImportedRoadSegmentWidthProperties[0];
 
             return new RoadSegmentDynamicWidthAttributeRecordProjection(Encoding.UTF8)
                 .Scenario()

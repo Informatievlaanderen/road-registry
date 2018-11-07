@@ -1,6 +1,6 @@
-namespace RoadRegistry.Events
+﻿namespace RoadRegistry.Events
 {
-    public class RoadSegmentEuropeanRoadProperties
+    public class ImportedRoadSegmentEuropeanRoadProperties
     {
         public int AttributeId { get; set; }
         public string RoadNumber { get; set; }

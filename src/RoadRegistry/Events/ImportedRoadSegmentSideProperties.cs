@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.Events
 {
-    public class RoadSegmentSideProperties
+    public class ImportedRoadSegmentSideProperties
     {
         public int? StreetNameId { get; set; }
         public string StreetName { get; set; }

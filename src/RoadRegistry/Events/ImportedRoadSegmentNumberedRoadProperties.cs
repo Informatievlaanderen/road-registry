@@ -1,8 +1,8 @@
-namespace RoadRegistry.Events
+﻿namespace RoadRegistry.Events
 {
     using Shared;
 
-    public class RoadSegmentNumberedRoadProperties
+    public class ImportedRoadSegmentNumberedRoadProperties
     {
         public int AttributeId { get; set; }
         public string Ident8 { get; set; }
