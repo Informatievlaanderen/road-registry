@@ -68,7 +68,46 @@ namespace RoadRegistry.Model
                 switch (change)
                 {
                     case AddRoadNode addRoadNode:
+                        var reasons = new List<Reason>();
+
                         if (_nodes.ContainsKey(addRoadNode.Id))
+                        {
+                            reasons.Add(new Reason
+                            {
+                                Because= "RoadNodeIdTaken",
+                                Parameters = new ReasonParameter[0]
+                            });
+                        }
+
+                        if (_node_geometries.TryGetValue(addRoadNode.Geometry, out var conflictsWithId))
+                        {
+                            reasons.Add(new Reason
+                            {
+                                Because= "RoadNodeGeometryTaken",
+                                Parameters = new []
+                                {
+                                    new ReasonParameter
+                                    {
+                                        Name = "ConflictsWithNodeId",
+                                        Value =  conflictsWithId.ToInt32().ToString()
+                                    }
+                                }
+                            });
+                        }
+
+                        if (reasons.Count == 0)
+                        {
+                            acceptedChanges.Add(new AcceptedChange
+                            {
+                                RoadNodeAdded = new RoadNodeAdded
+                                {
+                                    Id = addRoadNode.Id.ToInt32(),
+                                    Type = (Messages.RoadNodeType) addRoadNode.Type.ToInt32(),
+                                    Geometry = writer.Write(addRoadNode.Geometry)
+                                }
+                            });
+                        }
+                        else
                         {
                             rejectedChanges.Add(new RejectedChange
                             {
@@ -77,36 +116,29 @@ namespace RoadRegistry.Model
                                     Id = addRoadNode.Id.ToInt32(),
                                     Type = (Messages.RoadNodeType) addRoadNode.Type.ToInt32(),
                                     Geometry = writer.Write(addRoadNode.Geometry)
-                                }
+                                },
+                                Reasons = reasons.ToArray()
                             });
                         }
 
-                        if (_node_geometries.TryGetValue(addRoadNode.Geometry, out var conflictsWithId))
-                        {
-                            throw new RoadNodeGeometryTakenException(
-                                addRoadNode.Id,
-                                conflictsWithId,
-                                addRoadNode.Geometry);
-                        }
-
-
-                        acceptedChanges.Add(new AcceptedChange
-                        {
-                            RoadNodeAdded = new RoadNodeAdded
-                            {
-                                Id = addRoadNode.Id.ToInt32(),
-                                Type = (Messages.RoadNodeType) addRoadNode.Type.ToInt32(),
-                                Geometry = writer.Write(addRoadNode.Geometry)
-                            }
-                        });
                         break;
                 }
             }
 
-            Apply(new RoadNetworkChangesAccepted
+            if (rejectedChanges.Count == 0)
             {
-                Changes = acceptedChanges.ToArray()
-            });
+                Apply(new RoadNetworkChangesAccepted
+                {
+                    Changes = acceptedChanges.ToArray()
+                });
+            }
+            else
+            {
+                Apply(new RoadNetworkChangesRejected
+                {
+                    Rejections = rejectedChanges.ToArray()
+                });
+            }
         }
     }
 }

@@ -38,13 +38,13 @@ namespace RoadRegistry.Testing
                         messageBuilder.AppendLine("Expected:");
                         foreach (var then in recorded.Scenario.Thens)
                         {
-                            messageBuilder.AppendLine($"\t{then.Stream} - {then.Event.GetType().Name} {JsonConvert.SerializeObject(then.Event)}");
+                            messageBuilder.AppendLine($"\t{then.Stream} - {then.Event.GetType().Name} {JsonConvert.SerializeObject(then.Event, Formatting.Indented)}");
 
                         }
                         messageBuilder.AppendLine("Actual:");
                         foreach (var actual in recorded.Actual)
                         {
-                            messageBuilder.AppendLine($"\t{actual.Stream} - {actual.Event.GetType().Name} {JsonConvert.SerializeObject(actual.Event)}");
+                            messageBuilder.AppendLine($"\t{actual.Stream} - {actual.Event.GetType().Name} {JsonConvert.SerializeObject(actual.Event, Formatting.Indented)}");
                         }
                     }
                     throw new XunitException(messageBuilder.ToString());
@@ -69,7 +69,7 @@ namespace RoadRegistry.Testing
                     messageBuilder.AppendLine("Expected exception but recorded these events:");
                     foreach (var actual in recorded.Actual)
                     {
-                        messageBuilder.AppendLine($"\t{actual.Stream} - {actual.Event.GetType().Name} {JsonConvert.SerializeObject(actual.Event)}");
+                        messageBuilder.AppendLine($"\t{actual.Stream} - {actual.Event.GetType().Name} {JsonConvert.SerializeObject(actual.Event, Formatting.Indented)}");
                     }
                     throw new XunitException(messageBuilder.ToString());
             }

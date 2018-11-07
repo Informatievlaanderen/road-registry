@@ -56,19 +56,20 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_node_with_an_id_taken_after_an_import()
         {
-            var geometry = Fixture.Create<PointM>().ToBytes();
+            var geometry1 = Fixture.Create<PointM>().ToBytes();
+            var geometry2 = Fixture.Create<PointM>().ToBytes();
             var addRoadNode = new Messages.AddRoadNode
             {
                 Id = 1,
                 Type = Messages.RoadNodeType.FakeNode,
-                Geometry = geometry
+                Geometry = geometry1
             };
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new ImportedRoadNode
                 {
                     Id = 1,
                     Type = Messages.RoadNodeType.RealNode,
-                    Geometry = geometry
+                    Geometry = geometry2
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(new RequestedChange
                     {
@@ -81,8 +82,14 @@ namespace RoadRegistry.Model
                         new RejectedChange
                         {
                             AddRoadNode = addRoadNode,
-                            Reason = "RodeNodeIdTaken",
-                            Parameters = new ReasonParameter[0]
+                            Reasons = new []
+                            {
+                                new Reason
+                                {
+                                    Because = "RoadNodeIdTaken",
+                                    Parameters = new ReasonParameter[0]
+                                }
+                            }
                         }
                     }
                 })
@@ -92,12 +99,13 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_node_with_an_id_taken_after_a_change()
         {
-            var geometry = Fixture.Create<PointM>().ToBytes();
+            var geometry1 = Fixture.Create<PointM>().ToBytes();
+            var geometry2 = Fixture.Create<PointM>().ToBytes();
             var addRoadNode = new Messages.AddRoadNode
             {
                 Id = 1,
                 Type = Messages.RoadNodeType.FakeNode,
-                Geometry = geometry
+                Geometry = geometry1
             };
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
@@ -110,7 +118,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = Messages.RoadNodeType.RealNode,
-                                Geometry = geometry
+                                Geometry = geometry2
                             }
                         }
                     }
@@ -128,8 +136,14 @@ namespace RoadRegistry.Model
                         new RejectedChange
                         {
                             AddRoadNode = addRoadNode,
-                            Reason = "RodeNodeIdTaken",
-                            Parameters = new ReasonParameter[0]
+                            Reasons = new []
+                            {
+                                new Reason
+                                {
+                                    Because = "RoadNodeIdTaken",
+                                    Parameters = new ReasonParameter[0]
+                                }
+                            }
                         }
                     }
                 })
@@ -164,6 +178,12 @@ namespace RoadRegistry.Model
         public Task when_adding_a_node_with_a_geometry_that_has_been_taken()
         {
             var geometry = Fixture.Create<PointM>();
+            var addRoadNode = new Messages.AddRoadNode
+            {
+                Id = 2,
+                Type = Messages.RoadNodeType.FakeNode,
+                Geometry = geometry.ToBytes()
+            };
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
@@ -183,15 +203,35 @@ namespace RoadRegistry.Model
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
                     {
-                        AddRoadNode = new Messages.AddRoadNode
-                        {
-                            Id = 2,
-                            Type = Messages.RoadNodeType.FakeNode,
-                            Geometry = geometry.ToBytes()
-                        }
+                        AddRoadNode = addRoadNode
                     }
                 ))
-                .Throws(new RoadNodeGeometryTakenException(new RoadNodeId(2), new RoadNodeId(1), geometry)));
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+                {
+                    Rejections = new[]
+                    {
+                        new RejectedChange
+                        {
+                            AddRoadNode = addRoadNode,
+                            Reasons = new []
+                            {
+                                new Reason
+                                {
+                                    Because = "RoadNodeGeometryTaken",
+                                    Parameters = new[]
+                                    {
+                                        new ReasonParameter
+                                        {
+                                            Name = "ConflictsWithNodeId",
+                                            Value = "1"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+            );
         }
 
         [Fact]
