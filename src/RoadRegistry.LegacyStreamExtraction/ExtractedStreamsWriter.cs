@@ -6,8 +6,8 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.IO.Compression;
     using System.Linq;
     using System.Threading.Tasks;
+    using Messages;
     using Newtonsoft.Json;
-    using RoadRegistry.Events;
 
     internal class ExtractedStreamsWriter
     {

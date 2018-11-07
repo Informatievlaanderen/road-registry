@@ -8,7 +8,7 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Threading;
     using System.Threading.Tasks;
     using Amazon.S3;
-    using Events;
+    using Messages;
     using Microsoft.Extensions.Configuration;
 
     public class Program
@@ -34,7 +34,7 @@ namespace RoadRegistry.LegacyStreamExtraction
             var connectionString = root.GetConnectionString("Legacy");
             var nodes = new List<ImportedRoadNode>();
             var points = new List<ImportedReferencePoint>();
-            var segments = new Dictionary<int, ImportedRoadSegment>();
+            var segments = new Dictionary<long, ImportedRoadSegment>();
             var junctions = new List<ImportedGradeSeparatedJunction>();
             var organizations = new List<ImportedOrganization>();
 
@@ -145,7 +145,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             EndNodeId = reader.GetInt32(3),
                             Geometry = wellKnownBinary,
                             GeometryVersion = reader.GetInt32(5),
-                            Maintainer = new Shared.Maintainer
+                            Maintainer = new Maintainer
                             {
                                 Code = reader.GetString(6),
                                 Name = reader.GetString(7)

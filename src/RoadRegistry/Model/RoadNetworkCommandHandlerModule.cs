@@ -1,9 +1,9 @@
 namespace RoadRegistry.Model
 {
     using System;
-    using Commands;
     using Framework;
     using Aiv.Vbr.Shaperon;
+    using Messages;
     using SqlStreamStore;
 
     public class RoadNetworkCommandHandlerModule : CommandHandlerModule
@@ -28,10 +28,10 @@ namespace RoadRegistry.Model
                             IRequestedChange change;
                             switch (item.PickChange())
                             {
-                                case Shared.AddRoadNode command:
+                                case Messages.AddRoadNode command:
                                     change = translator.Translate(command);
                                     break;
-                                case Shared.AddRoadSegment command:
+                                case Messages.AddRoadSegment command:
                                     change = translator.Translate(command);
                                     break;
                                 default:

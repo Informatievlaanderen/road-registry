@@ -13,7 +13,7 @@
 
         public WellKnownBinaryReader Reader { get; }
 
-        public IRequestedChange Translate(Shared.AddRoadNode command)
+        public IRequestedChange Translate(Messages.AddRoadNode command)
         {
             var id = new RoadNodeId(command.Id);
             var geometry = Reader.ReadAs<PointM>(command.Geometry);
@@ -25,7 +25,7 @@
             );
         }
 
-        public IRequestedChange Translate(Shared.AddRoadSegment command)
+        public IRequestedChange Translate(Messages.AddRoadSegment command)
         {
             var id = new RoadSegmentId(command.Id);
             var startNode = new RoadNodeId(command.StartNodeId);

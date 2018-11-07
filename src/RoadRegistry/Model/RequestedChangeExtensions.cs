@@ -1,7 +1,7 @@
 ﻿namespace RoadRegistry.Model
 {
     using System.Linq;
-    using Commands;
+    using Messages;
 
     internal static class RequestedChangeExtensions
     {

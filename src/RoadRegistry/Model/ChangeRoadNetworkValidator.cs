@@ -2,8 +2,8 @@ namespace RoadRegistry.Model
 {
     using System;
     using Aiv.Vbr.Shaperon;
-    using Commands;
     using FluentValidation;
+    using Messages;
 
     public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
     {

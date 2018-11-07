@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Events
+﻿namespace RoadRegistry.Messages
 {
     using Aiv.Vbr.EventHandling;
 

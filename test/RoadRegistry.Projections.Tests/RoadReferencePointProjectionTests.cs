@@ -5,9 +5,9 @@ namespace RoadRegistry.Projections.Tests
     using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
-    using Events;
+    using Infrastructure;
     using Aiv.Vbr.Shaperon;
-    using Shared;
+    using Messages;
     using Xunit;
 
     public class RoadReferencePointProjectionTests

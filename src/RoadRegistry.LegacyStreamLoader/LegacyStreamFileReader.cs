@@ -4,8 +4,8 @@ namespace RoadRegistry.LegacyStreamLoader
     using System.Collections.Generic;
     using System.IO;
     using Newtonsoft.Json;
-    using Events;
     using System.IO.Compression;
+    using Messages;
 
     public class LegacyStreamFileReader
     {

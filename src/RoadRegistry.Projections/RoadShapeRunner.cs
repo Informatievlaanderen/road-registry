@@ -3,11 +3,10 @@ namespace RoadRegistry.Projections
     using System.Text;
     using Aiv.Vbr.ProjectionHandling.Runner;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
-    using Events;
     using Microsoft.Extensions.Logging;
     using Aiv.Vbr.Shaperon;
+    using Messages;
     using NetTopologySuite.IO;
-    using Shared;
 
     public class RoadShapeRunner : Runner<ShapeContext>
     {

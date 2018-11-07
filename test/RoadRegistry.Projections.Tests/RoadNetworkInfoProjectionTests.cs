@@ -4,7 +4,7 @@ namespace RoadRegistry.Projections.Tests
     using System.Linq;
     using System.Threading.Tasks;
     using AutoFixture;
-    using Events;
+    using Messages;
     using Aiv.Vbr.Shaperon;
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
@@ -455,12 +455,12 @@ namespace RoadRegistry.Projections.Tests
         {
             var writer = new WellKnownBinaryWriter();
             var geometry = _fixture.Create<MultiLineString>();
-            var european_roads = _fixture.CreateMany<RoadSegmentEuropeanRoadProperties>().ToArray();
-            var numbered_roads = _fixture.CreateMany<RoadSegmentNumberedRoadProperties>().ToArray();
-            var national_roads = _fixture.CreateMany<RoadSegmentNationalRoadProperties>().ToArray();
-            var lanes = _fixture.CreateMany<RoadSegmentLaneProperties>().ToArray();
-            var widths = _fixture.CreateMany<RoadSegmentWidthProperties>().ToArray();
-            var hardenings = _fixture.CreateMany<RoadSegmentHardeningProperties>().ToArray();
+            var european_roads = _fixture.CreateMany<ImportedRoadSegmentEuropeanRoadProperties>().ToArray();
+            var numbered_roads = _fixture.CreateMany<ImportedRoadSegmentNumberedRoadProperties>().ToArray();
+            var national_roads = _fixture.CreateMany<ImportedRoadSegmentNationalRoadProperties>().ToArray();
+            var lanes = _fixture.CreateMany<ImportedRoadSegmentLaneProperties>().ToArray();
+            var widths = _fixture.CreateMany<ImportedRoadSegmentWidthProperties>().ToArray();
+            var hardenings = _fixture.CreateMany<ImportedRoadSegmentHardeningProperties>().ToArray();
             var content = new PolyLineMShapeContent(geometry);
             var reader = new WellKnownBinaryReader();
             return new RoadNetworkInfoProjection(reader)
@@ -480,8 +480,8 @@ namespace RoadRegistry.Projections.Tests
                         Status = _fixture.Create<RoadSegmentStatus>(),
                         Category = _fixture.Create<RoadSegmentCategory>(),
                         AccessRestriction = _fixture.Create<RoadSegmentAccessRestriction>(),
-                        LeftSide = _fixture.Create<RoadSegmentSideProperties>(),
-                        RightSide = _fixture.Create<RoadSegmentSideProperties>(),
+                        LeftSide = _fixture.Create<ImportedRoadSegmentSideProperties>(),
+                        RightSide = _fixture.Create<ImportedRoadSegmentSideProperties>(),
                         PartOfEuropeanRoads = european_roads,
                         PartOfNationalRoads = national_roads,
                         PartOfNumberedRoads = numbered_roads,
@@ -534,14 +534,14 @@ namespace RoadRegistry.Projections.Tests
                     Status = _fixture.Create<RoadSegmentStatus>(),
                     Category = _fixture.Create<RoadSegmentCategory>(),
                     AccessRestriction = _fixture.Create<RoadSegmentAccessRestriction>(),
-                    LeftSide = _fixture.Create<RoadSegmentSideProperties>(),
-                    RightSide = _fixture.Create<RoadSegmentSideProperties>(),
-                    PartOfEuropeanRoads = _fixture.CreateMany<RoadSegmentEuropeanRoadProperties>().ToArray(),
-                    PartOfNationalRoads = _fixture.CreateMany<RoadSegmentNationalRoadProperties>().ToArray(),
-                    PartOfNumberedRoads = _fixture.CreateMany<RoadSegmentNumberedRoadProperties>().ToArray(),
-                    Lanes = _fixture.CreateMany<RoadSegmentLaneProperties>().ToArray(),
-                    Widths = _fixture.CreateMany<RoadSegmentWidthProperties>().ToArray(),
-                    Hardenings = _fixture.CreateMany<RoadSegmentHardeningProperties>().ToArray(),
+                    LeftSide = _fixture.Create<ImportedRoadSegmentSideProperties>(),
+                    RightSide = _fixture.Create<ImportedRoadSegmentSideProperties>(),
+                    PartOfEuropeanRoads = _fixture.CreateMany<ImportedRoadSegmentEuropeanRoadProperties>().ToArray(),
+                    PartOfNationalRoads = _fixture.CreateMany<ImportedRoadSegmentNationalRoadProperties>().ToArray(),
+                    PartOfNumberedRoads = _fixture.CreateMany<ImportedRoadSegmentNumberedRoadProperties>().ToArray(),
+                    Lanes = _fixture.CreateMany<ImportedRoadSegmentLaneProperties>().ToArray(),
+                    Widths = _fixture.CreateMany<ImportedRoadSegmentWidthProperties>().ToArray(),
+                    Hardenings = _fixture.CreateMany<ImportedRoadSegmentHardeningProperties>().ToArray(),
                     Version = _fixture.Create<int>(),
                     RecordingDate = _fixture.Create<DateTime>(),
                     Origin = _fixture.Create<OriginProperties>()

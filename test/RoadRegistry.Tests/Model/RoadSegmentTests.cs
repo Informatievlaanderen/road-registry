@@ -53,14 +53,14 @@ namespace RoadRegistry.Model
         }
 
         [Theory]
-        [InlineData(1L, 2L, 1L, new[] { 2L })]
-        [InlineData(1L, 2L, 2L, new[] { 1L })]
-        [InlineData(1L, 2L, 3L, new long[0])]
+        [InlineData(1, 2, 1, new[] { 2 })]
+        [InlineData(1, 2, 2, new[] { 1 })]
+        [InlineData(1, 2, 3, new int[0])]
         public void SelectCounterNodeReturnsExpectedResult(
-            long source,
-            long target,
-            long toCounter,
-            long[] expected
+            int source,
+            int target,
+            int toCounter,
+            int[] expected
         )
         {
             var sut = new RoadSegment(_fixture.Create<RoadSegmentId>(), new RoadNodeId(source), new RoadNodeId(target));

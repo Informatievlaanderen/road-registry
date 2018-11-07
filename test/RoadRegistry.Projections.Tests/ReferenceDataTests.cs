@@ -3,9 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Events;
     using Aiv.Vbr.Shaperon;
-    using Shared;
+    using Messages;
     using Xunit;
 
     public class ReferenceDataTests

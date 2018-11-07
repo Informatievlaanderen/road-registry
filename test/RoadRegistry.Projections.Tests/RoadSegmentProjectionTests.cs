@@ -4,12 +4,12 @@ namespace RoadRegistry.Projections.Tests
     using System.Linq;
     using System.Threading.Tasks;
     using AutoFixture;
-    using Events;
+    using Infrastructure;
     using Aiv.Vbr.Shaperon;
     using Xunit;
     using NetTopologySuite.Geometries;
     using System.Text;
-    using Shared;
+    using Messages;
 
     public class RoadSegmentProjectionTests
     {

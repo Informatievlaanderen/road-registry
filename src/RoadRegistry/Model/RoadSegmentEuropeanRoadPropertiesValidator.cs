@@ -1,9 +1,9 @@
 namespace RoadRegistry.Model
 {
     using FluentValidation;
-    using RoadRegistry.Commands;
+    using Messages;
 
-    public class RoadSegmentEuropeanRoadPropertiesValidator : AbstractValidator<Shared.RoadSegmentEuropeanRoadProperties>
+    public class RoadSegmentEuropeanRoadPropertiesValidator : AbstractValidator<RequestedRoadSegmentEuropeanRoadProperties>
     {
         public RoadSegmentEuropeanRoadPropertiesValidator()
         {

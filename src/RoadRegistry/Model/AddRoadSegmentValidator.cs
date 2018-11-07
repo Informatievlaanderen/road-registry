@@ -6,7 +6,7 @@ namespace RoadRegistry.Model
     using FluentValidation;
     using NetTopologySuite.Geometries;
 
-    public class AddRoadSegmentValidator : AbstractValidator<Shared.AddRoadSegment>
+    public class AddRoadSegmentValidator : AbstractValidator<Messages.AddRoadSegment>
     {
         public AddRoadSegmentValidator(WellKnownBinaryReader reader)
         {

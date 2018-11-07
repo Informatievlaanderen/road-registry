@@ -2,10 +2,9 @@ namespace RoadRegistry.Model
 {
     using System;
     using Aiv.Vbr.Shaperon;
-    using Commands;
     using FluentValidation;
 
-    public class AddRoadNodeValidator : AbstractValidator<Shared.AddRoadNode>
+    public class AddRoadNodeValidator : AbstractValidator<Messages.AddRoadNode>
     {
         public AddRoadNodeValidator(WellKnownBinaryReader reader)
         {

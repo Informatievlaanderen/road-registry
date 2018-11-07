@@ -7,7 +7,7 @@
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Aiv.Vbr.Shaperon;
-    using Events;
+    using Messages;
     using GeoAPI.Geometries;
     using Microsoft.EntityFrameworkCore;
     using NetTopologySuite.Geometries;

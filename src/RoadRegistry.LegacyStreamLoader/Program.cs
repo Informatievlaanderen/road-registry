@@ -10,7 +10,6 @@ namespace RoadRegistry.LegacyStreamLoader
     using Aiv.Vbr.Generators.Guid;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
-    using Events;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using System.Linq;
@@ -18,6 +17,7 @@ namespace RoadRegistry.LegacyStreamLoader
     using System.Threading;
     using Amazon.S3;
     using Amazon.S3.Model;
+    using Messages;
 
 
     public class Program

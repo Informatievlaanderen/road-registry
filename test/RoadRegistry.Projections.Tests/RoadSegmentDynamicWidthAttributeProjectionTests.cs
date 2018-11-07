@@ -5,7 +5,8 @@ namespace RoadRegistry.Projections.Tests
     using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
-    using Events;
+    using Infrastructure;
+    using Messages;
     using Xunit;
 
     public class RoadSegmentDynamicWidthAttributeProjectionTests

@@ -1,6 +1,5 @@
 namespace RoadRegistry.Model
 {
-    using System;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Xunit;
@@ -18,9 +17,9 @@ namespace RoadRegistry.Model
         public void VerifyBehavior()
         {
             new CompositeIdiomaticAssertion(
-                new GuardClauseAssertion(_fixture, new NegativeInt64BehaviorExpectation()),
-                new ImplicitConversionOperatorAssertion<long>(_fixture),
-                new ExplicitConversionMethodAssertion<long>(_fixture),
+                new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation()),
+                new ImplicitConversionOperatorAssertion<int>(_fixture),
+                new ExplicitConversionMethodAssertion<int>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -40,16 +39,16 @@ namespace RoadRegistry.Model
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
-            var value = _fixture.Create<long>();
+            var value = _fixture.Create<int>();
             var sut = new RoadNodeId(value);
 
             Assert.Equal("RN-" + value, sut.ToString());
         }
 
         [Theory]
-        [InlineData(1L, 2L, -1)]
-        [InlineData(2L, 1L, 1)]
-        public void CompareToReturnsExpectedResult(long left, long right, int expected)
+        [InlineData(1, 2, -1)]
+        [InlineData(2, 1, 1)]
+        public void CompareToReturnsExpectedResult(int left, int right, int expected)
         {
             var sut = new RoadNodeId(left);
 

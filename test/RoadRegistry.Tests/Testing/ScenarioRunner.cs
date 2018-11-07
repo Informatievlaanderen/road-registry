@@ -12,7 +12,6 @@
     using Framework;
     using KellermanSoftware.CompareNetObjects;
     using KellermanSoftware.CompareNetObjects.TypeComparers;
-    using Model;
     using Newtonsoft.Json;
     using SqlStreamStore;
     using SqlStreamStore.Streams;

@@ -7,8 +7,7 @@ namespace RoadRegistry.Projections
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
-    using Events;
-    using Shared;
+    using Messages;
 
     public class RoadSegmentNumberedRoadAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {

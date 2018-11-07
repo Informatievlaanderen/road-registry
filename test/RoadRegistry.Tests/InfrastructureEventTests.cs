@@ -7,8 +7,8 @@ namespace RoadRegistry.Tests
     using Aiv.Vbr.AggregateSource;
     using Aiv.Vbr.EventHandling;
     using FluentAssertions;
+    using Messages;
     using Newtonsoft.Json;
-    using Events;
     using Xunit;
     using Xunit.Categories;
 

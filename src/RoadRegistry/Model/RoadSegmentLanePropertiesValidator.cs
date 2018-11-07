@@ -1,9 +1,9 @@
 namespace RoadRegistry.Model
 {
     using FluentValidation;
-    using RoadRegistry.Commands;
+    using Messages;
 
-    public class RoadSegmentLanePropertiesValidator : AbstractValidator<Shared.RoadSegmentLaneProperties>
+    public class RoadSegmentLanePropertiesValidator : AbstractValidator<RequestedRoadSegmentLaneProperties>
     {
         public const int Unknown = -8;
         public const int NotApplicable = -9;

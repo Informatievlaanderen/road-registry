@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using Events;
+    using Messages;
     using Aiv.Vbr.Shaperon;
 
     public class ReferenceData

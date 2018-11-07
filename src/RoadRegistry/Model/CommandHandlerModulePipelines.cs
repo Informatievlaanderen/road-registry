@@ -3,9 +3,9 @@ namespace RoadRegistry.Model
     using System;
     using Aiv.Vbr.EventHandling;
     using Aiv.Vbr.Generators.Guid;
-    using Events;
     using FluentValidation;
     using Framework;
+    using Messages;
     using Newtonsoft.Json;
     using SqlStreamStore;
     using SqlStreamStore.Streams;

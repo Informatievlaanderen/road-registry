@@ -1,8 +1,7 @@
 namespace RoadRegistry.Projections
 {
-    using Events;
     using Aiv.Vbr.Shaperon;
-    using Shared;
+    using Messages;
 
     public class RoadSegmentStatusDbaseRecord : DbaseRecord
     {

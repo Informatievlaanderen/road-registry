@@ -3,9 +3,9 @@ namespace RoadRegistry.Model
     using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
-    using Events;
     using Framework;
     using Aiv.Vbr.Shaperon;
+    using Messages;
 
     public class RoadNetwork : EventSourcedEntity
     {
@@ -61,7 +61,8 @@ namespace RoadRegistry.Model
         public void Change(IRequestedChange[] changes)
         {
             var writer = new WellKnownBinaryWriter();
-            var changed = new List<AcceptedChange>();
+            var acceptedChanges = new List<AcceptedChange>();
+            var rejectedChanges = new List<RejectedChange>();
             foreach (var change in changes)
             {
                 switch (change)
@@ -69,7 +70,15 @@ namespace RoadRegistry.Model
                     case AddRoadNode addRoadNode:
                         if (_nodes.ContainsKey(addRoadNode.Id))
                         {
-                            throw new RoadNodeIdTakenException(addRoadNode.Id);
+                            rejectedChanges.Add(new RejectedChange
+                            {
+                                AddRoadNode = new Messages.AddRoadNode
+                                {
+                                    Id = addRoadNode.Id.ToInt32(),
+                                    Type = (Messages.RoadNodeType) addRoadNode.Type.ToInt32(),
+                                    Geometry = writer.Write(addRoadNode.Geometry)
+                                }
+                            });
                         }
 
                         if (_node_geometries.TryGetValue(addRoadNode.Geometry, out var conflictsWithId))
@@ -81,12 +90,12 @@ namespace RoadRegistry.Model
                         }
 
 
-                        changed.Add(new AcceptedChange
+                        acceptedChanges.Add(new AcceptedChange
                         {
                             RoadNodeAdded = new RoadNodeAdded
                             {
-                                Id = addRoadNode.Id.ToInt64(),
-                                Type = (Shared.RoadNodeType) addRoadNode.Type.ToInt32(),
+                                Id = addRoadNode.Id.ToInt32(),
+                                Type = (Messages.RoadNodeType) addRoadNode.Type.ToInt32(),
                                 Geometry = writer.Write(addRoadNode.Geometry)
                             }
                         });
@@ -96,7 +105,7 @@ namespace RoadRegistry.Model
 
             Apply(new RoadNetworkChangesAccepted
             {
-                Changes = changed.ToArray()
+                Changes = acceptedChanges.ToArray()
             });
         }
     }

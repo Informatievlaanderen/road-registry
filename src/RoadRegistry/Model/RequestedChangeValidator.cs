@@ -3,8 +3,9 @@
     using System;
     using Aiv.Vbr.Shaperon;
     using FluentValidation;
+    using Messages;
 
-    public class RequestedChangeValidator : AbstractValidator<Commands.RequestedChange>
+    public class RequestedChangeValidator : AbstractValidator<RequestedChange>
     {
         public RequestedChangeValidator(WellKnownBinaryReader reader)
         {
