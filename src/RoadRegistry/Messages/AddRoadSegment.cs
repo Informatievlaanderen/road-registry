@@ -14,11 +14,11 @@ namespace RoadRegistry.Messages
         public RoadSegmentAccessRestriction AccessRestriction { get; set; }
         public int? LeftSideStreetNameId { get; set; }
         public int? RightSideStreetNameId { get; set; }
-        public RequestedRoadSegmentEuropeanRoadProperties[] PartOfEuropeanRoads { get; set; }
-        public RequestedRoadSegmentNationalRoadProperties[] PartOfNationalRoads { get; set; }
-        public RequestedRoadSegmentNumberedRoadProperties[] PartOfNumberedRoads { get; set; }
-        public RequestedRoadSegmentLaneProperties[] Lanes { get; set; }
-        public RequestedRoadSegmentWidthProperties[] Widths { get; set; }
-        public RequestedRoadSegmentHardeningProperties[] Hardenings { get; set; }
+        public RequestedRoadSegmentEuropeanRoadAttributes[] PartOfEuropeanRoads { get; set; }
+        public RequestedRoadSegmentNationalRoadAttributes[] PartOfNationalRoads { get; set; }
+        public RequestedRoadSegmentNumberedRoadAttributes[] PartOfNumberedRoads { get; set; }
+        public RequestedRoadSegmentLaneAttributes[] Lanes { get; set; }
+        public RequestedRoadSegmentWidthAttributes[] Widths { get; set; }
+        public RequestedRoadSegmentSurfaceAttributes[] Surfaces { get; set; }
     }
 }

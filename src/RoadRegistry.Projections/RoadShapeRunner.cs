@@ -34,15 +34,15 @@ namespace RoadRegistry.Projections
                     new ReferencePointTypeTranslator(),
                     Encoding.GetEncoding(1252)
                 ),
-                new RoadSegmentDynamicHardeningAttributeRecordProjection(
-                    new HardeningTypeTranslator(),
+                new RoadSegmentSurfaceAttributeRecordProjection(
+                    new SurfaceTypeTranslator(),
                     Encoding.GetEncoding(1252)
                 ),
-                new RoadSegmentDynamicLaneAttributeRecordProjection(
+                new RoadSegmentLaneAttributeRecordProjection(
                     new LaneDirectionTranslator(),
                     Encoding.GetEncoding(1252)
                 ),
-                new RoadSegmentDynamicWidthAttributeRecordProjection(Encoding.GetEncoding(1252)),
+                new RoadSegmentWidthAttributeRecordProjection(Encoding.GetEncoding(1252)),
                 new RoadSegmentEuropeanRoadAttributeRecordProjection(Encoding.GetEncoding(1252)),
                 new RoadSegmentNationalRoadAttributeRecordProjection(Encoding.GetEncoding(1252)),
                 new RoadSegmentNumberedRoadAttributeRecordProjection(

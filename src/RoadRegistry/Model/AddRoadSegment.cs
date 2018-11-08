@@ -12,7 +12,7 @@ namespace RoadRegistry.Model
             RoadNodeId startNode,
             RoadNodeId endNode,
             MultiLineString geometry,
-            MaintainerId maintainer,
+            MaintenanceAuthorityId maintenanceAuthority,
             RoadSegmentGeometryDrawMethod geometryDrawMethod,
             RoadSegmentMorphology morphology,
             RoadSegmentStatus status,
@@ -25,13 +25,13 @@ namespace RoadRegistry.Model
             IReadOnlyCollection<RoadSegmentNumberedRoadAttribute> partOfNumberedRoads,
             RoadSegmentLaneAttributes lanes,
             RoadSegmentWidthAttributes widths,
-            RoadSegmentHardeningAttributes hardenings)
+            RoadSegmentSurfaceAttributes surfaces)
         {
             Id = id;
             StartNode = startNode;
             EndNode = endNode;
             Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
-            Maintainer = maintainer;
+            MaintenanceAuthority = maintenanceAuthority;
             GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
             Morphology = morphology ?? throw new ArgumentNullException(nameof(morphology));
             Status = status ?? throw new ArgumentNullException(nameof(status));
@@ -44,14 +44,14 @@ namespace RoadRegistry.Model
             PartOfNumberedRoads = partOfNumberedRoads ?? throw new ArgumentNullException(nameof(partOfNumberedRoads));
             Lanes = lanes ?? throw new ArgumentNullException(nameof(lanes));
             Widths = widths ?? throw new ArgumentNullException(nameof(widths));
-            Hardenings = hardenings ?? throw new ArgumentNullException(nameof(hardenings));
+            Surfaces = surfaces ?? throw new ArgumentNullException(nameof(surfaces));
         }
 
         public RoadSegmentId Id { get; }
         public RoadNodeId StartNode { get; }
         public RoadNodeId EndNode { get; }
         public MultiLineString Geometry { get; }
-        public MaintainerId Maintainer { get; }
+        public MaintenanceAuthorityId MaintenanceAuthority { get; }
         public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
         public RoadSegmentMorphology Morphology { get; }
         public RoadSegmentStatus Status { get; }
@@ -64,6 +64,6 @@ namespace RoadRegistry.Model
         public IReadOnlyCollection<RoadSegmentNumberedRoadAttribute> PartOfNumberedRoads { get; }
         public RoadSegmentLaneAttributes Lanes { get; }
         public RoadSegmentWidthAttributes Widths { get; }
-        public RoadSegmentHardeningAttributes Hardenings { get; }
+        public RoadSegmentSurfaceAttributes Surfaces { get; }
     }
 }

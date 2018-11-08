@@ -145,7 +145,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             EndNodeId = reader.GetInt32(3),
                             Geometry = wellKnownBinary,
                             GeometryVersion = reader.GetInt32(5),
-                            Maintainer = new Maintainer
+                            MaintenanceAuthority = new MaintenanceAuthority
                             {
                                 Code = reader.GetString(6),
                                 Name = reader.GetString(7)
@@ -155,14 +155,14 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Status = Translate.ToRoadSegmentStatus(reader.GetInt32(10)),
                             Category = Translate.ToRoadSegmentCategory(reader.GetString(11)),
                             AccessRestriction = Translate.ToRoadSegmentAccessRestriction(reader.GetInt32(12)),
-                            LeftSide = new ImportedRoadSegmentSideProperties
+                            LeftSide = new ImportedRoadSegmentSideAttributes
                             {
                                 StreetNameId = reader.GetNullableInt32(13),
                                 StreetName = reader.GetNullableString(14),
                                 MunicipalityNISCode = reader.GetNullableString(15),
                                 Municipality = reader.GetNullableString(16)
                             },
-                            RightSide = new ImportedRoadSegmentSideProperties
+                            RightSide = new ImportedRoadSegmentSideAttributes
                             {
                                 StreetNameId = reader.GetNullableInt32(17),
                                 StreetName = reader.GetNullableString(18),
@@ -176,12 +176,12 @@ namespace RoadRegistry.LegacyStreamExtraction
                                 Organization = reader.GetNullableString(23),
                                 Since = reader.GetDateTime(24)
                             },
-                            PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadProperties>(),
-                            PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadProperties>(),
-                            PartOfNumberedRoads = Array.Empty<ImportedRoadSegmentNumberedRoadProperties>(),
-                            Lanes = Array.Empty<ImportedRoadSegmentLaneProperties>(),
-                            Widths = Array.Empty<ImportedRoadSegmentWidthProperties>(),
-                            Hardenings = Array.Empty<ImportedRoadSegmentHardeningProperties>(),
+                            PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
+                            PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),
+                            PartOfNumberedRoads = Array.Empty<ImportedRoadSegmentNumberedRoadAttributes>(),
+                            Lanes = Array.Empty<ImportedRoadSegmentLaneAttributes>(),
+                            Widths = Array.Empty<ImportedRoadSegmentWidthAttributes>(),
+                            Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttributes>(),
                         };
                         segments.Add(segment.Id, segment);
                     });
@@ -205,7 +205,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         if (!segments.TryGetValue(segmentId, out var segment))
                             return;
 
-                        var props = new ImportedRoadSegmentEuropeanRoadProperties
+                        var props = new ImportedRoadSegmentEuropeanRoadAttributes
                         {
                             AttributeId = reader.GetInt32(1),
                             RoadNumber = reader.GetString(2),
@@ -217,7 +217,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             }
                         };
 
-                        var copy = new ImportedRoadSegmentEuropeanRoadProperties[segment.PartOfEuropeanRoads.Length + 1];
+                        var copy = new ImportedRoadSegmentEuropeanRoadAttributes[segment.PartOfEuropeanRoads.Length + 1];
                         segment.PartOfEuropeanRoads.CopyTo(copy, 0);
                         copy[segment.PartOfEuropeanRoads.Length] = props;
                         segment.PartOfEuropeanRoads = copy;
@@ -240,7 +240,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         if (!segments.TryGetValue(segmentId, out var segment))
                             return;
 
-                        var props = new ImportedRoadSegmentNationalRoadProperties
+                        var props = new ImportedRoadSegmentNationalRoadAttributes
                         {
                             AttributeId = reader.GetInt32(1),
                             Ident2 = reader.GetString(2),
@@ -252,7 +252,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             }
                         };
 
-                        var copy = new ImportedRoadSegmentNationalRoadProperties[segment.PartOfNationalRoads.Length + 1];
+                        var copy = new ImportedRoadSegmentNationalRoadAttributes[segment.PartOfNationalRoads.Length + 1];
                         segment.PartOfNationalRoads.CopyTo(copy, 0);
                         copy[segment.PartOfNationalRoads.Length] = props;
                         segment.PartOfNationalRoads = copy;
@@ -278,7 +278,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         if (!segments.TryGetValue(segmentId, out var segment))
                             return;
 
-                        var props = new ImportedRoadSegmentNumberedRoadProperties
+                        var props = new ImportedRoadSegmentNumberedRoadAttributes
                         {
                             AttributeId = reader.GetInt32(1),
                             Ident8 = reader.GetString(2),
@@ -292,7 +292,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             }
                         };
 
-                        var copy = new ImportedRoadSegmentNumberedRoadProperties[segment.PartOfNumberedRoads.Length + 1];
+                        var copy = new ImportedRoadSegmentNumberedRoadAttributes[segment.PartOfNumberedRoads.Length + 1];
                         segment.PartOfNumberedRoads.CopyTo(copy, 0);
                         copy[segment.PartOfNumberedRoads.Length] = props;
                         segment.PartOfNumberedRoads = copy;
@@ -323,7 +323,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         if (!segments.TryGetValue(segmentId, out var segment))
                             return;
 
-                        var props = new ImportedRoadSegmentLaneProperties
+                        var props = new ImportedRoadSegmentLaneAttributes
                         {
                             AttributeId = reader.GetInt32(1),
                             Count = reader.GetInt32(2),
@@ -339,7 +339,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             }
                         };
 
-                        var copy = new ImportedRoadSegmentLaneProperties[segment.Lanes.Length + 1];
+                        var copy = new ImportedRoadSegmentLaneAttributes[segment.Lanes.Length + 1];
                         segment.Lanes.CopyTo(copy, 0);
                         copy[segment.Lanes.Length] = props;
                         segment.Lanes = copy;
@@ -368,7 +368,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         if (!segments.TryGetValue(segmentId, out var segment))
                             return;
 
-                        var props = new ImportedRoadSegmentWidthProperties
+                        var props = new ImportedRoadSegmentWidthAttributes
                         {
                             AttributeId = reader.GetInt32(1),
                             Width = reader.GetInt32(2),
@@ -383,13 +383,13 @@ namespace RoadRegistry.LegacyStreamExtraction
                             }
                         };
 
-                        var copy = new ImportedRoadSegmentWidthProperties[segment.Widths.Length + 1];
+                        var copy = new ImportedRoadSegmentWidthAttributes[segment.Widths.Length + 1];
                         segment.Widths.CopyTo(copy, 0);
                         copy[segment.Widths.Length] = props;
                         segment.Widths = copy;
                     });
 
-                Console.WriteLine("Enriching segments with hardening information ...");
+                Console.WriteLine("Enriching segments with surface information ...");
                 await
                     new SqlCommand(
                         @"SELECT wv.[wegsegmentID] --0
@@ -412,10 +412,10 @@ namespace RoadRegistry.LegacyStreamExtraction
                         if (!segments.TryGetValue(segmentId, out var segment))
                             return;
 
-                        var props = new ImportedRoadSegmentHardeningProperties
+                        var props = new ImportedRoadSegmentSurfaceAttributes
                         {
                             AttributeId = reader.GetInt32(1),
-                            Type = Translate.ToHardeningType(reader.GetInt32(2)),
+                            Type = Translate.ToSurfaceType(reader.GetInt32(2)),
                             FromPosition = reader.GetDecimal(3),
                             ToPosition = reader.GetDecimal(4),
                             AsOfGeometryVersion = reader.GetInt32(5),
@@ -427,10 +427,10 @@ namespace RoadRegistry.LegacyStreamExtraction
                             }
                         };
 
-                        var copy = new ImportedRoadSegmentHardeningProperties[segment.Hardenings.Length + 1];
-                        segment.Hardenings.CopyTo(copy, 0);
-                        copy[segment.Hardenings.Length] = props;
-                        segment.Hardenings = copy;
+                        var copy = new ImportedRoadSegmentSurfaceAttributes[segment.Surfaces.Length + 1];
+                        segment.Surfaces.CopyTo(copy, 0);
+                        copy[segment.Surfaces.Length] = props;
+                        segment.Surfaces = copy;
                     });
                 Console.WriteLine("Enriching segments took {0}ms", watch.ElapsedMilliseconds);
 

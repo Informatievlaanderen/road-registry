@@ -27,7 +27,7 @@ namespace RoadRegistry.Projections.Tests
                 .Select(segment =>
                 {
                     segment.PartOfEuropeanRoads = _fixture
-                        .CreateMany<ImportedRoadSegmentEuropeanRoadProperties>(random.Next(1, 5))
+                        .CreateMany<ImportedRoadSegmentEuropeanRoadAttributes>(random.Next(1, 5))
                         .ToArray();
 
                     var expected = segment
@@ -69,7 +69,7 @@ namespace RoadRegistry.Projections.Tests
         public Task When_importing_a_road_node_without_european_road_links()
         {
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-            importedRoadSegment.PartOfEuropeanRoads = new ImportedRoadSegmentEuropeanRoadProperties[0];
+            importedRoadSegment.PartOfEuropeanRoads = new ImportedRoadSegmentEuropeanRoadAttributes[0];
 
             return new RoadSegmentEuropeanRoadAttributeRecordProjection(Encoding.UTF8)
                 .Scenario()

@@ -13,7 +13,7 @@ namespace RoadRegistry.Model
             if(from >= to)
             {
                 throw new ArgumentException(nameof(From), 
-                $"The from position ({from.ToDouble()}) must be less than the to position ({to.ToDouble()}).");
+                $"The from position ({from.ToDecimal()}) must be less than the to position ({to.ToDecimal()}).");
             }
 
             From = from;

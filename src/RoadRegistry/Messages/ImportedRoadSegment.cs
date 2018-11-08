@@ -13,20 +13,20 @@ namespace RoadRegistry.Messages
         public int EndNodeId { get; set; }
         public byte[] Geometry { get; set; }
         public int GeometryVersion { get; set; }
-        public Maintainer Maintainer { get; set; }
+        public MaintenanceAuthority MaintenanceAuthority { get; set; }
         public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; set; }
         public RoadSegmentMorphology Morphology { get; set; }
         public RoadSegmentStatus Status { get; set; }
         public RoadSegmentCategory Category { get; set; }
         public RoadSegmentAccessRestriction AccessRestriction { get; set; }
-        public ImportedRoadSegmentSideProperties LeftSide { get; set; }
-        public ImportedRoadSegmentSideProperties RightSide { get; set; }
-        public ImportedRoadSegmentEuropeanRoadProperties[] PartOfEuropeanRoads { get; set; }
-        public ImportedRoadSegmentNationalRoadProperties[] PartOfNationalRoads { get; set; }
-        public ImportedRoadSegmentNumberedRoadProperties[] PartOfNumberedRoads { get; set; }
-        public ImportedRoadSegmentLaneProperties[] Lanes { get; set; }
-        public ImportedRoadSegmentWidthProperties[] Widths { get; set; }
-        public ImportedRoadSegmentHardeningProperties[] Hardenings { get; set; }
+        public ImportedRoadSegmentSideAttributes LeftSide { get; set; }
+        public ImportedRoadSegmentSideAttributes RightSide { get; set; }
+        public ImportedRoadSegmentEuropeanRoadAttributes[] PartOfEuropeanRoads { get; set; }
+        public ImportedRoadSegmentNationalRoadAttributes[] PartOfNationalRoads { get; set; }
+        public ImportedRoadSegmentNumberedRoadAttributes[] PartOfNumberedRoads { get; set; }
+        public ImportedRoadSegmentLaneAttributes[] Lanes { get; set; }
+        public ImportedRoadSegmentWidthAttributes[] Widths { get; set; }
+        public ImportedRoadSegmentSurfaceAttributes[] Surfaces { get; set; }
         public DateTime RecordingDate { get; set; }
         public OriginProperties Origin { get; set; }
     }

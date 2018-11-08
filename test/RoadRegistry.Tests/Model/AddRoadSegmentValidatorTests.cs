@@ -15,21 +15,21 @@ namespace RoadRegistry.Model
         public AddRoadSegmentValidatorTests()
         {
             Fixture = new Fixture();
-            Fixture.Customize<RequestedRoadSegmentEuropeanRoadProperties>(composer =>
+            Fixture.Customize<RequestedRoadSegmentEuropeanRoadAttributes>(composer =>
                 composer.Do(instance =>
                 {
                     instance.RoadNumber =
                         EuropeanRoadNumber.All[new Random().Next(0, EuropeanRoadNumber.All.Length)]
                             .ToString();
                 }).OmitAutoProperties());
-            Fixture.Customize<RequestedRoadSegmentNationalRoadProperties>(composer =>
+            Fixture.Customize<RequestedRoadSegmentNationalRoadAttributes>(composer =>
                 composer.Do(instance =>
                 {
                     instance.Ident2 =
                         NationalRoadNumber.All[new Random().Next(0, NationalRoadNumber.All.Length)]
                            .ToString();
                 }).OmitAutoProperties());
-            Fixture.Customize<RequestedRoadSegmentNumberedRoadProperties>(composer =>
+            Fixture.Customize<RequestedRoadSegmentNumberedRoadAttributes>(composer =>
                 composer.Do(instance =>
                 {
                     instance.Ident8 =
@@ -38,32 +38,32 @@ namespace RoadRegistry.Model
                     instance.Direction = Fixture.Create<NumberedRoadSegmentDirection>();
                     instance.Ordinal = new Generator<int>(Fixture).First(candidate => candidate >= 0);
                 }).OmitAutoProperties());
-            Fixture.Customize<RequestedRoadSegmentLaneProperties>(composer =>
+            Fixture.Customize<RequestedRoadSegmentLaneAttributes>(composer =>
                 composer.Do(instance =>
                 {
-                    var positionGenerator = new Generator<double>(Fixture);
-                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0);
+                    var positionGenerator = new Generator<decimal>(Fixture);
+                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
                     instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
                     instance.Count = new Generator<int>(Fixture)
                         .First(candidate => candidate >= 0 || candidate == -8 || candidate == -9);
                     instance.Direction = Fixture.Create<LaneDirection>();
                 }).OmitAutoProperties());
-            Fixture.Customize<RequestedRoadSegmentWidthProperties>(composer =>
+            Fixture.Customize<RequestedRoadSegmentWidthAttributes>(composer =>
                 composer.Do(instance =>
                 {
-                    var positionGenerator = new Generator<double>(Fixture);
-                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0);
+                    var positionGenerator = new Generator<decimal>(Fixture);
+                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
                     instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
                     instance.Width = new Generator<int>(Fixture)
                         .First(candidate => candidate >= 0 || candidate == -8 || candidate == -9);
                 }).OmitAutoProperties());
-            Fixture.Customize<RequestedRoadSegmentHardeningProperties>(composer =>
+            Fixture.Customize<RequestedRoadSegmentSurfaceAttributes>(composer =>
                 composer.Do(instance =>
                 {
-                    var positionGenerator = new Generator<double>(Fixture);
-                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0);
+                    var positionGenerator = new Generator<decimal>(Fixture);
+                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
                     instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                    instance.Type = Fixture.Create<HardeningType>();
+                    instance.Type = Fixture.Create<SurfaceType>();
                 }).OmitAutoProperties());
             Validator = new AddRoadSegmentValidator(new WellKnownBinaryReader());
         }
@@ -167,13 +167,13 @@ namespace RoadRegistry.Model
         [Fact]
         public void PartOfEuropeanRoadsMustNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.PartOfEuropeanRoads, (RequestedRoadSegmentEuropeanRoadProperties[])null);
+            Validator.ShouldHaveValidationErrorFor(c => c.PartOfEuropeanRoads, (RequestedRoadSegmentEuropeanRoadAttributes[])null);
         }
 
         [Fact]
         public void PartOfEuropeanRoadMustNotBeNull()
         {
-            var data = Fixture.CreateMany<RequestedRoadSegmentEuropeanRoadProperties>().ToArray();
+            var data = Fixture.CreateMany<RequestedRoadSegmentEuropeanRoadAttributes>().ToArray();
             var index = new Random().Next(0, data.Length);
             data[index] = null;
 
@@ -183,19 +183,19 @@ namespace RoadRegistry.Model
         [Fact]
         public void PartOfEuropeanRoadsHasExpectedValidator()
         {
-            Validator.ShouldHaveChildValidator(c => c.PartOfEuropeanRoads, typeof(RoadSegmentEuropeanRoadPropertiesValidator));
+            Validator.ShouldHaveChildValidator(c => c.PartOfEuropeanRoads, typeof(RoadSegmentEuropeanRoadAttributesValidator));
         }
 
         [Fact]
         public void PartOfNationalRoadsMustNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNationalRoads, (RequestedRoadSegmentNationalRoadProperties[])null);
+            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNationalRoads, (RequestedRoadSegmentNationalRoadAttributes[])null);
         }
 
         [Fact]
         public void PartOfNationalRoadMustNotBeNull()
         {
-            var data = Fixture.CreateMany<RequestedRoadSegmentNationalRoadProperties>().ToArray();
+            var data = Fixture.CreateMany<RequestedRoadSegmentNationalRoadAttributes>().ToArray();
             var index = new Random().Next(0, data.Length);
             data[index] = null;
 
@@ -205,19 +205,19 @@ namespace RoadRegistry.Model
         [Fact]
         public void PartOfNationalRoadsHasExpectedValidator()
         {
-            Validator.ShouldHaveChildValidator(c => c.PartOfNationalRoads, typeof(RoadSegmentNationalRoadPropertiesValidator));
+            Validator.ShouldHaveChildValidator(c => c.PartOfNationalRoads, typeof(RoadSegmentNationalRoadAttributesValidator));
         }
 
         [Fact]
         public void PartOfNumberedRoadsMustNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNumberedRoads, (RequestedRoadSegmentNumberedRoadProperties[])null);
+            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNumberedRoads, (RequestedRoadSegmentNumberedRoadAttributes[])null);
         }
 
         [Fact]
         public void PartOfNumberedRoadMustNotBeNull()
         {
-            var data = Fixture.CreateMany<RequestedRoadSegmentNumberedRoadProperties>().ToArray();
+            var data = Fixture.CreateMany<RequestedRoadSegmentNumberedRoadAttributes>().ToArray();
             var index = new Random().Next(0, data.Length);
             data[index] = null;
 
@@ -227,19 +227,19 @@ namespace RoadRegistry.Model
         [Fact]
         public void PartOfNumberedRoadsHasExpectedValidator()
         {
-            Validator.ShouldHaveChildValidator(c => c.PartOfNumberedRoads, typeof(RoadSegmentNumberedRoadPropertiesValidator));
+            Validator.ShouldHaveChildValidator(c => c.PartOfNumberedRoads, typeof(RoadSegmentNumberedRoadAttributesValidator));
         }
 
         [Fact]
         public void LanesMustNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Lanes, (RequestedRoadSegmentLaneProperties[])null);
+            Validator.ShouldHaveValidationErrorFor(c => c.Lanes, (RequestedRoadSegmentLaneAttributes[])null);
         }
 
         [Fact]
         public void LaneMustNotBeNull()
         {
-            var data = Fixture.CreateMany<RequestedRoadSegmentLaneProperties>().ToArray();
+            var data = Fixture.CreateMany<RequestedRoadSegmentLaneAttributes>().ToArray();
             var index = new Random().Next(0, data.Length);
             data[index] = null;
 
@@ -249,19 +249,19 @@ namespace RoadRegistry.Model
         [Fact]
         public void LanesHasExpectedValidator()
         {
-            Validator.ShouldHaveChildValidator(c => c.Lanes, typeof(RoadSegmentLanePropertiesValidator));
+            Validator.ShouldHaveChildValidator(c => c.Lanes, typeof(RoadSegmentLaneAttributesValidator));
         }
 
         [Fact]
         public void WidthsMustNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Widths, (RequestedRoadSegmentWidthProperties[])null);
+            Validator.ShouldHaveValidationErrorFor(c => c.Widths, (RequestedRoadSegmentWidthAttributes[])null);
         }
 
         [Fact]
         public void WidthMustNotBeNull()
         {
-            var data = Fixture.CreateMany<RequestedRoadSegmentWidthProperties>().ToArray();
+            var data = Fixture.CreateMany<RequestedRoadSegmentWidthAttributes>().ToArray();
             var index = new Random().Next(0, data.Length);
             data[index] = null;
 
@@ -275,25 +275,25 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public void HardeningsMustNotBeNull()
+        public void SurfacesMustNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Hardenings, (RequestedRoadSegmentHardeningProperties[])null);
+            Validator.ShouldHaveValidationErrorFor(c => c.Surfaces, (RequestedRoadSegmentSurfaceAttributes[])null);
         }
 
         [Fact]
-        public void HardeningMustNotBeNull()
+        public void SurfaceMustNotBeNull()
         {
-            var data = Fixture.CreateMany<RequestedRoadSegmentHardeningProperties>().ToArray();
+            var data = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttributes>().ToArray();
             var index = new Random().Next(0, data.Length);
             data[index] = null;
 
-            Validator.ShouldHaveValidationErrorFor(c => c.Hardenings, data);
+            Validator.ShouldHaveValidationErrorFor(c => c.Surfaces, data);
         }
 
         [Fact]
-        public void HardeningsHasExpectedValidator()
+        public void SurfacesHasExpectedValidator()
         {
-            Validator.ShouldHaveChildValidator(c => c.Hardenings, typeof(RoadSegmentHardeningPropertiesValidator));
+            Validator.ShouldHaveChildValidator(c => c.Surfaces, typeof(RoadSegmentSurfaceAttributesValidator));
         }
 
         [Fact]
@@ -317,12 +317,12 @@ namespace RoadRegistry.Model
                 AccessRestriction = Fixture.Create<Messages.RoadSegmentAccessRestriction>(),
                 LeftSideStreetNameId = Fixture.Create<int?>(),
                 RightSideStreetNameId = Fixture.Create<int?>(),
-                PartOfEuropeanRoads = Fixture.CreateMany<RequestedRoadSegmentEuropeanRoadProperties>().ToArray(),
-                PartOfNationalRoads = Fixture.CreateMany<RequestedRoadSegmentNationalRoadProperties>().ToArray(),
-                PartOfNumberedRoads = Fixture.CreateMany<RequestedRoadSegmentNumberedRoadProperties>().ToArray(),
-                Lanes = Fixture.CreateMany<RequestedRoadSegmentLaneProperties>().ToArray(),
-                Widths = Fixture.CreateMany<RequestedRoadSegmentWidthProperties>().ToArray(),
-                Hardenings = Fixture.CreateMany<RequestedRoadSegmentHardeningProperties>().ToArray(),
+                PartOfEuropeanRoads = Fixture.CreateMany<RequestedRoadSegmentEuropeanRoadAttributes>().ToArray(),
+                PartOfNationalRoads = Fixture.CreateMany<RequestedRoadSegmentNationalRoadAttributes>().ToArray(),
+                PartOfNumberedRoads = Fixture.CreateMany<RequestedRoadSegmentNumberedRoadAttributes>().ToArray(),
+                Lanes = Fixture.CreateMany<RequestedRoadSegmentLaneAttributes>().ToArray(),
+                Widths = Fixture.CreateMany<RequestedRoadSegmentWidthAttributes>().ToArray(),
+                Surfaces = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttributes>().ToArray(),
             };
 
             Validator.ValidateAndThrow(data);

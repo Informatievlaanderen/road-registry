@@ -11,12 +11,12 @@ namespace RoadRegistry.Projections
         public DbSet<RoadNodeRecord> RoadNodes { get; set; }
         public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
         public DbSet<RoadReferencePointRecord> RoadReferencePoints { get; set; }
-        public DbSet<RoadSegmentDynamicLaneAttributeRecord> RoadLaneAttributes { get; set; }
-        public DbSet<RoadSegmentDynamicWidthAttributeRecord> RoadWidthAttributes { get; set; }
-        public DbSet<RoadSegmentDynamicHardeningAttributeRecord> RoadHardeningAttributes { get; set; }
-        public DbSet<RoadSegmentEuropeanRoadAttributeRecord> EuropeanRoadAttributes { get; set; }
-        public DbSet<RoadSegmentNationalRoadAttributeRecord> NationalRoadAttributes { get; set; }
-        public DbSet<RoadSegmentNumberedRoadAttributeRecord> NumberedRoadAttributes { get; set; }
+        public DbSet<RoadSegmentLaneAttributeRecord> RoadSegmentLaneAttributes { get; set; }
+        public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
+        public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
+        public DbSet<RoadSegmentEuropeanRoadAttributeRecord> RoadSegmentEuropeanRoadAttributes { get; set; }
+        public DbSet<RoadSegmentNationalRoadAttributeRecord> RoadSegmentNationalRoadAttributes { get; set; }
+        public DbSet<RoadSegmentNumberedRoadAttributeRecord> RoadSegmentNumberedRoadAttributes { get; set; }
         public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
         public DbSet<OrganizationRecord> Organizations { get; set; }
         public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }

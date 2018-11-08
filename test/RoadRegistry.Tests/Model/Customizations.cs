@@ -97,11 +97,11 @@ namespace RoadRegistry.Model
             );
         }
 
-        public static void CustomizeRoadSegmentHardeningType(this IFixture fixture)
+        public static void CustomizeRoadSegmentSurfaceType(this IFixture fixture)
         {
-            fixture.Customize<RoadSegmentHardeningType>(customization =>
+            fixture.Customize<RoadSegmentSurfaceType>(customization =>
                 customization.FromFactory(generator =>
-                    RoadSegmentHardeningType.All[generator.Next() % RoadSegmentHardeningType.All.Length]
+                    RoadSegmentSurfaceType.All[generator.Next() % RoadSegmentSurfaceType.All.Length]
                 )
             );
         }
@@ -121,7 +121,7 @@ namespace RoadRegistry.Model
                 customization.FromFactory<int>(
                     value => new RoadSegmentLaneCount(Math.Abs(value))
                 )
-            );            
+            );
         }
 
         public static void CustomizeRoadSegmentMorphology(this IFixture fixture)
@@ -148,16 +148,16 @@ namespace RoadRegistry.Model
                 customization.FromFactory<int>(
                     value => new RoadSegmentNumberedRoadOrdinal(Math.Abs(value))
                 )
-            );            
+            );
         }
 
         public static void CustomizeRoadSegmentPosition(this IFixture fixture)
         {
             fixture.Customize<RoadSegmentPosition>(customization =>
-                customization.FromFactory<double>(
+                customization.FromFactory<decimal>(
                     value => new RoadSegmentPosition(Math.Abs(value))
                 )
-            );            
+            );
         }
 
         public static void CustomizeRoadSegmentStatus(this IFixture fixture)
@@ -175,14 +175,14 @@ namespace RoadRegistry.Model
                 customization.FromFactory<int>(
                     value => new RoadSegmentWidth(Math.Abs(value))
                 )
-            );            
+            );
         }
 
         public static void CustomizeRoadSegmentLaneAttribute(this IFixture fixture)
         {
             fixture.Customize<RoadSegmentLaneAttribute>(customization =>
                 customization.FromFactory<int>(
-                    value => 
+                    value =>
                     {
                         var generator = new Generator<RoadSegmentPosition>(fixture);
                         var from = generator.First();
@@ -203,7 +203,7 @@ namespace RoadRegistry.Model
         {
             fixture.Customize<RoadSegmentWidthAttribute>(customization =>
                 customization.FromFactory<int>(
-                    value => 
+                    value =>
                     {
                         var generator = new Generator<RoadSegmentPosition>(fixture);
                         var from = generator.First();
@@ -219,17 +219,17 @@ namespace RoadRegistry.Model
             );
         }
 
-        public static void CustomizeRoadSegmentHardeningAttribute(this IFixture fixture)
+        public static void CustomizeRoadSegmentSurfaceAttribute(this IFixture fixture)
         {
-            fixture.Customize<RoadSegmentHardeningAttribute>(customization =>
+            fixture.Customize<RoadSegmentSurfaceAttribute>(customization =>
                 customization.FromFactory<int>(
-                    value => 
+                    value =>
                     {
                         var generator = new Generator<RoadSegmentPosition>(fixture);
                         var from = generator.First();
                         var to = generator.First(candidate => candidate > from);
-                        return new RoadSegmentHardeningAttribute(
-                            fixture.Create<RoadSegmentHardeningType>(),
+                        return new RoadSegmentSurfaceAttribute(
+                            fixture.Create<RoadSegmentSurfaceType>(),
                             from,
                             to,
                             fixture.Create<GeometryVersion>()

@@ -29,7 +29,7 @@ namespace RoadRegistry.Projections.Tests
                 .Select(segment =>
                 {
                     segment.PartOfNumberedRoads = _fixture
-                        .CreateMany<ImportedRoadSegmentNumberedRoadProperties>(random.Next(1, 5))
+                        .CreateMany<ImportedRoadSegmentNumberedRoadAttributes>(random.Next(1, 5))
                         .ToArray();
 
                     var expected = segment
@@ -74,7 +74,7 @@ namespace RoadRegistry.Projections.Tests
         public Task When_importing_a_road_node_without_numbered_road_links()
         {
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-            importedRoadSegment.PartOfNumberedRoads = new ImportedRoadSegmentNumberedRoadProperties[0];
+            importedRoadSegment.PartOfNumberedRoads = new ImportedRoadSegmentNumberedRoadAttributes[0];
 
             return new RoadSegmentNumberedRoadAttributeRecordProjection(_numberedRoadSegmentDirectionTranslator, Encoding.UTF8)
                 .Scenario()

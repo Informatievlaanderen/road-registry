@@ -161,7 +161,7 @@ namespace RoadRegistry.Projections.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RoadSegmentHardeningAttribute",
+                name: "RoadSegmentSurfaceAttribute",
                 schema: "RoadRegistryShape",
                 columns: table => new
                 {
@@ -171,7 +171,7 @@ namespace RoadRegistry.Projections.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RoadSegmentHardeningAttribute", x => x.Id)
+                    table.PrimaryKey("PK_RoadSegmentSurfaceAttribute", x => x.Id)
                         .Annotation("SqlServer:Clustered", false);
                 });
 
@@ -285,7 +285,7 @@ namespace RoadRegistry.Projections.Migrations
                 schema: "RoadRegistryShape");
 
             migrationBuilder.DropTable(
-                name: "RoadSegmentHardeningAttribute",
+                name: "RoadSegmentSurfaceAttribute",
                 schema: "RoadRegistryShape");
 
             migrationBuilder.DropTable(

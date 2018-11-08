@@ -18,8 +18,8 @@
         {
             new CompositeIdiomaticAssertion(
                 new GuardClauseAssertion(_fixture, new NegativeDoubleBehaviorExpectation()),
-                new ImplicitConversionOperatorAssertion<double>(_fixture),
-                new ExplicitConversionMethodAssertion<double>(_fixture),
+                new ImplicitConversionOperatorAssertion<decimal>(_fixture),
+                new ExplicitConversionMethodAssertion<decimal>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -43,7 +43,7 @@
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
-            var value = _fixture.Create<double>();
+            var value = _fixture.Create<decimal>();
             var sut = new RoadSegmentPosition(value);
 
             Assert.Equal(value.ToString(), sut.ToString());
@@ -55,9 +55,9 @@
         [InlineData(1.0, 1.0, 0)]
         public void CompareToReturnsExpectedResult(double left, double right, int expected)
         {
-            var sut = new RoadSegmentPosition(left);
+            var sut = new RoadSegmentPosition(new decimal(left));
 
-            var result = sut.CompareTo(new RoadSegmentPosition(right));
+            var result = sut.CompareTo(new RoadSegmentPosition(new decimal(right)));
 
             Assert.Equal(expected, result);
         }

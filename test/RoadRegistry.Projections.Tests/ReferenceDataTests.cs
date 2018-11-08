@@ -127,16 +127,16 @@
         }
 
         [Fact]
-        public void All_hardening_type_records_are_defined()
+        public void All_surface_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.HardeningTypes,
+                ReferenceData.SurfaceTypes,
                 new[]
                 {
-                    new HardeningTypeDbaseRecord(HardeningType.NotApplicable),
-                    new HardeningTypeDbaseRecord(HardeningType.Unknown),
-                    new HardeningTypeDbaseRecord(HardeningType.SolidHardening),
-                    new HardeningTypeDbaseRecord(HardeningType.LooseHardening),
+                    new SurfaceTypeDbaseRecord(SurfaceType.NotApplicable),
+                    new SurfaceTypeDbaseRecord(SurfaceType.Unknown),
+                    new SurfaceTypeDbaseRecord(SurfaceType.SolidSurface),
+                    new SurfaceTypeDbaseRecord(SurfaceType.LooseSurface),
                 });
         }
 

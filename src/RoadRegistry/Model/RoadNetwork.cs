@@ -61,11 +61,10 @@ namespace RoadRegistry.Model
             var rejectedChanges = new List<RejectedChange>();
             foreach (var change in changes)
             {
+                var reasons = RejectionReasons.None;
                 switch (change)
                 {
                     case AddRoadNode addRoadNode:
-                        var reasons = RejectionReasons.None;
-
                         if (_nodes.ContainsKey(addRoadNode.Id))
                         {
                             reasons = reasons.BecauseRoadNodeIdTaken();
@@ -96,6 +95,13 @@ namespace RoadRegistry.Model
                             rejectedChanges.Add(addRoadNode.Reject(writer, reasons));
                         }
 
+                        break;
+
+                    case AddRoadSegment addRoadSegment:
+                        if (_segments.ContainsKey(addRoadSegment.Id))
+                        {
+                            reasons = reasons.BecauseRoadSegmentIdTaken();
+                        }
                         break;
                 }
             }

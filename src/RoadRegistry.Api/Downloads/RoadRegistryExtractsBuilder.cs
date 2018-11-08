@@ -196,11 +196,11 @@ namespace RoadRegistry.Api.Downloads
             );
         }
 
-        public ExtractFile CreateRoadSegmentDynamicLaneAttributesFile(DbSet<RoadSegmentDynamicLaneAttributeRecord> roadLaneAttributes)
+        public ExtractFile CreateRoadSegmentLaneAttributesFile(DbSet<RoadSegmentLaneAttributeRecord> roadLaneAttributes)
         {
-            return CreateDbfFile<RoadSegmentDynamicLaneAttributeDbaseRecord>(
+            return CreateDbfFile<RoadSegmentLaneAttributeDbaseRecord>(
                 "AttRijstroken",
-                new RoadSegmentDynamicLaneAttributeDbaseSchema(),
+                new RoadSegmentLaneAttributeDbaseSchema(),
                 roadLaneAttributes
                     .OrderQueryBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
@@ -208,26 +208,26 @@ namespace RoadRegistry.Api.Downloads
             );
         }
 
-        public ExtractFile CreateRoadSegmentDynamicWidtAttributesFile(DbSet<RoadSegmentDynamicWidthAttributeRecord> roadWidthAttributes)
+        public ExtractFile CreateRoadSegmentWidtAttributesFile(DbSet<RoadSegmentWidthAttributeRecord> roadWidthAttributes)
         {
-            return CreateDbfFile<RoadSegmentDynamicWidthAttributeDbaseRecord>(
+            return CreateDbfFile<RoadSegmentWidthAttributeDbaseRecord>(
                 "AttWegbreedte",
-                new RoadSegmentDynamicWidthAttributeDbaseSchema(),
+                new RoadSegmentWidthAttributeDbaseSchema(),
                 roadWidthAttributes
                     .OrderQueryBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
                 roadWidthAttributes.Count);
         }
 
-        public ExtractFile CreateRoadSegmentDynamicHardeningAttributesFile(DbSet<RoadSegmentDynamicHardeningAttributeRecord> roadHardeningAttributes)
+        public ExtractFile CreateRoadSegmentSurfaceAttributesFile(DbSet<RoadSegmentSurfaceAttributeRecord> roadSurfaceAttributes)
         {
-            return CreateDbfFile<RoadSegmentDynamicHardeningAttributeDbaseRecord>(
+            return CreateDbfFile<RoadSegmentSurfaceAttributeDbaseRecord>(
                 "AttWegverharding",
-                new RoadSegmentDynamicHardeningAttributeDbaseSchema(),
-                roadHardeningAttributes
+                new RoadSegmentSurfaceAttributeDbaseSchema(),
+                roadSurfaceAttributes
                     .OrderQueryBy(record => record.Id)
                     .Select(record => record.DbaseRecord),
-                roadHardeningAttributes.Count
+                roadSurfaceAttributes.Count
             );
         }
 
@@ -360,12 +360,12 @@ namespace RoadRegistry.Api.Downloads
             );
         }
 
-        public ExtractFile CreateHardeningTypesFile()
+        public ExtractFile CreateSurfaceTypesFile()
         {
             return CreateDbfFile(
                 "WegverhardLktType",
-                new HardeningTypeDbaseSchema(),
-                ReferenceData.HardeningTypes
+                new SurfaceTypeDbaseSchema(),
+                ReferenceData.SurfaceTypes
             );
         }
 

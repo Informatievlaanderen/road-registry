@@ -31,11 +31,12 @@
             var startNode = new RoadNodeId(command.StartNodeId);
             var endNode = new RoadNodeId(command.EndNodeId);
             var geometry = Reader.ReadAs<MultiLineString>(command.Geometry);
-            var maintainer = new MaintainerId(command.Maintainer);
+            var maintainer = new MaintenanceAuthorityId(command.Maintainer);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse((int)command.GeometryDrawMethod);
             var morphology = RoadSegmentMorphology.Parse((int)command.Morphology);
             var status = RoadSegmentStatus.Parse((int)command.Status);
-            var category = RoadSegmentCategory.Parse(command.Category.ToString()); // won't work
+            var category =
+                RoadSegmentCategory.Parse(Enum.GetName(typeof(Messages.RoadSegmentCategory), command.Category));
             var accessRestriction = RoadSegmentAccessRestriction.Parse((int)command.AccessRestriction);
             var leftSideStreetNameId = command.LeftSideStreetNameId.HasValue
                 ? new CrabStreetnameId(command.LeftSideStreetNameId.Value)
@@ -82,11 +83,11 @@
                     )
                 )
             );
-            var hardeningAttributes = new RoadSegmentHardeningAttributes(
+            var surfaceAttributes = new RoadSegmentSurfaceAttributes(
                 Array.ConvertAll(
-                    command.Hardenings,
-                    item => new RoadSegmentHardeningAttribute(
-                        RoadSegmentHardeningType.Parse((int)item.Type),
+                    command.Surfaces,
+                    item => new RoadSegmentSurfaceAttribute(
+                        RoadSegmentSurfaceType.Parse((int)item.Type),
                         new RoadSegmentPosition(item.FromPosition),
                         new RoadSegmentPosition(item.ToPosition),
                         new GeometryVersion(0)
@@ -112,7 +113,7 @@
                 partOfNumberedRoads,
                 laneAttributes,
                 widthAttributes,
-                hardeningAttributes
+                surfaceAttributes
             );
         }
     }

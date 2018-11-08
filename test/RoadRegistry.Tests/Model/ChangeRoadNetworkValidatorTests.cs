@@ -46,12 +46,12 @@ namespace RoadRegistry.Model
                                 AccessRestriction = Fixture.Create<Messages.RoadSegmentAccessRestriction>(),
                                 LeftSideStreetNameId = Fixture.Create<Nullable<int>>(),
                                 RightSideStreetNameId = Fixture.Create<Nullable<int>>(),
-                                PartOfEuropeanRoads = Fixture.CreateMany<RequestedRoadSegmentEuropeanRoadProperties>().ToArray(),
-                                PartOfNationalRoads = Fixture.CreateMany<RequestedRoadSegmentNationalRoadProperties>().ToArray(),
-                                PartOfNumberedRoads = Fixture.CreateMany<RequestedRoadSegmentNumberedRoadProperties>().ToArray(),
-                                Lanes = Fixture.CreateMany<RequestedRoadSegmentLaneProperties>().ToArray(),
-                                Widths = Fixture.CreateMany<RequestedRoadSegmentWidthProperties>().ToArray(),
-                                Hardenings = Fixture.CreateMany<RequestedRoadSegmentHardeningProperties>().ToArray()
+                                PartOfEuropeanRoads = Fixture.CreateMany<RequestedRoadSegmentEuropeanRoadAttributes>().ToArray(),
+                                PartOfNationalRoads = Fixture.CreateMany<RequestedRoadSegmentNationalRoadAttributes>().ToArray(),
+                                PartOfNumberedRoads = Fixture.CreateMany<RequestedRoadSegmentNumberedRoadAttributes>().ToArray(),
+                                Lanes = Fixture.CreateMany<RequestedRoadSegmentLaneAttributes>().ToArray(),
+                                Widths = Fixture.CreateMany<RequestedRoadSegmentWidthAttributes>().ToArray(),
+                                Surfaces = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttributes>().ToArray()
                             };
                         }
                     )

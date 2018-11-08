@@ -15,7 +15,7 @@
         public static IReadOnlyCollection<RoadSegmentStatusDbaseRecord> RoadSegmentStatuses => CreateDbaseRecords<RoadSegmentStatusDbaseRecord, RoadSegmentStatus>();
         public static IReadOnlyCollection<RoadSegmentMorphologyDbaseRecord> RoadSegmentMorphologies => CreateDbaseRecords<RoadSegmentMorphologyDbaseRecord, RoadSegmentMorphology>();
         public static IReadOnlyCollection<RoadSegmentCategoryDbaseRecord> RoadSegmentCategories => CreateDbaseRecords<RoadSegmentCategoryDbaseRecord, RoadSegmentCategory>();
-        public static IReadOnlyCollection<HardeningTypeDbaseRecord> HardeningTypes => CreateDbaseRecords<HardeningTypeDbaseRecord, HardeningType>();
+        public static IReadOnlyCollection<SurfaceTypeDbaseRecord> SurfaceTypes => CreateDbaseRecords<SurfaceTypeDbaseRecord, SurfaceType>();
         public static IReadOnlyCollection<LaneDirectionDbaseRecord> LaneDirections => CreateDbaseRecords<LaneDirectionDbaseRecord, LaneDirection>();
         public static IReadOnlyCollection<NumberedRoadSegmentDirectionDbaseRecord> NumberedRoadSegmentDirections => CreateDbaseRecords<NumberedRoadSegmentDirectionDbaseRecord, NumberedRoadSegmentDirection>();
         public static IReadOnlyCollection<ReferencePointTypeDbaseRecord> ReferencePointTypes => CreateDbaseRecords<ReferencePointTypeDbaseRecord, ReferencePointType>();

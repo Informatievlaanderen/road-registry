@@ -43,17 +43,17 @@ namespace RoadRegistry.Model
             RuleFor(c => c.Category).IsInEnum();
             RuleFor(c => c.AccessRestriction).IsInEnum();
             RuleFor(c => c.PartOfEuropeanRoads).NotNull();
-            RuleForEach(c => c.PartOfEuropeanRoads).NotNull().SetValidator(new RoadSegmentEuropeanRoadPropertiesValidator());
+            RuleForEach(c => c.PartOfEuropeanRoads).NotNull().SetValidator(new RoadSegmentEuropeanRoadAttributesValidator());
             RuleFor(c => c.PartOfNationalRoads).NotNull();
-            RuleForEach(c => c.PartOfNationalRoads).NotNull().SetValidator(new RoadSegmentNationalRoadPropertiesValidator());
+            RuleForEach(c => c.PartOfNationalRoads).NotNull().SetValidator(new RoadSegmentNationalRoadAttributesValidator());
             RuleFor(c => c.PartOfNumberedRoads).NotNull();
-            RuleForEach(c => c.PartOfNumberedRoads).NotNull().SetValidator(new RoadSegmentNumberedRoadPropertiesValidator());
+            RuleForEach(c => c.PartOfNumberedRoads).NotNull().SetValidator(new RoadSegmentNumberedRoadAttributesValidator());
             RuleFor(c => c.Lanes).NotNull();
-            RuleForEach(c => c.Lanes).NotNull().SetValidator(new RoadSegmentLanePropertiesValidator());
+            RuleForEach(c => c.Lanes).NotNull().SetValidator(new RoadSegmentLaneAttributesValidator());
             RuleFor(c => c.Widths).NotNull();
             RuleForEach(c => c.Widths).NotNull().SetValidator(new RoadSegmentWidthPropertiesValidator());
-            RuleFor(c => c.Hardenings).NotNull();
-            RuleForEach(c => c.Hardenings).NotNull().SetValidator(new RoadSegmentHardeningPropertiesValidator());
+            RuleFor(c => c.Surfaces).NotNull();
+            RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RoadSegmentSurfaceAttributesValidator());
         }
     }
 }

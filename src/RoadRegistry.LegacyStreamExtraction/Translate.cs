@@ -184,16 +184,16 @@ namespace RoadRegistry.LegacyStreamExtraction
             return result;
         }
 
-        public static HardeningType ToHardeningType(int code)
+        public static SurfaceType ToSurfaceType(int code)
         {
-            var result = HardeningType.Unknown;
+            var result = SurfaceType.Unknown;
 
             switch (code)
             {
-                case -9: result = HardeningType.NotApplicable; break;
-                //case -8: result = HardeningType.Unknown; break;
-                case 1: result = HardeningType.SolidHardening; break;
-                case 2: result = HardeningType.LooseHardening; break;
+                case -9: result = SurfaceType.NotApplicable; break;
+                //case -8: result = SurfaceType.Unknown; break;
+                case 1: result = SurfaceType.SolidSurface; break;
+                case 2: result = SurfaceType.LooseSurface; break;
             }
 
             return result;

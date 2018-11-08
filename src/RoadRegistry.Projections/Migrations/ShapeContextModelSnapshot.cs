@@ -163,7 +163,7 @@ namespace RoadRegistry.Projections.Migrations
                     b.ToTable("RoadReferencePoint","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentDynamicHardeningAttributeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentSurfaceAttributeRecord", b =>
                 {
                     b.Property<int>("Id");
 
@@ -174,10 +174,10 @@ namespace RoadRegistry.Projections.Migrations
                     b.HasKey("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("RoadSegmentHardeningAttribute","RoadRegistryShape");
+                    b.ToTable("RoadSegmentSurfaceAttribute","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentDynamicLaneAttributeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentLaneAttributeRecord", b =>
                 {
                     b.Property<int>("Id");
 
@@ -191,7 +191,7 @@ namespace RoadRegistry.Projections.Migrations
                     b.ToTable("RoadSegmentLaneAttribute","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentDynamicWidthAttributeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentWidthAttributeRecord", b =>
                 {
                     b.Property<int>("Id");
 

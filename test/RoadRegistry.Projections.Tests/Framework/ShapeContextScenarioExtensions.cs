@@ -105,12 +105,12 @@ namespace RoadRegistry.Projections
             records.AddRange(await context.RoadNodes.ToArrayAsync());
             records.AddRange(await context.RoadSegments.ToArrayAsync());
             records.AddRange(await context.RoadReferencePoints.ToArrayAsync());
-            records.AddRange(await context.RoadLaneAttributes.ToArrayAsync());
-            records.AddRange(await context.RoadWidthAttributes.ToArrayAsync());
-            records.AddRange(await context.RoadHardeningAttributes.ToArrayAsync());
-            records.AddRange(await context.EuropeanRoadAttributes.ToArrayAsync());
-            records.AddRange(await context.NationalRoadAttributes.ToArrayAsync());
-            records.AddRange(await context.NumberedRoadAttributes.ToArrayAsync());
+            records.AddRange(await context.RoadSegmentLaneAttributes.ToArrayAsync());
+            records.AddRange(await context.RoadSegmentWidthAttributes.ToArrayAsync());
+            records.AddRange(await context.RoadSegmentSurfaceAttributes.ToArrayAsync());
+            records.AddRange(await context.RoadSegmentEuropeanRoadAttributes.ToArrayAsync());
+            records.AddRange(await context.RoadSegmentNationalRoadAttributes.ToArrayAsync());
+            records.AddRange(await context.RoadSegmentNumberedRoadAttributes.ToArrayAsync());
             records.AddRange(await context.GradeSeparatedJunctions.ToArrayAsync());
             records.AddRange(await context.Organizations.ToArrayAsync());
             records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());

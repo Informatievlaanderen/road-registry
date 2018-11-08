@@ -30,6 +30,19 @@ namespace RoadRegistry.Model
             );
         }
 
+        public RejectionReasons BecauseRoadSegmentIdTaken()
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadSegmentIdTaken",
+                        Parameters = new ReasonParameter[0]
+                    }
+                )
+            );
+        }
+
         public RejectionReasons BecauseRoadNodeGeometryTaken(RoadNodeId byOtherNode)
         {
             return new RejectionReasons(
