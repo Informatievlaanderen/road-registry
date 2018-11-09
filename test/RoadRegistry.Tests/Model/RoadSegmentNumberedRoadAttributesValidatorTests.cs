@@ -13,26 +13,26 @@ namespace RoadRegistry.Model
         public RoadSegmentNumberedRoadAttributesValidatorTests()
         {
             Fixture = new Fixture();
+            Fixture.CustomizeNumberedRoadNumber();
+            Fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
+            Fixture.CustomizeRoadSegmentNumberedRoadDirection();
             Validator = new RoadSegmentNumberedRoadAttributesValidator();
         }
 
         public Fixture Fixture { get; }
+
         public RoadSegmentNumberedRoadAttributesValidator Validator { get; }
 
         [Fact]
         public void Ident8MustBeWithinDomain()
         {
-            var acceptable = Array.ConvertAll(NumberedRoadNumber.All, candidate => candidate.ToString());
-            var value = new Generator<string>(Fixture).First(candidate => !acceptable.Contains(candidate));
-            Validator.ShouldHaveValidationErrorFor(c => c.Ident8, value);
+            Validator.ShouldHaveValidationErrorFor(c => c.Ident8, Fixture.Create<string>());
         }
 
         [Fact]
         public void DirectionMustBeWithinDomain()
         {
-            var acceptable = Array.ConvertAll(RoadSegmentNumberedRoadDirection.All, candidate => candidate.ToInt32());
-            var value = new Generator<int>(Fixture).First(candidate => !acceptable.Contains(candidate));
-            Validator.ShouldHaveValidationErrorFor(c => c.Direction, (NumberedRoadSegmentDirection)value);
+            Validator.ShouldHaveValidationErrorFor(c => c.Direction, Fixture.Create<string>());
         }
 
         [Theory]
@@ -48,9 +48,9 @@ namespace RoadRegistry.Model
         {
             var data = new RequestedRoadSegmentNumberedRoadAttributes
             {
-                Ident8 = NumberedRoadNumber.All[new Random().Next(0, NumberedRoadNumber.All.Length)].ToString(),
-                Direction = Fixture.Create<NumberedRoadSegmentDirection>(),
-                Ordinal = new Generator<int>(Fixture).First(candidate => candidate >= 0)
+                Ident8 = Fixture.Create<NumberedRoadNumber>(),
+                Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
+                Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>()
             };
 
             Validator.ValidateAndThrow(data);

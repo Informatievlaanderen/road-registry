@@ -13,18 +13,18 @@ namespace RoadRegistry.Model
         public RoadSegmentNationalRoadAttributesValidatorTests()
         {
             Fixture = new Fixture();
+            Fixture.CustomizeNationalRoadNumber();
             Validator = new RoadSegmentNationalRoadAttributesValidator();
         }
 
         public Fixture Fixture { get; }
+
         public RoadSegmentNationalRoadAttributesValidator Validator { get; }
 
         [Fact]
         public void Ident2MustBeWithinDomain()
         {
-            var acceptable = Array.ConvertAll(NationalRoadNumber.All, candidate => candidate.ToString());
-            var value = new Generator<string>(Fixture).First(candidate => !acceptable.Contains(candidate));
-            Validator.ShouldHaveValidationErrorFor(c => c.Ident2, value);
+            Validator.ShouldHaveValidationErrorFor(c => c.Ident2, Fixture.Create<string>());
         }
 
         [Fact]
@@ -32,7 +32,7 @@ namespace RoadRegistry.Model
         {
             var data = new RequestedRoadSegmentNationalRoadAttributes
             {
-                Ident2 = NationalRoadNumber.All[new Random().Next(0, NationalRoadNumber.All.Length)].ToString()
+                Ident2 = Fixture.Create<NationalRoadNumber>()
             };
 
             Validator.ValidateAndThrow(data);

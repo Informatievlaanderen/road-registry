@@ -4,10 +4,8 @@ namespace RoadRegistry.Model
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using Aiv.Vbr.AggregateSource;
     using Aiv.Vbr.EventHandling;
     using Framework;
-    using Model;
     using Newtonsoft.Json;
     using SqlStreamStore;
     using SqlStreamStore.Streams;

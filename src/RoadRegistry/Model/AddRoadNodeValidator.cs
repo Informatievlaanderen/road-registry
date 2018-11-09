@@ -14,7 +14,11 @@ namespace RoadRegistry.Model
             }
 
             RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.Type).IsInEnum();
+            RuleFor(c => c.Type)
+                .NotEmpty()
+                .Must(RoadNodeType.CanParse)
+                .When(c => c.Type != null, ApplyConditionTo.CurrentValidator)
+                .WithMessage("The 'Type' is not a RoadNodeType.");
             RuleFor(c => c.Geometry)
                 .NotNull()
                 .Must(data => {

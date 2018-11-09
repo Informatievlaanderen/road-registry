@@ -122,13 +122,11 @@ namespace RoadRegistry.Model
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
-            _fixture.Customizations.Add(
-                new FiniteSequenceGenerator<string>(_knownValues));
-            var value = _fixture.Create<string>();
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             var sut = EuropeanRoadNumber.Parse(value);
             var result = sut.ToString();
 
-            Assert.Equal(value.ToString(), result);
+            Assert.Equal(value, result);
         }
 
         [Fact]
@@ -140,16 +138,14 @@ namespace RoadRegistry.Model
         [Fact]
         public void ParseReturnsExpectedResultWhenValueIsWellKnown()
         {
-            _fixture.Customizations.Add(
-                new FiniteSequenceGenerator<string>(_knownValues));
-            var value = _fixture.Create<string>();
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             Assert.NotNull(EuropeanRoadNumber.Parse(value));
         }
 
         [Fact]
         public void ParseReturnsExpectedResultWhenValueIsUnknown()
         {
-            var value = new Generator<string>(_fixture).First(candidate => !_knownValues.Contains(candidate));
+            var value = _fixture.Create<string>();
             Assert.Throws<FormatException>(() => EuropeanRoadNumber.Parse(value));
         }
 
@@ -162,9 +158,7 @@ namespace RoadRegistry.Model
         [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsWellKnown()
         {
-            _fixture.Customizations.Add(
-                new FiniteSequenceGenerator<string>(_knownValues));
-            var value = _fixture.Create<string>();
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             var result = EuropeanRoadNumber.TryParse(value, out var parsed);
             Assert.True(result);
             Assert.NotNull(parsed);
@@ -174,7 +168,7 @@ namespace RoadRegistry.Model
         [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsUnknown()
         {
-            var value = new Generator<string>(_fixture).First(candidate => !_knownValues.Contains(candidate));
+            var value = _fixture.Create<string>();
             var result = EuropeanRoadNumber.TryParse(value, out var parsed);
             Assert.False(result);
             Assert.Null(parsed);
@@ -187,21 +181,19 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+        public void CanParseReturnsExpectedResultWhenValueIsUnknown()
         {
-            _fixture.Customizations.Add(
-                new FiniteSequenceGenerator<string>(_knownValues));
             var value = _fixture.Create<string>();
             var result = EuropeanRoadNumber.CanParse(value);
-            Assert.True(result);
+            Assert.False(result);
         }
 
         [Fact]
-        public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+        public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
         {
-            var value = new Generator<string>(_fixture).First(candidate => !_knownValues.Contains(candidate));
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             var result = EuropeanRoadNumber.CanParse(value);
-            Assert.False(result);
+            Assert.True(result);
         }
     }
 }

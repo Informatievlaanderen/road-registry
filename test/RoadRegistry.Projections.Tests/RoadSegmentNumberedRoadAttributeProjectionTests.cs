@@ -7,17 +7,16 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Infrastructure;
     using Messages;
+    using Model;
     using Xunit;
 
     public class RoadSegmentNumberedRoadAttributeProjectionTests
     {
         private readonly ScenarioFixture _fixture;
-        private readonly NumberedRoadSegmentDirectionTranslator _numberedRoadSegmentDirectionTranslator;
 
         public RoadSegmentNumberedRoadAttributeProjectionTests()
         {
             _fixture = new ScenarioFixture();
-            _numberedRoadSegmentDirectionTranslator = new NumberedRoadSegmentDirectionTranslator();
         }
 
         [Fact]
@@ -43,8 +42,8 @@ namespace RoadRegistry.Projections.Tests
                                 GW_OIDN = { Value = numberedRoad.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
                                 IDENT8 = { Value = numberedRoad.Ident8 },
-                                RICHTING = { Value = _numberedRoadSegmentDirectionTranslator.TranslateToIdentifier(numberedRoad.Direction) },
-                                LBLRICHT = { Value = _numberedRoadSegmentDirectionTranslator.TranslateToDutchName(numberedRoad.Direction) },
+                                RICHTING = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Identifier },
+                                LBLRICHT = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Name },
                                 VOLGNUMMER = { Value = numberedRoad.Ordinal },
                                 BEGINTIJD = { Value = numberedRoad.Origin.Since },
                                 BEGINORG = { Value = numberedRoad.Origin.OrganizationId },
@@ -60,7 +59,7 @@ namespace RoadRegistry.Projections.Tests
 
                 }).ToList();
 
-            return new RoadSegmentNumberedRoadAttributeRecordProjection(_numberedRoadSegmentDirectionTranslator, Encoding.UTF8)
+            return new RoadSegmentNumberedRoadAttributeRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -76,7 +75,7 @@ namespace RoadRegistry.Projections.Tests
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.PartOfNumberedRoads = new ImportedRoadSegmentNumberedRoadAttributes[0];
 
-            return new RoadSegmentNumberedRoadAttributeRecordProjection(_numberedRoadSegmentDirectionTranslator, Encoding.UTF8)
+            return new RoadSegmentNumberedRoadAttributeRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new object[0]);

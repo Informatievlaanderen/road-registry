@@ -16,13 +16,75 @@ namespace RoadRegistry.Model
             Fixture = new Fixture();
             Fixture.CustomizePointM();
             Fixture.CustomizePolylineM();
+
+            Fixture.CustomizeRoadNodeId();
+            Fixture.CustomizeRoadNodeType();
+            Fixture.CustomizeRoadSegmentId();
+            Fixture.CustomizeRoadSegmentCategory();
+            Fixture.CustomizeRoadSegmentMorphology();
+            Fixture.CustomizeRoadSegmentStatus();
+            Fixture.CustomizeRoadSegmentAccessRestriction();
+            Fixture.CustomizeRoadSegmentLaneCount();
+            Fixture.CustomizeRoadSegmentLaneDirection();
+            Fixture.CustomizeRoadSegmentNumberedRoadDirection();
+            Fixture.CustomizeRoadSegmentGeometryDrawMethod();
+            Fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
+            Fixture.CustomizeRoadSegmentSurfaceType();
+            Fixture.CustomizeRoadSegmentWidth();
+            Fixture.CustomizeEuropeanRoadNumber();
+            Fixture.CustomizeNationalRoadNumber();
+            Fixture.CustomizeNumberedRoadNumber();
+
+            Fixture.Customize<RequestedRoadSegmentEuropeanRoadAttributes>(composer =>
+                composer.Do(instance =>
+                {
+                    instance.RoadNumber =Fixture.Create<EuropeanRoadNumber>();
+                }).OmitAutoProperties());
+            Fixture.Customize<RequestedRoadSegmentNationalRoadAttributes>(composer =>
+                composer.Do(instance =>
+                {
+                    instance.Ident2 = Fixture.Create<NationalRoadNumber>();
+                }).OmitAutoProperties());
+            Fixture.Customize<RequestedRoadSegmentNumberedRoadAttributes>(composer =>
+                composer.Do(instance =>
+                {
+                    instance.Ident8 = Fixture.Create<NumberedRoadNumber>();
+                    instance.Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>();
+                    instance.Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>();
+                }).OmitAutoProperties());
+            Fixture.Customize<RequestedRoadSegmentLaneAttributes>(composer =>
+                composer.Do(instance =>
+                {
+                    var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
+                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
+                    instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                    instance.Count = Fixture.Create<RoadSegmentLaneCount>();
+                    instance.Direction = Fixture.Create<RoadSegmentLaneDirection>();
+                }).OmitAutoProperties());
+            Fixture.Customize<RequestedRoadSegmentWidthAttributes>(composer =>
+                composer.Do(instance =>
+                {
+                    var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
+                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
+                    instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                    instance.Width = Fixture.Create<RoadSegmentWidth>();
+                }).OmitAutoProperties());
+            Fixture.Customize<RequestedRoadSegmentSurfaceAttributes>(composer =>
+                composer.Do(instance =>
+                {
+                    var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
+                    instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
+                    instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                    instance.Type = Fixture.Create<RoadSegmentSurfaceType>();
+                }).OmitAutoProperties());
+
             Fixture.Customize<Messages.AddRoadNode>(
                 composer =>
                     composer.FromFactory(random =>
                         new Messages.AddRoadNode
                         {
-                            Id = random.Next(),
-                            Type = Fixture.Create<Messages.RoadNodeType>(),
+                            Id = Fixture.Create<RoadNodeId>(),
+                            Type = Fixture.Create<RoadNodeType>(),
                             Geometry = Fixture.Create<PointM>().ToBytes()
                         }
                     )
@@ -34,16 +96,16 @@ namespace RoadRegistry.Model
                             var geometry = Fixture.Create<MultiLineString>();
                             return new Messages.AddRoadSegment
                             {
-                                Id = random.Next(),
-                                StartNodeId = random.Next(),
-                                EndNodeId = random.Next(),
+                                Id = Fixture.Create<RoadSegmentId>(),
+                                StartNodeId = Fixture.Create<RoadNodeId>(),
+                                EndNodeId = Fixture.Create<RoadNodeId>(),
                                 Geometry = geometry.ToBytes(),
-                                Maintainer = Fixture.Create<string>(),
-                                GeometryDrawMethod = Fixture.Create<Messages.RoadSegmentGeometryDrawMethod>(),
-                                Morphology = Fixture.Create<Messages.RoadSegmentMorphology>(),
-                                Status = Fixture.Create<Messages.RoadSegmentStatus>(),
-                                Category = Fixture.Create<Messages.RoadSegmentCategory>(),
-                                AccessRestriction = Fixture.Create<Messages.RoadSegmentAccessRestriction>(),
+                                MaintenanceAuthority = Fixture.Create<string>(),
+                                GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                                Morphology = Fixture.Create<RoadSegmentMorphology>(),
+                                Status = Fixture.Create<RoadSegmentStatus>(),
+                                Category = Fixture.Create<RoadSegmentCategory>(),
+                                AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
                                 LeftSideStreetNameId = Fixture.Create<Nullable<int>>(),
                                 RightSideStreetNameId = Fixture.Create<Nullable<int>>(),
                                 PartOfEuropeanRoads = Fixture.CreateMany<RequestedRoadSegmentEuropeanRoadAttributes>().ToArray(),

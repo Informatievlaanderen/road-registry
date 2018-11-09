@@ -21,6 +21,6 @@ namespace RoadRegistry.Model
         public override string ToString() => _value.ToString();
         public static bool operator ==(CrabStreetnameId left, CrabStreetnameId right) => left.Equals(right);
         public static bool operator !=(CrabStreetnameId left, CrabStreetnameId right) => !left.Equals(right);
-        public static implicit operator Int32(CrabStreetnameId instance) => instance._value;
+        public static implicit operator int(CrabStreetnameId instance) => instance._value;
     }
 }

@@ -1,6 +1,7 @@
 namespace RoadRegistry
 {
     using System;
+    using System.Linq;
     using AutoFixture.Idioms;
 
     /// <summary>
@@ -10,6 +11,18 @@ namespace RoadRegistry
     /// <seealso cref="Verify(IGuardClauseCommand)" />
     public class NegativeInt32BehaviorExpectation : IBehaviorExpectation
     {
+        private readonly int[] _exceptions;
+
+        public NegativeInt32BehaviorExpectation()
+        {
+            _exceptions = new int[0];
+        }
+
+        public NegativeInt32BehaviorExpectation(params int[] exceptions)
+        {
+            _exceptions = exceptions ?? throw new ArgumentNullException(nameof(exceptions));
+        }
+
         /// <summary>
         /// Verifies the behavior of the command when invoked with <see cref="Int32" /> less than 0.
         /// </summary>
@@ -34,7 +47,21 @@ namespace RoadRegistry
 
             try
             {
-                command.Execute(new Random().Next(int.MinValue, -1));
+                var random = new Random();
+                if (_exceptions.Length != 0)
+                {
+                    var value = random.Next(int.MinValue, -1);
+                    while (_exceptions.Contains(value))
+                    {
+                        value = random.Next(int.MinValue, -1);
+                    }
+                    command.Execute(value);
+                }
+                else
+                {
+                    command.Execute(random.Next(int.MinValue, -1));
+                }
+
             }
             catch (ArgumentOutOfRangeException)
             {

@@ -1,7 +1,9 @@
 namespace RoadRegistry.Messages
 {
+    using System;
     using System.Collections.Generic;
 
+    [Obsolete]
     public enum LaneDirection
     {
         Unknown = -8, // -8	niet gekend	Geen informatie beschikbaar
@@ -10,6 +12,7 @@ namespace RoadRegistry.Messages
         Independent = 3 // 3	onafhankelijk van de digitalisatiezin	Aantal rijstroken slaat op het totaal in beide richtingen, onafhankelijk van de digitalisatiezin van het wegsegment.
     }
 
+    [Obsolete("Use RoadSegmentLaneDirection.Translation instead")]
     public class LaneDirectionTranslator : EnumTranslator<LaneDirection>
     {
         protected override IDictionary<LaneDirection, string> DutchTranslations => _dutchTranslations;

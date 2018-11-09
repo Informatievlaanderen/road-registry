@@ -15,7 +15,11 @@ namespace RoadRegistry.Model
             RuleFor(c => c.Count)
                 .GreaterThanOrEqualTo(0)
                 .When(_ => _.Count != Unknown && _.Count != NotApplicable, ApplyConditionTo.CurrentValidator);
-            RuleFor(c => c.Direction).IsInEnum();
+            RuleFor(c => c.Direction)
+                .NotEmpty()
+                .Must(RoadSegmentLaneDirection.CanParse)
+                .When(c => c.Direction != null, ApplyConditionTo.CurrentValidator)
+                .WithMessage("The 'Direction' is not a RoadSegmentLaneDirection.");
         }
     }
 }

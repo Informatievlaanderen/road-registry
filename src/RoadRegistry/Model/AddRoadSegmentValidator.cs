@@ -1,7 +1,6 @@
 namespace RoadRegistry.Model
 {
     using System;
-    using System.Threading;
     using Aiv.Vbr.Shaperon;
     using FluentValidation;
     using NetTopologySuite.Geometries;
@@ -17,7 +16,9 @@ namespace RoadRegistry.Model
 
             RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
             RuleFor(c => c.StartNodeId).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.EndNodeId).GreaterThanOrEqualTo(0);
+            RuleFor(c => c.EndNodeId)
+                .GreaterThanOrEqualTo(0)
+                .NotEqual(c => c.StartNodeId);
             RuleFor(c => c.Geometry)
                 .NotNull()
                 .Must(data => {
@@ -36,12 +37,32 @@ namespace RoadRegistry.Model
                     return acceptable;
                 })
                 .WithMessage("The 'Geometry' is not a MultiLineString.");
-            RuleFor(c => c.Maintainer).NotEmpty();
-            RuleFor(c => c.GeometryDrawMethod).IsInEnum();
-            RuleFor(c => c.Morphology).IsInEnum();
-            RuleFor(c => c.Status).IsInEnum();
-            RuleFor(c => c.Category).IsInEnum();
-            RuleFor(c => c.AccessRestriction).IsInEnum();
+            RuleFor(c => c.MaintenanceAuthority).NotEmpty();
+            RuleFor(c => c.GeometryDrawMethod)
+                .NotEmpty()
+                .Must(RoadSegmentGeometryDrawMethod.CanParse)
+                .When(c => c.GeometryDrawMethod != null, ApplyConditionTo.CurrentValidator)
+                .WithMessage("The 'GeometryDrawMethod' is not a RoadSegmentGeometryDrawMethod.");
+            RuleFor(c => c.Morphology)
+                .NotEmpty()
+                .Must(RoadSegmentMorphology.CanParse)
+                .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator)
+                .WithMessage("The 'Morphology' is not a RoadSegmentMorphology.");
+            RuleFor(c => c.Status)
+                .NotEmpty()
+                .Must(RoadSegmentStatus.CanParse)
+                .When(c => c.Status != null, ApplyConditionTo.CurrentValidator)
+                .WithMessage("The 'Status' is not a RoadSegmentStatus.");
+            RuleFor(c => c.Category)
+                .NotEmpty()
+                .Must(RoadSegmentCategory.CanParse)
+                .When(c => c.Category != null, ApplyConditionTo.CurrentValidator)
+                .WithMessage("The 'Category' is not a RoadSegmentCategory.");
+            RuleFor(c => c.AccessRestriction)
+                .NotEmpty()
+                .Must(RoadSegmentAccessRestriction.CanParse)
+                .When(c => c.AccessRestriction != null, ApplyConditionTo.CurrentValidator)
+                .WithMessage("The 'AccessRestriction' is not a RoadSegmentAccessRestriction.");
             RuleFor(c => c.PartOfEuropeanRoads).NotNull();
             RuleForEach(c => c.PartOfEuropeanRoads).NotNull().SetValidator(new RoadSegmentEuropeanRoadAttributesValidator());
             RuleFor(c => c.PartOfNationalRoads).NotNull();

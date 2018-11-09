@@ -4,29 +4,81 @@ namespace RoadRegistry.Model
 
     public class RoadNodeType : IEquatable<RoadNodeType>
     {
-        private readonly int _value;
-
-        public static readonly RoadNodeType RealNode = new RoadNodeType(1);
-        public static readonly RoadNodeType FakeNode = new RoadNodeType(2);
-        public static readonly RoadNodeType EndNode = new RoadNodeType(3);
-        public static readonly RoadNodeType MiniRoundabout = new RoadNodeType(4);
-        public static readonly RoadNodeType TurnLoopNode = new RoadNodeType(5);
+        public static readonly RoadNodeType RealNode =
+            new RoadNodeType(
+                nameof(RealNode),
+                new DutchTranslation(
+                    1,
+                    "echte knoop",
+                    "Punt waar 2 wegsegmenten elkaar snijden; minstens drie aansluitende wegsegmenten."
+                )
+            );
+        public static readonly RoadNodeType FakeNode =
+            new RoadNodeType(
+                nameof(FakeNode),
+                new DutchTranslation(
+                    2,
+                    "schijnknoop",
+                    "Punt waar 2 wegsegmenten elkaar raken; slechts twee aansluitende wegsegmenten."
+                )
+            );
+        public static readonly RoadNodeType EndNode =
+            new RoadNodeType(
+                nameof(EndNode),
+                new DutchTranslation(
+                    3,
+                    "eindknoop",
+                    "Het einde van een doodlopende wegcorridor, slechts één aansluitend wegsegment."
+                )
+            );
+        public static readonly RoadNodeType MiniRoundabout =
+            new RoadNodeType(
+                nameof(MiniRoundabout),
+                new DutchTranslation(
+                    4,
+                    "minirotonde",
+                    "Kruispunt dat zich in de realiteit voordoet als een rotonde maar niet voldoet aan de geometrische specificaties om opgenomen te worden als een echte rotonde (ringvormige geometrie)."
+                )
+            );
+        public static readonly RoadNodeType TurnLoopNode =
+            new RoadNodeType(
+                nameof(TurnLoopNode),
+                new DutchTranslation(
+                    5,
+                    "keerlusknoop",
+                    "Juist twee aansluitende wegsegmenten; wegsegmenten die aan beide zijden begrensd worden door dezelfde wegknoop worden met behulp van een extra wegknoop (= keerlusknoop) opgesplitst."
+                )
+            );
 
         public static readonly RoadNodeType[] All = {RealNode, FakeNode, EndNode, MiniRoundabout, TurnLoopNode};
 
-        private RoadNodeType(int value)
+        private readonly string _value;
+        private readonly DutchTranslation _dutchTranslation;
+
+        private RoadNodeType(string value, DutchTranslation dutchTranslation)
         {
             _value = value;
+            _dutchTranslation = dutchTranslation;
         }
-        
-        public static bool TryParse(int value, out RoadNodeType parsed)
+
+        public DutchTranslation Translation => _dutchTranslation;
+
+        public static bool CanParse(string value)
         {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            return Array.Find(All, candidate => candidate._value == value) != null;
+        }
+
+        public static bool TryParse(string value, out RoadNodeType parsed)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
             parsed = Array.Find(All, candidate => candidate._value == value);
             return parsed != null;
         }
 
-        public static RoadNodeType Parse(int value)
+        public static RoadNodeType Parse(string value)
         {
+            if (value == null) throw new ArgumentNullException(nameof(value));
             if (!TryParse(value, out var parsed))
             {
                 throw new FormatException($"The value {value} is not a well known road node type.");
@@ -36,12 +88,26 @@ namespace RoadRegistry.Model
 
         public bool Equals(RoadNodeType other) => other != null && other._value == _value;
         public override bool Equals(object obj) => obj is RoadNodeType type && Equals(type);
-        public override int GetHashCode() => _value;
-        public override string ToString() => _value.ToString();
-        public int ToInt32() => _value;
-
-        public static implicit operator int(RoadNodeType instance) => instance.ToInt32();
+        public override int GetHashCode() => _value.GetHashCode();
+        public override string ToString() => _value;
+        public static implicit operator string(RoadNodeType instance) => instance.ToString();
         public static bool operator ==(RoadNodeType left, RoadNodeType right) => Equals(left, right);
         public static bool operator !=(RoadNodeType left, RoadNodeType right) => !Equals(left, right);
+
+        public class DutchTranslation
+        {
+            internal DutchTranslation(int identifier, string name, string description)
+            {
+                Identifier = identifier;
+                Name = name;
+                Description = description;
+            }
+
+            public int Identifier { get; }
+
+            public string Name { get; }
+
+            public string Description { get; }
+        }
     }
 }

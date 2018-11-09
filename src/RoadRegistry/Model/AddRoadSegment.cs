@@ -2,7 +2,6 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
-    using Aiv.Vbr.Shaperon;
     using NetTopologySuite.Geometries;
 
     public class AddRoadSegment : IRequestedChange

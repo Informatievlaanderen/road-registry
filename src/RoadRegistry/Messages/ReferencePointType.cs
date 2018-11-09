@@ -9,6 +9,7 @@ namespace RoadRegistry.Messages
         HectometerMarker = 2
     }
 
+    //[Obsolete("Use ReferencePointType.Translation instead")]
     public class ReferencePointTypeTranslator : EnumTranslator<ReferencePointType>
     {
         protected override IDictionary<ReferencePointType, string> DutchTranslations => _dutchTransLations;

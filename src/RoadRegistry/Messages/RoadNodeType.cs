@@ -1,7 +1,9 @@
 namespace RoadRegistry.Messages
 {
+    using System;
     using System.Collections.Generic;
 
+    [Obsolete]
     public enum RoadNodeType
     {
         RealNode = 1,
@@ -11,6 +13,7 @@ namespace RoadRegistry.Messages
         TurnLoopNode = 5
     }
 
+    [Obsolete("Use RoadNodeType.Translation instead")]
     public class RoadNodeTypeTranslator : EnumTranslator<RoadNodeType>
     {
         protected override IDictionary<RoadNodeType, string> DutchTranslations => _dutchTranslations;

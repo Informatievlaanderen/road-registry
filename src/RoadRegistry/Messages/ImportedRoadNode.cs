@@ -9,7 +9,7 @@ namespace RoadRegistry.Messages
         public int Id { get; set; }
         public int Version { get; set; }
         public byte[] Geometry { get; set; }
-        public RoadNodeType Type { get; set; }
+        public string Type { get; set; }
         public OriginProperties Origin { get; set; }
     }
 }

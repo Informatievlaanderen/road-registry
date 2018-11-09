@@ -1,7 +1,6 @@
 namespace RoadRegistry.Model
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using AutoFixture;
     using FluentValidation;
@@ -14,6 +13,9 @@ namespace RoadRegistry.Model
         public RoadSegmentLaneAttributesValidatorTests()
         {
             Fixture = new Fixture();
+            Fixture.CustomizeRoadSegmentPosition();
+            Fixture.CustomizeRoadSegmentLaneCount();
+            Fixture.CustomizeRoadSegmentLaneDirection();
             Validator = new RoadSegmentLaneAttributesValidator();
         }
 
@@ -61,9 +63,7 @@ namespace RoadRegistry.Model
         [Fact]
         public void DirectionMustBeWithinDomain()
         {
-            var acceptable = Array.ConvertAll(RoadSegmentLaneDirection.All, candidate => candidate.ToInt32());
-            var value = new Generator<int>(Fixture).First(candidate => !acceptable.Contains(candidate));
-            Validator.ShouldHaveValidationErrorFor(c => c.Direction, (LaneDirection)value);
+            Validator.ShouldHaveValidationErrorFor(c => c.Direction, Fixture.Create<string>());
         }
 
         [Fact]
@@ -76,33 +76,11 @@ namespace RoadRegistry.Model
             {
                 FromPosition = from,
                 ToPosition = positionGenerator.First(candidate => candidate > from),
-                Count = new Generator<int>(Fixture).First(candidate => candidate >= 0 || candidate == -8 || candidate == -9),
-                Direction = Fixture.Create<LaneDirection>()
+                Count = Fixture.Create<RoadSegmentLaneCount>(),
+                Direction = Fixture.Create<RoadSegmentLaneDirection>()
             };
 
             Validator.ValidateAndThrow(data);
-        }
-    }
-
-    public static class DynamicAttributePositionCases
-    {
-        public static IEnumerable<object[]> NegativeFromPosition
-        {
-            get
-            {
-                yield return new object[] {decimal.MinValue};
-                yield return new object[] {-0.1m};
-            }
-        }
-
-        public static IEnumerable<object[]> ToPositionLessThanFromPosition
-        {
-            get
-            {
-                yield return new object[] {0.0m, 0.0m};
-                yield return new object[] {0.1m, 0.0m};
-                yield return new object[] {0.1m, 0.1m};
-            }
         }
     }
 }

@@ -1,7 +1,6 @@
 namespace RoadRegistry.Framework
 {
     using System;
-    using SqlStreamStore.Streams;
 
     public abstract class EventSourcedEntity : IEventSourcedEntity
     {

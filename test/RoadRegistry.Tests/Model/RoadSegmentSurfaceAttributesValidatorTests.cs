@@ -13,10 +13,13 @@ namespace RoadRegistry.Model
         public RoadSegmentSurfaceAttributesValidatorTests()
         {
             Fixture = new Fixture();
+            Fixture.CustomizeRoadSegmentPosition();
+            Fixture.CustomizeRoadSegmentSurfaceType();
             Validator = new RoadSegmentSurfaceAttributesValidator();
         }
 
         public Fixture Fixture { get; }
+
         public RoadSegmentSurfaceAttributesValidator Validator { get; }
 
         [Theory]
@@ -41,22 +44,20 @@ namespace RoadRegistry.Model
         [Fact]
         public void TypeMustBeWithinDomain()
         {
-            var acceptable = Array.ConvertAll(RoadSegmentSurfaceType.All, candidate => candidate.ToInt32());
-            var value = new Generator<int>(Fixture).First(candidate => !acceptable.Contains(candidate));
-            Validator.ShouldHaveValidationErrorFor(c => c.Type, (SurfaceType)value);
+            Validator.ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
         }
 
         [Fact]
         public void VerifyValid()
         {
-            var positionGenerator = new Generator<decimal>(Fixture);
+            var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
             var from = positionGenerator.First(candidate => candidate >= 0.0m);
 
             var data = new RequestedRoadSegmentSurfaceAttributes
             {
                 FromPosition = from,
                 ToPosition = positionGenerator.First(candidate => candidate > from),
-                Type = Fixture.Create<SurfaceType>()
+                Type = Fixture.Create<RoadSegmentSurfaceType>()
             };
 
             Validator.ValidateAndThrow(data);

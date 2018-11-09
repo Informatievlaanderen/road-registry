@@ -3,6 +3,7 @@ namespace RoadRegistry.Messages
     using System;
     using System.Collections.Generic;
 
+    [Obsolete]
     public enum RoadSegmentCategory
     {
         Unknown,
@@ -25,6 +26,7 @@ namespace RoadRegistry.Messages
         SecondaryRoadType4
     }
 
+    [Obsolete("Use RoadSegmentCategory.Translation instead")]
     public class RoadSegmentCategoryTranslator : EnumTranslator<RoadSegmentCategory>
     {
         protected override IDictionary<RoadSegmentCategory, string> DutchTranslations => _dutchTranslations;

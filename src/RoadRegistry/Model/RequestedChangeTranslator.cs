@@ -20,7 +20,7 @@
             return new AddRoadNode
             (
                 id,
-                RoadNodeType.Parse((int) command.Type),
+                RoadNodeType.Parse(command.Type),
                 geometry
             );
         }
@@ -31,13 +31,12 @@
             var startNode = new RoadNodeId(command.StartNodeId);
             var endNode = new RoadNodeId(command.EndNodeId);
             var geometry = Reader.ReadAs<MultiLineString>(command.Geometry);
-            var maintainer = new MaintenanceAuthorityId(command.Maintainer);
-            var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse((int)command.GeometryDrawMethod);
-            var morphology = RoadSegmentMorphology.Parse((int)command.Morphology);
-            var status = RoadSegmentStatus.Parse((int)command.Status);
-            var category =
-                RoadSegmentCategory.Parse(Enum.GetName(typeof(Messages.RoadSegmentCategory), command.Category));
-            var accessRestriction = RoadSegmentAccessRestriction.Parse((int)command.AccessRestriction);
+            var maintainer = new MaintenanceAuthorityId(command.MaintenanceAuthority);
+            var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
+            var morphology = RoadSegmentMorphology.Parse(command.Morphology);
+            var status = RoadSegmentStatus.Parse(command.Status);
+            var category = RoadSegmentCategory.Parse(command.Category);
+            var accessRestriction = RoadSegmentAccessRestriction.Parse(command.AccessRestriction);
             var leftSideStreetNameId = command.LeftSideStreetNameId.HasValue
                 ? new CrabStreetnameId(command.LeftSideStreetNameId.Value)
                 : new CrabStreetnameId?();
@@ -56,7 +55,7 @@
                 command.PartOfNumberedRoads,
                 item => new RoadSegmentNumberedRoadAttribute(
                     NumberedRoadNumber.Parse(item.Ident8),
-                    RoadSegmentNumberedRoadDirection.Parse((int)item.Direction),
+                    RoadSegmentNumberedRoadDirection.Parse(item.Direction),
                     new RoadSegmentNumberedRoadOrdinal(item.Ordinal)
                 )
             );
@@ -65,7 +64,7 @@
                     command.Lanes,
                     item => new RoadSegmentLaneAttribute(
                         new RoadSegmentLaneCount(item.Count),
-                        RoadSegmentLaneDirection.Parse((int)item.Direction),
+                        RoadSegmentLaneDirection.Parse(item.Direction),
                         new RoadSegmentPosition(item.FromPosition),
                         new RoadSegmentPosition(item.ToPosition),
                         new GeometryVersion(0)
@@ -87,7 +86,7 @@
                 Array.ConvertAll(
                     command.Surfaces,
                     item => new RoadSegmentSurfaceAttribute(
-                        RoadSegmentSurfaceType.Parse((int)item.Type),
+                        RoadSegmentSurfaceType.Parse(item.Type),
                         new RoadSegmentPosition(item.FromPosition),
                         new RoadSegmentPosition(item.ToPosition),
                         new GeometryVersion(0)

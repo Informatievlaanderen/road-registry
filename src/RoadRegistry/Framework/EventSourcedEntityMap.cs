@@ -3,7 +3,6 @@ namespace RoadRegistry.Framework
     using System;
     using System.Collections.Concurrent;
     using System.Linq;
-    using Model;
 
     public class EventSourcedEntityMap
     {

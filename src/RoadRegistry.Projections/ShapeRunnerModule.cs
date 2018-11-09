@@ -6,13 +6,10 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
-    using GeoAPI.Geometries;
     using Infrastructure;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
-    using NetTopologySuite;
-    using NetTopologySuite.IO;
     using Aiv.Vbr.Shaperon;
 
     public class ShapeRunnerModule : Module

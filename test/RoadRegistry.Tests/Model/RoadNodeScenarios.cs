@@ -32,7 +32,7 @@ namespace RoadRegistry.Model
                         AddRoadNode = new Messages.AddRoadNode
                         {
                             Id = 1,
-                            Type = Messages.RoadNodeType.FakeNode,
+                            Type = RoadNodeType.FakeNode,
                             Geometry = geometry
                         }
                     }
@@ -46,7 +46,7 @@ namespace RoadRegistry.Model
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = 1,
-                                Type = Messages.RoadNodeType.FakeNode,
+                                Type = RoadNodeType.FakeNode,
                                 Geometry = geometry
                             }
                         }
@@ -62,14 +62,14 @@ namespace RoadRegistry.Model
             var addRoadNode = new Messages.AddRoadNode
             {
                 Id = 1,
-                Type = Messages.RoadNodeType.FakeNode,
+                Type = RoadNodeType.FakeNode,
                 Geometry = geometry1
             };
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new ImportedRoadNode
                 {
                     Id = 1,
-                    Type = Messages.RoadNodeType.RealNode,
+                    Type = RoadNodeType.RealNode,
                     Geometry = geometry2
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(new RequestedChange
@@ -105,7 +105,7 @@ namespace RoadRegistry.Model
             var addRoadNode = new Messages.AddRoadNode
             {
                 Id = 1,
-                Type = Messages.RoadNodeType.FakeNode,
+                Type = RoadNodeType.FakeNode,
                 Geometry = geometry1
             };
             return Run(scenario => scenario
@@ -118,7 +118,7 @@ namespace RoadRegistry.Model
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = 1,
-                                Type = Messages.RoadNodeType.RealNode,
+                                Type = RoadNodeType.RealNode,
                                 Geometry = geometry2
                             }
                         }
@@ -163,7 +163,7 @@ namespace RoadRegistry.Model
                         AddRoadNode = new Messages.AddRoadNode
                         {
                             Id = 1,
-                            Type = Messages.RoadNodeType.FakeNode,
+                            Type = RoadNodeType.FakeNode,
                             Geometry = geometry
                         }
                     }
@@ -182,7 +182,7 @@ namespace RoadRegistry.Model
             var addRoadNode = new Messages.AddRoadNode
             {
                 Id = 2,
-                Type = Messages.RoadNodeType.FakeNode,
+                Type = RoadNodeType.FakeNode,
                 Geometry = geometry.ToBytes()
             };
             return Run(scenario => scenario
@@ -195,7 +195,7 @@ namespace RoadRegistry.Model
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = 1,
-                                Type = Messages.RoadNodeType.RealNode,
+                                Type = RoadNodeType.RealNode,
                                 Geometry = geometry.ToBytes()
                             }
                         }
@@ -248,7 +248,7 @@ namespace RoadRegistry.Model
                         AddRoadNode = new Messages.AddRoadNode
                         {
                             Id = 1,
-                            Type = Messages.RoadNodeType.FakeNode,
+                            Type = RoadNodeType.FakeNode,
                             Geometry = geometry1
                         }
                     },
@@ -257,7 +257,7 @@ namespace RoadRegistry.Model
                         AddRoadNode = new Messages.AddRoadNode
                         {
                             Id = 2,
-                            Type = Messages.RoadNodeType.FakeNode,
+                            Type = RoadNodeType.FakeNode,
                             Geometry = geometry2
                         }
                     }
@@ -271,7 +271,7 @@ namespace RoadRegistry.Model
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = 1,
-                                Type = Messages.RoadNodeType.FakeNode,
+                                Type = RoadNodeType.FakeNode,
                                 Geometry = geometry1
                             }
                         },
@@ -280,7 +280,7 @@ namespace RoadRegistry.Model
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = 2,
-                                Type = Messages.RoadNodeType.FakeNode,
+                                Type = RoadNodeType.FakeNode,
                                 Geometry = geometry2
                             }
                         }
@@ -301,7 +301,7 @@ namespace RoadRegistry.Model
             var addRoadNode = new Messages.AddRoadNode
             {
                 Id = 2,
-                Type = Messages.RoadNodeType.FakeNode,
+                Type = RoadNodeType.FakeNode,
                 Geometry = geometry2.ToBytes()
             };
             return Run(scenario => scenario
@@ -314,7 +314,7 @@ namespace RoadRegistry.Model
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = 1,
-                                Type = Messages.RoadNodeType.RealNode,
+                                Type = RoadNodeType.RealNode,
                                 Geometry = geometry1.ToBytes()
                             }
                         }

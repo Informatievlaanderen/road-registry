@@ -1,7 +1,9 @@
 namespace RoadRegistry.Messages
 {
+    using System;
     using System.Collections.Generic;
 
+    [Obsolete]
     public enum NumberedRoadSegmentDirection
     {
         Unknown = -8,
@@ -9,6 +11,7 @@ namespace RoadRegistry.Messages
         Backward = 2
     }
 
+    [Obsolete("Use RoadSegmentNumberedRoadDirection.Translation instead")]
     public class NumberedRoadSegmentDirectionTranslator : EnumTranslator<NumberedRoadSegmentDirection>
     {
         protected override IDictionary<NumberedRoadSegmentDirection, string> DutchTranslations => _dutchTranslations;

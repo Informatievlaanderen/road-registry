@@ -1,7 +1,9 @@
 namespace RoadRegistry.Messages
 {
+    using System;
     using System.Collections.Generic;
 
+    [Obsolete]
     public enum RoadSegmentGeometryDrawMethod
     {
         Outlined = 1,
@@ -9,6 +11,7 @@ namespace RoadRegistry.Messages
         Measured_according_to_GRB_specifications = 3
     }
 
+    [Obsolete("Use RoadSegmentGeometryDrawMethod.Translation instead")]
     public class RoadSegmentGeometryDrawMethodTranslator : EnumTranslator<RoadSegmentGeometryDrawMethod>
     {
         protected override IDictionary<RoadSegmentGeometryDrawMethod, string> DutchTranslations => _dutchTranslations;

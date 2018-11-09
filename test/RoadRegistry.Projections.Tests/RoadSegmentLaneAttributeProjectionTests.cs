@@ -7,17 +7,16 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Infrastructure;
     using Messages;
+    using Model;
     using Xunit;
 
     public class RoadSegmentLaneAttributeProjectionTests
     {
         private readonly ScenarioFixture _fixture;
-        private readonly LaneDirectionTranslator _laneDirectionTranslator;
 
         public RoadSegmentLaneAttributeProjectionTests()
         {
             _fixture = new ScenarioFixture();
-            _laneDirectionTranslator = new LaneDirectionTranslator();
         }
 
         [Fact]
@@ -44,8 +43,8 @@ namespace RoadRegistry.Projections.Tests
                                 WS_OIDN = { Value = segment.Id },
                                 WS_GIDN = { Value = segment.Id + "_" + lane.AsOfGeometryVersion },
                                 AANTAL =  { Value = lane.Count },
-                                RICHTING = { Value = _laneDirectionTranslator.TranslateToIdentifier(lane.Direction) },
-                                LBLRICHT = { Value = _laneDirectionTranslator.TranslateToDutchName(lane.Direction) },
+                                RICHTING = { Value = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier },
+                                LBLRICHT = { Value = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name },
                                 VANPOS = { Value = (double)lane.FromPosition },
                                 TOTPOS = { Value = (double)lane.ToPosition },
                                 BEGINTIJD = { Value = lane.Origin.Since },
@@ -62,7 +61,7 @@ namespace RoadRegistry.Projections.Tests
 
                 }).ToList();
 
-            return new RoadSegmentLaneAttributeRecordProjection(_laneDirectionTranslator, Encoding.UTF8)
+            return new RoadSegmentLaneAttributeRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -78,7 +77,7 @@ namespace RoadRegistry.Projections.Tests
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.Lanes = new ImportedRoadSegmentLaneAttributes[0];
 
-            return new RoadSegmentLaneAttributeRecordProjection(_laneDirectionTranslator, Encoding.UTF8)
+            return new RoadSegmentLaneAttributeRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new object[0]);

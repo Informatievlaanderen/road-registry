@@ -7,17 +7,16 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Infrastructure;
     using Messages;
+    using Model;
     using Xunit;
 
     public class RoadSegmentSurfaceAttributeProjectionTests
     {
         private readonly ScenarioFixture _fixture;
-        private readonly SurfaceTypeTranslator _surfaceTypeTranslator;
 
         public RoadSegmentSurfaceAttributeProjectionTests()
         {
             _fixture = new ScenarioFixture();
-            _surfaceTypeTranslator = new SurfaceTypeTranslator();
         }
 
         [Fact]
@@ -43,8 +42,8 @@ namespace RoadRegistry.Projections.Tests
                                 WV_OIDN = { Value = surface.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
                                 WS_GIDN = { Value = segment.Id + "_" + surface.AsOfGeometryVersion },
-                                TYPE =  { Value = _surfaceTypeTranslator.TranslateToIdentifier(surface.Type) },
-                                LBLTYPE =  { Value = _surfaceTypeTranslator.TranslateToDutchName(surface.Type) },
+                                TYPE =  { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier },
+                                LBLTYPE =  { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name },
                                 VANPOS = { Value = (double)surface.FromPosition },
                                 TOTPOS = { Value = (double)surface.ToPosition },
                                 BEGINTIJD = { Value = surface.Origin.Since },
@@ -61,7 +60,7 @@ namespace RoadRegistry.Projections.Tests
 
                 }).ToList();
 
-            return new RoadSegmentSurfaceAttributeRecordProjection(_surfaceTypeTranslator, Encoding.UTF8)
+            return new RoadSegmentSurfaceAttributeRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -77,7 +76,7 @@ namespace RoadRegistry.Projections.Tests
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.Surfaces = new ImportedRoadSegmentSurfaceAttributes[0];
 
-            return new RoadSegmentSurfaceAttributeRecordProjection(_surfaceTypeTranslator, Encoding.UTF8)
+            return new RoadSegmentSurfaceAttributeRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new object[0]);

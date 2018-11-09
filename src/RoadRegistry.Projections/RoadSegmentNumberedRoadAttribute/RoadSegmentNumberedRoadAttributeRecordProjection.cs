@@ -8,15 +8,14 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Messages;
+    using Model;
 
     public class RoadSegmentNumberedRoadAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {
-        private readonly NumberedRoadSegmentDirectionTranslator _directionTranslator;
         private readonly Encoding _encoding;
 
-        public RoadSegmentNumberedRoadAttributeRecordProjection(NumberedRoadSegmentDirectionTranslator directionTranslator, Encoding encoding)
+        public RoadSegmentNumberedRoadAttributeRecordProjection(Encoding encoding)
         {
-            _directionTranslator = directionTranslator ?? throw new ArgumentNullException(nameof(directionTranslator));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
             When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
         }
@@ -28,22 +27,26 @@ namespace RoadRegistry.Projections
 
             var numberedRoadAttributes = @event
                 .PartOfNumberedRoads
-                .Select(numberedRoad => new RoadSegmentNumberedRoadAttributeRecord
+                .Select(numberedRoad =>
                 {
-                    Id = numberedRoad.AttributeId,
-                    RoadSegmentId = @event.Id,
-                    DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
+                    var directionTranslation = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
+                    return new RoadSegmentNumberedRoadAttributeRecord
                     {
-                        GW_OIDN = { Value = numberedRoad.AttributeId },
-                        WS_OIDN = { Value = @event.Id },
-                        IDENT8 = { Value = numberedRoad.Ident8 },
-                        RICHTING = { Value = _directionTranslator.TranslateToIdentifier(numberedRoad.Direction) },
-                        LBLRICHT = { Value = _directionTranslator.TranslateToDutchName(numberedRoad.Direction) },
-                        VOLGNUMMER = { Value = numberedRoad.Ordinal },
-                        BEGINTIJD = { Value = numberedRoad.Origin.Since },
-                        BEGINORG = { Value = numberedRoad.Origin.OrganizationId },
-                        LBLBGNORG = { Value = numberedRoad.Origin.Organization },
-                    }.ToBytes(_encoding)
+                        Id = numberedRoad.AttributeId,
+                        RoadSegmentId = @event.Id,
+                        DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
+                        {
+                            GW_OIDN = {Value = numberedRoad.AttributeId},
+                            WS_OIDN = {Value = @event.Id},
+                            IDENT8 = {Value = numberedRoad.Ident8},
+                            RICHTING = {Value = directionTranslation.Identifier},
+                            LBLRICHT = {Value = directionTranslation.Name},
+                            VOLGNUMMER = {Value = numberedRoad.Ordinal},
+                            BEGINTIJD = {Value = numberedRoad.Origin.Since},
+                            BEGINORG = {Value = numberedRoad.Origin.OrganizationId},
+                            LBLBGNORG = {Value = numberedRoad.Origin.Organization},
+                        }.ToBytes(_encoding)
+                    };
                 });
             return context.AddRangeAsync(numberedRoadAttributes, token);
         }

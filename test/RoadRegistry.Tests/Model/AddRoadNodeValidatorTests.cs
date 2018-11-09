@@ -14,6 +14,8 @@ namespace RoadRegistry.Model
         public AddRoadNodeValidatorTests()
         {
             Fixture = new Fixture();
+            Fixture.CustomizeRoadNodeId();
+            Fixture.CustomizeRoadNodeType();
             Validator = new AddRoadNodeValidator(new WellKnownBinaryReader());
         }
 
@@ -32,9 +34,7 @@ namespace RoadRegistry.Model
         [Fact]
         public void TypeMustBeWithinDomain()
         {
-            var types = Array.ConvertAll(RoadNodeType.All, candidate => candidate.ToInt32());
-            var value = new Generator<int>(Fixture).First(candidate => !types.Contains(candidate));
-            Validator.ShouldHaveValidationErrorFor(c => c.Type, (Messages.RoadNodeType)value);
+            Validator.ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
         }
 
         [Fact]
@@ -70,8 +70,8 @@ namespace RoadRegistry.Model
 
             var data = new Messages.AddRoadNode
             {
-                Id = new Generator<int>(Fixture).First(candidate => candidate >= 0),
-                Type = Fixture.Create<Messages.RoadNodeType>(),
+                Id = Fixture.Create<RoadNodeId>(),
+                Type = Fixture.Create<RoadNodeType>(),
                 Geometry = writer.Write(Fixture.Create<PointM>())
             };
 

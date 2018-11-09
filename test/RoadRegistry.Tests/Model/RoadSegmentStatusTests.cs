@@ -9,21 +9,21 @@ namespace RoadRegistry.Model
     public class RoadSegmentStatusTests
     {
         private readonly Fixture _fixture;
-        private readonly int[] _knownValues;
+        private readonly string[] _knownValues;
 
         public RoadSegmentStatusTests()
         {
             _fixture = new Fixture();
-            _knownValues = Array.ConvertAll(RoadSegmentStatus.All, type => type.ToInt32());
+            _knownValues = Array.ConvertAll(RoadSegmentStatus.All, type => type.ToString());
         }
 
         [Fact]
         public void VerifyBehavior()
         {
             _fixture.Customizations.Add(
-                new FiniteSequenceGenerator<int>(_knownValues));
+                new FiniteSequenceGenerator<string>(_knownValues));
             new CompositeIdiomaticAssertion(
-                new ImplicitConversionOperatorAssertion<int>(_fixture),
+                new ImplicitConversionOperatorAssertion<string>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -42,37 +42,74 @@ namespace RoadRegistry.Model
         [Fact]
         public void UnknownReturnsExpectedResult()
         {
-            Assert.Equal(-8, RoadSegmentStatus.Unknown);
+            Assert.Equal("Unknown", RoadSegmentStatus.Unknown);
+        }
+
+        [Fact]
+        public void UnknownTranslationReturnsExpectedResult()
+        {
+            Assert.Equal(-8, RoadSegmentStatus.Unknown.Translation.Identifier);
         }
 
         [Fact]
         public void PermitRequestedReturnsExpectedResult()
         {
-            Assert.Equal(1, RoadSegmentStatus.PermitRequested);
+            Assert.Equal("PermitRequested", RoadSegmentStatus.PermitRequested);
+        }
+
+        [Fact]
+        public void PermitRequestedTranslationReturnsExpectedResult()
+        {
+            Assert.Equal(1, RoadSegmentStatus.PermitRequested.Translation.Identifier);
         }
 
         [Fact]
         public void BuildingPermitGrantedReturnsExpectedResult()
         {
-            Assert.Equal(2, RoadSegmentStatus.BuildingPermitGranted);
+            Assert.Equal("BuildingPermitGranted", RoadSegmentStatus.BuildingPermitGranted);
+        }
+
+
+        [Fact]
+        public void BuildingPermitGrantedTranslationReturnsExpectedResult()
+        {
+            Assert.Equal(2, RoadSegmentStatus.BuildingPermitGranted.Translation.Identifier);
         }
 
         [Fact]
         public void UnderConstructionReturnsExpectedResult()
         {
-            Assert.Equal(3, RoadSegmentStatus.UnderConstruction);
+            Assert.Equal("UnderConstruction", RoadSegmentStatus.UnderConstruction);
+        }
+
+        [Fact]
+        public void UnderConstructionTranslationReturnsExpectedResult()
+        {
+            Assert.Equal(3, RoadSegmentStatus.UnderConstruction.Translation.Identifier);
         }
 
         [Fact]
         public void InUseReturnsExpectedResult()
         {
-            Assert.Equal(4, RoadSegmentStatus.InUse);
+            Assert.Equal("InUse", RoadSegmentStatus.InUse);
+        }
+
+        [Fact]
+        public void InUseTranslationReturnsExpectedResult()
+        {
+            Assert.Equal(4, RoadSegmentStatus.InUse.Translation.Identifier);
         }
 
         [Fact]
         public void OutOfUseReturnsExpectedResult()
         {
-            Assert.Equal(5, RoadSegmentStatus.OutOfUse);
+            Assert.Equal("OutOfUse", RoadSegmentStatus.OutOfUse);
+        }
+
+        [Fact]
+        public void OutOfUseTranslationReturnsExpectedResult()
+        {
+            Assert.Equal(5, RoadSegmentStatus.OutOfUse.Translation.Identifier);
         }
 
         [Fact]
@@ -94,44 +131,78 @@ namespace RoadRegistry.Model
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
-            var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             var sut = RoadSegmentStatus.Parse(value);
             var result = sut.ToString();
 
-            Assert.Equal(value.ToString(), result);
+            Assert.Equal(value, result);
+        }
+
+        [Fact]
+        public void ParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => RoadSegmentStatus.Parse(null));
         }
 
         [Fact]
         public void ParseReturnsExpectedResultWhenValueIsWellKnown()
         {
-            var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             Assert.NotNull(RoadSegmentStatus.Parse(value));
         }
 
         [Fact]
         public void ParseReturnsExpectedResultWhenValueIsUnknown()
         {
-            var value = new Generator<int>(_fixture).First(candidate => !_knownValues.Contains(candidate));
+            var value = _fixture.Create<string>();
             Assert.Throws<FormatException>(() => RoadSegmentStatus.Parse(value));
+        }
+
+        [Fact]
+        public void TryParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => RoadSegmentStatus.TryParse(null, out _));
         }
 
         [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsWellKnown()
         {
-            var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             var result = RoadSegmentStatus.TryParse(value, out RoadSegmentStatus parsed);
             Assert.True(result);
             Assert.NotNull(parsed);
-            Assert.Equal(value, parsed.ToInt32());
+            Assert.Equal(value, parsed.ToString());
         }
 
         [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsUnknown()
         {
-            var value = new Generator<int>(_fixture).First(candidate => !_knownValues.Contains(candidate));
+            var value = _fixture.Create<string>();
             var result = RoadSegmentStatus.TryParse(value, out RoadSegmentStatus parsed);
             Assert.False(result);
             Assert.Null(parsed);
+        }
+
+        [Fact]
+        public void CanParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => RoadSegmentStatus.CanParse(null));
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+        {
+            var value = _fixture.Create<string>();
+            var result = RoadSegmentStatus.CanParse(value);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+        {
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+            var result = RoadSegmentStatus.CanParse(value);
+            Assert.True(result);
         }
     }
 }

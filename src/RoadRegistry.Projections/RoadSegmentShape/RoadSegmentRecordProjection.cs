@@ -10,31 +10,21 @@ namespace RoadRegistry.Projections
     using NetTopologySuite.Geometries;
     using Aiv.Vbr.Shaperon;
     using Messages;
+    using RoadSegmentAccessRestriction = Model.RoadSegmentAccessRestriction;
+    using RoadSegmentCategory = Model.RoadSegmentCategory;
+    using RoadSegmentGeometryDrawMethod = Model.RoadSegmentGeometryDrawMethod;
+    using RoadSegmentMorphology = Model.RoadSegmentMorphology;
+    using RoadSegmentStatus = Model.RoadSegmentStatus;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<ShapeContext>
     {
         private readonly WellKnownBinaryReader _wkbReader;
-        private readonly RoadSegmentStatusTranslator _segmentStatusTranslator;
-        private readonly RoadSegmentMorphologyTranslator _segmentMorphologyTranslator;
-        private readonly RoadSegmentCategoryTranslator _segmentCategoryTranslator;
-        private readonly RoadSegmentGeometryDrawMethodTranslator _geometryDrawMethodTranslator;
-        private readonly RoadSegmentAccessRestrictionTranslator _accessRestrictionTranslator;
         private readonly Encoding _encoding;
 
         public RoadSegmentRecordProjection(WellKnownBinaryReader wkbReader,
-            RoadSegmentStatusTranslator segmentStatusTranslator,
-            RoadSegmentMorphologyTranslator segmentMorphologyTranslator,
-            RoadSegmentCategoryTranslator segmentCategoryTranslator,
-            RoadSegmentGeometryDrawMethodTranslator geometryDrawMethodTranslator,
-            RoadSegmentAccessRestrictionTranslator accessRestrictionTranslator,
             Encoding encoding)
         {
             _wkbReader = wkbReader ?? throw new ArgumentNullException(nameof(wkbReader));
-            _segmentStatusTranslator = segmentStatusTranslator ?? throw new ArgumentNullException(nameof(segmentStatusTranslator));
-            _segmentMorphologyTranslator = segmentMorphologyTranslator ?? throw new ArgumentNullException(nameof(segmentMorphologyTranslator));
-            _segmentCategoryTranslator = segmentCategoryTranslator ?? throw new ArgumentNullException(nameof(segmentCategoryTranslator));
-            _geometryDrawMethodTranslator = geometryDrawMethodTranslator ?? throw new ArgumentNullException(nameof(geometryDrawMethodTranslator));
-            _accessRestrictionTranslator = accessRestrictionTranslator ?? throw new ArgumentNullException(nameof(accessRestrictionTranslator));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
             When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
         }
@@ -46,6 +36,11 @@ namespace RoadRegistry.Projections
                 : _wkbReader.ReadAs<MultiLineString>(@event.Geometry);
 
             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
+            var statusTranslation = RoadSegmentStatus.Parse(@event.Status).Translation;
+            var morphologyTranslation = RoadSegmentMorphology.Parse(@event.Morphology).Translation;
+            var categoryTranslation = RoadSegmentCategory.Parse(@event.Category).Translation;
+            var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod).Translation;
+            var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(@event.AccessRestriction).Translation;
             return context.AddAsync(
                 new RoadSegmentRecord
                 {
@@ -60,26 +55,26 @@ namespace RoadRegistry.Projections
                         WS_GIDN = { Value = $"{@event.Id}_{@event.GeometryVersion}" },
                         B_WK_OIDN = { Value = @event.StartNodeId },
                         E_WK_OIDN =  {Value = @event.EndNodeId },
-                        STATUS = { Value = _segmentStatusTranslator.TranslateToIdentifier(@event.Status) },
-                        LBLSTATUS = { Value = _segmentStatusTranslator.TranslateToDutchName(@event.Status) },
-                        MORF = { Value = _segmentMorphologyTranslator.TranslateToIdentifier(@event.Morphology) },
-                        LBLMORF = { Value = _segmentMorphologyTranslator.TranslateToDutchName(@event.Morphology) },
-                        WEGCAT = { Value = _segmentCategoryTranslator.TranslateToIdentifier(@event.Category) },
-                        LBLWEGCAT = { Value = _segmentCategoryTranslator.TranslateToDutchName(@event.Category) },
+                        STATUS = { Value = statusTranslation.Identifier },
+                        LBLSTATUS = { Value = statusTranslation.Name },
+                        MORF = { Value = morphologyTranslation.Identifier },
+                        LBLMORF = { Value = morphologyTranslation.Name },
+                        WEGCAT = { Value = categoryTranslation.Identifier },
+                        LBLWEGCAT = { Value = categoryTranslation.Name },
                         LSTRNMID = { Value = @event.LeftSide.StreetNameId },
                         LSTRNM = { Value = @event.LeftSide.StreetName },
                         RSTRNMID = { Value = @event.RightSide.StreetNameId },
                         RSTRNM = { Value = @event.RightSide.StreetName },
                         BEHEER = { Value = @event.MaintenanceAuthority.Code },
                         LBLBEHEER = { Value = @event.MaintenanceAuthority.Name },
-                        METHODE = { Value = _geometryDrawMethodTranslator.TranslateToIdentifier(@event.GeometryDrawMethod) },
-                        LBLMETHOD = { Value = _geometryDrawMethodTranslator.TranslateToDutchName(@event.GeometryDrawMethod) },
+                        METHODE = { Value = geometryDrawMethodTranslation.Identifier },
+                        LBLMETHOD = { Value = geometryDrawMethodTranslation.Name },
                         OPNDATUM = { Value = @event.RecordingDate },
                         BEGINTIJD = { Value = @event.Origin.Since },
                         BEGINORG = { Value = @event.Origin.OrganizationId },
                         LBLBGNORG = { Value = @event.Origin.Organization },
-                        TGBEP = { Value = _accessRestrictionTranslator.TranslateToIdentifier(@event.AccessRestriction) },
-                        LBLTGBEP = { Value = _accessRestrictionTranslator.TranslateToDutchName(@event.AccessRestriction) },
+                        TGBEP = { Value = accessRestrictionTranslation.Identifier },
+                        LBLTGBEP = { Value = accessRestrictionTranslation.Name }
                     }.ToBytes(_encoding)
                 },
                 token);

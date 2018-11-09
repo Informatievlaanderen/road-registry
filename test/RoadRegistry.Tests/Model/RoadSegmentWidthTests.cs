@@ -17,7 +17,7 @@
         public void VerifyBehavior()
         {
             new CompositeIdiomaticAssertion(
-                new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation()),
+                new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation(-8, -9)),
                 new ImplicitConversionOperatorAssertion<int>(_fixture),
                 new ExplicitConversionMethodAssertion<int>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),

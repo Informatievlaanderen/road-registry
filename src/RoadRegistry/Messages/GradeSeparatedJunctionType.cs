@@ -9,6 +9,7 @@ namespace RoadRegistry.Messages
         Bridge = 2
     }
 
+    //[Obsolete("Use GradeSeparatedJunctionType.Translation instead")]
     public class GradeSeparatedJunctionTypeTranslator : EnumTranslator<GradeSeparatedJunctionType>
     {
         protected override IDictionary<GradeSeparatedJunctionType, string> DutchTranslations => _dutchTranslations;

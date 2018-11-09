@@ -4,30 +4,74 @@
 
     public class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirection>
     {
-        private readonly int _value;
-
-        public static readonly RoadSegmentLaneDirection Unknown = new RoadSegmentLaneDirection(-8);
-        public static readonly RoadSegmentLaneDirection Forward = new RoadSegmentLaneDirection(1);
-        public static readonly RoadSegmentLaneDirection Backward = new RoadSegmentLaneDirection(2);
-        public static readonly RoadSegmentLaneDirection Independent = new RoadSegmentLaneDirection(3);
+        public static readonly RoadSegmentLaneDirection Unknown =
+            new RoadSegmentLaneDirection(
+                nameof(Unknown),
+                new DutchTranslation(
+                    -8,
+                    "niet gekend",
+                    "Geen informatie beschikbaar"
+                )
+            );
+        public static readonly RoadSegmentLaneDirection Forward =
+            new RoadSegmentLaneDirection(
+                nameof(Forward),
+                new DutchTranslation(
+                    1,
+                    "gelijklopend met de digitalisatiezin",
+                    "Aantal rijstroken slaat op de richting die de digitalisatiezin van het wegsegment volgt."
+                )
+            );
+        public static readonly RoadSegmentLaneDirection Backward =
+            new RoadSegmentLaneDirection(
+                nameof(Backward),
+                new DutchTranslation(
+                    2,
+                    "tegengesteld aan de digitalisatiezin",
+                    "Aantal rijstroken slaat op de richting die tegengesteld loopt aan de digitalisatiezin van het wegsegment."
+                )
+            );
+        public static readonly RoadSegmentLaneDirection Independent =
+            new RoadSegmentLaneDirection(
+                nameof(Independent),
+                new DutchTranslation(
+                    3,
+                    "onafhankelijk van de digitalisatiezin",
+                    "Aantal rijstroken slaat op het totaal in beide richtingen, onafhankelijk van de digitalisatiezin van het wegsegment."
+                )
+            );
 
         public static readonly RoadSegmentLaneDirection[] All = {
             Unknown, Forward, Backward, Independent
         };
 
-        private RoadSegmentLaneDirection(int value)
+        private readonly string _value;
+        private readonly DutchTranslation _dutchTranslation;
+
+        private RoadSegmentLaneDirection(string value, DutchTranslation dutchTranslation)
         {
             _value = value;
+            _dutchTranslation = dutchTranslation;
         }
 
-        public static bool TryParse(int value, out RoadSegmentLaneDirection parsed)
+        public DutchTranslation Translation => _dutchTranslation;
+
+        public static bool CanParse(string value)
         {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            return Array.Find(All, candidate => candidate._value == value) != null;
+        }
+
+        public static bool TryParse(string value, out RoadSegmentLaneDirection parsed)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
             parsed = Array.Find(All, candidate => candidate._value == value);
             return parsed != null;
         }
 
-        public static RoadSegmentLaneDirection Parse(int value)
+        public static RoadSegmentLaneDirection Parse(string value)
         {
+            if (value == null) throw new ArgumentNullException(nameof(value));
             if (!TryParse(value, out var parsed))
             {
                 throw new FormatException($"The value {value} is not a well known lane direction.");
@@ -37,12 +81,26 @@
 
         public bool Equals(RoadSegmentLaneDirection other) => other != null && other._value == _value;
         public override bool Equals(object obj) => obj is RoadSegmentLaneDirection type && Equals(type);
-        public override int GetHashCode() => _value;
-        public override string ToString() => _value.ToString();
-        public int ToInt32() => _value;
-
-        public static implicit operator int(RoadSegmentLaneDirection instance) => instance.ToInt32();
+        public override int GetHashCode() => _value.GetHashCode();
+        public override string ToString() => _value;
+        public static implicit operator string(RoadSegmentLaneDirection instance) => instance.ToString();
         public static bool operator ==(RoadSegmentLaneDirection left, RoadSegmentLaneDirection right) => Equals(left, right);
         public static bool operator !=(RoadSegmentLaneDirection left, RoadSegmentLaneDirection right) => !Equals(left, right);
+
+        public class DutchTranslation
+        {
+            internal DutchTranslation(int identifier, string name, string description)
+            {
+                Identifier = identifier;
+                Name = name;
+                Description = description;
+            }
+
+            public int Identifier { get; }
+
+            public string Name { get; }
+
+            public string Description { get; }
+        }
     }
 }

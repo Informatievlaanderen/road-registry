@@ -1,7 +1,7 @@
 namespace RoadRegistry.LegacyStreamExtraction
 {
     using System;
-    using Messages;
+    using Model;
 
     internal static class Translate
     {
@@ -51,25 +51,25 @@ namespace RoadRegistry.LegacyStreamExtraction
                 case 102: result = RoadSegmentMorphology.Road_with_separate_lanes_that_is_not_a_motorway; break;
                 case 103: result = RoadSegmentMorphology.Road_consisting_of_one_roadway; break;
 
-                case 104: result = RoadSegmentMorphology.Traffic_circle; break;
-                case 105: result = RoadSegmentMorphology.Special_traffic_situation; break;
-                case 106: result = RoadSegmentMorphology.Traffic_square; break;
+                case 104: result = RoadSegmentMorphology.TrafficCircle; break;
+                case 105: result = RoadSegmentMorphology.SpecialTrafficSituation; break;
+                case 106: result = RoadSegmentMorphology.TrafficSquare; break;
 
                 case 107: result = RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_grade_separated_junction; break;
                 case 108: result = RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_level_junction; break;
-                case 109: result = RoadSegmentMorphology.Parallel_road; break;
+                case 109: result = RoadSegmentMorphology.ParallelRoad; break;
 
-                case 110: result = RoadSegmentMorphology.Frontage_road; break;
+                case 110: result = RoadSegmentMorphology.FrontageRoad; break;
                 case 111: result = RoadSegmentMorphology.Entry_or_exit_of_a_car_park; break;
                 case 112: result = RoadSegmentMorphology.Entry_or_exit_of_a_service; break;
 
 
-                case 113: result = RoadSegmentMorphology.Pedestrain_zone; break;
+                case 113: result = RoadSegmentMorphology.PedestrainZone; break;
                 case 114: result = RoadSegmentMorphology.Walking_or_cycling_path_not_accessible_to_other_vehicles; break;
                 case 116: result = RoadSegmentMorphology.Tramway_not_accessible_to_other_vehicles; break;
 
-                case 120: result = RoadSegmentMorphology.Service_road; break;
-                case 125: result = RoadSegmentMorphology.Primitive_road; break;
+                case 120: result = RoadSegmentMorphology.ServiceRoad; break;
+                case 125: result = RoadSegmentMorphology.PrimitiveRoad; break;
                 case 130: result = RoadSegmentMorphology.Ferry; break;
             }
 
@@ -141,73 +141,73 @@ namespace RoadRegistry.LegacyStreamExtraction
             return RoadSegmentAccessRestrictionIndex[index];
         }
 
-        public static GradeSeparatedJunctionType ToGradeSeparatedJunctionType(int code)
+        public static Messages.GradeSeparatedJunctionType ToGradeSeparatedJunctionType(int code)
         {
-            var result = GradeSeparatedJunctionType.Unknown;
+            var result = Messages.GradeSeparatedJunctionType.Unknown;
 
             switch (code)
             {
                 //case -8: result = GradeSeparatedJunctionType.Unknown; break;
-                case 1: result = GradeSeparatedJunctionType.Tunnel; break;
-                case 2: result = GradeSeparatedJunctionType.Bridge; break;
+                case 1: result = Messages.GradeSeparatedJunctionType.Tunnel; break;
+                case 2: result = Messages.GradeSeparatedJunctionType.Bridge; break;
             }
 
             return result;
         }
 
-        public static LaneDirection ToLaneDirection(int code)
+        public static RoadSegmentLaneDirection ToLaneDirection(int code)
         {
-            var result = LaneDirection.Unknown;
+            var result = RoadSegmentLaneDirection.Unknown;
 
             switch (code)
             {
-                //case -8: result = LaneDirection.Unknown; break;
-                case 1: result = LaneDirection.Forward; break;
-                case 2: result = LaneDirection.Backward; break;
-                case 3: result = LaneDirection.Independent; break;
+                //case -8: result = RoadSegmentLaneDirection.Unknown; break;
+                case 1: result = RoadSegmentLaneDirection.Forward; break;
+                case 2: result = RoadSegmentLaneDirection.Backward; break;
+                case 3: result = RoadSegmentLaneDirection.Independent; break;
             }
 
             return result;
         }
 
-        public static NumberedRoadSegmentDirection ToNumberedRoadSegmentDirection(int code)
+        public static RoadSegmentNumberedRoadDirection ToNumberedRoadSegmentDirection(int code)
         {
-            var result = NumberedRoadSegmentDirection.Unknown;
+            var result = RoadSegmentNumberedRoadDirection.Unknown;
 
             switch (code)
             {
-                //case -8: result = NumberedRoadSegmentDirection.Unknown; break;
-                case 1: result = NumberedRoadSegmentDirection.Forward; break;
-                case 2: result = NumberedRoadSegmentDirection.Backward; break;
+                //case -8: result = RoadSegmentNumberedRoadDirection.Unknown; break;
+                case 1: result = RoadSegmentNumberedRoadDirection.Forward; break;
+                case 2: result = RoadSegmentNumberedRoadDirection.Backward; break;
             }
 
             return result;
         }
 
-        public static SurfaceType ToSurfaceType(int code)
+        public static RoadSegmentSurfaceType ToSurfaceType(int code)
         {
-            var result = SurfaceType.Unknown;
+            var result = RoadSegmentSurfaceType.Unknown;
 
             switch (code)
             {
-                case -9: result = SurfaceType.NotApplicable; break;
-                //case -8: result = SurfaceType.Unknown; break;
-                case 1: result = SurfaceType.SolidSurface; break;
-                case 2: result = SurfaceType.LooseSurface; break;
+                case -9: result = RoadSegmentSurfaceType.NotApplicable; break;
+                //case -8: result = RoadSegmentSurfaceType.Unknown; break;
+                case 1: result = RoadSegmentSurfaceType.SolidSurface; break;
+                case 2: result = RoadSegmentSurfaceType.LooseSurface; break;
             }
 
             return result;
         }
 
-        public static ReferencePointType ToReferencePointType(int code)
+        public static Messages.ReferencePointType ToReferencePointType(int code)
         {
-            var result = ReferencePointType.Unknown;
+            var result = Messages.ReferencePointType.Unknown;
 
             switch (code)
             {
-                //case -8: result = ReferencePointType.Unknown; break;
-                case 1: result = ReferencePointType.KilometerMarker; break;
-                case 2: result = ReferencePointType.HectometerMarker; break;
+                //case -8: result = Messages.ReferencePointType.Unknown; break;
+                case 1: result = Messages.ReferencePointType.KilometerMarker; break;
+                case 2: result = Messages.ReferencePointType.HectometerMarker; break;
             }
 
             return result;

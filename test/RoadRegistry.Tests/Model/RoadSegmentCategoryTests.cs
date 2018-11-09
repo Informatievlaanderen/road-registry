@@ -42,109 +42,218 @@ namespace RoadRegistry.Model
         [Fact]
         public void UnknownReturnsExpectedResult()
         {
-            Assert.Equal("-8", RoadSegmentCategory.Unknown);
+            Assert.Equal("Unknown", RoadSegmentCategory.Unknown);
+        }
+
+        [Fact]
+        public void UnknownTranslationReturnsExpectedResult()
+        {
+            Assert.Equal("-8", RoadSegmentCategory.Unknown.Translation.Identifier);
         }
 
         [Fact]
         public void NotApplicableReturnsExpectedResult()
         {
-            Assert.Equal("-9", RoadSegmentCategory.NotApplicable);
+            Assert.Equal("NotApplicable", RoadSegmentCategory.NotApplicable);
+        }
+
+        [Fact]
+        public void NotApplicableTranslationReturnsExpectedResult()
+        {
+            Assert.Equal("-9", RoadSegmentCategory.NotApplicable.Translation.Identifier);
         }
 
         [Fact]
         public void MainRoadReturnsExpectedResult()
         {
-            Assert.Equal("H", RoadSegmentCategory.MainRoad);
+            Assert.Equal("MainRoad", RoadSegmentCategory.MainRoad);
+        }
+
+        [Fact]
+        public void MainRoadTranslationReturnsExpectedResult()
+        {
+            Assert.Equal("H", RoadSegmentCategory.MainRoad.Translation.Identifier);
         }
 
         [Fact]
         public void LocalRoadReturnsExpectedResult()
         {
-            Assert.Equal("L", RoadSegmentCategory.LocalRoad);
+            Assert.Equal("LocalRoad", RoadSegmentCategory.LocalRoad);
+        }
+
+        [Fact]
+        public void LocalRoadTranslationReturnsExpectedResult()
+        {
+            Assert.Equal("L", RoadSegmentCategory.LocalRoad.Translation.Identifier);
         }
 
         [Fact]
         public void LocalRoadType1ReturnsExpectedResult()
         {
-            Assert.Equal("L1", RoadSegmentCategory.LocalRoadType1);
+            Assert.Equal("LocalRoadType1", RoadSegmentCategory.LocalRoadType1);
+        }
+
+        [Fact]
+        public void LocalRoadType1TranslationReturnsExpectedResult()
+        {
+            Assert.Equal("L1", RoadSegmentCategory.LocalRoadType1.Translation.Identifier);
         }
 
         [Fact]
         public void LocalRoadType2ReturnsExpectedResult()
         {
-            Assert.Equal("L2", RoadSegmentCategory.LocalRoadType2);
+            Assert.Equal("LocalRoadType2", RoadSegmentCategory.LocalRoadType2);
+        }
+
+        [Fact]
+        public void LocalRoadType2TranslationReturnsExpectedResult()
+        {
+            Assert.Equal("L2", RoadSegmentCategory.LocalRoadType2.Translation.Identifier);
         }
 
         [Fact]
         public void LocalRoadType3ReturnsExpectedResult()
         {
-            Assert.Equal("L3", RoadSegmentCategory.LocalRoadType3);
+            Assert.Equal("LocalRoadType3", RoadSegmentCategory.LocalRoadType3);
+        }
+
+        [Fact]
+        public void LocalRoadType3TranslationReturnsExpectedResult()
+        {
+            Assert.Equal("L3", RoadSegmentCategory.LocalRoadType3.Translation.Identifier);
         }
 
         [Fact]
         public void PrimaryRoadIReturnsExpectedResult()
         {
-            Assert.Equal("PI", RoadSegmentCategory.PrimaryRoadI);
+            Assert.Equal("PrimaryRoadI", RoadSegmentCategory.PrimaryRoadI);
+        }
+
+        [Fact]
+        public void PrimaryRoadITranslationReturnsExpectedResult()
+        {
+            Assert.Equal("PI", RoadSegmentCategory.PrimaryRoadI.Translation.Identifier);
         }
 
         [Fact]
         public void PrimaryRoadIIReturnsExpectedResult()
         {
-            Assert.Equal("PII", RoadSegmentCategory.PrimaryRoadII);
+            Assert.Equal("PrimaryRoadII", RoadSegmentCategory.PrimaryRoadII);
+        }
+
+        [Fact]
+        public void PrimaryRoadIITranslationReturnsExpectedResult()
+        {
+            Assert.Equal("PII", RoadSegmentCategory.PrimaryRoadII.Translation.Identifier);
         }
 
         [Fact]
         public void PrimaryRoadIIType1ReturnsExpectedResult()
         {
-            Assert.Equal("PII-1", RoadSegmentCategory.PrimaryRoadIIType1);
+            Assert.Equal("PrimaryRoadIIType1", RoadSegmentCategory.PrimaryRoadIIType1);
+        }
+
+        [Fact]
+        public void PrimaryRoadIIType1TranslationReturnsExpectedResult()
+        {
+            Assert.Equal("PII-1", RoadSegmentCategory.PrimaryRoadIIType1.Translation.Identifier);
         }
 
         [Fact]
         public void PrimaryRoadIIType2ReturnsExpectedResult()
         {
-            Assert.Equal("PII-2", RoadSegmentCategory.PrimaryRoadIIType2);
+            Assert.Equal("PrimaryRoadIIType2", RoadSegmentCategory.PrimaryRoadIIType2);
+        }
+
+        [Fact]
+        public void PrimaryRoadIIType2TranslationReturnsExpectedResult()
+        {
+            Assert.Equal("PII-2", RoadSegmentCategory.PrimaryRoadIIType2.Translation.Identifier);
         }
 
         [Fact]
         public void PrimaryRoadIIType3ReturnsExpectedResult()
         {
-            Assert.Equal("PII-3", RoadSegmentCategory.PrimaryRoadIIType3);
+            Assert.Equal("PrimaryRoadIIType3", RoadSegmentCategory.PrimaryRoadIIType3);
+        }
+
+        [Fact]
+        public void PrimaryRoadIIType3TranslationReturnsExpectedResult()
+        {
+            Assert.Equal("PII-3", RoadSegmentCategory.PrimaryRoadIIType3.Translation.Identifier);
         }
 
         [Fact]
         public void PrimaryRoadIIType4ReturnsExpectedResult()
         {
-            Assert.Equal("PII-4", RoadSegmentCategory.PrimaryRoadIIType4);
+            Assert.Equal("PrimaryRoadIIType4", RoadSegmentCategory.PrimaryRoadIIType4);
+        }
+
+        [Fact]
+        public void PrimaryRoadIIType4TranslationReturnsExpectedResult()
+        {
+            Assert.Equal("PII-4", RoadSegmentCategory.PrimaryRoadIIType4.Translation.Identifier);
         }
 
         [Fact]
         public void SecondaryRoadReturnsExpectedResult()
         {
-            Assert.Equal("S", RoadSegmentCategory.SecondaryRoad);
+            Assert.Equal("SecondaryRoad", RoadSegmentCategory.SecondaryRoad);
+        }
+
+        [Fact]
+        public void SecondaryRoadTranslationReturnsExpectedResult()
+        {
+            Assert.Equal("S", RoadSegmentCategory.SecondaryRoad.Translation.Identifier);
         }
 
         [Fact]
         public void SecondaryRoadType1ReturnsExpectedResult()
         {
-            Assert.Equal("S1", RoadSegmentCategory.SecondaryRoadType1);
+            Assert.Equal("SecondaryRoadType1", RoadSegmentCategory.SecondaryRoadType1);
+        }
+
+        [Fact]
+        public void SecondaryRoadType1TranslationReturnsExpectedResult()
+        {
+            Assert.Equal("S1", RoadSegmentCategory.SecondaryRoadType1.Translation.Identifier);
         }
 
         [Fact]
         public void SecondaryRoadType2ReturnsExpectedResult()
         {
-            Assert.Equal("S2", RoadSegmentCategory.SecondaryRoadType2);
+            Assert.Equal("SecondaryRoadType2", RoadSegmentCategory.SecondaryRoadType2);
         }
 
-         [Fact]
+
+        [Fact]
+        public void SecondaryRoadType2TranslationReturnsExpectedResult()
+        {
+            Assert.Equal("S2", RoadSegmentCategory.SecondaryRoadType2.Translation.Identifier);
+        }
+
+        [Fact]
         public void SecondaryRoadType3ReturnsExpectedResult()
         {
-            Assert.Equal("S3", RoadSegmentCategory.SecondaryRoadType3);
+            Assert.Equal("SecondaryRoadType3", RoadSegmentCategory.SecondaryRoadType3);
         }
 
-         [Fact]
+        [Fact]
+        public void SecondaryRoadType3TranslationReturnsExpectedResult()
+        {
+            Assert.Equal("S3", RoadSegmentCategory.SecondaryRoadType3.Translation.Identifier);
+        }
+
+        [Fact]
         public void SecondaryRoadType4ReturnsExpectedResult()
         {
-            Assert.Equal("S4", RoadSegmentCategory.SecondaryRoadType4);
+            Assert.Equal("SecondaryRoadType4", RoadSegmentCategory.SecondaryRoadType4);
+        }
+
+        [Fact]
+        public void SecondaryRoadType4TranslationReturnsExpectedResult()
+        {
+            Assert.Equal("S4", RoadSegmentCategory.SecondaryRoadType4.Translation.Identifier);
         }
 
         [Fact]
@@ -178,37 +287,43 @@ namespace RoadRegistry.Model
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
-            _fixture.Customizations.Add(
-                new FiniteSequenceGenerator<string>(_knownValues));
-            var value = _fixture.Create<string>();
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             var sut = RoadSegmentCategory.Parse(value);
             var result = sut.ToString();
 
-            Assert.Equal(value.ToString(), result);
+            Assert.Equal(value, result);
+        }
+
+        [Fact]
+        public void ParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => RoadSegmentCategory.Parse(null));
         }
 
         [Fact]
         public void ParseReturnsExpectedResultWhenValueIsWellKnown()
         {
-            _fixture.Customizations.Add(
-                new FiniteSequenceGenerator<string>(_knownValues));
-            var value = _fixture.Create<string>();
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             Assert.NotNull(RoadSegmentCategory.Parse(value));
         }
 
         [Fact]
         public void ParseReturnsExpectedResultWhenValueIsUnknown()
         {
-            var value = new Generator<string>(_fixture).First(candidate => !_knownValues.Contains(candidate));
+            var value = _fixture.Create<string>();
             Assert.Throws<FormatException>(() => RoadSegmentCategory.Parse(value));
+        }
+
+        [Fact]
+        public void TryParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => RoadSegmentCategory.TryParse(null, out _));
         }
 
         [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsWellKnown()
         {
-            _fixture.Customizations.Add(
-                new FiniteSequenceGenerator<string>(_knownValues));
-            var value = _fixture.Create<string>();
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             var result = RoadSegmentCategory.TryParse(value, out RoadSegmentCategory parsed);
             Assert.True(result);
             Assert.NotNull(parsed);
@@ -218,10 +333,32 @@ namespace RoadRegistry.Model
         [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsUnknown()
         {
-            var value = new Generator<string>(_fixture).First(candidate => !_knownValues.Contains(candidate));
+            var value = _fixture.Create<string>();
             var result = RoadSegmentCategory.TryParse(value, out RoadSegmentCategory parsed);
             Assert.False(result);
             Assert.Null(parsed);
+        }
+
+        [Fact]
+        public void CanParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => RoadSegmentCategory.CanParse(null));
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+        {
+            var value = _fixture.Create<string>();
+            var result = RoadSegmentCategory.CanParse(value);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+        {
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+            var result = RoadSegmentCategory.CanParse(value);
+            Assert.True(result);
         }
     }
 }

@@ -1,7 +1,5 @@
 namespace RoadRegistry
 {
-    using System;
-    using Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac;
     using Autofac;
 
     public static class CommandHandlerModules

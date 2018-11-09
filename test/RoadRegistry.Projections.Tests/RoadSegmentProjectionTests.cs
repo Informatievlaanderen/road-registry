@@ -10,25 +10,19 @@ namespace RoadRegistry.Projections.Tests
     using NetTopologySuite.Geometries;
     using System.Text;
     using Messages;
+    using RoadSegmentAccessRestriction = Model.RoadSegmentAccessRestriction;
+    using RoadSegmentCategory = Model.RoadSegmentCategory;
+    using RoadSegmentGeometryDrawMethod = Model.RoadSegmentGeometryDrawMethod;
+    using RoadSegmentMorphology = Model.RoadSegmentMorphology;
+    using RoadSegmentStatus = Model.RoadSegmentStatus;
 
     public class RoadSegmentProjectionTests
     {
         private readonly ScenarioFixture _fixture;
-        private readonly RoadSegmentStatusTranslator _segmentStatusTranslator;
-        private readonly RoadSegmentMorphologyTranslator _morphologyTranslator;
-        private readonly RoadSegmentCategoryTranslator _categoryTranslator;
-        private readonly RoadSegmentGeometryDrawMethodTranslator _geometryDrawMethodTranslator;
-        private readonly RoadSegmentAccessRestrictionTranslator _accessRestrictionTranslator;
-
 
         public RoadSegmentProjectionTests()
         {
             _fixture = new ScenarioFixture();
-            _segmentStatusTranslator = new RoadSegmentStatusTranslator();
-            _morphologyTranslator = new RoadSegmentMorphologyTranslator();
-            _categoryTranslator = new RoadSegmentCategoryTranslator();
-            _geometryDrawMethodTranslator = new RoadSegmentGeometryDrawMethodTranslator();
-            _accessRestrictionTranslator = new RoadSegmentAccessRestrictionTranslator();
         }
 
         [Fact]
@@ -58,26 +52,26 @@ namespace RoadRegistry.Projections.Tests
                             WS_GIDN = { Value = importedRoadSegment.Id + "_" + importedRoadSegment.GeometryVersion },
                             B_WK_OIDN = { Value = importedRoadSegment.StartNodeId },
                             E_WK_OIDN = { Value = importedRoadSegment.EndNodeId },
-                            STATUS = { Value = _segmentStatusTranslator.TranslateToIdentifier(importedRoadSegment.Status) },
-                            LBLSTATUS = { Value = _segmentStatusTranslator.TranslateToDutchName(importedRoadSegment.Status) },
-                            MORF = { Value = _morphologyTranslator.TranslateToIdentifier(importedRoadSegment.Morphology) },
-                            LBLMORF = { Value = _morphologyTranslator.TranslateToDutchName(importedRoadSegment.Morphology) },
-                            WEGCAT = { Value = _categoryTranslator.TranslateToIdentifier(importedRoadSegment.Category) },
-                            LBLWEGCAT = { Value = _categoryTranslator.TranslateToDutchName(importedRoadSegment.Category) },
+                            STATUS = { Value = RoadSegmentStatus.Parse(importedRoadSegment.Status).Translation.Identifier },
+                            LBLSTATUS = { Value = RoadSegmentStatus.Parse(importedRoadSegment.Status).Translation.Name },
+                            MORF = { Value = RoadSegmentMorphology.Parse(importedRoadSegment.Morphology).Translation.Identifier },
+                            LBLMORF = { Value = RoadSegmentMorphology.Parse(importedRoadSegment.Morphology).Translation.Name },
+                            WEGCAT = { Value = RoadSegmentCategory.Parse(importedRoadSegment.Category).Translation.Identifier },
+                            LBLWEGCAT = { Value = RoadSegmentCategory.Parse(importedRoadSegment.Category).Translation.Name },
                             LSTRNMID = { Value = importedRoadSegment.LeftSide.StreetNameId },
                             LSTRNM = { Value = importedRoadSegment.LeftSide.StreetName },
                             RSTRNMID = { Value = importedRoadSegment.RightSide.StreetNameId },
                             RSTRNM = { Value = importedRoadSegment.RightSide.StreetName },
                             BEHEER = { Value = importedRoadSegment.MaintenanceAuthority.Code },
                             LBLBEHEER = { Value = importedRoadSegment.MaintenanceAuthority.Name },
-                            METHODE = { Value = _geometryDrawMethodTranslator.TranslateToIdentifier(importedRoadSegment.GeometryDrawMethod) },
-                            LBLMETHOD = { Value = _geometryDrawMethodTranslator.TranslateToDutchName(importedRoadSegment.GeometryDrawMethod) },
+                            METHODE = { Value = RoadSegmentGeometryDrawMethod.Parse(importedRoadSegment.GeometryDrawMethod).Translation.Identifier },
+                            LBLMETHOD = { Value = RoadSegmentGeometryDrawMethod.Parse(importedRoadSegment.GeometryDrawMethod).Translation.Name },
                             OPNDATUM = { Value = importedRoadSegment.RecordingDate },
                             BEGINTIJD = { Value = importedRoadSegment.Origin.Since },
                             BEGINORG = { Value = importedRoadSegment.Origin.OrganizationId },
                             LBLBGNORG = { Value = importedRoadSegment.Origin.Organization },
-                            TGBEP = { Value = _accessRestrictionTranslator.TranslateToIdentifier(importedRoadSegment.AccessRestriction) },
-                            LBLTGBEP = { Value = _accessRestrictionTranslator.TranslateToDutchName(importedRoadSegment.AccessRestriction) }
+                            TGBEP = { Value = RoadSegmentAccessRestriction.Parse(importedRoadSegment.AccessRestriction).Translation.Identifier },
+                            LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(importedRoadSegment.AccessRestriction).Translation.Name }
                         }.ToBytes(Encoding.UTF8),
                     };
                     return new {importedRoadSegment, expected};
@@ -85,11 +79,6 @@ namespace RoadRegistry.Projections.Tests
 
             return new RoadSegmentRecordProjection(
                     new WellKnownBinaryReader(),
-                    _segmentStatusTranslator,
-                    _morphologyTranslator,
-                    _categoryTranslator,
-                    _geometryDrawMethodTranslator,
-                    _accessRestrictionTranslator,
                     Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))

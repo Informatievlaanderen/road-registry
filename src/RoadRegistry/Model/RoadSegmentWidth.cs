@@ -4,12 +4,15 @@
 
     public readonly struct RoadSegmentWidth : IEquatable<RoadSegmentWidth>
     {
+        public static readonly RoadSegmentWidth Unknown = new RoadSegmentWidth(-8);
+        public static readonly RoadSegmentWidth NotApplicable = new RoadSegmentWidth(-9);
+
         private readonly int _value;
 
         public RoadSegmentWidth(int value)
         {
-            if (value < 0)
-                throw new ArgumentOutOfRangeException(nameof(value), value, "The road segment width must be greater than or equal to zero.");
+            if (value < 0 && value != -8 && value != -9)
+                throw new ArgumentOutOfRangeException(nameof(value), value, "The road segment width must be greater than or equal to zero, or -8 (unknown) or -9 (not applicable).");
 
             _value = value;
         }

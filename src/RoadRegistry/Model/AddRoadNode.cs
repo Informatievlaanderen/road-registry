@@ -25,7 +25,7 @@ namespace RoadRegistry.Model
                 RoadNodeAdded = new Messages.RoadNodeAdded
                 {
                     Id = Id,
-                    Type = (Messages.RoadNodeType) Type.ToInt32(),
+                    Type = Type.ToString(),
                     Geometry = writer.Write(Geometry)
                 }
             };
@@ -38,7 +38,7 @@ namespace RoadRegistry.Model
                 AddRoadNode = new Messages.AddRoadNode
                 {
                     Id = Id,
-                    Type = (Messages.RoadNodeType) Type.ToInt32(),
+                    Type = Type.ToString(),
                     Geometry = writer.Write(Geometry)
                 },
                 Reasons = reasons.ToArray()

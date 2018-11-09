@@ -1,7 +1,9 @@
 namespace RoadRegistry.Messages
 {
+    using System;
     using System.Collections.Generic;
 
+    [Obsolete]
     public enum RoadSegmentStatus
     {
         Unknown = -8,
@@ -12,6 +14,7 @@ namespace RoadRegistry.Messages
         OutOfUse = 5
     }
 
+    [Obsolete("Use RoadSegmentStatus.Translation instead")]
     public class RoadSegmentStatusTranslator : EnumTranslator<RoadSegmentStatus>
     {
         protected override IDictionary<RoadSegmentStatus, string> DutchTranslations => _dutchTranslations;

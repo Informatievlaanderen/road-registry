@@ -1,7 +1,9 @@
 namespace RoadRegistry.Messages
 {
+    using System;
     using System.Collections.Generic;
 
+    [Obsolete]
     public enum SurfaceType
     {
         NotApplicable = -9,
@@ -10,6 +12,7 @@ namespace RoadRegistry.Messages
         LooseSurface = 2
     }
 
+    [Obsolete("Use SurfaceType.Translation instead")]
     public class SurfaceTypeTranslator : EnumTranslator<SurfaceType>
     {
         protected override IDictionary<SurfaceType, string> DutchTranslations => _dutchTranslations;

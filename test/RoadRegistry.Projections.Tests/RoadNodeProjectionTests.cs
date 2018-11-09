@@ -9,16 +9,15 @@ namespace RoadRegistry.Projections.Tests
     using Aiv.Vbr.Shaperon;
     using Messages;
     using Xunit;
+    using RoadNodeType = Model.RoadNodeType;
 
     public class RoadNodeProjectionTests
     {
         private readonly ScenarioFixture _fixture;
-        private readonly RoadNodeTypeTranslator _roadNodeTypeTranslator;
 
         public RoadNodeProjectionTests()
         {
             _fixture = new ScenarioFixture();
-            _roadNodeTypeTranslator = new RoadNodeTypeTranslator();
         }
 
         [Fact]
@@ -42,10 +41,10 @@ namespace RoadRegistry.Projections.Tests
                         {
                             WK_OIDN = {Value = importedRoadNode.Id},
                             WK_UIDN = {Value = importedRoadNode.Id + "_" + importedRoadNode.Version},
-                            TYPE = {Value = (int) importedRoadNode.Type},
+                            TYPE = {Value = RoadNodeType.Parse(importedRoadNode.Type).Translation.Identifier},
                             LBLTYPE =
                             {
-                                Value = _roadNodeTypeTranslator.TranslateToDutchName(importedRoadNode.Type)
+                                Value = RoadNodeType.Parse(importedRoadNode.Type).Translation.Name
                             },
                             BEGINTIJD = {Value = importedRoadNode.Origin.Since},
                             BEGINORG = {Value = importedRoadNode.Origin.OrganizationId},
@@ -65,7 +64,6 @@ namespace RoadRegistry.Projections.Tests
 
             return new RoadNodeRecordProjection(
                     new WellKnownBinaryReader(),
-                    _roadNodeTypeTranslator,
                     Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.ImportedRoadNode))

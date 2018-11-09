@@ -10,6 +10,20 @@ namespace RoadRegistry.Model
 
     internal static class Customizations
     {
+        public static void CustomizeRoadNodeId(this IFixture fixture)
+        {
+            fixture.Customize<RoadNodeId>(composer =>
+                composer.FromFactory<int>(value => new RoadNodeId(Math.Abs(value)))
+            );
+        }
+
+        public static void CustomizeRoadSegmentId(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentId>(composer =>
+                composer.FromFactory<int>(value => new RoadSegmentId(Math.Abs(value)))
+            );
+        }
+
         public static void CustomizeRoadSegmentGeometryVersion(this IFixture fixture)
         {
             fixture.Customize<GeometryVersion>(composer =>
@@ -21,6 +35,24 @@ namespace RoadRegistry.Model
         {
             fixture.Customize<RoadNodeType>(composer =>
                 composer.FromFactory<int>(value => RoadNodeType.All[value % RoadNodeType.All.Length]));
+        }
+
+        public static void CustomizeEuropeanRoadNumber(this IFixture fixture)
+        {
+            fixture.Customize<EuropeanRoadNumber>(composer =>
+                composer.FromFactory<int>(value => EuropeanRoadNumber.All[value % EuropeanRoadNumber.All.Length]));
+        }
+
+        public static void CustomizeNationalRoadNumber(this IFixture fixture)
+        {
+            fixture.Customize<NationalRoadNumber>(composer =>
+                composer.FromFactory<int>(value => NationalRoadNumber.All[value % NationalRoadNumber.All.Length]));
+        }
+
+        public static void CustomizeNumberedRoadNumber(this IFixture fixture)
+        {
+            fixture.Customize<NumberedRoadNumber>(composer =>
+                composer.FromFactory<int>(value => NumberedRoadNumber.All[value % NumberedRoadNumber.All.Length]));
         }
 
         public static void CustomizePointM(this IFixture fixture)
@@ -119,7 +151,9 @@ namespace RoadRegistry.Model
         {
             fixture.Customize<RoadSegmentLaneCount>(customization =>
                 customization.FromFactory<int>(
-                    value => new RoadSegmentLaneCount(Math.Abs(value))
+                    value => value == -8 || value == -9
+                        ? new RoadSegmentLaneCount(value)
+                        : new RoadSegmentLaneCount(Math.Abs(value))
                 )
             );
         }
@@ -173,7 +207,9 @@ namespace RoadRegistry.Model
         {
             fixture.Customize<RoadSegmentWidth>(customization =>
                 customization.FromFactory<int>(
-                    value => new RoadSegmentWidth(Math.Abs(value))
+                    value => value == -8 || value == -9
+                        ? new RoadSegmentWidth(value)
+                        : new RoadSegmentWidth(Math.Abs(value))
                 )
             );
         }

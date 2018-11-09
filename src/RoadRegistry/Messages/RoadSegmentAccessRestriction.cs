@@ -1,7 +1,9 @@
 namespace RoadRegistry.Messages
 {
+    using System;
     using System.Collections.Generic;
 
+    [Obsolete]
     public enum RoadSegmentAccessRestriction
     {
         PublicRoad = 1,
@@ -12,6 +14,7 @@ namespace RoadRegistry.Messages
         Toll = 6,
     }
 
+    [Obsolete("Use RoadSegmentAccessRestriction.Translation instead")]
     public class RoadSegmentAccessRestrictionTranslator : EnumTranslator<RoadSegmentAccessRestriction>
     {
         protected override IDictionary<RoadSegmentAccessRestriction, string> DutchTranslations => _dutchTranslations;

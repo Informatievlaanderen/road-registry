@@ -11,7 +11,11 @@ namespace RoadRegistry.Model
                 .NotEmpty()
                 .Must(NumberedRoadNumber.CanParse)
                 .When(c => c.Ident8 != null, ApplyConditionTo.CurrentValidator);
-            RuleFor(c => c.Direction).IsInEnum();
+            RuleFor(c => c.Direction)
+                .NotEmpty()
+                .Must(RoadSegmentNumberedRoadDirection.CanParse)
+                .When(c => c.Direction != null, ApplyConditionTo.CurrentValidator)
+                .WithMessage("The 'Direction' is not a RoadSegmentNumberedRoadDirection.");
             RuleFor(c => c.Ordinal).GreaterThanOrEqualTo(0);
         }
     }

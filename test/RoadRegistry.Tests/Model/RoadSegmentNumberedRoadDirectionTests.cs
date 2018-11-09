@@ -9,21 +9,21 @@
     public class RoadSegmentNumberedRoadDirectionTests
     {
         private readonly Fixture _fixture;
-        private readonly int[] _knownValues;
+        private readonly string[] _knownValues;
 
         public RoadSegmentNumberedRoadDirectionTests()
         {
             _fixture = new Fixture();
-            _knownValues = Array.ConvertAll(RoadSegmentNumberedRoadDirection.All, type => type.ToInt32());
+            _knownValues = Array.ConvertAll(RoadSegmentNumberedRoadDirection.All, type => type.ToString());
         }
 
         [Fact]
         public void VerifyBehavior()
         {
             _fixture.Customizations.Add(
-                new FiniteSequenceGenerator<int>(_knownValues));
+                new FiniteSequenceGenerator<string>(_knownValues));
             new CompositeIdiomaticAssertion(
-                new ImplicitConversionOperatorAssertion<int>(_fixture),
+                new ImplicitConversionOperatorAssertion<string>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -42,19 +42,37 @@
         [Fact]
         public static void UnknownReturnsExpectedResult()
         {
-            Assert.Equal(-8, RoadSegmentNumberedRoadDirection.Unknown);
+            Assert.Equal("Unknown", RoadSegmentNumberedRoadDirection.Unknown);
+        }
+
+        [Fact]
+        public static void UnknownTranslationReturnsExpectedResult()
+        {
+            Assert.Equal(-8, RoadSegmentNumberedRoadDirection.Unknown.Translation.Identifier);
         }
 
         [Fact]
         public static void ForwardReturnsExpectedResult()
         {
-            Assert.Equal(1, RoadSegmentNumberedRoadDirection.Forward);
+            Assert.Equal("Forward", RoadSegmentNumberedRoadDirection.Forward);
+        }
+
+        [Fact]
+        public static void ForwardTranslationReturnsExpectedResult()
+        {
+            Assert.Equal(1, RoadSegmentNumberedRoadDirection.Forward.Translation.Identifier);
         }
 
         [Fact]
         public static void BackwardReturnsExpectedResult()
         {
-            Assert.Equal(2, RoadSegmentNumberedRoadDirection.Backward);
+            Assert.Equal("Backward", RoadSegmentNumberedRoadDirection.Backward);
+        }
+
+        [Fact]
+        public static void BackwardTranslationReturnsExpectedResult()
+        {
+            Assert.Equal(2, RoadSegmentNumberedRoadDirection.Backward.Translation.Identifier);
         }
 
         [Fact]
@@ -73,44 +91,78 @@
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
-            var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             var sut = RoadSegmentNumberedRoadDirection.Parse(value);
             var result = sut.ToString();
 
-            Assert.Equal(value.ToString(), result);
+            Assert.Equal(value, result);
+        }
+
+        [Fact]
+        public void ParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => RoadSegmentNumberedRoadDirection.Parse(null));
         }
 
         [Fact]
         public void ParseReturnsExpectedResultWhenValueIsWellKnown()
         {
-            var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             Assert.NotNull(RoadSegmentNumberedRoadDirection.Parse(value));
         }
 
         [Fact]
         public void ParseReturnsExpectedResultWhenValueIsUnknown()
         {
-            var value = new Generator<int>(_fixture).First(candidate => !_knownValues.Contains(candidate));
+            var value = _fixture.Create<string>();
             Assert.Throws<FormatException>(() => RoadSegmentNumberedRoadDirection.Parse(value));
+        }
+
+        [Fact]
+        public void TryParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => RoadSegmentNumberedRoadDirection.TryParse(null, out _));
         }
 
         [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsWellKnown()
         {
-            var value = new Generator<int>(_fixture).First(candidate => _knownValues.Contains(candidate));
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             var result = RoadSegmentNumberedRoadDirection.TryParse(value, out RoadSegmentNumberedRoadDirection parsed);
             Assert.True(result);
             Assert.NotNull(parsed);
-            Assert.Equal(value, parsed.ToInt32());
+            Assert.Equal(value, parsed.ToString());
         }
 
         [Fact]
         public void TryParseReturnsExpectedResultWhenValueIsUnknown()
         {
-            var value = new Generator<int>(_fixture).First(candidate => !_knownValues.Contains(candidate));
+            var value = _fixture.Create<string>();
             var result = RoadSegmentNumberedRoadDirection.TryParse(value, out RoadSegmentNumberedRoadDirection parsed);
             Assert.False(result);
             Assert.Null(parsed);
+        }
+
+        [Fact]
+        public void CanParseValueCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => RoadSegmentNumberedRoadDirection.CanParse(null));
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+        {
+            var value = _fixture.Create<string>();
+            var result = RoadSegmentNumberedRoadDirection.CanParse(value);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+        {
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+            var result = RoadSegmentNumberedRoadDirection.CanParse(value);
+            Assert.True(result);
         }
     }
 }
