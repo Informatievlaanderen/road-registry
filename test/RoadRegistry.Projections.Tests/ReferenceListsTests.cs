@@ -21,7 +21,7 @@
                     new RoadNodeTypeDbaseRecord(RoadNodeType.FakeNode),
                     new RoadNodeTypeDbaseRecord(RoadNodeType.EndNode),
                     new RoadNodeTypeDbaseRecord(RoadNodeType.MiniRoundabout),
-                    new RoadNodeTypeDbaseRecord(RoadNodeType.TurnLoopNode),
+                    new RoadNodeTypeDbaseRecord(RoadNodeType.TurnLoopNode)
                 });
         }
 
@@ -37,7 +37,7 @@
                     new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.LegallyForbidden),
                     new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.PrivateRoad),
                     new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.Seasonal),
-                    new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.Toll),
+                    new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.Toll)
                 });
         }
 
@@ -50,7 +50,7 @@
                 {
                     new RoadSegmentGeometryDrawMethodDbaseRecord(RoadSegmentGeometryDrawMethod.Outlined),
                     new RoadSegmentGeometryDrawMethodDbaseRecord(RoadSegmentGeometryDrawMethod.Measured),
-                    new RoadSegmentGeometryDrawMethodDbaseRecord(RoadSegmentGeometryDrawMethod.Measured_according_to_GRB_specifications),
+                    new RoadSegmentGeometryDrawMethodDbaseRecord(RoadSegmentGeometryDrawMethod.Measured_according_to_GRB_specifications)
                 });
         }
 
@@ -66,7 +66,7 @@
                     new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.BuildingPermitGranted),
                     new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.UnderConstruction),
                     new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.InUse),
-                    new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.OutOfUse),
+                    new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.OutOfUse)
                 });
         }
 
@@ -123,7 +123,7 @@
                     new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.SecondaryRoadType1),
                     new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.SecondaryRoadType2),
                     new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.SecondaryRoadType3),
-                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.SecondaryRoadType4),
+                    new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.SecondaryRoadType4)
                 });
         }
 
@@ -137,7 +137,7 @@
                     new SurfaceTypeDbaseRecord(RoadSegmentSurfaceType.NotApplicable),
                     new SurfaceTypeDbaseRecord(RoadSegmentSurfaceType.Unknown),
                     new SurfaceTypeDbaseRecord(RoadSegmentSurfaceType.SolidSurface),
-                    new SurfaceTypeDbaseRecord(RoadSegmentSurfaceType.LooseSurface),
+                    new SurfaceTypeDbaseRecord(RoadSegmentSurfaceType.LooseSurface)
                 });
         }
 
@@ -151,7 +151,7 @@
                     new LaneDirectionDbaseRecord(RoadSegmentLaneDirection.Unknown),
                     new LaneDirectionDbaseRecord(RoadSegmentLaneDirection.Forward),
                     new LaneDirectionDbaseRecord(RoadSegmentLaneDirection.Backward),
-                    new LaneDirectionDbaseRecord(RoadSegmentLaneDirection.Independent),
+                    new LaneDirectionDbaseRecord(RoadSegmentLaneDirection.Independent)
                 });
         }
 
@@ -164,7 +164,7 @@
                 {
                     new NumberedRoadSegmentDirectionDbaseRecord(RoadSegmentNumberedRoadDirection.Unknown),
                     new NumberedRoadSegmentDirectionDbaseRecord(RoadSegmentNumberedRoadDirection.Forward),
-                    new NumberedRoadSegmentDirectionDbaseRecord(RoadSegmentNumberedRoadDirection.Backward),
+                    new NumberedRoadSegmentDirectionDbaseRecord(RoadSegmentNumberedRoadDirection.Backward)
                 });
         }
 
@@ -177,7 +177,7 @@
                 {
                     new ReferencePointTypeDbaseRecord(ReferencePointType.Unknown),
                     new ReferencePointTypeDbaseRecord(ReferencePointType.KilometerMarker),
-                    new ReferencePointTypeDbaseRecord(ReferencePointType.HectometerMarker),
+                    new ReferencePointTypeDbaseRecord(ReferencePointType.HectometerMarker)
                 });
         }
 
@@ -190,7 +190,7 @@
                 {
                     new GradeSeparatedJunctionTypeDbaseRecord(GradeSeparatedJunctionType.Unknown),
                     new GradeSeparatedJunctionTypeDbaseRecord(GradeSeparatedJunctionType.Tunnel),
-                    new GradeSeparatedJunctionTypeDbaseRecord(GradeSeparatedJunctionType.Bridge),
+                    new GradeSeparatedJunctionTypeDbaseRecord(GradeSeparatedJunctionType.Bridge)
                 });
         }
 

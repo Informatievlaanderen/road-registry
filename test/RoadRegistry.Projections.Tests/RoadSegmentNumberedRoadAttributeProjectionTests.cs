@@ -47,14 +47,14 @@ namespace RoadRegistry.Projections.Tests
                                 VOLGNUMMER = { Value = numberedRoad.Ordinal },
                                 BEGINTIJD = { Value = numberedRoad.Origin.Since },
                                 BEGINORG = { Value = numberedRoad.Origin.OrganizationId },
-                                LBLBGNORG = { Value = numberedRoad.Origin.Organization },
+                                LBLBGNORG = { Value = numberedRoad.Origin.Organization }
                             }.ToBytes(Encoding.UTF8)
                         });
 
                     return new
                     {
                         importedRoadSegment = segment,
-                        expected,
+                        expected
                     };
 
                 }).ToList();

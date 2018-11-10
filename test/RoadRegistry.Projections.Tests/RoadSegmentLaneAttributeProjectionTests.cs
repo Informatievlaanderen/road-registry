@@ -49,14 +49,14 @@ namespace RoadRegistry.Projections.Tests
                                 TOTPOS = { Value = (double)lane.ToPosition },
                                 BEGINTIJD = { Value = lane.Origin.Since },
                                 BEGINORG = { Value = lane.Origin.OrganizationId },
-                                LBLBGNORG = { Value = lane.Origin.Organization },
+                                LBLBGNORG = { Value = lane.Origin.Organization }
                             }.ToBytes(Encoding.UTF8)
                         });
 
                     return new
                     {
                         importedRoadSegment = segment,
-                        expected,
+                        expected
                     };
 
                 }).ToList();

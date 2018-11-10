@@ -19,6 +19,26 @@ namespace RoadRegistry.Projections.Tests
             );
         }
 
+        public static void CustomizeMaintenanceAuthorityId(this IFixture fixture)
+        {
+            fixture.Customize<MaintenanceAuthorityId>(composer =>
+                composer.FromFactory(generator =>
+                    new MaintenanceAuthorityId(new string(
+                        (char)generator.Next(97, 123), // a-z
+                        generator.Next(1, MaintenanceAuthorityId.MaxLength + 1))))
+            );
+        }
+
+        public static void CustomizeMaintenanceAuthorityName(this IFixture fixture)
+        {
+            fixture.Customize<MaintenanceAuthorityName>(composer =>
+                composer.FromFactory(generator =>
+                    new MaintenanceAuthorityName(new string(
+                        (char)generator.Next(97, 123), // a-z
+                        generator.Next(1, MaintenanceAuthorityName.MaxLength + 1))))
+            );
+        }
+
         public static void CustomizeRoadSegmentId(this IFixture fixture)
         {
             fixture.Customize<RoadSegmentId>(composer =>
@@ -277,22 +297,35 @@ namespace RoadRegistry.Projections.Tests
             );
         }
 
+        public static void CustomizeOriginProperties(this IFixture fixture)
+        {
+            fixture.Customize<OriginProperties>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new OriginProperties
+                        {
+                            Organization = fixture.Create<MaintenanceAuthorityName>(),
+                            OrganizationId = fixture.Create<MaintenanceAuthorityId>(),
+                            Since = fixture.Create<DateTime>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
         public static void CustomizeImportedRoadNode(this IFixture fixture)
         {
             fixture.Customize<ImportedRoadNode>(customization =>
                 customization
-                    .Do(e =>
-                    {
-                        e.Id = fixture.Create<RoadNodeId>();
-                        e.Type = fixture.Create<RoadNodeType>();
-                        e.Geometry = new WellKnownBinaryWriter().Write(fixture.Create<PointM>());
-                        e.Origin = new OriginProperties
+                    .FromFactory(generator =>
+                        new ImportedRoadNode
                         {
-                            Organization = fixture.Create<string>(),
-                            OrganizationId = fixture.Create<string>(),
-                            Since = fixture.Create<DateTime>()
-                        };
-                    })
+                            Id = fixture.Create<RoadNodeId>(),
+                            Type = fixture.Create<RoadNodeType>(),
+                            Geometry = new WellKnownBinaryWriter().Write(fixture.Create<PointM>()),
+                            Origin = fixture.Create<OriginProperties>()
+                        }
+                    )
                     .OmitAutoProperties()
             );
         }

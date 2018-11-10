@@ -72,7 +72,7 @@ namespace RoadRegistry.Projections.Tests
                             LBLBGNORG = { Value = importedRoadSegment.Origin.Organization },
                             TGBEP = { Value = RoadSegmentAccessRestriction.Parse(importedRoadSegment.AccessRestriction).Translation.Identifier },
                             LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(importedRoadSegment.AccessRestriction).Translation.Name }
-                        }.ToBytes(Encoding.UTF8),
+                        }.ToBytes(Encoding.UTF8)
                     };
                     return new {importedRoadSegment, expected};
                 }).ToList();

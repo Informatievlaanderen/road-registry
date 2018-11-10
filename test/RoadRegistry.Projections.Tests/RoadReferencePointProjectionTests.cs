@@ -12,52 +12,69 @@ namespace RoadRegistry.Projections.Tests
 
     public class RoadReferencePointProjectionTests
     {
-        private readonly ScenarioFixture _fixture;
+        private readonly Fixture _fixture;
         private readonly ReferencePointTypeTranslator _referencePointTypeTranslator;
 
         public RoadReferencePointProjectionTests()
         {
-            _fixture = new ScenarioFixture();
+            _fixture = new Fixture();
+            _fixture.CustomizeRoadNodeId();
+            _fixture.CustomizeRoadNodeType();
+            _fixture.CustomizeMaintenanceAuthorityId();
+            _fixture.CustomizeMaintenanceAuthorityName();
+            _fixture.CustomizePointM();
+            _fixture.CustomizeOriginProperties();
+            _fixture.Customize<ImportedReferencePoint>(
+                customization =>
+                    customization.FromFactory(generator =>
+                        new ImportedReferencePoint
+                        {
+                            Id = generator.Next(),
+                            Caption = Math.Round(generator.NextDouble() * 3.0, 2),
+                            Version = _fixture.Create<int>(),
+                            Geometry = new WellKnownBinaryWriter().Write(_fixture.Create<PointM>()),
+                            Type = _fixture.Create<ReferencePointType>(),
+                            Ident8 = new string('a', generator.Next(1, 9)),
+                            Origin = _fixture.Create<OriginProperties>()
+                        }).OmitAutoProperties()
+                );
+
             _referencePointTypeTranslator = new ReferencePointTypeTranslator();
         }
 
         [Fact]
         public Task When_a_road_reference_points_were_imported()
         {
-            var wkbWriter = new WellKnownBinaryWriter();
             var data = _fixture
-                .CreateMany<PointM>(new Random().Next(1,10))
-                .Select(point =>
+                .CreateMany<ImportedReferencePoint>(new Random().Next(1,100))
+                .Select(@event =>
                 {
-                    var pointShapeContent = new PointShapeContent(point);
-
-                    var importedReferencePoint = _fixture
-                        .Build<ImportedReferencePoint>()
-                        .With(referencePoint => referencePoint.Geometry, wkbWriter.Write(point))
-                        .Create();
+                    var pointShapeContent = new PointShapeContent(
+                        new WellKnownBinaryReader().ReadAs<PointM>(@event.Geometry)
+                    );
 
                     var expected = new RoadReferencePointRecord
                     {
-                        Id = importedReferencePoint.Id,
+                        Id = @event.Id,
                         ShapeRecordContent = pointShapeContent.ToBytes(),
                         ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
                         Envelope = BoundingBox2D.From(pointShapeContent.Shape.EnvelopeInternal),
                         DbaseRecord = new RoadReferencePointDbaseRecord
                         {
-                            RP_OIDN = { Value = importedReferencePoint.Id },
-                            RP_UIDN = { Value = importedReferencePoint.Id + "_" + importedReferencePoint.Version },
-                            IDENT8 = { Value = importedReferencePoint.Ident8 },
-                            OPSCHRIFT = { Value = importedReferencePoint.Caption },
-                            TYPE = { Value = _referencePointTypeTranslator.TranslateToIdentifier(importedReferencePoint.Type) },
-                            LBLTYPE = { Value = _referencePointTypeTranslator.TranslateToDutchName(importedReferencePoint.Type) },
-                            BEGINTIJD = { Value = importedReferencePoint.Origin.Since },
-                            BEGINORG = { Value = importedReferencePoint.Origin.OrganizationId },
-                            LBLBGNORG = { Value = importedReferencePoint.Origin.Organization },
-                        }.ToBytes(Encoding.UTF8),
+                            RP_OIDN = { Value = @event.Id },
+                            RP_UIDN = { Value = @event.Id + "_" + @event.Version },
+                            IDENT8 = { Value = @event.Ident8 },
+                            OPSCHRIFT = { Value = @event.Caption },
+                            TYPE = { Value = _referencePointTypeTranslator.TranslateToIdentifier(@event.Type) },
+                            LBLTYPE = { Value = _referencePointTypeTranslator.TranslateToDutchName(@event.Type) },
+                            BEGINTIJD = { Value = @event.Origin.Since },
+                            BEGINORG = { Value = @event.Origin.OrganizationId },
+                            LBLBGNORG = { Value = @event.Origin.Organization }
+                        }.ToBytes(Encoding.UTF8)
                     };
 
                     return new {
-                        ImportedReferencePoint = importedReferencePoint,
+                        ImportedReferencePoint = @event,
                         Expected = expected
                     };
                 }).ToList();

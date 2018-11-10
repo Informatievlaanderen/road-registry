@@ -1,45 +1,58 @@
 namespace RoadRegistry.Projections.Tests
 {
+    using System;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
     using Infrastructure;
     using Messages;
+    using Model;
     using Xunit;
 
     public class OrganizationTests
     {
-        private readonly ScenarioFixture _fixture;
+        private readonly Fixture _fixture;
 
         public OrganizationTests()
         {
-            _fixture = new ScenarioFixture();
+            _fixture = new Fixture();
+            _fixture.CustomizeMaintenanceAuthorityId();
+            _fixture.CustomizeMaintenanceAuthorityName();
+            _fixture.Customize<ImportedOrganization>(
+                customization =>
+                    customization.FromFactory(_ =>
+                        new ImportedOrganization
+                        {
+                            Code = _fixture.Create<MaintenanceAuthorityId>(),
+                            Name = _fixture.Create<MaintenanceAuthorityName>()
+                        }
+                    ).OmitAutoProperties()
+            );
         }
 
         [Fact]
         public Task When_organizations_are_imported()
         {
             var data = _fixture
-                .CreateMany<ImportedOrganization>()
-                .Select((organization, i) =>
+                .CreateMany<ImportedOrganization>(new Random().Next(1, 100))
+                .Select((@event, i) =>
                 {
-                    var expectedGeneratedId = i + 1;
                     var expected = new OrganizationRecord
                     {
-                        Id = expectedGeneratedId,
-                        Code = organization.Code,
-                        SortableCode = OrganizationRecordProjection.GetSortableCodeFor(organization.Code),
+                        Id = i + 1,
+                        Code = @event.Code,
+                        SortableCode = OrganizationRecordProjection.GetSortableCodeFor(@event.Code),
                         DbaseRecord = new OrganizationDbaseRecord
                         {
-                            ORG = { Value = organization.Code },
-                            LBLORG = { Value = organization.Name },
-                        }.ToBytes(Encoding.UTF8),
+                            ORG = { Value = @event.Code },
+                            LBLORG = { Value = @event.Name }
+                        }.ToBytes(Encoding.UTF8)
                     };
                     return new
                     {
-                        ImportedOrganization = organization,
-                        Expected = expected,
+                        ImportedOrganization = @event,
+                        Expected = expected
                     };
                 }).ToList();
 

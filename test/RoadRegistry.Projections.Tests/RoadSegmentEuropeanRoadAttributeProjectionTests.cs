@@ -43,14 +43,14 @@ namespace RoadRegistry.Projections.Tests
                                 EUNUMMER = { Value = europeanRoad.RoadNumber },
                                 BEGINTIJD = { Value = europeanRoad.Origin.Since },
                                 BEGINORG = { Value = europeanRoad.Origin.OrganizationId },
-                                LBLBGNORG = { Value = europeanRoad.Origin.Organization },
+                                LBLBGNORG = { Value = europeanRoad.Origin.Organization }
                             }.ToBytes(Encoding.UTF8)
                         });
 
                     return new
                     {
                         importedRoadSegment = segment,
-                        expected,
+                        expected
                     };
 
                 }).ToList();

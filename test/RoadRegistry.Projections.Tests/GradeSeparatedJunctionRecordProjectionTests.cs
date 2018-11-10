@@ -38,7 +38,7 @@ namespace RoadRegistry.Projections.Tests
                             ON_WS_OIDN = { Value = junction.LowerRoadSegmentId },
                             BEGINTIJD = { Value = junction.Origin.Since },
                             BEGINORG = { Value = junction.Origin.OrganizationId },
-                            LBLBGNORG = { Value = junction.Origin.Organization },
+                            LBLBGNORG = { Value = junction.Origin.Organization }
                         }.ToBytes(Encoding.UTF8)
                     };
 

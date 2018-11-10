@@ -43,14 +43,14 @@ namespace RoadRegistry.Projections.Tests
                                 IDENT2 = { Value = nationalRoad.Ident2 },
                                 BEGINTIJD = { Value = nationalRoad.Origin.Since },
                                 BEGINORG = { Value = nationalRoad.Origin.OrganizationId },
-                                LBLBGNORG = { Value = nationalRoad.Origin.Organization },
+                                LBLBGNORG = { Value = nationalRoad.Origin.Organization }
                             }.ToBytes(Encoding.UTF8)
                         });
 
                     return new
                     {
                         importedRoadSegment = segment,
-                        expected,
+                        expected
                     };
 
                 }).ToList();
