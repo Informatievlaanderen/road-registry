@@ -1,6 +1,5 @@
 namespace RoadRegistry.Model
 {
-    using System;
     using System.Linq;
     using Aiv.Vbr.Shaperon;
     using AutoFixture;

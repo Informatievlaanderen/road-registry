@@ -1,4 +1,4 @@
-namespace RoadRegistry.Model
+namespace RoadRegistry.Projections.Tests
 {
     using System;
     using System.Linq;
@@ -7,6 +7,8 @@ namespace RoadRegistry.Model
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
     using Aiv.Vbr.Shaperon;
+    using Messages;
+    using Model;
 
     internal static class Customizations
     {
@@ -14,26 +16,6 @@ namespace RoadRegistry.Model
         {
             fixture.Customize<RoadNodeId>(composer =>
                 composer.FromFactory<int>(value => new RoadNodeId(Math.Abs(value)))
-            );
-        }
-
-        public static void CustomizeMaintenanceAuthorityId(this IFixture fixture)
-        {
-            fixture.Customize<MaintenanceAuthorityId>(composer =>
-                composer.FromFactory(generator =>
-                    new MaintenanceAuthorityId(new string(
-                        (char)generator.Next(97, 123), // a-z
-                        generator.Next(1, MaintenanceAuthorityId.MaxLength + 1))))
-            );
-        }
-
-        public static void CustomizeMaintenanceAuthorityName(this IFixture fixture)
-        {
-            fixture.Customize<MaintenanceAuthorityName>(composer =>
-                composer.FromFactory(generator =>
-                    new MaintenanceAuthorityName(new string(
-                        (char)generator.Next(97, 123), // a-z
-                        generator.Next(1, MaintenanceAuthorityName.MaxLength + 1))))
             );
         }
 
@@ -294,5 +276,52 @@ namespace RoadRegistry.Model
                 )
             );
         }
+
+        public static void CustomizeImportedRoadNode(this IFixture fixture)
+        {
+            fixture.Customize<ImportedRoadNode>(customization =>
+                customization
+                    .Do(e =>
+                    {
+                        e.Id = fixture.Create<RoadNodeId>();
+                        e.Type = fixture.Create<RoadNodeType>();
+                        e.Geometry = new WellKnownBinaryWriter().Write(fixture.Create<PointM>());
+                        e.Origin = new OriginProperties
+                        {
+                            Organization = fixture.Create<string>(),
+                            OrganizationId = fixture.Create<string>(),
+                            Since = fixture.Create<DateTime>()
+                        };
+                    })
+                    .OmitAutoProperties()
+            );
+        }
+
+//        public static void CustomizeImportedRoadSegment(this IFixture fixture)
+//        {
+//            fixture.Customize<ImportedRoadSegment>(customization =>
+//                customization
+//                    .FromFactory(generator =>
+//                    {
+//                        var e = new ImportedRoadSegment();
+//                        e.Id = fixture.Create<RoadSegmentId>();
+//                        e.StartNodeId = fixture.Create<RoadNodeId>();
+//                        e.EndNodeId = fixture.Create<RoadNodeId>();
+//                        e.Geometry = new WellKnownBinaryWriter().Write(fixture.Create<MultiLineString>());
+//                        e.AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>();
+//                        e.Morphology = fixture.Create<RoadSegmentMorphology>();
+//                        e.Category = fixture.Create<RoadSegmentCategory>();
+//                        e.Status = fixture.Create<RoadSegmentStatus>();
+//                        e.GeometryVersion = fixture.Create<GeometryVersion>();
+//                        e.Version = fixture.Create<int>();
+//                        e.Widths = Enumerable.Range(0, generator.Next(0, 10)).Select(index => new ImportedRoadSegmentWidthAttributes
+//                        {
+//
+//                        });
+//
+//                    })
+//                    .OmitAutoProperties()
+//            );
+//        }
     }
 }

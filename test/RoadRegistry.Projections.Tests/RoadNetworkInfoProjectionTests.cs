@@ -9,6 +9,7 @@ namespace RoadRegistry.Projections.Tests
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
     using Xunit;
+    using Model;
 
     public class RoadNetworkInfoProjectionTests
     {

@@ -5,15 +5,16 @@
     using System.Linq;
     using Aiv.Vbr.Shaperon;
     using Messages;
+    using Model;
     using Xunit;
 
-    public class ReferenceDataTests
+    public class ReferenceListsTests
     {
         [Fact]
         public void All_road_node_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.RoadNodeTypes,
+                RoadNodeTypeDbaseRecord.All,
                 new[]
                 {
                     new RoadNodeTypeDbaseRecord(RoadNodeType.RealNode),
@@ -28,7 +29,7 @@
         public void All_road_segment_access_restriction_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.RoadSegmentAccessRestrictions,
+                RoadSegmentAccessRestrictionDbaseRecord.All,
                 new[]
                 {
                     new RoadSegmentAccessRestrictionDbaseRecord(RoadSegmentAccessRestriction.PublicRoad),
@@ -44,7 +45,7 @@
         public void All_road_segment_geometry_draw_method_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.RoadSegmentGeometryDrawMethods,
+                RoadSegmentGeometryDrawMethodDbaseRecord.All,
                 new[]
                 {
                     new RoadSegmentGeometryDrawMethodDbaseRecord(RoadSegmentGeometryDrawMethod.Outlined),
@@ -57,7 +58,7 @@
         public void All_road_segment_status_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.RoadSegmentStatuses,
+                RoadSegmentStatusDbaseRecord.All,
                 new[]
                 {
                     new RoadSegmentStatusDbaseRecord(RoadSegmentStatus.Unknown),
@@ -73,27 +74,27 @@
         public void All_road_segment_morphology_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.RoadSegmentMorphologies,
+                RoadSegmentMorphologyDbaseRecord.All,
                 new[]
                 {
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Unknown),
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Motorway),
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Road_with_separate_lanes_that_is_not_a_motorway),
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Road_consisting_of_one_roadway),
-                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Traffic_circle),
-                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Special_traffic_situation),
-                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Traffic_square),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.TrafficCircle),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.SpecialTrafficSituation),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.TrafficSquare),
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_grade_separated_junction),
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Entry_or_exit_ramp_belonging_to_a_level_junction),
-                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Parallel_road),
-                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Frontage_road),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.ParallelRoad),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.FrontageRoad),
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Entry_or_exit_of_a_car_park),
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Entry_or_exit_of_a_service),
-                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Pedestrain_zone),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.PedestrainZone),
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Walking_or_cycling_path_not_accessible_to_other_vehicles),
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Tramway_not_accessible_to_other_vehicles),
-                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Service_road),
-                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Primitive_road),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.ServiceRoad),
+                    new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.PrimitiveRoad),
                     new RoadSegmentMorphologyDbaseRecord(RoadSegmentMorphology.Ferry)
                 });
         }
@@ -102,7 +103,7 @@
         public void All_road_segment_category_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.RoadSegmentCategories,
+                RoadSegmentCategoryDbaseRecord.All,
                 new[]
                 {
                     new RoadSegmentCategoryDbaseRecord(RoadSegmentCategory.Unknown),
@@ -130,13 +131,13 @@
         public void All_surface_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.SurfaceTypes,
+                SurfaceTypeDbaseRecord.All,
                 new[]
                 {
-                    new SurfaceTypeDbaseRecord(SurfaceType.NotApplicable),
-                    new SurfaceTypeDbaseRecord(SurfaceType.Unknown),
-                    new SurfaceTypeDbaseRecord(SurfaceType.SolidSurface),
-                    new SurfaceTypeDbaseRecord(SurfaceType.LooseSurface),
+                    new SurfaceTypeDbaseRecord(RoadSegmentSurfaceType.NotApplicable),
+                    new SurfaceTypeDbaseRecord(RoadSegmentSurfaceType.Unknown),
+                    new SurfaceTypeDbaseRecord(RoadSegmentSurfaceType.SolidSurface),
+                    new SurfaceTypeDbaseRecord(RoadSegmentSurfaceType.LooseSurface),
                 });
         }
 
@@ -144,13 +145,13 @@
         public void All_lane_direction_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.LaneDirections,
+                LaneDirectionDbaseRecord.All,
                 new[]
                 {
-                    new LaneDirectionDbaseRecord(LaneDirection.Unknown),
-                    new LaneDirectionDbaseRecord(LaneDirection.Forward),
-                    new LaneDirectionDbaseRecord(LaneDirection.Backward),
-                    new LaneDirectionDbaseRecord(LaneDirection.Independent),
+                    new LaneDirectionDbaseRecord(RoadSegmentLaneDirection.Unknown),
+                    new LaneDirectionDbaseRecord(RoadSegmentLaneDirection.Forward),
+                    new LaneDirectionDbaseRecord(RoadSegmentLaneDirection.Backward),
+                    new LaneDirectionDbaseRecord(RoadSegmentLaneDirection.Independent),
                 });
         }
 
@@ -158,12 +159,12 @@
         public void All_numbered_road_segement_direction_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.NumberedRoadSegmentDirections,
+                NumberedRoadSegmentDirectionDbaseRecord.All,
                 new[]
                 {
-                    new NumberedRoadSegmentDirectionDbaseRecord(NumberedRoadSegmentDirection.Unknown),
-                    new NumberedRoadSegmentDirectionDbaseRecord(NumberedRoadSegmentDirection.Forward),
-                    new NumberedRoadSegmentDirectionDbaseRecord(NumberedRoadSegmentDirection.Backward),
+                    new NumberedRoadSegmentDirectionDbaseRecord(RoadSegmentNumberedRoadDirection.Unknown),
+                    new NumberedRoadSegmentDirectionDbaseRecord(RoadSegmentNumberedRoadDirection.Forward),
+                    new NumberedRoadSegmentDirectionDbaseRecord(RoadSegmentNumberedRoadDirection.Backward),
                 });
         }
 
@@ -171,7 +172,7 @@
         public void All_reference_point_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.ReferencePointTypes,
+                ReferencePointTypeDbaseRecord.All,
                 new[]
                 {
                     new ReferencePointTypeDbaseRecord(ReferencePointType.Unknown),
@@ -184,7 +185,7 @@
         public void All_grade_separated_junction_type_records_are_defined()
         {
             AssertDbaseRecordCollectionsContainSameElements(
-                ReferenceData.GradeSeparatedJunctionTypes,
+                GradeSeparatedJunctionTypeDbaseRecord.All,
                 new[]
                 {
                     new GradeSeparatedJunctionTypeDbaseRecord(GradeSeparatedJunctionType.Unknown),
@@ -193,21 +194,21 @@
                 });
         }
 
-        private void AssertDbaseRecordCollectionsContainSameElements(IReadOnlyCollection<DbaseRecord> actualRecords, DbaseRecord[] expectedRecords)
+        private void AssertDbaseRecordCollectionsContainSameElements<TDbaseRecord>(TDbaseRecord[] actualRecords, TDbaseRecord[] expectedRecords)
+            where TDbaseRecord : DbaseRecord
         {
-            Assert.Equal(expectedRecords.Length, actualRecords.Count);
-            var comparer = new DbaseRecordComparer();
-            var records = actualRecords.ToArray();
+            Assert.Equal(expectedRecords.Length, actualRecords.Length);
             for (var i = 0; i < expectedRecords.Length; i++)
             {
-                Assert.Equal(expectedRecords[i], records[i], comparer);
+                Assert.Equal(expectedRecords[i], actualRecords[i], new DbaseRecordComparer<TDbaseRecord>());
             }
         }
     }
 
-    internal class DbaseRecordComparer : IEqualityComparer<DbaseRecord>
+    internal class DbaseRecordComparer<TDbaseRecord> : IEqualityComparer<TDbaseRecord>
+        where TDbaseRecord :DbaseRecord
     {
-        public bool Equals(DbaseRecord x, DbaseRecord y)
+        public bool Equals(TDbaseRecord x, TDbaseRecord y)
         {
             if (null == x && null == y)
                 return true;
@@ -261,12 +262,12 @@
             throw new NotImplementedException($"No equality impelemented for {x.GetType().FullName}");
         }
 
-        public int GetHashCode(DbaseRecord obj)
+        public int GetHashCode(TDbaseRecord obj)
         {
             unchecked
             {
                 return
-                    obj.GetType().Name.GetHashCode()
+                    typeof(TDbaseRecord).Name.GetHashCode()
                     ^ (obj?.IsDeleted.GetHashCode() ?? 0 * 397)
                     ^ GetValuesHash(obj?.Values);
             }

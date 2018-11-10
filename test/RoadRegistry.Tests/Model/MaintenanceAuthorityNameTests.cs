@@ -5,14 +5,14 @@ namespace RoadRegistry.Model
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class MaintenanceAuthorityIdTests
+    public class MaintenanceAuthorityNameTests
     {
         private readonly Fixture _fixture;
 
-        public MaintenanceAuthorityIdTests()
+        public MaintenanceAuthorityNameTests()
         {
             _fixture = new Fixture();
-            _fixture.CustomizeMaintenanceAuthorityId();
+            _fixture.CustomizeMaintenanceAuthorityName();
         }
 
         [Fact]
@@ -30,7 +30,7 @@ namespace RoadRegistry.Model
                     _fixture,
                     () => new string(
                         (char) new Random().Next(97, 123), // a-z
-                        new Random().Next(MaintenanceAuthorityId.MaxLength + 1)
+                        new Random().Next(MaintenanceAuthorityName.MaxLength + 1)
                     )
                 ),
                 new EquatableEqualsSelfAssertion(_fixture),
@@ -45,7 +45,7 @@ namespace RoadRegistry.Model
                 new EqualsOtherAssertion(_fixture),
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
-            ).Verify(typeof(MaintenanceAuthorityId));
+            ).Verify(typeof(MaintenanceAuthorityName));
         }
 
         [Fact]
@@ -53,9 +53,9 @@ namespace RoadRegistry.Model
         {
             var value = new string(
                 (char) new Random().Next(97, 123), // a-z
-                new Random().Next(MaintenanceAuthorityId.MaxLength + 1)
+                new Random().Next(MaintenanceAuthorityName.MaxLength + 1)
             );
-            var sut = new MaintenanceAuthorityId(value);
+            var sut = new MaintenanceAuthorityName(value);
 
             Assert.Equal(value, sut.ToString());
         }
@@ -63,10 +63,10 @@ namespace RoadRegistry.Model
         [Fact]
         public void ValueCanNotBeLongerThan18Chars()
         {
-            const int length = MaintenanceAuthorityId.MaxLength + 1;
+            const int length = MaintenanceAuthorityName.MaxLength + 1;
 
             var value = new string((char) new Random().Next(97, 123), length);
-            Assert.Throws<ArgumentOutOfRangeException>(() => new MaintenanceAuthorityId(value));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new MaintenanceAuthorityName(value));
         }
     }
 }

@@ -1,5 +1,8 @@
 namespace RoadRegistry.Projections
 {
+    using System;
+    using System.Globalization;
+    using System.Linq;
     using Aiv.Vbr.Shaperon;
     using Messages;
 
@@ -7,6 +10,14 @@ namespace RoadRegistry.Projections
     {
         public static readonly ReferencePointTypeDbaseSchema Schema = new ReferencePointTypeDbaseSchema();
         private static readonly ReferencePointTypeTranslator Translator = new ReferencePointTypeTranslator();
+
+        public static readonly ReferencePointTypeDbaseRecord[] All =
+            Array.ConvertAll(
+                ((ReferencePointType[])Enum.GetValues(typeof(ReferencePointType)))
+                .OrderBy(value => ((IConvertible)value).ToInt32(CultureInfo.InvariantCulture))
+                .ToArray(),
+                candidate => new ReferencePointTypeDbaseRecord(candidate)
+            );
 
         public ReferencePointTypeDbaseRecord(ReferencePointType type)
         {

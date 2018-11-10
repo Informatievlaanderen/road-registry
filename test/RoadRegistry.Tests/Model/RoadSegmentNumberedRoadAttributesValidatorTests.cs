@@ -1,7 +1,5 @@
 namespace RoadRegistry.Model
 {
-    using System;
-    using System.Linq;
     using AutoFixture;
     using FluentValidation;
     using FluentValidation.TestHelper;

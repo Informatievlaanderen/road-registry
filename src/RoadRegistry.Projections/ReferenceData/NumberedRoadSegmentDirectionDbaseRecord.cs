@@ -1,20 +1,26 @@
 namespace RoadRegistry.Projections
 {
+    using System;
     using Aiv.Vbr.Shaperon;
-    using Messages;
+    using Model;
 
     public class NumberedRoadSegmentDirectionDbaseRecord : DbaseRecord
     {
         private static readonly NumberedRoadSegmentDirectionDbaseSchema Schema = new NumberedRoadSegmentDirectionDbaseSchema();
-        private static readonly NumberedRoadSegmentDirectionTranslator Translator = new NumberedRoadSegmentDirectionTranslator();
 
-        public NumberedRoadSegmentDirectionDbaseRecord(NumberedRoadSegmentDirection value)
+        public static readonly NumberedRoadSegmentDirectionDbaseRecord[] All =
+            Array.ConvertAll(
+                RoadSegmentNumberedRoadDirection.All,
+                candidate => new NumberedRoadSegmentDirectionDbaseRecord(candidate)
+            );
+
+        public NumberedRoadSegmentDirectionDbaseRecord(RoadSegmentNumberedRoadDirection value)
         {
             Values = new DbaseFieldValue[]
             {
-                new DbaseInt32(Schema.RICHTING, Translator.TranslateToIdentifier(value)),
-                new DbaseString(Schema.LBLRICHT, Translator.TranslateToDutchName(value)),
-                new DbaseString(Schema.DEFRICHT, Translator.TranslateToDutchDescription(value)),
+                new DbaseInt32(Schema.RICHTING, value.Translation.Identifier),
+                new DbaseString(Schema.LBLRICHT, value.Translation.Name),
+                new DbaseString(Schema.DEFRICHT, value.Translation.Description)
             };
         }
     }

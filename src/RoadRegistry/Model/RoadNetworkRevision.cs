@@ -4,9 +4,9 @@ namespace RoadRegistry.Model
 
     public readonly struct RoadNetworkRevision : IEquatable<RoadNetworkRevision>
     {
-        private readonly long _value;
+        private readonly int _value;
 
-        public RoadNetworkRevision(long value)
+        public RoadNetworkRevision(int value)
         {
             if (value < 0)
                 throw new ArgumentOutOfRangeException(nameof(value), value, "The road revision must be greater than or equal to zero.");
@@ -14,7 +14,7 @@ namespace RoadRegistry.Model
             _value = value;
         }
 
-        public long ToInt64() => _value;
+        public int ToInt64() => _value;
         public bool Equals(RoadNetworkRevision other) => _value == other._value;
         public override bool Equals(object other) => other is RoadNetworkRevision revision && Equals(revision);
         public override int GetHashCode() => _value.GetHashCode();

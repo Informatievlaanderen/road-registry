@@ -1,20 +1,26 @@
 namespace RoadRegistry.Projections
 {
+    using System;
     using Aiv.Vbr.Shaperon;
-    using Messages;
+    using Model;
 
     public class RoadSegmentGeometryDrawMethodDbaseRecord : DbaseRecord
     {
         private static readonly RoadSegmentGeometryDrawMethodDbaseSchema Schema = new RoadSegmentGeometryDrawMethodDbaseSchema();
-        private static readonly RoadSegmentGeometryDrawMethodTranslator Translator = new RoadSegmentGeometryDrawMethodTranslator();
+
+        public static readonly RoadSegmentGeometryDrawMethodDbaseRecord[] All =
+            Array.ConvertAll(
+                RoadSegmentGeometryDrawMethod.All,
+                candidate => new RoadSegmentGeometryDrawMethodDbaseRecord(candidate)
+            );
 
         public RoadSegmentGeometryDrawMethodDbaseRecord(RoadSegmentGeometryDrawMethod value)
         {
             Values = new DbaseFieldValue[]
             {
-                new DbaseInt32(Schema.METHODE, Translator.TranslateToIdentifier(value)),
-                new DbaseString(Schema.LBLMETHOD, Translator.TranslateToDutchName(value)),
-                new DbaseString(Schema.DEFMETHOD, Translator.TranslateToDutchDescription(value)),
+                new DbaseInt32(Schema.METHODE, value.Translation.Identifier),
+                new DbaseString(Schema.LBLMETHOD, value.Translation.Name),
+                new DbaseString(Schema.DEFMETHOD, value.Translation.Description)
             };
         }
     }

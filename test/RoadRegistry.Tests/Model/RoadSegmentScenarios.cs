@@ -7,8 +7,6 @@ namespace RoadRegistry.Model
     using Aiv.Vbr.Shaperon;
     using Testing;
     using Xunit;
-    using FluentValidation;
-    using FluentValidation.Results;
     using Messages;
     using System.Linq;
 

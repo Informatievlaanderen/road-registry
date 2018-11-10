@@ -8,6 +8,7 @@ namespace RoadRegistry.Projections.Tests
     using Infrastructure;
     using Aiv.Vbr.Shaperon;
     using Messages;
+    using Model;
     using Xunit;
     using RoadNodeType = Model.RoadNodeType;
 
@@ -18,20 +19,21 @@ namespace RoadRegistry.Projections.Tests
         public RoadNodeProjectionTests()
         {
             _fixture = new ScenarioFixture();
+
+            _fixture.CustomizeRoadNodeId();
+            _fixture.CustomizeRoadNodeType();
+            _fixture.CustomizePointM();
+            _fixture.CustomizeImportedRoadNode();
         }
 
         [Fact]
         public Task When_road_nodes_were_imported()
         {
-            var wkbWriter = new WellKnownBinaryWriter();
             var data = _fixture
                 .CreateMany<PointM>(new Random().Next(1,10))
                 .Select(point =>
                 {
-                    var importedRoadNode = _fixture
-                        .Build<ImportedRoadNode>()
-                        .With(n => n.Geometry, wkbWriter.Write(point))
-                        .Create();
+                    var importedRoadNode = _fixture.Create<ImportedRoadNode>();
 
                     var pointShapeContent = new PointShapeContent(point);
                     var expectedRecord = new RoadNodeRecord
