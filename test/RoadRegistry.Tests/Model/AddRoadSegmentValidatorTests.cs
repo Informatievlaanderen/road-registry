@@ -21,16 +21,18 @@ namespace RoadRegistry.Model
             Fixture.CustomizeRoadSegmentMorphology();
             Fixture.CustomizeRoadSegmentStatus();
             Fixture.CustomizeRoadSegmentAccessRestriction();
+            Fixture.CustomizeRoadSegmentGeometryDrawMethod();
             Fixture.CustomizeRoadSegmentLaneCount();
             Fixture.CustomizeRoadSegmentLaneDirection();
             Fixture.CustomizeRoadSegmentNumberedRoadDirection();
-            Fixture.CustomizeRoadSegmentGeometryDrawMethod();
             Fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
             Fixture.CustomizeRoadSegmentSurfaceType();
             Fixture.CustomizeRoadSegmentWidth();
             Fixture.CustomizeEuropeanRoadNumber();
             Fixture.CustomizeNationalRoadNumber();
             Fixture.CustomizeNumberedRoadNumber();
+            Fixture.CustomizeMaintenanceAuthorityId();
+            Fixture.CustomizeMaintenanceAuthorityName();
 
             Fixture.Customize<RequestedRoadSegmentEuropeanRoadAttributes>(composer =>
                 composer.Do(instance =>
