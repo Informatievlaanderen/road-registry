@@ -15,29 +15,61 @@ namespace RoadRegistry.Projections.Tests
     using RoadSegmentGeometryDrawMethod = Model.RoadSegmentGeometryDrawMethod;
     using RoadSegmentMorphology = Model.RoadSegmentMorphology;
     using RoadSegmentStatus = Model.RoadSegmentStatus;
+    using GeoAPI.Geometries;
 
     public class RoadSegmentProjectionTests
     {
-        private readonly ScenarioFixture _fixture;
+        private readonly Fixture _fixture;
 
         public RoadSegmentProjectionTests()
         {
-            _fixture = new ScenarioFixture();
+            _fixture = new Fixture();
+            _fixture.CustomizeRoadSegmentId();
+            _fixture.CustomizeRoadNodeId();
+            _fixture.CustomizeMaintenanceAuthorityId();
+            _fixture.CustomizeMaintenanceAuthorityName();
+            _fixture.CustomizePolylineM();
+            _fixture.CustomizeEuropeanRoadNumber();
+            _fixture.CustomizeNationalRoadNumber();
+            _fixture.CustomizeNumberedRoadNumber();
+            _fixture.CustomizeRoadSegmentNumberedRoadDirection();
+            _fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
+            _fixture.CustomizeRoadSegmentLaneCount();
+            _fixture.CustomizeRoadSegmentLaneDirection();
+            _fixture.CustomizeRoadSegmentWidth();
+            _fixture.CustomizeRoadSegmentSurfaceType();
+            _fixture.CustomizeRoadSegmentGeometryDrawMethod();
+            _fixture.CustomizeRoadSegmentMorphology();
+            _fixture.CustomizeRoadSegmentStatus();
+            _fixture.CustomizeRoadSegmentCategory();
+            _fixture.CustomizeRoadSegmentAccessRestriction();
+            _fixture.CustomizeRoadSegmentGeometryVersion();
+
+            _fixture.CustomizeImportedRoadSegment();
+            _fixture.CustomizeImportedRoadSegmentEuropeanRoadAttributes();
+            _fixture.CustomizeImportedRoadSegmentNationalRoadAttributes();
+            _fixture.CustomizeImportedRoadSegmentNumberedRoadAttributes();
+            _fixture.CustomizeImportedRoadSegmentLaneAttributes();
+            _fixture.CustomizeImportedRoadSegmentWidthAttributes();
+            _fixture.CustomizeImportedRoadSegmentSurfaceAttributes();
+            _fixture.CustomizeImportedRoadSegmentSideAttributes();
+            _fixture.CustomizeOriginProperties();
         }
 
         [Fact]
         public Task When_road_segments_are_imported()
         {
-            var wkbWriter = new WellKnownBinaryWriter();
+            var reader = new WellKnownBinaryReader();
+            var random = new Random();
             var data = _fixture
-                .CreateMany<MultiLineString>(new Random().Next(1, 10))
-                .Select(multiLineString =>
+                .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
+                .Select(importedRoadSegment =>
                 {
-                    var polyLineMShapeContent = new PolyLineMShapeContent(multiLineString);
-                    var importedRoadSegment = _fixture
-                        .Build<ImportedRoadSegment>()
-                        .With(segment => segment.Geometry, wkbWriter.Write(multiLineString))
-                        .Create();
+                    var polyLineMShapeContent = new PolyLineMShapeContent(
+                        reader.TryReadAs<MultiLineString>(importedRoadSegment.Geometry, out MultiLineString geometry)
+                        ? geometry
+                        : new MultiLineString(new ILineString[] { reader.ReadAs<LineString>(importedRoadSegment.Geometry) })
+                    );
 
                     var expected = new RoadSegmentRecord
                     {
@@ -74,7 +106,7 @@ namespace RoadRegistry.Projections.Tests
                             LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(importedRoadSegment.AccessRestriction).Translation.Name }
                         }.ToBytes(Encoding.UTF8)
                     };
-                    return new {importedRoadSegment, expected};
+                    return new { importedRoadSegment, expected};
                 }).ToList();
 
             return new RoadSegmentRecordProjection(

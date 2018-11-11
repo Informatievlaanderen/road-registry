@@ -175,7 +175,7 @@ namespace RoadRegistry.Projections.Tests
                 customization.FromFactory<int>(
                     value => value == -8 || value == -9
                         ? new RoadSegmentLaneCount(value)
-                        : new RoadSegmentLaneCount(Math.Abs(value))
+                        : new RoadSegmentLaneCount(Math.Abs(value % 10))
                 )
             );
         }
@@ -231,7 +231,7 @@ namespace RoadRegistry.Projections.Tests
                 customization.FromFactory<int>(
                     value => value == -8 || value == -9
                         ? new RoadSegmentWidth(value)
-                        : new RoadSegmentWidth(Math.Abs(value))
+                        : new RoadSegmentWidth(Math.Abs(value % 99))
                 )
             );
         }
@@ -330,31 +330,168 @@ namespace RoadRegistry.Projections.Tests
             );
         }
 
-//        public static void CustomizeImportedRoadSegment(this IFixture fixture)
-//        {
-//            fixture.Customize<ImportedRoadSegment>(customization =>
-//                customization
-//                    .FromFactory(generator =>
-//                    {
-//                        var e = new ImportedRoadSegment();
-//                        e.Id = fixture.Create<RoadSegmentId>();
-//                        e.StartNodeId = fixture.Create<RoadNodeId>();
-//                        e.EndNodeId = fixture.Create<RoadNodeId>();
-//                        e.Geometry = new WellKnownBinaryWriter().Write(fixture.Create<MultiLineString>());
-//                        e.AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>();
-//                        e.Morphology = fixture.Create<RoadSegmentMorphology>();
-//                        e.Category = fixture.Create<RoadSegmentCategory>();
-//                        e.Status = fixture.Create<RoadSegmentStatus>();
-//                        e.GeometryVersion = fixture.Create<GeometryVersion>();
-//                        e.Version = fixture.Create<int>();
-//                        e.Widths = Enumerable.Range(0, generator.Next(0, 10)).Select(index => new ImportedRoadSegmentWidthAttributes
-//                        {
-//
-//                        });
-//
-//                    })
-//                    .OmitAutoProperties()
-//            );
-//        }
+        public static void CustomizeImportedRoadSegmentLaneAttributes(this IFixture fixture)
+        {
+            fixture.Customize<ImportedRoadSegmentLaneAttributes>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new ImportedRoadSegmentLaneAttributes
+                        {
+                            AttributeId = fixture.Create<int>(),
+                            Count = fixture.Create<RoadSegmentLaneCount>(),
+                            Direction = fixture.Create<RoadSegmentLaneDirection>(),
+                            FromPosition = fixture.Create<RoadSegmentPosition>(),
+                            ToPosition = fixture.Create<RoadSegmentPosition>(),
+                            AsOfGeometryVersion = fixture.Create<int>(),
+                            Origin = fixture.Create<OriginProperties>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeImportedRoadSegmentWidthAttributes(this IFixture fixture)
+        {
+            fixture.Customize<ImportedRoadSegmentWidthAttributes>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new ImportedRoadSegmentWidthAttributes
+                        {
+                            AttributeId = fixture.Create<int>(),
+                            Width = fixture.Create<RoadSegmentWidth>(),
+                            FromPosition = fixture.Create<RoadSegmentPosition>(),
+                            ToPosition = fixture.Create<RoadSegmentPosition>(),
+                            AsOfGeometryVersion = fixture.Create<int>(),
+                            Origin = fixture.Create<OriginProperties>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeImportedRoadSegmentSurfaceAttributes(this IFixture fixture)
+        {
+            fixture.Customize<ImportedRoadSegmentSurfaceAttributes>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new ImportedRoadSegmentSurfaceAttributes
+                        {
+                            AttributeId = fixture.Create<int>(),
+                            Type = fixture.Create<RoadSegmentSurfaceType>(),
+                            FromPosition = fixture.Create<RoadSegmentPosition>(),
+                            ToPosition = fixture.Create<RoadSegmentPosition>(),
+                            AsOfGeometryVersion = fixture.Create<int>(),
+                            Origin = fixture.Create<OriginProperties>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeImportedRoadSegmentEuropeanRoadAttributes(this IFixture fixture)
+        {
+            fixture.Customize<ImportedRoadSegmentEuropeanRoadAttributes>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new ImportedRoadSegmentEuropeanRoadAttributes
+                        {
+                            AttributeId = fixture.Create<int>(),
+                            RoadNumber = fixture.Create<EuropeanRoadNumber>(),
+                            Origin = fixture.Create<OriginProperties>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeImportedRoadSegmentNationalRoadAttributes(this IFixture fixture)
+        {
+            fixture.Customize<ImportedRoadSegmentNationalRoadAttributes>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new ImportedRoadSegmentNationalRoadAttributes
+                        {
+                            AttributeId = fixture.Create<int>(),
+                            Ident2 = fixture.Create<NationalRoadNumber>(),
+                            Origin = fixture.Create<OriginProperties>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeImportedRoadSegmentNumberedRoadAttributes(this IFixture fixture)
+        {
+            fixture.Customize<ImportedRoadSegmentNumberedRoadAttributes>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new ImportedRoadSegmentNumberedRoadAttributes
+                        {
+                            AttributeId = fixture.Create<int>(),
+                            Ident8 = fixture.Create<NumberedRoadNumber>(),
+                            Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
+                            Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
+                            Origin = fixture.Create<OriginProperties>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeImportedRoadSegmentSideAttributes(this IFixture fixture)
+        {
+            fixture.Customize<ImportedRoadSegmentSideAttributes>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new ImportedRoadSegmentSideAttributes
+                        {
+                            StreetNameId = fixture.Create<int?>(),
+                            StreetName = fixture.Create<string>(),
+                            MunicipalityNISCode = fixture.Create<string>(),
+                            Municipality = fixture.Create<string>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeImportedRoadSegment(this IFixture fixture)
+        {
+            fixture.Customize<ImportedRoadSegment>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new ImportedRoadSegment
+                        {
+                            Id = fixture.Create<RoadSegmentId>(),
+                            Version = fixture.Create<int>(),
+                            StartNodeId = fixture.Create<RoadNodeId>(),
+                            EndNodeId = fixture.Create<RoadNodeId>(),
+                            Geometry = new WellKnownBinaryWriter().Write(fixture.Create<MultiLineString>()),
+                            GeometryVersion = fixture.Create<GeometryVersion>(),
+                            MaintenanceAuthority = new MaintenanceAuthority
+                            {
+                                Code = fixture.Create<MaintenanceAuthorityId>(),
+                                Name = fixture.Create<MaintenanceAuthorityName>()
+                            },
+                            AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
+                            Morphology = fixture.Create<RoadSegmentMorphology>(),
+                            Status = fixture.Create<RoadSegmentStatus>(),
+                            Category = fixture.Create<RoadSegmentCategory>(),
+                            GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                            LeftSide = fixture.Create<ImportedRoadSegmentSideAttributes>(),
+                            RightSide = fixture.Create<ImportedRoadSegmentSideAttributes>(),
+                            Lanes = fixture.CreateMany<ImportedRoadSegmentLaneAttributes>(generator.Next(0, 10)).ToArray(),
+                            Widths = fixture.CreateMany<ImportedRoadSegmentWidthAttributes>(generator.Next(0, 10)).ToArray(),
+                            Surfaces = fixture.CreateMany<ImportedRoadSegmentSurfaceAttributes>(generator.Next(0, 10)).ToArray(),
+                            PartOfEuropeanRoads = fixture.CreateMany<ImportedRoadSegmentEuropeanRoadAttributes>(generator.Next(0, 10)).ToArray(),
+                            PartOfNationalRoads = fixture.CreateMany<ImportedRoadSegmentNationalRoadAttributes>(generator.Next(0, 10)).ToArray(),
+                            PartOfNumberedRoads = fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttributes>(generator.Next(0, 10)).ToArray(),
+                            RecordingDate = fixture.Create<DateTime>(),
+                            Origin = fixture.Create<OriginProperties>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
     }
 }

@@ -11,11 +11,41 @@ namespace RoadRegistry.Projections.Tests
 
     public class RoadSegmentWidthAttributeProjectionTests
     {
-        private readonly ScenarioFixture _fixture;
+        private readonly Fixture _fixture;
 
         public RoadSegmentWidthAttributeProjectionTests()
         {
-            _fixture = new ScenarioFixture();
+            _fixture = new Fixture();
+            _fixture.CustomizeRoadSegmentId();
+            _fixture.CustomizeRoadNodeId();
+            _fixture.CustomizeMaintenanceAuthorityId();
+            _fixture.CustomizeMaintenanceAuthorityName();
+            _fixture.CustomizePolylineM();
+            _fixture.CustomizeEuropeanRoadNumber();
+            _fixture.CustomizeNationalRoadNumber();
+            _fixture.CustomizeNumberedRoadNumber();
+            _fixture.CustomizeRoadSegmentNumberedRoadDirection();
+            _fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
+            _fixture.CustomizeRoadSegmentLaneCount();
+            _fixture.CustomizeRoadSegmentLaneDirection();
+            _fixture.CustomizeRoadSegmentWidth();
+            _fixture.CustomizeRoadSegmentSurfaceType();
+            _fixture.CustomizeRoadSegmentGeometryDrawMethod();
+            _fixture.CustomizeRoadSegmentMorphology();
+            _fixture.CustomizeRoadSegmentStatus();
+            _fixture.CustomizeRoadSegmentCategory();
+            _fixture.CustomizeRoadSegmentAccessRestriction();
+            _fixture.CustomizeRoadSegmentGeometryVersion();
+
+            _fixture.CustomizeImportedRoadSegment();
+            _fixture.CustomizeImportedRoadSegmentEuropeanRoadAttributes();
+            _fixture.CustomizeImportedRoadSegmentNationalRoadAttributes();
+            _fixture.CustomizeImportedRoadSegmentNumberedRoadAttributes();
+            _fixture.CustomizeImportedRoadSegmentLaneAttributes();
+            _fixture.CustomizeImportedRoadSegmentWidthAttributes();
+            _fixture.CustomizeImportedRoadSegmentSurfaceAttributes();
+            _fixture.CustomizeImportedRoadSegmentSideAttributes();
+            _fixture.CustomizeOriginProperties();
         }
 
         [Fact]
@@ -23,11 +53,11 @@ namespace RoadRegistry.Projections.Tests
         {
             var random = new Random();
             var data = _fixture
-                .CreateMany<ImportedRoadSegment>(random.Next(1, 3))
+                .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
                 .Select(segment =>
                 {
                     segment.Widths = _fixture
-                        .CreateMany<ImportedRoadSegmentWidthAttributes>(random.Next(1, 5))
+                        .CreateMany<ImportedRoadSegmentWidthAttributes>(random.Next(1, 10))
                         .ToArray();
 
                     var expected = segment
