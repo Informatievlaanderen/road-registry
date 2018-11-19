@@ -13,11 +13,11 @@ namespace RoadRegistry.Projections.Tests
 
     public class RoadNetworkInfoProjectionTests
     {
-        private readonly ScenarioFixture _fixture;
+        private readonly Fixture _fixture;
 
         public RoadNetworkInfoProjectionTests()
         {
-            _fixture = new ScenarioFixture();
+            _fixture = new Fixture();
         }
 
         [Fact]
@@ -137,8 +137,8 @@ namespace RoadRegistry.Projections.Tests
                 .Range(0, new Random().Next(10))
                 .Select(index => new ImportedOrganization
                 {
-                    Code = _fixture.Create<string>(),
-                    Name = _fixture.Create<string>()
+                    Code = _fixture.Create<MaintenanceAuthorityId>(),
+                    Name = _fixture.Create<MaintenanceAuthorityName>()
                 })
                 .Cast<object>()
                 .ToArray();

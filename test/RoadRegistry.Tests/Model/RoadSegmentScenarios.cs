@@ -17,6 +17,8 @@ namespace RoadRegistry.Model
             Fixture.CustomizePointM();
             Fixture.CustomizePolylineM();
 
+            Fixture.CustomizeMaintenanceAuthorityId();
+            Fixture.CustomizeMaintenanceAuthorityName();
             Fixture.CustomizeRoadNodeId();
             Fixture.CustomizeRoadNodeType();
             Fixture.CustomizeRoadSegmentId();
@@ -87,7 +89,7 @@ namespace RoadRegistry.Model
             var line = Fixture.Create<MultiLineString>();
             return Run(scenario =>
             {
-                var maintainer = Fixture.Create<string>();
+                var maintainer = Fixture.Create<MaintenanceAuthorityId>();
                 var geometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>();
                 var morphology = Fixture.Create<RoadSegmentMorphology>();
                 var status = Fixture.Create<RoadSegmentStatus>();

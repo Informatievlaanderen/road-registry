@@ -26,12 +26,12 @@ namespace RoadRegistry.Model
                         new EmptyStringBehaviorExpectation()
                     )
                 ),
-                new ImplicitStringConversionOperatorAssertion(
-                    _fixture,
+                new ImplicitConversionOperatorAssertion<string>(
                     () => new string(
                         (char) new Random().Next(97, 123), // a-z
                         new Random().Next(MaintenanceAuthorityName.MaxLength + 1)
-                    )
+                    ),
+                    value => new MaintenanceAuthorityName(value)
                 ),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),

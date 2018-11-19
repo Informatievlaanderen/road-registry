@@ -59,38 +59,32 @@
                     new RoadSegmentNumberedRoadOrdinal(item.Ordinal)
                 )
             );
-            var laneAttributes = new RoadSegmentLaneAttributes(
-                Array.ConvertAll(
-                    command.Lanes,
-                    item => new RoadSegmentLaneAttribute(
-                        new RoadSegmentLaneCount(item.Count),
-                        RoadSegmentLaneDirection.Parse(item.Direction),
-                        new RoadSegmentPosition(item.FromPosition),
-                        new RoadSegmentPosition(item.ToPosition),
-                        new GeometryVersion(0)
-                    )
+            var laneAttributes = Array.ConvertAll(
+                command.Lanes,
+                item => new RoadSegmentLaneAttribute(
+                    new RoadSegmentLaneCount(item.Count),
+                    RoadSegmentLaneDirection.Parse(item.Direction),
+                    new RoadSegmentPosition(item.FromPosition),
+                    new RoadSegmentPosition(item.ToPosition),
+                    new GeometryVersion(0)
                 )
             );
-            var widthAttributes = new RoadSegmentWidthAttributes(
-                Array.ConvertAll(
-                    command.Widths,
-                    item => new RoadSegmentWidthAttribute(
-                        new RoadSegmentWidth(item.Width),
-                        new RoadSegmentPosition(item.FromPosition),
-                        new RoadSegmentPosition(item.ToPosition),
-                        new GeometryVersion(0)
-                    )
+            var widthAttributes = Array.ConvertAll(
+                command.Widths,
+                item => new RoadSegmentWidthAttribute(
+                    new RoadSegmentWidth(item.Width),
+                    new RoadSegmentPosition(item.FromPosition),
+                    new RoadSegmentPosition(item.ToPosition),
+                    new GeometryVersion(0)
                 )
             );
-            var surfaceAttributes = new RoadSegmentSurfaceAttributes(
-                Array.ConvertAll(
-                    command.Surfaces,
-                    item => new RoadSegmentSurfaceAttribute(
-                        RoadSegmentSurfaceType.Parse(item.Type),
-                        new RoadSegmentPosition(item.FromPosition),
-                        new RoadSegmentPosition(item.ToPosition),
-                        new GeometryVersion(0)
-                    )
+            var surfaceAttributes = Array.ConvertAll(
+                command.Surfaces,
+                item => new RoadSegmentSurfaceAttribute(
+                    RoadSegmentSurfaceType.Parse(item.Type),
+                    new RoadSegmentPosition(item.FromPosition),
+                    new RoadSegmentPosition(item.ToPosition),
+                    new GeometryVersion(0)
                 )
             );
             return new AddRoadSegment

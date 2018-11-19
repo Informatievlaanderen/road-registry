@@ -98,10 +98,11 @@ namespace RoadRegistry.Model
                         break;
 
                     case AddRoadSegment addRoadSegment:
-                        if (_segments.ContainsKey(addRoadSegment.Id))
-                        {
-                            reasons = reasons.BecauseRoadSegmentIdTaken();
-                        }
+//                        if (_segments.ContainsKey(addRoadSegment.Id))
+//                        {
+//                            reasons = reasons.BecauseRoadSegmentIdTaken();
+//                        }
+                        acceptedChanges.Add(addRoadSegment.Accept(writer));
                         break;
                 }
             }

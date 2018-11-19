@@ -11,15 +11,20 @@
         public RoadSegmentLaneCountTests()
         {
             _fixture = new Fixture();
+            _fixture.CustomizeRoadSegmentLaneCount();
         }
 
         [Fact]
         public void VerifyBehavior()
         {
             new CompositeIdiomaticAssertion(
-                new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation()),
-                new ImplicitConversionOperatorAssertion<int>(_fixture),
-                new ExplicitConversionMethodAssertion<int>(_fixture),
+                new GuardClauseAssertion(_fixture, new Int32RangeBehaviorExpectation(0, 7)),
+                new ImplicitConversionOperatorAssertion<int>(
+                    () => _fixture.Create<int>() % RoadSegmentLaneCount.Maximum.ToInt32(),
+                    value => new RoadSegmentLaneCount(value)),
+                new ExplicitConversionMethodAssertion<int>(
+                    () => _fixture.Create<int>() % RoadSegmentLaneCount.Maximum.ToInt32(),
+                    value => new RoadSegmentLaneCount(value)),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -38,7 +43,7 @@
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
-            var value = _fixture.Create<int>();
+            var value = _fixture.Create<int>() % RoadSegmentLaneCount.Maximum.ToInt32();
             var sut = new RoadSegmentLaneCount(value);
 
             Assert.Equal(value.ToString(), sut.ToString());

@@ -26,12 +26,12 @@ namespace RoadRegistry.Model
                         new EmptyStringBehaviorExpectation()
                     )
                 ),
-                new ImplicitStringConversionOperatorAssertion(
-                    _fixture,
+                new ImplicitConversionOperatorAssertion<string>(
                     () => new string(
                         (char) new Random().Next(97, 123), // a-z
-                        new Random().Next(MaintenanceAuthorityId.MaxLength + 1)
-                    )
+                        new Random().Next(1, MaintenanceAuthorityId.MaxLength + 1)
+                    ),
+                    value => new MaintenanceAuthorityId(value)
                 ),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
@@ -53,7 +53,7 @@ namespace RoadRegistry.Model
         {
             var value = new string(
                 (char) new Random().Next(97, 123), // a-z
-                new Random().Next(MaintenanceAuthorityId.MaxLength + 1)
+                new Random().Next(1, MaintenanceAuthorityId.MaxLength + 1)
             );
             var sut = new MaintenanceAuthorityId(value);
 

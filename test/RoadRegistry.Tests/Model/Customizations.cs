@@ -173,7 +173,7 @@ namespace RoadRegistry.Model
                 customization.FromFactory<int>(
                     value => value == -8 || value == -9
                         ? new RoadSegmentLaneCount(value)
-                        : new RoadSegmentLaneCount(Math.Abs(value))
+                        : new RoadSegmentLaneCount(Math.Abs(value) % RoadSegmentLaneCount.Maximum.ToInt32())
                 )
             );
         }
@@ -229,7 +229,7 @@ namespace RoadRegistry.Model
                 customization.FromFactory<int>(
                     value => value == -8 || value == -9
                         ? new RoadSegmentWidth(value)
-                        : new RoadSegmentWidth(Math.Abs(value))
+                        : new RoadSegmentWidth(Math.Abs(value) % RoadSegmentWidth.Maximum.ToInt32())
                 )
             );
         }

@@ -1,5 +1,6 @@
 namespace RoadRegistry.Model
 {
+    using System;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Xunit;
@@ -18,8 +19,12 @@ namespace RoadRegistry.Model
         {
             new CompositeIdiomaticAssertion(
                 new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation()),
-                new ImplicitConversionOperatorAssertion<int>(_fixture),
-                new ExplicitConversionMethodAssertion<int>(_fixture),
+                new ImplicitConversionOperatorAssertion<int>(
+                    () => _fixture.Create<int>(),
+                    value => new CrabStreetnameId(value)),
+                new ExplicitConversionMethodAssertion<int>(
+                    () => _fixture.Create<int>(),
+                    value => new CrabStreetnameId(value)),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),

@@ -10,12 +10,15 @@ namespace RoadRegistry.Projections.Tests
 
     public class GradeSeparatedJunctionRecordProjectionTests
     {
-        private readonly ScenarioFixture _fixture;
+        private readonly Fixture _fixture;
         private readonly GradeSeparatedJunctionTypeTranslator _gradeSeparatedJunctionTypeTranslator;
 
         public GradeSeparatedJunctionRecordProjectionTests()
         {
-            _fixture = new ScenarioFixture();
+            _fixture = new Fixture();
+            _fixture.CustomizeMaintenanceAuthorityId();
+            _fixture.CustomizeMaintenanceAuthorityName();
+            _fixture.CustomizeOriginProperties();
             _gradeSeparatedJunctionTypeTranslator = new GradeSeparatedJunctionTypeTranslator();
         }
 

@@ -4,12 +4,15 @@
 
     public readonly struct RoadSegmentLaneCount : IEquatable<RoadSegmentLaneCount>
     {
+        private const int MaximumValue = 7;
+        public static readonly RoadSegmentLaneCount Maximum = new RoadSegmentLaneCount(MaximumValue);
+
         private readonly int _value;
 
         public RoadSegmentLaneCount(int value)
         {
-            if (value < 0)
-                throw new ArgumentOutOfRangeException(nameof(value), value, "The road segment lane count must be greater than or equal to zero.");
+            if (value < 0 || value > MaximumValue)
+                throw new ArgumentOutOfRangeException(nameof(value), value, "The road segment lane count must be greater than or equal to 0 and less than or equal to 7.");
 
             _value = value;
         }
