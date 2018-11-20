@@ -47,7 +47,7 @@ namespace RoadRegistry.Model
             RuleFor(c => c.Lanes).NotNull();
             RuleForEach(c => c.Lanes).NotNull().SetValidator(new RoadSegmentLaneAttributesValidator());
             RuleFor(c => c.Widths).NotNull();
-            RuleForEach(c => c.Widths).NotNull().SetValidator(new RoadSegmentWidthPropertiesValidator());
+            RuleForEach(c => c.Widths).NotNull().SetValidator(new RoadSegmentWidthAttributesValidator());
             RuleFor(c => c.Surfaces).NotNull();
             RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RoadSegmentSurfaceAttributesValidator());
         }

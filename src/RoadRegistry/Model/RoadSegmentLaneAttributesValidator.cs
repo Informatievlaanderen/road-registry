@@ -13,7 +13,7 @@ namespace RoadRegistry.Model
             RuleFor(c => c.FromPosition).GreaterThanOrEqualTo(0.0m);
             RuleFor(c => c.ToPosition).GreaterThan(_ => _.FromPosition);
             RuleFor(c => c.Count)
-                .GreaterThanOrEqualTo(0)
+                .InclusiveBetween(0, RoadSegmentLaneCount.Maximum.ToInt32())
                 .When(_ => _.Count != Unknown && _.Count != NotApplicable, ApplyConditionTo.CurrentValidator);
             RuleFor(c => c.Direction)
                 .NotEmpty()

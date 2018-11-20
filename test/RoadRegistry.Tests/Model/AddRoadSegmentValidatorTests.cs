@@ -266,7 +266,7 @@ namespace RoadRegistry.Model
         [Fact]
         public void WidthsHasExpectedValidator()
         {
-            Validator.ShouldHaveChildValidator(c => c.Widths, typeof(RoadSegmentWidthPropertiesValidator));
+            Validator.ShouldHaveChildValidator(c => c.Widths, typeof(RoadSegmentWidthAttributesValidator));
         }
 
         [Fact]

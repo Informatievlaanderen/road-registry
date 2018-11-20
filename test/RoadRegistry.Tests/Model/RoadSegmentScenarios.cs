@@ -220,7 +220,7 @@ namespace RoadRegistry.Model
                                             AttributeId = 1,
                                             Ident8 = part.Ident8,
                                             Direction = part.Direction,
-                                            Ordinal = part.Ordinal
+                                            Ordinal = part.Ordinal,
                                         }),
                                     Lanes = Array.ConvertAll(
                                         lanes,
@@ -231,7 +231,7 @@ namespace RoadRegistry.Model
                                             Count = lane.Count,
                                             FromPosition = lane.FromPosition,
                                             ToPosition = lane.ToPosition,
-                                            AsOfGeometryVersion = 0
+                                            AsOfGeometryVersion = 1
                                         }),
                                     Widths = Array.ConvertAll(
                                         widths,
@@ -241,7 +241,7 @@ namespace RoadRegistry.Model
                                             Width = width.Width,
                                             FromPosition = width.FromPosition,
                                             ToPosition = width.ToPosition,
-                                            AsOfGeometryVersion = 0
+                                            AsOfGeometryVersion = 1
                                         }),
                                     Surfaces = Array.ConvertAll(
                                         surfaces,
@@ -251,7 +251,7 @@ namespace RoadRegistry.Model
                                             Type = surface.Type,
                                             FromPosition = surface.FromPosition,
                                             ToPosition = surface.ToPosition,
-                                            AsOfGeometryVersion = 0
+                                            AsOfGeometryVersion = 1
                                         }),
                                     Version = 1,
                                     GeometryVersion = 0,

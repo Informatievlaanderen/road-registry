@@ -4,6 +4,9 @@ namespace RoadRegistry.Testing
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Aiv.Vbr.Utilities;
+    using FluentAssertions;
+    using KellermanSoftware.CompareNetObjects;
     using Newtonsoft.Json;
     using Xunit.Sdk;
 
@@ -12,7 +15,7 @@ namespace RoadRegistry.Testing
         public static async Task AssertAsync(
             this IExpectEventsScenarioBuilder builder,
             ScenarioRunner runner,
-            CancellationToken ct = default(CancellationToken))
+            CancellationToken ct = default)
         {
             var scenario = builder.Build();
             var result = await runner.RunAsync(scenario, ct);
@@ -34,7 +37,18 @@ namespace RoadRegistry.Testing
                     }
                     else
                     {
-                        messageBuilder.AppendLine("Expected events to match but found differences.");
+                        messageBuilder.AppendLine("Expected events to match but found differences:");
+                        var config = new ComparisonConfig
+                        {
+                            MaxDifferences = int.MaxValue,
+                            MaxStructDepth = 5
+                        };
+                        var comparer = new CompareLogic(config);
+                        var comparison = comparer.Compare(recorded.Scenario.Thens, recorded.Actual);
+                        foreach (var difference in comparison.Differences)
+                        {
+                            messageBuilder.AppendLine("\t" + difference);
+                        }
                         messageBuilder.AppendLine("Expected:");
                         foreach (var then in recorded.Scenario.Thens)
                         {
@@ -54,7 +68,7 @@ namespace RoadRegistry.Testing
         public static async Task AssertAsync(
             this IExpectExceptionScenarioBuilder builder,
             ScenarioRunner runner,
-            CancellationToken ct = default(CancellationToken))
+            CancellationToken ct = default)
         {
             var scenario = builder.Build();
             var result = await runner.RunAsync(scenario, ct);

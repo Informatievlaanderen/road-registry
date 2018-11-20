@@ -49,12 +49,21 @@ namespace RoadRegistry.Model
         }
 
         [Theory]
+        [InlineData(int.MaxValue)]
+        [InlineData(8)]
+        public void CountMustBeLessThanOrEqualTo7(int value)
+        {
+            Validator.ShouldHaveValidationErrorFor(c => c.Count, value);
+        }
+
+        [Theory]
         [InlineData(0)]
         [InlineData(1)]
-        [InlineData(int.MaxValue)]
+        [InlineData(6)]
+        [InlineData(7)]
         [InlineData(-8)]
         [InlineData(-9)]
-        public void CountCanBeGreaterThanOrEqualToZeroOrMinus8OrMinus9(int value)
+        public void CountCanBeBetween0And7OrMinus8OrMinus9(int value)
         {
             Validator.ShouldNotHaveValidationErrorFor(c => c.Count, value);
         }

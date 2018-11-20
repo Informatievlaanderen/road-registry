@@ -12,11 +12,13 @@ namespace RoadRegistry.Model
         public RoadSegmentWidthAttributesValidatorTests()
         {
             Fixture = new Fixture();
-            Validator = new RoadSegmentWidthPropertiesValidator();
+            Fixture.CustomizeRoadSegmentPosition();
+            Fixture.CustomizeRoadSegmentWidth();
+            Validator = new RoadSegmentWidthAttributesValidator();
         }
 
         public Fixture Fixture { get; }
-        public RoadSegmentWidthPropertiesValidator Validator { get; }
+        public RoadSegmentWidthAttributesValidator Validator { get; }
 
         [Theory]
         [MemberData(nameof(DynamicAttributePositionCases.NegativeFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
@@ -46,12 +48,21 @@ namespace RoadRegistry.Model
         }
 
         [Theory]
+        [InlineData(int.MaxValue)]
+        [InlineData(46)]
+        public void WidthMustBeLessThanOrEqualTo45(int value)
+        {
+            Validator.ShouldHaveValidationErrorFor(c => c.Width, value);
+        }
+
+        [Theory]
         [InlineData(0)]
         [InlineData(1)]
-        [InlineData(int.MaxValue)]
+        [InlineData(44)]
+        [InlineData(45)]
         [InlineData(-8)]
         [InlineData(-9)]
-        public void WidthCanBeGreaterThanOrEqualToZeroOrMinus8OrMinus9(int value)
+        public void WidthCanBeBetween0And45OrMinus8OrMinus9(int value)
         {
             Validator.ShouldNotHaveValidationErrorFor(c => c.Width, value);
         }
@@ -66,7 +77,7 @@ namespace RoadRegistry.Model
             {
                 FromPosition = from,
                 ToPosition = positionGenerator.First(candidate => candidate > from),
-                Width = new Generator<int>(Fixture).First(candidate => candidate >= 0 || candidate == -8 || candidate == -9)
+                Width = Fixture.Create<RoadSegmentWidth>()
             };
 
             Validator.ValidateAndThrow(data);
