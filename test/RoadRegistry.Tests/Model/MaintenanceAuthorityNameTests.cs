@@ -3,6 +3,7 @@ namespace RoadRegistry.Model
     using System;
     using AutoFixture;
     using AutoFixture.Idioms;
+    using AutoFixture.Kernel;
     using Xunit;
 
     public class MaintenanceAuthorityNameTests
@@ -18,6 +19,14 @@ namespace RoadRegistry.Model
         [Fact]
         public void VerifyBehavior()
         {
+            var customizedString = new Fixture();
+            customizedString.Customize<string>(customization =>
+                customization.FromFactory(generator =>
+                    new string(
+                        (char) new Random().Next(97, 123), // a-z
+                        generator.Next(1, MaintenanceAuthorityName.MaxLength + 1)
+                    )
+                ));
             new CompositeIdiomaticAssertion(
                 new GuardClauseAssertion(
                     _fixture,
@@ -27,12 +36,7 @@ namespace RoadRegistry.Model
                     )
                 ),
                 new ImplicitConversionOperatorAssertion<string>(
-                    () => new string(
-                        (char) new Random().Next(97, 123), // a-z
-                        new Random().Next(MaintenanceAuthorityName.MaxLength + 1)
-                    ),
-                    value => new MaintenanceAuthorityName(value)
-                ),
+                    new CompositeSpecimenBuilder(customizedString, _fixture)),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),

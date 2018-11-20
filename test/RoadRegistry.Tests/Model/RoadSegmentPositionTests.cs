@@ -19,12 +19,8 @@
         {
             new CompositeIdiomaticAssertion(
                 new GuardClauseAssertion(_fixture, new NegativeDoubleBehaviorExpectation()),
-                new ImplicitConversionOperatorAssertion<decimal>(
-                    () => _fixture.Create<decimal>(),
-                    value => new RoadSegmentPosition(value)),
-                new ExplicitConversionMethodAssertion<decimal>(
-                    () => _fixture.Create<decimal>(),
-                    value => new RoadSegmentPosition(value)),
+                new ImplicitConversionOperatorAssertion<decimal>(_fixture),
+                new ExplicitConversionMethodAssertion<decimal>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),

@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Model
 {
+    using System.Linq;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Xunit;
@@ -17,14 +18,13 @@
         [Fact]
         public void VerifyBehavior()
         {
+            _fixture.Customizations.Add(
+                new FiniteSequenceGenerator<int>(Enumerable.Range(0, RoadSegmentWidth.Maximum.ToInt32()).ToArray()));
             new CompositeIdiomaticAssertion(
-                new GuardClauseAssertion(_fixture, new Int32RangeBehaviorExpectation(0, 45, -8, -9)),
-                new ImplicitConversionOperatorAssertion<int>(
-                    () => _fixture.Create<int>() % RoadSegmentWidth.Maximum.ToInt32(),
-                    value => new RoadSegmentWidth(value)),
-                new ExplicitConversionMethodAssertion<int>(
-                    () => _fixture.Create<int>() % RoadSegmentWidth.Maximum.ToInt32(),
-                    value => new RoadSegmentWidth(value)),
+                new GuardClauseAssertion(_fixture,
+                    new Int32RangeBehaviorExpectation(0, RoadSegmentWidth.Maximum.ToInt32(), -8, -9)),
+                new ImplicitConversionOperatorAssertion<int>(_fixture),
+                new ExplicitConversionMethodAssertion<int>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),

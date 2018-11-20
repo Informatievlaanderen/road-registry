@@ -5,16 +5,21 @@ namespace RoadRegistry.Model
     public readonly struct MaintenanceAuthorityName : IEquatable<MaintenanceAuthorityName>
     {
         public const int MaxLength = 64;
-        
+
         private readonly string _value;
 
         public MaintenanceAuthorityName(string value)
         {
             if (string.IsNullOrEmpty(value))
-                throw new ArgumentNullException(nameof(value), "The maintainer identifier must not be null or empty.");
+            {
+                throw new ArgumentNullException(nameof(value), "The maintainer name must not be null or empty.");
+            }
+
             if (value.Length > MaxLength)
+            {
                 throw new ArgumentOutOfRangeException(nameof(value),
-                    $"The maintainer identifier must be {MaxLength} characters or less.");
+                    $"The maintainer name must be {MaxLength} characters or less.");
+            }
 
             _value = value;
         }

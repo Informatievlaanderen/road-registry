@@ -23,9 +23,7 @@ namespace RoadRegistry.Model
             _fixture.Customizations.Add(
                 new FiniteSequenceGenerator<string>(_knownValues));
             new CompositeIdiomaticAssertion(
-                new ImplicitConversionOperatorAssertion<string>(
-                    () => _knownValues[new Random().Next(0, _knownValues.Length)],
-                    NationalRoadNumber.Parse),
+                new ImplicitConversionOperatorAssertion<string>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),

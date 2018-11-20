@@ -9,14 +9,23 @@ namespace RoadRegistry
 
     public class ImplicitConversionOperatorAssertion<TResult> : IdiomaticAssertion
     {
+        public ImplicitConversionOperatorAssertion(ISpecimenBuilder builder)
+        {
+            Builder = builder ?? throw new ArgumentNullException(nameof(builder));
+            ValueFactory = null;
+            SutFactory = null;
+        }
+
         public ImplicitConversionOperatorAssertion(
             Func<TResult> valueFactory,
             Func<TResult, object> sutFactory)
         {
+            Builder = null;
             ValueFactory = valueFactory ?? throw new ArgumentNullException(nameof(valueFactory));
             SutFactory = sutFactory ?? throw new ArgumentNullException(nameof(valueFactory));
         }
 
+        public ISpecimenBuilder Builder { get; }
         public Func<TResult> ValueFactory { get; }
         public Func<TResult, object> SutFactory { get; }
 
@@ -39,8 +48,12 @@ namespace RoadRegistry
                     $"The type '{type.Name}' does not define an implicit conversion operator to type '{typeof(TResult).Name}'.");
             }
 
-            var value = ValueFactory();
-            var instance = SutFactory(value);
+            var value = Builder.Create<TResult>();
+            var builder = new CompositeSpecimenBuilder(
+                new FrozenSpecimenBuilder<TResult>(value),
+                Builder
+            );
+            var instance = builder.CreateAnonymous(type);
 
             object result;
             try
