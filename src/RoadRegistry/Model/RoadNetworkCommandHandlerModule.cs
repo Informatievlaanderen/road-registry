@@ -2,16 +2,16 @@ namespace RoadRegistry.Model
 {
     using System;
     using Framework;
-    using Aiv.Vbr.Shaperon;
     using Messages;
+    using NodaTime;
     using SqlStreamStore;
 
     public class RoadNetworkCommandHandlerModule : CommandHandlerModule
     {
-        public RoadNetworkCommandHandlerModule(IStreamStore store, WellKnownBinaryReader reader)
+        public RoadNetworkCommandHandlerModule(IStreamStore store, IClock clock)
         {
             if (store == null) throw new ArgumentNullException(nameof(store));
-            if (reader == null) throw new ArgumentNullException(nameof(reader));
+            if (clock == null) throw new ArgumentNullException(nameof(clock));
 
             For<ChangeRoadNetwork>()
                 .UseValidator(new ChangeRoadNetworkValidator())

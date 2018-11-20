@@ -16,3 +16,5 @@ CompareNetObjects
 FluentValidation
 
 NetTopologySuite
+NodaTime
+NodaTime.Testing

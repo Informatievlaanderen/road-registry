@@ -635,6 +635,8 @@ NUGET
       NETStandard.Library (>= 1.6.1)
       Newtonsoft.Json (>= 9.0.1)
       NodaTime (>= 2.0)
+    NodaTime.Testing (2.4.0)
+      NodaTime (>= 2.4)
     NuGet.Common (4.8.0) - restriction: || (== netcoreapp2.1) (&& (== netstandard2.0) (>= netcoreapp1.0))
       NETStandard.Library (>= 1.6.1)
       NuGet.Frameworks (>= 4.8)

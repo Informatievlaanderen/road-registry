@@ -6,8 +6,9 @@ namespace RoadRegistry.Model
     using AutoFixture;
     using Framework;
     using Newtonsoft.Json;
-    using Aiv.Vbr.Shaperon;
     using Messages;
+    using NodaTime;
+    using NodaTime.Testing;
     using SqlStreamStore;
     using Testing;
 
@@ -18,20 +19,21 @@ namespace RoadRegistry.Model
         private static readonly EventMapping Mapping =
             new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
-        private readonly InMemoryStreamStore _store;
         private readonly ScenarioRunner _runner;
 
         protected Fixture Fixture { get; }
+        protected IStreamStore Store { get; }
+        protected FakeClock Clock { get; }
 
         protected RoadRegistryFixture()
         {
             Fixture = new Fixture();
-            Fixture.CustomizeRoadNodeType();
+            Store = new InMemoryStreamStore();
+            Clock = new FakeClock(NodaConstants.UnixEpoch);
 
-            _store = new InMemoryStreamStore();
             _runner = new ScenarioRunner(
-                Resolve.WhenEqualToMessage(new RoadNetworkCommandHandlerModule(_store, new WellKnownBinaryReader())),
-                _store,
+                Resolve.WhenEqualToMessage(new RoadNetworkCommandHandlerModule(Store, Clock)),
+                Store,
                 Settings,
                 Mapping,
                 StreamNameConversions.PassThru
@@ -52,7 +54,7 @@ namespace RoadRegistry.Model
 
         public void Dispose()
         {
-            _store?.Dispose();
+            Store?.Dispose();
         }
     }
 }
