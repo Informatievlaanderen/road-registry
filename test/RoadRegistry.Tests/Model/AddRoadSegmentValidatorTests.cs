@@ -2,7 +2,6 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Linq;
-    using Aiv.Vbr.Shaperon;
     using AutoFixture;
     using FluentValidation;
     using FluentValidation.TestHelper;
@@ -76,7 +75,7 @@ namespace RoadRegistry.Model
                     instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
                     instance.Type = Fixture.Create<RoadSegmentSurfaceType>();
                 }).OmitAutoProperties());
-            Validator = new AddRoadSegmentValidator(new WellKnownBinaryReader());
+            Validator = new AddRoadSegmentValidator();
         }
 
         public Fixture Fixture { get; }

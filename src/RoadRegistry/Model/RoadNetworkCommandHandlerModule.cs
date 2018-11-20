@@ -14,7 +14,7 @@ namespace RoadRegistry.Model
             if (reader == null) throw new ArgumentNullException(nameof(reader));
 
             For<ChangeRoadNetwork>()
-                .UseValidator(new ChangeRoadNetworkValidator(reader))
+                .UseValidator(new ChangeRoadNetworkValidator())
                 .UseRoadRegistryContext(store)
                 .Handle(async (context, message, ct) =>
                 {

@@ -1,19 +1,11 @@
 namespace RoadRegistry.Model
 {
-    using System;
-    using Aiv.Vbr.Shaperon;
     using FluentValidation;
-    using NetTopologySuite.Geometries;
 
     public class AddRoadSegmentValidator : AbstractValidator<Messages.AddRoadSegment>
     {
-        public AddRoadSegmentValidator(WellKnownBinaryReader reader)
+        public AddRoadSegmentValidator()
         {
-            if (reader == null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
-
             RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
             RuleFor(c => c.StartNodeId).GreaterThanOrEqualTo(0);
             RuleFor(c => c.EndNodeId)

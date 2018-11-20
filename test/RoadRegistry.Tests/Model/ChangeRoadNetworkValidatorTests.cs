@@ -135,7 +135,7 @@ namespace RoadRegistry.Model
                         }
                     )
                 );
-            Validator = new ChangeRoadNetworkValidator(new WellKnownBinaryReader());
+            Validator = new ChangeRoadNetworkValidator();
         }
 
         public Fixture Fixture { get; }
@@ -150,7 +150,7 @@ namespace RoadRegistry.Model
         [Fact]
         public void ChangeCanNotBeNull()
         {
-            var data = Fixture.CreateMany<RequestedChange>().ToArray();
+            var data = Fixture.CreateMany<RequestedChange>(10).ToArray();
             var index = new Random().Next(0, data.Length);
             data[index] = null;
 
