@@ -16,6 +16,7 @@ namespace RoadRegistry.Projections.Tests
     using RoadSegmentMorphology = Model.RoadSegmentMorphology;
     using RoadSegmentStatus = Model.RoadSegmentStatus;
     using GeoAPI.Geometries;
+    using Model;
 
     public class RoadSegmentProjectionTests
     {
@@ -59,17 +60,13 @@ namespace RoadRegistry.Projections.Tests
         [Fact]
         public Task When_road_segments_are_imported()
         {
-            var reader = new WellKnownBinaryReader();
             var random = new Random();
             var data = _fixture
                 .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
                 .Select(importedRoadSegment =>
                 {
-                    var polyLineMShapeContent = new PolyLineMShapeContent(
-                        reader.TryReadAs<MultiLineString>(importedRoadSegment.Geometry, out MultiLineString geometry)
-                        ? geometry
-                        : new MultiLineString(new ILineString[] { reader.ReadAs<LineString>(importedRoadSegment.Geometry) })
-                    );
+                    var geometry = GeometryTranslator.Translate(importedRoadSegment.Geometry2);
+                    var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
 
                     var expected = new RoadSegmentRecord
                     {

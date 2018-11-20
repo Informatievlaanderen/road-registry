@@ -2,35 +2,28 @@
 {
     using System;
     using Aiv.Vbr.Shaperon;
+    using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
 
-    internal class RequestedChangeTranslator
+    internal static class RequestedChangeTranslator
     {
-        public RequestedChangeTranslator(WellKnownBinaryReader reader)
-        {
-            Reader = reader ?? throw new ArgumentNullException(nameof(reader));
-        }
-
-        public WellKnownBinaryReader Reader { get; }
-
-        public IRequestedChange Translate(Messages.AddRoadNode command)
+        public static IRequestedChange Translate(Messages.AddRoadNode command)
         {
             var id = new RoadNodeId(command.Id);
-            var geometry = Reader.ReadAs<PointM>(command.Geometry);
             return new AddRoadNode
             (
                 id,
                 RoadNodeType.Parse(command.Type),
-                geometry
+                GeometryTranslator.Translate(command.Geometry2)
             );
         }
 
-        public IRequestedChange Translate(Messages.AddRoadSegment command)
+        public static IRequestedChange Translate(Messages.AddRoadSegment command)
         {
             var id = new RoadSegmentId(command.Id);
             var startNode = new RoadNodeId(command.StartNodeId);
             var endNode = new RoadNodeId(command.EndNodeId);
-            var geometry = Reader.ReadAs<MultiLineString>(command.Geometry);
+            var geometry = GeometryTranslator.Translate(command.Geometry2);
             var maintainer = new MaintenanceAuthorityId(command.MaintenanceAuthority);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
             var morphology = RoadSegmentMorphology.Parse(command.Morphology);

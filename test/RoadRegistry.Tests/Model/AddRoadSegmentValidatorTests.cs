@@ -121,25 +121,13 @@ namespace RoadRegistry.Model
         [Fact]
         public void GeometryMustNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Geometry, (byte[])null);
+            Validator.ShouldHaveValidationErrorFor(c => c.Geometry2, (RoadSegmentGeometry)null);
         }
 
         [Fact]
-        public void GeometryMustBePolyLineM()
+        public void GeometryHasExpectedValidator()
         {
-            Fixture.CustomizePointM();
-
-            var writer = new WellKnownBinaryWriter();
-            var geometry = Fixture.Create<PointM>();
-            var value = writer.Write(geometry);
-
-            Validator.ShouldHaveValidationErrorFor(c => c.Geometry, value);
-        }
-
-        [Fact]
-        public void GeometryMustBeWellformed()
-        {
-            Validator.ShouldHaveValidationErrorFor(c => c.Geometry, Fixture.CreateMany<byte>().ToArray());
+            Validator.ShouldHaveChildValidator(c => c.Geometry2, typeof(RoadSegmentGeometryValidator));
         }
 
         [Fact]
@@ -309,14 +297,12 @@ namespace RoadRegistry.Model
         {
             Fixture.CustomizePolylineM();
 
-            var writer = new WellKnownBinaryWriter();
-
             var data = new Messages.AddRoadSegment
             {
                 Id = Fixture.Create<RoadSegmentId>(),
                 StartNodeId = Fixture.Create<RoadNodeId>(),
                 EndNodeId = Fixture.Create<RoadNodeId>(),
-                Geometry = writer.Write(Fixture.Create<MultiLineString>()),
+                Geometry2 = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
                 MaintenanceAuthority = Fixture.Create<MaintenanceAuthorityId>(),
                 GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                 Morphology = Fixture.Create<RoadSegmentMorphology>(),

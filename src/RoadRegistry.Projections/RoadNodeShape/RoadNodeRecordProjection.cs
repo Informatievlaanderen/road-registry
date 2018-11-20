@@ -41,7 +41,12 @@ namespace RoadRegistry.Projections
                 BEGINORG = {Value = @event.Origin.OrganizationId},
                 LBLBGNORG = {Value = @event.Origin.Organization}
             };
-            var pointShapeContent = new PointShapeContent(_wkbReader.ReadAs<PointM>(@event.Geometry));
+
+            var point = GeometryTranslator.Translate(@event.Geometry2);
+            var pointShapeContent = new PointShapeContent(new PointM(point.X, point.Y)
+            {
+                SRID = point.SRID
+            });
 
             return context.AddAsync(new RoadNodeRecord
             {

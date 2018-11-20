@@ -106,7 +106,7 @@ namespace RoadRegistry.Projections.Tests
 
             fixture.Customize<ILineString>(customization =>
                 customization.FromFactory(generator =>
-                    new LineString(
+                    new NetTopologySuite.Geometries.LineString(
                         new PointSequence(fixture.CreateMany<PointM>()),
                         GeometryConfiguration.GeometryFactory)
                 ).OmitAutoProperties()
@@ -175,7 +175,7 @@ namespace RoadRegistry.Projections.Tests
                 customization.FromFactory<int>(
                     value => value == -8 || value == -9
                         ? new RoadSegmentLaneCount(value)
-                        : new RoadSegmentLaneCount(Math.Abs(value % 10))
+                        : new RoadSegmentLaneCount(Math.Abs(value % RoadSegmentLaneCount.Maximum.ToInt32()))
                 )
             );
         }
@@ -231,7 +231,7 @@ namespace RoadRegistry.Projections.Tests
                 customization.FromFactory<int>(
                     value => value == -8 || value == -9
                         ? new RoadSegmentWidth(value)
-                        : new RoadSegmentWidth(Math.Abs(value % 99))
+                        : new RoadSegmentWidth(Math.Abs(value % RoadSegmentWidth.Maximum.ToInt32()))
                 )
             );
         }
@@ -322,7 +322,7 @@ namespace RoadRegistry.Projections.Tests
                         {
                             Id = fixture.Create<RoadNodeId>(),
                             Type = fixture.Create<RoadNodeType>(),
-                            Geometry = new WellKnownBinaryWriter().Write(fixture.Create<PointM>()),
+                            Geometry2 = GeometryTranslator.Translate(fixture.Create<PointM>()),
                             Origin = fixture.Create<OriginProperties>()
                         }
                     )
@@ -466,7 +466,7 @@ namespace RoadRegistry.Projections.Tests
                             Version = fixture.Create<int>(),
                             StartNodeId = fixture.Create<RoadNodeId>(),
                             EndNodeId = fixture.Create<RoadNodeId>(),
-                            Geometry = new WellKnownBinaryWriter().Write(fixture.Create<MultiLineString>()),
+                            Geometry2 = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
                             GeometryVersion = fixture.Create<GeometryVersion>(),
                             MaintenanceAuthority = new MaintenanceAuthority
                             {

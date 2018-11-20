@@ -2,8 +2,9 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
-    using Aiv.Vbr.Shaperon;
+    using GeoAPI.Geometries;
     using Messages;
     using NetTopologySuite.Geometries;
 
@@ -68,9 +69,8 @@ namespace RoadRegistry.Model
         public IReadOnlyCollection<RoadSegmentWidthAttribute> Widths { get; }
         public IReadOnlyCollection<RoadSegmentSurfaceAttribute> Surfaces { get; }
 
-        public AcceptedChange Accept(WellKnownBinaryWriter writer)
+        public AcceptedChange Accept()
         {
-            if (writer == null) throw new ArgumentNullException(nameof(writer));
             return new AcceptedChange
             {
                 RoadSegmentAdded = new RoadSegmentAdded
@@ -78,7 +78,7 @@ namespace RoadRegistry.Model
                     Id = Id,
                     StartNodeId = StartNode,
                     EndNodeId = EndNode,
-                    Geometry = writer.Write(Geometry),
+                    Geometry2 = GeometryTranslator.Translate(Geometry),
                     MaintenanceAuthority = new MaintenanceAuthority
                     {
                         Code = MaintenanceAuthority

@@ -84,9 +84,9 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_segment_with_an_id_that_has_not_been_taken()
         {
-            var start = Fixture.Create<PointM>();
-            var end = Fixture.Create<PointM>();
-            var line = Fixture.Create<MultiLineString>();
+            var start = GeometryTranslator.Translate(Fixture.Create<PointM>());
+            var end = GeometryTranslator.Translate(Fixture.Create<PointM>());
+            var line = GeometryTranslator.Translate(Fixture.Create<MultiLineString>());
             return Run(scenario =>
             {
                 var maintainer = Fixture.Create<MaintenanceAuthorityId>();
@@ -115,7 +115,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = RoadNodeType.FakeNode,
-                                Geometry = start.ToBytes()
+                                Geometry2 = start
                             }
                         },
                         new RequestedChange
@@ -124,7 +124,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 2,
                                 Type = RoadNodeType.FakeNode,
-                                Geometry = end.ToBytes()
+                                Geometry2 = end
                             }
                         },
                         new RequestedChange
@@ -134,7 +134,7 @@ namespace RoadRegistry.Model
                                 Id = 1,
                                 StartNodeId = 1,
                                 EndNodeId = 2,
-                                Geometry = line.ToBytes(),
+                                Geometry2 = line,
                                 MaintenanceAuthority = maintainer,
                                 GeometryDrawMethod = geometryDrawMethod,
                                 Morphology = morphology,
@@ -162,7 +162,7 @@ namespace RoadRegistry.Model
                                 {
                                     Id = 1,
                                     Type = RoadNodeType.FakeNode,
-                                    Geometry = start.ToBytes()
+                                    Geometry2 = start
                                 }
                             },
                             new AcceptedChange
@@ -171,7 +171,7 @@ namespace RoadRegistry.Model
                                 {
                                     Id = 2,
                                     Type = RoadNodeType.FakeNode,
-                                    Geometry = end.ToBytes()
+                                    Geometry2 = end
                                 }
                             },
                             new AcceptedChange
@@ -181,7 +181,7 @@ namespace RoadRegistry.Model
                                     Id = 1,
                                     StartNodeId = 1,
                                     EndNodeId = 2,
-                                    Geometry = line.ToBytes(),
+                                    Geometry2 = line,
                                     MaintenanceAuthority = new MaintenanceAuthority
                                     {
                                         Code = maintainer,

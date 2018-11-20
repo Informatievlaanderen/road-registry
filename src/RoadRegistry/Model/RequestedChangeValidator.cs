@@ -14,7 +14,7 @@
                 throw new ArgumentNullException(nameof(reader));
             }
 
-            RuleFor(c => c.AddRoadNode).SetValidator(new AddRoadNodeValidator(reader));
+            RuleFor(c => c.AddRoadNode).SetValidator(new AddRoadNodeValidator());
             RuleFor(c => c.AddRoadSegment).SetValidator(new AddRoadSegmentValidator(reader));
         }
     }

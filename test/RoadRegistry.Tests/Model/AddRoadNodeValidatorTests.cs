@@ -1,11 +1,9 @@
 namespace RoadRegistry.Model
 {
-    using System.Linq;
     using Aiv.Vbr.Shaperon;
     using AutoFixture;
     using FluentValidation;
     using FluentValidation.TestHelper;
-    using NetTopologySuite.Geometries;
     using Xunit;
 
     public class AddRoadNodeValidatorTests
@@ -15,7 +13,7 @@ namespace RoadRegistry.Model
             Fixture = new Fixture();
             Fixture.CustomizeRoadNodeId();
             Fixture.CustomizeRoadNodeType();
-            Validator = new AddRoadNodeValidator(new WellKnownBinaryReader());
+            Validator = new AddRoadNodeValidator();
         }
 
         public Fixture Fixture { get; }
@@ -39,25 +37,13 @@ namespace RoadRegistry.Model
         [Fact]
         public void GeometryMustNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Geometry, (byte[])null);
+            Validator.ShouldHaveValidationErrorFor(c => c.Geometry2, (Messages.RoadNodeGeometry)null);
         }
 
         [Fact]
-        public void GeometryMustBePointM()
+        public void GeometryHasExpectedValidator()
         {
-            Fixture.CustomizePolylineM();
-
-            var writer = new WellKnownBinaryWriter();
-            var geometry = Fixture.Create<MultiLineString>();
-            var value = writer.Write(geometry);
-
-            Validator.ShouldHaveValidationErrorFor(c => c.Geometry, value);
-        }
-
-        [Fact]
-        public void GeometryMustBeWellformed()
-        {
-            Validator.ShouldHaveValidationErrorFor(c => c.Geometry, Fixture.CreateMany<byte>().ToArray());
+            Validator.ShouldHaveChildValidator(c => c.Geometry2, typeof(RoadNodeGeometryValidator));
         }
 
         [Fact]
@@ -65,13 +51,11 @@ namespace RoadRegistry.Model
         {
             Fixture.CustomizePointM();
 
-            var writer = new WellKnownBinaryWriter();
-
             var data = new Messages.AddRoadNode
             {
                 Id = Fixture.Create<RoadNodeId>(),
                 Type = Fixture.Create<RoadNodeType>(),
-                Geometry = writer.Write(Fixture.Create<PointM>())
+                Geometry2 = GeometryTranslator.Translate(Fixture.Create<PointM>())
             };
 
             Validator.ValidateAndThrow(data);

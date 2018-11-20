@@ -3,11 +3,11 @@ namespace RoadRegistry.Model
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Aiv.Vbr.Shaperon;
+    using NetTopologySuite.Geometries;
 
     public class AddRoadNode : IRequestedChange
     {
-        public AddRoadNode(RoadNodeId id, RoadNodeType type, PointM geometry)
+        public AddRoadNode(RoadNodeId id, RoadNodeType type, Point geometry)
         {
             Id = id;
             Type = type ?? throw new ArgumentNullException(nameof(type));
@@ -16,9 +16,9 @@ namespace RoadRegistry.Model
 
         public RoadNodeId Id { get; }
         public RoadNodeType Type { get; }
-        public PointM Geometry { get; }
+        public Point Geometry { get; }
 
-        public Messages.AcceptedChange Accept(WellKnownBinaryWriter writer)
+        public Messages.AcceptedChange Accept()
         {
             return new Messages.AcceptedChange
             {
@@ -26,12 +26,20 @@ namespace RoadRegistry.Model
                 {
                     Id = Id,
                     Type = Type.ToString(),
-                    Geometry = writer.Write(Geometry)
+                    Geometry2 = new Messages.RoadNodeGeometry
+                    {
+                        SpatialReferenceSystemIdentifier = Geometry.SRID,
+                        Point = new Messages.Point
+                        {
+                            X = Geometry.X,
+                            Y = Geometry.Y
+                        }
+                    }
                 }
             };
         }
 
-        public Messages.RejectedChange Reject(WellKnownBinaryWriter writer, IEnumerable<Messages.Reason> reasons)
+        public Messages.RejectedChange Reject(IEnumerable<Messages.Reason> reasons)
         {
             return new Messages.RejectedChange
             {
@@ -39,7 +47,7 @@ namespace RoadRegistry.Model
                 {
                     Id = Id,
                     Type = Type.ToString(),
-                    Geometry = writer.Write(Geometry)
+                    Geometry2 = GeometryTranslator.Translate(Geometry)
                 },
                 Reasons = reasons.ToArray()
             };

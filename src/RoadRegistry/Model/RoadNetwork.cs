@@ -5,7 +5,6 @@ namespace RoadRegistry.Model
     using System.Collections.Immutable;
     using System.Linq;
     using Framework;
-    using Aiv.Vbr.Shaperon;
     using Messages;
 
     public class RoadNetwork : EventSourcedEntity
@@ -18,15 +17,17 @@ namespace RoadRegistry.Model
 
         private RoadNetwork()
         {
-            var reader = new WellKnownBinaryReader();
-
             _nodes = ImmutableDictionary<RoadNodeId, RoadNode>.Empty;
             _segments = ImmutableDictionary<RoadSegmentId, RoadSegment>.Empty;
 
             On<ImportedRoadNode>(e =>
             {
                 var id = new RoadNodeId(e.Id);
-                var node = new RoadNode(id, reader.ReadAs<PointM>(e.Geometry));
+                var node = new RoadNode(id,
+                    new NetTopologySuite.Geometries.Point(e.Geometry2.Point.X, e.Geometry2.Point.Y)
+                    {
+                        SRID = e.Geometry2.SpatialReferenceSystemIdentifier
+                    });
                 _nodes = _nodes.Add(id, node);
             });
 
@@ -48,7 +49,14 @@ namespace RoadRegistry.Model
                     if (change.RoadNodeAdded != null)
                     {
                         var id = new RoadNodeId(change.RoadNodeAdded.Id);
-                        _nodes = _nodes.Add(id, new RoadNode(id, reader.ReadAs<PointM>(change.RoadNodeAdded.Geometry)));
+                        _nodes = _nodes.Add(id, new RoadNode(id,
+                            new NetTopologySuite.Geometries.Point(
+                                change.RoadNodeAdded.Geometry2.Point.X,
+                                change.RoadNodeAdded.Geometry2.Point.Y
+                            )
+                            {
+                                SRID = change.RoadNodeAdded.Geometry2.SpatialReferenceSystemIdentifier
+                            }));
                     }
                 }
             });
@@ -56,7 +64,6 @@ namespace RoadRegistry.Model
 
         public void Change(IRequestedChange[] changes)
         {
-            var writer = new WellKnownBinaryWriter();
             var acceptedChanges = new List<AcceptedChange>();
             var rejectedChanges = new List<RejectedChange>();
             foreach (var change in changes)
@@ -88,11 +95,11 @@ namespace RoadRegistry.Model
 
                         if (reasons == RejectionReasons.None)
                         {
-                            acceptedChanges.Add(addRoadNode.Accept(writer));
+                            acceptedChanges.Add(addRoadNode.Accept());
                         }
                         else
                         {
-                            rejectedChanges.Add(addRoadNode.Reject(writer, reasons));
+                            rejectedChanges.Add(addRoadNode.Reject(reasons));
                         }
 
                         break;
@@ -102,7 +109,7 @@ namespace RoadRegistry.Model
 //                        {
 //                            reasons = reasons.BecauseRoadSegmentIdTaken();
 //                        }
-                        acceptedChanges.Add(addRoadSegment.Accept(writer));
+                        acceptedChanges.Add(addRoadSegment.Accept());
                         break;
                 }
             }

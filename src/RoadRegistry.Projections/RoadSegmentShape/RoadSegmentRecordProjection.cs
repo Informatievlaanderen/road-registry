@@ -10,6 +10,7 @@ namespace RoadRegistry.Projections
     using NetTopologySuite.Geometries;
     using Aiv.Vbr.Shaperon;
     using Messages;
+    using Model;
     using RoadSegmentAccessRestriction = Model.RoadSegmentAccessRestriction;
     using RoadSegmentCategory = Model.RoadSegmentCategory;
     using RoadSegmentGeometryDrawMethod = Model.RoadSegmentGeometryDrawMethod;
@@ -31,10 +32,7 @@ namespace RoadRegistry.Projections
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
         {
-            var geometry = _wkbReader.TryReadAs(@event.Geometry, out LineString line)
-                ? new MultiLineString(new ILineString[] { line })
-                : _wkbReader.ReadAs<MultiLineString>(@event.Geometry);
-
+            var geometry = GeometryTranslator.Translate(@event.Geometry2);
             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
             var statusTranslation = RoadSegmentStatus.Parse(@event.Status).Translation;
             var morphologyTranslation = RoadSegmentMorphology.Parse(@event.Morphology).Translation;

@@ -5,9 +5,12 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Data.SqlClient;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Aiv.Vbr.Shaperon;
     using Amazon.S3;
+    using GeoAPI.Geometries;
     using Messages;
     using Microsoft.Extensions.Configuration;
 
@@ -27,16 +30,16 @@ namespace RoadRegistry.LegacyStreamExtraction
                 .AddEnvironmentVariables()
                 .AddCommandLine(args);
 
-            var spatialReferenceWriter = new SpatialReferenceWriter();
+            var wkbReader = new WellKnownBinaryReader();
 
             var root = configurationBuilder.Build();
             var output = new FileInfo(root[LEGACY_STREAM_FILE_NAME]);
             var connectionString = root.GetConnectionString("Legacy");
-            var nodes = new List<ImportedRoadNode>();
-            var points = new List<ImportedReferencePoint>();
-            var segments = new Dictionary<long, ImportedRoadSegment>();
-            var junctions = new List<ImportedGradeSeparatedJunction>();
-            var organizations = new List<ImportedOrganization>();
+            var importedRoadNodes = new List<ImportedRoadNode>();
+            var importedReferencePoints = new List<ImportedReferencePoint>();
+            var importedRoadSegments = new Dictionary<long, ImportedRoadSegment>();
+            var importedGradeSeparatedJunctions = new List<ImportedGradeSeparatedJunction>();
+            var importedOrganizations = new List<ImportedOrganization>();
 
             using (var connection = new SqlConnection(connectionString))
             {
@@ -57,7 +60,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Code = reader.GetString(0),
                             Name = reader.GetString(1)
                         };
-                        organizations.Add(organization);
+                        importedOrganizations.Add(organization);
                     });
                 Console.WriteLine("Reading organizations took {0}ms", watch.ElapsedMilliseconds);
 
@@ -77,13 +80,22 @@ namespace RoadRegistry.LegacyStreamExtraction
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wk.[beginorganisatie] = lo.[code]", connection
                     ).ForEachDataRecord(reader =>
                     {
-                        var wellKnownBinary = spatialReferenceWriter.WriteWithSpatialReference(reader.GetAllBytes(3));
+                        var wellKnownBinary = reader.GetAllBytes(3);
+                        var geometry = wkbReader.ReadAs<NetTopologySuite.Geometries.Point>(wellKnownBinary);
                         var node = new ImportedRoadNode
                         {
                             Id = reader.GetInt32(0),
                             Version = reader.GetInt32(1),
                             Type = Translate.ToRoadNodeType(reader.GetInt32(2)),
-                            Geometry = wellKnownBinary,
+                            Geometry2 = new RoadNodeGeometry
+                            {
+                                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
+                                Point = new Point
+                                {
+                                    X = geometry.X,
+                                    Y = geometry.Y
+                                }
+                            },
                             Origin = new OriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(4),
@@ -91,7 +103,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                                 Since = reader.GetDateTime(6)
                             }
                         };
-                        nodes.Add(node);
+                        importedRoadNodes.Add(node);
                     });
                 Console.WriteLine("Reading nodes took {0}ms", watch.ElapsedMilliseconds);
 
@@ -135,7 +147,30 @@ namespace RoadRegistry.LegacyStreamExtraction
                         connection
                     ).ForEachDataRecord(reader =>
                     {
-                        var wellKnownBinary = spatialReferenceWriter.WriteWithSpatialReference(reader.GetAllBytes(4));
+                        var wellKnownBinary = reader.GetAllBytes(4);
+                        var geometry = wkbReader
+                            .TryReadAs(wellKnownBinary, out NetTopologySuite.Geometries.LineString oneLine)
+                            ? new NetTopologySuite.Geometries.MultiLineString(new ILineString[] {oneLine})
+                            : wkbReader.ReadAs<NetTopologySuite.Geometries.MultiLineString>(wellKnownBinary);
+
+                        var multiLineString = Array.ConvertAll(
+                            geometry.Geometries.Cast<NetTopologySuite.Geometries.LineString>().ToArray(),
+                            input => new LineString
+                            {
+                                Points = Array.ConvertAll(
+                                    input.Coordinates,
+                                    coordinate => new PointWithM
+                                    {
+                                        X = coordinate.X,
+                                        Y = coordinate.Y
+                                    })
+                            });
+                        var points = multiLineString.SelectMany(line => line.Points).ToArray();
+                        var measures = geometry.GetOrdinates(Ordinate.M);
+                        for (var index = 0; index < points.Length && index < measures.Length; index++)
+                        {
+                            points[index].M = measures[index];
+                        }
 
                         var segment = new ImportedRoadSegment
                         {
@@ -143,7 +178,11 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Version = reader.GetInt32(1),
                             StartNodeId = reader.GetInt32(2),
                             EndNodeId = reader.GetInt32(3),
-                            Geometry = wellKnownBinary,
+                            Geometry2 = new RoadSegmentGeometry
+                            {
+                                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
+                                MultiLineString = multiLineString
+                            },
                             GeometryVersion = reader.GetInt32(5),
                             MaintenanceAuthority = new MaintenanceAuthority
                             {
@@ -183,7 +222,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Widths = Array.Empty<ImportedRoadSegmentWidthAttributes>(),
                             Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttributes>(),
                         };
-                        segments.Add(segment.Id, segment);
+                        importedRoadSegments.Add(segment.Id, segment);
                     });
                 Console.WriteLine("Reading segments took {0}ms", watch.ElapsedMilliseconds);
 
@@ -202,7 +241,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (!segments.TryGetValue(segmentId, out var segment))
+                        if (!importedRoadSegments.TryGetValue(segmentId, out var segment))
                             return;
 
                         var props = new ImportedRoadSegmentEuropeanRoadAttributes
@@ -237,7 +276,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (!segments.TryGetValue(segmentId, out var segment))
+                        if (!importedRoadSegments.TryGetValue(segmentId, out var segment))
                             return;
 
                         var props = new ImportedRoadSegmentNationalRoadAttributes
@@ -275,7 +314,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (!segments.TryGetValue(segmentId, out var segment))
+                        if (!importedRoadSegments.TryGetValue(segmentId, out var segment))
                             return;
 
                         var props = new ImportedRoadSegmentNumberedRoadAttributes
@@ -320,7 +359,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (!segments.TryGetValue(segmentId, out var segment))
+                        if (!importedRoadSegments.TryGetValue(segmentId, out var segment))
                             return;
 
                         var props = new ImportedRoadSegmentLaneAttributes
@@ -365,7 +404,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (!segments.TryGetValue(segmentId, out var segment))
+                        if (!importedRoadSegments.TryGetValue(segmentId, out var segment))
                             return;
 
                         var props = new ImportedRoadSegmentWidthAttributes
@@ -409,7 +448,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                     ).ForEachDataRecord(reader =>
                     {
                         var segmentId = reader.GetInt32(0);
-                        if (!segments.TryGetValue(segmentId, out var segment))
+                        if (!importedRoadSegments.TryGetValue(segmentId, out var segment))
                             return;
 
                         var props = new ImportedRoadSegmentSurfaceAttributes
@@ -463,7 +502,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             }
                         };
 
-                        junctions.Add(junction);
+                        importedGradeSeparatedJunctions.Add(junction);
                     });
                 Console.WriteLine("Reading junctions took {0}ms", watch.ElapsedMilliseconds);
 
@@ -484,7 +523,9 @@ namespace RoadRegistry.LegacyStreamExtraction
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON rp.[beginorganisatie] = lo.[code]", connection
                     ).ForEachDataRecord(reader =>
                     {
-                        var wellKnownBinary = spatialReferenceWriter.WriteWithSpatialReference(reader.GetAllBytes(1));
+                        var wellKnownBinary =
+                            new SpatialReferenceWriter().WriteWithSpatialReference(reader.GetAllBytes(1));
+
                         var point = new ImportedReferencePoint
                         {
                             Id = reader.GetInt32(0),
@@ -501,7 +542,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             }
                         };
 
-                        points.Add(point);
+                        importedReferencePoints.Add(point);
                     });
                 Console.WriteLine("Reading reference points took {0}ms", watch.ElapsedMilliseconds);
                 connection.Close();
@@ -509,7 +550,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                 Console.WriteLine("Writing stream to json started ...");
                 watch.Restart();
                 await new ExtractedStreamsWriter(output)
-                    .WriteAsync(organizations, nodes, segments.Values, junctions, points);
+                    .WriteAsync(importedOrganizations, importedRoadNodes, importedRoadSegments.Values, importedGradeSeparatedJunctions, importedReferencePoints);
                 Console.WriteLine("Writing stream to json took {0}ms", watch.ElapsedMilliseconds);
 
 

@@ -36,8 +36,9 @@ namespace RoadRegistry.Projections.Tests
                 .CreateMany<ImportedRoadNode>(new Random().Next(1, 100))
                 .Select(@event =>
                 {
+                    var point = GeometryTranslator.Translate(@event.Geometry2);
                     var pointShapeContent = new PointShapeContent(
-                        new WellKnownBinaryReader().ReadAs<PointM>(@event.Geometry)
+                        new PointM(point.X, point.Y)
                     );
                     var expectedRecord = new RoadNodeRecord
                     {

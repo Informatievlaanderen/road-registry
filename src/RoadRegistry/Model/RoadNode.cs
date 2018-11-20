@@ -3,25 +3,25 @@ namespace RoadRegistry.Model
     using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
-    using Aiv.Vbr.Shaperon;
+    using NetTopologySuite.Geometries;
 
     public class RoadNode
     {
         private readonly ImmutableHashSet<RoadSegmentId> _segments;
 
         public RoadNodeId Id { get; }
-        public PointM Geometry { get; }
+        public Point Geometry { get; }
 
         public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
 
-        public RoadNode(RoadNodeId id, PointM geometry)
+        public RoadNode(RoadNodeId id, Point geometry)
         {
             Id = id;
             Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
             _segments = ImmutableHashSet<RoadSegmentId>.Empty;
         }
 
-        private RoadNode(RoadNodeId id, PointM geometry, ImmutableHashSet<RoadSegmentId> segments)
+        private RoadNode(RoadNodeId id, Point geometry, ImmutableHashSet<RoadSegmentId> segments)
         {
             Id = id;
             Geometry = geometry;

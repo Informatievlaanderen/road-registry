@@ -19,24 +19,7 @@ namespace RoadRegistry.Model
             RuleFor(c => c.EndNodeId)
                 .GreaterThanOrEqualTo(0)
                 .NotEqual(c => c.StartNodeId);
-            RuleFor(c => c.Geometry)
-                .NotNull()
-                .Must(data => {
-                    var acceptable = false;
-                    if(data != null)
-                    {
-                        try
-                        {
-                            acceptable = reader.TryReadAs<MultiLineString>(data, out _);
-                        }
-                        catch
-                        {
-                            acceptable = false;
-                        }
-                    }
-                    return acceptable;
-                })
-                .WithMessage("The 'Geometry' is not a MultiLineString.");
+            RuleFor(c => c.Geometry2).NotNull().SetValidator(new RoadSegmentGeometryValidator());
             RuleFor(c => c.MaintenanceAuthority).NotEmpty();
             RuleFor(c => c.GeometryDrawMethod)
                 .NotEmpty()
