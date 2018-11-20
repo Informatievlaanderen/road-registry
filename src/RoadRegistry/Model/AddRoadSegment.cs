@@ -78,7 +78,7 @@ namespace RoadRegistry.Model
                     Id = Id,
                     StartNodeId = StartNode,
                     EndNodeId = EndNode,
-                    Geometry2 = GeometryTranslator.Translate(Geometry),
+                    Geometry = GeometryTranslator.Translate(Geometry),
                     MaintenanceAuthority = new MaintenanceAuthority
                     {
                         Code = MaintenanceAuthority

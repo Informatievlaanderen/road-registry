@@ -322,7 +322,7 @@ namespace RoadRegistry.Projections.Tests
                         {
                             Id = fixture.Create<RoadNodeId>(),
                             Type = fixture.Create<RoadNodeType>(),
-                            Geometry2 = GeometryTranslator.Translate(fixture.Create<PointM>()),
+                            Geometry = GeometryTranslator.Translate(fixture.Create<PointM>()),
                             Origin = fixture.Create<OriginProperties>()
                         }
                     )
@@ -466,7 +466,7 @@ namespace RoadRegistry.Projections.Tests
                             Version = fixture.Create<int>(),
                             StartNodeId = fixture.Create<RoadNodeId>(),
                             EndNodeId = fixture.Create<RoadNodeId>(),
-                            Geometry2 = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
+                            Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
                             GeometryVersion = fixture.Create<GeometryVersion>(),
                             MaintenanceAuthority = new MaintenanceAuthority
                             {

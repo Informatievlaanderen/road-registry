@@ -29,7 +29,7 @@ namespace RoadRegistry.Model
                         {
                             Id = 1,
                             Type = RoadNodeType.FakeNode,
-                            Geometry2 = geometry
+                            Geometry = geometry
                         }
                     }
                 ))
@@ -43,7 +43,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = RoadNodeType.FakeNode,
-                                Geometry2 = geometry
+                                Geometry = geometry
                             }
                         }
                     }
@@ -59,14 +59,14 @@ namespace RoadRegistry.Model
             {
                 Id = 1,
                 Type = RoadNodeType.FakeNode,
-                Geometry2 = geometry1
+                Geometry = geometry1
             };
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new ImportedRoadNode
                 {
                     Id = 1,
                     Type = RoadNodeType.RealNode,
-                    Geometry2 = geometry2
+                    Geometry = geometry2
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(new RequestedChange
                     {
@@ -102,7 +102,7 @@ namespace RoadRegistry.Model
             {
                 Id = 1,
                 Type = RoadNodeType.FakeNode,
-                Geometry2 = geometry1
+                Geometry = geometry1
             };
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
@@ -115,7 +115,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = RoadNodeType.RealNode,
-                                Geometry2 = geometry2
+                                Geometry = geometry2
                             }
                         }
                     }
@@ -155,7 +155,7 @@ namespace RoadRegistry.Model
             {
                 Id = 2,
                 Type = RoadNodeType.FakeNode,
-                Geometry2 = geometry
+                Geometry = geometry
             };
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
@@ -168,7 +168,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = RoadNodeType.RealNode,
-                                Geometry2 = geometry
+                                Geometry = geometry
                             }
                         }
                     }
@@ -221,7 +221,7 @@ namespace RoadRegistry.Model
                         {
                             Id = 1,
                             Type = RoadNodeType.FakeNode,
-                            Geometry2 = geometry1
+                            Geometry = geometry1
                         }
                     },
                     new RequestedChange
@@ -230,7 +230,7 @@ namespace RoadRegistry.Model
                         {
                             Id = 2,
                             Type = RoadNodeType.FakeNode,
-                            Geometry2 = geometry2
+                            Geometry = geometry2
                         }
                     }
                 ))
@@ -244,7 +244,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = RoadNodeType.FakeNode,
-                                Geometry2 = geometry1
+                                Geometry = geometry1
                             }
                         },
                         new AcceptedChange
@@ -253,7 +253,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 2,
                                 Type = RoadNodeType.FakeNode,
-                                Geometry2 = geometry2
+                                Geometry = geometry2
                             }
                         }
                     }
@@ -274,7 +274,7 @@ namespace RoadRegistry.Model
             {
                 Id = 2,
                 Type = RoadNodeType.FakeNode,
-                Geometry2 = GeometryTranslator.Translate(geometry2)
+                Geometry = GeometryTranslator.Translate(geometry2)
             };
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
@@ -287,7 +287,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = RoadNodeType.RealNode,
-                                Geometry2 = GeometryTranslator.Translate(geometry1)
+                                Geometry = GeometryTranslator.Translate(geometry1)
                             }
                         }
                     }

@@ -8,9 +8,7 @@ namespace RoadRegistry.Messages
         public int Version { get; set; }
         public int StartNodeId { get; set; }
         public int EndNodeId { get; set; }
-        [Obsolete("Please use Geometry2 instead.")]
-        public byte[] Geometry { get; set; }
-        public RoadSegmentGeometry Geometry2 { get; set; }
+        public RoadSegmentGeometry Geometry { get; set; }
         public int GeometryVersion { get; set; }
         public MaintenanceAuthority MaintenanceAuthority { get; set; }
         public string GeometryDrawMethod { get; set; }

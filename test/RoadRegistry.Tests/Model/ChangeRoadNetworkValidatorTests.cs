@@ -85,7 +85,7 @@ namespace RoadRegistry.Model
                         {
                             Id = Fixture.Create<RoadNodeId>(),
                             Type = Fixture.Create<RoadNodeType>(),
-                            Geometry2 = GeometryTranslator.Translate(Fixture.Create<PointM>())
+                            Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>())
                         }
                     )
             );
@@ -97,7 +97,7 @@ namespace RoadRegistry.Model
                             Id = Fixture.Create<RoadSegmentId>(),
                             StartNodeId = Fixture.Create<RoadNodeId>(),
                             EndNodeId = Fixture.Create<RoadNodeId>(),
-                            Geometry2 = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
+                            Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
                             MaintenanceAuthority = Fixture.Create<string>(),
                             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                             Morphology = Fixture.Create<RoadSegmentMorphology>(),

@@ -121,13 +121,13 @@ namespace RoadRegistry.Model
         [Fact]
         public void GeometryMustNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Geometry2, (RoadSegmentGeometry)null);
+            Validator.ShouldHaveValidationErrorFor(c => c.Geometry, (RoadSegmentGeometry)null);
         }
 
         [Fact]
         public void GeometryHasExpectedValidator()
         {
-            Validator.ShouldHaveChildValidator(c => c.Geometry2, typeof(RoadSegmentGeometryValidator));
+            Validator.ShouldHaveChildValidator(c => c.Geometry, typeof(RoadSegmentGeometryValidator));
         }
 
         [Fact]
@@ -302,7 +302,7 @@ namespace RoadRegistry.Model
                 Id = Fixture.Create<RoadSegmentId>(),
                 StartNodeId = Fixture.Create<RoadNodeId>(),
                 EndNodeId = Fixture.Create<RoadNodeId>(),
-                Geometry2 = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
+                Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
                 MaintenanceAuthority = Fixture.Create<MaintenanceAuthorityId>(),
                 GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                 Morphology = Fixture.Create<RoadSegmentMorphology>(),

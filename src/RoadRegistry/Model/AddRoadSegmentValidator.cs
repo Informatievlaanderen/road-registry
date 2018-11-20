@@ -19,7 +19,7 @@ namespace RoadRegistry.Model
             RuleFor(c => c.EndNodeId)
                 .GreaterThanOrEqualTo(0)
                 .NotEqual(c => c.StartNodeId);
-            RuleFor(c => c.Geometry2).NotNull().SetValidator(new RoadSegmentGeometryValidator());
+            RuleFor(c => c.Geometry).NotNull().SetValidator(new RoadSegmentGeometryValidator());
             RuleFor(c => c.MaintenanceAuthority).NotEmpty();
             RuleFor(c => c.GeometryDrawMethod)
                 .NotEmpty()

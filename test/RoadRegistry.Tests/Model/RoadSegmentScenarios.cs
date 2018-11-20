@@ -115,7 +115,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 1,
                                 Type = RoadNodeType.FakeNode,
-                                Geometry2 = start
+                                Geometry = start
                             }
                         },
                         new RequestedChange
@@ -124,7 +124,7 @@ namespace RoadRegistry.Model
                             {
                                 Id = 2,
                                 Type = RoadNodeType.FakeNode,
-                                Geometry2 = end
+                                Geometry = end
                             }
                         },
                         new RequestedChange
@@ -134,7 +134,7 @@ namespace RoadRegistry.Model
                                 Id = 1,
                                 StartNodeId = 1,
                                 EndNodeId = 2,
-                                Geometry2 = line,
+                                Geometry = line,
                                 MaintenanceAuthority = maintainer,
                                 GeometryDrawMethod = geometryDrawMethod,
                                 Morphology = morphology,
@@ -162,7 +162,7 @@ namespace RoadRegistry.Model
                                 {
                                     Id = 1,
                                     Type = RoadNodeType.FakeNode,
-                                    Geometry2 = start
+                                    Geometry = start
                                 }
                             },
                             new AcceptedChange
@@ -171,7 +171,7 @@ namespace RoadRegistry.Model
                                 {
                                     Id = 2,
                                     Type = RoadNodeType.FakeNode,
-                                    Geometry2 = end
+                                    Geometry = end
                                 }
                             },
                             new AcceptedChange
@@ -181,7 +181,7 @@ namespace RoadRegistry.Model
                                     Id = 1,
                                     StartNodeId = 1,
                                     EndNodeId = 2,
-                                    Geometry2 = line,
+                                    Geometry = line,
                                     MaintenanceAuthority = new MaintenanceAuthority
                                     {
                                         Code = maintainer,

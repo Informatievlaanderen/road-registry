@@ -1,15 +1,11 @@
 namespace RoadRegistry.Messages
 {
-    using System;
-
     public class AddRoadSegment
     {
         public int Id { get; set; }
         public int StartNodeId { get; set; }
         public int EndNodeId { get; set; }
-        [Obsolete("Please use Geometry2 instead.")]
-        public byte[] Geometry { get; set; }
-        public RoadSegmentGeometry Geometry2 { get; set; }
+        public RoadSegmentGeometry Geometry { get; set; }
         public string MaintenanceAuthority { get; set; }
         public string GeometryDrawMethod { get; set; }
         public string Morphology { get; set; }

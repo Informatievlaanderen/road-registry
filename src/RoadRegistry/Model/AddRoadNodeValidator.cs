@@ -12,7 +12,7 @@ namespace RoadRegistry.Model
                 .Must(RoadNodeType.CanParse)
                 .When(c => c.Type != null, ApplyConditionTo.CurrentValidator)
                 .WithMessage("The 'Type' is not a RoadNodeType.");
-            RuleFor(c => c.Geometry2).NotNull().SetValidator(new RoadNodeGeometryValidator());
+            RuleFor(c => c.Geometry).NotNull().SetValidator(new RoadNodeGeometryValidator());
         }
     }
 }

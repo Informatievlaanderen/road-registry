@@ -37,13 +37,13 @@ namespace RoadRegistry.Model
         [Fact]
         public void GeometryMustNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Geometry2, (Messages.RoadNodeGeometry)null);
+            Validator.ShouldHaveValidationErrorFor(c => c.Geometry, (Messages.RoadNodeGeometry)null);
         }
 
         [Fact]
         public void GeometryHasExpectedValidator()
         {
-            Validator.ShouldHaveChildValidator(c => c.Geometry2, typeof(RoadNodeGeometryValidator));
+            Validator.ShouldHaveChildValidator(c => c.Geometry, typeof(RoadNodeGeometryValidator));
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace RoadRegistry.Model
             {
                 Id = Fixture.Create<RoadNodeId>(),
                 Type = Fixture.Create<RoadNodeType>(),
-                Geometry2 = GeometryTranslator.Translate(Fixture.Create<PointM>())
+                Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>())
             };
 
             Validator.ValidateAndThrow(data);

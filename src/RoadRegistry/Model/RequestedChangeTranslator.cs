@@ -14,7 +14,7 @@
             (
                 id,
                 RoadNodeType.Parse(command.Type),
-                GeometryTranslator.Translate(command.Geometry2)
+                GeometryTranslator.Translate(command.Geometry)
             );
         }
 
@@ -23,7 +23,7 @@
             var id = new RoadSegmentId(command.Id);
             var startNode = new RoadNodeId(command.StartNodeId);
             var endNode = new RoadNodeId(command.EndNodeId);
-            var geometry = GeometryTranslator.Translate(command.Geometry2);
+            var geometry = GeometryTranslator.Translate(command.Geometry);
             var maintainer = new MaintenanceAuthorityId(command.MaintenanceAuthority);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
             var morphology = RoadSegmentMorphology.Parse(command.Morphology);

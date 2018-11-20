@@ -24,9 +24,9 @@ namespace RoadRegistry.Model
             {
                 var id = new RoadNodeId(e.Id);
                 var node = new RoadNode(id,
-                    new NetTopologySuite.Geometries.Point(e.Geometry2.Point.X, e.Geometry2.Point.Y)
+                    new NetTopologySuite.Geometries.Point(e.Geometry.Point.X, e.Geometry.Point.Y)
                     {
-                        SRID = e.Geometry2.SpatialReferenceSystemIdentifier
+                        SRID = e.Geometry.SpatialReferenceSystemIdentifier
                     });
                 _nodes = _nodes.Add(id, node);
             });
@@ -51,11 +51,11 @@ namespace RoadRegistry.Model
                         var id = new RoadNodeId(change.RoadNodeAdded.Id);
                         _nodes = _nodes.Add(id, new RoadNode(id,
                             new NetTopologySuite.Geometries.Point(
-                                change.RoadNodeAdded.Geometry2.Point.X,
-                                change.RoadNodeAdded.Geometry2.Point.Y
+                                change.RoadNodeAdded.Geometry.Point.X,
+                                change.RoadNodeAdded.Geometry.Point.Y
                             )
                             {
-                                SRID = change.RoadNodeAdded.Geometry2.SpatialReferenceSystemIdentifier
+                                SRID = change.RoadNodeAdded.Geometry.SpatialReferenceSystemIdentifier
                             }));
                     }
                 }

@@ -42,7 +42,7 @@ namespace RoadRegistry.Projections
                 LBLBGNORG = {Value = @event.Origin.Organization}
             };
 
-            var point = GeometryTranslator.Translate(@event.Geometry2);
+            var point = GeometryTranslator.Translate(@event.Geometry);
             var pointShapeContent = new PointShapeContent(new PointM(point.X, point.Y)
             {
                 SRID = point.SRID

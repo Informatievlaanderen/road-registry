@@ -65,7 +65,7 @@ namespace RoadRegistry.Projections.Tests
                 .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
                 .Select(importedRoadSegment =>
                 {
-                    var geometry = GeometryTranslator.Translate(importedRoadSegment.Geometry2);
+                    var geometry = GeometryTranslator.Translate(importedRoadSegment.Geometry);
                     var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
 
                     var expected = new RoadSegmentRecord

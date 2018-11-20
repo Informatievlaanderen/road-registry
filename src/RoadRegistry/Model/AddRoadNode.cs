@@ -26,7 +26,7 @@ namespace RoadRegistry.Model
                 {
                     Id = Id,
                     Type = Type.ToString(),
-                    Geometry2 = new Messages.RoadNodeGeometry
+                    Geometry = new Messages.RoadNodeGeometry
                     {
                         SpatialReferenceSystemIdentifier = Geometry.SRID,
                         Point = new Messages.Point
@@ -47,7 +47,7 @@ namespace RoadRegistry.Model
                 {
                     Id = Id,
                     Type = Type.ToString(),
-                    Geometry2 = GeometryTranslator.Translate(Geometry)
+                    Geometry = GeometryTranslator.Translate(Geometry)
                 },
                 Reasons = reasons.ToArray()
             };

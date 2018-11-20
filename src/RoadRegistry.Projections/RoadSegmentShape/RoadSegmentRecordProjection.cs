@@ -32,7 +32,7 @@ namespace RoadRegistry.Projections
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
         {
-            var geometry = GeometryTranslator.Translate(@event.Geometry2);
+            var geometry = GeometryTranslator.Translate(@event.Geometry);
             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
             var statusTranslation = RoadSegmentStatus.Parse(@event.Status).Translation;
             var morphologyTranslation = RoadSegmentMorphology.Parse(@event.Morphology).Translation;
