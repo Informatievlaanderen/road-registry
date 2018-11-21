@@ -182,10 +182,11 @@ namespace RoadRegistry.Model
                                     StartNodeId = 1,
                                     EndNodeId = 2,
                                     Geometry = line,
+                                    GeometryVersion = 0,
                                     MaintenanceAuthority = new MaintenanceAuthority
                                     {
                                         Code = maintainer,
-                                        Name = maintainer
+                                        Name = null
                                     },
                                     GeometryDrawMethod = geometryDrawMethod,
                                     Morphology = morphology,
@@ -253,10 +254,7 @@ namespace RoadRegistry.Model
                                             ToPosition = surface.ToPosition,
                                             AsOfGeometryVersion = 1
                                         }),
-                                    Version = 1,
-                                    GeometryVersion = 0,
-                                    RecordingDate = DateTime.Now,
-                                    Origin = null
+                                    Version = 0
                                 }
                             }
                         }

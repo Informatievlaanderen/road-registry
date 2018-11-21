@@ -1,7 +1,5 @@
 namespace RoadRegistry.Messages
 {
-    using System;
-
     public class RoadSegmentAdded
     {
         public int Id { get; set; }
@@ -24,7 +22,5 @@ namespace RoadRegistry.Messages
         public RoadSegmentLaneAttributes[] Lanes { get; set; }
         public RoadSegmentWidthAttributes[] Widths { get; set; }
         public RoadSegmentSurfaceAttributes[] Surfaces { get; set; }
-        public DateTime RecordingDate { get; set; }
-        public OriginProperties Origin { get; set; }
     }
 }

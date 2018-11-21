@@ -43,7 +43,7 @@ namespace RoadRegistry.Model
                         new PointSequence(
                             Array.ConvertAll(
                                 line.Points,
-                                point => new PointM(point.X, point.M, 0.0, point.M)
+                                point => new PointM(point.X, point.Y, double.NaN, point.M)
                                 {
                                     SRID = geometry.SpatialReferenceSystemIdentifier
                                 })),
@@ -51,30 +51,35 @@ namespace RoadRegistry.Model
 
                     {
                         SRID = geometry.SpatialReferenceSystemIdentifier
-                    }));
+                    }),
+                GeometryConfiguration.GeometryFactory);
         }
 
         public static Messages.RoadSegmentGeometry Translate(NetTopologySuite.Geometries.MultiLineString geometry)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
-            var multiLineString = Array.ConvertAll(
-                geometry.Geometries.Cast<NetTopologySuite.Geometries.LineString>().ToArray(),
-                input => new Messages.LineString
-                {
-                    Points = Array.ConvertAll(
-                        input.Coordinates,
-                        coordinate => new Messages.PointWithM
-                        {
-                            X = coordinate.X,
-                            Y = coordinate.Y
-                        })
-                });
-            var points = multiLineString.SelectMany(line => line.Points).ToArray();
-            var measures = geometry.GetOrdinates(Ordinate.M);
-            for (var index = 0; index < points.Length && index < measures.Length; index++)
+            var multiLineString = new Messages.LineString[geometry.NumGeometries];
+            var lineIndex = 0;
+            foreach (var fromLineString in geometry.Geometries.OfType<NetTopologySuite.Geometries.LineString>())
             {
-                points[index].M = measures[index];
+                var toLineString = new Messages.LineString
+                {
+                    Points = new Messages.PointWithM[fromLineString.NumPoints]
+                };
+
+                for (var pointIndex = 0; pointIndex < fromLineString.NumPoints; pointIndex++)
+                {
+                    toLineString.Points[pointIndex] = new Messages.PointWithM
+                    {
+                        X = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.X),
+                        Y = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.Y),
+                        M = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.M)
+                    };
+                }
+
+                multiLineString[lineIndex] = toLineString;
+                lineIndex++;
             }
             return new Messages.RoadSegmentGeometry
             {
