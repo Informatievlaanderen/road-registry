@@ -73,9 +73,9 @@ namespace RoadRegistry.Projections.Migrations
                     RoadSegmentEuropeanRoadAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
                     RoadSegmentNumberedRoadAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
                     RoadSegmentNationalRoadAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
-                    RoadSegmentDynamicLaneAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
-                    RoadSegmentDynamicWidthAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
-                    RoadSegmentDynamicHardeningAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    RoadSegmentLaneAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    RoadSegmentWidthAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
+                    RoadSegmentSurfaceAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
                     ReferencePointCount = table.Column<int>(nullable: false, defaultValue: 0),
                     TotalReferencePointShapeLength = table.Column<int>(nullable: false),
                     GradeSeparatedJunctionCount = table.Column<int>(nullable: false, defaultValue: 0)

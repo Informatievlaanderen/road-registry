@@ -12,9 +12,9 @@
         public int RoadSegmentEuropeanRoadAttributeCount { get; set; }
         public int RoadSegmentNumberedRoadAttributeCount { get; set; }
         public int RoadSegmentNationalRoadAttributeCount { get; set; }
-        public int RoadSegmentDynamicLaneAttributeCount { get; set; }
-        public int RoadSegmentDynamicWidthAttributeCount { get; set; }
-        public int RoadSegmentDynamicHardeningAttributeCount { get; set; }
+        public int RoadSegmentLaneAttributeCount { get; set; }
+        public int RoadSegmentWidthAttributeCount { get; set; }
+        public int RoadSegmentSurfaceAttributeCount { get; set; }
         public int ReferencePointCount { get; set; }
         public int TotalReferencePointShapeLength { get; set; }
         public int GradeSeparatedJunctionCount { get; set; }

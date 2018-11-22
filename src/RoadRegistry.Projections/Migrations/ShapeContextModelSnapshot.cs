@@ -93,19 +93,11 @@ namespace RoadRegistry.Projections.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
 
-                    b.Property<int>("RoadSegmentDynamicHardeningAttributeCount")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(0);
-
-                    b.Property<int>("RoadSegmentDynamicLaneAttributeCount")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(0);
-
-                    b.Property<int>("RoadSegmentDynamicWidthAttributeCount")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(0);
-
                     b.Property<int>("RoadSegmentEuropeanRoadAttributeCount")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("RoadSegmentLaneAttributeCount")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
 
@@ -114,6 +106,14 @@ namespace RoadRegistry.Projections.Migrations
                         .HasDefaultValue(0);
 
                     b.Property<int>("RoadSegmentNumberedRoadAttributeCount")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("RoadSegmentSurfaceAttributeCount")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("RoadSegmentWidthAttributeCount")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
 

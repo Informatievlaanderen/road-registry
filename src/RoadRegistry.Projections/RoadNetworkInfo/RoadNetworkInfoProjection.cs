@@ -54,9 +54,9 @@
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32();
-                info.RoadSegmentDynamicHardeningAttributeCount += envelope.Message.Surfaces.Length;
-                info.RoadSegmentDynamicLaneAttributeCount += envelope.Message.Lanes.Length;
-                info.RoadSegmentDynamicWidthAttributeCount += envelope.Message.Widths.Length;
+                info.RoadSegmentSurfaceAttributeCount += envelope.Message.Surfaces.Length;
+                info.RoadSegmentLaneAttributeCount += envelope.Message.Lanes.Length;
+                info.RoadSegmentWidthAttributeCount += envelope.Message.Widths.Length;
                 info.RoadSegmentEuropeanRoadAttributeCount += envelope.Message.PartOfEuropeanRoads.Length;
                 info.RoadSegmentNationalRoadAttributeCount += envelope.Message.PartOfNationalRoads.Length;
                 info.RoadSegmentNumberedRoadAttributeCount += envelope.Message.PartOfNumberedRoads.Length;
