@@ -2,16 +2,14 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
-    using GeoAPI.Geometries;
-    using Messages;
     using NetTopologySuite.Geometries;
 
     public class AddRoadSegment : IRequestedChange
     {
         public AddRoadSegment(
             RoadSegmentId id,
+            RoadSegmentId temporaryId,
             RoadNodeId startNode,
             RoadNodeId endNode,
             MultiLineString geometry,
@@ -31,6 +29,7 @@ namespace RoadRegistry.Model
             IReadOnlyCollection<RoadSegmentSurfaceAttribute> surfaces)
         {
             Id = id;
+            TemporaryId = temporaryId;
             StartNode = startNode;
             EndNode = endNode;
             Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
@@ -51,6 +50,7 @@ namespace RoadRegistry.Model
         }
 
         public RoadSegmentId Id { get; }
+        public RoadSegmentId TemporaryId { get; }
         public RoadNodeId StartNode { get; }
         public RoadNodeId EndNode { get; }
         public MultiLineString Geometry { get; }
@@ -69,17 +69,18 @@ namespace RoadRegistry.Model
         public IReadOnlyCollection<RoadSegmentWidthAttribute> Widths { get; }
         public IReadOnlyCollection<RoadSegmentSurfaceAttribute> Surfaces { get; }
 
-        public AcceptedChange Accept()
+        public Messages.AcceptedChange Accept()
         {
-            return new AcceptedChange
+            return new Messages.AcceptedChange
             {
-                RoadSegmentAdded = new RoadSegmentAdded
+                RoadSegmentAdded = new Messages.RoadSegmentAdded
                 {
                     Id = Id,
+                    TemporaryId = TemporaryId,
                     StartNodeId = StartNode,
                     EndNodeId = EndNode,
                     Geometry = GeometryTranslator.Translate(Geometry),
-                    MaintenanceAuthority = new MaintenanceAuthority
+                    MaintenanceAuthority = new Messages.MaintenanceAuthority
                     {
                         Code = MaintenanceAuthority
                     },
@@ -88,30 +89,30 @@ namespace RoadRegistry.Model
                     Status = Status,
                     Category = Category,
                     AccessRestriction = AccessRestriction,
-                    LeftSide = new RoadSegmentSideAttributes
+                    LeftSide = new Messages.RoadSegmentSideAttributes
                     {
                         StreetNameId = LeftSideStreetNameId.GetValueOrDefault()
                     },
-                    RightSide = new RoadSegmentSideAttributes
+                    RightSide = new Messages.RoadSegmentSideAttributes
                     {
                         StreetNameId = RightSideStreetNameId.GetValueOrDefault()
                     },
                     PartOfEuropeanRoads = PartOfEuropeanRoads
-                        .Select(item => new RoadSegmentEuropeanRoadAttributes
+                        .Select(item => new Messages.RoadSegmentEuropeanRoadAttributes
                         {
                             AttributeId = 1,
                             RoadNumber = item
                         })
                         .ToArray(),
                     PartOfNationalRoads = PartOfNationalRoads
-                        .Select(item => new RoadSegmentNationalRoadAttributes
+                        .Select(item => new Messages.RoadSegmentNationalRoadAttributes
                         {
                             AttributeId = 1,
                             Ident2 = item
                         })
                         .ToArray(),
                     PartOfNumberedRoads = PartOfNumberedRoads
-                        .Select(item => new RoadSegmentNumberedRoadAttributes
+                        .Select(item => new Messages.RoadSegmentNumberedRoadAttributes
                         {
                             AttributeId = 1,
                             Direction = item.Direction,
@@ -151,6 +152,74 @@ namespace RoadRegistry.Model
                         })
                         .ToArray()
                 }
+            };
+        }
+
+        public Messages.RejectedChange Reject(IEnumerable<Messages.Reason> reasons)
+        {
+            return new Messages.RejectedChange
+            {
+                AddRoadSegment = new Messages.AddRoadSegment
+                {
+                    TemporaryId = TemporaryId,
+                    StartNodeId = StartNode,
+                    EndNodeId = EndNode,
+                    Geometry = GeometryTranslator.Translate(Geometry),
+                    MaintenanceAuthority = MaintenanceAuthority,
+                    GeometryDrawMethod = GeometryDrawMethod,
+                    Morphology = Morphology,
+                    Status = Status,
+                    Category = Category,
+                    AccessRestriction = AccessRestriction,
+                    LeftSideStreetNameId = LeftSideStreetNameId.GetValueOrDefault(),
+                    RightSideStreetNameId = RightSideStreetNameId.GetValueOrDefault(),
+                    PartOfEuropeanRoads = PartOfEuropeanRoads
+                        .Select(item => new Messages.RequestedRoadSegmentEuropeanRoadAttributes
+                        {
+                            RoadNumber = item
+                        })
+                        .ToArray(),
+                    PartOfNationalRoads = PartOfNationalRoads
+                        .Select(item => new Messages.RequestedRoadSegmentNationalRoadAttributes
+                        {
+                            Ident2 = item
+                        })
+                        .ToArray(),
+                    PartOfNumberedRoads = PartOfNumberedRoads
+                        .Select(item => new Messages.RequestedRoadSegmentNumberedRoadAttributes
+                        {
+                            Direction = item.Direction,
+                            Ident8 = item.Number,
+                            Ordinal = item.Ordinal
+                        })
+                        .ToArray(),
+                    Lanes = Lanes
+                        .Select(item => new Messages.RequestedRoadSegmentLaneAttributes
+                        {
+                            Count = item.Count,
+                            Direction = item.Direction,
+                            FromPosition = item.From,
+                            ToPosition = item.To
+                        })
+                        .ToArray(),
+                    Widths = Widths
+                        .Select(item => new Messages.RequestedRoadSegmentWidthAttributes
+                        {
+                            Width = item.Width,
+                            FromPosition = item.From,
+                            ToPosition = item.To
+                        })
+                        .ToArray(),
+                    Surfaces = Surfaces
+                        .Select(item => new Messages.RequestedRoadSegmentSurfaceAttributes
+                        {
+                            Type = item.Type,
+                            FromPosition = item.From,
+                            ToPosition = item.To
+                        })
+                        .ToArray()
+                },
+                Reasons = reasons.ToArray()
             };
         }
     }

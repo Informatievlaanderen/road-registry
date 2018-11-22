@@ -2,7 +2,7 @@ namespace RoadRegistry.Messages
 {
     public class AddRoadSegment
     {
-        public int Id { get; set; }
+        public int TemporaryId { get; set; }
         public int StartNodeId { get; set; }
         public int EndNodeId { get; set; }
         public RoadSegmentGeometry Geometry { get; set; }

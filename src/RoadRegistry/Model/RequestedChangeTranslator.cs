@@ -1,28 +1,61 @@
 ﻿namespace RoadRegistry.Model
 {
     using System;
+    using System.Collections.Generic;
     using Aiv.Vbr.Shaperon;
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
 
-    internal static class RequestedChangeTranslator
+    internal class RequestedChangeTranslator
     {
-        public static IRequestedChange Translate(Messages.AddRoadNode command)
+        private readonly Dictionary<RoadNodeId, RoadNodeId> _temporaryToPermanentNodeIdMap;
+        //private readonly Dictionary<RoadSegmentId, RoadSegmentId> _temporaryToPermanentSegmentIdMap;
+        private readonly Func<RoadNodeId> _nextRoadNodeId;
+        private readonly Func<RoadSegmentId> _nextRoadSegmentId;
+
+        public RequestedChangeTranslator(Func<RoadNodeId> nextRoadNodeId, Func<RoadSegmentId> nextRoadSegmentId)
         {
-            var id = new RoadNodeId(command.Id);
+            _nextRoadNodeId = nextRoadNodeId ?? throw new ArgumentNullException(nameof(nextRoadNodeId));
+            _nextRoadSegmentId = nextRoadSegmentId ?? throw new ArgumentNullException(nameof(nextRoadSegmentId));
+            _temporaryToPermanentNodeIdMap = new Dictionary<RoadNodeId, RoadNodeId>();
+            //_temporaryToPermanentSegmentIdMap = new Dictionary<RoadSegmentId, RoadSegmentId>();
+        }
+
+        public IRequestedChange Translate(Messages.AddRoadNode command)
+        {
+            var id = _nextRoadNodeId();
+            var temporaryId = new RoadNodeId(command.TemporaryId);
+
+            _temporaryToPermanentNodeIdMap.Add(temporaryId, id);
+
             return new AddRoadNode
             (
                 id,
+                temporaryId,
                 RoadNodeType.Parse(command.Type),
                 GeometryTranslator.Translate(command.Geometry)
             );
         }
 
-        public static IRequestedChange Translate(Messages.AddRoadSegment command)
+        public IRequestedChange Translate(Messages.AddRoadSegment command)
         {
-            var id = new RoadSegmentId(command.Id);
+            var id = _nextRoadSegmentId();
+            var temporaryId = new RoadSegmentId(command.TemporaryId);
+
+            //_temporaryToPermanentSegmentIdMap.Add(temporaryId, id);
+
             var startNode = new RoadNodeId(command.StartNodeId);
+            if (_temporaryToPermanentNodeIdMap.TryGetValue(startNode, out var permanentStartNodeId))
+            {
+                startNode = permanentStartNodeId;
+            }
+
             var endNode = new RoadNodeId(command.EndNodeId);
+            if (_temporaryToPermanentNodeIdMap.TryGetValue(endNode, out var permanentEndNodeId))
+            {
+                endNode = permanentEndNodeId;
+            }
+
             var geometry = GeometryTranslator.Translate(command.Geometry);
             var maintainer = new MaintenanceAuthorityId(command.MaintenanceAuthority);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
@@ -80,9 +113,11 @@
                     new GeometryVersion(0)
                 )
             );
+
             return new AddRoadSegment
             (
                 id,
+                temporaryId,
                 startNode,
                 endNode,
                 geometry,

@@ -6,7 +6,7 @@ namespace RoadRegistry.Model
     {
         public AddRoadSegmentValidator()
         {
-            RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
+            RuleFor(c => c.TemporaryId).GreaterThanOrEqualTo(0);
             RuleFor(c => c.StartNodeId).GreaterThanOrEqualTo(0);
             RuleFor(c => c.EndNodeId)
                 .GreaterThanOrEqualTo(0)

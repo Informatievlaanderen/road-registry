@@ -14,11 +14,14 @@ namespace RoadRegistry.Model
         {
             Fixture.CustomizePointM();
             Fixture.CustomizePolylineM();
+
+            Fixture.CustomizeRoadNodeId();
         }
 
         [Fact]
         public Task when_adding_a_node_with_an_id_that_has_not_been_taken()
         {
+            var temporaryId = Fixture.Create<RoadNodeId>();
             var geometry = GeometryTranslator.Translate(Fixture.Create<PointM>());
             return Run(scenario => scenario
                 .GivenNone()
@@ -27,7 +30,7 @@ namespace RoadRegistry.Model
                     {
                         AddRoadNode = new Messages.AddRoadNode
                         {
-                            Id = 1,
+                            TemporaryId = temporaryId,
                             Type = RoadNodeType.FakeNode,
                             Geometry = geometry
                         }
@@ -42,6 +45,7 @@ namespace RoadRegistry.Model
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = 1,
+                                TemporaryId = temporaryId,
                                 Type = RoadNodeType.FakeNode,
                                 Geometry = geometry
                             }
@@ -51,109 +55,12 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public Task when_adding_a_node_with_an_id_taken_after_an_import()
-        {
-            var geometry1 = GeometryTranslator.Translate(Fixture.Create<PointM>());
-            var geometry2 = GeometryTranslator.Translate(Fixture.Create<PointM>());
-            var addRoadNode = new Messages.AddRoadNode
-            {
-                Id = 1,
-                Type = RoadNodeType.FakeNode,
-                Geometry = geometry1
-            };
-            return Run(scenario => scenario
-                .Given(RoadNetworks.Stream, new ImportedRoadNode
-                {
-                    Id = 1,
-                    Type = RoadNodeType.RealNode,
-                    Geometry = geometry2
-                })
-                .When(TheOperator.ChangesTheRoadNetwork(new RequestedChange
-                    {
-                        AddRoadNode = addRoadNode
-                    }))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-                {
-                    Changes = new[]
-                    {
-                        new RejectedChange
-                        {
-                            AddRoadNode = addRoadNode,
-                            Reasons = new []
-                            {
-                                new Reason
-                                {
-                                    Because = "RoadNodeIdTaken",
-                                    Parameters = new ReasonParameter[0]
-                                }
-                            }
-                        }
-                    }
-                })
-            );
-        }
-
-        [Fact]
-        public Task when_adding_a_node_with_an_id_taken_after_a_change()
-        {
-            var geometry1 = GeometryTranslator.Translate(Fixture.Create<PointM>());
-            var geometry2 = GeometryTranslator.Translate(Fixture.Create<PointM>());
-            var addRoadNode = new Messages.AddRoadNode
-            {
-                Id = 1,
-                Type = RoadNodeType.FakeNode,
-                Geometry = geometry1
-            };
-            return Run(scenario => scenario
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
-                {
-                    Changes = new[]
-                    {
-                        new AcceptedChange
-                        {
-                            RoadNodeAdded = new RoadNodeAdded
-                            {
-                                Id = 1,
-                                Type = RoadNodeType.RealNode,
-                                Geometry = geometry2
-                            }
-                        }
-                    }
-                })
-                .When(TheOperator.ChangesTheRoadNetwork(
-                    new RequestedChange
-                    {
-                        AddRoadNode = addRoadNode
-                    }
-                ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-                {
-                    Changes = new[]
-                    {
-                        new RejectedChange
-                        {
-                            AddRoadNode = addRoadNode,
-                            Reasons = new []
-                            {
-                                new Reason
-                                {
-                                    Because = "RoadNodeIdTaken",
-                                    Parameters = new ReasonParameter[0]
-                                }
-                            }
-                        }
-                    }
-                })
-            );
-        }
-
-        [Fact]
         public Task when_adding_a_node_with_a_geometry_that_has_been_taken()
         {
             var geometry = GeometryTranslator.Translate(Fixture.Create<PointM>());
             var addRoadNode = new Messages.AddRoadNode
             {
-                Id = 2,
+                TemporaryId = Fixture.Create<RoadNodeId>(),
                 Type = RoadNodeType.FakeNode,
                 Geometry = geometry
             };
@@ -167,6 +74,7 @@ namespace RoadRegistry.Model
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = 1,
+                                TemporaryId = Fixture.Create<RoadNodeId>(),
                                 Type = RoadNodeType.RealNode,
                                 Geometry = geometry
                             }
@@ -210,6 +118,8 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_multiple_nodes_with_an_id_that_has_not_been_taken()
         {
+            var temporaryId1 = Fixture.Create<RoadNodeId>();
+            var temporaryId2 = Fixture.Create<RoadNodeId>();
             var geometry1 = GeometryTranslator.Translate(Fixture.Create<PointM>());
             var geometry2 = GeometryTranslator.Translate(Fixture.Create<PointM>());
             return Run(scenario => scenario
@@ -219,7 +129,7 @@ namespace RoadRegistry.Model
                     {
                         AddRoadNode = new Messages.AddRoadNode
                         {
-                            Id = 1,
+                            TemporaryId = temporaryId1,
                             Type = RoadNodeType.FakeNode,
                             Geometry = geometry1
                         }
@@ -228,7 +138,7 @@ namespace RoadRegistry.Model
                     {
                         AddRoadNode = new Messages.AddRoadNode
                         {
-                            Id = 2,
+                            TemporaryId = temporaryId2,
                             Type = RoadNodeType.FakeNode,
                             Geometry = geometry2
                         }
@@ -243,6 +153,7 @@ namespace RoadRegistry.Model
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = 1,
+                                TemporaryId = temporaryId1,
                                 Type = RoadNodeType.FakeNode,
                                 Geometry = geometry1
                             }
@@ -252,6 +163,7 @@ namespace RoadRegistry.Model
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = 2,
+                                TemporaryId = temporaryId2,
                                 Type = RoadNodeType.FakeNode,
                                 Geometry = geometry2
                             }
@@ -272,7 +184,7 @@ namespace RoadRegistry.Model
             );
             var addRoadNode = new Messages.AddRoadNode
             {
-                Id = 2,
+                TemporaryId = Fixture.Create<RoadNodeId>(),
                 Type = RoadNodeType.FakeNode,
                 Geometry = GeometryTranslator.Translate(geometry2)
             };
@@ -286,6 +198,7 @@ namespace RoadRegistry.Model
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = 1,
+                                TemporaryId = Fixture.Create<RoadNodeId>(),
                                 Type = RoadNodeType.RealNode,
                                 Geometry = GeometryTranslator.Translate(geometry1)
                             }

@@ -83,7 +83,7 @@ namespace RoadRegistry.Model
                     composer.FromFactory(random =>
                         new Messages.AddRoadNode
                         {
-                            Id = Fixture.Create<RoadNodeId>(),
+                            TemporaryId = Fixture.Create<RoadNodeId>(),
                             Type = Fixture.Create<RoadNodeType>(),
                             Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>())
                         }
@@ -94,7 +94,7 @@ namespace RoadRegistry.Model
                     composer.FromFactory(random =>
                         new Messages.AddRoadSegment
                         {
-                            Id = Fixture.Create<RoadSegmentId>(),
+                            TemporaryId = Fixture.Create<RoadSegmentId>(),
                             StartNodeId = Fixture.Create<RoadNodeId>(),
                             EndNodeId = Fixture.Create<RoadNodeId>(),
                             Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),

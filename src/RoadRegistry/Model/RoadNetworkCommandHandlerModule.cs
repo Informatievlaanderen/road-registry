@@ -19,6 +19,11 @@ namespace RoadRegistry.Model
                 .Handle(async (context, message, ct) =>
                 {
                     var network = await context.RoadNetworks.Get(ct);
+                    var translator = new RequestedChangeTranslator(
+                        network.ProvidesNextRoadNodeId(),
+                        network.ProvidesNextRoadSegmentId()
+                    );
+                    //var changes = translator.Translate(message.Body.Changes); this way we can control the order
                     var changes = Array.ConvertAll(
                         message.Body.Changes,
                         item =>
@@ -27,10 +32,10 @@ namespace RoadRegistry.Model
                             switch (item.PickChange())
                             {
                                 case Messages.AddRoadNode command:
-                                    change = RequestedChangeTranslator.Translate(command);
+                                    change = translator.Translate(command);
                                     break;
                                 case Messages.AddRoadSegment command:
-                                    change = RequestedChangeTranslator.Translate(command);
+                                    change = translator.Translate(command);
                                     break;
                                 default:
                                     throw new InvalidOperationException("...");

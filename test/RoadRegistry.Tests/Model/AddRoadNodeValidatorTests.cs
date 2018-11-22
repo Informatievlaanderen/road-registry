@@ -23,9 +23,9 @@ namespace RoadRegistry.Model
         [Theory]
         [InlineData(int.MinValue)]
         [InlineData(-1)]
-        public void IdMustBeGreaterThan(int value)
+        public void TemporaryIdMustBeGreaterThan(int value)
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Id, value);
+            Validator.ShouldHaveValidationErrorFor(c => c.TemporaryId, value);
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace RoadRegistry.Model
 
             var data = new Messages.AddRoadNode
             {
-                Id = Fixture.Create<RoadNodeId>(),
+                TemporaryId = Fixture.Create<RoadNodeId>(),
                 Type = Fixture.Create<RoadNodeType>(),
                 Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>())
             };

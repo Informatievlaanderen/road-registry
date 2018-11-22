@@ -14,6 +14,21 @@ namespace RoadRegistry.Model
             _value = value;
         }
 
+        public RoadSegmentId Next()
+        {
+            if (_value == int.MaxValue)
+            {
+                throw new NotSupportedException(
+                    "There is no next road segment identifier because the maximum of the integer data type has been reached.");
+            }
+            return new RoadSegmentId(_value + 1);
+        }
+
+        public static RoadSegmentId Max(RoadSegmentId left, RoadSegmentId right) =>
+            new RoadSegmentId(Math.Max(left._value, right._value));
+        public static RoadSegmentId Min(RoadSegmentId left, RoadSegmentId right) =>
+            new RoadSegmentId(Math.Min(left._value, right._value));
+
         public int ToInt32() => _value;
         public bool Equals(RoadSegmentId other) => _value == other._value;
         public override bool Equals(object other) => other is RoadSegmentId id && Equals(id);

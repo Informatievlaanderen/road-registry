@@ -84,6 +84,9 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_segment_with_an_id_that_has_not_been_taken()
         {
+            var temporaryId1 = Fixture.Create<RoadNodeId>();
+            var temporaryId2 = Fixture.Create<RoadNodeId>();
+            var temporaryId3 = Fixture.Create<RoadSegmentId>();
             var start = GeometryTranslator.Translate(Fixture.Create<PointM>());
             var end = GeometryTranslator.Translate(Fixture.Create<PointM>());
             var line = GeometryTranslator.Translate(Fixture.Create<MultiLineString>());
@@ -113,7 +116,7 @@ namespace RoadRegistry.Model
                         {
                             AddRoadNode = new Messages.AddRoadNode
                             {
-                                Id = 1,
+                                TemporaryId = temporaryId1,
                                 Type = RoadNodeType.FakeNode,
                                 Geometry = start
                             }
@@ -122,7 +125,7 @@ namespace RoadRegistry.Model
                         {
                             AddRoadNode = new Messages.AddRoadNode
                             {
-                                Id = 2,
+                                TemporaryId = temporaryId2,
                                 Type = RoadNodeType.FakeNode,
                                 Geometry = end
                             }
@@ -131,9 +134,9 @@ namespace RoadRegistry.Model
                         {
                             AddRoadSegment = new Messages.AddRoadSegment
                             {
-                                Id = 1,
-                                StartNodeId = 1,
-                                EndNodeId = 2,
+                                TemporaryId = temporaryId3,
+                                StartNodeId = temporaryId1,
+                                EndNodeId = temporaryId2,
                                 Geometry = line,
                                 MaintenanceAuthority = maintainer,
                                 GeometryDrawMethod = geometryDrawMethod,
@@ -161,6 +164,7 @@ namespace RoadRegistry.Model
                                 RoadNodeAdded = new RoadNodeAdded
                                 {
                                     Id = 1,
+                                    TemporaryId = temporaryId1,
                                     Type = RoadNodeType.FakeNode,
                                     Geometry = start
                                 }
@@ -170,6 +174,7 @@ namespace RoadRegistry.Model
                                 RoadNodeAdded = new RoadNodeAdded
                                 {
                                     Id = 2,
+                                    TemporaryId = temporaryId2,
                                     Type = RoadNodeType.FakeNode,
                                     Geometry = end
                                 }
@@ -179,6 +184,7 @@ namespace RoadRegistry.Model
                                 RoadSegmentAdded = new RoadSegmentAdded
                                 {
                                     Id = 1,
+                                    TemporaryId = temporaryId3,
                                     StartNodeId = 1,
                                     EndNodeId = 2,
                                     Geometry = line,

@@ -6,7 +6,7 @@ namespace RoadRegistry.Model
     {
         public AddRoadNodeValidator()
         {
-            RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
+            RuleFor(c => c.TemporaryId).GreaterThanOrEqualTo(0);
             RuleFor(c => c.Type)
                 .NotEmpty()
                 .Must(RoadNodeType.CanParse)

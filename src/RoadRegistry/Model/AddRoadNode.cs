@@ -7,14 +7,16 @@ namespace RoadRegistry.Model
 
     public class AddRoadNode : IRequestedChange
     {
-        public AddRoadNode(RoadNodeId id, RoadNodeType type, Point geometry)
+        public AddRoadNode(RoadNodeId id, RoadNodeId temporaryId, RoadNodeType type, Point geometry)
         {
             Id = id;
+            TemporaryId = temporaryId;
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
         }
 
         public RoadNodeId Id { get; }
+        public RoadNodeId TemporaryId { get; }
         public RoadNodeType Type { get; }
         public Point Geometry { get; }
 
@@ -25,6 +27,7 @@ namespace RoadRegistry.Model
                 RoadNodeAdded = new Messages.RoadNodeAdded
                 {
                     Id = Id,
+                    TemporaryId = TemporaryId,
                     Type = Type.ToString(),
                     Geometry = new Messages.RoadNodeGeometry
                     {
@@ -45,7 +48,7 @@ namespace RoadRegistry.Model
             {
                 AddRoadNode = new Messages.AddRoadNode
                 {
-                    Id = Id,
+                    TemporaryId = TemporaryId,
                     Type = Type.ToString(),
                     Geometry = GeometryTranslator.Translate(Geometry)
                 },

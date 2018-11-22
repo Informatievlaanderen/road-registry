@@ -3,6 +3,7 @@ namespace RoadRegistry.Messages
     public class RoadSegmentAdded
     {
         public int Id { get; set; }
+        public int TemporaryId { get; set;  }
         public int Version { get; set; }
         public int StartNodeId { get; set; }
         public int EndNodeId { get; set; }
