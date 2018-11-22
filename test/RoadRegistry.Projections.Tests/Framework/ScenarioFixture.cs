@@ -14,20 +14,20 @@ namespace RoadRegistry.Projections
         public ScenarioFixture()
         {
             Customizations.Add(new IdentifierBuilder());
-            Customizations.Add(new LimitedLengthStringBuilder<OriginProperties>(p => p.OrganizationId, RoadNodeDbaseRecord.Schema.BEGINORG.Length));
-            Customizations.Add(new LimitedLengthStringBuilder<OriginProperties>(p => p.Organization, RoadNodeDbaseRecord.Schema.LBLBGNORG.Length));
-            Customizations.Add(new LimitedLengthStringBuilder<Maintainer>(segment => segment.Code, RoadSegmentDbaseRecord.Schema.BEHEER.Length));
-            Customizations.Add(new LimitedLengthStringBuilder<Maintainer>(segment => segment.Name, RoadSegmentDbaseRecord.Schema.LBLBEHEER.Length));
-            Customizations.Add(new LimitedLengthStringBuilder<ImportedReferencePoint>(point => point.Ident8, RoadReferencePointDbaseRecord.Schema.IDENT8.Length));
-            Customizations.Add(new LimitedLengthIntegerBuilder<RoadSegmentLaneProperties>(lane => lane.Count, RoadSegmentDynamicLaneAttributeDbaseRecord.Schema.AANTAL.Length));
-            Customizations.Add(new LimitedLengthIntegerBuilder<RoadSegmentWidthProperties>(width => width.Width, RoadSegmentDynamicWidthAttributeDbaseRecord.Schema.BREEDTE.Length));
-            Customizations.Add(new LimitedLengthStringBuilder<RoadSegmentEuropeanRoadProperties>(road => road.RoadNumber, RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema.EUNUMMER.Length));
-            Customizations.Add(new LimitedLengthStringBuilder<RoadSegmentNationalRoadProperties>(road => road.Ident2, RoadSegmentNationalRoadAttributeDbaseRecord.Schema.IDENT2.Length));
-            Customizations.Add(new LimitedLengthStringBuilder<RoadSegmentNumberedRoadProperties>(road => road.Ident8, RoadSegmentNumberedRoadAttributeDbaseRecord.Schema.IDENT8.Length));
-            Customizations.Add(new LimitedLengthStringBuilder<ImportedOrganization>(organization => organization.Code, OrganizationDbaseRecord.Schema.ORG.Length));
-            Customizations.Add(new LimitedLengthStringBuilder<ImportedOrganization>(organization => organization.Name, OrganizationDbaseRecord.Schema.LBLORG.Length));
+            Customizations.Add(new LimitedLengthStringBuilder<OriginProperties>(p => p.OrganizationId, RoadNodeDbaseRecord.Schema.BEGINORG.Length.ToInt32()));
+            Customizations.Add(new LimitedLengthStringBuilder<OriginProperties>(p => p.Organization, RoadNodeDbaseRecord.Schema.LBLBGNORG.Length.ToInt32()));
+            Customizations.Add(new LimitedLengthStringBuilder<Maintainer>(segment => segment.Code, RoadSegmentDbaseRecord.Schema.BEHEER.Length.ToInt32()));
+            Customizations.Add(new LimitedLengthStringBuilder<Maintainer>(segment => segment.Name, RoadSegmentDbaseRecord.Schema.LBLBEHEER.Length.ToInt32()));
+            Customizations.Add(new LimitedLengthStringBuilder<ImportedReferencePoint>(point => point.Ident8, RoadReferencePointDbaseRecord.Schema.IDENT8.Length.ToInt32()));
+            Customizations.Add(new LimitedLengthIntegerBuilder<RoadSegmentLaneProperties>(lane => lane.Count, RoadSegmentDynamicLaneAttributeDbaseRecord.Schema.AANTAL.Length.ToInt32()));
+            Customizations.Add(new LimitedLengthIntegerBuilder<RoadSegmentWidthProperties>(width => width.Width, RoadSegmentDynamicWidthAttributeDbaseRecord.Schema.BREEDTE.Length.ToInt32()));
+            Customizations.Add(new LimitedLengthStringBuilder<RoadSegmentEuropeanRoadProperties>(road => road.RoadNumber, RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema.EUNUMMER.Length.ToInt32()));
+            Customizations.Add(new LimitedLengthStringBuilder<RoadSegmentNationalRoadProperties>(road => road.Ident2, RoadSegmentNationalRoadAttributeDbaseRecord.Schema.IDENT2.Length.ToInt32()));
+            Customizations.Add(new LimitedLengthStringBuilder<RoadSegmentNumberedRoadProperties>(road => road.Ident8, RoadSegmentNumberedRoadAttributeDbaseRecord.Schema.IDENT8.Length.ToInt32()));
+            Customizations.Add(new LimitedLengthStringBuilder<ImportedOrganization>(organization => organization.Code, OrganizationDbaseRecord.Schema.ORG.Length.ToInt32()));
+            Customizations.Add(new LimitedLengthStringBuilder<ImportedOrganization>(organization => organization.Name, OrganizationDbaseRecord.Schema.LBLORG.Length.ToInt32()));
 
-            Customize<PointM>(customization => 
+            Customize<PointM>(customization =>
 			    customization.FromFactory(
                     generator => new PointM(
                         this.Create<double>(),
@@ -38,7 +38,7 @@ namespace RoadRegistry.Projections
                 ).OmitAutoProperties()
             );
 
-            Customize<ILineString>(customization => 
+            Customize<ILineString>(customization =>
 			    customization.FromFactory(
                     generator => new LineString(
                         new PointSequence(this.CreateMany<PointM>(generator.Next(2,10))),

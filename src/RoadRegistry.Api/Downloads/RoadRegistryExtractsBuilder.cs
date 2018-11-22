@@ -494,10 +494,14 @@ namespace RoadRegistry.Api.Downloads
                 new ShpFileName(fileName),
                 (stream, token) =>
                 {
-                    var totalShapeRecordsLength = shapeLengths.Sum(shapeLength => shapeLength + ShapeRecord.HeaderLength);
+                    var totalShapeRecordsLength = shapeLengths.Aggregate(
+                        new WordLength(0),
+                        (current, shapeLength) => 
+                            current.Plus(ShapeRecord.HeaderLength.Plus(new WordLength(shapeLength)))
+                    );
                     var shpFile = new ShpFileWriter(
                         new ShapeFileHeader(
-                            new WordLength(ShapeRecord.InitialOffset).Plus(new WordLength(totalShapeRecordsLength)),
+                            ShapeFileHeader.Length.Plus(totalShapeRecordsLength),
                             shapeType,
                             boundingBox
                         ),
@@ -541,7 +545,7 @@ namespace RoadRegistry.Api.Downloads
                 {
                     var shxFileWriter = new ShxFileWriter(
                         new ShapeFileHeader(
-                            new WordLength(ShapeRecord.InitialOffset).Plus(new WordLength(getRecordCount() * 4)),
+                            ShapeFileHeader.Length.Plus(new WordLength(getRecordCount() * 4)),
                             shapeType,
                             boundingBox
                         ),
