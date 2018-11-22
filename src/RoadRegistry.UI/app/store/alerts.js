@@ -11,6 +11,11 @@ export default {
     content: 'De server kon niet worden bereikt.',
     type: alertTypes.error,
   },
+  importWarning: {
+    title: 'Opgelet!',
+    content: 'Het wegenregister wordt momenteel geimporteerd. Downloaden en uploaden zijn nu niet mogelijk. Probeer het later opnieuw.',
+    type: alertTypes.warning,
+  },
   createDomainError(detail) {
     return {
       title: 'Er is een fout opgetreden',
@@ -35,6 +40,10 @@ export default {
         error.response.data &&
         error.response.data.detail) {
         return this.createDomainError(error.response.data.detail);
+      }
+      if (error.response.status === 503 &&
+        error.request.responseURL.endsWith('/v1/download')) {
+        return this.importWarning;
       }
       return this.serverError;
     } else if (error.request) {

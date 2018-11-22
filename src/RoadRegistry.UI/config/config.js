@@ -14,7 +14,7 @@ export default {
   projectRoot: projectRoot,
   indexTemplate: path.join(projectRoot, 'index.html'),
   entryPoint: {
-    publicService: path.join(projectRoot, 'app', 'main.js'),
+    roadRegistry: path.join(projectRoot, 'app', 'main.js'),
   },
 
   output: path.join(wwwRoot, '[name].[hash].js'),
