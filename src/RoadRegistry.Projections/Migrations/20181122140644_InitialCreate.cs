@@ -161,21 +161,6 @@ namespace RoadRegistry.Projections.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RoadSegmentSurfaceAttribute",
-                schema: "RoadRegistryShape",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false),
-                    RoadSegmentId = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RoadSegmentSurfaceAttribute", x => x.Id)
-                        .Annotation("SqlServer:Clustered", false);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "RoadSegmentLaneAttribute",
                 schema: "RoadRegistryShape",
                 columns: table => new
@@ -217,6 +202,21 @@ namespace RoadRegistry.Projections.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RoadSegmentNumberedRoadAttribute", x => x.Id)
+                        .Annotation("SqlServer:Clustered", false);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoadSegmentSurfaceAttribute",
+                schema: "RoadRegistryShape",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false),
+                    RoadSegmentId = table.Column<int>(nullable: false),
+                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoadSegmentSurfaceAttribute", x => x.Id)
                         .Annotation("SqlServer:Clustered", false);
                 });
 
@@ -285,10 +285,6 @@ namespace RoadRegistry.Projections.Migrations
                 schema: "RoadRegistryShape");
 
             migrationBuilder.DropTable(
-                name: "RoadSegmentSurfaceAttribute",
-                schema: "RoadRegistryShape");
-
-            migrationBuilder.DropTable(
                 name: "RoadSegmentLaneAttribute",
                 schema: "RoadRegistryShape");
 
@@ -298,6 +294,10 @@ namespace RoadRegistry.Projections.Migrations
 
             migrationBuilder.DropTable(
                 name: "RoadSegmentNumberedRoadAttribute",
+                schema: "RoadRegistryShape");
+
+            migrationBuilder.DropTable(
+                name: "RoadSegmentSurfaceAttribute",
                 schema: "RoadRegistryShape");
 
             migrationBuilder.DropTable(

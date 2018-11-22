@@ -10,7 +10,7 @@ using RoadRegistry.Projections;
 namespace RoadRegistry.Projections.Migrations
 {
     [DbContext(typeof(ShapeContext))]
-    [Migration("20181018172237_InitialCreate")]
+    [Migration("20181122140644_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -165,7 +165,7 @@ namespace RoadRegistry.Projections.Migrations
                     b.ToTable("RoadReferencePoint","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentSurfaceAttributeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentEuropeanRoadAttributeRecord", b =>
                 {
                     b.Property<int>("Id");
 
@@ -176,7 +176,7 @@ namespace RoadRegistry.Projections.Migrations
                     b.HasKey("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("RoadSegmentSurfaceAttribute","RoadRegistryShape");
+                    b.ToTable("RoadSegmentEuropeanRoadAttribute","RoadRegistryShape");
                 });
 
             modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentLaneAttributeRecord", b =>
@@ -191,34 +191,6 @@ namespace RoadRegistry.Projections.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("RoadSegmentLaneAttribute","RoadRegistryShape");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentWidthAttributeRecord", b =>
-                {
-                    b.Property<int>("Id");
-
-                    b.Property<byte[]>("DbaseRecord");
-
-                    b.Property<int>("RoadSegmentId");
-
-                    b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("RoadSegmentWidthAttribute","RoadRegistryShape");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentEuropeanRoadAttributeRecord", b =>
-                {
-                    b.Property<int>("Id");
-
-                    b.Property<byte[]>("DbaseRecord");
-
-                    b.Property<int>("RoadSegmentId");
-
-                    b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("RoadSegmentEuropeanRoadAttribute","RoadRegistryShape");
                 });
 
             modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentNationalRoadAttributeRecord", b =>
@@ -263,6 +235,34 @@ namespace RoadRegistry.Projections.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("RoadSegment","RoadRegistryShape");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentSurfaceAttributeRecord", b =>
+                {
+                    b.Property<int>("Id");
+
+                    b.Property<byte[]>("DbaseRecord");
+
+                    b.Property<int>("RoadSegmentId");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RoadSegmentSurfaceAttribute","RoadRegistryShape");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentWidthAttributeRecord", b =>
+                {
+                    b.Property<int>("Id");
+
+                    b.Property<byte[]>("DbaseRecord");
+
+                    b.Property<int>("RoadSegmentId");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RoadSegmentWidthAttribute","RoadRegistryShape");
                 });
 
             modelBuilder.Entity("RoadRegistry.Projections.RoadNodeRecord", b =>
