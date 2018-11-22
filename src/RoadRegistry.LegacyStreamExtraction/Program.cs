@@ -89,7 +89,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Type = Translate.ToRoadNodeType(reader.GetInt32(2)),
                             Geometry = new RoadNodeGeometry
                             {
-                                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
+                                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
                                 Point = new Point
                                 {
                                     X = geometry.X,
@@ -180,7 +180,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             EndNodeId = reader.GetInt32(3),
                             Geometry = new RoadSegmentGeometry
                             {
-                                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972,
+                                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
                                 MultiLineString = multiLineString
                             },
                             GeometryVersion = reader.GetInt32(5),

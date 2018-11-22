@@ -59,7 +59,7 @@ namespace RoadRegistry.Model
             Fixture.CustomizePolylineM();
 
             var data = GeometryTranslator.Translate(Fixture.Create<MultiLineString>());
-            data.SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972;
+            data.SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
 
             Validator.ValidateAndThrow(data);
         }

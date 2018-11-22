@@ -40,7 +40,7 @@ namespace RoadRegistry.Model
             Fixture.CustomizePointM();
 
             var data = GeometryTranslator.Translate(Fixture.Create<PointM>());
-            data.SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972;
+            data.SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
 
             Validator.ValidateAndThrow(data);
         }

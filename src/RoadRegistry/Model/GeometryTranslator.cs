@@ -17,6 +17,16 @@ namespace RoadRegistry.Model
             };
         }
 
+        public static PointM TranslateM(Messages.RoadNodeGeometry geometry)
+        {
+            if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+
+            return new PointM(geometry.Point.X, geometry.Point.Y)
+            {
+                SRID = geometry.SpatialReferenceSystemIdentifier
+            };
+        }
+
         public static Messages.RoadNodeGeometry Translate(NetTopologySuite.Geometries.Point geometry)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));

@@ -18,6 +18,41 @@ namespace RoadRegistry.Projections.Tests
         public RoadNetworkInfoProjectionTests()
         {
             _fixture = new Fixture();
+
+            _fixture.CustomizeRoadNodeType();
+            _fixture.CustomizePointM();
+            _fixture.CustomizeImportedRoadNode();
+
+            _fixture.CustomizeRoadSegmentId();
+            _fixture.CustomizeRoadNodeId();
+            _fixture.CustomizeMaintenanceAuthorityId();
+            _fixture.CustomizeMaintenanceAuthorityName();
+            _fixture.CustomizePolylineM();
+            _fixture.CustomizeEuropeanRoadNumber();
+            _fixture.CustomizeNationalRoadNumber();
+            _fixture.CustomizeNumberedRoadNumber();
+            _fixture.CustomizeRoadSegmentNumberedRoadDirection();
+            _fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
+            _fixture.CustomizeRoadSegmentLaneCount();
+            _fixture.CustomizeRoadSegmentLaneDirection();
+            _fixture.CustomizeRoadSegmentWidth();
+            _fixture.CustomizeRoadSegmentSurfaceType();
+            _fixture.CustomizeRoadSegmentGeometryDrawMethod();
+            _fixture.CustomizeRoadSegmentMorphology();
+            _fixture.CustomizeRoadSegmentStatus();
+            _fixture.CustomizeRoadSegmentCategory();
+            _fixture.CustomizeRoadSegmentAccessRestriction();
+            _fixture.CustomizeRoadSegmentGeometryVersion();
+
+            _fixture.CustomizeImportedRoadSegment();
+            _fixture.CustomizeImportedRoadSegmentEuropeanRoadAttributes();
+            _fixture.CustomizeImportedRoadSegmentNationalRoadAttributes();
+            _fixture.CustomizeImportedRoadSegmentNumberedRoadAttributes();
+            _fixture.CustomizeImportedRoadSegmentLaneAttributes();
+            _fixture.CustomizeImportedRoadSegmentWidthAttributes();
+            _fixture.CustomizeImportedRoadSegmentSurfaceAttributes();
+            _fixture.CustomizeImportedRoadSegmentSideAttributes();
+            _fixture.CustomizeOriginProperties();
         }
 
         [Fact]
@@ -104,8 +139,8 @@ namespace RoadRegistry.Projections.Tests
                     new BeganRoadNetworkImport(),
                     new ImportedOrganization
                     {
-                        Code = _fixture.Create<string>(),
-                        Name = _fixture.Create<string>()
+                        Code = _fixture.Create<MaintenanceAuthorityId>(),
+                        Name = _fixture.Create<MaintenanceAuthorityName>()
                     }
                 )
                 .Expect(
@@ -184,8 +219,8 @@ namespace RoadRegistry.Projections.Tests
                     {
                         Id = _fixture.Create<int>(),
                         Type = _fixture.Create<GradeSeparatedJunctionType>(),
-                        LowerRoadSegmentId = _fixture.Create<int>(),
-                        UpperRoadSegmentId = _fixture.Create<int>(),
+                        LowerRoadSegmentId = _fixture.Create<RoadSegmentId>(),
+                        UpperRoadSegmentId = _fixture.Create<RoadSegmentId>(),
                         Origin = _fixture.Create<OriginProperties>()
                     }
                 )
@@ -220,8 +255,8 @@ namespace RoadRegistry.Projections.Tests
                 {
                     Id = _fixture.Create<int>(),
                     Type = _fixture.Create<GradeSeparatedJunctionType>(),
-                    LowerRoadSegmentId = _fixture.Create<int>(),
-                    UpperRoadSegmentId = _fixture.Create<int>(),
+                    LowerRoadSegmentId = _fixture.Create<RoadSegmentId>(),
+                    UpperRoadSegmentId = _fixture.Create<RoadSegmentId>(),
                     Origin = _fixture.Create<OriginProperties>()
                 })
                 .Cast<object>()
@@ -359,7 +394,6 @@ namespace RoadRegistry.Projections.Tests
         [Fact]
         public Task When_a_road_node_was_imported()
         {
-            var writer = new WellKnownBinaryWriter();
             var geometry = _fixture.Create<PointM>();
             var reader = new WellKnownBinaryReader();
             return new RoadNetworkInfoProjection(reader)
@@ -370,7 +404,7 @@ namespace RoadRegistry.Projections.Tests
                     {
                         Id = _fixture.Create<int>(),
                         Type = _fixture.Create<RoadNodeType>(),
-                        Geometry = writer.Write(geometry),
+                        Geometry = GeometryTranslator.Translate(geometry),
                         Origin = _fixture.Create<OriginProperties>()
                     }
                 )
@@ -401,14 +435,13 @@ namespace RoadRegistry.Projections.Tests
         [Fact]
         public Task When_road_nodes_were_imported()
         {
-            var writer = new WellKnownBinaryWriter();
             var imported_nodes = Enumerable
                 .Range(0, new Random().Next(10))
                 .Select(index => new ImportedRoadNode
                 {
                     Id = _fixture.Create<int>(),
                     Type = _fixture.Create<RoadNodeType>(),
-                    Geometry = writer.Write(_fixture.Create<PointM>()),
+                    Geometry = GeometryTranslator.Translate(_fixture.Create<PointM>()),
                     Origin = _fixture.Create<OriginProperties>()
                 })
                 .ToArray();
@@ -434,7 +467,7 @@ namespace RoadRegistry.Projections.Tests
                             (current, imported) =>
                                 current
                                     .Plus(
-                                        new PointShapeContent(reader.ReadAs<PointM>(imported.Geometry))
+                                        new PointShapeContent(GeometryTranslator.TranslateM(imported.Geometry))
                                             .ContentLength
                                             .Plus(ShapeRecord.HeaderLength))
                         ).ToInt32(),
@@ -454,7 +487,6 @@ namespace RoadRegistry.Projections.Tests
         [Fact]
         public Task When_a_road_segment_was_imported()
         {
-            var writer = new WellKnownBinaryWriter();
             var geometry = _fixture.Create<MultiLineString>();
             var european_roads = _fixture.CreateMany<ImportedRoadSegmentEuropeanRoadAttributes>().ToArray();
             var numbered_roads = _fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttributes>().ToArray();
@@ -473,7 +505,7 @@ namespace RoadRegistry.Projections.Tests
                         Id = _fixture.Create<int>(),
                         StartNodeId = _fixture.Create<int>(),
                         EndNodeId = _fixture.Create<int>(),
-                        Geometry = writer.Write(geometry),
+                        Geometry = GeometryTranslator.Translate(geometry),
                         GeometryVersion = _fixture.Create<int>(),
                         MaintenanceAuthority = _fixture.Create<MaintenanceAuthority>(),
                         GeometryDrawMethod = _fixture.Create<RoadSegmentGeometryDrawMethod>(),
@@ -527,7 +559,7 @@ namespace RoadRegistry.Projections.Tests
                     Id = _fixture.Create<int>(),
                     StartNodeId = _fixture.Create<int>(),
                     EndNodeId = _fixture.Create<int>(),
-                    Geometry = writer.Write(_fixture.Create<MultiLineString>()),
+                    Geometry = GeometryTranslator.Translate(_fixture.Create<MultiLineString>()),
                     GeometryVersion = _fixture.Create<int>(),
                     MaintenanceAuthority = _fixture.Create<MaintenanceAuthority>(),
                     GeometryDrawMethod = _fixture.Create<RoadSegmentGeometryDrawMethod>(),
@@ -583,9 +615,7 @@ namespace RoadRegistry.Projections.Tests
                                 (current, imported) => current
                                     .Plus(
                                         new PolyLineMShapeContent(
-                                            reader.TryReadAs(imported.Geometry, out LineString line)
-                                                ? new MultiLineString(new ILineString[] {line})
-                                                : reader.ReadAs<MultiLineString>(imported.Geometry)
+                                            GeometryTranslator.Translate(imported.Geometry)
                                         )
                                         .ContentLength
                                         .Plus(ShapeRecord.HeaderLength)

@@ -57,7 +57,7 @@ namespace RoadRegistry.Model
         {
             var value = new string(
                 (char) new Random().Next(97, 123), // a-z
-                new Random().Next(MaintenanceAuthorityName.MaxLength + 1)
+                new Random().Next(1, MaintenanceAuthorityName.MaxLength + 1)
             );
             var sut = new MaintenanceAuthorityName(value);
 

@@ -10,6 +10,7 @@
     using Messages;
     using GeoAPI.Geometries;
     using Microsoft.EntityFrameworkCore;
+    using Model;
     using NetTopologySuite.Geometries;
 
     public class RoadNetworkInfoProjection : ConnectedProjection<ShapeContext>
@@ -37,7 +38,7 @@
                 info.RoadNodeCount += 1;
                 info.TotalRoadNodeShapeLength +=
                     new PointShapeContent(
-                        reader.ReadAs<PointM>(envelope.Message.Geometry)
+                        GeometryTranslator.TranslateM(envelope.Message.Geometry)
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32();
@@ -49,9 +50,7 @@
                 info.RoadSegmentCount += 1;
                 info.TotalRoadSegmentShapeLength +=
                     new PolyLineMShapeContent(
-                        reader.TryReadAs(envelope.Message.Geometry, out LineString line)
-                        ? new MultiLineString(new ILineString[] { line })
-                        : reader.ReadAs<MultiLineString>(envelope.Message.Geometry)
+                        GeometryTranslator.Translate(envelope.Message.Geometry)
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32();
