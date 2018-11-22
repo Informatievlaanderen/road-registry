@@ -17,7 +17,7 @@
         </h2>
         <slot></slot>
         <div class="download-progress" v-if="downloading">
-          <span class="progress" v-if="progress">{{downloadProgress_}}{{downloadProgressUnit}}</span>
+          <span class="progress" v-if="progress">{{downloadProgress}}{{downloadProgressUnit}}</span>
           <div class="loader"/>
         </div>
       </a>
@@ -54,7 +54,7 @@ export default {
     }
   },
   computed: {
-    downloadProgress_: function() {
+    downloadProgress: function() {
         if (this.progress < 1024) {
         return this.progress;
       } else {

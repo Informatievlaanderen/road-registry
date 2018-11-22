@@ -6,7 +6,6 @@ namespace RoadRegistry.Projections.Tests
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
-    using Infrastructure;
     using Aiv.Vbr.Shaperon;
     using Xunit;
 
@@ -53,7 +52,7 @@ namespace RoadRegistry.Projections.Tests
                         }.ToBytes(Encoding.UTF8),
                         ShapeRecordContent = pointShapeContent.ToBytes(),
                         ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                        Envelope = EnvelopePartialRecord.From(pointShapeContent.Shape.EnvelopeInternal)
+                        Envelope = BoundingBox2D.From(pointShapeContent.Shape.EnvelopeInternal)
                     };
 
                     return new

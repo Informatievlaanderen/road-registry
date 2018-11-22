@@ -15,7 +15,9 @@ namespace RoadRegistry.LegacyStreamExtraction
 
         public byte[] WriteWithSpatialReference(byte[] bytes)
         {
-            return _wkbWriter.Write(_wkbReader.Read(bytes));
+            var geometry = _wkbReader.Read(bytes);
+            geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
+            return _wkbWriter.Write(geometry);
         }
     }
 }

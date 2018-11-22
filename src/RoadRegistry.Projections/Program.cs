@@ -1,6 +1,7 @@
 namespace RoadRegistry.Projections.Shape
 {
     using System;
+    using System.Data.SqlClient;
     using System.IO;
     using System.Text;
     using System.Threading;
@@ -43,6 +44,15 @@ namespace RoadRegistry.Projections.Shape
                 .AddEnvironmentVariables()
                 .AddCommandLine(args)
                 .Build();
+
+            var connectionStringBuilder =
+                new SqlConnectionStringBuilder(configuration.GetConnectionString("Events"))
+                {
+                    ConnectRetryCount = 120,
+                    ConnectRetryInterval = 30
+                };
+
+            await WaitForStreamStore(connectionStringBuilder);
 
             var services = new ServiceCollection();
             var app = ConfigureServices(services, configuration);
@@ -114,6 +124,28 @@ namespace RoadRegistry.Projections.Shape
             var logger = Log.Logger = loggerConfiguration.CreateLogger();
 
             logging.AddSerilog(logger);
+        }
+
+        private static async Task WaitForStreamStore(SqlConnectionStringBuilder builder, CancellationToken token = default)
+        {
+            var exit = false;
+            while(!exit)
+            {
+                try
+                {
+                    using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(builder.ConnectionString)
+                    {
+                        Schema = "RoadRegistry"
+                    }))
+                    {
+                        await streamStore.ReadHeadPosition(token);
+                        exit = true;
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
         }
     }
 }

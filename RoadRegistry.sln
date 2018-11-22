@@ -32,6 +32,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker_login.sh = docker_login.sh
 		install_deps.sh = install_deps.sh
 		README = README
+		bitbucket-pipelines.yml = bitbucket-pipelines.yml
+		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.LegacyStreamExtraction", "src\RoadRegistry.LegacyStreamExtraction\RoadRegistry.LegacyStreamExtraction.csproj", "{B5267E8A-DB8F-44C3-9046-69573A75B104}"
@@ -41,6 +43,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Api", "src\RoadRegistry.Api\RoadRegistry.Api.csproj", "{FF17E3C0-79EB-4585-978F-D77CEFF70BD5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.UI", "src\RoadRegistry.UI\RoadRegistry.UI.csproj", "{A728F9A0-76BB-4659-AB57-9F591D66618A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.Api.Tests", "test\RoadRegistry.Api.Tests\RoadRegistry.Api.Tests.csproj", "{17AEDAFA-9984-444D-80F7-2F49B3C0B348}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -172,6 +176,18 @@ Global
 		{A728F9A0-76BB-4659-AB57-9F591D66618A}.Release|x64.Build.0 = Release|Any CPU
 		{A728F9A0-76BB-4659-AB57-9F591D66618A}.Release|x86.ActiveCfg = Release|Any CPU
 		{A728F9A0-76BB-4659-AB57-9F591D66618A}.Release|x86.Build.0 = Release|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|x64.Build.0 = Debug|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|x86.Build.0 = Debug|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|x64.ActiveCfg = Release|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|x64.Build.0 = Release|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|x86.ActiveCfg = Release|Any CPU
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -187,6 +203,7 @@ Global
 		{89A34C62-12D6-4505-AE09-9ECC7B5D07D6} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{FF17E3C0-79EB-4585-978F-D77CEFF70BD5} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{A728F9A0-76BB-4659-AB57-9F591D66618A} = {C2F8FF63-7A48-4179-A720-86206C42F496}
+		{17AEDAFA-9984-444D-80F7-2F49B3C0B348} = {8EA18457-86E2-4D2D-AC9E-2552FDC9676F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EB87445-E263-4E1E-89CC-3839170028E5}

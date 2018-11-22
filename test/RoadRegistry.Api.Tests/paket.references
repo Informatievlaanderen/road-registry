@@ -1,0 +1,16 @@
+xunit
+dotnet-xunit
+xunit.runner.visualstudio
+xunit.categories
+Microsoft.NET.Test.Sdk
+AutoFixture
+AutoFixture.Idioms
+
+Microsoft.EntityFrameworkCore.SqlServer
+Microsoft.EntityFrameworkCore.Design
+Microsoft.EntityFrameworkCore.Relational
+
+Microsoft.AspNetCore.Mvc.Core
+Microsoft.AspNetCore.Http
+
+Docker.DotNet

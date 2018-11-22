@@ -73,7 +73,8 @@ nuget System.Text.Encoding.CodePages
 nuget Wkx
 nuget CompareNETObjects
 nuget Albedo
-nuget NetTopologySuite 1.15.1-pre006
+nuget NetTopologySuite 1.15.1
+nuget Docker.DotNet
 
 // pinned AWSSDK.Core to 3.3.25, because for some reason 3.3.25.1 , 3.3.25.2 and 3.3.25.3 won't download
 // and AWSSDK.S3 tries to download 3.3.25.3
@@ -126,7 +127,7 @@ nuget Aiv.Vbr.Utilities.HashCodeCalculator ~> 2.0
 nuget Aiv.Vbr.Utilities.HexByteConvertor ~> 2.0
 nuget Aiv.Vbr.Testing.Infrastructure.Events ~> 1.2.1
 nuget Aiv.Vbr.Build.Pipeline ~> 2.1
-nuget Aiv.Vbr.Shaperon ~> 1.0
+nuget Aiv.Vbr.Shaperon ~> 3.3.0
 
 // DOCS STUFF
 nuget Structurizr.Core 0.8.0

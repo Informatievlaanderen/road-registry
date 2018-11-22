@@ -38,30 +38,58 @@ namespace RoadRegistry.LegacyStreamLoader
 
 
             var root = configurationBuilder.Build();
+            var connectionString = root.GetConnectionString("StreamStore");
+
+            var masterConnectionStringBuilder = new SqlConnectionStringBuilder(connectionString)
+                {
+                    InitialCatalog = "master",
+                    ConnectRetryCount = 120,
+                    ConnectRetryInterval = 1
+                };
+
+            await WaitForSqlServer(masterConnectionStringBuilder);
+
+            using(var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString))
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+
+                using(var command = new SqlCommand(
+@"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'RoadRegistry')
+BEGIN
+    CREATE DATABASE [RoadRegistry]
+END",
+                    connection))
+                {
+                    await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+            }
 
             // Attempt to reconnect every 30 seconds, for an hour - could be set in the connection string as well.
             var connectionStringBuilder =
-                new SqlConnectionStringBuilder(root.GetConnectionString("StreamStore"))
+                new SqlConnectionStringBuilder(connectionString)
                 {
                     ConnectRetryCount = 120,
                     ConnectRetryInterval = 30
                 };
-
             using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(connectionStringBuilder.ConnectionString)
             {
                 Schema = "RoadRegistry"
             }))
             {
-                await streamStore.CreateSchema();
-                await ImportStreams(root, streamStore);
+                await streamStore.CreateSchema().ConfigureAwait(false);
+
+                var page = await streamStore.ReadStreamForwards("roadnetwork", StreamVersion.Start, 1).ConfigureAwait(false);
+                if (page.Status == PageReadStatus.StreamNotFound)
+                    await ImportStreams(root, streamStore);
+                else
+                    Console.WriteLine("Cannot import in an existing RoadNetwork. Aborted import");
             }
         }
 
         private static async Task ImportStreams(IConfiguration root, MsSqlStreamStore streamStore)
         {
             var eventSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-            var typeMapping =
-                new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+            var typeMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
             var reader = new LegacyStreamFileReader(
                 new JsonSerializerSettings
                 {
@@ -73,10 +101,9 @@ namespace RoadRegistry.LegacyStreamLoader
                 }
             );
 
-            var expectedVersions = new ConcurrentDictionary<string, int>();
+            var expectedVersions = new ConcurrentDictionary<StreamId, int>();
             var innerWatch = Stopwatch.StartNew();
             var outerWatch = Stopwatch.StartNew();
-
 
             var getEventStream = GetLegacyEventStream(root);
             if (null != getEventStream)
@@ -93,18 +120,14 @@ namespace RoadRegistry.LegacyStreamLoader
                         innerWatch.Restart();
 
                         var appendResult = await streamStore.AppendToStream(
-                            new StreamId(stream.Key),
+                            stream.Key,
                             expectedVersion,
                             stream
                                 .Select(@event => new NewStreamMessage(
-                                    Deterministic.Create(Deterministic.Namespaces.Events,
-                                        $"{stream.Key}-{expectedVersion++}"),
+                                    Deterministic.Create(Deterministic.Namespaces.Events,$"{stream.Key}-{expectedVersion++}"),
                                     typeMapping.GetEventName(@event.GetType()),
                                     JsonConvert.SerializeObject(@event, eventSettings),
-                                    JsonConvert.SerializeObject(new Dictionary<string, string>
-                                    {
-                                        {"$version", "0"}
-                                    }, eventSettings)
+                                    JsonConvert.SerializeObject(new Dictionary<string, string>{ {"$version", "0"} }, eventSettings)
                                 ))
                                 .ToArray()
                         );
@@ -117,7 +140,6 @@ namespace RoadRegistry.LegacyStreamLoader
                         expectedVersions[stream.Key] = appendResult.CurrentVersion;
                     }
                 }
-
                 Console.WriteLine("Total append took {0}ms", outerWatch.ElapsedMilliseconds);
             }
             else
@@ -169,7 +191,7 @@ namespace RoadRegistry.LegacyStreamLoader
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Error downlading S3:{bucketName}/{file}: {exception}");
+                Console.WriteLine($"Error downloading S3:{bucketName}/{file}: {exception}");
             }
 
             return null;
@@ -201,6 +223,25 @@ namespace RoadRegistry.LegacyStreamLoader
             }
 
             return null;
+        }
+    
+        private static async Task WaitForSqlServer(SqlConnectionStringBuilder builder, CancellationToken token = default)
+        {
+            var exit = false;
+            while(!exit)
+            {
+                try
+                {
+                    using (var connection = new SqlConnection(builder.ConnectionString))
+                    {
+                        await connection.OpenAsync(token).ConfigureAwait(false);
+                        exit = true;
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
         }
     }
 }

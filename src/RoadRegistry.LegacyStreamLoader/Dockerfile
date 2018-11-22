@@ -5,4 +5,4 @@ LABEL maintainer "Informatie Vlaanderen <informatie.vlaanderen@vlaanderen.be>"
 COPY / /app
 WORKDIR /app
 
-ENTRYPOINT ["./RoadRegistry.LegacyStreamExtraction"]
+ENTRYPOINT ["./RoadRegistry.LegacyStreamLoader"]

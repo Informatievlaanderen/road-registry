@@ -27,6 +27,7 @@ Target "Build_CoreComponents" (fun _ ->
 )
 Target "Test_CoreComponents" (fun _ ->
   [
+    "test" @@ "RoadRegistry.Api.Tests"
     "test" @@ "RoadRegistry.Tests"
   ] |> List.iter testWithXunit
 )

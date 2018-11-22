@@ -6,7 +6,6 @@ namespace RoadRegistry.Projections.Tests
     using System.Threading.Tasks;
     using AutoFixture;
     using Events;
-    using Infrastructure;
     using Aiv.Vbr.Shaperon;
     using Xunit;
 
@@ -41,7 +40,7 @@ namespace RoadRegistry.Projections.Tests
                         Id = importedReferencePoint.Id,
                         ShapeRecordContent = pointShapeContent.ToBytes(),
                         ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                        Envelope = EnvelopePartialRecord.From(pointShapeContent.Shape.EnvelopeInternal),
+                        Envelope = BoundingBox2D.From(pointShapeContent.Shape.EnvelopeInternal),
                         DbaseRecord = new RoadReferencePointDbaseRecord
                         {
                             RP_OIDN = { Value = importedReferencePoint.Id },
@@ -68,7 +67,7 @@ namespace RoadRegistry.Projections.Tests
                     Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.ImportedReferencePoint))
-                .Expect(data.Select(d => d.Expected).ToArray());
+                .Expect(data.Select(d => d.Expected));
         }
     }
 }
