@@ -2,14 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using Aiv.Vbr.Shaperon;
-    using GeoAPI.Geometries;
-    using NetTopologySuite.Geometries;
+    using System.Linq;
 
     internal class RequestedChangeTranslator
     {
-        private readonly Dictionary<RoadNodeId, RoadNodeId> _temporaryToPermanentNodeIdMap;
-        //private readonly Dictionary<RoadSegmentId, RoadSegmentId> _temporaryToPermanentSegmentIdMap;
         private readonly Func<RoadNodeId> _nextRoadNodeId;
         private readonly Func<RoadSegmentId> _nextRoadSegmentId;
 
@@ -17,45 +13,109 @@
         {
             _nextRoadNodeId = nextRoadNodeId ?? throw new ArgumentNullException(nameof(nextRoadNodeId));
             _nextRoadSegmentId = nextRoadSegmentId ?? throw new ArgumentNullException(nameof(nextRoadSegmentId));
-            _temporaryToPermanentNodeIdMap = new Dictionary<RoadNodeId, RoadNodeId>();
-            //_temporaryToPermanentSegmentIdMap = new Dictionary<RoadSegmentId, RoadSegmentId>();
         }
 
-        public IRequestedChange Translate(Messages.AddRoadNode command)
+        public IReadOnlyCollection<IRequestedChange> Translate(IReadOnlyCollection<Messages.RequestedChange> changes)
         {
-            var id = _nextRoadNodeId();
-            var temporaryId = new RoadNodeId(command.TemporaryId);
+            if (changes == null)
+                throw new ArgumentNullException(nameof(changes));
 
-            _temporaryToPermanentNodeIdMap.Add(temporaryId, id);
+            var context = new TranslationContext();
+            var translated = new List<IRequestedChange>(changes.Count);
+            foreach (var change in changes
+                .Select(_ => _.PickChange())
+                .OrderBy(_ => _, new RankChangeBeforeTranslation()))
+            {
+                switch (change)
+                {
+                    case Messages.AddRoadNode command:
+                        {
+                            var translation = Translate(command);
+                            context.Map(translation);
+                            translated.Add(translation);
+                        }
+                        break;
+                    case Messages.AddRoadSegment command:
+                        {
+                            var translation = Translate(command, context);
+                            context.Map(translation);
+                            translated.Add(translation);
+                        }
+                        break;
+                }
+            }
 
+            return translated;
+        }
+
+        private class RankChangeBeforeTranslation : IComparer<object>
+        {
+            private static readonly Type[] Sequence =
+            {
+                typeof(Messages.AddRoadNode),
+                typeof(Messages.AddRoadSegment)
+            };
+
+            public int Compare(object left, object right)
+            {
+                if (left == null) throw new ArgumentNullException(nameof(left));
+                if (right == null) throw new ArgumentNullException(nameof(right));
+
+                var leftRank = Array.IndexOf(Sequence, left.GetType());
+                var rightRank = Array.IndexOf(Sequence, right.GetType());
+                return leftRank.CompareTo(rightRank);
+            }
+        }
+
+        private class TranslationContext : ITranslationContext
+        {
+            private Dictionary<RoadNodeId, RoadNodeId> _mapOfNodes;
+            private Dictionary<RoadSegmentId, RoadSegmentId> _mapOfSegments;
+
+            public TranslationContext()
+            {
+                _mapOfNodes = new Dictionary<RoadNodeId, RoadNodeId>();
+                _mapOfSegments = new Dictionary<RoadSegmentId, RoadSegmentId>();
+            }
+
+            public void Map(AddRoadNode change) =>
+                _mapOfNodes.Add(change.TemporaryId, change.Id);
+
+            public RoadNodeId Translate(RoadNodeId id) =>
+                _mapOfNodes.TryGetValue(id, out RoadNodeId permanent) ? permanent : id;
+
+            public void Map(AddRoadSegment change) =>
+                _mapOfSegments.Add(change.TemporaryId, change.Id);
+
+            public RoadSegmentId Translate(RoadSegmentId id) =>
+                _mapOfSegments.TryGetValue(id, out RoadSegmentId permanent) ? permanent : id;
+        }
+
+        private interface ITranslationContext
+        {
+            RoadNodeId Translate(RoadNodeId id);
+            RoadSegmentId Translate(RoadSegmentId id);
+        }
+
+        private AddRoadNode Translate(Messages.AddRoadNode command)
+        {
+            var permanent = _nextRoadNodeId();
+            var temporary = new RoadNodeId(command.TemporaryId);
             return new AddRoadNode
             (
-                id,
-                temporaryId,
+                permanent,
+                temporary,
                 RoadNodeType.Parse(command.Type),
                 GeometryTranslator.Translate(command.Geometry)
             );
         }
 
-        public IRequestedChange Translate(Messages.AddRoadSegment command)
+        private AddRoadSegment Translate(Messages.AddRoadSegment command, ITranslationContext context)
         {
-            var id = _nextRoadSegmentId();
-            var temporaryId = new RoadSegmentId(command.TemporaryId);
-
-            //_temporaryToPermanentSegmentIdMap.Add(temporaryId, id);
-
-            var startNode = new RoadNodeId(command.StartNodeId);
-            if (_temporaryToPermanentNodeIdMap.TryGetValue(startNode, out var permanentStartNodeId))
-            {
-                startNode = permanentStartNodeId;
-            }
-
-            var endNode = new RoadNodeId(command.EndNodeId);
-            if (_temporaryToPermanentNodeIdMap.TryGetValue(endNode, out var permanentEndNodeId))
-            {
-                endNode = permanentEndNodeId;
-            }
-
+            var permanent = _nextRoadSegmentId();
+            var temporary = new RoadSegmentId(command.TemporaryId);
+            var startNode = context.Translate(new RoadNodeId(command.StartNodeId));
+            var endNode = context.Translate(new RoadNodeId(command.EndNodeId));
             var geometry = GeometryTranslator.Translate(command.Geometry);
             var maintainer = new MaintenanceAuthorityId(command.MaintenanceAuthority);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
@@ -116,8 +176,8 @@
 
             return new AddRoadSegment
             (
-                id,
-                temporaryId,
+                permanent,
+                temporary,
                 startNode,
                 endNode,
                 geometry,

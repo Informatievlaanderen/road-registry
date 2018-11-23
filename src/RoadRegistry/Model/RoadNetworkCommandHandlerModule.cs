@@ -23,25 +23,7 @@ namespace RoadRegistry.Model
                         network.ProvidesNextRoadNodeId(),
                         network.ProvidesNextRoadSegmentId()
                     );
-                    //var changes = translator.Translate(message.Body.Changes); this way we can control the order
-                    var changes = Array.ConvertAll(
-                        message.Body.Changes,
-                        item =>
-                        {
-                            IRequestedChange change;
-                            switch (item.PickChange())
-                            {
-                                case Messages.AddRoadNode command:
-                                    change = translator.Translate(command);
-                                    break;
-                                case Messages.AddRoadSegment command:
-                                    change = translator.Translate(command);
-                                    break;
-                                default:
-                                    throw new InvalidOperationException("...");
-                            }
-                            return change;
-                        });
+                    var changes = translator.Translate(message.Body.Changes);
                     network.Change(changes);
                 });
         }

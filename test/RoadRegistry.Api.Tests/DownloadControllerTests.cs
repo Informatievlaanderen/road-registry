@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.Api.Tests
 {
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Downloads;
@@ -8,24 +7,24 @@
     using Infrastructure;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
     using Projections;
     using Xunit;
 
-    public class DownloadControllerTests : IAsyncLifetime
+    [Collection(nameof(SqlServerDatabaseCollection))]
+    public class DownloadControllerTests
     {
-        private readonly SqlServerDatabase _database;
+        private readonly SqlServerDatabaseFixture _fixture;
 
-        public DownloadControllerTests()
+        public DownloadControllerTests(SqlServerDatabaseFixture fixture)
         {
-            _database = new SqlServerDatabase(Guid.NewGuid().ToString("N"));
+            _fixture = fixture;
         }
 
         [Fact]
         public async Task When_downloading_before_an_import()
         {
             var controller = new DownloadController();
-            using (var context = await PrepareContext())
+            using (var context = await _fixture.CreateEmptyShapeContextAsync())
             {
                 var result = await controller.Get(context, CancellationToken.None);
 
@@ -38,7 +37,7 @@
         public async Task When_downloading_during_an_import()
         {
             var controller = new DownloadController();
-            using (var context = await PrepareContext())
+            using (var context = await _fixture.CreateEmptyShapeContextAsync())
             {
                 context.RoadNetworkInfo.Add(new RoadNetworkInfo
                 {
@@ -48,7 +47,7 @@
                 await context.SaveChangesAsync();
             }
 
-            using (var context = await PrepareContext())
+            using (var context = await _fixture.CreateShapeContextAsync())
             {
                 var result = await controller.Get(context, CancellationToken.None);
 
@@ -61,7 +60,7 @@
         public async Task When_downloading_after_an_import()
         {
             var controller = new DownloadController();
-            using (var context = await PrepareContext())
+            using (var context = await _fixture.CreateEmptyShapeContextAsync())
             {
                 context.RoadNetworkInfo.Add(new RoadNetworkInfo
                 {
@@ -71,36 +70,13 @@
                 await context.SaveChangesAsync();
             }
 
-            using (var context = await PrepareContext())
+            using (var context = await _fixture.CreateShapeContextAsync())
             {
                 var result = await controller.Get(context, CancellationToken.None);
 
                 var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
                 Assert.Equal("wegenregister.zip", fileCallbackResult.FileDownloadName);
             }
-        }
-
-        private async Task<ShapeContext> PrepareContext()
-        {
-            var connectionString = _database.CreateConnectionStringBuilder().ConnectionString;
-            var options = new DbContextOptionsBuilder<ShapeContext>()
-                .UseSqlServer(connectionString)
-                .EnableSensitiveDataLogging()
-                .Options;
-
-            var context = new ShapeContext(options);
-            await context.Database.MigrateAsync();
-            return context;
-        }
-
-        public Task InitializeAsync()
-        {
-            return _database.CreateDatabase();
-        }
-
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
         }
     }
 }

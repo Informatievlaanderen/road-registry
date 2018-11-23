@@ -61,7 +61,7 @@ namespace RoadRegistry.Model
             });
         }
 
-        public void Change(IRequestedChange[] changes)
+        public void Change(IReadOnlyCollection<IRequestedChange> changes)
         {
             var acceptedChanges = new List<AcceptedChange>();
             var rejectedChanges = new List<RejectedChange>();
