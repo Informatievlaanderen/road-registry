@@ -65,8 +65,8 @@ namespace RoadRegistry.Model
         public RoadSegmentStatus Status { get; }
         public RoadSegmentCategory Category { get; }
         public RoadSegmentAccessRestriction AccessRestriction { get; }
-        public Nullable<CrabStreetnameId> LeftSideStreetNameId { get; }
-        public Nullable<CrabStreetnameId> RightSideStreetNameId { get; }
+        public CrabStreetnameId? LeftSideStreetNameId { get; }
+        public CrabStreetnameId? RightSideStreetNameId { get; }
         public IReadOnlyCollection<RoadSegmentEuropeanRoadAttribute> PartOfEuropeanRoads { get; }
         public IReadOnlyCollection<RoadSegmentNationalRoadAttribute> PartOfNationalRoads { get; }
         public IReadOnlyCollection<RoadSegmentNumberedRoadAttribute> PartOfNumberedRoads { get; }

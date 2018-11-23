@@ -92,24 +92,9 @@ namespace RoadRegistry.Model
                 Type = AddStartNode1.Type
             };
 
-            AddStartNode2 = new Messages.AddRoadNode
-            {
-                TemporaryId = Fixture.Create<RoadNodeId>(),
-                Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>()),
-                Type = RoadNodeType.FakeNode
-            };
-
-            StartNode2Added = new Messages.RoadNodeAdded
-            {
-                Id = 3,
-                TemporaryId = AddStartNode2.TemporaryId,
-                Geometry = AddStartNode2.Geometry,
-                Type = AddStartNode2.Type
-            };
-
             AddEndNode1 = new Messages.AddRoadNode
             {
-                TemporaryId = Fixture.Create<RoadNodeId>(),
+                TemporaryId = AddStartNode1.TemporaryId + 1,
                 Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>()),
                 Type = RoadNodeType.FakeNode
             };
@@ -122,9 +107,24 @@ namespace RoadRegistry.Model
                 Type = AddEndNode1.Type
             };
 
+            AddStartNode2 = new Messages.AddRoadNode
+            {
+                TemporaryId = AddEndNode1.TemporaryId + 1,
+                Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>()),
+                Type = RoadNodeType.FakeNode
+            };
+
+            StartNode2Added = new Messages.RoadNodeAdded
+            {
+                Id = 3,
+                TemporaryId = AddStartNode2.TemporaryId,
+                Geometry = AddStartNode2.Geometry,
+                Type = AddStartNode2.Type
+            };
+
             AddEndNode2 = new Messages.AddRoadNode
             {
-                TemporaryId = Fixture.Create<RoadNodeId>(),
+                TemporaryId = AddStartNode2.TemporaryId + 1,
                 Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>()),
                 Type = RoadNodeType.FakeNode
             };
@@ -279,7 +279,7 @@ namespace RoadRegistry.Model
 
             AddSegment2 = new Messages.AddRoadSegment
             {
-                TemporaryId = Fixture.Create<RoadSegmentId>(),
+                TemporaryId = AddSegment1.TemporaryId + 1,
                 StartNodeId = AddStartNode2.TemporaryId,
                 EndNodeId = AddEndNode2.TemporaryId,
                 Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
@@ -912,6 +912,76 @@ namespace RoadRegistry.Model
                                             Value = "1"
                                         }
                                     }
+                                }
+                            }
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_with_a_missing_start_node()
+        {
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadSegmentStartNodeMissing",
+                                    Parameters = new Messages.ReasonParameter[0]
+                                }
+                            }
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_with_a_missing_end_node()
+        {
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadSegmentEndNodeMissing",
+                                    Parameters = new Messages.ReasonParameter[0]
                                 }
                             }
                         }
