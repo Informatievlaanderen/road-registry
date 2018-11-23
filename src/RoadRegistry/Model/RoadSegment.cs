@@ -2,10 +2,13 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
+    using GeoAPI.Geometries;
+    using NetTopologySuite.Geometries;
 
     public class RoadSegment
     {
         public RoadSegmentId Id { get; }
+        public MultiLineString Geometry { get; }
         public RoadNodeId Start { get; }
         public RoadNodeId End { get; }
 
@@ -18,17 +21,19 @@ namespace RoadRegistry.Model
             }
         }
 
-        public RoadSegment(RoadSegmentId id, RoadNodeId start, RoadNodeId end)
+        public RoadSegment(RoadSegmentId id, MultiLineString geometry, RoadNodeId start, RoadNodeId end)
         {
+            if (geometry == null) throw new ArgumentNullException(nameof(geometry));
             if (start == end)
                 throw new ArgumentException("The start and end can not be the same road node.", nameof(start));
 
             Id = id;
+            Geometry = geometry;
             Start = start;
             End = end;
         }
 
-        public IEnumerable<RoadNodeId> SelectCounterNode(RoadNodeId id)
+        public IEnumerable<RoadNodeId> SelectOppositeNode(RoadNodeId id)
         {
             if (Start == id)
             {

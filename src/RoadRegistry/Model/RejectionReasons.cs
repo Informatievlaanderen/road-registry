@@ -83,6 +83,26 @@ namespace RoadRegistry.Model
             );
         }
 
+        public RejectionReasons BecauseRoadSegmentGeometryTaken(RoadSegmentId byOtherSegment)
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadSegmentGeometryTaken",
+                        Parameters = new []
+                        {
+                            new ReasonParameter
+                            {
+                                Name = "ByOtherSegment",
+                                Value = byOtherSegment.ToInt32().ToString()
+                            }
+                        }
+                    }
+                )
+            );
+        }
+
         public IEnumerator<Reason> GetEnumerator() => ((IEnumerable<Reason>)_reasons).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

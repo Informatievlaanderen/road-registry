@@ -38,24 +38,39 @@ namespace RoadRegistry.Model
                 _nodes = _nodes
                     .TryReplaceValue(start, node => node.ConnectWith(id))
                     .TryReplaceValue(end, node => node.ConnectWith(id));
-                _segments = _segments.Add(id, new RoadSegment(id, start, end));
+                var segment = new RoadSegment(id, GeometryTranslator.Translate(e.Geometry), start, end);
+                _segments = _segments.Add(id, segment);
                 _maximumSegmentId = RoadSegmentId.Max(id, _maximumSegmentId);
             });
 
             On<RoadNetworkChangesAccepted>(e =>
             {
-                foreach (var change in e.Changes)
+                foreach (var change in e.Changes.Flatten())
                 {
-                    if (change.RoadNodeAdded != null)
+                    switch (change)
                     {
-                        var id = new RoadNodeId(change.RoadNodeAdded.Id);
-                        _nodes = _nodes.Add(id,
-                            new RoadNode(
-                                id,
-                                GeometryTranslator.Translate(change.RoadNodeAdded.Geometry)
-                            )
-                        );
-                        _maximumNodeId = RoadNodeId.Max(id, _maximumNodeId);
+                        case RoadNodeAdded roadNodeAdded:
+                            {
+                                var id = new RoadNodeId(roadNodeAdded.Id);
+                                var node = new RoadNode(id, GeometryTranslator.Translate(roadNodeAdded.Geometry));
+                                _nodes = _nodes.Add(id, node);
+                                _maximumNodeId = RoadNodeId.Max(id, _maximumNodeId);
+                            }
+                            break;
+                        case RoadSegmentAdded roadSegmentAdded:
+                            {
+                                var id = new RoadSegmentId(roadSegmentAdded.Id);
+                                var start = new RoadNodeId(roadSegmentAdded.StartNodeId);
+                                var end = new RoadNodeId(roadSegmentAdded.EndNodeId);
+                                _nodes = _nodes
+                                    .TryReplaceValue(start, node => node.ConnectWith(id))
+                                    .TryReplaceValue(end, node => node.ConnectWith(id));
+                                var segment = new RoadSegment(id, GeometryTranslator.Translate(roadSegmentAdded.Geometry),
+                                    start, end);
+                                _segments = _segments.Add(id, segment);
+                                _maximumSegmentId = RoadSegmentId.Max(id, _maximumSegmentId);
+                            }
+                            break;
                     }
                 }
             });
@@ -109,6 +124,13 @@ namespace RoadRegistry.Model
                         if (_segments.ContainsKey(addRoadSegment.Id))
                         {
                             reasons = reasons.BecauseRoadSegmentIdTaken();
+                        }
+
+                        var byOtherSegment =
+                            _segments.Values.FirstOrDefault(segment => segment.Geometry.EqualsExact(addRoadSegment.Geometry));
+                        if (byOtherSegment != null)
+                        {
+                            reasons = reasons.BecauseRoadSegmentGeometryTaken(byOtherSegment.Id);
                         }
 
                         if (reasons == RejectionReasons.None)

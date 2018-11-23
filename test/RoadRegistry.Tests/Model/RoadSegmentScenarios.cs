@@ -268,6 +268,406 @@ namespace RoadRegistry.Model
             });
         }
 
+        [Fact]
+        public Task when_changes_are_added_out_of_order()
+        {
+            var temporaryId1 = Fixture.Create<RoadNodeId>();
+            var temporaryId2 = Fixture.Create<RoadNodeId>();
+            var temporaryId3 = Fixture.Create<RoadSegmentId>();
+            var start = GeometryTranslator.Translate(Fixture.Create<PointM>());
+            var end = GeometryTranslator.Translate(Fixture.Create<PointM>());
+            var line = GeometryTranslator.Translate(Fixture.Create<MultiLineString>());
+            return Run(scenario =>
+            {
+                var maintainer = Fixture.Create<MaintenanceAuthorityId>();
+                var geometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>();
+                var morphology = Fixture.Create<RoadSegmentMorphology>();
+                var status = Fixture.Create<RoadSegmentStatus>();
+                var category = Fixture.Create<RoadSegmentCategory>();
+                var accessRestriction = Fixture.Create<RoadSegmentAccessRestriction>();
+                var leftSideStreetNameId = Fixture.Create<int?>();
+                var rightSideStreetNameId = Fixture.Create<int?>();
+                var partOfEuropeanRoads = Fixture.CreateMany<RequestedRoadSegmentEuropeanRoadAttributes>()
+                    .ToArray();
+                var partOfNationalRoads = Fixture.CreateMany<RequestedRoadSegmentNationalRoadAttributes>()
+                    .ToArray();
+                var partOfNumberedRoads = Fixture.CreateMany<RequestedRoadSegmentNumberedRoadAttributes>()
+                    .ToArray();
+                var lanes = Fixture.CreateMany<RequestedRoadSegmentLaneAttributes>().ToArray();
+                var widths = Fixture.CreateMany<RequestedRoadSegmentWidthAttributes>().ToArray();
+                var surfaces = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttributes>().ToArray();
+                return scenario
+                    .GivenNone()
+                    .When(TheOperator.ChangesTheRoadNetwork(
+                        new RequestedChange
+                        {
+                            AddRoadSegment = new Messages.AddRoadSegment
+                            {
+                                TemporaryId = temporaryId3,
+                                StartNodeId = temporaryId1,
+                                EndNodeId = temporaryId2,
+                                Geometry = line,
+                                MaintenanceAuthority = maintainer,
+                                GeometryDrawMethod = geometryDrawMethod,
+                                Morphology = morphology,
+                                Status = status,
+                                Category = category,
+                                AccessRestriction = accessRestriction,
+                                LeftSideStreetNameId = leftSideStreetNameId,
+                                RightSideStreetNameId = rightSideStreetNameId,
+                                PartOfEuropeanRoads = partOfEuropeanRoads,
+                                PartOfNationalRoads = partOfNationalRoads,
+                                PartOfNumberedRoads = partOfNumberedRoads,
+                                Lanes = lanes,
+                                Widths = widths,
+                                Surfaces = surfaces
+                            }
+                        },
+                        new RequestedChange
+                        {
+                            AddRoadNode = new Messages.AddRoadNode
+                            {
+                                TemporaryId = temporaryId1,
+                                Type = RoadNodeType.FakeNode,
+                                Geometry = start
+                            }
+                        },
+                        new RequestedChange
+                        {
+                            AddRoadNode = new Messages.AddRoadNode
+                            {
+                                TemporaryId = temporaryId2,
+                                Type = RoadNodeType.FakeNode,
+                                Geometry = end
+                            }
+                        }
+                    ))
+                    .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                    {
+                        Changes = new[]
+                        {
+                            new AcceptedChange
+                            {
+                                RoadNodeAdded = new RoadNodeAdded
+                                {
+                                    Id = 1,
+                                    TemporaryId = temporaryId1,
+                                    Type = RoadNodeType.FakeNode,
+                                    Geometry = start
+                                }
+                            },
+                            new AcceptedChange
+                            {
+                                RoadNodeAdded = new RoadNodeAdded
+                                {
+                                    Id = 2,
+                                    TemporaryId = temporaryId2,
+                                    Type = RoadNodeType.FakeNode,
+                                    Geometry = end
+                                }
+                            },
+                            new AcceptedChange
+                            {
+                                RoadSegmentAdded = new RoadSegmentAdded
+                                {
+                                    Id = 1,
+                                    TemporaryId = temporaryId3,
+                                    StartNodeId = 1,
+                                    EndNodeId = 2,
+                                    Geometry = line,
+                                    GeometryVersion = 0,
+                                    MaintenanceAuthority = new MaintenanceAuthority
+                                    {
+                                        Code = maintainer,
+                                        Name = null
+                                    },
+                                    GeometryDrawMethod = geometryDrawMethod,
+                                    Morphology = morphology,
+                                    Status = status,
+                                    Category = category,
+                                    AccessRestriction = accessRestriction,
+                                    LeftSide = new RoadSegmentSideAttributes
+                                    {
+                                        StreetNameId = leftSideStreetNameId
+                                    },
+                                    RightSide = new RoadSegmentSideAttributes
+                                    {
+                                        StreetNameId = rightSideStreetNameId
+                                    },
+                                    PartOfEuropeanRoads = Array.ConvertAll(
+                                        partOfEuropeanRoads,
+                                        part => new RoadSegmentEuropeanRoadAttributes
+                                        {
+                                            AttributeId = 1, RoadNumber = part.RoadNumber
+                                        }),
+                                    PartOfNationalRoads = Array.ConvertAll(
+                                        partOfNationalRoads,
+                                        part => new RoadSegmentNationalRoadAttributes
+                                        {
+                                            AttributeId = 1,
+                                            Ident2 = part.Ident2
+                                        }),
+                                    PartOfNumberedRoads = Array.ConvertAll(
+                                        partOfNumberedRoads,
+                                        part => new RoadSegmentNumberedRoadAttributes
+                                        {
+                                            AttributeId = 1,
+                                            Ident8 = part.Ident8,
+                                            Direction = part.Direction,
+                                            Ordinal = part.Ordinal,
+                                        }),
+                                    Lanes = Array.ConvertAll(
+                                        lanes,
+                                        lane => new Messages.RoadSegmentLaneAttributes
+                                        {
+                                            AttributeId = 1,
+                                            Direction = lane.Direction,
+                                            Count = lane.Count,
+                                            FromPosition = lane.FromPosition,
+                                            ToPosition = lane.ToPosition,
+                                            AsOfGeometryVersion = 1
+                                        }),
+                                    Widths = Array.ConvertAll(
+                                        widths,
+                                        width => new Messages.RoadSegmentWidthAttributes
+                                        {
+                                            AttributeId = 1,
+                                            Width = width.Width,
+                                            FromPosition = width.FromPosition,
+                                            ToPosition = width.ToPosition,
+                                            AsOfGeometryVersion = 1
+                                        }),
+                                    Surfaces = Array.ConvertAll(
+                                        surfaces,
+                                        surface => new Messages.RoadSegmentSurfaceAttributes
+                                        {
+                                            AttributeId = 1,
+                                            Type = surface.Type,
+                                            FromPosition = surface.FromPosition,
+                                            ToPosition = surface.ToPosition,
+                                            AsOfGeometryVersion = 1
+                                        }),
+                                    Version = 0
+                                }
+                            }
+                        }
+                    });
+            });
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_with_a_geometry_that_has_been_taken()
+        {
+            var temporaryId1 = Fixture.Create<RoadNodeId>();
+            var temporaryId2 = Fixture.Create<RoadNodeId>();
+            var temporaryId3 = Fixture.Create<RoadSegmentId>();
+            var temporaryId4 = Fixture.Create<RoadSegmentId>();
+            var start = GeometryTranslator.Translate(Fixture.Create<PointM>());
+            var end = GeometryTranslator.Translate(Fixture.Create<PointM>());
+            var line = GeometryTranslator.Translate(Fixture.Create<MultiLineString>());
+            return Run(scenario =>
+            {
+                var maintainer = Fixture.Create<MaintenanceAuthorityId>();
+                var geometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>();
+                var morphology = Fixture.Create<RoadSegmentMorphology>();
+                var status = Fixture.Create<RoadSegmentStatus>();
+                var category = Fixture.Create<RoadSegmentCategory>();
+                var accessRestriction = Fixture.Create<RoadSegmentAccessRestriction>();
+                var leftSideStreetNameId = Fixture.Create<int?>();
+                var rightSideStreetNameId = Fixture.Create<int?>();
+                var partOfEuropeanRoads = Fixture.CreateMany<RequestedRoadSegmentEuropeanRoadAttributes>()
+                    .ToArray();
+                var partOfNationalRoads = Fixture.CreateMany<RequestedRoadSegmentNationalRoadAttributes>()
+                    .ToArray();
+                var partOfNumberedRoads = Fixture.CreateMany<RequestedRoadSegmentNumberedRoadAttributes>()
+                    .ToArray();
+                var lanes = Fixture.CreateMany<RequestedRoadSegmentLaneAttributes>().ToArray();
+                var widths = Fixture.CreateMany<RequestedRoadSegmentWidthAttributes>().ToArray();
+                var surfaces = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttributes>().ToArray();
+                return scenario
+                    .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                    {
+                        Changes = new[]
+                        {
+                            new AcceptedChange
+                            {
+                                RoadNodeAdded = new RoadNodeAdded
+                                {
+                                    Id = 1,
+                                    TemporaryId = temporaryId1,
+                                    Type = RoadNodeType.FakeNode,
+                                    Geometry = start
+                                }
+                            },
+                            new AcceptedChange
+                            {
+                                RoadNodeAdded = new RoadNodeAdded
+                                {
+                                    Id = 2,
+                                    TemporaryId = temporaryId2,
+                                    Type = RoadNodeType.FakeNode,
+                                    Geometry = end
+                                }
+                            },
+                            new AcceptedChange
+                            {
+                                RoadSegmentAdded = new RoadSegmentAdded
+                                {
+                                    Id = 1,
+                                    TemporaryId = temporaryId3,
+                                    StartNodeId = 1,
+                                    EndNodeId = 2,
+                                    Geometry = line,
+                                    GeometryVersion = 0,
+                                    MaintenanceAuthority = new MaintenanceAuthority
+                                    {
+                                        Code = maintainer,
+                                        Name = null
+                                    },
+                                    GeometryDrawMethod = geometryDrawMethod,
+                                    Morphology = morphology,
+                                    Status = status,
+                                    Category = category,
+                                    AccessRestriction = accessRestriction,
+                                    LeftSide = new RoadSegmentSideAttributes
+                                    {
+                                        StreetNameId = leftSideStreetNameId
+                                    },
+                                    RightSide = new RoadSegmentSideAttributes
+                                    {
+                                        StreetNameId = rightSideStreetNameId
+                                    },
+                                    PartOfEuropeanRoads = Array.ConvertAll(
+                                        partOfEuropeanRoads,
+                                        part => new RoadSegmentEuropeanRoadAttributes
+                                        {
+                                            AttributeId = 1, RoadNumber = part.RoadNumber
+                                        }),
+                                    PartOfNationalRoads = Array.ConvertAll(
+                                        partOfNationalRoads,
+                                        part => new RoadSegmentNationalRoadAttributes
+                                        {
+                                            AttributeId = 1,
+                                            Ident2 = part.Ident2
+                                        }),
+                                    PartOfNumberedRoads = Array.ConvertAll(
+                                        partOfNumberedRoads,
+                                        part => new RoadSegmentNumberedRoadAttributes
+                                        {
+                                            AttributeId = 1,
+                                            Ident8 = part.Ident8,
+                                            Direction = part.Direction,
+                                            Ordinal = part.Ordinal,
+                                        }),
+                                    Lanes = Array.ConvertAll(
+                                        lanes,
+                                        lane => new Messages.RoadSegmentLaneAttributes
+                                        {
+                                            AttributeId = 1,
+                                            Direction = lane.Direction,
+                                            Count = lane.Count,
+                                            FromPosition = lane.FromPosition,
+                                            ToPosition = lane.ToPosition,
+                                            AsOfGeometryVersion = 1
+                                        }),
+                                    Widths = Array.ConvertAll(
+                                        widths,
+                                        width => new Messages.RoadSegmentWidthAttributes
+                                        {
+                                            AttributeId = 1,
+                                            Width = width.Width,
+                                            FromPosition = width.FromPosition,
+                                            ToPosition = width.ToPosition,
+                                            AsOfGeometryVersion = 1
+                                        }),
+                                    Surfaces = Array.ConvertAll(
+                                        surfaces,
+                                        surface => new Messages.RoadSegmentSurfaceAttributes
+                                        {
+                                            AttributeId = 1,
+                                            Type = surface.Type,
+                                            FromPosition = surface.FromPosition,
+                                            ToPosition = surface.ToPosition,
+                                            AsOfGeometryVersion = 1
+                                        }),
+                                    Version = 0
+                                }
+                            }
+                        }
+                    })
+                    .When(TheOperator.ChangesTheRoadNetwork(
+                        new RequestedChange
+                        {
+                            AddRoadSegment = new Messages.AddRoadSegment
+                            {
+                                TemporaryId = temporaryId4,
+                                StartNodeId = 1,
+                                EndNodeId = 2,
+                                Geometry = line,
+                                MaintenanceAuthority = maintainer,
+                                GeometryDrawMethod = geometryDrawMethod,
+                                Morphology = morphology,
+                                Status = status,
+                                Category = category,
+                                AccessRestriction = accessRestriction,
+                                LeftSideStreetNameId = leftSideStreetNameId,
+                                RightSideStreetNameId = rightSideStreetNameId,
+                                PartOfEuropeanRoads = partOfEuropeanRoads,
+                                PartOfNationalRoads = partOfNationalRoads,
+                                PartOfNumberedRoads = partOfNumberedRoads,
+                                Lanes = lanes,
+                                Widths = widths,
+                                Surfaces = surfaces
+                            }
+                        }
+                    ))
+                    .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+                    {
+                        Changes = new[]
+                        {
+                            new RejectedChange
+                            {
+                                AddRoadSegment = new Messages.AddRoadSegment
+                                {
+                                    TemporaryId = temporaryId4,
+                                    StartNodeId = 1,
+                                    EndNodeId = 2,
+                                    Geometry = line,
+                                    MaintenanceAuthority = maintainer,
+                                    GeometryDrawMethod = geometryDrawMethod,
+                                    Morphology = morphology,
+                                    Status = status,
+                                    Category = category,
+                                    AccessRestriction = accessRestriction,
+                                    LeftSideStreetNameId = leftSideStreetNameId,
+                                    RightSideStreetNameId = rightSideStreetNameId,
+                                    PartOfEuropeanRoads = partOfEuropeanRoads,
+                                    PartOfNationalRoads = partOfNationalRoads,
+                                    PartOfNumberedRoads = partOfNumberedRoads,
+                                    Lanes = lanes,
+                                    Widths = widths,
+                                    Surfaces = surfaces
+                                },
+                                Reasons = new[]
+                                {
+                                    new Reason
+                                    {
+                                        Because = "RoadSegmentGeometryTaken",
+                                        Parameters = new[]
+                                        {
+                                            new ReasonParameter
+                                            {
+                                                Name = "ByOtherSegment",
+                                                Value = "1"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+            });
+        }
         // [Fact]
         // public Task when_adding_a_node_with_an_id_taken_after_an_import()
         // {

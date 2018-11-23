@@ -22,9 +22,7 @@
 
             var context = new TranslationContext();
             var translated = new List<IRequestedChange>(changes.Count);
-            foreach (var change in changes
-                .Select(_ => _.PickChange())
-                .OrderBy(_ => _, new RankChangeBeforeTranslation()))
+            foreach (var change in changes.Flatten().OrderBy(_ => _, new RankChangeBeforeTranslation()))
             {
                 switch (change)
                 {
