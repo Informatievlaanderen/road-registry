@@ -38,6 +38,13 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
+        public void MultiLineStringCanOnlyHaveOneLineString()
+        {
+            var lineStrings = Fixture.CreateMany<Messages.LineString>(new Random().Next(2, 10)).ToArray();
+            Validator.ShouldHaveValidationErrorFor(c => c.MultiLineString, lineStrings);
+        }
+
+        [Fact]
         public void LineStringCanNotBeNull()
         {
             var data = Fixture.CreateMany<Messages.LineString>(10).ToArray();
@@ -56,8 +63,6 @@ namespace RoadRegistry.Model
         [Fact]
         public void VerifyValid()
         {
-            Fixture.CustomizePolylineM();
-
             var data = GeometryTranslator.Translate(Fixture.Create<MultiLineString>());
             data.SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
 

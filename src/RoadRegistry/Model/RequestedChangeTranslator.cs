@@ -50,7 +50,7 @@
 
         private class RankChangeBeforeTranslation : IComparer<object>
         {
-            private static readonly Type[] Sequence =
+            private static readonly Type[] SequenceByTypeOfChange =
             {
                 typeof(Messages.AddRoadNode),
                 typeof(Messages.AddRoadSegment)
@@ -61,8 +61,8 @@
                 if (left == null) throw new ArgumentNullException(nameof(left));
                 if (right == null) throw new ArgumentNullException(nameof(right));
 
-                var leftRank = Array.IndexOf(Sequence, left.GetType());
-                var rightRank = Array.IndexOf(Sequence, right.GetType());
+                var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.GetType());
+                var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.GetType());
                 return leftRank.CompareTo(rightRank);
             }
         }

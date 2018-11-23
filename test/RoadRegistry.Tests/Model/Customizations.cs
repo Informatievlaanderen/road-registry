@@ -113,7 +113,7 @@ namespace RoadRegistry.Model
             fixture.Customize<MultiLineString>(customization =>
                 customization.FromFactory(generator =>
                     new MultiLineString(
-                        fixture.CreateMany<ILineString>(generator.Next(1, 10)).ToArray(),
+                        fixture.CreateMany<ILineString>(1).ToArray(),
                         GeometryConfiguration.GeometryFactory)
                 ).OmitAutoProperties()
             );
