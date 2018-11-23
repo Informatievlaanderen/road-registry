@@ -21,8 +21,8 @@ namespace RoadRegistry.Model
             RoadSegmentAccessRestriction accessRestriction,
             CrabStreetnameId? leftSideStreetNameId,
             CrabStreetnameId? rightSideStreetNameId,
-            IReadOnlyCollection<EuropeanRoadNumber> partOfEuropeanRoads,
-            IReadOnlyCollection<NationalRoadNumber> partOfNationalRoads,
+            IReadOnlyCollection<RoadSegmentEuropeanRoadAttribute> partOfEuropeanRoads,
+            IReadOnlyCollection<RoadSegmentNationalRoadAttribute> partOfNationalRoads,
             IReadOnlyCollection<RoadSegmentNumberedRoadAttribute> partOfNumberedRoads,
             IReadOnlyCollection<RoadSegmentLaneAttribute> lanes,
             IReadOnlyCollection<RoadSegmentWidthAttribute> widths,
@@ -62,8 +62,8 @@ namespace RoadRegistry.Model
         public RoadSegmentAccessRestriction AccessRestriction { get; }
         public Nullable<CrabStreetnameId> LeftSideStreetNameId { get; }
         public Nullable<CrabStreetnameId> RightSideStreetNameId { get; }
-        public IReadOnlyCollection<EuropeanRoadNumber> PartOfEuropeanRoads { get; }
-        public IReadOnlyCollection<NationalRoadNumber> PartOfNationalRoads { get; }
+        public IReadOnlyCollection<RoadSegmentEuropeanRoadAttribute> PartOfEuropeanRoads { get; }
+        public IReadOnlyCollection<RoadSegmentNationalRoadAttribute> PartOfNationalRoads { get; }
         public IReadOnlyCollection<RoadSegmentNumberedRoadAttribute> PartOfNumberedRoads { get; }
         public IReadOnlyCollection<RoadSegmentLaneAttribute> Lanes { get; }
         public IReadOnlyCollection<RoadSegmentWidthAttribute> Widths { get; }
@@ -100,21 +100,21 @@ namespace RoadRegistry.Model
                     PartOfEuropeanRoads = PartOfEuropeanRoads
                         .Select(item => new Messages.RoadSegmentEuropeanRoadAttributes
                         {
-                            AttributeId = 1,
-                            RoadNumber = item
+                            AttributeId = item.Id,
+                            RoadNumber = item.Number
                         })
                         .ToArray(),
                     PartOfNationalRoads = PartOfNationalRoads
                         .Select(item => new Messages.RoadSegmentNationalRoadAttributes
                         {
-                            AttributeId = 1,
-                            Ident2 = item
+                            AttributeId = item.Id,
+                            Ident2 = item.Number
                         })
                         .ToArray(),
                     PartOfNumberedRoads = PartOfNumberedRoads
                         .Select(item => new Messages.RoadSegmentNumberedRoadAttributes
                         {
-                            AttributeId = 1,
+                            AttributeId = item.Id,
                             Direction = item.Direction,
                             Ident8 = item.Number,
                             Ordinal = item.Ordinal
@@ -123,7 +123,7 @@ namespace RoadRegistry.Model
                     Lanes = Lanes
                         .Select(item => new Messages.RoadSegmentLaneAttributes
                         {
-                            AttributeId = 1,
+                            AttributeId = item.Id,
                             AsOfGeometryVersion = 1,
                             Count = item.Count,
                             Direction = item.Direction,
@@ -134,7 +134,7 @@ namespace RoadRegistry.Model
                     Widths = Widths
                         .Select(item => new Messages.RoadSegmentWidthAttributes
                         {
-                            AttributeId = 1,
+                            AttributeId = item.Id,
                             AsOfGeometryVersion = 1,
                             Width = item.Width,
                             FromPosition = item.From,
@@ -144,7 +144,7 @@ namespace RoadRegistry.Model
                     Surfaces = Surfaces
                         .Select(item => new Messages.RoadSegmentSurfaceAttributes
                         {
-                            AttributeId = 1,
+                            AttributeId = item.Id,
                             AsOfGeometryVersion = 1,
                             Type = item.Type,
                             FromPosition = item.From,
@@ -176,13 +176,13 @@ namespace RoadRegistry.Model
                     PartOfEuropeanRoads = PartOfEuropeanRoads
                         .Select(item => new Messages.RequestedRoadSegmentEuropeanRoadAttributes
                         {
-                            RoadNumber = item
+                            RoadNumber = item.Number
                         })
                         .ToArray(),
                     PartOfNationalRoads = PartOfNationalRoads
                         .Select(item => new Messages.RequestedRoadSegmentNationalRoadAttributes
                         {
-                            Ident2 = item
+                            Ident2 = item.Number
                         })
                         .ToArray(),
                     PartOfNumberedRoads = PartOfNumberedRoads

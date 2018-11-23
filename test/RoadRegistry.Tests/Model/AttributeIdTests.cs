@@ -1,17 +1,17 @@
 namespace RoadRegistry.Model
 {
     using System;
+    using System.Globalization;
     using System.Linq;
-    using Aiv.Vbr.Utilities;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class RoadNodeIdTests
+    public class AttributeIdTests
     {
         private readonly Fixture _fixture;
 
-        public RoadNodeIdTests()
+        public AttributeIdTests()
         {
             _fixture = new Fixture();
         }
@@ -36,16 +36,16 @@ namespace RoadRegistry.Model
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture),
                 new ComparableCompareToSelfAssertion(_fixture)
-            ).Verify(typeof(RoadNodeId));
+            ).Verify(typeof(AttributeId));
         }
 
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = _fixture.Create<int>();
-            var sut = new RoadNodeId(value);
+            var sut = new AttributeId(value);
 
-            Assert.Equal("RN-" + value, sut.ToString());
+            Assert.Equal(value.ToString(CultureInfo.InvariantCulture), sut.ToString());
         }
 
         [Theory]
@@ -53,9 +53,9 @@ namespace RoadRegistry.Model
         [InlineData(2, 1, 1)]
         public void CompareToReturnsExpectedResult(int left, int right, int expected)
         {
-            var sut = new RoadNodeId(left);
+            var sut = new AttributeId(left);
 
-            var result = sut.CompareTo(new RoadNodeId(right));
+            var result = sut.CompareTo(new AttributeId(right));
 
             Assert.Equal(expected, result);
         }
@@ -64,17 +64,17 @@ namespace RoadRegistry.Model
         public void NextHasExpectedResult()
         {
             var value = new Generator<int>(_fixture).First(candidate => candidate >= 0 && candidate < int.MaxValue);
-            var sut = new RoadNodeId(value);
+            var sut = new AttributeId(value);
 
             var result = sut.Next();
 
-            Assert.Equal(new RoadNodeId(value + 1), result);
+            Assert.Equal(new AttributeId(value + 1), result);
         }
 
         [Fact]
         public void NextThrowsWhenMaximumHasBeenReached()
         {
-            var sut = new RoadNodeId(int.MaxValue);
+            var sut = new AttributeId(int.MaxValue);
 
             Assert.Throws<NotSupportedException>(() => sut.Next());
         }
@@ -85,9 +85,9 @@ namespace RoadRegistry.Model
         [InlineData(2, 2, 2)]
         public void MaxHasExpectedResult(int left, int right, int expected)
         {
-            var result = RoadNodeId.Max(new RoadNodeId(left), new RoadNodeId(right));
+            var result = AttributeId.Max(new AttributeId(left), new AttributeId(right));
 
-            Assert.Equal(new RoadNodeId(expected), result);
+            Assert.Equal(new AttributeId(expected), result);
         }
 
         [Theory]
@@ -96,9 +96,9 @@ namespace RoadRegistry.Model
         [InlineData(1, 1, 1)]
         public void MinHasExpectedResult(int left, int right, int expected)
         {
-            var result = RoadNodeId.Min(new RoadNodeId(left), new RoadNodeId(right));
+            var result = AttributeId.Min(new AttributeId(left), new AttributeId(right));
 
-            Assert.Equal(new RoadNodeId(expected), result);
+            Assert.Equal(new AttributeId(expected), result);
         }
     }
 }

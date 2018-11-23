@@ -17,6 +17,13 @@ namespace RoadRegistry.Model
             );
         }
 
+        public static void CustomizeAttributeId(this IFixture fixture)
+        {
+            fixture.Customize<AttributeId>(composer =>
+                composer.FromFactory<int>(value => new AttributeId(Math.Abs(value)))
+            );
+        }
+
         public static void CustomizeMaintenanceAuthorityId(this IFixture fixture)
         {
             fixture.Customize<MaintenanceAuthorityId>(composer =>
@@ -246,6 +253,7 @@ namespace RoadRegistry.Model
                         var from = generator.First();
                         var to = generator.First(candidate => candidate > from);
                         return new RoadSegmentLaneAttribute(
+                            fixture.Create<AttributeId>(),
                             fixture.Create<RoadSegmentLaneCount>(),
                             fixture.Create<RoadSegmentLaneDirection>(),
                             from,
@@ -267,6 +275,7 @@ namespace RoadRegistry.Model
                         var from = generator.First();
                         var to = generator.First(candidate => candidate > from);
                         return new RoadSegmentWidthAttribute(
+                            fixture.Create<AttributeId>(),
                             fixture.Create<RoadSegmentWidth>(),
                             from,
                             to,
@@ -287,6 +296,7 @@ namespace RoadRegistry.Model
                         var from = generator.First();
                         var to = generator.First(candidate => candidate > from);
                         return new RoadSegmentSurfaceAttribute(
+                            fixture.Create<AttributeId>(),
                             fixture.Create<RoadSegmentSurfaceType>(),
                             from,
                             to,
@@ -294,6 +304,22 @@ namespace RoadRegistry.Model
                         );
                     }
                 )
+            );
+        }
+
+        public static void CustomizeOriginProperties(this IFixture fixture)
+        {
+            fixture.Customize<Messages.OriginProperties>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new Messages.OriginProperties
+                        {
+                            Organization = fixture.Create<MaintenanceAuthorityName>(),
+                            OrganizationId = fixture.Create<MaintenanceAuthorityId>(),
+                            Since = fixture.Create<DateTime>()
+                        }
+                    )
+                    .OmitAutoProperties()
             );
         }
     }

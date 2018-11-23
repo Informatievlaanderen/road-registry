@@ -25,6 +25,7 @@ namespace RoadRegistry.Projections.Tests
 
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeRoadNodeId();
+            _fixture.CustomizeAttributeId();
             _fixture.CustomizeMaintenanceAuthorityId();
             _fixture.CustomizeMaintenanceAuthorityName();
             _fixture.CustomizePolylineM();

@@ -10,7 +10,8 @@ namespace RoadRegistry.Model
 
         public RoadSegmentLaneAttributeTests()
         {
-            _fixture = new Fixture();    
+            _fixture = new Fixture();
+            _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentLaneCount();
             _fixture.CustomizeRoadSegmentLaneDirection();
             _fixture.CustomizeRoadSegmentPosition();
@@ -31,6 +32,7 @@ namespace RoadRegistry.Model
         public void PropertiesReturnExpectedResult()
         {
             var generator = new Generator<RoadSegmentPosition>(_fixture);
+            var attributeId = _fixture.Create<AttributeId>();
             var laneCount = _fixture.Create<RoadSegmentLaneCount>();
             var laneDirection = _fixture.Create<RoadSegmentLaneDirection>();
             var from = generator.First();
@@ -38,6 +40,7 @@ namespace RoadRegistry.Model
             var asOfGeometryVersion = _fixture.Create<GeometryVersion>();
 
             var sut = new RoadSegmentLaneAttribute(
+                attributeId,
                 laneCount,
                 laneDirection,
                 from,
@@ -45,6 +48,7 @@ namespace RoadRegistry.Model
                 asOfGeometryVersion
             );
 
+            Assert.Equal(attributeId, sut.Id);
             Assert.Equal(laneCount, sut.Count);
             Assert.Equal(laneDirection, sut.Direction);
             Assert.Equal(from, sut.From);

@@ -103,6 +103,45 @@ namespace RoadRegistry.Model
             );
         }
 
+        public RejectionReasons BecauseRoadNodeNotConnectedToAnySegment()
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadNodeNotConnectedToAnySegment",
+                        Parameters = new ReasonParameter[0]
+                    }
+                )
+            );
+        }
+
+        public RejectionReasons BecauseRoadSegmentStartNodeMissing()
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadSegmentStartNodeMissing",
+                        Parameters = new ReasonParameter[0]
+                    }
+                )
+            );
+        }
+
+        public RejectionReasons BecauseRoadSegmentEndNodeMissing()
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadSegmentEndNodeMissing",
+                        Parameters = new ReasonParameter[0]
+                    }
+                )
+            );
+        }
+
         public IEnumerator<Reason> GetEnumerator() => ((IEnumerable<Reason>)_reasons).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

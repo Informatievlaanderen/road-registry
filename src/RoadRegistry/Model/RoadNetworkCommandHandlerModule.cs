@@ -21,7 +21,13 @@ namespace RoadRegistry.Model
                     var network = await context.RoadNetworks.Get(ct);
                     var translator = new RequestedChangeTranslator(
                         network.ProvidesNextRoadNodeId(),
-                        network.ProvidesNextRoadSegmentId()
+                        network.ProvidesNextRoadSegmentId(),
+                        network.ProvidesNextEuropeanRoadAttributeId(),
+                        network.ProvidesNextNationalRoadAttributeId(),
+                        network.ProvidesNextNumberedRoadAttributeId(),
+                        network.ProvidesNextLaneAttributeId(),
+                        network.ProvidesNextWidthAttributeId(),
+                        network.ProvidesNextSurfaceAttributeId()
                     );
                     var changes = translator.Translate(message.Body.Changes);
                     network.Change(changes);

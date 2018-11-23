@@ -16,6 +16,7 @@ namespace RoadRegistry.Projections.Tests
         public RoadSegmentNationalRoadAttributeProjectionTests()
         {
             _fixture = new Fixture();
+            _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeRoadNodeId();
             _fixture.CustomizeMaintenanceAuthorityId();

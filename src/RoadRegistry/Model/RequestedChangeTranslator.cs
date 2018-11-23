@@ -8,11 +8,31 @@
     {
         private readonly Func<RoadNodeId> _nextRoadNodeId;
         private readonly Func<RoadSegmentId> _nextRoadSegmentId;
+        private readonly Func<AttributeId> _nextEuropeanRoadAttributeId;
+        private readonly Func<AttributeId> _nextNationalRoadAttributeId;
+        private readonly Func<AttributeId> _nextNumberedRoadAttributeId;
+        private readonly Func<AttributeId> _nextLaneAttributeId;
+        private readonly Func<AttributeId> _nextWidthAttributeId;
+        private readonly Func<AttributeId> _nextSurfaceAttributeId;
 
-        public RequestedChangeTranslator(Func<RoadNodeId> nextRoadNodeId, Func<RoadSegmentId> nextRoadSegmentId)
+        public RequestedChangeTranslator(
+            Func<RoadNodeId> nextRoadNodeId,
+            Func<RoadSegmentId> nextRoadSegmentId,
+            Func<AttributeId> nextEuropeanRoadAttributeId,
+            Func<AttributeId> nextNationalRoadAttributeId,
+            Func<AttributeId> nextNumberedRoadAttributeId,
+            Func<AttributeId> nextLaneAttributeId,
+            Func<AttributeId> nextWidthAttributeId,
+            Func<AttributeId> nextSurfaceAttributeId)
         {
             _nextRoadNodeId = nextRoadNodeId ?? throw new ArgumentNullException(nameof(nextRoadNodeId));
             _nextRoadSegmentId = nextRoadSegmentId ?? throw new ArgumentNullException(nameof(nextRoadSegmentId));
+            _nextEuropeanRoadAttributeId = nextEuropeanRoadAttributeId ?? throw new ArgumentNullException(nameof(nextEuropeanRoadAttributeId));
+            _nextNationalRoadAttributeId = nextNationalRoadAttributeId ?? throw new ArgumentNullException(nameof(nextNationalRoadAttributeId));
+            _nextNumberedRoadAttributeId = nextNumberedRoadAttributeId ?? throw new ArgumentNullException(nameof(nextNumberedRoadAttributeId));
+            _nextLaneAttributeId = nextLaneAttributeId ?? throw new ArgumentNullException(nameof(nextLaneAttributeId));
+            _nextWidthAttributeId = nextWidthAttributeId ?? throw new ArgumentNullException(nameof(nextWidthAttributeId));
+            _nextSurfaceAttributeId = nextSurfaceAttributeId ?? throw new ArgumentNullException(nameof(nextSurfaceAttributeId));
         }
 
         public IReadOnlyCollection<IRequestedChange> Translate(IReadOnlyCollection<Messages.RequestedChange> changes)
@@ -129,15 +149,22 @@
                 : new CrabStreetnameId?();
             var partOfEuropeanRoads = Array.ConvertAll(
                 command.PartOfEuropeanRoads,
-                item => EuropeanRoadNumber.Parse(item.RoadNumber)
+                item => new RoadSegmentEuropeanRoadAttribute(
+                    _nextEuropeanRoadAttributeId(),
+                    EuropeanRoadNumber.Parse(item.RoadNumber)
+                )
             );
             var partOfNationalRoads = Array.ConvertAll(
                 command.PartOfNationalRoads,
-                item => NationalRoadNumber.Parse(item.Ident2)
+                item => new RoadSegmentNationalRoadAttribute(
+                    _nextNationalRoadAttributeId(),
+                    NationalRoadNumber.Parse(item.Ident2)
+                )
             );
             var partOfNumberedRoads = Array.ConvertAll(
                 command.PartOfNumberedRoads,
                 item => new RoadSegmentNumberedRoadAttribute(
+                    _nextNumberedRoadAttributeId(),
                     NumberedRoadNumber.Parse(item.Ident8),
                     RoadSegmentNumberedRoadDirection.Parse(item.Direction),
                     new RoadSegmentNumberedRoadOrdinal(item.Ordinal)
@@ -146,6 +173,7 @@
             var laneAttributes = Array.ConvertAll(
                 command.Lanes,
                 item => new RoadSegmentLaneAttribute(
+                    _nextLaneAttributeId(),
                     new RoadSegmentLaneCount(item.Count),
                     RoadSegmentLaneDirection.Parse(item.Direction),
                     new RoadSegmentPosition(item.FromPosition),
@@ -156,6 +184,7 @@
             var widthAttributes = Array.ConvertAll(
                 command.Widths,
                 item => new RoadSegmentWidthAttribute(
+                    _nextWidthAttributeId(),
                     new RoadSegmentWidth(item.Width),
                     new RoadSegmentPosition(item.FromPosition),
                     new RoadSegmentPosition(item.ToPosition),
@@ -165,6 +194,7 @@
             var surfaceAttributes = Array.ConvertAll(
                 command.Surfaces,
                 item => new RoadSegmentSurfaceAttribute(
+                    _nextSurfaceAttributeId(),
                     RoadSegmentSurfaceType.Parse(item.Type),
                     new RoadSegmentPosition(item.FromPosition),
                     new RoadSegmentPosition(item.ToPosition),
