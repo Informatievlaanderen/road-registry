@@ -5,6 +5,7 @@ namespace RoadRegistry.Model
     using System.Threading.Tasks;
     using AutoFixture;
     using Aiv.Vbr.Shaperon;
+    using GeoAPI.Geometries;
     using Testing;
     using Xunit;
     using NetTopologySuite.Geometries;
@@ -981,6 +982,49 @@ namespace RoadRegistry.Model
                                 new Messages.Reason
                                 {
                                     Because = "RoadSegmentEndNodeMissing",
+                                    Parameters = new Messages.ReasonParameter[0]
+                                }
+                            }
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_with_a_line_string_with_length_0()
+        {
+            var geometry = new MultiLineString(new ILineString[] {new LineString(new Coordinate[0])});
+            geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
+            AddSegment1.Geometry = GeometryTranslator.Translate(geometry);
+
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadSegmentGeometryLengthIsZero",
                                     Parameters = new Messages.ReasonParameter[0]
                                 }
                             }

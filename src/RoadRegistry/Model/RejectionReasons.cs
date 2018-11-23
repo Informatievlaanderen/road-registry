@@ -142,6 +142,19 @@ namespace RoadRegistry.Model
             );
         }
 
+        public RejectionReasons BecauseRoadSegmentGeometryLengthIsZero()
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadSegmentGeometryLengthIsZero",
+                        Parameters = new ReasonParameter[0]
+                    }
+                )
+            );
+        }
+
         public IEnumerator<Reason> GetEnumerator() => ((IEnumerable<Reason>)_reasons).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

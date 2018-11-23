@@ -13,8 +13,6 @@ namespace RoadRegistry.Model
         {
             var allNodes = _accepted_nodes;
             var allSegments = _accepted_segments;
-            var incrementalNodes = _accepted_nodes;
-            var incrementalSegments = _accepted_segments;
             foreach (var change in changes)
             {
                 switch (change)
@@ -51,6 +49,8 @@ namespace RoadRegistry.Model
 
             var acceptedChanges = new List<AcceptedChange>();
             var rejectedChanges = new List<RejectedChange>();
+            var incrementalNodes = _accepted_nodes;
+            var incrementalSegments = _accepted_segments;
             foreach (var change in changes)
             {
                 var reasons = RejectionReasons.None;
@@ -107,6 +107,11 @@ namespace RoadRegistry.Model
                         if (incrementalSegments.ContainsKey(addRoadSegment.Id))
                         {
                             reasons = reasons.BecauseRoadSegmentIdTaken();
+                        }
+
+                        if (Math.Abs(addRoadSegment.Geometry.Length) <= 0.0)
+                        {
+                            reasons = reasons.BecauseRoadSegmentGeometryLengthIsZero();
                         }
 
                         var byOtherSegment =
