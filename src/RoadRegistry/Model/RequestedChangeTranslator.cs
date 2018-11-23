@@ -66,55 +66,6 @@
             return translated;
         }
 
-        private class RankChangeBeforeTranslation : IComparer<object>
-        {
-            private static readonly Type[] SequenceByTypeOfChange =
-            {
-                typeof(Messages.AddRoadNode),
-                typeof(Messages.AddRoadSegment)
-            };
-
-            public int Compare(object left, object right)
-            {
-                if (left == null) throw new ArgumentNullException(nameof(left));
-                if (right == null) throw new ArgumentNullException(nameof(right));
-
-                var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.GetType());
-                var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.GetType());
-                return leftRank.CompareTo(rightRank);
-            }
-        }
-
-        private class TranslationContext : ITranslationContext
-        {
-            private Dictionary<RoadNodeId, RoadNodeId> _mapOfNodes;
-            private Dictionary<RoadSegmentId, RoadSegmentId> _mapOfSegments;
-
-            public TranslationContext()
-            {
-                _mapOfNodes = new Dictionary<RoadNodeId, RoadNodeId>();
-                _mapOfSegments = new Dictionary<RoadSegmentId, RoadSegmentId>();
-            }
-
-            public void Map(AddRoadNode change) =>
-                _mapOfNodes.Add(change.TemporaryId, change.Id);
-
-            public RoadNodeId Translate(RoadNodeId id) =>
-                _mapOfNodes.TryGetValue(id, out RoadNodeId permanent) ? permanent : id;
-
-            public void Map(AddRoadSegment change) =>
-                _mapOfSegments.Add(change.TemporaryId, change.Id);
-
-            public RoadSegmentId Translate(RoadSegmentId id) =>
-                _mapOfSegments.TryGetValue(id, out RoadSegmentId permanent) ? permanent : id;
-        }
-
-        private interface ITranslationContext
-        {
-            RoadNodeId Translate(RoadNodeId id);
-            RoadSegmentId Translate(RoadSegmentId id);
-        }
-
         private AddRoadNode Translate(Messages.AddRoadNode command)
         {
             var permanent = _nextRoadNodeId();
@@ -132,8 +83,31 @@
         {
             var permanent = _nextRoadSegmentId();
             var temporary = new RoadSegmentId(command.TemporaryId);
-            var startNode = context.Translate(new RoadNodeId(command.StartNodeId));
-            var endNode = context.Translate(new RoadNodeId(command.EndNodeId));
+            RoadNodeId startNodeId;
+            RoadNodeId? temporaryStartNodeId;
+            if (context.TryTranslate(new RoadNodeId(command.StartNodeId), out var permanentStartNodeId))
+            {
+                startNodeId = permanentStartNodeId;
+                temporaryStartNodeId = new RoadNodeId(command.StartNodeId);
+            }
+            else
+            {
+                startNodeId = new RoadNodeId(command.StartNodeId);
+                temporaryStartNodeId = null;
+            }
+
+            RoadNodeId endNodeId;
+            RoadNodeId? temporaryEndNodeId;
+            if (context.TryTranslate(new RoadNodeId(command.EndNodeId), out var permanentEndNodeId))
+            {
+                endNodeId = permanentEndNodeId;
+                temporaryEndNodeId = new RoadNodeId(command.EndNodeId);
+            }
+            else
+            {
+                endNodeId = new RoadNodeId(command.EndNodeId);
+                temporaryEndNodeId = null;
+            }
             var geometry = GeometryTranslator.Translate(command.Geometry);
             var maintainer = new MaintenanceAuthorityId(command.MaintenanceAuthority);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
@@ -206,8 +180,10 @@
             (
                 permanent,
                 temporary,
-                startNode,
-                endNode,
+                startNodeId,
+                temporaryStartNodeId,
+                endNodeId,
+                temporaryEndNodeId,
                 geometry,
                 maintainer,
                 geometryDrawMethod,
@@ -224,6 +200,78 @@
                 widthAttributes,
                 surfaceAttributes
             );
+        }
+
+        private class RankChangeBeforeTranslation : IComparer<object>
+        {
+            private static readonly Type[] SequenceByTypeOfChange =
+            {
+                typeof(Messages.AddRoadNode),
+                typeof(Messages.AddRoadSegment)
+            };
+
+            public int Compare(object left, object right)
+            {
+                if (left == null) throw new ArgumentNullException(nameof(left));
+                if (right == null) throw new ArgumentNullException(nameof(right));
+
+                var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.GetType());
+                var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.GetType());
+                var comparison = leftRank.CompareTo(rightRank);
+                if (comparison == 0)
+                {
+                    if (left is Messages.AddRoadNode leftNode &&
+                        right is Messages.AddRoadNode rightNode)
+                    {
+                        return leftNode.TemporaryId.CompareTo(rightNode.TemporaryId);
+                    }
+                    if (left is Messages.AddRoadSegment leftSegment &&
+                        right is Messages.AddRoadSegment rightSegment)
+                    {
+                        return leftSegment.TemporaryId.CompareTo(rightSegment.TemporaryId);
+                    }
+                }
+
+                return comparison;
+            }
+        }
+
+        private class TranslationContext : ITranslationContext
+        {
+            private readonly Dictionary<RoadNodeId, RoadNodeId> _mapOfNodes;
+            private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapOfSegments;
+
+            public TranslationContext()
+            {
+                _mapOfNodes = new Dictionary<RoadNodeId, RoadNodeId>();
+                _mapOfSegments = new Dictionary<RoadSegmentId, RoadSegmentId>();
+            }
+
+            public void Map(AddRoadNode change) =>
+                _mapOfNodes.Add(change.TemporaryId, change.Id);
+
+            public bool TryTranslate(RoadNodeId id, out RoadNodeId translated) =>
+                _mapOfNodes.TryGetValue(id, out translated);
+
+            public RoadNodeId Translate(RoadNodeId id) =>
+                _mapOfNodes.TryGetValue(id, out RoadNodeId permanent) ? permanent : id;
+
+            public void Map(AddRoadSegment change) =>
+                _mapOfSegments.Add(change.TemporaryId, change.Id);
+
+            public bool TryTranslate(RoadSegmentId id, out RoadSegmentId translated) =>
+                _mapOfSegments.TryGetValue(id, out translated);
+
+            public RoadSegmentId Translate(RoadSegmentId id) =>
+                _mapOfSegments.TryGetValue(id, out RoadSegmentId permanent) ? permanent : id;
+        }
+
+        private interface ITranslationContext
+        {
+            bool TryTranslate(RoadNodeId id, out RoadNodeId translated);
+//            RoadNodeId Translate(RoadNodeId id);
+//            bool TryTranslate(RoadSegmentId id, out RoadSegmentId translated);
+//            RoadSegmentId Translate(RoadSegmentId id);
         }
     }
 }

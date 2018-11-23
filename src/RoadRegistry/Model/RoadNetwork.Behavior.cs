@@ -31,8 +31,8 @@ namespace RoadRegistry.Model
                         break;
                     case AddRoadSegment addRoadSegment:
                         allNodes = allNodes
-                            .TryReplaceValue(addRoadSegment.StartNode, node => node.ConnectWith(addRoadSegment.Id))
-                            .TryReplaceValue(addRoadSegment.EndNode, node => node.ConnectWith(addRoadSegment.Id));
+                            .TryReplaceValue(addRoadSegment.StartNodeId, node => node.ConnectWith(addRoadSegment.Id))
+                            .TryReplaceValue(addRoadSegment.EndNodeId, node => node.ConnectWith(addRoadSegment.Id));
                         if (!allSegments.ContainsKey(addRoadSegment.Id))
                         {
                             allSegments = allSegments.Add(
@@ -40,8 +40,8 @@ namespace RoadRegistry.Model
                                 new RoadSegment(
                                     addRoadSegment.Id,
                                     addRoadSegment.Geometry,
-                                    addRoadSegment.StartNode,
-                                    addRoadSegment.EndNode)
+                                    addRoadSegment.StartNodeId,
+                                    addRoadSegment.EndNodeId)
                             );
                         }
 
@@ -118,12 +118,12 @@ namespace RoadRegistry.Model
                             reasons = reasons.BecauseRoadSegmentGeometryTaken(byOtherSegment.Id);
                         }
 
-                        if (!allNodes.ContainsKey(addRoadSegment.StartNode))
+                        if (!allNodes.ContainsKey(addRoadSegment.StartNodeId))
                         {
                             reasons = reasons.BecauseRoadSegmentStartNodeMissing();
                         }
 
-                        if (!allNodes.ContainsKey(addRoadSegment.EndNode))
+                        if (!allNodes.ContainsKey(addRoadSegment.EndNodeId))
                         {
                             reasons = reasons.BecauseRoadSegmentEndNodeMissing();
                         }

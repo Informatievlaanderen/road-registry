@@ -733,5 +733,190 @@ namespace RoadRegistry.Model
                 })
             );
         }
+
+        [Fact]
+        public Task when_adding_an_end_node_that_is_within_two_meters_of_another_node()
+        {
+            var geometry1 = GeometryTranslator.Translate(EndNode1Added.Geometry);
+            var random = new Random();
+            var geometry2 = new PointM(
+                geometry1.X + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance,
+                geometry1.Y + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance,
+                geometry1.Z + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance
+            );
+            AddEndNode2.Geometry = GeometryTranslator.Translate(geometry2);
+            return Run(scenario => scenario
+                .Given(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                {
+                    Changes = new[]
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added
+                        }
+                    }
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode2
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode2
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment2
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new[]
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadNode = AddEndNode2,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadNodeTooClose",
+                                    Parameters = new[]
+                                    {
+                                        new Messages.ReasonParameter
+                                        {
+                                            Name = "ToOtherNode",
+                                            Value = "2"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+            );
+        }
+
+        [Fact]
+        public Task when_changes_are_out_of_order()
+        {
+            // TemporaryId influences order.
+            AddStartNode1.TemporaryId = 1;
+            StartNode1Added.TemporaryId = 1;
+            AddEndNode1.TemporaryId = 2;
+            EndNode1Added.TemporaryId = 2;
+            AddSegment1.StartNodeId = 1;
+            AddSegment1.EndNodeId = 2;
+
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                {
+                    Changes = new[]
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added
+                        }
+                    }
+                })
+            );
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_with_a_geometry_that_has_been_taken()
+        {
+            AddSegment2.Geometry = Segment1Added.Geometry;
+
+            return Run(scenario => scenario
+                .Given(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                {
+                    Changes = new[]
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added
+                        }
+                    }
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode2
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode2
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment2
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment2,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadSegmentGeometryTaken",
+                                    Parameters = new[]
+                                    {
+                                        new Messages.ReasonParameter
+                                        {
+                                            Name = "ByOtherSegment",
+                                            Value = "1"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }));
+        }
     }
 }

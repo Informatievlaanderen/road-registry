@@ -7,11 +7,12 @@ namespace RoadRegistry.Model
 
     public class AddRoadSegment : IRequestedChange
     {
-        public AddRoadSegment(
-            RoadSegmentId id,
+        public AddRoadSegment(RoadSegmentId id,
             RoadSegmentId temporaryId,
-            RoadNodeId startNode,
-            RoadNodeId endNode,
+            RoadNodeId startNodeId,
+            RoadNodeId? temporaryStartNodeId,
+            RoadNodeId endNodeId,
+            RoadNodeId? temporaryEndNodeId,
             MultiLineString geometry,
             MaintenanceAuthorityId maintenanceAuthority,
             RoadSegmentGeometryDrawMethod geometryDrawMethod,
@@ -30,8 +31,10 @@ namespace RoadRegistry.Model
         {
             Id = id;
             TemporaryId = temporaryId;
-            StartNode = startNode;
-            EndNode = endNode;
+            StartNodeId = startNodeId;
+            TemporaryStartNodeId = temporaryStartNodeId;
+            EndNodeId = endNodeId;
+            TemporaryEndNodeId = temporaryEndNodeId;
             Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
             MaintenanceAuthority = maintenanceAuthority;
             GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
@@ -51,8 +54,10 @@ namespace RoadRegistry.Model
 
         public RoadSegmentId Id { get; }
         public RoadSegmentId TemporaryId { get; }
-        public RoadNodeId StartNode { get; }
-        public RoadNodeId EndNode { get; }
+        public RoadNodeId StartNodeId { get; }
+        public RoadNodeId? TemporaryStartNodeId { get; }
+        public RoadNodeId EndNodeId { get; }
+        public RoadNodeId? TemporaryEndNodeId { get; }
         public MultiLineString Geometry { get; }
         public MaintenanceAuthorityId MaintenanceAuthority { get; }
         public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
@@ -77,8 +82,8 @@ namespace RoadRegistry.Model
                 {
                     Id = Id,
                     TemporaryId = TemporaryId,
-                    StartNodeId = StartNode,
-                    EndNodeId = EndNode,
+                    StartNodeId = StartNodeId,
+                    EndNodeId = EndNodeId,
                     Geometry = GeometryTranslator.Translate(Geometry),
                     MaintenanceAuthority = new Messages.MaintenanceAuthority
                     {
@@ -162,8 +167,8 @@ namespace RoadRegistry.Model
                 AddRoadSegment = new Messages.AddRoadSegment
                 {
                     TemporaryId = TemporaryId,
-                    StartNodeId = StartNode,
-                    EndNodeId = EndNode,
+                    StartNodeId = TemporaryStartNodeId ?? StartNodeId,
+                    EndNodeId = TemporaryEndNodeId ?? EndNodeId,
                     Geometry = GeometryTranslator.Translate(Geometry),
                     MaintenanceAuthority = MaintenanceAuthority,
                     GeometryDrawMethod = GeometryDrawMethod,
