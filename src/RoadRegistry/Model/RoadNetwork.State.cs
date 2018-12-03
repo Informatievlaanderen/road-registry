@@ -11,8 +11,8 @@ namespace RoadRegistry.Model
         public static readonly Func<RoadNetwork> Factory = () => new RoadNetwork();
         public static readonly double TooCloseDistance = 2.0;
 
-        private ImmutableDictionary<RoadNodeId, RoadNode> _accepted_nodes;
-        private ImmutableDictionary<RoadSegmentId, RoadSegment> _accepted_segments;
+        private ImmutableDictionary<RoadNodeId, RoadNode> _acceptedNodes;
+        private ImmutableDictionary<RoadSegmentId, RoadSegment> _acceptedSegments;
         private RoadNodeId _maximumNodeId = new RoadNodeId(0);
         private RoadSegmentId _maximumSegmentId = new RoadSegmentId(0);
         private AttributeId _maximumEuropeanRoadAttributeId = new AttributeId(0);
@@ -24,14 +24,14 @@ namespace RoadRegistry.Model
 
         private RoadNetwork()
         {
-            _accepted_nodes = ImmutableDictionary<RoadNodeId, RoadNode>.Empty;
-            _accepted_segments = ImmutableDictionary<RoadSegmentId, RoadSegment>.Empty;
+            _acceptedNodes = ImmutableDictionary<RoadNodeId, RoadNode>.Empty;
+            _acceptedSegments = ImmutableDictionary<RoadSegmentId, RoadSegment>.Empty;
 
             On<ImportedRoadNode>(e =>
             {
                 var id = new RoadNodeId(e.Id);
                 var node = new RoadNode(id, GeometryTranslator.Translate(e.Geometry));
-                _accepted_nodes = _accepted_nodes.Add(id, node);
+                _acceptedNodes = _acceptedNodes.Add(id, node);
                 _maximumNodeId = RoadNodeId.Max(id, _maximumNodeId);
             });
 
@@ -40,11 +40,11 @@ namespace RoadRegistry.Model
                 var id = new RoadSegmentId(e.Id);
                 var start = new RoadNodeId(e.StartNodeId);
                 var end = new RoadNodeId(e.EndNodeId);
-                _accepted_nodes = _accepted_nodes
+                _acceptedNodes = _acceptedNodes
                     .TryReplaceValue(start, node => node.ConnectWith(id))
                     .TryReplaceValue(end, node => node.ConnectWith(id));
                 var segment = new RoadSegment(id, GeometryTranslator.Translate(e.Geometry), start, end);
-                _accepted_segments = _accepted_segments.Add(id, segment);
+                _acceptedSegments = _acceptedSegments.Add(id, segment);
                 _maximumSegmentId = RoadSegmentId.Max(id, _maximumSegmentId);
                 if (e.PartOfEuropeanRoads.Length > 0)
                 {
@@ -98,7 +98,7 @@ namespace RoadRegistry.Model
                             {
                                 var id = new RoadNodeId(roadNodeAdded.Id);
                                 var node = new RoadNode(id, GeometryTranslator.Translate(roadNodeAdded.Geometry));
-                                _accepted_nodes = _accepted_nodes.Add(id, node);
+                                _acceptedNodes = _acceptedNodes.Add(id, node);
                                 _maximumNodeId = RoadNodeId.Max(id, _maximumNodeId);
                             }
                             break;
@@ -107,12 +107,12 @@ namespace RoadRegistry.Model
                                 var id = new RoadSegmentId(roadSegmentAdded.Id);
                                 var start = new RoadNodeId(roadSegmentAdded.StartNodeId);
                                 var end = new RoadNodeId(roadSegmentAdded.EndNodeId);
-                                _accepted_nodes = _accepted_nodes
+                                _acceptedNodes = _acceptedNodes
                                     .TryReplaceValue(start, node => node.ConnectWith(id))
                                     .TryReplaceValue(end, node => node.ConnectWith(id));
                                 var segment = new RoadSegment(id, GeometryTranslator.Translate(roadSegmentAdded.Geometry),
                                     start, end);
-                                _accepted_segments = _accepted_segments.Add(id, segment);
+                                _acceptedSegments = _acceptedSegments.Add(id, segment);
                                 _maximumSegmentId = RoadSegmentId.Max(id, _maximumSegmentId);
                                 if (roadSegmentAdded.PartOfEuropeanRoads.Length > 0)
                                 {

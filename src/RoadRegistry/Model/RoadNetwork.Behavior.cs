@@ -2,17 +2,15 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Immutable;
     using System.Linq;
-    using Framework;
     using Messages;
 
     public partial class RoadNetwork
     {
         public void Change(IReadOnlyCollection<IRequestedChange> changes)
         {
-            var allNodes = _accepted_nodes;
-            var allSegments = _accepted_segments;
+            var allNodes = _acceptedNodes;
+            var allSegments = _acceptedSegments;
             foreach (var change in changes)
             {
                 switch (change)
@@ -49,8 +47,8 @@ namespace RoadRegistry.Model
 
             var acceptedChanges = new List<AcceptedChange>();
             var rejectedChanges = new List<RejectedChange>();
-            var incrementalNodes = _accepted_nodes;
-            var incrementalSegments = _accepted_segments;
+            var incrementalNodes = _acceptedNodes;
+            var incrementalSegments = _acceptedSegments;
             foreach (var change in changes)
             {
                 var reasons = RejectionReasons.None;
@@ -76,7 +74,7 @@ namespace RoadRegistry.Model
                             var toOtherNode =
                                 allNodes.Values.FirstOrDefault(node =>
                                     node.Id != addRoadNode.Id &&
-                                    node.Geometry.Distance(addRoadNode.Geometry) < TooCloseDistance);
+                                    node.Geometry.IsWithinDistance(addRoadNode.Geometry, TooCloseDistance));
                             if (toOtherNode != null)
                             {
                                 reasons = reasons.BecauseRoadNodeTooClose(toOtherNode.Id);
@@ -123,14 +121,31 @@ namespace RoadRegistry.Model
                             reasons = reasons.BecauseRoadSegmentGeometryTaken(byOtherSegment.Id);
                         }
 
-                        if (!allNodes.ContainsKey(addRoadSegment.StartNodeId))
+                        var line = addRoadSegment.Geometry.Geometries
+                            .OfType<NetTopologySuite.Geometries.LineString>()
+                            .Single();
+                        if (!allNodes.TryGetValue(addRoadSegment.StartNodeId, out var startNode))
                         {
                             reasons = reasons.BecauseRoadSegmentStartNodeMissing();
                         }
+                        else
+                        {
+                            if (line.StartPoint != null && !line.StartPoint.EqualsExact(startNode.Geometry))
+                            {
+                                reasons = reasons.BecauseRoadSegmentStartPointDoesNotMatchNodeGeometry();
+                            }
+                        }
 
-                        if (!allNodes.ContainsKey(addRoadSegment.EndNodeId))
+                        if (!allNodes.TryGetValue(addRoadSegment.EndNodeId, out var endNode))
                         {
                             reasons = reasons.BecauseRoadSegmentEndNodeMissing();
+                        }
+                        else
+                        {
+                            if (line.EndPoint != null && !line.EndPoint.EqualsExact(endNode.Geometry))
+                            {
+                                reasons = reasons.BecauseRoadSegmentEndPointDoesNotMatchNodeGeometry();
+                            }
                         }
 
                         if (reasons == RejectionReasons.None)

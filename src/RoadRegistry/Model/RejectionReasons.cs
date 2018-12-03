@@ -155,6 +155,32 @@ namespace RoadRegistry.Model
             );
         }
 
+        public RejectionReasons BecauseRoadSegmentStartPointDoesNotMatchNodeGeometry()
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadSegmentStartPointDoesNotMatchNodeGeometry",
+                        Parameters = new ReasonParameter[0]
+                    }
+                )
+            );
+        }
+
+        public RejectionReasons BecauseRoadSegmentEndPointDoesNotMatchNodeGeometry()
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadSegmentEndPointDoesNotMatchNodeGeometry",
+                        Parameters = new ReasonParameter[0]
+                    }
+                )
+            );
+        }
+
         public IEnumerator<Reason> GetEnumerator() => ((IEnumerable<Reason>)_reasons).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

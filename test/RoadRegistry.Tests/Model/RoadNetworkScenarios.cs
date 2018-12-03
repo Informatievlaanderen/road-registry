@@ -78,10 +78,33 @@ namespace RoadRegistry.Model
                     instance.Type = Fixture.Create<RoadSegmentSurfaceType>();
                 }).OmitAutoProperties());
 
+            StartPoint1 = new PointM(0.0, 0.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            MiddlePoint1 = new PointM(50.0, 50.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            EndPoint1 = new PointM(100.0, 100.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            MultiLineString1 = new MultiLineString(
+                new ILineString[]
+                {
+                    new LineString(
+                        new PointSequence(new [] { StartPoint1, MiddlePoint1, EndPoint1 }),
+                        GeometryConfiguration.GeometryFactory
+                    )
+                }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+
+            StartPoint2 = new PointM(0.0, 200.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            MiddlePoint2 = new PointM(50.0, 250.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            EndPoint2 = new PointM(100.0, 300.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            MultiLineString2 = new MultiLineString(
+                new ILineString[]
+                {
+                    new LineString(
+                        new PointSequence(new [] { StartPoint2, MiddlePoint2, EndPoint2 }),
+                        GeometryConfiguration.GeometryFactory
+                    )
+                }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             AddStartNode1 = new Messages.AddRoadNode
             {
                 TemporaryId = Fixture.Create<RoadNodeId>(),
-                Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>()),
+                Geometry = GeometryTranslator.Translate(StartPoint1),
                 Type = RoadNodeType.FakeNode
             };
 
@@ -96,7 +119,7 @@ namespace RoadRegistry.Model
             AddEndNode1 = new Messages.AddRoadNode
             {
                 TemporaryId = AddStartNode1.TemporaryId + 1,
-                Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>()),
+                Geometry = GeometryTranslator.Translate(EndPoint1),
                 Type = RoadNodeType.FakeNode
             };
 
@@ -111,7 +134,7 @@ namespace RoadRegistry.Model
             AddStartNode2 = new Messages.AddRoadNode
             {
                 TemporaryId = AddEndNode1.TemporaryId + 1,
-                Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>()),
+                Geometry = GeometryTranslator.Translate(StartPoint2),
                 Type = RoadNodeType.FakeNode
             };
 
@@ -126,7 +149,7 @@ namespace RoadRegistry.Model
             AddEndNode2 = new Messages.AddRoadNode
             {
                 TemporaryId = AddStartNode2.TemporaryId + 1,
-                Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>()),
+                Geometry = GeometryTranslator.Translate(EndPoint2),
                 Type = RoadNodeType.FakeNode
             };
 
@@ -149,7 +172,7 @@ namespace RoadRegistry.Model
                 TemporaryId = Fixture.Create<RoadSegmentId>(),
                 StartNodeId = AddStartNode1.TemporaryId,
                 EndNodeId = AddEndNode1.TemporaryId,
-                Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
+                Geometry = GeometryTranslator.Translate(MultiLineString1),
                 MaintenanceAuthority = Fixture.Create<MaintenanceAuthorityId>(),
                 GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                 Morphology = Fixture.Create<RoadSegmentMorphology>(),
@@ -283,7 +306,7 @@ namespace RoadRegistry.Model
                 TemporaryId = AddSegment1.TemporaryId + 1,
                 StartNodeId = AddStartNode2.TemporaryId,
                 EndNodeId = AddEndNode2.TemporaryId,
-                Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
+                Geometry = GeometryTranslator.Translate(MultiLineString2),
                 MaintenanceAuthority = Fixture.Create<MaintenanceAuthorityId>(),
                 GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                 Morphology = Fixture.Create<RoadSegmentMorphology>(),
@@ -413,6 +436,22 @@ namespace RoadRegistry.Model
             };
         }
 
+        public MultiLineString MultiLineString2 { get; }
+
+        public PointM EndPoint2 { get; }
+
+        public PointM MiddlePoint2 { get; }
+
+        public PointM StartPoint2 { get; }
+
+        public MultiLineString MultiLineString1 { get; }
+
+        public PointM EndPoint1 { get; }
+
+        public PointM MiddlePoint1 { get; }
+
+        public PointM StartPoint1 { get; }
+
         public Messages.AddRoadNode AddStartNode1 { get; }
         public Messages.AddRoadNode AddEndNode1 { get; }
         public Messages.AddRoadSegment AddSegment1 { get; }
@@ -471,6 +510,16 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_start_node_with_a_geometry_that_has_been_taken()
         {
+            AddSegment2.Geometry = GeometryTranslator.Translate(
+                new MultiLineString(
+                    new ILineString[]
+                    {
+                        new LineString(
+                            new PointSequence(new[] {StartPoint1, MiddlePoint2, EndPoint2}),
+                            GeometryConfiguration.GeometryFactory
+                        )
+                    }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
+            );
             AddStartNode2.Geometry = StartNode1Added.Geometry;
 
             return Run(scenario => scenario
@@ -537,6 +586,16 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_an_end_node_with_a_geometry_that_has_been_taken()
         {
+            AddSegment2.Geometry = GeometryTranslator.Translate(
+                new MultiLineString(
+                    new ILineString[]
+                    {
+                        new LineString(
+                            new PointSequence(new[] {StartPoint2, MiddlePoint2, EndPoint1}),
+                            GeometryConfiguration.GeometryFactory
+                        )
+                    }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
+            );
             AddEndNode2.Geometry = EndNode1Added.Geometry;
 
             return Run(scenario => scenario
@@ -666,14 +725,22 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_start_node_that_is_within_two_meters_of_another_node()
         {
-            var geometry1 = GeometryTranslator.Translate(StartNode1Added.Geometry);
             var random = new Random();
-            var geometry2 = new PointM(
-                geometry1.X + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance,
-                geometry1.Y + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance,
-                geometry1.Z + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance
+            var startPoint = new PointM(
+                StartPoint1.X + random.NextDouble() * RoadNetwork.TooCloseDistance,
+                StartPoint1.Y + random.NextDouble() * RoadNetwork.TooCloseDistance
             );
-            AddStartNode2.Geometry = GeometryTranslator.Translate(geometry2);
+            AddSegment2.Geometry = GeometryTranslator.Translate(
+                new MultiLineString(
+                    new ILineString[]
+                    {
+                        new LineString(
+                            new PointSequence(new[] {startPoint, MiddlePoint2, EndPoint2}),
+                            GeometryConfiguration.GeometryFactory
+                        )
+                    }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
+            );
+            AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint);
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
                 {
@@ -738,14 +805,23 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_an_end_node_that_is_within_two_meters_of_another_node()
         {
-            var geometry1 = GeometryTranslator.Translate(EndNode1Added.Geometry);
             var random = new Random();
-            var geometry2 = new PointM(
-                geometry1.X + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance,
-                geometry1.Y + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance,
-                geometry1.Z + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance
+            var endPoint = new PointM(
+                EndPoint1.X + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance,
+                EndPoint1.Y + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance,
+                EndPoint1.Z + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance
             );
-            AddEndNode2.Geometry = GeometryTranslator.Translate(geometry2);
+            AddSegment2.Geometry = GeometryTranslator.Translate(
+                new MultiLineString(
+                    new ILineString[]
+                    {
+                        new LineString(
+                            new PointSequence(new[] {StartPoint2, MiddlePoint2, endPoint}),
+                            GeometryConfiguration.GeometryFactory
+                        )
+                    }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
+            );
+            AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint);
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
                 {
@@ -858,6 +934,8 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_segment_with_a_geometry_that_has_been_taken()
         {
+            AddSegment2.StartNodeId = StartNode1Added.Id;
+            AddSegment2.EndNodeId = EndNode1Added.Id;
             AddSegment2.Geometry = Segment1Added.Geometry;
 
             return Run(scenario => scenario
@@ -880,14 +958,6 @@ namespace RoadRegistry.Model
                     }
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
-                    new Messages.RequestedChange
-                    {
-                        AddRoadNode = AddStartNode2
-                    },
-                    new Messages.RequestedChange
-                    {
-                        AddRoadNode = AddEndNode2
-                    },
                     new Messages.RequestedChange
                     {
                         AddRoadSegment = AddSegment2
@@ -991,10 +1061,93 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
+        public Task when_adding_a_segment_whose_start_point_does_not_match_its_start_node_geometry()
+        {
+            AddStartNode1.Geometry = GeometryTranslator.Translate(MiddlePoint1);
+
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadSegmentStartPointDoesNotMatchNodeGeometry",
+                                    Parameters = new Messages.ReasonParameter[0]
+                                }
+                            }
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_whose_end_point_does_not_match_its_end_node_geometry()
+        {
+            AddEndNode1.Geometry = GeometryTranslator.Translate(MiddlePoint1);
+
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadSegmentEndPointDoesNotMatchNodeGeometry",
+                                    Parameters = new Messages.ReasonParameter[0]
+                                }
+                            }
+                        }
+                    }
+                }));
+        }
+        [Fact]
         public Task when_adding_a_segment_with_a_line_string_with_length_0()
         {
-            var geometry = new MultiLineString(new ILineString[] {new LineString(new Coordinate[0])});
-            geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
+            var geometry = new MultiLineString(new ILineString[] {new LineString(new Coordinate[0])})
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
             AddSegment1.Geometry = GeometryTranslator.Translate(geometry);
 
             return Run(scenario => scenario
