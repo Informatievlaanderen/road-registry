@@ -25,7 +25,7 @@ namespace RoadRegistry.Model
             _start = _fixture.Create<RoadNodeId>();
             _end = _fixture.Create<RoadNodeId>();
             _geometry = _fixture.Create<MultiLineString>();
-            _sut = new RoadSegment(_id, _geometry, _start, _end);
+            _sut = new RoadSegment(_id, _geometry, _start, _end, AttributeHash.None);
         }
 
         [Fact]
@@ -55,7 +55,8 @@ namespace RoadRegistry.Model
         [Fact]
         public void ThrowsWhenStartIsSameAsEnd()
         {
-            Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start));
+            Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start,
+                AttributeHash.None));
         }
 
         [Fact]
@@ -76,7 +77,8 @@ namespace RoadRegistry.Model
         )
         {
             var sut = new RoadSegment(_fixture.Create<RoadSegmentId>(), _fixture.Create<MultiLineString>(),
-                new RoadNodeId(start), new RoadNodeId(end));
+                new RoadNodeId(start), new RoadNodeId(end),
+                AttributeHash.None);
 
             var result = sut.SelectOppositeNode(new RoadNodeId(toCounter)).ToArray();
 

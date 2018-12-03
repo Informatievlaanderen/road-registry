@@ -37,7 +37,8 @@ namespace RoadRegistry.Model
                                     addRoadSegment.Id,
                                     addRoadSegment.Geometry,
                                     addRoadSegment.StartNodeId,
-                                    addRoadSegment.EndNodeId)
+                                    addRoadSegment.EndNodeId,
+                                    AttributeHash.None)
                             );
                         }
 
@@ -95,6 +96,8 @@ namespace RoadRegistry.Model
                         else if (connectedSegmentCount == 2 && (addRoadNode.Type != RoadNodeType.FakeNode || addRoadNode.Type != RoadNodeType.TurningLoopNode))
                         {
                             reasons = reasons.BecauseRoadNodeTypeMismatch(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode);
+
+                            //reasons = reasons.BecauseFakeRoadNodeConnectedSegmentsDoNotDiffer(segment1.Id, segment2.Id);
                         }
                         else if (connectedSegmentCount > 2 && (addRoadNode.Type != RoadNodeType.RealNode || addRoadNode.Type != RoadNodeType.MiniRoundabout))
                         {

@@ -11,6 +11,7 @@ namespace RoadRegistry.Model
         public MultiLineString Geometry { get; }
         public RoadNodeId Start { get; }
         public RoadNodeId End { get; }
+        public AttributeHash AttributeHash { get; }
 
         public IEnumerable<RoadNodeId> Nodes
         {
@@ -21,7 +22,7 @@ namespace RoadRegistry.Model
             }
         }
 
-        public RoadSegment(RoadSegmentId id, MultiLineString geometry, RoadNodeId start, RoadNodeId end)
+        public RoadSegment(RoadSegmentId id, MultiLineString geometry, RoadNodeId start, RoadNodeId end, AttributeHash attributeHash)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
             if (start == end)
@@ -31,6 +32,7 @@ namespace RoadRegistry.Model
             Geometry = geometry;
             Start = start;
             End = end;
+            AttributeHash = attributeHash;
         }
 
         public IEnumerable<RoadNodeId> SelectOppositeNode(RoadNodeId id)

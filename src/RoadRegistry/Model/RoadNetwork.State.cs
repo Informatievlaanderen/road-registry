@@ -43,7 +43,12 @@ namespace RoadRegistry.Model
                 _acceptedNodes = _acceptedNodes
                     .TryReplaceValue(start, node => node.ConnectWith(id))
                     .TryReplaceValue(end, node => node.ConnectWith(id));
-                var segment = new RoadSegment(id, GeometryTranslator.Translate(e.Geometry), start, end);
+                var segment = new RoadSegment(
+                    id,
+                    GeometryTranslator.Translate(e.Geometry),
+                    start,
+                    end,
+                    AttributeHash.None);
                 _acceptedSegments = _acceptedSegments.Add(id, segment);
                 _maximumSegmentId = RoadSegmentId.Max(id, _maximumSegmentId);
                 if (e.PartOfEuropeanRoads.Length > 0)
@@ -110,8 +115,12 @@ namespace RoadRegistry.Model
                                 _acceptedNodes = _acceptedNodes
                                     .TryReplaceValue(start, node => node.ConnectWith(id))
                                     .TryReplaceValue(end, node => node.ConnectWith(id));
-                                var segment = new RoadSegment(id, GeometryTranslator.Translate(roadSegmentAdded.Geometry),
-                                    start, end);
+                                var segment = new RoadSegment(
+                                    id,
+                                    GeometryTranslator.Translate(roadSegmentAdded.Geometry),
+                                    start,
+                                    end,
+                                    AttributeHash.None);
                                 _acceptedSegments = _acceptedSegments.Add(id, segment);
                                 _maximumSegmentId = RoadSegmentId.Max(id, _maximumSegmentId);
                                 if (roadSegmentAdded.PartOfEuropeanRoads.Length > 0)
