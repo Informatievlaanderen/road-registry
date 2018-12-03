@@ -158,6 +158,28 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
+        public void AllTemporaryRoadNodeIdentifiersMustBeUnique()
+        {
+            var addRoadNodes = Fixture.CreateMany<Messages.AddRoadNode>(10).ToArray();
+            Array.ForEach(addRoadNodes, addRoadNode => addRoadNode.TemporaryId = 1);
+            var data = Array.ConvertAll(addRoadNodes,
+                addRoadNode => new RequestedChange {AddRoadNode = addRoadNode});
+
+            Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        }
+
+        [Fact]
+        public void AllTemporaryRoadSegmentIdentifiersMustBeUnique()
+        {
+            var addRoadSegments = Fixture.CreateMany<Messages.AddRoadSegment>(10).ToArray();
+            Array.ForEach(addRoadSegments, addRoadSegment => addRoadSegment.TemporaryId = 1);
+            var data = Array.ConvertAll(addRoadSegments,
+                addRoadSegment => new RequestedChange {AddRoadSegment = addRoadSegment});
+
+            Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        }
+
+        [Fact]
         public void ChangesHasExpectedValidator()
         {
             Validator.ShouldHaveChildValidator(c => c.Changes, typeof(RequestedChangeValidator));
