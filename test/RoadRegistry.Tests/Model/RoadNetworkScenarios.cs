@@ -9,6 +9,7 @@ namespace RoadRegistry.Model
     using Testing;
     using Xunit;
     using NetTopologySuite.Geometries;
+    using LineString = NetTopologySuite.Geometries.LineString;
 
     public class RoadNetworkScenarios : RoadRegistryFixture
     {
@@ -505,6 +506,38 @@ namespace RoadRegistry.Model
                         }
                     }
                 }));
+        }
+
+        [Fact]
+        public Task when_adding_a_disconnected_node()
+        {
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new[]
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadNode = AddStartNode1,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadNodeNotConnectedToAnySegment",
+                                    Parameters = new Messages.ReasonParameter[0]
+                                }
+                            }
+                        }
+                    }
+                })
+            );
         }
 
         [Fact]
@@ -1102,6 +1135,60 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
+        public Task when_adding_a_segment_whose_start_point_does_not_match_its_existing_start_node_geometry()
+        {
+            AddSegment2.StartNodeId = StartNode1Added.Id;
+
+            return Run(scenario => scenario
+                .Given(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                {
+                    Changes = new []
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added
+                        }
+                    }
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode2
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment2
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment2,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadSegmentStartPointDoesNotMatchNodeGeometry",
+                                    Parameters = new Messages.ReasonParameter[0]
+                                }
+                            }
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
         public Task when_adding_a_segment_whose_end_point_does_not_match_its_end_node_geometry()
         {
             AddEndNode1.Geometry = GeometryTranslator.Translate(MiddlePoint1);
@@ -1141,6 +1228,61 @@ namespace RoadRegistry.Model
                     }
                 }));
         }
+
+        [Fact]
+        public Task when_adding_a_segment_whose_end_point_does_not_match_its_existing_end_node_geometry()
+        {
+            AddSegment2.EndNodeId = EndNode1Added.Id;
+
+            return Run(scenario => scenario
+                .Given(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                {
+                    Changes = new []
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added
+                        }
+                    }
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode2
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment2
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment2,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadSegmentEndPointDoesNotMatchNodeGeometry",
+                                    Parameters = new Messages.ReasonParameter[0]
+                                }
+                            }
+                        }
+                    }
+                }));
+        }
+
         [Fact]
         public Task when_adding_a_segment_with_a_line_string_with_length_0()
         {
