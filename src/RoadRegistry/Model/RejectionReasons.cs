@@ -1,9 +1,11 @@
 // ReSharper disable ImpureMethodCallOnReadonlyValueField
 namespace RoadRegistry.Model
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Linq;
     using Messages;
 
     internal class RejectionReasons : IEnumerable<Reason>
@@ -184,5 +186,25 @@ namespace RoadRegistry.Model
         public IEnumerator<Reason> GetEnumerator() => ((IEnumerable<Reason>)_reasons).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public RejectionReasons BecauseRoadNodeTypeMismatch(params RoadNodeType[] types)
+        {
+            if (types == null)
+                throw new ArgumentNullException(nameof(types));
+            if (types.Length == 0)
+                throw new ArgumentException("The expected road node types must contain at least one.", nameof(types));
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadNodeTypeMismatch",
+                        Parameters = types.Select(type => new ReasonParameter
+                        {
+                            Name = "Expected", Value = type.ToString()
+                        }).ToArray()
+                    }
+                )
+            );
+        }
     }
 }

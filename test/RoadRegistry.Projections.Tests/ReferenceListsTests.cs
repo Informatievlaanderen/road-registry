@@ -21,7 +21,7 @@
                     new RoadNodeTypeDbaseRecord(RoadNodeType.FakeNode),
                     new RoadNodeTypeDbaseRecord(RoadNodeType.EndNode),
                     new RoadNodeTypeDbaseRecord(RoadNodeType.MiniRoundabout),
-                    new RoadNodeTypeDbaseRecord(RoadNodeType.TurnLoopNode)
+                    new RoadNodeTypeDbaseRecord(RoadNodeType.TurningLoopNode)
                 });
         }
 

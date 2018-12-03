@@ -83,31 +83,31 @@
         {
             var permanent = _nextRoadSegmentId();
             var temporary = new RoadSegmentId(command.TemporaryId);
-            RoadNodeId startNodeId;
+
+            var startNodeId = new RoadNodeId(command.StartNodeId);
             RoadNodeId? temporaryStartNodeId;
-            if (context.TryTranslate(new RoadNodeId(command.StartNodeId), out var permanentStartNodeId))
+            if (context.TryTranslate(startNodeId, out var permanentStartNodeId))
             {
+                temporaryStartNodeId = startNodeId;
                 startNodeId = permanentStartNodeId;
-                temporaryStartNodeId = new RoadNodeId(command.StartNodeId);
             }
             else
             {
-                startNodeId = new RoadNodeId(command.StartNodeId);
                 temporaryStartNodeId = null;
             }
 
-            RoadNodeId endNodeId;
+            var endNodeId = new RoadNodeId(command.EndNodeId);
             RoadNodeId? temporaryEndNodeId;
-            if (context.TryTranslate(new RoadNodeId(command.EndNodeId), out var permanentEndNodeId))
+            if (context.TryTranslate(endNodeId, out var permanentEndNodeId))
             {
+                temporaryEndNodeId = endNodeId;
                 endNodeId = permanentEndNodeId;
-                temporaryEndNodeId = new RoadNodeId(command.EndNodeId);
             }
             else
             {
-                endNodeId = new RoadNodeId(command.EndNodeId);
                 temporaryEndNodeId = null;
             }
+
             var geometry = GeometryTranslator.Translate(command.Geometry);
             var maintainer = new MaintenanceAuthorityId(command.MaintenanceAuthority);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
@@ -218,21 +218,21 @@
                 var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.GetType());
                 var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.GetType());
                 var comparison = leftRank.CompareTo(rightRank);
-                if (comparison == 0)
+                if (comparison != 0) return comparison;
+
+                if (left is Messages.AddRoadNode leftNode &&
+                    right is Messages.AddRoadNode rightNode)
                 {
-                    if (left is Messages.AddRoadNode leftNode &&
-                        right is Messages.AddRoadNode rightNode)
-                    {
-                        return leftNode.TemporaryId.CompareTo(rightNode.TemporaryId);
-                    }
-                    if (left is Messages.AddRoadSegment leftSegment &&
-                        right is Messages.AddRoadSegment rightSegment)
-                    {
-                        return leftSegment.TemporaryId.CompareTo(rightSegment.TemporaryId);
-                    }
+                    return leftNode.TemporaryId.CompareTo(rightNode.TemporaryId);
                 }
 
-                return comparison;
+                if (left is Messages.AddRoadSegment leftSegment &&
+                    right is Messages.AddRoadSegment rightSegment)
+                {
+                    return leftSegment.TemporaryId.CompareTo(rightSegment.TemporaryId);
+                }
+
+                return 0;
             }
         }
 

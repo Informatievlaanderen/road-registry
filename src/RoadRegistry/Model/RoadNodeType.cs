@@ -40,9 +40,9 @@ namespace RoadRegistry.Model
                     "Kruispunt dat zich in de realiteit voordoet als een rotonde maar niet voldoet aan de geometrische specificaties om opgenomen te worden als een echte rotonde (ringvormige geometrie)."
                 )
             );
-        public static readonly RoadNodeType TurnLoopNode =
+        public static readonly RoadNodeType TurningLoopNode =
             new RoadNodeType(
-                nameof(TurnLoopNode),
+                nameof(TurningLoopNode),
                 new DutchTranslation(
                     5,
                     "keerlusknoop",
@@ -50,7 +50,7 @@ namespace RoadRegistry.Model
                 )
             );
 
-        public static readonly RoadNodeType[] All = {RealNode, FakeNode, EndNode, MiniRoundabout, TurnLoopNode};
+        public static readonly RoadNodeType[] All = {RealNode, FakeNode, EndNode, MiniRoundabout, TurningLoopNode};
 
         private readonly string _value;
         private readonly DutchTranslation _dutchTranslation;

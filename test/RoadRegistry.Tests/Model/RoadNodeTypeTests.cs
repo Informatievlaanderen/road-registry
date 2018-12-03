@@ -87,15 +87,15 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
-        public void TurnLoopNodeReturnsExpectedResult()
+        public void TurningLoopNodeReturnsExpectedResult()
         {
-            Assert.Equal("TurnLoopNode", RoadNodeType.TurnLoopNode);
+            Assert.Equal("TurningLoopNode", RoadNodeType.TurningLoopNode);
         }
 
         [Fact]
-        public void TurnLoopNodeTranslationReturnsExpectedResult()
+        public void TurningLoopNodeTranslationReturnsExpectedResult()
         {
-            Assert.Equal(5, RoadNodeType.TurnLoopNode.Translation.Identifier);
+            Assert.Equal(5, RoadNodeType.TurningLoopNode.Translation.Identifier);
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace RoadRegistry.Model
                     RoadNodeType.FakeNode,
                     RoadNodeType.EndNode,
                     RoadNodeType.MiniRoundabout,
-                    RoadNodeType.TurnLoopNode,
+                    RoadNodeType.TurningLoopNode,
                 },
                 RoadNodeType.All);
         }

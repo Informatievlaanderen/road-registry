@@ -11,7 +11,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                 RoadNodeType.FakeNode,
                 RoadNodeType.EndNode,
                 RoadNodeType.MiniRoundabout,
-                RoadNodeType.TurnLoopNode
+                RoadNodeType.TurningLoopNode
             };
 
         public static RoadNodeType ToRoadNodeType(int code)
