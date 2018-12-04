@@ -19,6 +19,10 @@ namespace RoadRegistry.Model
             _reasons = reasons;
         }
 
+        public IEnumerator<Reason> GetEnumerator() => ((IEnumerable<Reason>)_reasons).GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
         public RejectionReasons BecauseRoadNodeIdTaken()
         {
             return new RejectionReasons(
@@ -183,10 +187,6 @@ namespace RoadRegistry.Model
             );
         }
 
-        public IEnumerator<Reason> GetEnumerator() => ((IEnumerable<Reason>)_reasons).GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
         public RejectionReasons BecauseRoadNodeTypeMismatch(params RoadNodeType[] types)
         {
             if (types == null)
@@ -206,5 +206,32 @@ namespace RoadRegistry.Model
                 )
             );
         }
+
+        public RejectionReasons BecauseRoadSegmentGeometrySelfOverlaps()
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadSegmentGeometrySelfOverlaps",
+                        Parameters = new ReasonParameter[0]
+                    }
+                )
+            );
+        }
+
+        public RejectionReasons BecauseRoadSegmentGeometrySelfIntersects()
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "RoadSegmentGeometrySelfIntersects",
+                        Parameters = new ReasonParameter[0]
+                    }
+                )
+            );
+        }
+
     }
 }

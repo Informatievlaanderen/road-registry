@@ -165,6 +165,15 @@ namespace RoadRegistry.Model
                             }
                         }
 
+                        if (line.SelfOverlaps())
+                        {
+                            reasons = reasons.BecauseRoadSegmentGeometrySelfOverlaps();
+                        }
+                        else if (line.SelfIntersects())
+                        {
+                            reasons = reasons.BecauseRoadSegmentGeometrySelfIntersects();
+                        }
+
                         if (reasons == RejectionReasons.None)
                         {
                             var segment = allSegments[addRoadSegment.Id];

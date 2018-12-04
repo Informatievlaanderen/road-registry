@@ -1,6 +1,7 @@
 namespace RoadRegistry.Model
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using AutoFixture;
@@ -9,7 +10,6 @@ namespace RoadRegistry.Model
     using Testing;
     using Xunit;
     using NetTopologySuite.Geometries;
-    using LineString = NetTopologySuite.Geometries.LineString;
 
     public class RoadNetworkScenarios : RoadRegistryFixture
     {
@@ -1778,13 +1778,12 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_changes_are_out_of_order()
         {
-            // TemporaryId influences order.
-            AddStartNode1.TemporaryId = 1;
-            StartNode1Added.TemporaryId = 1;
-            AddEndNode1.TemporaryId = 2;
-            EndNode1Added.TemporaryId = 2;
-            AddSegment1.StartNodeId = 1;
-            AddSegment1.EndNodeId = 2;
+            // Permanent identity assignment is influenced by the order in which the change
+            // appears in the list of changes (determinism allows for easier testing).
+            StartNode1Added.Id = 2;
+            EndNode1Added.Id = 1;
+            Segment1Added.StartNodeId = 2;
+            Segment1Added.EndNodeId = 1;
 
             return Run(scenario => scenario
                 .GivenNone()
@@ -1808,11 +1807,11 @@ namespace RoadRegistry.Model
                     {
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode1Added
+                            RoadNodeAdded = EndNode1Added
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode1Added
+                            RoadNodeAdded = StartNode1Added
                         },
                         new Messages.AcceptedChange
                         {
@@ -1875,6 +1874,197 @@ namespace RoadRegistry.Model
                                             Value = "1"
                                         }
                                     }
+                                }
+                            }
+                        }
+                    }
+                }));
+        }
+
+        public static IEnumerable<object[]> SelfOverlapsCases
+        {
+            get
+            {
+                var startPoint1 = new PointM(0.0, 0.0)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                };
+                var middlePoint1 = new PointM(10.0, 0.0)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                };
+                var endPoint1 = new PointM(5.0, 0.0)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                };
+                var multiLineString1 = new MultiLineString(
+                    new ILineString[]
+                    {
+                        new LineString(
+                            new PointSequence(new[] { startPoint1, middlePoint1, endPoint1 }),
+                            GeometryConfiguration.GeometryFactory
+                        ),
+                    })
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                };
+
+                //covers itself
+                yield return new object[] {startPoint1, endPoint1, multiLineString1};
+
+                var startPoint2 = new PointM(5.0, 0.0)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                };
+                var middlePoint2A = new PointM(20.0, 0.0)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                };
+                var middlePoint2B = new PointM(20.0, 10.0)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                };
+                var middlePoint2C = new PointM(0.0, 10.0)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                };
+                var middlePoint2D = new PointM(0.0, 0.0)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                };
+                var endPoint2 = new PointM(8.0, 0.0)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                };
+                var multiLineString2 = new MultiLineString(
+                    new ILineString[]
+                    {
+                        new LineString(
+                            new PointSequence(new[] { startPoint2, middlePoint2A, middlePoint2B, middlePoint2C, middlePoint2D, endPoint2 }),
+                            GeometryConfiguration.GeometryFactory
+                        ),
+                    })
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                };
+
+                //overlaps itself
+                yield return new object[] {startPoint2, endPoint2, multiLineString2};
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(SelfOverlapsCases))]
+        public Task when_adding_a_segment_with_a_geometry_that_self_overlaps(
+            PointM startPoint,
+            PointM endPoint,
+            MultiLineString multiLineString)
+        {
+
+            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            AddSegment1.Geometry = GeometryTranslator.Translate(multiLineString);
+
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadSegmentGeometrySelfOverlaps",
+                                    Parameters = new Messages.ReasonParameter[0]
+                                }
+                            }
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_with_a_geometry_that_self_intersects()
+        {
+            var startPoint = new PointM(0.0, 10.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var middlePoint1 = new PointM(10.0, 10.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var middlePoint2 = new PointM(5.0, 20.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var endPoint = new PointM(5.0, 0.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var multiLineString = new MultiLineString(
+                new ILineString[]
+                {
+                    new LineString(
+                        new PointSequence(new[] { startPoint, middlePoint1, middlePoint2, endPoint }),
+                        GeometryConfiguration.GeometryFactory
+                    ),
+                })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+
+            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            AddSegment1.Geometry = GeometryTranslator.Translate(multiLineString);
+
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Reasons = new[]
+                            {
+                                new Messages.Reason
+                                {
+                                    Because = "RoadSegmentGeometrySelfIntersects",
+                                    Parameters = new Messages.ReasonParameter[0]
                                 }
                             }
                         }

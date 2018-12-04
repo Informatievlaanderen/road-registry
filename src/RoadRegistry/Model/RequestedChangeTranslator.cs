@@ -42,7 +42,11 @@
 
             var context = new TranslationContext();
             var translated = new List<IRequestedChange>(changes.Count);
-            foreach (var change in changes.Flatten().OrderBy(_ => _, new RankChangeBeforeTranslation()))
+            foreach (var change in changes
+                .Flatten()
+                .Select((change, ordinal) => new SortableChange(change, ordinal))
+                .OrderBy(_ => _, new RankChangeBeforeTranslation())
+                .Select(sortable => sortable.Change))
             {
                 switch (change)
                 {
@@ -202,7 +206,19 @@
             );
         }
 
-        private class RankChangeBeforeTranslation : IComparer<object>
+        private class SortableChange
+        {
+            public int Ordinal { get; }
+            public object Change { get; }
+
+            public SortableChange(object change, int ordinal)
+            {
+                Ordinal = ordinal;
+                Change = change;
+            }
+        }
+
+        private class RankChangeBeforeTranslation : IComparer<SortableChange>
         {
             private static readonly Type[] SequenceByTypeOfChange =
             {
@@ -210,29 +226,17 @@
                 typeof(Messages.AddRoadSegment)
             };
 
-            public int Compare(object left, object right)
+            public int Compare(SortableChange left, SortableChange right)
             {
                 if (left == null) throw new ArgumentNullException(nameof(left));
                 if (right == null) throw new ArgumentNullException(nameof(right));
 
-                var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.GetType());
-                var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.GetType());
+                var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.Change.GetType());
+                var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.Change.GetType());
                 var comparison = leftRank.CompareTo(rightRank);
-                if (comparison != 0) return comparison;
-
-                if (left is Messages.AddRoadNode leftNode &&
-                    right is Messages.AddRoadNode rightNode)
-                {
-                    return leftNode.TemporaryId.CompareTo(rightNode.TemporaryId);
-                }
-
-                if (left is Messages.AddRoadSegment leftSegment &&
-                    right is Messages.AddRoadSegment rightSegment)
-                {
-                    return leftSegment.TemporaryId.CompareTo(rightSegment.TemporaryId);
-                }
-
-                return 0;
+                return comparison != 0
+                    ? comparison
+                    : left.Ordinal.CompareTo(right.Ordinal);
             }
         }
 

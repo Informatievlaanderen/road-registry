@@ -29,10 +29,10 @@ namespace RoadRegistry.Testing
                         messageBuilder.AppendFormat("Expected {0} events ({1}) but recorded {2} events ({3}).",
                             recorded.Scenario.Thens.Length,
                             string.Join(",",
-                                recorded.Scenario.Thens.Select(given => $"{given.Stream} - {given.Event.GetType().Name}")),
+                                recorded.Scenario.Thens.Select(given => $"Stream={given.Stream}-Event={given.Event.GetType().Name}")),
                             recorded.Actual.Length,
                             string.Join(",",
-                                recorded.Actual.Select(actual => $"{actual.Stream} - {actual.Event.GetType().Name}")));
+                                recorded.Actual.Select(actual => $"Stream={actual.Stream}-Event={actual.Event.GetType().Name}")));
                     }
                     else
                     {
@@ -51,13 +51,15 @@ namespace RoadRegistry.Testing
                         messageBuilder.AppendLine("Expected:");
                         foreach (var then in recorded.Scenario.Thens)
                         {
-                            messageBuilder.AppendLine($"\t{then.Stream} - {then.Event.GetType().Name} {JsonConvert.SerializeObject(then.Event, Formatting.Indented)}");
+                            messageBuilder.AppendLine($"Stream={then.Stream}-Event={then.Event.GetType().Name}");
+                            messageBuilder.AppendLine(JsonConvert.SerializeObject(then.Event, Formatting.Indented));
 
                         }
                         messageBuilder.AppendLine("Actual:");
                         foreach (var actual in recorded.Actual)
                         {
-                            messageBuilder.AppendLine($"\t{actual.Stream} - {actual.Event.GetType().Name} {JsonConvert.SerializeObject(actual.Event, Formatting.Indented)}");
+                            messageBuilder.AppendLine($"Stream={actual.Stream}-Event={actual.Event.GetType().Name}");
+                            messageBuilder.AppendLine(JsonConvert.SerializeObject(actual.Event, Formatting.Indented));
                         }
                     }
                     throw new XunitException(messageBuilder.ToString());
