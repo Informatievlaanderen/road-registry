@@ -42,7 +42,7 @@ namespace RoadRegistry.LegacyStreamExtraction
             foreach(var @event in events)
             {
                 await Writer.WriteStartObjectAsync(); // begin event
-                await Writer.WritePropertyNameAsync(@events.GetType().Name);
+                await Writer.WritePropertyNameAsync(@event.GetType().Name);
                 Serializer.Serialize(Writer, @event);
                 await Writer.WriteEndObjectAsync(); // end event
             }
