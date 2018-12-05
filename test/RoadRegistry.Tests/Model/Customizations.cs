@@ -82,6 +82,46 @@ namespace RoadRegistry.Model
                 composer.FromFactory<int>(value => NumberedRoadNumber.All[value % NumberedRoadNumber.All.Length]));
         }
 
+        public static void CustomizeAttributeHash(this IFixture fixture)
+        {
+            fixture.Customize<AttributeHash>(
+                customization => customization.FromFactory(
+                    generator =>
+                    {
+                        var result = AttributeHash.None;
+                        var times = generator.Next(0, 10);
+                        for (var index = 0; index < times; index++)
+                        {
+                            switch (generator.Next(0, 7))
+                            {
+                                case 0:
+                                    result = result.With(fixture.Create<RoadSegmentCategory>());
+                                    break;
+                                case 1:
+                                    result = result.With(fixture.Create<RoadSegmentMorphology>());
+                                    break;
+                                case 2:
+                                    result = result.With(fixture.Create<RoadSegmentStatus>());
+                                    break;
+                                case 3:
+                                    result = result.With(fixture.Create<RoadSegmentAccessRestriction>());
+                                    break;
+                                case 4:
+                                    result = result.WithLeftSide(fixture.Create<CrabStreetnameId?>());
+                                    break;
+                                case 5:
+                                    result = result.WithRightSide(fixture.Create<CrabStreetnameId?>());
+                                    break;
+                                case 6:
+                                    result = result.With(fixture.Create<MaintenanceAuthorityId>());
+                                    break;
+                            }
+                        }
+
+                        return result;
+                    }));
+        }
+
         public static void CustomizePointM(this IFixture fixture)
         {
             fixture.Customize<PointM>(customization =>

@@ -40,15 +40,30 @@ namespace RoadRegistry.Model
                 var id = new RoadSegmentId(e.Id);
                 var start = new RoadNodeId(e.StartNodeId);
                 var end = new RoadNodeId(e.EndNodeId);
+
+                var attributeHash = AttributeHash.None
+                    .With(RoadSegmentAccessRestriction.Parse(e.AccessRestriction))
+                    .With(RoadSegmentCategory.Parse(e.Category))
+                    .With(RoadSegmentMorphology.Parse(e.Morphology))
+                    .With(RoadSegmentStatus.Parse(e.Status))
+                    .WithLeftSide(e.LeftSide.StreetNameId.HasValue
+                        ? new CrabStreetnameId(e.LeftSide.StreetNameId.Value)
+                        : new CrabStreetnameId?())
+                    .WithRightSide(e.RightSide.StreetNameId.HasValue
+                        ? new CrabStreetnameId(e.RightSide.StreetNameId.Value)
+                        : new CrabStreetnameId?())
+                    .With(new MaintenanceAuthorityId(e.MaintenanceAuthority.Code));
+
                 _acceptedNodes = _acceptedNodes
                     .TryReplaceValue(start, node => node.ConnectWith(id))
                     .TryReplaceValue(end, node => node.ConnectWith(id));
+
                 var segment = new RoadSegment(
                     id,
                     GeometryTranslator.Translate(e.Geometry),
                     start,
                     end,
-                    AttributeHash.None);
+                    attributeHash);
                 _acceptedSegments = _acceptedSegments.Add(id, segment);
                 _maximumSegmentId = RoadSegmentId.Max(id, _maximumSegmentId);
                 if (e.PartOfEuropeanRoads.Length > 0)
@@ -99,68 +114,80 @@ namespace RoadRegistry.Model
                 {
                     switch (change)
                     {
-                        case RoadNodeAdded roadNodeAdded:
+                        case RoadNodeAdded e1:
                             {
-                                var id = new RoadNodeId(roadNodeAdded.Id);
-                                var node = new RoadNode(id, GeometryTranslator.Translate(roadNodeAdded.Geometry));
+                                var id = new RoadNodeId(e1.Id);
+                                var node = new RoadNode(id, GeometryTranslator.Translate(e1.Geometry));
                                 _acceptedNodes = _acceptedNodes.Add(id, node);
                                 _maximumNodeId = RoadNodeId.Max(id, _maximumNodeId);
                             }
                             break;
-                        case RoadSegmentAdded roadSegmentAdded:
+                        case RoadSegmentAdded e2:
                             {
-                                var id = new RoadSegmentId(roadSegmentAdded.Id);
-                                var start = new RoadNodeId(roadSegmentAdded.StartNodeId);
-                                var end = new RoadNodeId(roadSegmentAdded.EndNodeId);
+                                var id = new RoadSegmentId(e2.Id);
+                                var start = new RoadNodeId(e2.StartNodeId);
+                                var end = new RoadNodeId(e2.EndNodeId);
                                 _acceptedNodes = _acceptedNodes
                                     .TryReplaceValue(start, node => node.ConnectWith(id))
                                     .TryReplaceValue(end, node => node.ConnectWith(id));
+                                var attributeHash = AttributeHash.None
+                                    .With(RoadSegmentAccessRestriction.Parse(e2.AccessRestriction))
+                                    .With(RoadSegmentCategory.Parse(e2.Category))
+                                    .With(RoadSegmentMorphology.Parse(e2.Morphology))
+                                    .With(RoadSegmentStatus.Parse(e2.Status))
+                                    .WithLeftSide(e2.LeftSide.StreetNameId.HasValue
+                                        ? new CrabStreetnameId(e2.LeftSide.StreetNameId.Value)
+                                        : new CrabStreetnameId?())
+                                    .WithRightSide(e2.RightSide.StreetNameId.HasValue
+                                        ? new CrabStreetnameId(e2.RightSide.StreetNameId.Value)
+                                        : new CrabStreetnameId?())
+                                    .With(new MaintenanceAuthorityId(e2.MaintenanceAuthority.Code));
                                 var segment = new RoadSegment(
                                     id,
-                                    GeometryTranslator.Translate(roadSegmentAdded.Geometry),
+                                    GeometryTranslator.Translate(e2.Geometry),
                                     start,
                                     end,
-                                    AttributeHash.None);
+                                    attributeHash);
                                 _acceptedSegments = _acceptedSegments.Add(id, segment);
                                 _maximumSegmentId = RoadSegmentId.Max(id, _maximumSegmentId);
-                                if (roadSegmentAdded.PartOfEuropeanRoads.Length > 0)
+                                if (e2.PartOfEuropeanRoads.Length > 0)
                                 {
                                     _maximumEuropeanRoadAttributeId = AttributeId.Max(
-                                        new AttributeId(roadSegmentAdded.PartOfEuropeanRoads.Max(_ => _.AttributeId)),
+                                        new AttributeId(e2.PartOfEuropeanRoads.Max(_ => _.AttributeId)),
                                         _maximumEuropeanRoadAttributeId);
                                 }
 
-                                if (roadSegmentAdded.PartOfNationalRoads.Length > 0)
+                                if (e2.PartOfNationalRoads.Length > 0)
                                 {
                                     _maximumNationalRoadAttributeId = AttributeId.Max(
-                                        new AttributeId(roadSegmentAdded.PartOfNationalRoads.Max(_ => _.AttributeId)),
+                                        new AttributeId(e2.PartOfNationalRoads.Max(_ => _.AttributeId)),
                                         _maximumNationalRoadAttributeId);
                                 }
 
-                                if (roadSegmentAdded.PartOfNumberedRoads.Length > 0)
+                                if (e2.PartOfNumberedRoads.Length > 0)
                                 {
                                     _maximumNumberedRoadAttributeId = AttributeId.Max(
-                                        new AttributeId(roadSegmentAdded.PartOfNumberedRoads.Max(_ => _.AttributeId)),
+                                        new AttributeId(e2.PartOfNumberedRoads.Max(_ => _.AttributeId)),
                                         _maximumNumberedRoadAttributeId);
                                 }
-                                if (roadSegmentAdded.Lanes.Length > 0)
+                                if (e2.Lanes.Length > 0)
                                 {
                                     _maximumLaneAttributeId = AttributeId.Max(
-                                        new AttributeId(roadSegmentAdded.Lanes.Max(_ => _.AttributeId)),
+                                        new AttributeId(e2.Lanes.Max(_ => _.AttributeId)),
                                         _maximumLaneAttributeId);
                                 }
 
-                                if (roadSegmentAdded.Widths.Length > 0)
+                                if (e2.Widths.Length > 0)
                                 {
                                     _maximumWidthAttributeId = AttributeId.Max(
-                                        new AttributeId(roadSegmentAdded.Widths.Max(_ => _.AttributeId)),
+                                        new AttributeId(e2.Widths.Max(_ => _.AttributeId)),
                                         _maximumWidthAttributeId);
                                 }
 
-                                if (roadSegmentAdded.Surfaces.Length > 0)
+                                if (e2.Surfaces.Length > 0)
                                 {
                                     _maximumSurfaceAttributeId = AttributeId.Max(
-                                        new AttributeId(roadSegmentAdded.Surfaces.Max(_ => _.AttributeId)),
+                                        new AttributeId(e2.Surfaces.Max(_ => _.AttributeId)),
                                         _maximumSurfaceAttributeId);
                                 }
                             }

@@ -932,11 +932,9 @@ namespace RoadRegistry.Model
             );
         }
 
-        [Fact(Skip = "Need to complete attribute hash and hash code testing first.")]
+        [Fact]
         public Task when_adding_a_start_node_connecting_two_segments_as_a_fake_node_but_the_segments_do_not_differ_by_any_attribute()
         {
-            AddStartNode1.Type = RoadNodeType.FakeNode.ToString();
-
             var startPoint = new PointM(10.0, 0.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
@@ -963,7 +961,6 @@ namespace RoadRegistry.Model
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 });
-            AddSegment2.StartNodeId = AddStartNode1.TemporaryId;
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -976,6 +973,8 @@ namespace RoadRegistry.Model
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 });
 
+            AddStartNode1.Type = RoadNodeType.FakeNode.ToString();
+            AddSegment2.StartNodeId = AddStartNode1.TemporaryId;
             AddSegment2.Status = AddSegment1.Status;
             AddSegment2.Morphology = AddSegment1.Morphology;
             AddSegment2.Category = AddSegment1.Category;
@@ -1025,12 +1024,12 @@ namespace RoadRegistry.Model
                                         new Messages.ReasonParameter
                                         {
                                             Name = "RoadSegmentId",
-                                            Value = "1"
+                                            Value = AddSegment1.TemporaryId.ToString()
                                         },
                                         new Messages.ReasonParameter
                                         {
                                             Name = "RoadSegmentId",
-                                            Value = "2"
+                                            Value = AddSegment2.TemporaryId.ToString()
                                         }
                                     }
                                 }
@@ -1040,6 +1039,7 @@ namespace RoadRegistry.Model
                 })
             );
         }
+
         [Fact]
         public Task when_adding_an_end_node_connecting_two_segments_as_a_node_other_than_a_fake_node_or_turning_loop_node()
         {
@@ -1147,7 +1147,7 @@ namespace RoadRegistry.Model
         public Task when_adding_a_start_node_connecting_more_than_two_segments_as_a_node_other_than_a_real_node_or_mini_roundabout()
         {
             AddStartNode1.Type = new Generator<RoadNodeType>(Fixture)
-                .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
+                .First(type => type != RoadNodeType.RealNode && type != RoadNodeType.MiniRoundabout)
                 .ToString();
 
             var startPoint = new PointM(10.0, 0.0)

@@ -4,7 +4,6 @@ namespace RoadRegistry.Testing
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Aiv.Vbr.Utilities;
     using KellermanSoftware.CompareNetObjects;
     using Newtonsoft.Json;
     using Xunit.Sdk;

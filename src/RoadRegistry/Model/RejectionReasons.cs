@@ -233,5 +233,29 @@ namespace RoadRegistry.Model
             );
         }
 
+        public RejectionReasons BecauseFakeRoadNodeConnectedSegmentsDoNotDiffer(RoadSegmentId segment1, RoadSegmentId segment2)
+        {
+            return new RejectionReasons(
+                _reasons.Add(
+                    new Reason
+                    {
+                        Because = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
+                        Parameters = new []
+                        {
+                            new ReasonParameter
+                            {
+                                Name = "RoadSegmentId",
+                                Value = segment1.ToString()
+                            },
+                            new ReasonParameter
+                            {
+                                Name = "RoadSegmentId",
+                                Value = segment2.ToString()
+                            }
+                        }
+                    }
+                )
+            );
+        }
     }
 }

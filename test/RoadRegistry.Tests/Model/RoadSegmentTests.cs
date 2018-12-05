@@ -8,24 +8,31 @@ namespace RoadRegistry.Model
 
     public class RoadSegmentTests
     {
-        private readonly Fixture _fixture;
         private readonly RoadSegmentId _id;
         private readonly RoadNodeId _start;
         private readonly RoadNodeId _end;
         private readonly RoadSegment _sut;
         private readonly MultiLineString _geometry;
+        private readonly AttributeHash _attributeHash;
 
         public RoadSegmentTests()
         {
-            _fixture = new Fixture();
-            _fixture.CustomizePolylineM();
-            _fixture.CustomizeRoadNodeId();
-            _fixture.CustomizeRoadSegmentId();
-            _id = _fixture.Create<RoadSegmentId>();
-            _start = _fixture.Create<RoadNodeId>();
-            _end = _fixture.Create<RoadNodeId>();
-            _geometry = _fixture.Create<MultiLineString>();
-            _sut = new RoadSegment(_id, _geometry, _start, _end, AttributeHash.None);
+            var fixture = new Fixture();
+            fixture.CustomizePolylineM();
+            fixture.CustomizeRoadNodeId();
+            fixture.CustomizeRoadSegmentId();
+            fixture.CustomizeRoadSegmentCategory();
+            fixture.CustomizeRoadSegmentMorphology();
+            fixture.CustomizeRoadSegmentStatus();
+            fixture.CustomizeRoadSegmentAccessRestriction();
+            fixture.CustomizeMaintenanceAuthorityId();
+            fixture.CustomizeAttributeHash();
+            _id = fixture.Create<RoadSegmentId>();
+            _start = fixture.Create<RoadNodeId>();
+            _end = fixture.Create<RoadNodeId>();
+            _geometry = fixture.Create<MultiLineString>();
+            _attributeHash = fixture.Create<AttributeHash>();
+            _sut = new RoadSegment(_id, _geometry, _start, _end, _attributeHash);
         }
 
         [Fact]
@@ -53,10 +60,15 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
+        public void AttributeHashReturnsExpectedResult()
+        {
+            Assert.Equal(_attributeHash, _sut.AttributeHash);
+        }
+
+        [Fact]
         public void ThrowsWhenStartIsSameAsEnd()
         {
-            Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start,
-                AttributeHash.None));
+            Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start, _attributeHash));
         }
 
         [Fact]
@@ -72,17 +84,21 @@ namespace RoadRegistry.Model
         public void SelectOppositeNodeReturnsExpectedResult(
             int start,
             int end,
-            int toCounter,
-            int[] expected
+            int node,
+            int[] opposite
         )
         {
-            var sut = new RoadSegment(_fixture.Create<RoadSegmentId>(), _fixture.Create<MultiLineString>(),
-                new RoadNodeId(start), new RoadNodeId(end),
-                AttributeHash.None);
+            var sut = new RoadSegment(
+                _id,
+                _geometry,
+                new RoadNodeId(start),
+                new RoadNodeId(end),
+                _attributeHash);
 
-            var result = sut.SelectOppositeNode(new RoadNodeId(toCounter)).ToArray();
+            var result = sut.SelectOppositeNode(new RoadNodeId(node)).ToArray();
 
-            Assert.Equal(Array.ConvertAll(expected, value => new RoadNodeId(value)), result);
+            var expected = Array.ConvertAll(opposite, value => new RoadNodeId(value));
+            Assert.Equal(expected, result);
         }
     }
 }

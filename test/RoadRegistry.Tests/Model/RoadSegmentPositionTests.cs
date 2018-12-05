@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.Model
 {
-    using System;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Xunit;

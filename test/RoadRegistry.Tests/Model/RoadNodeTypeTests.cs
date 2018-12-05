@@ -1,6 +1,7 @@
 namespace RoadRegistry.Model
 {
     using System;
+    using System.Linq;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Xunit;
@@ -111,6 +112,39 @@ namespace RoadRegistry.Model
                     RoadNodeType.TurningLoopNode,
                 },
                 RoadNodeType.All);
+        }
+
+        [Fact]
+        public void IsAnyOfReturnsThrowsWhenTypesIsNull()
+        {
+            _fixture.CustomizeRoadNodeType();
+
+            var sut = _fixture.Create<RoadNodeType>();
+            Assert.Throws<ArgumentNullException>(() => sut.IsAnyOf(null));
+        }
+
+        [Fact]
+        public void IsAnyOfReturnsExpectedResultWhenNoneOf()
+        {
+            _fixture.CustomizeRoadNodeType();
+
+            var generator = new Generator<RoadNodeType>(_fixture);
+            var sut = _fixture.Create<RoadNodeType>();
+            var noneOf = generator.Where(candidate => !candidate.Equals(sut)).Take(2).ToArray();
+
+            Assert.False(sut.IsAnyOf(noneOf));
+        }
+
+        [Fact]
+        public void IsAnyOfReturnsExpectedResultWhenOneOf()
+        {
+            _fixture.CustomizeRoadNodeType();
+
+            var generator = new Generator<RoadNodeType>(_fixture);
+            var sut = _fixture.Create<RoadNodeType>();
+            var oneOf = generator.Where(candidate => !candidate.Equals(sut)).Take(2).Concat(new[] {sut}).ToArray();
+
+            Assert.True(sut.IsAnyOf(oneOf));
         }
 
         [Fact]

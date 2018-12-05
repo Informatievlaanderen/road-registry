@@ -4,22 +4,25 @@ namespace RoadRegistry.Model
     using AutoFixture.Idioms;
     using Xunit;
 
-    public class CrabStreetnameIdTests
+    public class AttributeHashTests
     {
         private readonly Fixture _fixture;
 
-        public CrabStreetnameIdTests()
+        public AttributeHashTests()
         {
             _fixture = new Fixture();
+            _fixture.CustomizeRoadSegmentCategory();
+            _fixture.CustomizeRoadSegmentMorphology();
+            _fixture.CustomizeRoadSegmentStatus();
+            _fixture.CustomizeRoadSegmentAccessRestriction();
+            _fixture.CustomizeMaintenanceAuthorityId();
+            _fixture.CustomizeAttributeHash();
         }
 
         [Fact]
         public void VerifyBehavior()
         {
             new CompositeIdiomaticAssertion(
-                new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation()),
-                new ImplicitConversionOperatorAssertion<int>(_fixture),
-                new ExplicitConversionMethodAssertion<int>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -32,16 +35,15 @@ namespace RoadRegistry.Model
                 new EqualsOtherAssertion(_fixture),
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
-            ).Verify(typeof(CrabStreetnameId));
+            ).Verify(typeof(AttributeHash));
         }
 
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
-            var value = _fixture.Create<int>();
-            var sut = new CrabStreetnameId(value);
+            var sut = _fixture.Create<AttributeHash>();
 
-            Assert.Equal(value.ToString(), sut.ToString());
+            Assert.True(int.TryParse(sut.ToString(), out _));
         }
     }
 }

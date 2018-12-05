@@ -15,30 +15,39 @@ namespace RoadRegistry.Model
             {
                 switch (change)
                 {
-                    case AddRoadNode addRoadNode:
-                        if (!allNodes.ContainsKey(addRoadNode.Id))
+                    case AddRoadNode c1:
+                        if (!allNodes.ContainsKey(c1.Id))
                         {
                             allNodes = allNodes.Add(
-                                addRoadNode.Id,
-                                new RoadNode(addRoadNode.Id, addRoadNode.Geometry)
+                                c1.Id,
+                                new RoadNode(c1.Id, c1.Geometry)
                             );
                         }
 
                         break;
-                    case AddRoadSegment addRoadSegment:
+                    case AddRoadSegment c2:
                         allNodes = allNodes
-                            .TryReplaceValue(addRoadSegment.StartNodeId, node => node.ConnectWith(addRoadSegment.Id))
-                            .TryReplaceValue(addRoadSegment.EndNodeId, node => node.ConnectWith(addRoadSegment.Id));
-                        if (!allSegments.ContainsKey(addRoadSegment.Id))
+                            .TryReplaceValue(c2.StartNodeId, node => node.ConnectWith(c2.Id))
+                            .TryReplaceValue(c2.EndNodeId, node => node.ConnectWith(c2.Id));
+                        if (!allSegments.ContainsKey(c2.Id))
                         {
+                            var attributeHash = AttributeHash.None
+                                .With(c2.AccessRestriction)
+                                .With(c2.Category)
+                                .With(c2.Morphology)
+                                .With(c2.Status)
+                                .WithLeftSide(c2.LeftSideStreetNameId)
+                                .WithRightSide(c2.RightSideStreetNameId)
+                                .With(c2.MaintenanceAuthority);
+
                             allSegments = allSegments.Add(
-                                addRoadSegment.Id,
+                                c2.Id,
                                 new RoadSegment(
-                                    addRoadSegment.Id,
-                                    addRoadSegment.Geometry,
-                                    addRoadSegment.StartNodeId,
-                                    addRoadSegment.EndNodeId,
-                                    AttributeHash.None)
+                                    c2.Id,
+                                    c2.Geometry,
+                                    c2.StartNodeId,
+                                    c2.EndNodeId,
+                                    attributeHash)
                             );
                         }
 
@@ -93,13 +102,27 @@ namespace RoadRegistry.Model
                         {
                             reasons = reasons.BecauseRoadNodeTypeMismatch(RoadNodeType.EndNode);
                         }
-                        else if (connectedSegmentCount == 2 && (addRoadNode.Type != RoadNodeType.FakeNode || addRoadNode.Type != RoadNodeType.TurningLoopNode))
+                        else if (connectedSegmentCount == 2)
                         {
-                            reasons = reasons.BecauseRoadNodeTypeMismatch(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode);
+                            if (!addRoadNode.Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
+                            {
+                                reasons = reasons.BecauseRoadNodeTypeMismatch(
+                                    RoadNodeType.FakeNode,
+                                    RoadNodeType.TurningLoopNode);
 
-                            //reasons = reasons.BecauseFakeRoadNodeConnectedSegmentsDoNotDiffer(segment1.Id, segment2.Id);
+                            }
+                            else if (addRoadNode.Type == RoadNodeType.FakeNode)
+                            {
+                                var segments = node.Segments.Select(segmentId => allSegments[segmentId]).ToArray();
+                                var segment1 = segments[0];
+                                var segment2 = segments[1];
+                                if (segment1.AttributeHash.Equals(segment2.AttributeHash))
+                                {
+                                    reasons = reasons.BecauseFakeRoadNodeConnectedSegmentsDoNotDiffer(segment1.Id, segment2.Id);
+                                }
+                            }
                         }
-                        else if (connectedSegmentCount > 2 && (addRoadNode.Type != RoadNodeType.RealNode || addRoadNode.Type != RoadNodeType.MiniRoundabout))
+                        else if (connectedSegmentCount > 2 && !addRoadNode.Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
                         {
                             reasons = reasons.BecauseRoadNodeTypeMismatch(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout);
                         }

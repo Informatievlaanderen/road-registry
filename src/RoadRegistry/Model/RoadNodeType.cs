@@ -1,6 +1,7 @@
 namespace RoadRegistry.Model
 {
     using System;
+    using System.Linq;
 
     public class RoadNodeType : IEquatable<RoadNodeType>
     {
@@ -62,6 +63,12 @@ namespace RoadRegistry.Model
         }
 
         public DutchTranslation Translation => _dutchTranslation;
+
+        public bool IsAnyOf(params RoadNodeType[] types)
+        {
+            if (types == null) throw new ArgumentNullException(nameof(types));
+            return types.Contains(this);
+        }
 
         public static bool CanParse(string value)
         {

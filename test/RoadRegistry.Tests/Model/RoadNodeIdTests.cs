@@ -2,7 +2,6 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Linq;
-    using Aiv.Vbr.Utilities;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Xunit;

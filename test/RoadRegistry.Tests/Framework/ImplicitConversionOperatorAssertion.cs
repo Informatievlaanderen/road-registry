@@ -2,7 +2,6 @@ namespace RoadRegistry
 {
     using System;
     using System.Linq;
-    using System.Reflection;
     using AutoFixture;
     using AutoFixture.Idioms;
     using AutoFixture.Kernel;
