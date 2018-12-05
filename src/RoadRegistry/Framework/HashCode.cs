@@ -1,9 +1,10 @@
 namespace RoadRegistry.Framework
 {
+    using System;
     using System.Diagnostics.Contracts;
 
     // original source: https://github.com/nodatime/nodatime/blob/master/src/NodaTime/Utility/HashCodeHelper.cs
-    internal readonly struct HashCode
+    internal readonly struct HashCode : IEquatable<HashCode>
     {
         public static readonly HashCode Initial = new HashCode(HashCodeInitializer);
 
@@ -57,6 +58,10 @@ namespace RoadRegistry.Framework
             }
         }
 
+        [Pure]
+        public bool Equals(HashCode other) => _value.Equals(other._value);
+        public override bool Equals(object obj) => obj is HashCode other && Equals(other);
+        public override int GetHashCode() => _value;
         public static implicit operator int(HashCode instance) => instance._value;
     }
 }
