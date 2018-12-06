@@ -9,71 +9,28 @@ namespace RoadRegistry.Model
     {
         public void Change(IReadOnlyCollection<IRequestedChange> changes)
         {
-            var allNodes = _acceptedNodes;
-            var allSegments = _acceptedSegments;
-            foreach (var change in changes)
-            {
-                switch (change)
-                {
-                    case AddRoadNode c1:
-                        if (!allNodes.ContainsKey(c1.Id))
-                        {
-                            allNodes = allNodes.Add(
-                                c1.Id,
-                                new RoadNode(c1.Id, c1.Geometry)
-                            );
-                        }
+            //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
-                        break;
-                    case AddRoadSegment c2:
-                        allNodes = allNodes
-                            .TryReplaceValue(c2.StartNodeId, node => node.ConnectWith(c2.Id))
-                            .TryReplaceValue(c2.EndNodeId, node => node.ConnectWith(c2.Id));
-                        if (!allSegments.ContainsKey(c2.Id))
-                        {
-                            var attributeHash = AttributeHash.None
-                                .With(c2.AccessRestriction)
-                                .With(c2.Category)
-                                .With(c2.Morphology)
-                                .With(c2.Status)
-                                .WithLeftSide(c2.LeftSideStreetNameId)
-                                .WithRightSide(c2.RightSideStreetNameId)
-                                .With(c2.MaintenanceAuthority);
+            //Reject(errors)/Accept(warnings)
 
-                            allSegments = allSegments.Add(
-                                c2.Id,
-                                new RoadSegment(
-                                    c2.Id,
-                                    c2.Geometry,
-                                    c2.StartNodeId,
-                                    c2.EndNodeId,
-                                    attributeHash)
-                            );
-                        }
-
-                        break;
-                }
-            }
-
+            var requestView = _view.When(changes);
             var acceptedChanges = new List<AcceptedChange>();
             var rejectedChanges = new List<RejectedChange>();
-            var incrementalNodes = _acceptedNodes;
-            var incrementalSegments = _acceptedSegments;
             foreach (var change in changes)
             {
                 var reasons = RejectionReasons.None;
                 switch (change)
                 {
                     case AddRoadNode addRoadNode:
-                        // there's no way to test this without composing the changes manually (e.g. bypassing the translator).
-                        // but this prevents from reusing the same node id in a set of changes
-                        if (incrementalNodes.ContainsKey(addRoadNode.Id))
-                        {
-                            reasons = reasons.BecauseRoadNodeIdTaken();
-                        }
+//                        // there's no way to test this without composing the changes manually (e.g. bypassing the translator).
+//                        // but this prevents from reusing the same node id in a set of changes
+//                        if (incrementalNodes.ContainsKey(addRoadNode.Id))
+//                        {
+//                            reasons = reasons.BecauseRoadNodeIdTaken();
+//                        }
 
                         var byOtherNode =
-                            allNodes.Values.FirstOrDefault(n =>
+                            requestView.AcceptedNodes.Values.FirstOrDefault(n =>
                                 n.Id != addRoadNode.Id &&
                                 n.Geometry.EqualsExact(addRoadNode.Geometry));
                         if (byOtherNode != null)
@@ -83,7 +40,7 @@ namespace RoadRegistry.Model
                         else
                         {
                             var toOtherNode =
-                                allNodes.Values.FirstOrDefault(n =>
+                                requestView.AcceptedNodes.Values.FirstOrDefault(n =>
                                     n.Id != addRoadNode.Id &&
                                     n.Geometry.IsWithinDistance(addRoadNode.Geometry, TooCloseDistance));
                             if (toOtherNode != null)
@@ -92,7 +49,7 @@ namespace RoadRegistry.Model
                             }
                         }
 
-                        var node = allNodes[addRoadNode.Id];
+                        var node = requestView.AcceptedNodes[addRoadNode.Id];
                         var connectedSegmentCount = node.Segments.Count;
                         if (connectedSegmentCount == 0)
                         {
@@ -113,7 +70,7 @@ namespace RoadRegistry.Model
                             }
                             else if (addRoadNode.Type == RoadNodeType.FakeNode)
                             {
-                                var segments = node.Segments.Select(segmentId => allSegments[segmentId]).ToArray();
+                                var segments = node.Segments.Select(segmentId => requestView.AcceptedSegments[segmentId]).ToArray();
                                 var segment1 = segments[0];
                                 var segment2 = segments[1];
                                 if (segment1.AttributeHash.Equals(segment2.AttributeHash))
@@ -129,7 +86,7 @@ namespace RoadRegistry.Model
 
                         if (reasons == RejectionReasons.None)
                         {
-                            incrementalNodes = incrementalNodes.Add(node.Id, node);
+                            //incrementalNodes = incrementalNodes.Add(node.Id, node);
                             acceptedChanges.Add(addRoadNode.Accept());
                         }
                         else
@@ -140,12 +97,12 @@ namespace RoadRegistry.Model
                         break;
 
                     case AddRoadSegment addRoadSegment:
-                        // there's no way to test this without composing the changes manually (e.g. bypassing the translator).
-                        // but this prevents from reusing the same segment id in a set of changes
-                        if (incrementalSegments.ContainsKey(addRoadSegment.Id))
-                        {
-                            reasons = reasons.BecauseRoadSegmentIdTaken();
-                        }
+//                        // there's no way to test this without composing the changes manually (e.g. bypassing the translator).
+//                        // but this prevents from reusing the same segment id in a set of changes
+//                        if (incrementalSegments.ContainsKey(addRoadSegment.Id))
+//                        {
+//                            reasons = reasons.BecauseRoadSegmentIdTaken();
+//                        }
 
                         if (Math.Abs(addRoadSegment.Geometry.Length) <= 0.0)
                         {
@@ -153,7 +110,7 @@ namespace RoadRegistry.Model
                         }
 
                         var byOtherSegment =
-                            allSegments.Values.FirstOrDefault(segment =>
+                            requestView.AcceptedSegments.Values.FirstOrDefault(segment =>
                                 segment.Id != addRoadSegment.Id &&
                                 segment.Geometry.EqualsExact(addRoadSegment.Geometry));
                         if (byOtherSegment != null)
@@ -164,7 +121,7 @@ namespace RoadRegistry.Model
                         var line = addRoadSegment.Geometry.Geometries
                             .OfType<NetTopologySuite.Geometries.LineString>()
                             .Single();
-                        if (!allNodes.TryGetValue(addRoadSegment.StartNodeId, out var startNode))
+                        if (!requestView.AcceptedNodes.TryGetValue(addRoadSegment.StartNodeId, out var startNode))
                         {
                             reasons = reasons.BecauseRoadSegmentStartNodeMissing();
                         }
@@ -176,7 +133,7 @@ namespace RoadRegistry.Model
                             }
                         }
 
-                        if (!allNodes.TryGetValue(addRoadSegment.EndNodeId, out var endNode))
+                        if (!requestView.AcceptedNodes.TryGetValue(addRoadSegment.EndNodeId, out var endNode))
                         {
                             reasons = reasons.BecauseRoadSegmentEndNodeMissing();
                         }
@@ -199,8 +156,8 @@ namespace RoadRegistry.Model
 
                         if (reasons == RejectionReasons.None)
                         {
-                            var segment = allSegments[addRoadSegment.Id];
-                            incrementalSegments = incrementalSegments.Add(segment.Id, segment);
+                            var segment = requestView.AcceptedSegments[addRoadSegment.Id];
+                            //incrementalSegments = incrementalSegments.Add(segment.Id, segment);
                             acceptedChanges.Add(addRoadSegment.Accept());
                         }
                         else
@@ -230,7 +187,7 @@ namespace RoadRegistry.Model
 
         public Func<RoadNodeId> ProvidesNextRoadNodeId()
         {
-            return new NextRoadNodeIdProvider(_maximumNodeId).Next;
+            return new NextRoadNodeIdProvider(_view.MaximumNodeId).Next;
         }
 
         private class NextRoadNodeIdProvider
@@ -252,7 +209,7 @@ namespace RoadRegistry.Model
 
         public Func<RoadSegmentId> ProvidesNextRoadSegmentId()
         {
-            return new NextRoadSegmentIdProvider(_maximumSegmentId).Next;
+            return new NextRoadSegmentIdProvider(_view.MaximumSegmentId).Next;
         }
 
         private class NextRoadSegmentIdProvider
@@ -274,32 +231,32 @@ namespace RoadRegistry.Model
 
         public Func<AttributeId> ProvidesNextEuropeanRoadAttributeId()
         {
-            return new NextAttributeIdProvider(_maximumEuropeanRoadAttributeId).Next;
+            return new NextAttributeIdProvider(_view.MaximumEuropeanRoadAttributeId).Next;
         }
 
         public Func<AttributeId> ProvidesNextNationalRoadAttributeId()
         {
-            return new NextAttributeIdProvider(_maximumNationalRoadAttributeId).Next;
+            return new NextAttributeIdProvider(_view.MaximumNationalRoadAttributeId).Next;
         }
 
         public Func<AttributeId> ProvidesNextNumberedRoadAttributeId()
         {
-            return new NextAttributeIdProvider(_maximumNumberedRoadAttributeId).Next;
+            return new NextAttributeIdProvider(_view.MaximumNumberedRoadAttributeId).Next;
         }
 
         public Func<AttributeId> ProvidesNextLaneAttributeId()
         {
-            return new NextAttributeIdProvider(_maximumLaneAttributeId).Next;
+            return new NextAttributeIdProvider(_view.MaximumLaneAttributeId).Next;
         }
 
         public Func<AttributeId> ProvidesNextWidthAttributeId()
         {
-            return new NextAttributeIdProvider(_maximumWidthAttributeId).Next;
+            return new NextAttributeIdProvider(_view.MaximumWidthAttributeId).Next;
         }
 
         public Func<AttributeId> ProvidesNextSurfaceAttributeId()
         {
-            return new NextAttributeIdProvider(_maximumSurfaceAttributeId).Next;
+            return new NextAttributeIdProvider(_view.MaximumSurfaceAttributeId).Next;
         }
 
         private class NextAttributeIdProvider
