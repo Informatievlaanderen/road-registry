@@ -1030,12 +1030,12 @@ namespace RoadRegistry.Model
                                     {
                                         new Messages.ProblemParameter
                                         {
-                                            Name = "RoadSegmentId",
+                                            Name = "SegmentId",
                                             Value = AddSegment1.TemporaryId.ToString()
                                         },
                                         new Messages.ProblemParameter
                                         {
-                                            Name = "RoadSegmentId",
+                                            Name = "SegmentId",
                                             Value = AddSegment2.TemporaryId.ToString()
                                         }
                                     }

@@ -29,8 +29,8 @@ namespace RoadRegistry.Model
                         network.ProvidesNextWidthAttributeId(),
                         network.ProvidesNextSurfaceAttributeId()
                     );
-                    var changes = translator.Translate(message.Body.Changes);
-                    network.Change(changes);
+                    var changeSet = translator.Translate(message.Body.Changes);
+                    network.Change(changeSet);
                 });
         }
     }

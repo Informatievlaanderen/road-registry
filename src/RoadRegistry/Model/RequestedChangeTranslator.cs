@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.Linq;
 
     internal class RequestedChangeTranslator
@@ -27,47 +28,49 @@
         {
             _nextRoadNodeId = nextRoadNodeId ?? throw new ArgumentNullException(nameof(nextRoadNodeId));
             _nextRoadSegmentId = nextRoadSegmentId ?? throw new ArgumentNullException(nameof(nextRoadSegmentId));
-            _nextEuropeanRoadAttributeId = nextEuropeanRoadAttributeId ?? throw new ArgumentNullException(nameof(nextEuropeanRoadAttributeId));
-            _nextNationalRoadAttributeId = nextNationalRoadAttributeId ?? throw new ArgumentNullException(nameof(nextNationalRoadAttributeId));
-            _nextNumberedRoadAttributeId = nextNumberedRoadAttributeId ?? throw new ArgumentNullException(nameof(nextNumberedRoadAttributeId));
+            _nextEuropeanRoadAttributeId = nextEuropeanRoadAttributeId ??
+                                           throw new ArgumentNullException(nameof(nextEuropeanRoadAttributeId));
+            _nextNationalRoadAttributeId = nextNationalRoadAttributeId ??
+                                           throw new ArgumentNullException(nameof(nextNationalRoadAttributeId));
+            _nextNumberedRoadAttributeId = nextNumberedRoadAttributeId ??
+                                           throw new ArgumentNullException(nameof(nextNumberedRoadAttributeId));
             _nextLaneAttributeId = nextLaneAttributeId ?? throw new ArgumentNullException(nameof(nextLaneAttributeId));
-            _nextWidthAttributeId = nextWidthAttributeId ?? throw new ArgumentNullException(nameof(nextWidthAttributeId));
-            _nextSurfaceAttributeId = nextSurfaceAttributeId ?? throw new ArgumentNullException(nameof(nextSurfaceAttributeId));
+            _nextWidthAttributeId =
+                nextWidthAttributeId ?? throw new ArgumentNullException(nameof(nextWidthAttributeId));
+            _nextSurfaceAttributeId =
+                nextSurfaceAttributeId ?? throw new ArgumentNullException(nameof(nextSurfaceAttributeId));
         }
 
-        public IReadOnlyCollection<IRequestedChange> Translate(IReadOnlyCollection<Messages.RequestedChange> changes)
+        public IRequestedChanges Translate(IReadOnlyCollection<Messages.RequestedChange> changes)
         {
             if (changes == null)
                 throw new ArgumentNullException(nameof(changes));
 
-            var context = new TranslationContext();
-            var translated = new List<IRequestedChange>(changes.Count);
+            var changeSet = RequestedChanges.Empty;
             foreach (var change in changes
                 .Flatten()
                 .Select((change, ordinal) => new SortableChange(change, ordinal))
                 .OrderBy(_ => _, new RankChangeBeforeTranslation())
-                .Select(sortable => sortable.Change))
+                .Select(_ => _.Change))
             {
                 switch (change)
                 {
                     case Messages.AddRoadNode command:
-                        {
-                            var translation = Translate(command);
-                            context.Map(translation);
-                            translated.Add(translation);
-                        }
+                    {
+                        var translation = Translate(command);
+                        changeSet = changeSet.Append(translation).Map(translation.TemporaryId, translation.Id);
+                    }
                         break;
                     case Messages.AddRoadSegment command:
-                        {
-                            var translation = Translate(command, context);
-                            context.Map(translation);
-                            translated.Add(translation);
-                        }
+                    {
+                        var translation = Translate(command, changeSet);
+                        changeSet = changeSet.Append(translation).Map(translation.TemporaryId, translation.Id);
+                    }
                         break;
                 }
             }
 
-            return translated;
+            return changeSet;
         }
 
         private AddRoadNode Translate(Messages.AddRoadNode command)
@@ -83,14 +86,14 @@
             );
         }
 
-        private AddRoadSegment Translate(Messages.AddRoadSegment command, ITranslationContext context)
+        private AddRoadSegment Translate(Messages.AddRoadSegment command, IRequestedChanges requestedChanges)
         {
             var permanent = _nextRoadSegmentId();
             var temporary = new RoadSegmentId(command.TemporaryId);
 
             var startNodeId = new RoadNodeId(command.StartNodeId);
             RoadNodeId? temporaryStartNodeId;
-            if (context.TryTranslate(startNodeId, out var permanentStartNodeId))
+            if (requestedChanges.TryResolvePermanent(startNodeId, out var permanentStartNodeId))
             {
                 temporaryStartNodeId = startNodeId;
                 startNodeId = permanentStartNodeId;
@@ -102,7 +105,7 @@
 
             var endNodeId = new RoadNodeId(command.EndNodeId);
             RoadNodeId? temporaryEndNodeId;
-            if (context.TryTranslate(endNodeId, out var permanentEndNodeId))
+            if (requestedChanges.TryResolvePermanent(endNodeId, out var permanentEndNodeId))
             {
                 temporaryEndNodeId = endNodeId;
                 endNodeId = permanentEndNodeId;
@@ -240,42 +243,99 @@
             }
         }
 
-        private class TranslationContext : ITranslationContext
+        private class RequestedChanges : IRequestedChanges
         {
-            private readonly Dictionary<RoadNodeId, RoadNodeId> _mapOfNodes;
-            private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapOfSegments;
+            public static readonly RequestedChanges Empty = new RequestedChanges(
+                ImmutableList<IRequestedChange>.Empty,
+                ImmutableDictionary<RoadNodeId, RoadNodeId>.Empty,
+                ImmutableDictionary<RoadNodeId, RoadNodeId>.Empty,
+                ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty,
+                ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty);
 
-            public TranslationContext()
+            private readonly ImmutableList<IRequestedChange> _changes;
+            private readonly ImmutableDictionary<RoadNodeId, RoadNodeId> _mapToPermanentNodeIdentifiers;
+            private readonly ImmutableDictionary<RoadNodeId, RoadNodeId> _mapToTemporaryNodeIdentifiers;
+            private readonly ImmutableDictionary<RoadSegmentId, RoadSegmentId> _mapToPermanentSegmentIdentifiers;
+            private readonly ImmutableDictionary<RoadSegmentId, RoadSegmentId> _mapToTemporarySegmentIdentifiers;
+
+            private RequestedChanges(
+                ImmutableList<IRequestedChange> changes,
+                ImmutableDictionary<RoadNodeId, RoadNodeId> mapToPermanentNodeIdentifiers,
+                ImmutableDictionary<RoadNodeId, RoadNodeId> mapToTemporaryNodeIdentifiers,
+                ImmutableDictionary<RoadSegmentId, RoadSegmentId> mapToPermanentSegmentIdentifiers,
+                ImmutableDictionary<RoadSegmentId, RoadSegmentId> mapToTemporarySegmentIdentifiers)
             {
-                _mapOfNodes = new Dictionary<RoadNodeId, RoadNodeId>();
-                _mapOfSegments = new Dictionary<RoadSegmentId, RoadSegmentId>();
+                _changes = changes;
+                _mapToPermanentNodeIdentifiers = mapToPermanentNodeIdentifiers;
+                _mapToTemporaryNodeIdentifiers = mapToTemporaryNodeIdentifiers;
+                _mapToPermanentSegmentIdentifiers = mapToPermanentSegmentIdentifiers;
+                _mapToTemporarySegmentIdentifiers = mapToTemporarySegmentIdentifiers;
             }
 
-            public void Map(AddRoadNode change) =>
-                _mapOfNodes.Add(change.TemporaryId, change.Id);
+            public IReadOnlyCollection<IRequestedChange> Changes => _changes;
 
-            public bool TryTranslate(RoadNodeId id, out RoadNodeId translated) =>
-                _mapOfNodes.TryGetValue(id, out translated);
+            public RequestedChanges Append(IRequestedChange change)
+            {
+                if (change == null)
+                    throw new ArgumentNullException(nameof(change));
 
-            public RoadNodeId Translate(RoadNodeId id) =>
-                _mapOfNodes.TryGetValue(id, out RoadNodeId permanent) ? permanent : id;
+                return new RequestedChanges(
+                    _changes.Add(change),
+                    _mapToPermanentNodeIdentifiers,
+                    _mapToTemporaryNodeIdentifiers,
+                    _mapToPermanentSegmentIdentifiers,
+                    _mapToTemporarySegmentIdentifiers);
+            }
 
-            public void Map(AddRoadSegment change) =>
-                _mapOfSegments.Add(change.TemporaryId, change.Id);
+            public RequestedChanges Map(RoadNodeId temporary, RoadNodeId permanent)
+            {
+                return new RequestedChanges(
+                    _changes,
+                    _mapToPermanentNodeIdentifiers.Add(temporary, permanent),
+                    _mapToTemporaryNodeIdentifiers.Add(permanent, temporary),
+                    _mapToPermanentSegmentIdentifiers,
+                    _mapToTemporarySegmentIdentifiers);
+            }
 
-            public bool TryTranslate(RoadSegmentId id, out RoadSegmentId translated) =>
-                _mapOfSegments.TryGetValue(id, out translated);
+            public RequestedChanges Map(RoadSegmentId temporary, RoadSegmentId permanent)
+            {
+                return new RequestedChanges(
+                    _changes,
+                    _mapToPermanentNodeIdentifiers,
+                    _mapToTemporaryNodeIdentifiers,
+                    _mapToPermanentSegmentIdentifiers.Add(temporary, permanent),
+                    _mapToTemporarySegmentIdentifiers.Add(permanent, temporary));
+            }
 
-            public RoadSegmentId Translate(RoadSegmentId id) =>
-                _mapOfSegments.TryGetValue(id, out RoadSegmentId permanent) ? permanent : id;
-        }
+            public bool TryResolvePermanent(RoadNodeId id, out RoadNodeId permanent)
+            {
+                return _mapToPermanentNodeIdentifiers.TryGetValue(id, out permanent);
+            }
 
-        private interface ITranslationContext
-        {
-            bool TryTranslate(RoadNodeId id, out RoadNodeId translated);
-//            RoadNodeId Translate(RoadNodeId id);
-//            bool TryTranslate(RoadSegmentId id, out RoadSegmentId translated);
-//            RoadSegmentId Translate(RoadSegmentId id);
+            public bool TryResolvePermanent(RoadSegmentId id, out RoadSegmentId permanent)
+            {
+                return _mapToPermanentSegmentIdentifiers.TryGetValue(id, out permanent);
+            }
+
+            public bool TryResolveTemporary(RoadNodeId id, out RoadNodeId temporary)
+            {
+                return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out temporary);
+            }
+
+            public RoadNodeId ResolveTemporaryOrId(RoadNodeId id)
+            {
+                return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out var temporary) ? temporary : id;
+            }
+
+            public bool TryResolveTemporary(RoadSegmentId id, out RoadSegmentId temporary)
+            {
+                return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out temporary);
+            }
+
+            public RoadSegmentId ResolveTemporaryOrId(RoadSegmentId id)
+            {
+                return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out var temporary) ? temporary : id;
+            }
         }
     }
 }

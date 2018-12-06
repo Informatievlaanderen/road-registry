@@ -7,16 +7,16 @@ namespace RoadRegistry.Model
 
     public partial class RoadNetwork
     {
-        public void Change(IReadOnlyCollection<IRequestedChange> changes)
+        public void Change(IRequestedChanges requestedChanges)
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
-            var requestView = _view.When(changes);
+            var requestView = _view.When(requestedChanges.Changes);
             var acceptedChanges = new List<AcceptedChange>();
             var rejectedChanges = new List<RejectedChange>();
-            foreach (var change in changes)
+            foreach (var change in requestedChanges.Changes)
             {
-                var problems = Problems.None;
+                var problems = Problems.With(requestedChanges);
                 switch (change)
                 {
                     case AddRoadNode addRoadNode:
