@@ -4,6 +4,7 @@ namespace RoadRegistry.Model
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Globalization;
     using System.Linq;
 
     internal class Problems : IReadOnlyCollection<Problem>
@@ -135,6 +136,34 @@ namespace RoadRegistry.Model
                                     ? temporary2
                                     : segment2
                             ).ToInt32().ToString()))),
+                _requestedChanges);
+        }
+
+        public Problems RoadSegmentLaneAttributeFirstFromPositionNotEqualToZero()
+        {
+            return new Problems(
+                _problems.Add(
+                    new Error(nameof(RoadSegmentLaneAttributeFirstFromPositionNotEqualToZero))),
+                _requestedChanges);
+        }
+
+        public Problems RoadSegmentLaneAttributeNotAdjacentToPrevious(RoadSegmentPosition from, RoadSegmentPosition to)
+        {
+            return new Problems(
+                _problems.Add(
+                    new Error(nameof(RoadSegmentLaneAttributeNotAdjacentToPrevious),
+                        new ProblemParameter("From", from.ToString()),
+                        new ProblemParameter("To", to.ToString()))),
+                _requestedChanges);
+        }
+
+        public Problems RoadSegmentLaneAttributeLastToPositionNotEqualToLength(RoadSegmentPosition to, double length)
+        {
+            return new Problems(
+                _problems.Add(
+                    new Error(nameof(RoadSegmentLaneAttributeLastToPositionNotEqualToLength),
+                        new ProblemParameter("To", to.ToString()),
+                        new ProblemParameter("Length", length.ToString(CultureInfo.InvariantCulture)))),
                 _requestedChanges);
         }
     }

@@ -57,16 +57,10 @@
                 switch (change)
                 {
                     case Messages.AddRoadNode command:
-                    {
-                        var translation = Translate(command);
-                        changeSet = changeSet.Append(translation).Map(translation.TemporaryId, translation.Id);
-                    }
+                        changeSet = changeSet.Append(Translate(command));
                         break;
                     case Messages.AddRoadSegment command:
-                    {
-                        var translation = Translate(command, changeSet);
-                        changeSet = changeSet.Append(translation).Map(translation.TemporaryId, translation.Id);
-                    }
+                        changeSet = changeSet.Append(Translate(command, changeSet));
                         break;
                 }
             }
@@ -273,7 +267,20 @@
                 _mapToTemporarySegmentIdentifiers = mapToTemporarySegmentIdentifiers;
             }
 
-            public RequestedChanges Append(IRequestedChange change)
+            public RequestedChanges Append(AddRoadNode change)
+            {
+                if (change == null)
+                    throw new ArgumentNullException(nameof(change));
+
+                return new RequestedChanges(
+                    _changes.Add(change),
+                    _mapToPermanentNodeIdentifiers.Add(change.TemporaryId, change.Id),
+                    _mapToTemporaryNodeIdentifiers.Add(change.Id, change.TemporaryId),
+                    _mapToPermanentSegmentIdentifiers,
+                    _mapToTemporarySegmentIdentifiers);
+            }
+
+            public RequestedChanges Append(AddRoadSegment change)
             {
                 if (change == null)
                     throw new ArgumentNullException(nameof(change));
@@ -282,28 +289,8 @@
                     _changes.Add(change),
                     _mapToPermanentNodeIdentifiers,
                     _mapToTemporaryNodeIdentifiers,
-                    _mapToPermanentSegmentIdentifiers,
-                    _mapToTemporarySegmentIdentifiers);
-            }
-
-            public RequestedChanges Map(RoadNodeId temporary, RoadNodeId permanent)
-            {
-                return new RequestedChanges(
-                    _changes,
-                    _mapToPermanentNodeIdentifiers.Add(temporary, permanent),
-                    _mapToTemporaryNodeIdentifiers.Add(permanent, temporary),
-                    _mapToPermanentSegmentIdentifiers,
-                    _mapToTemporarySegmentIdentifiers);
-            }
-
-            public RequestedChanges Map(RoadSegmentId temporary, RoadSegmentId permanent)
-            {
-                return new RequestedChanges(
-                    _changes,
-                    _mapToPermanentNodeIdentifiers,
-                    _mapToTemporaryNodeIdentifiers,
-                    _mapToPermanentSegmentIdentifiers.Add(temporary, permanent),
-                    _mapToTemporarySegmentIdentifiers.Add(permanent, temporary));
+                    _mapToPermanentSegmentIdentifiers.Add(change.TemporaryId, change.Id),
+                    _mapToTemporarySegmentIdentifiers.Add(change.Id, change.TemporaryId));
             }
 
             public bool TryResolvePermanent(RoadNodeId id, out RoadNodeId permanent)
@@ -321,19 +308,9 @@
                 return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out temporary);
             }
 
-            public RoadNodeId ResolveTemporaryOrId(RoadNodeId id)
-            {
-                return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out var temporary) ? temporary : id;
-            }
-
             public bool TryResolveTemporary(RoadSegmentId id, out RoadSegmentId temporary)
             {
                 return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out temporary);
-            }
-
-            public RoadSegmentId ResolveTemporaryOrId(RoadSegmentId id)
-            {
-                return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out var temporary) ? temporary : id;
             }
 
             public IEnumerator<IRequestedChange> GetEnumerator() =>

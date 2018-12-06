@@ -152,6 +152,32 @@ namespace RoadRegistry.Model
                             problems = problems.RoadSegmentGeometrySelfIntersects();
                         }
 
+                        var position = new RoadSegmentPosition(0.0m);
+                        var index = 0;
+                        foreach(var attribute in addRoadSegment.Lanes)
+                        {
+                            if(attribute.From != position)
+                            {
+                                if (index == 0)
+                                {
+                                    problems = problems.RoadSegmentLaneAttributeFirstFromPositionNotEqualToZero();
+                                }
+                                else
+                                {
+                                    problems = problems.RoadSegmentLaneAttributeNotAdjacentToPrevious(attribute.From, position);
+                                }
+                            }
+                            position = attribute.To;
+                            index++;
+                            if (index == addRoadSegment.Lanes.Count)
+                            {
+                                if (Math.Abs(Convert.ToDouble(attribute.To.ToDecimal()) - line.Length) > 0.0)
+                                {
+                                    problems = problems.RoadSegmentLaneAttributeLastToPositionNotEqualToLength(attribute.To, line.Length);
+                                }
+                            }
+                        }
+
                         if (problems.AreAcceptable())
                         {
                             acceptedChanges.Add(addRoadSegment.Accept(problems));

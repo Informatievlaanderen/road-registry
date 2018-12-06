@@ -10,6 +10,7 @@ namespace RoadRegistry.Model
     using Testing;
     using Xunit;
     using NetTopologySuite.Geometries;
+    using LineString = NetTopologySuite.Geometries.LineString;
 
     public class RoadNetworkScenarios : RoadRegistryFixture
     {
@@ -2567,6 +2568,74 @@ namespace RoadRegistry.Model
                                 new Messages.Problem
                                 {
                                     Reason = "RoadSegmentGeometryLengthIsZero",
+                                    Parameters = new Messages.ProblemParameter[0]
+                                }
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        public static IEnumerable<object[]> NonAdjacentLaneAttributesCases
+        {
+            get
+            {
+                var fixture = new Fixture();
+                fixture.CustomizeRoadSegmentLaneCount();
+                fixture.CustomizeRoadSegmentLaneDirection();
+
+                yield return new object[]
+                {
+                    new[]
+                    {
+                        new Messages.RequestedRoadSegmentLaneAttributes
+                        {
+                            FromPosition = 2.0m,
+                            ToPosition = 100.0m,
+                            Count = fixture.Create<RoadSegmentLaneCount>(),
+                            Direction = fixture.Create<RoadSegmentLaneDirection>()
+                        }
+                    },
+                    "RoadSegmentLaneAttributeFirstFromPositionNotZero"
+                };
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(NonAdjacentLaneAttributesCases))]
+        public Task when_adding_a_segment_with_non_adjacent_lane_attributes(Messages.RequestedRoadSegmentLaneAttributes[] attributes, string reason)
+        {
+            AddSegment1.Lanes = attributes;
+
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Errors = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = reason,
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
                             },
