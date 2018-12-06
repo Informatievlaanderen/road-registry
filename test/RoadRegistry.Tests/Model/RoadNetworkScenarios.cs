@@ -713,7 +713,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -757,7 +757,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -808,7 +808,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddEndNode1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -906,7 +906,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -1014,7 +1014,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -1117,7 +1117,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddEndNode1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -1245,7 +1245,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -1373,7 +1373,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddEndNode1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -1454,7 +1454,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode2,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -1530,7 +1530,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddEndNode2,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -1673,7 +1673,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode2,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -1754,7 +1754,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddEndNode2,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -1861,7 +1861,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment2,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -1988,7 +1988,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -2059,7 +2059,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -2094,7 +2094,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -2129,7 +2129,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -2170,7 +2170,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -2224,7 +2224,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment2,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -2265,7 +2265,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -2319,7 +2319,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment2,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {
@@ -2364,7 +2364,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Reasons = new[]
+                            Errors = new[]
                             {
                                 new Messages.Reason
                                 {

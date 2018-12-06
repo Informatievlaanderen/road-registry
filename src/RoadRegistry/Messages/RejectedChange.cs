@@ -4,6 +4,7 @@ namespace RoadRegistry.Messages
     {
         public AddRoadNode AddRoadNode { get; set; }
         public AddRoadSegment AddRoadSegment { get; set; }
-        public Reason[] Reasons { get; set; }
+        public Reason[] Errors { get; set; }
+        public Reason[] Warnings { get; set; }
     }
 }

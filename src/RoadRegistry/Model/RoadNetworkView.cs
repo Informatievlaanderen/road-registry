@@ -20,8 +20,8 @@ namespace RoadRegistry.Model
             new AttributeId(0),
             new AttributeId(0));
 
-        private readonly ImmutableDictionary<RoadNodeId, RoadNode> _acceptedNodes;
-        private readonly ImmutableDictionary<RoadSegmentId, RoadSegment> _acceptedSegments;
+        private readonly ImmutableDictionary<RoadNodeId, RoadNode> _nodes;
+        private readonly ImmutableDictionary<RoadSegmentId, RoadSegment> _segments;
         private readonly RoadNodeId _maximumNodeId;
         private readonly RoadSegmentId _maximumSegmentId;
         private readonly AttributeId _maximumEuropeanRoadAttributeId;
@@ -32,8 +32,8 @@ namespace RoadRegistry.Model
         private readonly AttributeId _maximumSurfaceAttributeId;
 
         private RoadNetworkView(
-            ImmutableDictionary<RoadNodeId, RoadNode> acceptedNodes,
-            ImmutableDictionary<RoadSegmentId, RoadSegment> acceptedSegments,
+            ImmutableDictionary<RoadNodeId, RoadNode> nodes,
+            ImmutableDictionary<RoadSegmentId, RoadSegment> segments,
             RoadNodeId maximumNodeId,
             RoadSegmentId maximumSegmentId,
             AttributeId maximumEuropeanRoadAttributeId,
@@ -43,8 +43,8 @@ namespace RoadRegistry.Model
             AttributeId maximumWidthAttributeId,
             AttributeId maximumSurfaceAttributeId)
         {
-            _acceptedNodes = acceptedNodes;
-            _acceptedSegments = acceptedSegments;
+            _nodes = nodes;
+            _segments = segments;
             _maximumNodeId = maximumNodeId;
             _maximumSegmentId = maximumSegmentId;
             _maximumEuropeanRoadAttributeId = maximumEuropeanRoadAttributeId;
@@ -55,8 +55,8 @@ namespace RoadRegistry.Model
             _maximumSurfaceAttributeId = maximumSurfaceAttributeId;
         }
 
-        public IReadOnlyDictionary<RoadNodeId, RoadNode> AcceptedNodes => _acceptedNodes;
-        public IReadOnlyDictionary<RoadSegmentId, RoadSegment> AcceptedSegments => _acceptedSegments;
+        public IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes => _nodes;
+        public IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments => _segments;
         public RoadNodeId MaximumNodeId => _maximumNodeId;
         public RoadSegmentId MaximumSegmentId => _maximumSegmentId;
         public AttributeId MaximumEuropeanRoadAttributeId => _maximumEuropeanRoadAttributeId;
@@ -72,8 +72,8 @@ namespace RoadRegistry.Model
             var id = new RoadNodeId(@event.Id);
             var node = new RoadNode(id, GeometryTranslator.Translate(@event.Geometry));
             return new RoadNetworkView(
-                _acceptedNodes.Add(id, node),
-                _acceptedSegments,
+                _nodes.Add(id, node),
+                _segments,
                 RoadNodeId.Max(id, _maximumNodeId),
                 _maximumSegmentId,
                 _maximumEuropeanRoadAttributeId,
@@ -113,10 +113,10 @@ namespace RoadRegistry.Model
                 attributeHash);
 
             return new RoadNetworkView(
-                _acceptedNodes
+                _nodes
                     .TryReplaceValue(start, node => node.ConnectWith(id))
                     .TryReplaceValue(end, node => node.ConnectWith(id)),
-                _acceptedSegments.Add(id, segment),
+                _segments.Add(id, segment),
                 _maximumNodeId,
                 RoadSegmentId.Max(id, _maximumSegmentId),
                 @event.PartOfEuropeanRoads.Length != 0
@@ -177,8 +177,8 @@ namespace RoadRegistry.Model
             var id = new RoadNodeId(@event.Id);
             var node = new RoadNode(id, GeometryTranslator.Translate(@event.Geometry));
             return new RoadNetworkView(
-                _acceptedNodes.Add(id, node),
-                _acceptedSegments,
+                _nodes.Add(id, node),
+                _segments,
                 RoadNodeId.Max(id, _maximumNodeId),
                 _maximumSegmentId,
                 _maximumEuropeanRoadAttributeId,
@@ -217,10 +217,10 @@ namespace RoadRegistry.Model
                 attributeHash);
 
             return new RoadNetworkView(
-                _acceptedNodes
+                _nodes
                     .TryReplaceValue(start, node => node.ConnectWith(id))
                     .TryReplaceValue(end, node => node.ConnectWith(id)),
-                _acceptedSegments.Add(id, segment),
+                _segments.Add(id, segment),
                 _maximumNodeId,
                 RoadSegmentId.Max(id, _maximumSegmentId),
                 @event.PartOfEuropeanRoads.Length != 0
@@ -282,8 +282,8 @@ namespace RoadRegistry.Model
         {
             var node = new RoadNode(command.Id, command.Geometry);
             return new RoadNetworkView(
-                _acceptedNodes.Add(command.Id, node),
-                _acceptedSegments,
+                _nodes.Add(command.Id, node),
+                _segments,
                 RoadNodeId.Max(command.Id, _maximumNodeId),
                 _maximumSegmentId,
                 _maximumEuropeanRoadAttributeId,
@@ -307,10 +307,10 @@ namespace RoadRegistry.Model
                 .With(command.MaintenanceAuthority);
 
             return new RoadNetworkView(
-                _acceptedNodes
+                _nodes
                     .TryReplaceValue(command.StartNodeId, node => node.ConnectWith(command.Id))
                     .TryReplaceValue(command.EndNodeId, node => node.ConnectWith(command.Id)),
-                _acceptedSegments.Add(command.Id,
+                _segments.Add(command.Id,
                     new RoadSegment(command.Id, command.Geometry, command.StartNodeId, command.EndNodeId, attributeHash)),
                 _maximumNodeId,
                 RoadSegmentId.Max(command.Id, _maximumSegmentId),
