@@ -1,6 +1,6 @@
 namespace RoadRegistry.Messages
 {
-    public class ReasonParameter
+    public class ProblemParameter
     {
         public string Name { get; set; }
         public string Value { get; set; }

@@ -20,7 +20,7 @@ namespace RoadRegistry.Model
         public RoadNodeType Type { get; }
         public Point Geometry { get; }
 
-        public Messages.AcceptedChange Accept(IReadOnlyCollection<Reason> reasons)
+        public Messages.AcceptedChange Accept(IReadOnlyCollection<Problem> reasons)
         {
             return new Messages.AcceptedChange
             {
@@ -43,7 +43,7 @@ namespace RoadRegistry.Model
             };
         }
 
-        public Messages.RejectedChange Reject(IReadOnlyCollection<Reason> reasons)
+        public Messages.RejectedChange Reject(IReadOnlyCollection<Problem> reasons)
         {
             return new Messages.RejectedChange
             {

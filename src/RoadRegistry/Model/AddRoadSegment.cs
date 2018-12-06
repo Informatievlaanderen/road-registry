@@ -74,7 +74,7 @@ namespace RoadRegistry.Model
         public IReadOnlyCollection<RoadSegmentWidthAttribute> Widths { get; }
         public IReadOnlyCollection<RoadSegmentSurfaceAttribute> Surfaces { get; }
 
-        public Messages.AcceptedChange Accept(IReadOnlyCollection<Reason> reasons)
+        public Messages.AcceptedChange Accept(IReadOnlyCollection<Problem> reasons)
         {
             return new Messages.AcceptedChange
             {
@@ -161,7 +161,7 @@ namespace RoadRegistry.Model
             };
         }
 
-        public Messages.RejectedChange Reject(IReadOnlyCollection<Reason> reasons)
+        public Messages.RejectedChange Reject(IReadOnlyCollection<Problem> reasons)
         {
             return new Messages.RejectedChange
             {

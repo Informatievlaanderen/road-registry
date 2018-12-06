@@ -1,9 +1,9 @@
 namespace RoadRegistry.Model
 {
-    public class Error : Reason
+    public class Error : Problem
     {
-        public Error(string because, params ReasonParameter[] parameters)
-            : base(because, parameters)
+        public Error(string reason, params ProblemParameter[] parameters)
+            : base(reason, parameters)
         {
         }
     }

@@ -16,7 +16,7 @@ namespace RoadRegistry.Model
             var rejectedChanges = new List<RejectedChange>();
             foreach (var change in changes)
             {
-                var reasons = Reasons.None;
+                var problems = Problems.None;
                 switch (change)
                 {
                     case AddRoadNode addRoadNode:
@@ -33,7 +33,7 @@ namespace RoadRegistry.Model
                                 n.Geometry.EqualsExact(addRoadNode.Geometry));
                         if (byOtherNode != null)
                         {
-                            reasons = reasons.BecauseRoadNodeGeometryTaken(byOtherNode.Id);
+                            problems = problems.RoadNodeGeometryTaken(byOtherNode.Id);
                         }
                         else
                         {
@@ -43,7 +43,7 @@ namespace RoadRegistry.Model
                                     n.Geometry.IsWithinDistance(addRoadNode.Geometry, TooCloseDistance));
                             if (toOtherNode != null)
                             {
-                                reasons = reasons.BecauseRoadNodeTooClose(toOtherNode.Id);
+                                problems = problems.RoadNodeTooClose(toOtherNode.Id);
                             }
                         }
 
@@ -51,17 +51,17 @@ namespace RoadRegistry.Model
                         var connectedSegmentCount = node.Segments.Count;
                         if (connectedSegmentCount == 0)
                         {
-                            reasons = reasons.BecauseRoadNodeNotConnectedToAnySegment();
+                            problems = problems.RoadNodeNotConnectedToAnySegment();
                         }
                         else if (connectedSegmentCount == 1 && addRoadNode.Type != RoadNodeType.EndNode)
                         {
-                            reasons = reasons.BecauseRoadNodeTypeMismatch(RoadNodeType.EndNode);
+                            problems = problems.RoadNodeTypeMismatch(RoadNodeType.EndNode);
                         }
                         else if (connectedSegmentCount == 2)
                         {
                             if (!addRoadNode.Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
                             {
-                                reasons = reasons.BecauseRoadNodeTypeMismatch(
+                                problems = problems.RoadNodeTypeMismatch(
                                     RoadNodeType.FakeNode,
                                     RoadNodeType.TurningLoopNode);
 
@@ -73,23 +73,23 @@ namespace RoadRegistry.Model
                                 var segment2 = segments[1];
                                 if (segment1.AttributeHash.Equals(segment2.AttributeHash))
                                 {
-                                    reasons = reasons.BecauseFakeRoadNodeConnectedSegmentsDoNotDiffer(segment1.Id, segment2.Id);
+                                    problems = problems.FakeRoadNodeConnectedSegmentsDoNotDiffer(segment1.Id, segment2.Id);
                                 }
                             }
                         }
                         else if (connectedSegmentCount > 2 && !addRoadNode.Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
                         {
-                            reasons = reasons.BecauseRoadNodeTypeMismatch(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout);
+                            problems = problems.RoadNodeTypeMismatch(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout);
                         }
 
-                        if (reasons.AreAcceptable())
+                        if (problems.AreAcceptable())
                         {
                             //incrementalNodes = incrementalNodes.Add(node.Id, node);
-                            acceptedChanges.Add(addRoadNode.Accept(reasons));
+                            acceptedChanges.Add(addRoadNode.Accept(problems));
                         }
                         else
                         {
-                            rejectedChanges.Add(addRoadNode.Reject(reasons));
+                            rejectedChanges.Add(addRoadNode.Reject(problems));
                         }
 
                         break;
@@ -104,7 +104,7 @@ namespace RoadRegistry.Model
 
                         if (Math.Abs(addRoadSegment.Geometry.Length) <= 0.0)
                         {
-                            reasons = reasons.BecauseRoadSegmentGeometryLengthIsZero();
+                            problems = problems.RoadSegmentGeometryLengthIsZero();
                         }
 
                         var byOtherSegment =
@@ -113,7 +113,7 @@ namespace RoadRegistry.Model
                                 segment.Geometry.EqualsExact(addRoadSegment.Geometry));
                         if (byOtherSegment != null)
                         {
-                            reasons = reasons.BecauseRoadSegmentGeometryTaken(byOtherSegment.Id);
+                            problems = problems.RoadSegmentGeometryTaken(byOtherSegment.Id);
                         }
 
                         var line = addRoadSegment.Geometry.Geometries
@@ -121,44 +121,44 @@ namespace RoadRegistry.Model
                             .Single();
                         if (!requestView.Nodes.TryGetValue(addRoadSegment.StartNodeId, out var startNode))
                         {
-                            reasons = reasons.BecauseRoadSegmentStartNodeMissing();
+                            problems = problems.RoadSegmentStartNodeMissing();
                         }
                         else
                         {
                             if (line.StartPoint != null && !line.StartPoint.EqualsExact(startNode.Geometry))
                             {
-                                reasons = reasons.BecauseRoadSegmentStartPointDoesNotMatchNodeGeometry();
+                                problems = problems.RoadSegmentStartPointDoesNotMatchNodeGeometry();
                             }
                         }
 
                         if (!requestView.Nodes.TryGetValue(addRoadSegment.EndNodeId, out var endNode))
                         {
-                            reasons = reasons.BecauseRoadSegmentEndNodeMissing();
+                            problems = problems.RoadSegmentEndNodeMissing();
                         }
                         else
                         {
                             if (line.EndPoint != null && !line.EndPoint.EqualsExact(endNode.Geometry))
                             {
-                                reasons = reasons.BecauseRoadSegmentEndPointDoesNotMatchNodeGeometry();
+                                problems = problems.RoadSegmentEndPointDoesNotMatchNodeGeometry();
                             }
                         }
 
                         if (line.SelfOverlaps())
                         {
-                            reasons = reasons.BecauseRoadSegmentGeometrySelfOverlaps();
+                            problems = problems.RoadSegmentGeometrySelfOverlaps();
                         }
                         else if (line.SelfIntersects())
                         {
-                            reasons = reasons.BecauseRoadSegmentGeometrySelfIntersects();
+                            problems = problems.RoadSegmentGeometrySelfIntersects();
                         }
 
-                        if (reasons.AreAcceptable())
+                        if (problems.AreAcceptable())
                         {
-                            acceptedChanges.Add(addRoadSegment.Accept(reasons));
+                            acceptedChanges.Add(addRoadSegment.Accept(problems));
                         }
                         else
                         {
-                            rejectedChanges.Add(addRoadSegment.Reject(reasons));
+                            rejectedChanges.Add(addRoadSegment.Reject(problems));
                         }
 
                         break;

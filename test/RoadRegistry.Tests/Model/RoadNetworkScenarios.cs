@@ -681,15 +681,18 @@ namespace RoadRegistry.Model
                     {
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode1Added
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode1Added
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadSegmentAdded = Segment1Added
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
@@ -715,12 +718,13 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddStartNode1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadNodeNotConnectedToAnySegment",
-                                    Parameters = new Messages.ReasonParameter[0]
+                                    Reason = "RoadNodeNotConnectedToAnySegment",
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -759,19 +763,20 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddStartNode1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadNodeTypeMismatch",
+                                    Reason = "RoadNodeTypeMismatch",
                                     Parameters = new []
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "Expected",
                                             Value = "EndNode"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -810,19 +815,20 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddEndNode1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadNodeTypeMismatch",
+                                    Reason = "RoadNodeTypeMismatch",
                                     Parameters = new []
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "Expected",
                                             Value = "EndNode"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -908,24 +914,25 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddStartNode1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadNodeTypeMismatch",
+                                    Reason = "RoadNodeTypeMismatch",
                                     Parameters = new []
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "Expected",
                                             Value = "FakeNode"
                                         },
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "Expected",
                                             Value = "TurningLoopNode"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1016,24 +1023,25 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddStartNode1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
+                                    Reason = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
                                     Parameters = new []
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "RoadSegmentId",
                                             Value = AddSegment1.TemporaryId.ToString()
                                         },
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "RoadSegmentId",
                                             Value = AddSegment2.TemporaryId.ToString()
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1119,24 +1127,25 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddEndNode1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadNodeTypeMismatch",
+                                    Reason = "RoadNodeTypeMismatch",
                                     Parameters = new []
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "Expected",
                                             Value = "FakeNode"
                                         },
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "Expected",
                                             Value = "TurningLoopNode"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1247,24 +1256,25 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddStartNode1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadNodeTypeMismatch",
+                                    Reason = "RoadNodeTypeMismatch",
                                     Parameters = new []
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "Expected",
                                             Value = "RealNode"
                                         },
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "Expected",
                                             Value = "MiniRoundabout"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1375,24 +1385,25 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddEndNode1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadNodeTypeMismatch",
+                                    Reason = "RoadNodeTypeMismatch",
                                     Parameters = new []
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "Expected",
                                             Value = "RealNode"
                                         },
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "Expected",
                                             Value = "MiniRoundabout"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1421,15 +1432,18 @@ namespace RoadRegistry.Model
                     {
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode1Added
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode1Added
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadSegmentAdded = Segment1Added
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1456,19 +1470,20 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddStartNode2,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadNodeGeometryTaken",
+                                    Reason = "RoadNodeGeometryTaken",
                                     Parameters = new[]
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "ByOtherNode",
                                             Value = "1"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1497,15 +1512,18 @@ namespace RoadRegistry.Model
                     {
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode1Added
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode1Added
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadSegmentAdded = Segment1Added
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1532,19 +1550,20 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddEndNode2,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadNodeGeometryTaken",
+                                    Reason = "RoadNodeGeometryTaken",
                                     Parameters = new[]
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "ByOtherNode",
                                             Value = "2"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1588,27 +1607,33 @@ namespace RoadRegistry.Model
                     {
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode1Added
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode1Added
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode2Added
+                            RoadNodeAdded = StartNode2Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode2Added
+                            RoadNodeAdded = EndNode2Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadSegmentAdded = Segment1Added
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadSegmentAdded = Segment2Added
+                            RoadSegmentAdded = Segment2Added,
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
@@ -1640,15 +1665,18 @@ namespace RoadRegistry.Model
                     {
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode1Added
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode1Added
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadSegmentAdded = Segment1Added
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1675,19 +1703,20 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddStartNode2,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadNodeTooClose",
+                                    Reason = "RoadNodeTooClose",
                                     Parameters = new[]
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "ToOtherNode",
                                             Value = "1"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1721,15 +1750,18 @@ namespace RoadRegistry.Model
                     {
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode1Added
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode1Added
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadSegmentAdded = Segment1Added
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1756,19 +1788,20 @@ namespace RoadRegistry.Model
                             AddRoadNode = AddEndNode2,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadNodeTooClose",
+                                    Reason = "RoadNodeTooClose",
                                     Parameters = new[]
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "ToOtherNode",
                                             Value = "2"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1807,15 +1840,18 @@ namespace RoadRegistry.Model
                     {
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode1Added
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode1Added
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadSegmentAdded = Segment1Added
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1836,15 +1872,18 @@ namespace RoadRegistry.Model
                     {
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode1Added
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode1Added
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadSegmentAdded = Segment1Added
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -1863,19 +1902,20 @@ namespace RoadRegistry.Model
                             AddRoadSegment = AddSegment2,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadSegmentGeometryTaken",
+                                    Reason = "RoadSegmentGeometryTaken",
                                     Parameters = new[]
                                     {
-                                        new Messages.ReasonParameter
+                                        new Messages.ProblemParameter
                                         {
                                             Name = "ByOtherSegment",
                                             Value = "1"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
@@ -1990,12 +2030,13 @@ namespace RoadRegistry.Model
                             AddRoadSegment = AddSegment1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadSegmentGeometrySelfOverlaps",
-                                    Parameters = new Messages.ReasonParameter[0]
+                                    Reason = "RoadSegmentGeometrySelfOverlaps",
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
@@ -2061,12 +2102,13 @@ namespace RoadRegistry.Model
                             AddRoadSegment = AddSegment1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadSegmentGeometrySelfIntersects",
-                                    Parameters = new Messages.ReasonParameter[0]
+                                    Reason = "RoadSegmentGeometrySelfIntersects",
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
@@ -2096,12 +2138,13 @@ namespace RoadRegistry.Model
                             AddRoadSegment = AddSegment1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadSegmentStartNodeMissing",
-                                    Parameters = new Messages.ReasonParameter[0]
+                                    Reason = "RoadSegmentStartNodeMissing",
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
@@ -2131,12 +2174,13 @@ namespace RoadRegistry.Model
                             AddRoadSegment = AddSegment1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadSegmentEndNodeMissing",
-                                    Parameters = new Messages.ReasonParameter[0]
+                                    Reason = "RoadSegmentEndNodeMissing",
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
@@ -2172,12 +2216,13 @@ namespace RoadRegistry.Model
                             AddRoadSegment = AddSegment1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadSegmentStartPointDoesNotMatchNodeGeometry",
-                                    Parameters = new Messages.ReasonParameter[0]
+                                    Reason = "RoadSegmentStartPointDoesNotMatchNodeGeometry",
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
@@ -2195,15 +2240,18 @@ namespace RoadRegistry.Model
                     {
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode1Added
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode1Added
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadSegmentAdded = Segment1Added
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -2226,12 +2274,13 @@ namespace RoadRegistry.Model
                             AddRoadSegment = AddSegment2,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadSegmentStartPointDoesNotMatchNodeGeometry",
-                                    Parameters = new Messages.ReasonParameter[0]
+                                    Reason = "RoadSegmentStartPointDoesNotMatchNodeGeometry",
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
@@ -2267,12 +2316,13 @@ namespace RoadRegistry.Model
                             AddRoadSegment = AddSegment1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadSegmentEndPointDoesNotMatchNodeGeometry",
-                                    Parameters = new Messages.ReasonParameter[0]
+                                    Reason = "RoadSegmentEndPointDoesNotMatchNodeGeometry",
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
@@ -2290,15 +2340,18 @@ namespace RoadRegistry.Model
                     {
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode1Added
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = EndNode1Added
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadSegmentAdded = Segment1Added
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 })
@@ -2321,12 +2374,13 @@ namespace RoadRegistry.Model
                             AddRoadSegment = AddSegment2,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadSegmentEndPointDoesNotMatchNodeGeometry",
-                                    Parameters = new Messages.ReasonParameter[0]
+                                    Reason = "RoadSegmentEndPointDoesNotMatchNodeGeometry",
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
@@ -2366,12 +2420,13 @@ namespace RoadRegistry.Model
                             AddRoadSegment = AddSegment1,
                             Errors = new[]
                             {
-                                new Messages.Reason
+                                new Messages.Problem
                                 {
-                                    Because = "RoadSegmentGeometryLengthIsZero",
-                                    Parameters = new Messages.ReasonParameter[0]
+                                    Reason = "RoadSegmentGeometryLengthIsZero",
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
-                            }
+                            },
+                            Warnings = new Messages.Problem[0]
                         }
                     }
                 }));
