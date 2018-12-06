@@ -18,17 +18,21 @@ namespace RoadRegistry.Model
                 .GetAssembly(typeof(NumberedRoadNumber))
                 .GetManifestResourceStream(typeof(NumberedRoadNumber), "ident8.txt"))
             {
-                using(var reader = new StreamReader(stream, Encoding.UTF8))
-                {
-                    var numbers = new List<NumberedRoadNumber>(5813);
-                    var line = reader.ReadLine();
-                    while(line != null)
+                if (stream != null)
+                    using (var reader = new StreamReader(stream, Encoding.UTF8))
                     {
-                        numbers.Add(new NumberedRoadNumber(line));
-                        line = reader.ReadLine();
+                        var numbers = new List<NumberedRoadNumber>(5813);
+                        var line = reader.ReadLine();
+                        while (line != null)
+                        {
+                            numbers.Add(new NumberedRoadNumber(line));
+                            line = reader.ReadLine();
+                        }
+
+                        return numbers.ToArray();
                     }
-                    return numbers.ToArray();
-                }
+
+                return Array.Empty<NumberedRoadNumber>();
             }
         }
 

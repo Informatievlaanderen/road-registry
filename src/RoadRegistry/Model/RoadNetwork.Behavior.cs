@@ -11,10 +11,10 @@ namespace RoadRegistry.Model
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
-            var requestView = _view.When(requestedChanges.Changes);
+            var requestView = _view.When(requestedChanges);
             var acceptedChanges = new List<AcceptedChange>();
             var rejectedChanges = new List<RejectedChange>();
-            foreach (var change in requestedChanges.Changes)
+            foreach (var change in requestedChanges)
             {
                 var problems = Problems.With(requestedChanges);
                 switch (change)

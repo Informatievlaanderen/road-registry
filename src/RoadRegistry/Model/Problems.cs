@@ -14,30 +14,30 @@ namespace RoadRegistry.Model
             return new Problems(ImmutableList<Problem>.Empty, requestedChanges);
         }
 
-        private readonly ImmutableList<Problem> _reasons;
+        private readonly ImmutableList<Problem> _problems;
         private readonly IRequestedChanges _requestedChanges;
 
-        private Problems(ImmutableList<Problem> reasons, IRequestedChanges requestedChanges)
+        private Problems(ImmutableList<Problem> problems, IRequestedChanges requestedChanges)
         {
-            _reasons = reasons;
+            _problems = problems;
             _requestedChanges = requestedChanges;
         }
 
-        public bool AreAcceptable() => _reasons.Count == 0 || _reasons.All(reason => reason is Warning);
+        public bool AreAcceptable() => _problems.Count == 0 || _problems.All(reason => reason is Warning);
 
-        public int Count => _reasons.Count;
+        public int Count => _problems.Count;
 
-        public IEnumerator<Problem> GetEnumerator() => ((IEnumerable<Problem>)_reasons).GetEnumerator();
+        public IEnumerator<Problem> GetEnumerator() => ((IEnumerable<Problem>)_problems).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public Problems RoadNodeIdTaken() => new Problems(_reasons.Add(new Error(nameof(RoadNodeIdTaken))), _requestedChanges);
+        public Problems RoadNodeIdTaken() => new Problems(_problems.Add(new Error(nameof(RoadNodeIdTaken))), _requestedChanges);
 
-        public Problems RoadSegmentIdTaken() => new Problems(_reasons.Add(new Error(nameof(RoadSegmentIdTaken))), _requestedChanges);
+        public Problems RoadSegmentIdTaken() => new Problems(_problems.Add(new Error(nameof(RoadSegmentIdTaken))), _requestedChanges);
 
         public Problems RoadNodeGeometryTaken(RoadNodeId byOtherNode)
         {
-            return new Problems(_reasons.Add(
+            return new Problems(_problems.Add(
                 new Error(
                     nameof(RoadNodeGeometryTaken),
                     new ProblemParameter(
@@ -52,7 +52,7 @@ namespace RoadRegistry.Model
 
         public Problems RoadNodeTooClose(RoadNodeId toOtherNode)
         {
-            return new Problems(_reasons.Add(
+            return new Problems(_problems.Add(
                 new Error(
                     nameof(RoadNodeTooClose),
                     new ProblemParameter(
@@ -67,7 +67,7 @@ namespace RoadRegistry.Model
 
         public Problems RoadSegmentGeometryTaken(RoadSegmentId byOtherSegment)
         {
-            return new Problems(_reasons.Add(
+            return new Problems(_problems.Add(
                 new Error(
                     nameof(RoadSegmentGeometryTaken),
                     new ProblemParameter(
@@ -81,22 +81,22 @@ namespace RoadRegistry.Model
         }
 
         public Problems RoadNodeNotConnectedToAnySegment() =>
-            new Problems(_reasons.Add(new Error(nameof(RoadNodeNotConnectedToAnySegment))), _requestedChanges);
+            new Problems(_problems.Add(new Error(nameof(RoadNodeNotConnectedToAnySegment))), _requestedChanges);
 
         public Problems RoadSegmentStartNodeMissing() =>
-            new Problems(_reasons.Add(new Error(nameof(RoadSegmentStartNodeMissing))), _requestedChanges);
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentStartNodeMissing))), _requestedChanges);
 
         public Problems RoadSegmentEndNodeMissing() =>
-            new Problems(_reasons.Add(new Error(nameof(RoadSegmentEndNodeMissing))), _requestedChanges);
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentEndNodeMissing))), _requestedChanges);
 
         public Problems RoadSegmentGeometryLengthIsZero() =>
-            new Problems(_reasons.Add(new Error(nameof(RoadSegmentGeometryLengthIsZero))), _requestedChanges);
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentGeometryLengthIsZero))), _requestedChanges);
 
         public Problems RoadSegmentStartPointDoesNotMatchNodeGeometry() =>
-            new Problems(_reasons.Add(new Error(nameof(RoadSegmentStartPointDoesNotMatchNodeGeometry))), _requestedChanges);
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentStartPointDoesNotMatchNodeGeometry))), _requestedChanges);
 
         public Problems RoadSegmentEndPointDoesNotMatchNodeGeometry() =>
-            new Problems(_reasons.Add(new Error(nameof(RoadSegmentEndPointDoesNotMatchNodeGeometry))), _requestedChanges);
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentEndPointDoesNotMatchNodeGeometry))), _requestedChanges);
 
         public Problems RoadNodeTypeMismatch(params RoadNodeType[] types)
         {
@@ -104,22 +104,22 @@ namespace RoadRegistry.Model
                 throw new ArgumentNullException(nameof(types));
             if (types.Length == 0)
                 throw new ArgumentException("The expected road node types must contain at least one.", nameof(types));
-            return new Problems(_reasons.Add(
+            return new Problems(_problems.Add(
                 new Error(
                     nameof(RoadNodeTypeMismatch),
                     Array.ConvertAll(types, type => new ProblemParameter("Expected", type.ToString())))), _requestedChanges);
         }
 
         public Problems RoadSegmentGeometrySelfOverlaps() =>
-            new Problems(_reasons.Add(new Error(nameof(RoadSegmentGeometrySelfOverlaps))), _requestedChanges);
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentGeometrySelfOverlaps))), _requestedChanges);
 
         public Problems RoadSegmentGeometrySelfIntersects() =>
-            new Problems(_reasons.Add(new Error(nameof(RoadSegmentGeometrySelfIntersects))), _requestedChanges);
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentGeometrySelfIntersects))), _requestedChanges);
 
         public Problems FakeRoadNodeConnectedSegmentsDoNotDiffer(RoadSegmentId segment1, RoadSegmentId segment2)
         {
             return new Problems(
-                _reasons.Add(
+                _problems.Add(
                     new Error(nameof(FakeRoadNodeConnectedSegmentsDoNotDiffer),
                         new ProblemParameter(
                             "SegmentId",

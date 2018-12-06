@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Model
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
@@ -272,8 +273,6 @@
                 _mapToTemporarySegmentIdentifiers = mapToTemporarySegmentIdentifiers;
             }
 
-            public IReadOnlyCollection<IRequestedChange> Changes => _changes;
-
             public RequestedChanges Append(IRequestedChange change)
             {
                 if (change == null)
@@ -336,6 +335,13 @@
             {
                 return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out var temporary) ? temporary : id;
             }
+
+            public IEnumerator<IRequestedChange> GetEnumerator() =>
+                ((IEnumerable<IRequestedChange>) _changes).GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            public int Count => _changes.Count;
         }
     }
 }
