@@ -1429,7 +1429,7 @@ namespace RoadRegistry.Model
         public Task when_adding_an_end_node_connecting_more_than_two_segments_as_a_node_other_than_a_real_node_or_mini_roundabout()
         {
             AddEndNode1.Type = new Generator<RoadNodeType>(Fixture)
-                .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
+                .First(type => type != RoadNodeType.RealNode && type != RoadNodeType.MiniRoundabout)
                 .ToString();
 
             var endPoint = new PointM(10.0, 0.0)
