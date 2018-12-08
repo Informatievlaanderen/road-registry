@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.Messages
 {
-    public class RemoveSegmentFromEuropeanRoad
+    public class RemoveRoadSegmentFromEuropeanRoad
     {
         public int AttributeId { get; set; }
         public string RoadNumber { get; set; }

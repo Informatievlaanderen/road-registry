@@ -1,5 +1,7 @@
 namespace RoadRegistry.Messages
 {
+    using System;
+
     public class AddRoadSegment
     {
         public int TemporaryId { get; set; }
@@ -14,11 +16,14 @@ namespace RoadRegistry.Messages
         public string AccessRestriction { get; set; }
         public int? LeftSideStreetNameId { get; set; }
         public int? RightSideStreetNameId { get; set; }
+        [Obsolete("Please use AddSegmentToEuropeanRoad")]
         public RoadSegmentEuropeanRoadAttributes[] PartOfEuropeanRoads { get; set; }
+        [Obsolete]
         public RoadSegmentNationalRoadAttributes[] PartOfNationalRoads { get; set; }
+        [Obsolete]
         public RoadSegmentNumberedRoadAttributes[] PartOfNumberedRoads { get; set; }
-        public RoadSegmentLaneAttributes[] Lanes { get; set; }
-        public RoadSegmentWidthAttributes[] Widths { get; set; }
-        public RoadSegmentSurfaceAttributes[] Surfaces { get; set; }
+        public RequestedRoadSegmentLaneAttribute[] Lanes { get; set; }
+        public RequestedRoadSegmentWidthAttribute[] Widths { get; set; }
+        public RequestedRoadSegmentSurfaceAttribute[] Surfaces { get; set; }
     }
 }

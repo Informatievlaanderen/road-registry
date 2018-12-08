@@ -203,7 +203,7 @@ namespace RoadRegistry.Model
                         })
                         .ToArray(),
                     Lanes = Lanes
-                        .Select(item => new Messages.RoadSegmentLaneAttributes
+                        .Select(item => new Messages.RequestedRoadSegmentLaneAttribute
                         {
                             AttributeId = item.TemporaryId ?? item.Id,
                             Count = item.Count,
@@ -213,7 +213,7 @@ namespace RoadRegistry.Model
                         })
                         .ToArray(),
                     Widths = Widths
-                        .Select(item => new Messages.RoadSegmentWidthAttributes
+                        .Select(item => new Messages.RequestedRoadSegmentWidthAttribute
                         {
                             AttributeId = item.TemporaryId ?? item.Id,
                             Width = item.Width,
@@ -222,7 +222,7 @@ namespace RoadRegistry.Model
                         })
                         .ToArray(),
                     Surfaces = Surfaces
-                        .Select(item => new Messages.RoadSegmentSurfaceAttributes
+                        .Select(item => new Messages.RequestedRoadSegmentSurfaceAttribute
                         {
                             AttributeId = item.TemporaryId ?? item.Id,
                             Type = item.Type,

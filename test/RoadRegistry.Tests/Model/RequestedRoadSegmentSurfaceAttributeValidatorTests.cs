@@ -7,19 +7,20 @@ namespace RoadRegistry.Model
     using Messages;
     using Xunit;
 
-    public class RoadSegmentWidthAttributesValidatorTests
+    public class RequestedRoadSegmentSurfaceAttributeValidatorTests
     {
-        public RoadSegmentWidthAttributesValidatorTests()
+        public RequestedRoadSegmentSurfaceAttributeValidatorTests()
         {
             Fixture = new Fixture();
             Fixture.CustomizeAttributeId();
             Fixture.CustomizeRoadSegmentPosition();
-            Fixture.CustomizeRoadSegmentWidth();
-            Validator = new RoadSegmentWidthAttributesValidator();
+            Fixture.CustomizeRoadSegmentSurfaceType();
+            Validator = new RequestedRoadSegmentSurfaceAttributeValidator();
         }
 
         public Fixture Fixture { get; }
-        public RoadSegmentWidthAttributesValidator Validator { get; }
+
+        public RequestedRoadSegmentSurfaceAttributeValidator Validator { get; }
 
         [Theory]
         [InlineData(int.MinValue)]
@@ -40,7 +41,7 @@ namespace RoadRegistry.Model
         [MemberData(nameof(DynamicAttributePositionCases.ToPositionLessThanFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
         public void ToPositionMustBeGreaterThanFromPosition(decimal from, decimal to)
         {
-            var data = new Messages.RoadSegmentWidthAttributes
+            var data = new RequestedRoadSegmentSurfaceAttribute
             {
                 FromPosition = from,
                 ToPosition = to
@@ -48,45 +49,24 @@ namespace RoadRegistry.Model
             Validator.ShouldHaveValidationErrorFor(c => c.ToPosition, data);
         }
 
-        [Theory]
-        [InlineData(int.MinValue)]
-        [InlineData(-1)]
-        public void WidthMustBeGreaterThanOrEqualToZero(int value)
+        [Fact]
+        public void TypeMustBeWithinDomain()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Width, value);
-        }
-
-        [Theory]
-        [InlineData(int.MaxValue)]
-        [InlineData(46)]
-        public void WidthMustBeLessThanOrEqualTo45(int value)
-        {
-            Validator.ShouldHaveValidationErrorFor(c => c.Width, value);
-        }
-
-        [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(44)]
-        [InlineData(45)]
-        [InlineData(-8)]
-        [InlineData(-9)]
-        public void WidthCanBeBetween0And45OrMinus8OrMinus9(int value)
-        {
-            Validator.ShouldNotHaveValidationErrorFor(c => c.Width, value);
+            Validator.ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
         }
 
         [Fact]
         public void VerifyValid()
         {
-            var positionGenerator = new Generator<decimal>(Fixture);
+            var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
             var from = positionGenerator.First(candidate => candidate >= 0.0m);
 
-            var data = new Messages.RoadSegmentWidthAttributes
+            var data = new RequestedRoadSegmentSurfaceAttribute
             {
+                AttributeId = Fixture.Create<AttributeId>(),
                 FromPosition = from,
                 ToPosition = positionGenerator.First(candidate => candidate > from),
-                Width = Fixture.Create<RoadSegmentWidth>()
+                Type = Fixture.Create<RoadSegmentSurfaceType>()
             };
 
             Validator.ValidateAndThrow(data);

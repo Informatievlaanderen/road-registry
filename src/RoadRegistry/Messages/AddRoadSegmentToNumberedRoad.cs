@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.Messages
 {
-    public class AddSegmentToNumberedRoad
+    public class AddRoadSegmentToNumberedRoad
     {
         public int TemporaryAttributeId { get; set; }
         public string Ident8 { get; set; }

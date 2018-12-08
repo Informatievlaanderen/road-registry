@@ -3,9 +3,9 @@ namespace RoadRegistry.Model
     using FluentValidation;
     using Messages;
 
-    public class RoadSegmentSurfaceAttributesValidator : AbstractValidator<Messages.RoadSegmentSurfaceAttributes>
+    public class RequestedRoadSegmentSurfaceAttributeValidator : AbstractValidator<RequestedRoadSegmentSurfaceAttribute>
     {
-        public RoadSegmentSurfaceAttributesValidator()
+        public RequestedRoadSegmentSurfaceAttributeValidator()
         {
             RuleFor(c => c.AttributeId).GreaterThanOrEqualTo(0);
             RuleFor(c => c.FromPosition).GreaterThanOrEqualTo(0.0m);

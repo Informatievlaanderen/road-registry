@@ -220,7 +220,7 @@ namespace RoadRegistry.Model
         {
             fixture.Customize<RoadSegmentLaneCount>(customization =>
                 customization.FromFactory<int>(
-                    value => value == -8 || value == -9
+                    value => value == RoadSegmentLaneCount.Unknown || value == RoadSegmentLaneCount.NotApplicable
                         ? new RoadSegmentLaneCount(value)
                         : new RoadSegmentLaneCount(Math.Abs(value) % RoadSegmentLaneCount.Maximum.ToInt32())
                 )
@@ -276,7 +276,7 @@ namespace RoadRegistry.Model
         {
             fixture.Customize<RoadSegmentWidth>(customization =>
                 customization.FromFactory<int>(
-                    value => value == -8 || value == -9
+                    value => value == RoadSegmentWidth.Unknown || value == RoadSegmentWidth.NotApplicable
                         ? new RoadSegmentWidth(value)
                         : new RoadSegmentWidth(Math.Abs(value) % RoadSegmentWidth.Maximum.ToInt32())
                 )

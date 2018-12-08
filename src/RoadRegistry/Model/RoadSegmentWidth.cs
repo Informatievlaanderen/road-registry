@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Model
 {
     using System;
+    using System.Diagnostics.Contracts;
 
     public readonly struct RoadSegmentWidth : IEquatable<RoadSegmentWidth>
     {
@@ -20,6 +21,7 @@
             _value = value;
         }
 
+        [Pure]
         public int ToInt32() => _value;
         public bool Equals(RoadSegmentWidth other) => _value == other._value;
         public override bool Equals(object other) => other is RoadSegmentWidth revision && Equals(revision);

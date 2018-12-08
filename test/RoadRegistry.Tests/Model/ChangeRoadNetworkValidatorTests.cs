@@ -118,9 +118,9 @@ namespace RoadRegistry.Model
                                 .ToArray(),
                             PartOfNumberedRoads = Fixture.CreateMany<RoadSegmentNumberedRoadAttributes>()
                                 .ToArray(),
-                            Lanes = Fixture.CreateMany<Messages.RoadSegmentLaneAttributes>().ToArray(),
-                            Widths = Fixture.CreateMany<Messages.RoadSegmentWidthAttributes>().ToArray(),
-                            Surfaces = Fixture.CreateMany<Messages.RoadSegmentSurfaceAttributes>().ToArray()
+                            Lanes = Fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray(),
+                            Widths = Fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray(),
+                            Surfaces = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttribute>().ToArray()
                         })
             );
             Fixture.Customize<RequestedChange>(

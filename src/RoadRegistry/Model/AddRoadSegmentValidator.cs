@@ -45,11 +45,11 @@ namespace RoadRegistry.Model
             RuleFor(c => c.PartOfNumberedRoads).NotNull();
             RuleForEach(c => c.PartOfNumberedRoads).NotNull().SetValidator(new RoadSegmentNumberedRoadAttributesValidator());
             RuleFor(c => c.Lanes).NotNull();
-            RuleForEach(c => c.Lanes).NotNull().SetValidator(new RoadSegmentLaneAttributesValidator());
+            RuleForEach(c => c.Lanes).NotNull().SetValidator(new RequestedRoadSegmentLaneAttributeValidator());
             RuleFor(c => c.Widths).NotNull();
-            RuleForEach(c => c.Widths).NotNull().SetValidator(new RoadSegmentWidthAttributesValidator());
+            RuleForEach(c => c.Widths).NotNull().SetValidator(new RequestedRoadSegmentWidthAttributeValidator());
             RuleFor(c => c.Surfaces).NotNull();
-            RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RoadSegmentSurfaceAttributesValidator());
+            RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RequestedRoadSegmentSurfaceAttributeValidator());
         }
     }
 }

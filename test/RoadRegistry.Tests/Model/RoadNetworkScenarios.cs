@@ -63,7 +63,7 @@ namespace RoadRegistry.Model
                     instance.Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>();
                     instance.Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>();
                 }).OmitAutoProperties());
-            Fixture.Customize<Messages.RoadSegmentLaneAttributes>(composer =>
+            Fixture.Customize<Messages.RequestedRoadSegmentLaneAttribute>(composer =>
                 composer.Do(instance =>
                 {
                     var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
@@ -73,7 +73,7 @@ namespace RoadRegistry.Model
                     instance.Count = Fixture.Create<RoadSegmentLaneCount>();
                     instance.Direction = Fixture.Create<RoadSegmentLaneDirection>();
                 }).OmitAutoProperties());
-            Fixture.Customize<Messages.RoadSegmentWidthAttributes>(composer =>
+            Fixture.Customize<Messages.RequestedRoadSegmentWidthAttribute>(composer =>
                 composer.Do(instance =>
                 {
                     var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
@@ -82,7 +82,7 @@ namespace RoadRegistry.Model
                     instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
                     instance.Width = Fixture.Create<RoadSegmentWidth>();
                 }).OmitAutoProperties());
-            Fixture.Customize<Messages.RoadSegmentSurfaceAttributes>(composer =>
+            Fixture.Customize<Messages.RequestedRoadSegmentSurfaceAttribute>(composer =>
                 composer.Do(instance =>
                 {
                     var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
@@ -248,7 +248,7 @@ namespace RoadRegistry.Model
                     .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(numberedRoadCount)
                     .ToArray(),
                 Lanes = Fixture
-                    .CreateMany<Messages.RoadSegmentLaneAttributes>(laneCount)
+                    .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(laneCount)
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -257,7 +257,7 @@ namespace RoadRegistry.Model
                     })
                     .ToArray(),
                 Widths = Fixture
-                    .CreateMany<Messages.RoadSegmentWidthAttributes>(widthCount)
+                    .CreateMany<Messages.RequestedRoadSegmentWidthAttribute>(widthCount)
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -266,7 +266,7 @@ namespace RoadRegistry.Model
                     })
                     .ToArray(),
                 Surfaces = Fixture
-                    .CreateMany<Messages.RoadSegmentSurfaceAttributes>(surfaceCount)
+                    .CreateMany<Messages.RequestedRoadSegmentSurfaceAttribute>(surfaceCount)
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -382,7 +382,7 @@ namespace RoadRegistry.Model
                     .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(new Random().Next(0, 10))
                     .ToArray(),
                 Lanes = Fixture
-                    .CreateMany<Messages.RoadSegmentLaneAttributes>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(new Random().Next(0, 10))
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -391,7 +391,7 @@ namespace RoadRegistry.Model
                     })
                     .ToArray(),
                 Widths = Fixture
-                    .CreateMany<Messages.RoadSegmentWidthAttributes>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentWidthAttribute>(new Random().Next(0, 10))
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -400,7 +400,7 @@ namespace RoadRegistry.Model
                     })
                     .ToArray(),
                 Surfaces = Fixture
-                    .CreateMany<Messages.RoadSegmentSurfaceAttributes>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentSurfaceAttribute>(new Random().Next(0, 10))
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -517,7 +517,7 @@ namespace RoadRegistry.Model
                     .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(new Random().Next(0, 10))
                     .ToArray(),
                 Lanes = Fixture
-                    .CreateMany<Messages.RoadSegmentLaneAttributes>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(new Random().Next(0, 10))
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -526,7 +526,7 @@ namespace RoadRegistry.Model
                     })
                     .ToArray(),
                 Widths = Fixture
-                    .CreateMany<Messages.RoadSegmentWidthAttributes>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentWidthAttribute>(new Random().Next(0, 10))
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -535,7 +535,7 @@ namespace RoadRegistry.Model
                     })
                     .ToArray(),
                 Surfaces = Fixture
-                    .CreateMany<Messages.RoadSegmentSurfaceAttributes>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentSurfaceAttribute>(new Random().Next(0, 10))
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -2594,6 +2594,7 @@ namespace RoadRegistry.Model
             get
             {
                 var fixture = new Fixture();
+                fixture.CustomizeAttributeId();
                 fixture.CustomizeRoadSegmentLaneCount();
                 fixture.CustomizeRoadSegmentLaneDirection();
 
@@ -2601,8 +2602,9 @@ namespace RoadRegistry.Model
                 {
                     new[]
                     {
-                        new Messages.RoadSegmentLaneAttributes
+                        new Messages.RequestedRoadSegmentLaneAttribute
                         {
+                            AttributeId = fixture.Create<AttributeId>(),
                             FromPosition = 2.0m,
                             ToPosition = 100.0m,
                             Count = fixture.Create<RoadSegmentLaneCount>(),
@@ -2616,7 +2618,7 @@ namespace RoadRegistry.Model
 
         [Theory]
         [MemberData(nameof(NonAdjacentLaneAttributesCases))]
-        public Task when_adding_a_segment_with_non_adjacent_lane_attributes(Messages.RoadSegmentLaneAttributes[] attributes, string reason)
+        public Task when_adding_a_segment_with_non_adjacent_lane_attributes(Messages.RequestedRoadSegmentLaneAttribute[] attributes, string reason)
         {
             AddSegment1.Lanes = attributes;
 

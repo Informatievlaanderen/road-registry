@@ -6,21 +6,21 @@ namespace RoadRegistry.Model
     using FluentValidation.TestHelper;
     using Xunit;
 
-    public class RoadSegmentLaneAttributesValidatorTests
+    public class RequestedRoadSegmentLaneAttributeValidatorTests
     {
-        public RoadSegmentLaneAttributesValidatorTests()
+        public RequestedRoadSegmentLaneAttributeValidatorTests()
         {
             Fixture = new Fixture();
             Fixture.CustomizeAttributeId();
             Fixture.CustomizeRoadSegmentPosition();
             Fixture.CustomizeRoadSegmentLaneCount();
             Fixture.CustomizeRoadSegmentLaneDirection();
-            Validator = new RoadSegmentLaneAttributesValidator();
+            Validator = new RequestedRoadSegmentLaneAttributeValidator();
         }
 
         public Fixture Fixture { get; }
 
-        public RoadSegmentLaneAttributesValidator Validator { get; }
+        public RequestedRoadSegmentLaneAttributeValidator Validator { get; }
 
         [Theory]
         [InlineData(int.MinValue)]
@@ -41,7 +41,7 @@ namespace RoadRegistry.Model
         [MemberData(nameof(DynamicAttributePositionCases.ToPositionLessThanFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
         public void ToPositionMustBeGreaterThanFromPosition(decimal from, decimal to)
         {
-            var data = new Messages.RoadSegmentLaneAttributes
+            var data = new Messages.RequestedRoadSegmentLaneAttribute
             {
                 FromPosition = from,
                 ToPosition = to
@@ -89,7 +89,7 @@ namespace RoadRegistry.Model
             var positionGenerator = new Generator<decimal>(Fixture);
             var from = positionGenerator.First(candidate => candidate >= 0.0m);
 
-            var data = new Messages.RoadSegmentLaneAttributes
+            var data = new Messages.RequestedRoadSegmentLaneAttribute
             {
                 AttributeId = Fixture.Create<AttributeId>(),
                 FromPosition = from,
