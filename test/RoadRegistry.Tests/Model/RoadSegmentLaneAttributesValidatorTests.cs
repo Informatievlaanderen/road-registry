@@ -4,7 +4,6 @@ namespace RoadRegistry.Model
     using AutoFixture;
     using FluentValidation;
     using FluentValidation.TestHelper;
-    using Messages;
     using Xunit;
 
     public class RoadSegmentLaneAttributesValidatorTests
@@ -12,6 +11,7 @@ namespace RoadRegistry.Model
         public RoadSegmentLaneAttributesValidatorTests()
         {
             Fixture = new Fixture();
+            Fixture.CustomizeAttributeId();
             Fixture.CustomizeRoadSegmentPosition();
             Fixture.CustomizeRoadSegmentLaneCount();
             Fixture.CustomizeRoadSegmentLaneDirection();
@@ -19,7 +19,16 @@ namespace RoadRegistry.Model
         }
 
         public Fixture Fixture { get; }
+
         public RoadSegmentLaneAttributesValidator Validator { get; }
+
+        [Theory]
+        [InlineData(int.MinValue)]
+        [InlineData(-1)]
+        public void AttributeIdMustBeGreaterThan(int value)
+        {
+            Validator.ShouldHaveValidationErrorFor(c => c.AttributeId, value);
+        }
 
         [Theory]
         [MemberData(nameof(DynamicAttributePositionCases.NegativeFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
@@ -32,7 +41,7 @@ namespace RoadRegistry.Model
         [MemberData(nameof(DynamicAttributePositionCases.ToPositionLessThanFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
         public void ToPositionMustBeGreaterThanFromPosition(decimal from, decimal to)
         {
-            var data = new RequestedRoadSegmentLaneAttributes
+            var data = new Messages.RoadSegmentLaneAttributes
             {
                 FromPosition = from,
                 ToPosition = to
@@ -80,8 +89,9 @@ namespace RoadRegistry.Model
             var positionGenerator = new Generator<decimal>(Fixture);
             var from = positionGenerator.First(candidate => candidate >= 0.0m);
 
-            var data = new RequestedRoadSegmentLaneAttributes
+            var data = new Messages.RoadSegmentLaneAttributes
             {
+                AttributeId = Fixture.Create<AttributeId>(),
                 FromPosition = from,
                 ToPosition = positionGenerator.First(candidate => candidate > from),
                 Count = Fixture.Create<RoadSegmentLaneCount>(),

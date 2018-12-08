@@ -180,28 +180,32 @@ namespace RoadRegistry.Model
                     LeftSideStreetNameId = LeftSideStreetNameId.GetValueOrDefault(),
                     RightSideStreetNameId = RightSideStreetNameId.GetValueOrDefault(),
                     PartOfEuropeanRoads = PartOfEuropeanRoads
-                        .Select(item => new Messages.RequestedRoadSegmentEuropeanRoadAttributes
+                        .Select(item => new Messages.RoadSegmentEuropeanRoadAttributes
                         {
+                            AttributeId = item.TemporaryId ?? item.Id,
                             RoadNumber = item.Number
                         })
                         .ToArray(),
                     PartOfNationalRoads = PartOfNationalRoads
-                        .Select(item => new Messages.RequestedRoadSegmentNationalRoadAttributes
+                        .Select(item => new Messages.RoadSegmentNationalRoadAttributes
                         {
+                            AttributeId = item.TemporaryId ?? item.Id,
                             Ident2 = item.Number
                         })
                         .ToArray(),
                     PartOfNumberedRoads = PartOfNumberedRoads
-                        .Select(item => new Messages.RequestedRoadSegmentNumberedRoadAttributes
+                        .Select(item => new Messages.RoadSegmentNumberedRoadAttributes
                         {
+                            AttributeId = item.TemporaryId ?? item.Id,
                             Direction = item.Direction,
                             Ident8 = item.Number,
                             Ordinal = item.Ordinal
                         })
                         .ToArray(),
                     Lanes = Lanes
-                        .Select(item => new Messages.RequestedRoadSegmentLaneAttributes
+                        .Select(item => new Messages.RoadSegmentLaneAttributes
                         {
+                            AttributeId = item.TemporaryId ?? item.Id,
                             Count = item.Count,
                             Direction = item.Direction,
                             FromPosition = item.From,
@@ -209,16 +213,18 @@ namespace RoadRegistry.Model
                         })
                         .ToArray(),
                     Widths = Widths
-                        .Select(item => new Messages.RequestedRoadSegmentWidthAttributes
+                        .Select(item => new Messages.RoadSegmentWidthAttributes
                         {
+                            AttributeId = item.TemporaryId ?? item.Id,
                             Width = item.Width,
                             FromPosition = item.From,
                             ToPosition = item.To
                         })
                         .ToArray(),
                     Surfaces = Surfaces
-                        .Select(item => new Messages.RequestedRoadSegmentSurfaceAttributes
+                        .Select(item => new Messages.RoadSegmentSurfaceAttributes
                         {
+                            AttributeId = item.TemporaryId ?? item.Id,
                             Type = item.Type,
                             FromPosition = item.From,
                             ToPosition = item.To

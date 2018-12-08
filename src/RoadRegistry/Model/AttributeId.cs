@@ -1,6 +1,7 @@
 namespace RoadRegistry.Model
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.Globalization;
 
     public readonly struct AttributeId : IEquatable<AttributeId>, IComparable<AttributeId>
@@ -30,6 +31,7 @@ namespace RoadRegistry.Model
         public static AttributeId Min(AttributeId left, AttributeId right) =>
             new AttributeId(Math.Min(left._value, right._value));
 
+        [Pure]
         public int ToInt32() => _value;
         public bool Equals(AttributeId other) => _value == other._value;
         public override bool Equals(object other) => other is AttributeId id && Equals(id);

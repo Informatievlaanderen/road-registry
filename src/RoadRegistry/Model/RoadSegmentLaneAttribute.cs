@@ -4,12 +4,13 @@ namespace RoadRegistry.Model
     {
         public RoadSegmentLaneAttribute(
             AttributeId id,
+            AttributeId? temporaryId,
             RoadSegmentLaneCount count,
             RoadSegmentLaneDirection direction,
             RoadSegmentPosition from,
             RoadSegmentPosition to,
             GeometryVersion asOfGeometryVersion
-        ) : base(id, from, to, asOfGeometryVersion)
+        ) : base(id, temporaryId, from, to, asOfGeometryVersion)
         {
             Count = count;
             Direction = direction;

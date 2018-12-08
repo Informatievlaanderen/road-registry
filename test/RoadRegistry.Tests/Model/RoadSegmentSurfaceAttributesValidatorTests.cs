@@ -12,6 +12,7 @@ namespace RoadRegistry.Model
         public RoadSegmentSurfaceAttributesValidatorTests()
         {
             Fixture = new Fixture();
+            Fixture.CustomizeAttributeId();
             Fixture.CustomizeRoadSegmentPosition();
             Fixture.CustomizeRoadSegmentSurfaceType();
             Validator = new RoadSegmentSurfaceAttributesValidator();
@@ -20,6 +21,14 @@ namespace RoadRegistry.Model
         public Fixture Fixture { get; }
 
         public RoadSegmentSurfaceAttributesValidator Validator { get; }
+
+        [Theory]
+        [InlineData(int.MinValue)]
+        [InlineData(-1)]
+        public void AttributeIdMustBeGreaterThan(int value)
+        {
+            Validator.ShouldHaveValidationErrorFor(c => c.AttributeId, value);
+        }
 
         [Theory]
         [MemberData(nameof(DynamicAttributePositionCases.NegativeFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
@@ -32,7 +41,7 @@ namespace RoadRegistry.Model
         [MemberData(nameof(DynamicAttributePositionCases.ToPositionLessThanFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
         public void ToPositionMustBeGreaterThanFromPosition(decimal from, decimal to)
         {
-            var data = new RequestedRoadSegmentSurfaceAttributes
+            var data = new Messages.RoadSegmentSurfaceAttributes
             {
                 FromPosition = from,
                 ToPosition = to
@@ -52,8 +61,9 @@ namespace RoadRegistry.Model
             var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
             var from = positionGenerator.First(candidate => candidate >= 0.0m);
 
-            var data = new RequestedRoadSegmentSurfaceAttributes
+            var data = new Messages.RoadSegmentSurfaceAttributes
             {
+                AttributeId = Fixture.Create<AttributeId>(),
                 FromPosition = from,
                 ToPosition = positionGenerator.First(candidate => candidate > from),
                 Type = Fixture.Create<RoadSegmentSurfaceType>()

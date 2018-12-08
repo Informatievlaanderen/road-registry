@@ -3,10 +3,11 @@ namespace RoadRegistry.Model
     using FluentValidation;
     using Messages;
 
-    public class RoadSegmentNumberedRoadAttributesValidator : AbstractValidator<RequestedRoadSegmentNumberedRoadAttributes>
+    public class RoadSegmentNumberedRoadAttributesValidator : AbstractValidator<RoadSegmentNumberedRoadAttributes>
     {
         public RoadSegmentNumberedRoadAttributesValidator()
         {
+            RuleFor(c => c.AttributeId).GreaterThanOrEqualTo(0);
             RuleFor(c => c.Ident8)
                 .NotEmpty()
                 .Must(NumberedRoadNumber.CanParse)

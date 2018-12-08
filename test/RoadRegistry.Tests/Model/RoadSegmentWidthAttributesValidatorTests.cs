@@ -12,6 +12,7 @@ namespace RoadRegistry.Model
         public RoadSegmentWidthAttributesValidatorTests()
         {
             Fixture = new Fixture();
+            Fixture.CustomizeAttributeId();
             Fixture.CustomizeRoadSegmentPosition();
             Fixture.CustomizeRoadSegmentWidth();
             Validator = new RoadSegmentWidthAttributesValidator();
@@ -19,6 +20,14 @@ namespace RoadRegistry.Model
 
         public Fixture Fixture { get; }
         public RoadSegmentWidthAttributesValidator Validator { get; }
+
+        [Theory]
+        [InlineData(int.MinValue)]
+        [InlineData(-1)]
+        public void AttributeIdMustBeGreaterThan(int value)
+        {
+            Validator.ShouldHaveValidationErrorFor(c => c.AttributeId, value);
+        }
 
         [Theory]
         [MemberData(nameof(DynamicAttributePositionCases.NegativeFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
@@ -31,7 +40,7 @@ namespace RoadRegistry.Model
         [MemberData(nameof(DynamicAttributePositionCases.ToPositionLessThanFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
         public void ToPositionMustBeGreaterThanFromPosition(decimal from, decimal to)
         {
-            var data = new RequestedRoadSegmentWidthAttributes
+            var data = new Messages.RoadSegmentWidthAttributes
             {
                 FromPosition = from,
                 ToPosition = to
@@ -73,7 +82,7 @@ namespace RoadRegistry.Model
             var positionGenerator = new Generator<decimal>(Fixture);
             var from = positionGenerator.First(candidate => candidate >= 0.0m);
 
-            var data = new RequestedRoadSegmentWidthAttributes
+            var data = new Messages.RoadSegmentWidthAttributes
             {
                 FromPosition = from,
                 ToPosition = positionGenerator.First(candidate => candidate > from),

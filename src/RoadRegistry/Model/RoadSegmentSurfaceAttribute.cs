@@ -4,11 +4,12 @@ namespace RoadRegistry.Model
     {
         public RoadSegmentSurfaceAttribute(
             AttributeId id,
+            AttributeId? temporaryId,
             RoadSegmentSurfaceType type,
             RoadSegmentPosition from,
             RoadSegmentPosition to,
             GeometryVersion asOfGeometryVersion
-        ) : base(id, from, to, asOfGeometryVersion)
+        ) : base(id, temporaryId, from, to, asOfGeometryVersion)
         {
             Type = type;
         }

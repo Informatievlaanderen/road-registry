@@ -4,11 +4,12 @@ namespace RoadRegistry.Model
     {
         public RoadSegmentWidthAttribute(
             AttributeId id,
+            AttributeId? temporaryId,
             RoadSegmentWidth width,
             RoadSegmentPosition from,
             RoadSegmentPosition to,
             GeometryVersion asOfGeometryVersion
-        ) : base(id, from, to, asOfGeometryVersion)
+        ) : base(id, temporaryId, from, to, asOfGeometryVersion)
         {
             Width = width;
         }

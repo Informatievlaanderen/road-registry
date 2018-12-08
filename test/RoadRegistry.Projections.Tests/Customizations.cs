@@ -254,6 +254,7 @@ namespace RoadRegistry.Projections.Tests
                         var to = generator.First(candidate => candidate > from);
                         return new RoadSegmentLaneAttribute(
                             fixture.Create<AttributeId>(),
+                            fixture.Create<AttributeId?>(),
                             fixture.Create<RoadSegmentLaneCount>(),
                             fixture.Create<RoadSegmentLaneDirection>(),
                             from,
@@ -276,6 +277,7 @@ namespace RoadRegistry.Projections.Tests
                         var to = generator.First(candidate => candidate > from);
                         return new RoadSegmentWidthAttribute(
                             fixture.Create<AttributeId>(),
+                            fixture.Create<AttributeId?>(),
                             fixture.Create<RoadSegmentWidth>(),
                             from,
                             to,
@@ -297,6 +299,7 @@ namespace RoadRegistry.Projections.Tests
                         var to = generator.First(candidate => candidate > from);
                         return new RoadSegmentSurfaceAttribute(
                             fixture.Create<AttributeId>(),
+                            fixture.Create<AttributeId?>(),
                             fixture.Create<RoadSegmentSurfaceType>(),
                             from,
                             to,

@@ -3,7 +3,6 @@ namespace RoadRegistry.Model
     using AutoFixture;
     using FluentValidation;
     using FluentValidation.TestHelper;
-    using Messages;
     using Xunit;
 
     public class RoadSegmentNumberedRoadAttributesValidatorTests
@@ -11,6 +10,7 @@ namespace RoadRegistry.Model
         public RoadSegmentNumberedRoadAttributesValidatorTests()
         {
             Fixture = new Fixture();
+            Fixture.CustomizeAttributeId();
             Fixture.CustomizeNumberedRoadNumber();
             Fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
             Fixture.CustomizeRoadSegmentNumberedRoadDirection();
@@ -20,6 +20,14 @@ namespace RoadRegistry.Model
         public Fixture Fixture { get; }
 
         public RoadSegmentNumberedRoadAttributesValidator Validator { get; }
+
+        [Theory]
+        [InlineData(int.MinValue)]
+        [InlineData(-1)]
+        public void AttributeIdMustBeGreaterThan(int value)
+        {
+            Validator.ShouldHaveValidationErrorFor(c => c.AttributeId, value);
+        }
 
         [Fact]
         public void Ident8MustBeWithinDomain()
@@ -44,8 +52,9 @@ namespace RoadRegistry.Model
         [Fact]
         public void VerifyValid()
         {
-            var data = new RequestedRoadSegmentNumberedRoadAttributes
+            var data = new Messages.RoadSegmentNumberedRoadAttributes
             {
+                AttributeId = Fixture.Create<AttributeId>(),
                 Ident8 = Fixture.Create<NumberedRoadNumber>(),
                 Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
                 Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>()

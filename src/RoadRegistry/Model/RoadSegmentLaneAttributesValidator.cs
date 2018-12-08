@@ -3,13 +3,14 @@ namespace RoadRegistry.Model
     using FluentValidation;
     using Messages;
 
-    public class RoadSegmentLaneAttributesValidator : AbstractValidator<RequestedRoadSegmentLaneAttributes>
+    public class RoadSegmentLaneAttributesValidator : AbstractValidator<Messages.RoadSegmentLaneAttributes>
     {
         public const int Unknown = -8;
         public const int NotApplicable = -9;
 
         public RoadSegmentLaneAttributesValidator()
         {
+            RuleFor(c => c.AttributeId).GreaterThanOrEqualTo(0);
             RuleFor(c => c.FromPosition).GreaterThanOrEqualTo(0.0m);
             RuleFor(c => c.ToPosition).GreaterThan(_ => _.FromPosition);
             RuleFor(c => c.Count)

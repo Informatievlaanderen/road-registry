@@ -127,6 +127,7 @@
                 command.PartOfEuropeanRoads,
                 item => new RoadSegmentEuropeanRoadAttribute(
                     _nextEuropeanRoadAttributeId(),
+                    new AttributeId(item.AttributeId),
                     EuropeanRoadNumber.Parse(item.RoadNumber)
                 )
             );
@@ -134,6 +135,7 @@
                 command.PartOfNationalRoads,
                 item => new RoadSegmentNationalRoadAttribute(
                     _nextNationalRoadAttributeId(),
+                    new AttributeId(item.AttributeId),
                     NationalRoadNumber.Parse(item.Ident2)
                 )
             );
@@ -141,6 +143,7 @@
                 command.PartOfNumberedRoads,
                 item => new RoadSegmentNumberedRoadAttribute(
                     _nextNumberedRoadAttributeId(),
+                    new AttributeId(item.AttributeId),
                     NumberedRoadNumber.Parse(item.Ident8),
                     RoadSegmentNumberedRoadDirection.Parse(item.Direction),
                     new RoadSegmentNumberedRoadOrdinal(item.Ordinal)
@@ -150,6 +153,7 @@
                 command.Lanes,
                 item => new RoadSegmentLaneAttribute(
                     _nextLaneAttributeId(),
+                    new AttributeId(item.AttributeId),
                     new RoadSegmentLaneCount(item.Count),
                     RoadSegmentLaneDirection.Parse(item.Direction),
                     new RoadSegmentPosition(item.FromPosition),
@@ -161,6 +165,7 @@
                 command.Widths,
                 item => new RoadSegmentWidthAttribute(
                     _nextWidthAttributeId(),
+                    new AttributeId(item.AttributeId),
                     new RoadSegmentWidth(item.Width),
                     new RoadSegmentPosition(item.FromPosition),
                     new RoadSegmentPosition(item.ToPosition),
@@ -171,6 +176,7 @@
                 command.Surfaces,
                 item => new RoadSegmentSurfaceAttribute(
                     _nextSurfaceAttributeId(),
+                    new AttributeId(item.AttributeId),
                     RoadSegmentSurfaceType.Parse(item.Type),
                     new RoadSegmentPosition(item.FromPosition),
                     new RoadSegmentPosition(item.ToPosition),

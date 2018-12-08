@@ -1,8 +1,0 @@
-﻿namespace RoadRegistry.Messages
-{
-    public class RoadSegmentMaintenanceAuthority
-    {
-        public string Identifier { get; set; } //??
-        public string Name { get; set; }
-    }
-}

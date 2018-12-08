@@ -5,7 +5,6 @@ namespace RoadRegistry.Model
     using AutoFixture;
     using FluentValidation;
     using FluentValidation.TestHelper;
-    using Messages;
     using Xunit;
 
     public class RoadSegmentEuropeanRoadAttributesValidatorTests
@@ -13,11 +12,21 @@ namespace RoadRegistry.Model
         public RoadSegmentEuropeanRoadAttributesValidatorTests()
         {
             Fixture = new Fixture();
+            Fixture.CustomizeAttributeId();
             Validator = new RoadSegmentEuropeanRoadAttributesValidator();
         }
 
         public Fixture Fixture { get; }
+
         public RoadSegmentEuropeanRoadAttributesValidator Validator { get; }
+
+        [Theory]
+        [InlineData(int.MinValue)]
+        [InlineData(-1)]
+        public void AttributeIdMustBeGreaterThan(int value)
+        {
+            Validator.ShouldHaveValidationErrorFor(c => c.AttributeId, value);
+        }
 
         [Fact]
         public void RoadNumberMustBeWithinDomain()
@@ -30,8 +39,9 @@ namespace RoadRegistry.Model
         [Fact]
         public void VerifyValid()
         {
-            var data = new RequestedRoadSegmentEuropeanRoadAttributes
+            var data = new Messages.RoadSegmentEuropeanRoadAttributes
             {
+                AttributeId = Fixture.Create<AttributeId>(),
                 RoadNumber = EuropeanRoadNumber.All[new Random().Next(0, EuropeanRoadNumber.All.Length)].ToString()
             };
 
