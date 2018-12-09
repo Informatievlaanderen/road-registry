@@ -22,9 +22,6 @@ namespace RoadRegistry.Model
             RoadSegmentAccessRestriction accessRestriction,
             CrabStreetnameId? leftSideStreetNameId,
             CrabStreetnameId? rightSideStreetNameId,
-            IReadOnlyCollection<RoadSegmentEuropeanRoadAttribute> partOfEuropeanRoads,
-            IReadOnlyCollection<RoadSegmentNationalRoadAttribute> partOfNationalRoads,
-            IReadOnlyCollection<RoadSegmentNumberedRoadAttribute> partOfNumberedRoads,
             IReadOnlyCollection<RoadSegmentLaneAttribute> lanes,
             IReadOnlyCollection<RoadSegmentWidthAttribute> widths,
             IReadOnlyCollection<RoadSegmentSurfaceAttribute> surfaces)
@@ -44,9 +41,6 @@ namespace RoadRegistry.Model
             AccessRestriction = accessRestriction ?? throw new ArgumentNullException(nameof(accessRestriction));
             LeftSideStreetNameId = leftSideStreetNameId;
             RightSideStreetNameId = rightSideStreetNameId;
-            PartOfEuropeanRoads = partOfEuropeanRoads ?? throw new ArgumentNullException(nameof(partOfEuropeanRoads));
-            PartOfNationalRoads = partOfNationalRoads ?? throw new ArgumentNullException(nameof(partOfNationalRoads));
-            PartOfNumberedRoads = partOfNumberedRoads ?? throw new ArgumentNullException(nameof(partOfNumberedRoads));
             Lanes = lanes ?? throw new ArgumentNullException(nameof(lanes));
             Widths = widths ?? throw new ArgumentNullException(nameof(widths));
             Surfaces = surfaces ?? throw new ArgumentNullException(nameof(surfaces));
@@ -67,9 +61,6 @@ namespace RoadRegistry.Model
         public RoadSegmentAccessRestriction AccessRestriction { get; }
         public CrabStreetnameId? LeftSideStreetNameId { get; }
         public CrabStreetnameId? RightSideStreetNameId { get; }
-        public IReadOnlyCollection<RoadSegmentEuropeanRoadAttribute> PartOfEuropeanRoads { get; }
-        public IReadOnlyCollection<RoadSegmentNationalRoadAttribute> PartOfNationalRoads { get; }
-        public IReadOnlyCollection<RoadSegmentNumberedRoadAttribute> PartOfNumberedRoads { get; }
         public IReadOnlyCollection<RoadSegmentLaneAttribute> Lanes { get; }
         public IReadOnlyCollection<RoadSegmentWidthAttribute> Widths { get; }
         public IReadOnlyCollection<RoadSegmentSurfaceAttribute> Surfaces { get; }
@@ -102,29 +93,6 @@ namespace RoadRegistry.Model
                     {
                         StreetNameId = RightSideStreetNameId.GetValueOrDefault()
                     },
-                    PartOfEuropeanRoads = PartOfEuropeanRoads
-                        .Select(item => new Messages.RoadSegmentEuropeanRoadAttributes
-                        {
-                            AttributeId = item.Id,
-                            RoadNumber = item.Number
-                        })
-                        .ToArray(),
-                    PartOfNationalRoads = PartOfNationalRoads
-                        .Select(item => new Messages.RoadSegmentNationalRoadAttributes
-                        {
-                            AttributeId = item.Id,
-                            Ident2 = item.Number
-                        })
-                        .ToArray(),
-                    PartOfNumberedRoads = PartOfNumberedRoads
-                        .Select(item => new Messages.RoadSegmentNumberedRoadAttributes
-                        {
-                            AttributeId = item.Id,
-                            Direction = item.Direction,
-                            Ident8 = item.Number,
-                            Ordinal = item.Ordinal
-                        })
-                        .ToArray(),
                     Lanes = Lanes
                         .Select(item => new Messages.RoadSegmentLaneAttributes
                         {
@@ -179,29 +147,6 @@ namespace RoadRegistry.Model
                     AccessRestriction = AccessRestriction,
                     LeftSideStreetNameId = LeftSideStreetNameId.GetValueOrDefault(),
                     RightSideStreetNameId = RightSideStreetNameId.GetValueOrDefault(),
-                    PartOfEuropeanRoads = PartOfEuropeanRoads
-                        .Select(item => new Messages.RoadSegmentEuropeanRoadAttributes
-                        {
-                            AttributeId = item.TemporaryId ?? item.Id,
-                            RoadNumber = item.Number
-                        })
-                        .ToArray(),
-                    PartOfNationalRoads = PartOfNationalRoads
-                        .Select(item => new Messages.RoadSegmentNationalRoadAttributes
-                        {
-                            AttributeId = item.TemporaryId ?? item.Id,
-                            Ident2 = item.Number
-                        })
-                        .ToArray(),
-                    PartOfNumberedRoads = PartOfNumberedRoads
-                        .Select(item => new Messages.RoadSegmentNumberedRoadAttributes
-                        {
-                            AttributeId = item.TemporaryId ?? item.Id,
-                            Direction = item.Direction,
-                            Ident8 = item.Number,
-                            Ordinal = item.Ordinal
-                        })
-                        .ToArray(),
                     Lanes = Lanes
                         .Select(item => new Messages.RequestedRoadSegmentLaneAttribute
                         {

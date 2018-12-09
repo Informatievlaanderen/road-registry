@@ -62,6 +62,15 @@
                     case Messages.AddRoadSegment command:
                         changeSet = changeSet.Append(Translate(command, changeSet));
                         break;
+                    case Messages.AddRoadSegmentToEuropeanRoad command:
+                        changeSet = changeSet.Append(Translate(command, changeSet));
+                        break;
+                    case Messages.AddRoadSegmentToNationalRoad command:
+                        changeSet = changeSet.Append(Translate(command, changeSet));
+                        break;
+                    case Messages.AddRoadSegmentToNumberedRoad command:
+                        changeSet = changeSet.Append(Translate(command, changeSet));
+                        break;
                 }
             }
 
@@ -123,32 +132,6 @@
             var rightSideStreetNameId = command.RightSideStreetNameId.HasValue
                 ? new CrabStreetnameId(command.RightSideStreetNameId.Value)
                 : new CrabStreetnameId?();
-            var partOfEuropeanRoads = Array.ConvertAll(
-                command.PartOfEuropeanRoads,
-                item => new RoadSegmentEuropeanRoadAttribute(
-                    _nextEuropeanRoadAttributeId(),
-                    new AttributeId(item.AttributeId),
-                    EuropeanRoadNumber.Parse(item.RoadNumber)
-                )
-            );
-            var partOfNationalRoads = Array.ConvertAll(
-                command.PartOfNationalRoads,
-                item => new RoadSegmentNationalRoadAttribute(
-                    _nextNationalRoadAttributeId(),
-                    new AttributeId(item.AttributeId),
-                    NationalRoadNumber.Parse(item.Ident2)
-                )
-            );
-            var partOfNumberedRoads = Array.ConvertAll(
-                command.PartOfNumberedRoads,
-                item => new RoadSegmentNumberedRoadAttribute(
-                    _nextNumberedRoadAttributeId(),
-                    new AttributeId(item.AttributeId),
-                    NumberedRoadNumber.Parse(item.Ident8),
-                    RoadSegmentNumberedRoadDirection.Parse(item.Direction),
-                    new RoadSegmentNumberedRoadOrdinal(item.Ordinal)
-                )
-            );
             var laneAttributes = Array.ConvertAll(
                 command.Lanes,
                 item => new RoadSegmentLaneAttribute(
@@ -201,12 +184,97 @@
                 accessRestriction,
                 leftSideStreetNameId,
                 rightSideStreetNameId,
-                partOfEuropeanRoads,
-                partOfNationalRoads,
-                partOfNumberedRoads,
                 laneAttributes,
                 widthAttributes,
                 surfaceAttributes
+            );
+        }
+
+        private AddRoadSegmentToEuropeanRoad Translate(Messages.AddRoadSegmentToEuropeanRoad command, IRequestedChanges requestedChanges)
+        {
+            var permanent = _nextEuropeanRoadAttributeId();
+            var temporary = new AttributeId(command.TemporaryAttributeId);
+
+            var segmentId = new RoadSegmentId(command.SegmentId);
+            RoadSegmentId? temporarySegmentId;
+            if (requestedChanges.TryResolvePermanent(segmentId, out var permanentSegmentId))
+            {
+                temporarySegmentId = segmentId;
+                segmentId = permanentSegmentId;
+            }
+            else
+            {
+                temporarySegmentId = null;
+            }
+
+            var number = EuropeanRoadNumber.Parse(command.RoadNumber);
+            return new AddRoadSegmentToEuropeanRoad
+            (
+                permanent,
+                temporary,
+                segmentId,
+                temporarySegmentId,
+                number
+            );
+        }
+
+        private AddRoadSegmentToNationalRoad Translate(Messages.AddRoadSegmentToNationalRoad command, IRequestedChanges requestedChanges)
+        {
+            var permanent = _nextNationalRoadAttributeId();
+            var temporary = new AttributeId(command.TemporaryAttributeId);
+
+            var segmentId = new RoadSegmentId(command.SegmentId);
+            RoadSegmentId? temporarySegmentId;
+            if (requestedChanges.TryResolvePermanent(segmentId, out var permanentSegmentId))
+            {
+                temporarySegmentId = segmentId;
+                segmentId = permanentSegmentId;
+            }
+            else
+            {
+                temporarySegmentId = null;
+            }
+
+            var number = NationalRoadNumber.Parse(command.Ident2);
+            return new AddRoadSegmentToNationalRoad
+            (
+                permanent,
+                temporary,
+                segmentId,
+                temporarySegmentId,
+                number
+            );
+        }
+
+        private AddRoadSegmentToNumberedRoad Translate(Messages.AddRoadSegmentToNumberedRoad command, IRequestedChanges requestedChanges)
+        {
+            var permanent = _nextNumberedRoadAttributeId();
+            var temporary = new AttributeId(command.TemporaryAttributeId);
+
+            var segmentId = new RoadSegmentId(command.SegmentId);
+            RoadSegmentId? temporarySegmentId;
+            if (requestedChanges.TryResolvePermanent(segmentId, out var permanentSegmentId))
+            {
+                temporarySegmentId = segmentId;
+                segmentId = permanentSegmentId;
+            }
+            else
+            {
+                temporarySegmentId = null;
+            }
+
+            var number = NumberedRoadNumber.Parse(command.Ident8);
+            var direction = RoadSegmentNumberedRoadDirection.Parse(command.Direction);
+            var ordinal = new RoadSegmentNumberedRoadOrdinal(command.Ordinal);
+            return new AddRoadSegmentToNumberedRoad
+            (
+                permanent,
+                temporary,
+                segmentId,
+                temporarySegmentId,
+                number,
+                direction,
+                ordinal
             );
         }
 
@@ -227,7 +295,10 @@
             private static readonly Type[] SequenceByTypeOfChange =
             {
                 typeof(Messages.AddRoadNode),
-                typeof(Messages.AddRoadSegment)
+                typeof(Messages.AddRoadSegment),
+                typeof(Messages.AddRoadSegmentToEuropeanRoad),
+                typeof(Messages.AddRoadSegmentToNationalRoad),
+                typeof(Messages.AddRoadSegmentToNumberedRoad)
             };
 
             public int Compare(SortableChange left, SortableChange right)
@@ -297,6 +368,45 @@
                     _mapToTemporaryNodeIdentifiers,
                     _mapToPermanentSegmentIdentifiers.Add(change.TemporaryId, change.Id),
                     _mapToTemporarySegmentIdentifiers.Add(change.Id, change.TemporaryId));
+            }
+
+            public RequestedChanges Append(AddRoadSegmentToEuropeanRoad change)
+            {
+                if (change == null)
+                    throw new ArgumentNullException(nameof(change));
+
+                return new RequestedChanges(
+                    _changes.Add(change),
+                    _mapToPermanentNodeIdentifiers,
+                    _mapToTemporaryNodeIdentifiers,
+                    _mapToPermanentSegmentIdentifiers,
+                    _mapToTemporarySegmentIdentifiers);
+            }
+
+            public RequestedChanges Append(AddRoadSegmentToNationalRoad change)
+            {
+                if (change == null)
+                    throw new ArgumentNullException(nameof(change));
+
+                return new RequestedChanges(
+                    _changes.Add(change),
+                    _mapToPermanentNodeIdentifiers,
+                    _mapToTemporaryNodeIdentifiers,
+                    _mapToPermanentSegmentIdentifiers,
+                    _mapToTemporarySegmentIdentifiers);
+            }
+
+            public RequestedChanges Append(AddRoadSegmentToNumberedRoad change)
+            {
+                if (change == null)
+                    throw new ArgumentNullException(nameof(change));
+
+                return new RequestedChanges(
+                    _changes.Add(change),
+                    _mapToPermanentNodeIdentifiers,
+                    _mapToTemporaryNodeIdentifiers,
+                    _mapToPermanentSegmentIdentifiers,
+                    _mapToTemporarySegmentIdentifiers);
             }
 
             public bool TryResolvePermanent(RoadNodeId id, out RoadNodeId permanent)

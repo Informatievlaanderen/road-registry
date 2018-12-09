@@ -4,7 +4,6 @@ namespace RoadRegistry.Model
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
-    using Messages;
 
     public class RoadNetworkView
     {
@@ -66,7 +65,7 @@ namespace RoadRegistry.Model
         public AttributeId MaximumWidthAttributeId => _maximumWidthAttributeId;
         public AttributeId MaximumSurfaceAttributeId => _maximumSurfaceAttributeId;
 
-        public RoadNetworkView Given(ImportedRoadNode @event)
+        public RoadNetworkView Given(Messages.ImportedRoadNode @event)
         {
             if (@event == null) throw new ArgumentNullException(nameof(@event));
             var id = new RoadNodeId(@event.Id);
@@ -85,7 +84,7 @@ namespace RoadRegistry.Model
             );
         }
 
-        public RoadNetworkView Given(ImportedRoadSegment @event)
+        public RoadNetworkView Given(Messages.ImportedRoadSegment @event)
         {
             if (@event == null) throw new ArgumentNullException(nameof(@event));
             var id = new RoadSegmentId(@event.Id);
@@ -152,7 +151,7 @@ namespace RoadRegistry.Model
             );
         }
 
-        public RoadNetworkView Given(RoadNetworkChangesAccepted @event)
+        public RoadNetworkView Given(Messages.RoadNetworkChangesAccepted @event)
         {
             if (@event == null) throw new ArgumentNullException(nameof(@event));
             var result = this;
@@ -160,11 +159,20 @@ namespace RoadRegistry.Model
             {
                 switch (change)
                 {
-                    case RoadNodeAdded roadNodeAdded:
+                    case Messages.RoadNodeAdded roadNodeAdded:
                         result = result.Given(roadNodeAdded);
                         break;
-                    case RoadSegmentAdded roadSegmentAdded:
+                    case Messages.RoadSegmentAdded roadSegmentAdded:
                         result = result.Given(roadSegmentAdded);
+                        break;
+                    case Messages.RoadSegmentAddedToEuropeanRoad roadSegmentAddedToEuropeanRoad:
+                        result = result.Given(roadSegmentAddedToEuropeanRoad);
+                        break;
+                    case Messages.RoadSegmentAddedToNationalRoad roadSegmentAddedToNationalRoad:
+                        result = result.Given(roadSegmentAddedToNationalRoad);
+                        break;
+                    case Messages.RoadSegmentAddedToNumberedRoad roadSegmentAddedToNumberedRoad:
+                        result = result.Given(roadSegmentAddedToNumberedRoad);
                         break;
                 }
             }
@@ -172,7 +180,7 @@ namespace RoadRegistry.Model
             return result;
         }
 
-        private RoadNetworkView Given(RoadNodeAdded @event)
+        private RoadNetworkView Given(Messages.RoadNodeAdded @event)
         {
             var id = new RoadNodeId(@event.Id);
             var node = new RoadNode(id, GeometryTranslator.Translate(@event.Geometry));
@@ -190,7 +198,7 @@ namespace RoadRegistry.Model
             );
         }
 
-        private RoadNetworkView Given(RoadSegmentAdded @event)
+        private RoadNetworkView Given(Messages.RoadSegmentAdded @event)
         {
             var id = new RoadSegmentId(@event.Id);
             var start = new RoadNodeId(@event.StartNodeId);
@@ -223,21 +231,9 @@ namespace RoadRegistry.Model
                 _segments.Add(id, segment),
                 _maximumNodeId,
                 RoadSegmentId.Max(id, _maximumSegmentId),
-                @event.PartOfEuropeanRoads.Length != 0
-                    ? AttributeId.Max(
-                        new AttributeId(@event.PartOfEuropeanRoads.Max(_ => _.AttributeId)),
-                        _maximumEuropeanRoadAttributeId)
-                    : _maximumEuropeanRoadAttributeId,
-                @event.PartOfNationalRoads.Length != 0
-                    ? AttributeId.Max(
-                        new AttributeId(@event.PartOfNationalRoads.Max(_ => _.AttributeId)),
-                        _maximumNationalRoadAttributeId)
-                    : _maximumNationalRoadAttributeId,
-                @event.PartOfNumberedRoads.Length != 0
-                    ? AttributeId.Max(
-                        new AttributeId(@event.PartOfNumberedRoads.Max(_ => _.AttributeId)),
-                        _maximumNumberedRoadAttributeId)
-                    : _maximumNumberedRoadAttributeId,
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
                 @event.Lanes.Length != 0
                     ? AttributeId.Max(
                         new AttributeId(@event.Lanes.Max(_ => _.AttributeId)),
@@ -253,6 +249,54 @@ namespace RoadRegistry.Model
                         new AttributeId(@event.Surfaces.Max(_ => _.AttributeId)),
                         _maximumSurfaceAttributeId)
                     : _maximumSurfaceAttributeId
+            );
+        }
+
+        private RoadNetworkView Given(Messages.RoadSegmentAddedToEuropeanRoad @event)
+        {
+            return new RoadNetworkView(
+                _nodes,
+                _segments,
+                _maximumNodeId,
+                _maximumSegmentId,
+                AttributeId.Max(new AttributeId(@event.AttributeId), _maximumEuropeanRoadAttributeId),
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId
+            );
+        }
+
+        private RoadNetworkView Given(Messages.RoadSegmentAddedToNationalRoad @event)
+        {
+            return new RoadNetworkView(
+                _nodes,
+                _segments,
+                _maximumNodeId,
+                _maximumSegmentId,
+                _maximumEuropeanRoadAttributeId,
+                AttributeId.Max(new AttributeId(@event.AttributeId), _maximumNationalRoadAttributeId),
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId
+            );
+        }
+
+        private RoadNetworkView Given(Messages.RoadSegmentAddedToNumberedRoad @event)
+        {
+            return new RoadNetworkView(
+                _nodes,
+                _segments,
+                _maximumNodeId,
+                _maximumSegmentId,
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                AttributeId.Max(new AttributeId(@event.AttributeId), _maximumNumberedRoadAttributeId),
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId
             );
         }
 
@@ -271,6 +315,15 @@ namespace RoadRegistry.Model
                         break;
                     case AddRoadSegment addRoadSegment:
                         result = result.When(addRoadSegment);
+                        break;
+                    case AddRoadSegmentToEuropeanRoad addRoadSegmentToEuropeanRoad:
+                        result = result.When(addRoadSegmentToEuropeanRoad);
+                        break;
+                    case AddRoadSegmentToNationalRoad addRoadSegmentToNationalRoad:
+                        result = result.When(addRoadSegmentToNationalRoad);
+                        break;
+                    case AddRoadSegmentToNumberedRoad addRoadSegmentToNumberedRoad:
+                        result = result.When(addRoadSegmentToNumberedRoad);
                         break;
                 }
             }
@@ -317,6 +370,54 @@ namespace RoadRegistry.Model
                 _maximumEuropeanRoadAttributeId,
                 _maximumNationalRoadAttributeId,
                 _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId
+            );
+        }
+
+        private RoadNetworkView When(AddRoadSegmentToEuropeanRoad command)
+        {
+            return new RoadNetworkView(
+                _nodes,
+                _segments,
+                _maximumNodeId,
+                _maximumSegmentId,
+                AttributeId.Max(command.AttributeId, _maximumEuropeanRoadAttributeId),
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId
+            );
+        }
+
+        private RoadNetworkView When(AddRoadSegmentToNationalRoad command)
+        {
+            return new RoadNetworkView(
+                _nodes,
+                _segments,
+                _maximumNodeId,
+                _maximumSegmentId,
+                _maximumEuropeanRoadAttributeId,
+                AttributeId.Max(command.AttributeId, _maximumNationalRoadAttributeId),
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId
+            );
+        }
+
+        private RoadNetworkView When(AddRoadSegmentToNumberedRoad command)
+        {
+            return new RoadNetworkView(
+                _nodes,
+                _segments,
+                _maximumNodeId,
+                _maximumSegmentId,
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                AttributeId.Max(command.AttributeId, _maximumNumberedRoadAttributeId),
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
                 _maximumSurfaceAttributeId

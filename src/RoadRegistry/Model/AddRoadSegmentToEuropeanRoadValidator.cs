@@ -3,11 +3,12 @@ namespace RoadRegistry.Model
     using FluentValidation;
     using Messages;
 
-    public class RoadSegmentEuropeanRoadAttributesValidator : AbstractValidator<RoadSegmentEuropeanRoadAttributes>
+    public class AddRoadSegmentToEuropeanRoadValidator : AbstractValidator<Messages.AddRoadSegmentToEuropeanRoad>
     {
-        public RoadSegmentEuropeanRoadAttributesValidator()
+        public AddRoadSegmentToEuropeanRoadValidator()
         {
-            RuleFor(c => c.AttributeId).GreaterThanOrEqualTo(0);
+            RuleFor(c => c.TemporaryAttributeId).GreaterThanOrEqualTo(0);
+            RuleFor(c => c.SegmentId).GreaterThanOrEqualTo(0);
             RuleFor(c => c.RoadNumber)
                 .NotEmpty()
                 .Must(EuropeanRoadNumber.CanParse)

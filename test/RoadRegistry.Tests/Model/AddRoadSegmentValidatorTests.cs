@@ -165,71 +165,71 @@ namespace RoadRegistry.Model
             Validator.ShouldHaveValidationErrorFor(c => c.AccessRestriction, Fixture.Create<string>());
         }
 
-        [Fact]
-        public void PartOfEuropeanRoadsMustNotBeNull()
-        {
-            Validator.ShouldHaveValidationErrorFor(c => c.PartOfEuropeanRoads, (RoadSegmentEuropeanRoadAttributes[])null);
-        }
-
-        [Fact]
-        public void PartOfEuropeanRoadMustNotBeNull()
-        {
-            var data = Fixture.CreateMany<RoadSegmentEuropeanRoadAttributes>().ToArray();
-            var index = new Random().Next(0, data.Length);
-            data[index] = null;
-
-            Validator.ShouldHaveValidationErrorFor(c => c.PartOfEuropeanRoads, data);
-        }
-
-        [Fact]
-        public void PartOfEuropeanRoadsHasExpectedValidator()
-        {
-            Validator.ShouldHaveChildValidator(c => c.PartOfEuropeanRoads, typeof(RoadSegmentEuropeanRoadAttributesValidator));
-        }
-
-        [Fact]
-        public void PartOfNationalRoadsMustNotBeNull()
-        {
-            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNationalRoads, (RoadSegmentNationalRoadAttributes[])null);
-        }
-
-        [Fact]
-        public void PartOfNationalRoadMustNotBeNull()
-        {
-            var data = Fixture.CreateMany<RoadSegmentNationalRoadAttributes>().ToArray();
-            var index = new Random().Next(0, data.Length);
-            data[index] = null;
-
-            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNationalRoads, data);
-        }
-
-        [Fact]
-        public void PartOfNationalRoadsHasExpectedValidator()
-        {
-            Validator.ShouldHaveChildValidator(c => c.PartOfNationalRoads, typeof(RoadSegmentNationalRoadAttributesValidator));
-        }
-
-        [Fact]
-        public void PartOfNumberedRoadsMustNotBeNull()
-        {
-            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNumberedRoads, (RoadSegmentNumberedRoadAttributes[])null);
-        }
-
-        [Fact]
-        public void PartOfNumberedRoadMustNotBeNull()
-        {
-            var data = Fixture.CreateMany<RoadSegmentNumberedRoadAttributes>().ToArray();
-            var index = new Random().Next(0, data.Length);
-            data[index] = null;
-
-            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNumberedRoads, data);
-        }
-
-        [Fact]
-        public void PartOfNumberedRoadsHasExpectedValidator()
-        {
-            Validator.ShouldHaveChildValidator(c => c.PartOfNumberedRoads, typeof(RoadSegmentNumberedRoadAttributesValidator));
-        }
+//        [Fact]
+//        public void PartOfEuropeanRoadsMustNotBeNull()
+//        {
+//            Validator.ShouldHaveValidationErrorFor(c => c.PartOfEuropeanRoads, (RoadSegmentEuropeanRoadAttributes[])null);
+//        }
+//
+//        [Fact]
+//        public void PartOfEuropeanRoadMustNotBeNull()
+//        {
+//            var data = Fixture.CreateMany<RoadSegmentEuropeanRoadAttributes>().ToArray();
+//            var index = new Random().Next(0, data.Length);
+//            data[index] = null;
+//
+//            Validator.ShouldHaveValidationErrorFor(c => c.PartOfEuropeanRoads, data);
+//        }
+//
+//        [Fact]
+//        public void PartOfEuropeanRoadsHasExpectedValidator()
+//        {
+//            Validator.ShouldHaveChildValidator(c => c.PartOfEuropeanRoads, typeof(AddRoadSegmentToEuropeanRoadValidator));
+//        }
+//
+//        [Fact]
+//        public void PartOfNationalRoadsMustNotBeNull()
+//        {
+//            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNationalRoads, (RoadSegmentNationalRoadAttributes[])null);
+//        }
+//
+//        [Fact]
+//        public void PartOfNationalRoadMustNotBeNull()
+//        {
+//            var data = Fixture.CreateMany<RoadSegmentNationalRoadAttributes>().ToArray();
+//            var index = new Random().Next(0, data.Length);
+//            data[index] = null;
+//
+//            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNationalRoads, data);
+//        }
+//
+//        [Fact]
+//        public void PartOfNationalRoadsHasExpectedValidator()
+//        {
+//            Validator.ShouldHaveChildValidator(c => c.PartOfNationalRoads, typeof(AddRoadSegmentToNationalRoadValidator));
+//        }
+//
+//        [Fact]
+//        public void PartOfNumberedRoadsMustNotBeNull()
+//        {
+//            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNumberedRoads, (RoadSegmentNumberedRoadAttributes[])null);
+//        }
+//
+//        [Fact]
+//        public void PartOfNumberedRoadMustNotBeNull()
+//        {
+//            var data = Fixture.CreateMany<RoadSegmentNumberedRoadAttributes>().ToArray();
+//            var index = new Random().Next(0, data.Length);
+//            data[index] = null;
+//
+//            Validator.ShouldHaveValidationErrorFor(c => c.PartOfNumberedRoads, data);
+//        }
+//
+//        [Fact]
+//        public void PartOfNumberedRoadsHasExpectedValidator()
+//        {
+//            Validator.ShouldHaveChildValidator(c => c.PartOfNumberedRoads, typeof(AddRoadSegmentToNumberedRoadValidator));
+//        }
 
         [Fact]
         public void LanesMustNotBeNull()
@@ -316,9 +316,6 @@ namespace RoadRegistry.Model
                 AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
                 LeftSideStreetNameId = Fixture.Create<int?>(),
                 RightSideStreetNameId = Fixture.Create<int?>(),
-                PartOfEuropeanRoads = Fixture.CreateMany<RoadSegmentEuropeanRoadAttributes>().ToArray(),
-                PartOfNationalRoads = Fixture.CreateMany<RoadSegmentNationalRoadAttributes>().ToArray(),
-                PartOfNumberedRoads = Fixture.CreateMany<RoadSegmentNumberedRoadAttributes>().ToArray(),
                 Lanes = Fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray(),
                 Widths = Fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray(),
                 Surfaces = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttribute>().ToArray(),

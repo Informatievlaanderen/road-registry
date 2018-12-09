@@ -5,26 +5,26 @@ namespace RoadRegistry.Model
     using FluentValidation.TestHelper;
     using Xunit;
 
-    public class RoadSegmentNationalRoadAttributesValidatorTests
+    public class AddRoadSegmentToNationalRoadValidatorTests
     {
-        public RoadSegmentNationalRoadAttributesValidatorTests()
+        public AddRoadSegmentToNationalRoadValidatorTests()
         {
             Fixture = new Fixture();
             Fixture.CustomizeAttributeId();
             Fixture.CustomizeNationalRoadNumber();
-            Validator = new RoadSegmentNationalRoadAttributesValidator();
+            Validator = new AddRoadSegmentToNationalRoadValidator();
         }
 
         public Fixture Fixture { get; }
 
-        public RoadSegmentNationalRoadAttributesValidator Validator { get; }
+        public AddRoadSegmentToNationalRoadValidator Validator { get; }
 
         [Theory]
         [InlineData(int.MinValue)]
         [InlineData(-1)]
-        public void AttributeIdMustBeGreaterThan(int value)
+        public void TemporaryAttributeIdMustBeGreaterThan(int value)
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.AttributeId, value);
+            Validator.ShouldHaveValidationErrorFor(c => c.TemporaryAttributeId, value);
         }
 
         [Fact]
@@ -36,9 +36,9 @@ namespace RoadRegistry.Model
         [Fact]
         public void VerifyValid()
         {
-            var data = new Messages.RoadSegmentNationalRoadAttributes
+            var data = new Messages.AddRoadSegmentToNationalRoad
             {
-                AttributeId = Fixture.Create<AttributeId>(),
+                TemporaryAttributeId = Fixture.Create<AttributeId>(),
                 Ident2 = Fixture.Create<NationalRoadNumber>()
             };
 

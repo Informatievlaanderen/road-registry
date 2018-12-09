@@ -17,9 +17,6 @@ namespace RoadRegistry.Messages
         public string AccessRestriction { get; set; }
         public RoadSegmentSideAttributes LeftSide { get; set; }
         public RoadSegmentSideAttributes RightSide { get; set; }
-        public RoadSegmentEuropeanRoadAttributes[] PartOfEuropeanRoads { get; set; }
-        public RoadSegmentNationalRoadAttributes[] PartOfNationalRoads { get; set; }
-        public RoadSegmentNumberedRoadAttributes[] PartOfNumberedRoads { get; set; }
         public RoadSegmentLaneAttributes[] Lanes { get; set; }
         public RoadSegmentWidthAttributes[] Widths { get; set; }
         public RoadSegmentSurfaceAttributes[] Surfaces { get; set; }

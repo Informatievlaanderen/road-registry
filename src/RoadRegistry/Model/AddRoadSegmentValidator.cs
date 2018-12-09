@@ -38,12 +38,6 @@ namespace RoadRegistry.Model
                 .Must(RoadSegmentAccessRestriction.CanParse)
                 .When(c => c.AccessRestriction != null, ApplyConditionTo.CurrentValidator)
                 .WithMessage("The 'AccessRestriction' is not a RoadSegmentAccessRestriction.");
-            RuleFor(c => c.PartOfEuropeanRoads).NotNull();
-            RuleForEach(c => c.PartOfEuropeanRoads).NotNull().SetValidator(new RoadSegmentEuropeanRoadAttributesValidator());
-            RuleFor(c => c.PartOfNationalRoads).NotNull();
-            RuleForEach(c => c.PartOfNationalRoads).NotNull().SetValidator(new RoadSegmentNationalRoadAttributesValidator());
-            RuleFor(c => c.PartOfNumberedRoads).NotNull();
-            RuleForEach(c => c.PartOfNumberedRoads).NotNull().SetValidator(new RoadSegmentNumberedRoadAttributesValidator());
             RuleFor(c => c.Lanes).NotNull();
             RuleForEach(c => c.Lanes).NotNull().SetValidator(new RequestedRoadSegmentLaneAttributeValidator());
             RuleFor(c => c.Widths).NotNull();

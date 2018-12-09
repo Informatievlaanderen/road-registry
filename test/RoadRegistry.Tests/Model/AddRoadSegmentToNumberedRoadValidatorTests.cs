@@ -5,28 +5,28 @@ namespace RoadRegistry.Model
     using FluentValidation.TestHelper;
     using Xunit;
 
-    public class RoadSegmentNumberedRoadAttributesValidatorTests
+    public class AddRoadSegmentToNumberedRoadValidatorTests
     {
-        public RoadSegmentNumberedRoadAttributesValidatorTests()
+        public AddRoadSegmentToNumberedRoadValidatorTests()
         {
             Fixture = new Fixture();
             Fixture.CustomizeAttributeId();
             Fixture.CustomizeNumberedRoadNumber();
             Fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
             Fixture.CustomizeRoadSegmentNumberedRoadDirection();
-            Validator = new RoadSegmentNumberedRoadAttributesValidator();
+            Validator = new AddRoadSegmentToNumberedRoadValidator();
         }
 
         public Fixture Fixture { get; }
 
-        public RoadSegmentNumberedRoadAttributesValidator Validator { get; }
+        public AddRoadSegmentToNumberedRoadValidator Validator { get; }
 
         [Theory]
         [InlineData(int.MinValue)]
         [InlineData(-1)]
-        public void AttributeIdMustBeGreaterThan(int value)
+        public void TemporaryAttributeIdMustBeGreaterThan(int value)
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.AttributeId, value);
+            Validator.ShouldHaveValidationErrorFor(c => c.TemporaryAttributeId, value);
         }
 
         [Fact]
@@ -52,9 +52,9 @@ namespace RoadRegistry.Model
         [Fact]
         public void VerifyValid()
         {
-            var data = new Messages.RoadSegmentNumberedRoadAttributes
+            var data = new Messages.AddRoadSegmentToNumberedRoad
             {
-                AttributeId = Fixture.Create<AttributeId>(),
+                TemporaryAttributeId = Fixture.Create<AttributeId>(),
                 Ident8 = Fixture.Create<NumberedRoadNumber>(),
                 Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
                 Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>()

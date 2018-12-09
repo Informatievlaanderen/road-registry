@@ -112,12 +112,6 @@ namespace RoadRegistry.Model
                             AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
                             LeftSideStreetNameId = Fixture.Create<Nullable<int>>(),
                             RightSideStreetNameId = Fixture.Create<Nullable<int>>(),
-                            PartOfEuropeanRoads = Fixture.CreateMany<RoadSegmentEuropeanRoadAttributes>()
-                                .ToArray(),
-                            PartOfNationalRoads = Fixture.CreateMany<RoadSegmentNationalRoadAttributes>()
-                                .ToArray(),
-                            PartOfNumberedRoads = Fixture.CreateMany<RoadSegmentNumberedRoadAttributes>()
-                                .ToArray(),
                             Lanes = Fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray(),
                             Widths = Fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray(),
                             Surfaces = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttribute>().ToArray()

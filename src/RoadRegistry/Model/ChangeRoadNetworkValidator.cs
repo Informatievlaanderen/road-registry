@@ -10,9 +10,9 @@ namespace RoadRegistry.Model
         {
             RuleFor(c => c.Changes)
                 .NotNull()
-                .Must(OnlyHaveUniqueTemporaryRoadNodeIdentifiers)
+                .Must(OnlyHaveUniqueRoadNodeIdentifiers)
                 .WithMessage("One or more road node identifiers are not unique.")
-                .Must(OnlyHaveUniqueTemporaryRoadSegmentIdentifiers)
+                .Must(OnlyHaveUniqueRoadSegmentIdentifiers)
                 .WithMessage("One or more road segment identifiers are not unique.")
                 .Must(OnlyHaveUniqueEuropeanRoadAttributeIdentifiers)
                 .WithMessage("One or more european road attribute identifiers are not unique.")
@@ -29,7 +29,7 @@ namespace RoadRegistry.Model
             RuleForEach(c => c.Changes).NotNull().SetValidator(new RequestedChangeValidator());
         }
 
-        private static bool OnlyHaveUniqueTemporaryRoadNodeIdentifiers(RequestedChange[] changes)
+        private static bool OnlyHaveUniqueRoadNodeIdentifiers(RequestedChange[] changes)
         {
             if (changes == null) return true;
 
@@ -40,7 +40,7 @@ namespace RoadRegistry.Model
             return identifiers.Length == identifiers.Distinct().Count();
         }
 
-        private static bool OnlyHaveUniqueTemporaryRoadSegmentIdentifiers(RequestedChange[] changes)
+        private static bool OnlyHaveUniqueRoadSegmentIdentifiers(RequestedChange[] changes)
         {
             if (changes == null) return true;
 
@@ -56,8 +56,8 @@ namespace RoadRegistry.Model
             if (changes == null) return true;
 
             var identifiers = changes
-                .Where(change => change?.AddRoadSegment?.Lanes != null)
-                .SelectMany(change => change.AddRoadSegment.Lanes.Where(item => item != null).Select(lane => lane.AttributeId))
+                .Where(change => change?.AddRoadSegmentToEuropeanRoad != null)
+                .Select(change => change.AddRoadSegmentToEuropeanRoad.TemporaryAttributeId)
                 .ToArray();
             return identifiers.Length == identifiers.Distinct().Count();
         }
@@ -67,8 +67,8 @@ namespace RoadRegistry.Model
             if (changes == null) return true;
 
             var identifiers = changes
-                .Where(change => change?.AddRoadSegment?.Widths != null)
-                .SelectMany(change => change.AddRoadSegment.Widths.Where(item => item != null).Select(width => width.AttributeId))
+                .Where(change => change?.AddRoadSegmentToNationalRoad != null)
+                .Select(change => change.AddRoadSegmentToNationalRoad.TemporaryAttributeId)
                 .ToArray();
             return identifiers.Length == identifiers.Distinct().Count();
         }
@@ -78,8 +78,8 @@ namespace RoadRegistry.Model
             if (changes == null) return true;
 
             var identifiers = changes
-                .Where(change => change?.AddRoadSegment?.Surfaces != null)
-                .SelectMany(change => change.AddRoadSegment.Surfaces.Where(item => item != null).Select(surface => surface.AttributeId))
+                .Where(change => change?.AddRoadSegmentToNumberedRoad != null)
+                .Select(change => change.AddRoadSegmentToNumberedRoad.TemporaryAttributeId)
                 .ToArray();
             return identifiers.Length == identifiers.Distinct().Count();
         }

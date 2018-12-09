@@ -238,15 +238,15 @@ namespace RoadRegistry.Model
                 AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
                 LeftSideStreetNameId = Fixture.Create<int?>(),
                 RightSideStreetNameId = Fixture.Create<int?>(),
-                PartOfEuropeanRoads = Fixture
-                    .CreateMany<Messages.RoadSegmentEuropeanRoadAttributes>(europeanRoadCount)
-                    .ToArray(),
-                PartOfNationalRoads = Fixture
-                    .CreateMany<Messages.RoadSegmentNationalRoadAttributes>(nationalRoadCount)
-                    .ToArray(),
-                PartOfNumberedRoads = Fixture
-                    .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(numberedRoadCount)
-                    .ToArray(),
+//                PartOfEuropeanRoads = Fixture
+//                    .CreateMany<Messages.RoadSegmentEuropeanRoadAttributes>(europeanRoadCount)
+//                    .ToArray(),
+//                PartOfNationalRoads = Fixture
+//                    .CreateMany<Messages.RoadSegmentNationalRoadAttributes>(nationalRoadCount)
+//                    .ToArray(),
+//                PartOfNumberedRoads = Fixture
+//                    .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(numberedRoadCount)
+//                    .ToArray(),
                 Lanes = Fixture
                     .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(laneCount)
                     .Select((part, index) =>
@@ -302,28 +302,28 @@ namespace RoadRegistry.Model
                 {
                     StreetNameId = AddSegment1.RightSideStreetNameId
                 },
-                PartOfEuropeanRoads = AddSegment1.PartOfEuropeanRoads
-                    .Select((part, index) => new Messages.RoadSegmentEuropeanRoadAttributes
-                    {
-                        AttributeId = index + 1, RoadNumber = part.RoadNumber
-                    })
-                    .ToArray(),
-                PartOfNationalRoads = AddSegment1.PartOfNationalRoads
-                    .Select((part, index) => new Messages.RoadSegmentNationalRoadAttributes
-                    {
-                        AttributeId = index + 1,
-                        Ident2 = part.Ident2
-                    })
-                    .ToArray(),
-                PartOfNumberedRoads = AddSegment1.PartOfNumberedRoads
-                    .Select((part, index) => new Messages.RoadSegmentNumberedRoadAttributes
-                    {
-                        AttributeId = index + 1,
-                        Ident8 = part.Ident8,
-                        Direction = part.Direction,
-                        Ordinal = part.Ordinal
-                    })
-                    .ToArray(),
+//                PartOfEuropeanRoads = AddSegment1.PartOfEuropeanRoads
+//                    .Select((part, index) => new Messages.RoadSegmentEuropeanRoadAttributes
+//                    {
+//                        AttributeId = index + 1, RoadNumber = part.RoadNumber
+//                    })
+//                    .ToArray(),
+//                PartOfNationalRoads = AddSegment1.PartOfNationalRoads
+//                    .Select((part, index) => new Messages.RoadSegmentNationalRoadAttributes
+//                    {
+//                        AttributeId = index + 1,
+//                        Ident2 = part.Ident2
+//                    })
+//                    .ToArray(),
+//                PartOfNumberedRoads = AddSegment1.PartOfNumberedRoads
+//                    .Select((part, index) => new Messages.RoadSegmentNumberedRoadAttributes
+//                    {
+//                        AttributeId = index + 1,
+//                        Ident8 = part.Ident8,
+//                        Direction = part.Direction,
+//                        Ordinal = part.Ordinal
+//                    })
+//                    .ToArray(),
                 Lanes = AddSegment1.Lanes
                     .Select((lane, index) => new Messages.RoadSegmentLaneAttributes
                     {
@@ -372,15 +372,15 @@ namespace RoadRegistry.Model
                 AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
                 LeftSideStreetNameId = Fixture.Create<int?>(),
                 RightSideStreetNameId = Fixture.Create<int?>(),
-                PartOfEuropeanRoads = Fixture
-                    .CreateMany<Messages.RoadSegmentEuropeanRoadAttributes>(new Random().Next(0, 10))
-                    .ToArray(),
-                PartOfNationalRoads = Fixture
-                    .CreateMany<Messages.RoadSegmentNationalRoadAttributes>(new Random().Next(0, 10))
-                    .ToArray(),
-                PartOfNumberedRoads = Fixture
-                    .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(new Random().Next(0, 10))
-                    .ToArray(),
+//                PartOfEuropeanRoads = Fixture
+//                    .CreateMany<Messages.RoadSegmentEuropeanRoadAttributes>(new Random().Next(0, 10))
+//                    .ToArray(),
+//                PartOfNationalRoads = Fixture
+//                    .CreateMany<Messages.RoadSegmentNationalRoadAttributes>(new Random().Next(0, 10))
+//                    .ToArray(),
+//                PartOfNumberedRoads = Fixture
+//                    .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(new Random().Next(0, 10))
+//                    .ToArray(),
                 Lanes = Fixture
                     .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(new Random().Next(0, 10))
                     .Select((part, index) =>
@@ -436,29 +436,29 @@ namespace RoadRegistry.Model
                 {
                     StreetNameId = AddSegment2.RightSideStreetNameId
                 },
-                PartOfEuropeanRoads = AddSegment2.PartOfEuropeanRoads
-                    .Select((part, index) => new Messages.RoadSegmentEuropeanRoadAttributes
-                    {
-                        AttributeId = europeanRoadCount + index + 1,
-                        RoadNumber = part.RoadNumber
-                    })
-                    .ToArray(),
-                PartOfNationalRoads = AddSegment2.PartOfNationalRoads
-                    .Select((part, index) => new Messages.RoadSegmentNationalRoadAttributes
-                    {
-                        AttributeId = nationalRoadCount + index + 1,
-                        Ident2 = part.Ident2
-                    })
-                    .ToArray(),
-                PartOfNumberedRoads = AddSegment2.PartOfNumberedRoads
-                    .Select((part, index) => new Messages.RoadSegmentNumberedRoadAttributes
-                    {
-                        AttributeId = numberedRoadCount + index + 1,
-                        Ident8 = part.Ident8,
-                        Direction = part.Direction,
-                        Ordinal = part.Ordinal
-                    })
-                    .ToArray(),
+//                PartOfEuropeanRoads = AddSegment2.PartOfEuropeanRoads
+//                    .Select((part, index) => new Messages.RoadSegmentEuropeanRoadAttributes
+//                    {
+//                        AttributeId = europeanRoadCount + index + 1,
+//                        RoadNumber = part.RoadNumber
+//                    })
+//                    .ToArray(),
+//                PartOfNationalRoads = AddSegment2.PartOfNationalRoads
+//                    .Select((part, index) => new Messages.RoadSegmentNationalRoadAttributes
+//                    {
+//                        AttributeId = nationalRoadCount + index + 1,
+//                        Ident2 = part.Ident2
+//                    })
+//                    .ToArray(),
+//                PartOfNumberedRoads = AddSegment2.PartOfNumberedRoads
+//                    .Select((part, index) => new Messages.RoadSegmentNumberedRoadAttributes
+//                    {
+//                        AttributeId = numberedRoadCount + index + 1,
+//                        Ident8 = part.Ident8,
+//                        Direction = part.Direction,
+//                        Ordinal = part.Ordinal
+//                    })
+//                    .ToArray(),
                 Lanes = AddSegment2.Lanes
                     .Select((lane, index) => new Messages.RoadSegmentLaneAttributes
                     {
@@ -507,15 +507,15 @@ namespace RoadRegistry.Model
                 AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
                 LeftSideStreetNameId = Fixture.Create<int?>(),
                 RightSideStreetNameId = Fixture.Create<int?>(),
-                PartOfEuropeanRoads = Fixture
-                    .CreateMany<Messages.RoadSegmentEuropeanRoadAttributes>(new Random().Next(0, 10))
-                    .ToArray(),
-                PartOfNationalRoads = Fixture
-                    .CreateMany<Messages.RoadSegmentNationalRoadAttributes>(new Random().Next(0, 10))
-                    .ToArray(),
-                PartOfNumberedRoads = Fixture
-                    .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(new Random().Next(0, 10))
-                    .ToArray(),
+//                PartOfEuropeanRoads = Fixture
+//                    .CreateMany<Messages.RoadSegmentEuropeanRoadAttributes>(new Random().Next(0, 10))
+//                    .ToArray(),
+//                PartOfNationalRoads = Fixture
+//                    .CreateMany<Messages.RoadSegmentNationalRoadAttributes>(new Random().Next(0, 10))
+//                    .ToArray(),
+//                PartOfNumberedRoads = Fixture
+//                    .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(new Random().Next(0, 10))
+//                    .ToArray(),
                 Lanes = Fixture
                     .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(new Random().Next(0, 10))
                     .Select((part, index) =>
@@ -571,29 +571,29 @@ namespace RoadRegistry.Model
                 {
                     StreetNameId = AddSegment3.RightSideStreetNameId
                 },
-                PartOfEuropeanRoads = AddSegment3.PartOfEuropeanRoads
-                    .Select((part, index) => new Messages.RoadSegmentEuropeanRoadAttributes
-                    {
-                        AttributeId = europeanRoadCount * 2 + index + 1,
-                        RoadNumber = part.RoadNumber
-                    })
-                    .ToArray(),
-                PartOfNationalRoads = AddSegment3.PartOfNationalRoads
-                    .Select((part, index) => new Messages.RoadSegmentNationalRoadAttributes
-                    {
-                        AttributeId = nationalRoadCount * 2 + index + 1,
-                        Ident2 = part.Ident2
-                    })
-                    .ToArray(),
-                PartOfNumberedRoads = AddSegment3.PartOfNumberedRoads
-                    .Select((part, index) => new Messages.RoadSegmentNumberedRoadAttributes
-                    {
-                        AttributeId = numberedRoadCount * 2 + index + 1,
-                        Ident8 = part.Ident8,
-                        Direction = part.Direction,
-                        Ordinal = part.Ordinal
-                    })
-                    .ToArray(),
+//                PartOfEuropeanRoads = AddSegment3.PartOfEuropeanRoads
+//                    .Select((part, index) => new Messages.RoadSegmentEuropeanRoadAttributes
+//                    {
+//                        AttributeId = europeanRoadCount * 2 + index + 1,
+//                        RoadNumber = part.RoadNumber
+//                    })
+//                    .ToArray(),
+//                PartOfNationalRoads = AddSegment3.PartOfNationalRoads
+//                    .Select((part, index) => new Messages.RoadSegmentNationalRoadAttributes
+//                    {
+//                        AttributeId = nationalRoadCount * 2 + index + 1,
+//                        Ident2 = part.Ident2
+//                    })
+//                    .ToArray(),
+//                PartOfNumberedRoads = AddSegment3.PartOfNumberedRoads
+//                    .Select((part, index) => new Messages.RoadSegmentNumberedRoadAttributes
+//                    {
+//                        AttributeId = numberedRoadCount * 2 + index + 1,
+//                        Ident8 = part.Ident8,
+//                        Direction = part.Direction,
+//                        Ordinal = part.Ordinal
+//                    })
+//                    .ToArray(),
                 Lanes = AddSegment3.Lanes
                     .Select((lane, index) => new Messages.RoadSegmentLaneAttributes
                     {

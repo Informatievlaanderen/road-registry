@@ -7,25 +7,25 @@ namespace RoadRegistry.Model
     using FluentValidation.TestHelper;
     using Xunit;
 
-    public class RoadSegmentEuropeanRoadAttributesValidatorTests
+    public class AddRoadSegmentToEuropeanRoadValidatorTests
     {
-        public RoadSegmentEuropeanRoadAttributesValidatorTests()
+        public AddRoadSegmentToEuropeanRoadValidatorTests()
         {
             Fixture = new Fixture();
             Fixture.CustomizeAttributeId();
-            Validator = new RoadSegmentEuropeanRoadAttributesValidator();
+            Validator = new AddRoadSegmentToEuropeanRoadValidator();
         }
 
         public Fixture Fixture { get; }
 
-        public RoadSegmentEuropeanRoadAttributesValidator Validator { get; }
+        public AddRoadSegmentToEuropeanRoadValidator Validator { get; }
 
         [Theory]
         [InlineData(int.MinValue)]
         [InlineData(-1)]
-        public void AttributeIdMustBeGreaterThan(int value)
+        public void TemporaryAttributeIdMustBeGreaterThan(int value)
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.AttributeId, value);
+            Validator.ShouldHaveValidationErrorFor(c => c.TemporaryAttributeId, value);
         }
 
         [Fact]
@@ -39,9 +39,9 @@ namespace RoadRegistry.Model
         [Fact]
         public void VerifyValid()
         {
-            var data = new Messages.RoadSegmentEuropeanRoadAttributes
+            var data = new Messages.AddRoadSegmentToEuropeanRoad
             {
-                AttributeId = Fixture.Create<AttributeId>(),
+                TemporaryAttributeId = Fixture.Create<AttributeId>(),
                 RoadNumber = EuropeanRoadNumber.All[new Random().Next(0, EuropeanRoadNumber.All.Length)].ToString()
             };
 

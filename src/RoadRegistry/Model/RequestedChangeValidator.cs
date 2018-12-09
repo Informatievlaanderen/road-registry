@@ -9,6 +9,9 @@
         {
             RuleFor(c => c.AddRoadNode).SetValidator(new AddRoadNodeValidator());
             RuleFor(c => c.AddRoadSegment).SetValidator(new AddRoadSegmentValidator());
+            RuleFor(c => c.AddRoadSegmentToEuropeanRoad).SetValidator(new AddRoadSegmentToEuropeanRoadValidator());
+            RuleFor(c => c.AddRoadSegmentToNationalRoad).SetValidator(new AddRoadSegmentToNationalRoadValidator());
+            RuleFor(c => c.AddRoadSegmentToNumberedRoad).SetValidator(new AddRoadSegmentToNumberedRoadValidator());
         }
     }
 }
