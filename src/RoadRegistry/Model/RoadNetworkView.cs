@@ -17,7 +17,10 @@ namespace RoadRegistry.Model
             new AttributeId(0),
             new AttributeId(0),
             new AttributeId(0),
-            new AttributeId(0));
+            new AttributeId(0),
+            ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
+            ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
+            ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty);
 
         private readonly ImmutableDictionary<RoadNodeId, RoadNode> _nodes;
         private readonly ImmutableDictionary<RoadSegmentId, RoadSegment> _segments;
@@ -29,6 +32,12 @@ namespace RoadRegistry.Model
         private readonly AttributeId _maximumLaneAttributeId;
         private readonly AttributeId _maximumWidthAttributeId;
         private readonly AttributeId _maximumSurfaceAttributeId;
+        private readonly ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>
+            _segmentLaneAttributeIdentifiers;
+        private readonly ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>
+            _segmentWidthAttributeIdentifiers;
+        private readonly ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>
+            _segmentSurfaceAttributeIdentifiers;
 
         private RoadNetworkView(
             ImmutableDictionary<RoadNodeId, RoadNode> nodes,
@@ -40,7 +49,10 @@ namespace RoadRegistry.Model
             AttributeId maximumNumberedRoadAttributeId,
             AttributeId maximumLaneAttributeId,
             AttributeId maximumWidthAttributeId,
-            AttributeId maximumSurfaceAttributeId)
+            AttributeId maximumSurfaceAttributeId,
+            ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> segmentLaneAttributeIdentifiers,
+            ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> segmentWidthAttributeIdentifiers,
+            ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> segmentSurfaceAttributeIdentifiers)
         {
             _nodes = nodes;
             _segments = segments;
@@ -52,6 +64,9 @@ namespace RoadRegistry.Model
             _maximumLaneAttributeId = maximumLaneAttributeId;
             _maximumWidthAttributeId = maximumWidthAttributeId;
             _maximumSurfaceAttributeId = maximumSurfaceAttributeId;
+            _segmentLaneAttributeIdentifiers = segmentLaneAttributeIdentifiers;
+            _segmentWidthAttributeIdentifiers = segmentWidthAttributeIdentifiers;
+            _segmentSurfaceAttributeIdentifiers = segmentSurfaceAttributeIdentifiers;
         }
 
         public IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes => _nodes;
@@ -64,6 +79,15 @@ namespace RoadRegistry.Model
         public AttributeId MaximumLaneAttributeId => _maximumLaneAttributeId;
         public AttributeId MaximumWidthAttributeId => _maximumWidthAttributeId;
         public AttributeId MaximumSurfaceAttributeId => _maximumSurfaceAttributeId;
+
+        public ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentLaneAttributeIdentifiers =>
+            _segmentLaneAttributeIdentifiers;
+
+        public ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentWidthAttributeIdentifiers =>
+            _segmentWidthAttributeIdentifiers;
+
+        public ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentSurfaceAttributeIdentifiers =>
+            _segmentSurfaceAttributeIdentifiers;
 
         public RoadNetworkView Given(Messages.ImportedRoadNode @event)
         {
@@ -80,8 +104,10 @@ namespace RoadRegistry.Model
                 _maximumNumberedRoadAttributeId,
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
-                _maximumSurfaceAttributeId
-            );
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
         }
 
         public RoadNetworkView Given(Messages.ImportedRoadSegment @event)
@@ -147,8 +173,16 @@ namespace RoadRegistry.Model
                     ? AttributeId.Max(
                         new AttributeId(@event.Surfaces.Max(_ => _.AttributeId)),
                         _maximumSurfaceAttributeId)
-                    : _maximumSurfaceAttributeId
-            );
+                    : _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers
+                    .Remove(id)
+                    .Add(id, @event.Lanes.Select(lane => new AttributeId(lane.AttributeId)).ToArray()),
+                _segmentWidthAttributeIdentifiers
+                    .Remove(id)
+                    .Add(id, @event.Widths.Select(width => new AttributeId(width.AttributeId)).ToArray()),
+                _segmentSurfaceAttributeIdentifiers
+                    .Remove(id)
+                    .Add(id, @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)).ToArray()));
         }
 
         public RoadNetworkView Given(Messages.RoadNetworkChangesAccepted @event)
@@ -194,8 +228,10 @@ namespace RoadRegistry.Model
                 _maximumNumberedRoadAttributeId,
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
-                _maximumSurfaceAttributeId
-            );
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
         }
 
         private RoadNetworkView Given(Messages.RoadSegmentAdded @event)
@@ -248,8 +284,16 @@ namespace RoadRegistry.Model
                     ? AttributeId.Max(
                         new AttributeId(@event.Surfaces.Max(_ => _.AttributeId)),
                         _maximumSurfaceAttributeId)
-                    : _maximumSurfaceAttributeId
-            );
+                    : _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers
+                    .Remove(id)
+                    .Add(id, @event.Lanes.Select(lane => new AttributeId(lane.AttributeId)).ToArray()),
+                _segmentWidthAttributeIdentifiers
+                    .Remove(id)
+                    .Add(id, @event.Widths.Select(width => new AttributeId(width.AttributeId)).ToArray()),
+                _segmentSurfaceAttributeIdentifiers
+                    .Remove(id)
+                    .Add(id, @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)).ToArray()));
         }
 
         private RoadNetworkView Given(Messages.RoadSegmentAddedToEuropeanRoad @event)
@@ -264,8 +308,10 @@ namespace RoadRegistry.Model
                 _maximumNumberedRoadAttributeId,
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
-                _maximumSurfaceAttributeId
-            );
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
         }
 
         private RoadNetworkView Given(Messages.RoadSegmentAddedToNationalRoad @event)
@@ -280,8 +326,10 @@ namespace RoadRegistry.Model
                 _maximumNumberedRoadAttributeId,
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
-                _maximumSurfaceAttributeId
-            );
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
         }
 
         private RoadNetworkView Given(Messages.RoadSegmentAddedToNumberedRoad @event)
@@ -296,8 +344,10 @@ namespace RoadRegistry.Model
                 AttributeId.Max(new AttributeId(@event.AttributeId), _maximumNumberedRoadAttributeId),
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
-                _maximumSurfaceAttributeId
-            );
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
         }
 
         public RoadNetworkView When(IReadOnlyCollection<IRequestedChange> changes)
@@ -344,8 +394,10 @@ namespace RoadRegistry.Model
                 _maximumNumberedRoadAttributeId,
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
-                _maximumSurfaceAttributeId
-            );
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
         }
 
         private RoadNetworkView When(AddRoadSegment command)
@@ -372,8 +424,16 @@ namespace RoadRegistry.Model
                 _maximumNumberedRoadAttributeId,
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
-                _maximumSurfaceAttributeId
-            );
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers
+                    .Remove(command.Id)
+                    .Add(command.Id, command.Lanes.Select(lane => lane.Id).ToArray()),
+                _segmentWidthAttributeIdentifiers
+                    .Remove(command.Id)
+                    .Add(command.Id, command.Widths.Select(width => width.Id).ToArray()),
+                _segmentSurfaceAttributeIdentifiers
+                    .Remove(command.Id)
+                    .Add(command.Id, command.Surfaces.Select(surface => surface.Id).ToArray()));
         }
 
         private RoadNetworkView When(AddRoadSegmentToEuropeanRoad command)
@@ -388,8 +448,10 @@ namespace RoadRegistry.Model
                 _maximumNumberedRoadAttributeId,
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
-                _maximumSurfaceAttributeId
-            );
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
         }
 
         private RoadNetworkView When(AddRoadSegmentToNationalRoad command)
@@ -404,8 +466,10 @@ namespace RoadRegistry.Model
                 _maximumNumberedRoadAttributeId,
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
-                _maximumSurfaceAttributeId
-            );
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
         }
 
         private RoadNetworkView When(AddRoadSegmentToNumberedRoad command)
@@ -420,8 +484,10 @@ namespace RoadRegistry.Model
                 AttributeId.Max(command.AttributeId, _maximumNumberedRoadAttributeId),
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
-                _maximumSurfaceAttributeId
-            );
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
         }
     }
 }

@@ -19,20 +19,5 @@ namespace RoadRegistry.Model
             }
             return dictionary;
         }
-        public static ImmutableDictionary<TKey, TValue> AddOrReplaceValue<TKey, TValue>(
-            this ImmutableDictionary<TKey, TValue> dictionary,
-            TKey key,
-            TValue value,
-            Converter<TValue, TValue> replacer
-        )
-        {
-            if(dictionary.TryGetValue(key, out TValue replaceable))
-            {
-                return dictionary
-                    .Remove(key)
-                    .Add(key, replacer(replaceable));
-            }
-            return dictionary.Add(key, value);
-        }
     }
 }

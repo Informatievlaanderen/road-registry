@@ -68,18 +68,22 @@ namespace RoadRegistry.Model
                             }
                             else if (addRoadNode.Type == RoadNodeType.FakeNode)
                             {
-                                var segments = node.Segments.Select(segmentId => requestView.Segments[segmentId]).ToArray();
+                                var segments = node.Segments.Select(segmentId => requestView.Segments[segmentId])
+                                    .ToArray();
                                 var segment1 = segments[0];
                                 var segment2 = segments[1];
                                 if (segment1.AttributeHash.Equals(segment2.AttributeHash))
                                 {
-                                    problems = problems.FakeRoadNodeConnectedSegmentsDoNotDiffer(segment1.Id, segment2.Id);
+                                    problems = problems.FakeRoadNodeConnectedSegmentsDoNotDiffer(segment1.Id,
+                                        segment2.Id);
                                 }
                             }
                         }
-                        else if (connectedSegmentCount > 2 && !addRoadNode.Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
+                        else if (connectedSegmentCount > 2 &&
+                                 !addRoadNode.Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
                         {
-                            problems = problems.RoadNodeTypeMismatch(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout);
+                            problems = problems.RoadNodeTypeMismatch(RoadNodeType.RealNode,
+                                RoadNodeType.MiniRoundabout);
                         }
 
                         if (problems.AreAcceptable())
@@ -154,9 +158,9 @@ namespace RoadRegistry.Model
 
                         var position = new RoadSegmentPosition(0.0m);
                         var index = 0;
-                        foreach(var attribute in addRoadSegment.Lanes)
+                        foreach (var attribute in addRoadSegment.Lanes)
                         {
-                            if(attribute.From != position)
+                            if (attribute.From != position)
                             {
                                 if (index == 0)
                                 {
@@ -164,16 +168,19 @@ namespace RoadRegistry.Model
                                 }
                                 else
                                 {
-                                    problems = problems.RoadSegmentLaneAttributeNotAdjacentToPrevious(attribute.From, position);
+                                    problems = problems.RoadSegmentLaneAttributeNotAdjacentToPrevious(attribute.From,
+                                        position);
                                 }
                             }
+
                             position = attribute.To;
                             index++;
                             if (index == addRoadSegment.Lanes.Count)
                             {
                                 if (Math.Abs(Convert.ToDouble(attribute.To.ToDecimal()) - line.Length) > 0.0)
                                 {
-                                    problems = problems.RoadSegmentLaneAttributeLastToPositionNotEqualToLength(attribute.To, line.Length);
+                                    problems = problems.RoadSegmentLaneAttributeLastToPositionNotEqualToLength(
+                                        attribute.To, line.Length);
                                 }
                             }
                         }
@@ -266,21 +273,6 @@ namespace RoadRegistry.Model
             return new NextAttributeIdProvider(_view.MaximumNumberedRoadAttributeId).Next;
         }
 
-        public Func<AttributeId> ProvidesNextLaneAttributeId()
-        {
-            return new NextAttributeIdProvider(_view.MaximumLaneAttributeId).Next;
-        }
-
-        public Func<AttributeId> ProvidesNextWidthAttributeId()
-        {
-            return new NextAttributeIdProvider(_view.MaximumWidthAttributeId).Next;
-        }
-
-        public Func<AttributeId> ProvidesNextSurfaceAttributeId()
-        {
-            return new NextAttributeIdProvider(_view.MaximumSurfaceAttributeId).Next;
-        }
-
         private class NextAttributeIdProvider
         {
             private AttributeId _current;
@@ -295,6 +287,69 @@ namespace RoadRegistry.Model
                 var next = _current.Next();
                 _current = next;
                 return next;
+            }
+        }
+
+        public Func<RoadSegmentId, Func<AttributeId>> ProvidesNextRoadSegmentLaneAttributeId()
+        {
+            return id =>
+            {
+                var provider = new NextAttributeIdProvider(_view.MaximumLaneAttributeId);
+                if (_view.SegmentLaneAttributeIdentifiers.TryGetValue(id, out var recycledAttributeIdentifiers)
+                    && recycledAttributeIdentifiers.Count != 0)
+                {
+                    return new NextRecycledAttributeIdProvider(provider, recycledAttributeIdentifiers).Next;
+                }
+                return provider.Next;
+            };
+        }
+
+        public Func<RoadSegmentId, Func<AttributeId>> ProvidesNextRoadSegmentWidthAttributeId()
+        {
+            return id =>
+            {
+                var provider = new NextAttributeIdProvider(_view.MaximumWidthAttributeId);
+                if (_view.SegmentWidthAttributeIdentifiers.TryGetValue(id, out var recycledAttributeIdentifiers)
+                    && recycledAttributeIdentifiers.Count != 0)
+                {
+                    return new NextRecycledAttributeIdProvider(provider, recycledAttributeIdentifiers).Next;
+                }
+
+                return provider.Next;
+            };
+        }
+
+        public Func<RoadSegmentId, Func<AttributeId>> ProvidesNextRoadSegmentSurfaceAttributeId()
+        {
+            return id =>
+            {
+                var provider = new NextAttributeIdProvider(_view.MaximumSurfaceAttributeId);
+                if (_view.SegmentSurfaceAttributeIdentifiers.TryGetValue(id, out var recycledAttributeIdentifiers)
+                    && recycledAttributeIdentifiers.Count != 0)
+                {
+                    return new NextRecycledAttributeIdProvider(provider, recycledAttributeIdentifiers).Next;
+                }
+
+                return provider.Next;
+            };
+        }
+
+        private class NextRecycledAttributeIdProvider
+        {
+            private int _index;
+            private readonly NextAttributeIdProvider _provider;
+            private readonly IReadOnlyList<AttributeId> _recycledAttributeIdentifiers;
+
+            public NextRecycledAttributeIdProvider(NextAttributeIdProvider provider, IReadOnlyList<AttributeId> recycledAttributeIdentifiers)
+            {
+                _provider = provider;
+                _index = 0;
+                _recycledAttributeIdentifiers = recycledAttributeIdentifiers;
+            }
+
+            public AttributeId Next()
+            {
+                return _index < _recycledAttributeIdentifiers.Count ? _recycledAttributeIdentifiers[_index++] : _provider.Next();
             }
         }
     }

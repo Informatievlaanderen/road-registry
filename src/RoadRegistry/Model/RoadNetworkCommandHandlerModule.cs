@@ -25,12 +25,12 @@ namespace RoadRegistry.Model
                         network.ProvidesNextEuropeanRoadAttributeId(),
                         network.ProvidesNextNationalRoadAttributeId(),
                         network.ProvidesNextNumberedRoadAttributeId(),
-                        network.ProvidesNextLaneAttributeId(),
-                        network.ProvidesNextWidthAttributeId(),
-                        network.ProvidesNextSurfaceAttributeId()
+                        network.ProvidesNextRoadSegmentLaneAttributeId(),
+                        network.ProvidesNextRoadSegmentWidthAttributeId(),
+                        network.ProvidesNextRoadSegmentSurfaceAttributeId()
                     );
-                    var changeSet = translator.Translate(message.Body.Changes);
-                    network.Change(changeSet);
+                    var requestedChanges = translator.Translate(message.Body.Changes);
+                    network.Change(requestedChanges);
                 });
         }
     }
