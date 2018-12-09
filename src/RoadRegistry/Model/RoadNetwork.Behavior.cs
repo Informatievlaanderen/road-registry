@@ -158,29 +158,30 @@ namespace RoadRegistry.Model
 
                         var position = new RoadSegmentPosition(0.0m);
                         var index = 0;
-                        foreach (var attribute in addRoadSegment.Lanes)
+                        foreach (var lane in addRoadSegment.Lanes)
                         {
-                            if (attribute.From != position)
+                            if (lane.From != position)
                             {
                                 if (index == 0)
                                 {
-                                    problems = problems.RoadSegmentLaneAttributeFirstFromPositionNotEqualToZero();
+                                    problems =
+                                        problems.RoadSegmentLaneAttributeFromPositionNotEqualToZero(lane.TemporaryId);
                                 }
                                 else
                                 {
-                                    problems = problems.RoadSegmentLaneAttributeNotAdjacentToPrevious(attribute.From,
-                                        position);
+                                    problems = problems.RoadSegmentLaneAttributesNotAdjacent(
+                                        addRoadSegment.Lanes[index - 1].TemporaryId,
+                                        lane.TemporaryId);
                                 }
                             }
-
-                            position = attribute.To;
+                            position = lane.To;
                             index++;
                             if (index == addRoadSegment.Lanes.Count)
                             {
-                                if (Math.Abs(Convert.ToDouble(attribute.To.ToDecimal()) - line.Length) > 0.0)
+                                if (Math.Abs(Convert.ToDouble(lane.To.ToDecimal()) - line.Length) > 0.0)
                                 {
-                                    problems = problems.RoadSegmentLaneAttributeLastToPositionNotEqualToLength(
-                                        attribute.To, line.Length);
+                                    problems =
+                                        problems.RoadSegmentLaneAttributeToPositionNotEqualToLength(lane.TemporaryId);
                                 }
                             }
                         }

@@ -4,7 +4,7 @@ namespace RoadRegistry.Model
     {
         public RoadSegmentSurfaceAttribute(
             AttributeId id,
-            AttributeId? temporaryId,
+            AttributeId temporaryId,
             RoadSegmentSurfaceType type,
             RoadSegmentPosition from,
             RoadSegmentPosition to,

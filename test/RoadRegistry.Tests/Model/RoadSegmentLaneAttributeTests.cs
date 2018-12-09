@@ -33,7 +33,7 @@ namespace RoadRegistry.Model
         {
             var generator = new Generator<RoadSegmentPosition>(_fixture);
             var attributeId = _fixture.Create<AttributeId>();
-            var temporaryId = _fixture.Create<AttributeId?>();
+            var temporaryId = _fixture.Create<AttributeId>();
             var laneCount = _fixture.Create<RoadSegmentLaneCount>();
             var laneDirection = _fixture.Create<RoadSegmentLaneDirection>();
             var from = generator.First();

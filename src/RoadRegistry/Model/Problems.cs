@@ -139,31 +139,31 @@ namespace RoadRegistry.Model
                 _requestedChanges);
         }
 
-        public Problems RoadSegmentLaneAttributeFirstFromPositionNotEqualToZero()
+        public Problems RoadSegmentLaneAttributeFromPositionNotEqualToZero(AttributeId attributeId)
         {
             return new Problems(
                 _problems.Add(
-                    new Error(nameof(RoadSegmentLaneAttributeFirstFromPositionNotEqualToZero))),
+                    new Error(nameof(RoadSegmentLaneAttributeFromPositionNotEqualToZero),
+                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))),
                 _requestedChanges);
         }
 
-        public Problems RoadSegmentLaneAttributeNotAdjacentToPrevious(RoadSegmentPosition from, RoadSegmentPosition to)
+        public Problems RoadSegmentLaneAttributesNotAdjacent(AttributeId attributeId1, AttributeId attributeId2)
         {
             return new Problems(
                 _problems.Add(
-                    new Error(nameof(RoadSegmentLaneAttributeNotAdjacentToPrevious),
-                        new ProblemParameter("From", from.ToString()),
-                        new ProblemParameter("To", to.ToString()))),
+                    new Error(nameof(RoadSegmentLaneAttributesNotAdjacent),
+                        new ProblemParameter("AttributeId", attributeId1.ToInt32().ToString()),
+                        new ProblemParameter("AttributeId", attributeId2.ToInt32().ToString()))),
                 _requestedChanges);
         }
 
-        public Problems RoadSegmentLaneAttributeLastToPositionNotEqualToLength(RoadSegmentPosition to, double length)
+        public Problems RoadSegmentLaneAttributeToPositionNotEqualToLength(AttributeId attributeId)
         {
             return new Problems(
                 _problems.Add(
-                    new Error(nameof(RoadSegmentLaneAttributeLastToPositionNotEqualToLength),
-                        new ProblemParameter("To", to.ToString()),
-                        new ProblemParameter("Length", length.ToString(CultureInfo.InvariantCulture)))),
+                    new Error(nameof(RoadSegmentLaneAttributeToPositionNotEqualToLength),
+                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))),
                 _requestedChanges);
         }
     }

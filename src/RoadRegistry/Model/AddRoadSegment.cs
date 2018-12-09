@@ -22,9 +22,9 @@ namespace RoadRegistry.Model
             RoadSegmentAccessRestriction accessRestriction,
             CrabStreetnameId? leftSideStreetNameId,
             CrabStreetnameId? rightSideStreetNameId,
-            IReadOnlyCollection<RoadSegmentLaneAttribute> lanes,
-            IReadOnlyCollection<RoadSegmentWidthAttribute> widths,
-            IReadOnlyCollection<RoadSegmentSurfaceAttribute> surfaces)
+            IReadOnlyList<RoadSegmentLaneAttribute> lanes,
+            IReadOnlyList<RoadSegmentWidthAttribute> widths,
+            IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces)
         {
             Id = id;
             TemporaryId = temporaryId;
@@ -61,9 +61,9 @@ namespace RoadRegistry.Model
         public RoadSegmentAccessRestriction AccessRestriction { get; }
         public CrabStreetnameId? LeftSideStreetNameId { get; }
         public CrabStreetnameId? RightSideStreetNameId { get; }
-        public IReadOnlyCollection<RoadSegmentLaneAttribute> Lanes { get; }
-        public IReadOnlyCollection<RoadSegmentWidthAttribute> Widths { get; }
-        public IReadOnlyCollection<RoadSegmentSurfaceAttribute> Surfaces { get; }
+        public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
+        public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
+        public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
 
         public Messages.AcceptedChange Accept(IReadOnlyCollection<Problem> reasons)
         {
@@ -150,7 +150,7 @@ namespace RoadRegistry.Model
                     Lanes = Lanes
                         .Select(item => new Messages.RequestedRoadSegmentLaneAttribute
                         {
-                            AttributeId = item.TemporaryId ?? item.Id,
+                            AttributeId = item.TemporaryId,
                             Count = item.Count,
                             Direction = item.Direction,
                             FromPosition = item.From,
@@ -160,7 +160,7 @@ namespace RoadRegistry.Model
                     Widths = Widths
                         .Select(item => new Messages.RequestedRoadSegmentWidthAttribute
                         {
-                            AttributeId = item.TemporaryId ?? item.Id,
+                            AttributeId = item.TemporaryId,
                             Width = item.Width,
                             FromPosition = item.From,
                             ToPosition = item.To
@@ -169,7 +169,7 @@ namespace RoadRegistry.Model
                     Surfaces = Surfaces
                         .Select(item => new Messages.RequestedRoadSegmentSurfaceAttribute
                         {
-                            AttributeId = item.TemporaryId ?? item.Id,
+                            AttributeId = item.TemporaryId,
                             Type = item.Type,
                             FromPosition = item.From,
                             ToPosition = item.To

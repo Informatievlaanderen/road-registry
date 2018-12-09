@@ -4,7 +4,7 @@ namespace RoadRegistry.Model
     {
         public RoadSegmentWidthAttribute(
             AttributeId id,
-            AttributeId? temporaryId,
+            AttributeId temporaryId,
             RoadSegmentWidth width,
             RoadSegmentPosition from,
             RoadSegmentPosition to,

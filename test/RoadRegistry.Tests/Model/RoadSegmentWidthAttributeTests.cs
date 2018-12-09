@@ -32,7 +32,7 @@ namespace RoadRegistry.Model
         {
             var generator = new Generator<RoadSegmentPosition>(_fixture);
             var attributeId = _fixture.Create<AttributeId>();
-            var temporaryId = _fixture.Create<AttributeId?>();
+            var temporaryId = _fixture.Create<AttributeId>();
             var width = _fixture.Create<RoadSegmentWidth>();
             var from = generator.First();
             var to = generator.First(candidate => candidate > from);

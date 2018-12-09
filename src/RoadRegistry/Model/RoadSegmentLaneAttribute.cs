@@ -4,7 +4,7 @@ namespace RoadRegistry.Model
     {
         public RoadSegmentLaneAttribute(
             AttributeId id,
-            AttributeId? temporaryId,
+            AttributeId temporaryId,
             RoadSegmentLaneCount count,
             RoadSegmentLaneDirection direction,
             RoadSegmentPosition from,

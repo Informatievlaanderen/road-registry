@@ -6,7 +6,7 @@ namespace RoadRegistry.Model
     {
         protected DynamicRoadSegmentAttribute(
             AttributeId id,
-            AttributeId? temporaryId,
+            AttributeId temporaryId,
             RoadSegmentPosition from,
             RoadSegmentPosition to,
             GeometryVersion asOfGeometryVersion
@@ -27,7 +27,7 @@ namespace RoadRegistry.Model
 
         public AttributeId Id { get; }
 
-        public AttributeId? TemporaryId { get; }
+        public AttributeId TemporaryId { get; }
 
         public RoadSegmentPosition From { get; }
 
