@@ -1,10 +1,13 @@
 ﻿namespace RoadRegistry.Model
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.Globalization;
 
     public readonly struct RoadSegmentPosition : IEquatable<RoadSegmentPosition>, IComparable<RoadSegmentPosition>
     {
+        public static readonly RoadSegmentPosition Zero = new RoadSegmentPosition(0.0m);
+
         private readonly decimal _value;
 
         public RoadSegmentPosition(decimal value)
@@ -15,6 +18,7 @@
             _value = value;
         }
 
+        [Pure]
         public decimal ToDecimal() => _value;
         public bool Equals(RoadSegmentPosition other) => _value.Equals(other._value);
         public override bool Equals(object other) => other is RoadSegmentPosition id && Equals(id);

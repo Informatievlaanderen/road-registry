@@ -10,7 +10,6 @@ namespace RoadRegistry.Model
     using Testing;
     using Xunit;
     using NetTopologySuite.Geometries;
-    using LineString = NetTopologySuite.Geometries.LineString;
 
     public class RoadNetworkScenarios : RoadRegistryFixture
     {
@@ -218,12 +217,9 @@ namespace RoadRegistry.Model
                 Type = AddEndNode3.Type
             };
 
-            var laneCount = new Random().Next(0, 10);
-            var widthCount = new Random().Next(0, 10);
-            var surfaceCount = new Random().Next(0, 10);
-            var europeanRoadCount = new Random().Next(0, 10);
-            var nationalRoadCount = new Random().Next(0, 10);
-            var numberedRoadCount = new Random().Next(0, 10);
+            var laneCount1 = new Random().Next(1, 10);
+            var widthCount1 = new Random().Next(1, 10);
+            var surfaceCount1 = new Random().Next(1, 10);
             AddSegment1 = new Messages.AddRoadSegment
             {
                 TemporaryId = Fixture.Create<RoadSegmentId>(),
@@ -238,26 +234,25 @@ namespace RoadRegistry.Model
                 AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
                 LeftSideStreetNameId = Fixture.Create<int?>(),
                 RightSideStreetNameId = Fixture.Create<int?>(),
-//                PartOfEuropeanRoads = Fixture
-//                    .CreateMany<Messages.RoadSegmentEuropeanRoadAttributes>(europeanRoadCount)
-//                    .ToArray(),
-//                PartOfNationalRoads = Fixture
-//                    .CreateMany<Messages.RoadSegmentNationalRoadAttributes>(nationalRoadCount)
-//                    .ToArray(),
-//                PartOfNumberedRoads = Fixture
-//                    .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(numberedRoadCount)
-//                    .ToArray(),
                 Lanes = Fixture
-                    .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(laneCount)
+                    .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(laneCount1)
                     .Select((part, index) =>
                     {
-                        part.FromPosition = index * 5;
-                        part.ToPosition = (index + 1) * 5;
+                        part.FromPosition = index * (Convert.ToDecimal(MultiLineString1.Length) / laneCount1);
+                        if (index == laneCount1 - 1)
+                        {
+                            part.ToPosition = Convert.ToDecimal(MultiLineString1.Length);
+                        }
+                        else
+                        {
+                            part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString1.Length) / laneCount1);
+                        }
+
                         return part;
                     })
                     .ToArray(),
                 Widths = Fixture
-                    .CreateMany<Messages.RequestedRoadSegmentWidthAttribute>(widthCount)
+                    .CreateMany<Messages.RequestedRoadSegmentWidthAttribute>(widthCount1)
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -266,7 +261,7 @@ namespace RoadRegistry.Model
                     })
                     .ToArray(),
                 Surfaces = Fixture
-                    .CreateMany<Messages.RequestedRoadSegmentSurfaceAttribute>(surfaceCount)
+                    .CreateMany<Messages.RequestedRoadSegmentSurfaceAttribute>(surfaceCount1)
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -302,28 +297,6 @@ namespace RoadRegistry.Model
                 {
                     StreetNameId = AddSegment1.RightSideStreetNameId
                 },
-//                PartOfEuropeanRoads = AddSegment1.PartOfEuropeanRoads
-//                    .Select((part, index) => new Messages.RoadSegmentEuropeanRoadAttributes
-//                    {
-//                        AttributeId = index + 1, RoadNumber = part.RoadNumber
-//                    })
-//                    .ToArray(),
-//                PartOfNationalRoads = AddSegment1.PartOfNationalRoads
-//                    .Select((part, index) => new Messages.RoadSegmentNationalRoadAttributes
-//                    {
-//                        AttributeId = index + 1,
-//                        Ident2 = part.Ident2
-//                    })
-//                    .ToArray(),
-//                PartOfNumberedRoads = AddSegment1.PartOfNumberedRoads
-//                    .Select((part, index) => new Messages.RoadSegmentNumberedRoadAttributes
-//                    {
-//                        AttributeId = index + 1,
-//                        Ident8 = part.Ident8,
-//                        Direction = part.Direction,
-//                        Ordinal = part.Ordinal
-//                    })
-//                    .ToArray(),
                 Lanes = AddSegment1.Lanes
                     .Select((lane, index) => new Messages.RoadSegmentLaneAttributes
                     {
@@ -358,6 +331,9 @@ namespace RoadRegistry.Model
                 Version = 0
             };
 
+            var laneCount2 = new Random().Next(1, 10);
+            var widthCount2 = new Random().Next(1, 10);
+            var surfaceCount2 = new Random().Next(1, 10);
             AddSegment2 = new Messages.AddRoadSegment
             {
                 TemporaryId = AddSegment1.TemporaryId + 1,
@@ -372,26 +348,25 @@ namespace RoadRegistry.Model
                 AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
                 LeftSideStreetNameId = Fixture.Create<int?>(),
                 RightSideStreetNameId = Fixture.Create<int?>(),
-//                PartOfEuropeanRoads = Fixture
-//                    .CreateMany<Messages.RoadSegmentEuropeanRoadAttributes>(new Random().Next(0, 10))
-//                    .ToArray(),
-//                PartOfNationalRoads = Fixture
-//                    .CreateMany<Messages.RoadSegmentNationalRoadAttributes>(new Random().Next(0, 10))
-//                    .ToArray(),
-//                PartOfNumberedRoads = Fixture
-//                    .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(new Random().Next(0, 10))
-//                    .ToArray(),
                 Lanes = Fixture
-                    .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(laneCount2)
                     .Select((part, index) =>
                     {
-                        part.FromPosition = index * 5;
-                        part.ToPosition = (index + 1) * 5;
+                        part.FromPosition = index * (Convert.ToDecimal(MultiLineString2.Length) / laneCount2);
+                        if (index == laneCount2 - 1)
+                        {
+                            part.ToPosition = Convert.ToDecimal(MultiLineString2.Length);
+                        }
+                        else
+                        {
+                            part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString2.Length) / laneCount2);
+                        }
+
                         return part;
                     })
                     .ToArray(),
                 Widths = Fixture
-                    .CreateMany<Messages.RequestedRoadSegmentWidthAttribute>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentWidthAttribute>(widthCount2)
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -400,7 +375,7 @@ namespace RoadRegistry.Model
                     })
                     .ToArray(),
                 Surfaces = Fixture
-                    .CreateMany<Messages.RequestedRoadSegmentSurfaceAttribute>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentSurfaceAttribute>(surfaceCount2)
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -436,33 +411,10 @@ namespace RoadRegistry.Model
                 {
                     StreetNameId = AddSegment2.RightSideStreetNameId
                 },
-//                PartOfEuropeanRoads = AddSegment2.PartOfEuropeanRoads
-//                    .Select((part, index) => new Messages.RoadSegmentEuropeanRoadAttributes
-//                    {
-//                        AttributeId = europeanRoadCount + index + 1,
-//                        RoadNumber = part.RoadNumber
-//                    })
-//                    .ToArray(),
-//                PartOfNationalRoads = AddSegment2.PartOfNationalRoads
-//                    .Select((part, index) => new Messages.RoadSegmentNationalRoadAttributes
-//                    {
-//                        AttributeId = nationalRoadCount + index + 1,
-//                        Ident2 = part.Ident2
-//                    })
-//                    .ToArray(),
-//                PartOfNumberedRoads = AddSegment2.PartOfNumberedRoads
-//                    .Select((part, index) => new Messages.RoadSegmentNumberedRoadAttributes
-//                    {
-//                        AttributeId = numberedRoadCount + index + 1,
-//                        Ident8 = part.Ident8,
-//                        Direction = part.Direction,
-//                        Ordinal = part.Ordinal
-//                    })
-//                    .ToArray(),
                 Lanes = AddSegment2.Lanes
                     .Select((lane, index) => new Messages.RoadSegmentLaneAttributes
                     {
-                        AttributeId = laneCount + index + 1,
+                        AttributeId = laneCount1 + index + 1,
                         Direction = lane.Direction,
                         Count = lane.Count,
                         FromPosition = lane.FromPosition,
@@ -473,7 +425,7 @@ namespace RoadRegistry.Model
                 Widths = AddSegment2.Widths
                     .Select((width, index) => new Messages.RoadSegmentWidthAttributes
                     {
-                        AttributeId = widthCount + index + 1,
+                        AttributeId = widthCount1 + index + 1,
                         Width = width.Width,
                         FromPosition = width.FromPosition,
                         ToPosition = width.ToPosition,
@@ -483,7 +435,7 @@ namespace RoadRegistry.Model
                 Surfaces = AddSegment2.Surfaces
                     .Select((surface, index) => new Messages.RoadSegmentSurfaceAttributes
                     {
-                        AttributeId = surfaceCount + index + 1,
+                        AttributeId = surfaceCount1 + index + 1,
                         Type = surface.Type,
                         FromPosition = surface.FromPosition,
                         ToPosition = surface.ToPosition,
@@ -493,6 +445,9 @@ namespace RoadRegistry.Model
                 Version = 0
             };
 
+            var laneCount3 = new Random().Next(1, 10);
+            var widthCount3 = new Random().Next(1, 10);
+            var surfaceCount3 = new Random().Next(1, 10);
             AddSegment3 = new Messages.AddRoadSegment
             {
                 TemporaryId = AddSegment2.TemporaryId + 1,
@@ -507,26 +462,25 @@ namespace RoadRegistry.Model
                 AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
                 LeftSideStreetNameId = Fixture.Create<int?>(),
                 RightSideStreetNameId = Fixture.Create<int?>(),
-//                PartOfEuropeanRoads = Fixture
-//                    .CreateMany<Messages.RoadSegmentEuropeanRoadAttributes>(new Random().Next(0, 10))
-//                    .ToArray(),
-//                PartOfNationalRoads = Fixture
-//                    .CreateMany<Messages.RoadSegmentNationalRoadAttributes>(new Random().Next(0, 10))
-//                    .ToArray(),
-//                PartOfNumberedRoads = Fixture
-//                    .CreateMany<Messages.RoadSegmentNumberedRoadAttributes>(new Random().Next(0, 10))
-//                    .ToArray(),
                 Lanes = Fixture
-                    .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(laneCount3)
                     .Select((part, index) =>
                     {
-                        part.FromPosition = index * 5;
-                        part.ToPosition = (index + 1) * 5;
+                        part.FromPosition = index * (Convert.ToDecimal(MultiLineString3.Length) / laneCount3);
+                        if (index == laneCount3 - 1)
+                        {
+                            part.ToPosition = Convert.ToDecimal(MultiLineString3.Length);
+                        }
+                        else
+                        {
+                            part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString3.Length) / laneCount3);
+                        }
+
                         return part;
                     })
                     .ToArray(),
                 Widths = Fixture
-                    .CreateMany<Messages.RequestedRoadSegmentWidthAttribute>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentWidthAttribute>(widthCount3)
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -535,7 +489,7 @@ namespace RoadRegistry.Model
                     })
                     .ToArray(),
                 Surfaces = Fixture
-                    .CreateMany<Messages.RequestedRoadSegmentSurfaceAttribute>(new Random().Next(0, 10))
+                    .CreateMany<Messages.RequestedRoadSegmentSurfaceAttribute>(surfaceCount3)
                     .Select((part, index) =>
                     {
                         part.FromPosition = index * 5;
@@ -571,33 +525,10 @@ namespace RoadRegistry.Model
                 {
                     StreetNameId = AddSegment3.RightSideStreetNameId
                 },
-//                PartOfEuropeanRoads = AddSegment3.PartOfEuropeanRoads
-//                    .Select((part, index) => new Messages.RoadSegmentEuropeanRoadAttributes
-//                    {
-//                        AttributeId = europeanRoadCount * 2 + index + 1,
-//                        RoadNumber = part.RoadNumber
-//                    })
-//                    .ToArray(),
-//                PartOfNationalRoads = AddSegment3.PartOfNationalRoads
-//                    .Select((part, index) => new Messages.RoadSegmentNationalRoadAttributes
-//                    {
-//                        AttributeId = nationalRoadCount * 2 + index + 1,
-//                        Ident2 = part.Ident2
-//                    })
-//                    .ToArray(),
-//                PartOfNumberedRoads = AddSegment3.PartOfNumberedRoads
-//                    .Select((part, index) => new Messages.RoadSegmentNumberedRoadAttributes
-//                    {
-//                        AttributeId = numberedRoadCount * 2 + index + 1,
-//                        Ident8 = part.Ident8,
-//                        Direction = part.Direction,
-//                        Ordinal = part.Ordinal
-//                    })
-//                    .ToArray(),
                 Lanes = AddSegment3.Lanes
                     .Select((lane, index) => new Messages.RoadSegmentLaneAttributes
                     {
-                        AttributeId = laneCount * 2 + index + 1,
+                        AttributeId = laneCount1 + laneCount2 + index + 1,
                         Direction = lane.Direction,
                         Count = lane.Count,
                         FromPosition = lane.FromPosition,
@@ -608,7 +539,7 @@ namespace RoadRegistry.Model
                 Widths = AddSegment3.Widths
                     .Select((width, index) => new Messages.RoadSegmentWidthAttributes
                     {
-                        AttributeId = widthCount * 2 + index + 1,
+                        AttributeId = widthCount1 + widthCount2 + index + 1,
                         Width = width.Width,
                         FromPosition = width.FromPosition,
                         ToPosition = width.ToPosition,
@@ -618,7 +549,7 @@ namespace RoadRegistry.Model
                 Surfaces = AddSegment3.Surfaces
                     .Select((surface, index) => new Messages.RoadSegmentSurfaceAttributes
                     {
-                        AttributeId = surfaceCount * 2 + index + 1,
+                        AttributeId = surfaceCount1 + surfaceCount2 + index + 1,
                         Type = surface.Type,
                         FromPosition = surface.FromPosition,
                         ToPosition = surface.ToPosition,
@@ -870,6 +801,8 @@ namespace RoadRegistry.Model
             AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
             AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint1);
             AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint2);
+            AddSegment1.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -882,6 +815,8 @@ namespace RoadRegistry.Model
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 });
             AddSegment2.StartNodeId = AddStartNode1.TemporaryId;
+            AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -970,6 +905,8 @@ namespace RoadRegistry.Model
             AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
             AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint1);
             AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint2);
+            AddSegment1.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -981,6 +918,8 @@ namespace RoadRegistry.Model
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 });
+            AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -1082,6 +1021,7 @@ namespace RoadRegistry.Model
             EndNode1Added.Geometry = AddEndNode1.Geometry;
             AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint2);
             EndNode2Added.Geometry = AddEndNode2.Geometry;
+            AddSegment1.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -1094,6 +1034,7 @@ namespace RoadRegistry.Model
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 });
             Segment1Added.Geometry = AddSegment1.Geometry;
+            AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -1112,6 +1053,8 @@ namespace RoadRegistry.Model
             Segment2Added.StartNodeId = StartNode1Added.Id;
             EndNode2Added.Id = 3;
             Segment2Added.EndNodeId = EndNode2Added.Id;
+            Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
+            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
 
             foreach (var index in Enumerable.Range(0, 7).Except(new[] {new Random().Next(0, 7)}))
             {
@@ -1227,6 +1170,8 @@ namespace RoadRegistry.Model
             AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
             AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint1);
             AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint2);
+            AddSegment1.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -1239,6 +1184,8 @@ namespace RoadRegistry.Model
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 });
             AddSegment2.EndNodeId = AddEndNode1.TemporaryId;
+            AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -1336,6 +1283,8 @@ namespace RoadRegistry.Model
             AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint1);
             AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint2);
             AddEndNode3.Geometry = GeometryTranslator.Translate(endPoint3);
+            AddSegment1.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -1348,6 +1297,8 @@ namespace RoadRegistry.Model
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 });
             AddSegment2.StartNodeId = AddStartNode1.TemporaryId;
+            AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -1360,6 +1311,8 @@ namespace RoadRegistry.Model
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 });
             AddSegment3.StartNodeId = AddStartNode1.TemporaryId;
+            AddSegment3.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment3Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment3.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -1465,6 +1418,8 @@ namespace RoadRegistry.Model
             AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint1);
             AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint2);
             AddStartNode3.Geometry = GeometryTranslator.Translate(startPoint3);
+            AddSegment1.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -1477,6 +1432,8 @@ namespace RoadRegistry.Model
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 });
             AddSegment2.EndNodeId = AddEndNode1.TemporaryId;
+            AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -1489,6 +1446,8 @@ namespace RoadRegistry.Model
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 });
             AddSegment3.EndNodeId = AddEndNode1.TemporaryId;
+            AddSegment3.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment3Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment3.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(new ILineString[]
                 {
@@ -1570,6 +1529,8 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_start_node_with_a_geometry_that_has_been_taken()
         {
+            AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
                     new ILineString[]
@@ -1650,6 +1611,8 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_an_end_node_with_a_geometry_that_has_been_taken()
         {
+            AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
                     new ILineString[]
@@ -1796,7 +1759,7 @@ namespace RoadRegistry.Model
                 }));
         }
 
-        [Fact]
+        [Fact(Skip = "This test should be about being within two meters of another segment")]
         public Task when_adding_a_start_node_that_is_within_two_meters_of_another_node()
         {
             var random = new Random();
@@ -1804,6 +1767,8 @@ namespace RoadRegistry.Model
                 StartPoint1.X + random.NextDouble() * RoadNetwork.TooCloseDistance,
                 StartPoint1.Y + random.NextDouble() * RoadNetwork.TooCloseDistance
             );
+            AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
                     new ILineString[]
@@ -1880,7 +1845,7 @@ namespace RoadRegistry.Model
             );
         }
 
-        [Fact]
+        [Fact(Skip = "This test should be about being within two meters of another segment")]
         public Task when_adding_an_end_node_that_is_within_two_meters_of_another_node()
         {
             var random = new Random();
@@ -1889,6 +1854,8 @@ namespace RoadRegistry.Model
                 EndPoint1.Y + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance,
                 EndPoint1.Z + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance
             );
+            AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
                     new ILineString[]
@@ -2161,6 +2128,31 @@ namespace RoadRegistry.Model
             AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
             AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
             AddSegment1.Geometry = GeometryTranslator.Translate(multiLineString);
+            AddSegment1.Lanes = AddSegment1.Lanes.Select((part, index) =>
+            {
+                part.FromPosition = index * (Convert.ToDecimal(multiLineString.Length) / AddSegment1.Lanes.Length);
+                if (index == AddSegment1.Lanes.Length - 1)
+                {
+                    part.ToPosition = Convert.ToDecimal(multiLineString.Length);
+                }
+                else
+                {
+                    part.ToPosition = (index + 1) * (Convert.ToDecimal(multiLineString.Length) / AddSegment1.Lanes.Length);
+                }
+
+                return part;
+            }).ToArray();
+            Segment1Added.Lanes = AddSegment1.Lanes
+                .Select((lane, index) => new Messages.RoadSegmentLaneAttributes
+                {
+                    AttributeId = index + 1,
+                    Direction = lane.Direction,
+                    Count = lane.Count,
+                    FromPosition = lane.FromPosition,
+                    ToPosition = lane.ToPosition,
+                    AsOfGeometryVersion = 1
+                })
+                .ToArray();
 
             return Run(scenario => scenario
                 .GivenNone()
@@ -2224,7 +2216,7 @@ namespace RoadRegistry.Model
                     new LineString(
                         new PointSequence(new[] { startPoint, middlePoint1, middlePoint2, endPoint }),
                         GeometryConfiguration.GeometryFactory
-                    ),
+                    )
                 })
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
@@ -2233,6 +2225,32 @@ namespace RoadRegistry.Model
             AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
             AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
             AddSegment1.Geometry = GeometryTranslator.Translate(multiLineString);
+            AddSegment1.Lanes = AddSegment1.Lanes.Select((part, index) =>
+            {
+                part.FromPosition = index * (Convert.ToDecimal(multiLineString.Length) / AddSegment1.Lanes.Length);
+                if (index == AddSegment1.Lanes.Length - 1)
+                {
+                    part.ToPosition = Convert.ToDecimal(multiLineString.Length);
+                }
+                else
+                {
+                    part.ToPosition = (index + 1) * (Convert.ToDecimal(multiLineString.Length) / AddSegment1.Lanes.Length);
+                }
+
+                return part;
+            }).ToArray();
+            Segment1Added.Lanes = AddSegment1.Lanes
+                .Select((lane, index) => new Messages.RoadSegmentLaneAttributes
+                {
+                    AttributeId = index + 1,
+                    Direction = lane.Direction,
+                    Count = lane.Count,
+                    FromPosition = lane.FromPosition,
+                    ToPosition = lane.ToPosition,
+                    AsOfGeometryVersion = 1
+                })
+                .ToArray();
+
 
             return Run(scenario => scenario
                 .GivenNone()
@@ -2551,6 +2569,8 @@ namespace RoadRegistry.Model
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
             AddSegment1.Geometry = GeometryTranslator.Translate(geometry);
+            AddSegment1.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
 
             return Run(scenario => scenario
                 .GivenNone()
@@ -2598,27 +2618,39 @@ namespace RoadRegistry.Model
                 fixture.CustomizeRoadSegmentLaneCount();
                 fixture.CustomizeRoadSegmentLaneDirection();
 
+                var attributeId = fixture.Create<AttributeId>();
                 yield return new object[]
                 {
                     new[]
                     {
                         new Messages.RequestedRoadSegmentLaneAttribute
                         {
-                            AttributeId = fixture.Create<AttributeId>(),
+                            AttributeId = attributeId,
                             FromPosition = 2.0m,
-                            ToPosition = 100.0m,
+                            ToPosition = 100m * Convert.ToDecimal(Math.Sqrt(2.0)),
                             Count = fixture.Create<RoadSegmentLaneCount>(),
                             Direction = fixture.Create<RoadSegmentLaneDirection>()
                         }
                     },
-                    "RoadSegmentLaneAttributeFirstFromPositionNotZero"
+                    new Messages.Problem
+                    {
+                        Reason =  "RoadSegmentLaneAttributeFromPositionNotEqualToZero",
+                        Parameters = new []
+                        {
+                            new Messages.ProblemParameter
+                            {
+                                Name = "AttributeId",
+                                Value = attributeId.ToInt32().ToString()
+                            }
+                        }
+                    }
                 };
             }
         }
 
         [Theory]
         [MemberData(nameof(NonAdjacentLaneAttributesCases))]
-        public Task when_adding_a_segment_with_non_adjacent_lane_attributes(Messages.RequestedRoadSegmentLaneAttribute[] attributes, string reason)
+        public Task when_adding_a_segment_with_non_adjacent_lane_attributes(Messages.RequestedRoadSegmentLaneAttribute[] attributes, Messages.Problem problem)
         {
             AddSegment1.Lanes = attributes;
 
@@ -2645,14 +2677,7 @@ namespace RoadRegistry.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[]
-                            {
-                                new Messages.Problem
-                                {
-                                    Reason = reason,
-                                    Parameters = new Messages.ProblemParameter[0]
-                                }
-                            },
+                            Errors = new[] { problem },
                             Warnings = new Messages.Problem[0]
                         }
                     }

@@ -350,7 +350,7 @@ namespace RoadRegistry.Model
                 _segmentSurfaceAttributeIdentifiers);
         }
 
-        public RoadNetworkView When(IReadOnlyCollection<IRequestedChange> changes)
+        public RoadNetworkView With(IReadOnlyCollection<IRequestedChange> changes)
         {
             if (changes == null)
                 throw new ArgumentNullException(nameof(changes));
@@ -361,19 +361,19 @@ namespace RoadRegistry.Model
                 switch (change)
                 {
                     case AddRoadNode addRoadNode:
-                        result = result.When(addRoadNode);
+                        result = result.With(addRoadNode);
                         break;
                     case AddRoadSegment addRoadSegment:
-                        result = result.When(addRoadSegment);
+                        result = result.With(addRoadSegment);
                         break;
                     case AddRoadSegmentToEuropeanRoad addRoadSegmentToEuropeanRoad:
-                        result = result.When(addRoadSegmentToEuropeanRoad);
+                        result = result.With(addRoadSegmentToEuropeanRoad);
                         break;
                     case AddRoadSegmentToNationalRoad addRoadSegmentToNationalRoad:
-                        result = result.When(addRoadSegmentToNationalRoad);
+                        result = result.With(addRoadSegmentToNationalRoad);
                         break;
                     case AddRoadSegmentToNumberedRoad addRoadSegmentToNumberedRoad:
-                        result = result.When(addRoadSegmentToNumberedRoad);
+                        result = result.With(addRoadSegmentToNumberedRoad);
                         break;
                 }
             }
@@ -381,7 +381,7 @@ namespace RoadRegistry.Model
             return result;
         }
 
-        private RoadNetworkView When(AddRoadNode command)
+        private RoadNetworkView With(AddRoadNode command)
         {
             var node = new RoadNode(command.Id, command.Geometry);
             return new RoadNetworkView(
@@ -400,7 +400,7 @@ namespace RoadRegistry.Model
                 _segmentSurfaceAttributeIdentifiers);
         }
 
-        private RoadNetworkView When(AddRoadSegment command)
+        private RoadNetworkView With(AddRoadSegment command)
         {
             var attributeHash = AttributeHash.None
                 .With(command.AccessRestriction)
@@ -436,7 +436,7 @@ namespace RoadRegistry.Model
                     .Add(command.Id, command.Surfaces.Select(surface => surface.Id).ToArray()));
         }
 
-        private RoadNetworkView When(AddRoadSegmentToEuropeanRoad command)
+        private RoadNetworkView With(AddRoadSegmentToEuropeanRoad command)
         {
             return new RoadNetworkView(
                 _nodes,
@@ -454,7 +454,7 @@ namespace RoadRegistry.Model
                 _segmentSurfaceAttributeIdentifiers);
         }
 
-        private RoadNetworkView When(AddRoadSegmentToNationalRoad command)
+        private RoadNetworkView With(AddRoadSegmentToNationalRoad command)
         {
             return new RoadNetworkView(
                 _nodes,
@@ -472,7 +472,7 @@ namespace RoadRegistry.Model
                 _segmentSurfaceAttributeIdentifiers);
         }
 
-        private RoadNetworkView When(AddRoadSegmentToNumberedRoad command)
+        private RoadNetworkView With(AddRoadSegmentToNumberedRoad command)
         {
             return new RoadNetworkView(
                 _nodes,

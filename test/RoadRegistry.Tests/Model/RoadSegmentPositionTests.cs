@@ -41,6 +41,12 @@
         }
 
         [Fact]
+        public void ZeroReturnsExpectedValue()
+        {
+            Assert.Equal(0.0m, RoadSegmentPosition.Zero.ToDecimal());
+        }
+
+        [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = _fixture.Create<decimal>();

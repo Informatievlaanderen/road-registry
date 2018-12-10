@@ -1,5 +1,6 @@
 namespace RoadRegistry.Model
 {
+    using System;
     using System.Linq;
     using Aiv.Vbr.Shaperon;
     using NetTopologySuite.Geometries;
@@ -21,7 +22,7 @@ namespace RoadRegistry.Model
                         new PointSequence(
                             new[]
                             {
-                                new PointM(fromPoint.X, fromPoint.Y),
+                                new PointM(Math.Round(fromPoint.X, 3), Math.Round(fromPoint.Y, 3)),
                                 new PointM(toPoint.X, toPoint.Y)
                             })
                         , GeometryConfiguration.GeometryFactory);

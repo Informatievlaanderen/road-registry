@@ -11,7 +11,7 @@ namespace RoadRegistry.Model
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
-            var requestView = _view.When(requestedChanges);
+            var requestView = _view.With(requestedChanges);
             var acceptedChanges = new List<AcceptedChange>();
             var rejectedChanges = new List<RejectedChange>();
             foreach (var change in requestedChanges)
@@ -35,17 +35,6 @@ namespace RoadRegistry.Model
                         {
                             problems = problems.RoadNodeGeometryTaken(byOtherNode.Id);
                         }
-                        else
-                        {
-                            var toOtherNode =
-                                requestView.Nodes.Values.FirstOrDefault(n =>
-                                    n.Id != addRoadNode.Id &&
-                                    n.Geometry.IsWithinDistance(addRoadNode.Geometry, TooCloseDistance));
-                            if (toOtherNode != null)
-                            {
-                                problems = problems.RoadNodeTooClose(toOtherNode.Id);
-                            }
-                        }
 
                         var node = requestView.Nodes[addRoadNode.Id];
                         var connectedSegmentCount = node.Segments.Count;
@@ -61,10 +50,7 @@ namespace RoadRegistry.Model
                         {
                             if (!addRoadNode.Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
                             {
-                                problems = problems.RoadNodeTypeMismatch(
-                                    RoadNodeType.FakeNode,
-                                    RoadNodeType.TurningLoopNode);
-
+                                problems = problems.RoadNodeTypeMismatch(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode);
                             }
                             else if (addRoadNode.Type == RoadNodeType.FakeNode)
                             {
@@ -74,16 +60,14 @@ namespace RoadRegistry.Model
                                 var segment2 = segments[1];
                                 if (segment1.AttributeHash.Equals(segment2.AttributeHash))
                                 {
-                                    problems = problems.FakeRoadNodeConnectedSegmentsDoNotDiffer(segment1.Id,
-                                        segment2.Id);
+                                    problems = problems.FakeRoadNodeConnectedSegmentsDoNotDiffer(segment1.Id, segment2.Id);
                                 }
                             }
                         }
                         else if (connectedSegmentCount > 2 &&
                                  !addRoadNode.Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
                         {
-                            problems = problems.RoadNodeTypeMismatch(RoadNodeType.RealNode,
-                                RoadNodeType.MiniRoundabout);
+                            problems = problems.RoadNodeTypeMismatch(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout);
                         }
 
                         if (problems.AreAcceptable())
@@ -106,7 +90,7 @@ namespace RoadRegistry.Model
 //                            reasons = reasons.BecauseRoadSegmentIdTaken();
 //                        }
 
-                        if (Math.Abs(addRoadSegment.Geometry.Length) <= 0.0)
+                        if (Math.Abs(addRoadSegment.Geometry.Length) <= 0.001)
                         {
                             problems = problems.RoadSegmentGeometryLengthIsZero();
                         }
@@ -156,33 +140,38 @@ namespace RoadRegistry.Model
                             problems = problems.RoadSegmentGeometrySelfIntersects();
                         }
 
-                        var position = new RoadSegmentPosition(0.0m);
-                        var index = 0;
+                        RoadSegmentLaneAttribute previousLane = null;
                         foreach (var lane in addRoadSegment.Lanes)
                         {
-                            if (lane.From != position)
+                            if (previousLane == null)
                             {
-                                if (index == 0)
+                                if (lane.From != RoadSegmentPosition.Zero)
                                 {
                                     problems =
                                         problems.RoadSegmentLaneAttributeFromPositionNotEqualToZero(lane.TemporaryId);
                                 }
-                                else
-                                {
-                                    problems = problems.RoadSegmentLaneAttributesNotAdjacent(
-                                        addRoadSegment.Lanes[index - 1].TemporaryId,
-                                        lane.TemporaryId);
-                                }
                             }
-                            position = lane.To;
-                            index++;
-                            if (index == addRoadSegment.Lanes.Count)
+                            else
                             {
-                                if (Math.Abs(Convert.ToDouble(lane.To.ToDecimal()) - line.Length) > 0.0)
+                                if (lane.From != previousLane.To)
                                 {
                                     problems =
-                                        problems.RoadSegmentLaneAttributeToPositionNotEqualToLength(lane.TemporaryId);
+                                        problems.RoadSegmentLaneAttributesNotAdjacent(
+                                            previousLane.TemporaryId,
+                                            lane.TemporaryId);
                                 }
+                            }
+
+                            previousLane = lane;
+                        }
+
+                        if (previousLane != null)
+                        {
+                            if (Math.Abs(Convert.ToDouble(previousLane.To.ToDecimal()) - line.Length) > 0.0001)
+                            {
+                                problems =
+                                    problems.RoadSegmentLaneAttributeToPositionNotEqualToLength(
+                                        previousLane.TemporaryId);
                             }
                         }
 
@@ -293,9 +282,9 @@ namespace RoadRegistry.Model
 
         public Func<RoadSegmentId, Func<AttributeId>> ProvidesNextRoadSegmentLaneAttributeId()
         {
+            var provider = new NextAttributeIdProvider(_view.MaximumLaneAttributeId);
             return id =>
             {
-                var provider = new NextAttributeIdProvider(_view.MaximumLaneAttributeId);
                 if (_view.SegmentLaneAttributeIdentifiers.TryGetValue(id, out var recycledAttributeIdentifiers)
                     && recycledAttributeIdentifiers.Count != 0)
                 {
@@ -307,9 +296,9 @@ namespace RoadRegistry.Model
 
         public Func<RoadSegmentId, Func<AttributeId>> ProvidesNextRoadSegmentWidthAttributeId()
         {
+            var provider = new NextAttributeIdProvider(_view.MaximumWidthAttributeId);
             return id =>
             {
-                var provider = new NextAttributeIdProvider(_view.MaximumWidthAttributeId);
                 if (_view.SegmentWidthAttributeIdentifiers.TryGetValue(id, out var recycledAttributeIdentifiers)
                     && recycledAttributeIdentifiers.Count != 0)
                 {
@@ -322,9 +311,9 @@ namespace RoadRegistry.Model
 
         public Func<RoadSegmentId, Func<AttributeId>> ProvidesNextRoadSegmentSurfaceAttributeId()
         {
+            var provider = new NextAttributeIdProvider(_view.MaximumSurfaceAttributeId);
             return id =>
             {
-                var provider = new NextAttributeIdProvider(_view.MaximumSurfaceAttributeId);
                 if (_view.SegmentSurfaceAttributeIdentifiers.TryGetValue(id, out var recycledAttributeIdentifiers)
                     && recycledAttributeIdentifiers.Count != 0)
                 {
