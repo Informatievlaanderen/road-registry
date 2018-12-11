@@ -167,11 +167,81 @@ namespace RoadRegistry.Model
 
                         if (previousLane != null)
                         {
-                            if (Math.Abs(Convert.ToDouble(previousLane.To.ToDecimal()) - line.Length) > 0.0001)
+                            if (Math.Abs(Math.Abs(Convert.ToDouble(previousLane.To.ToDecimal()) - line.Length)) > 0.0001)
                             {
                                 problems =
                                     problems.RoadSegmentLaneAttributeToPositionNotEqualToLength(
                                         previousLane.TemporaryId);
+                            }
+                        }
+
+                        RoadSegmentWidthAttribute previousWidth = null;
+                        foreach (var lane in addRoadSegment.Widths)
+                        {
+                            if (previousWidth == null)
+                            {
+                                if (lane.From != RoadSegmentPosition.Zero)
+                                {
+                                    problems =
+                                        problems.RoadSegmentWidthAttributeFromPositionNotEqualToZero(lane.TemporaryId);
+                                }
+                            }
+                            else
+                            {
+                                if (lane.From != previousWidth.To)
+                                {
+                                    problems =
+                                        problems.RoadSegmentWidthAttributesNotAdjacent(
+                                            previousWidth.TemporaryId,
+                                            lane.TemporaryId);
+                                }
+                            }
+
+                            previousWidth = lane;
+                        }
+
+                        if (previousWidth != null)
+                        {
+                            if (Math.Abs(Math.Abs(Convert.ToDouble(previousWidth.To.ToDecimal()) - line.Length)) > 0.0001)
+                            {
+                                problems =
+                                    problems.RoadSegmentWidthAttributeToPositionNotEqualToLength(
+                                        previousWidth.TemporaryId);
+                            }
+                        }
+
+                        RoadSegmentSurfaceAttribute previousSurface = null;
+                        foreach (var lane in addRoadSegment.Surfaces)
+                        {
+                            if (previousSurface == null)
+                            {
+                                if (lane.From != RoadSegmentPosition.Zero)
+                                {
+                                    problems =
+                                        problems.RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(lane.TemporaryId);
+                                }
+                            }
+                            else
+                            {
+                                if (lane.From != previousSurface.To)
+                                {
+                                    problems =
+                                        problems.RoadSegmentSurfaceAttributesNotAdjacent(
+                                            previousSurface.TemporaryId,
+                                            lane.TemporaryId);
+                                }
+                            }
+
+                            previousSurface = lane;
+                        }
+
+                        if (previousSurface != null)
+                        {
+                            if (Math.Abs(Math.Abs(Convert.ToDouble(previousSurface.To.ToDecimal()) - line.Length)) > 0.0001)
+                            {
+                                problems =
+                                    problems.RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
+                                        previousSurface.TemporaryId);
                             }
                         }
 
