@@ -49,7 +49,7 @@ namespace RoadRegistry.Model
                        change.AddRoadSegmentToNumberedRoad,
                        change.AddGradeSeparatedJunction
                    }
-                   .Count(_ => !ReferenceEquals(_, null)) != 1;
+                   .Count(_ => !ReferenceEquals(_, null)) == 1;
         }
 
         private static bool OnlyHaveUniqueRoadNodeIdentifiers(RequestedChange[] changes)
