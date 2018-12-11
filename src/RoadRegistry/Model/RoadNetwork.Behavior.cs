@@ -318,24 +318,30 @@ namespace RoadRegistry.Model
                         }
                     }
                         break;
-//                    case AddGradeSeparatedJunction addGradeSeparatedJunction:
-//                    {
-//                        if (!requestView.Segments.ContainsKey(ad.SegmentId))
-//                        {
-//                            problems = problems.RoadSegmentMissing(
-//                                addRoadSegmentToNumberedRoad.TemporarySegmentId ?? addRoadSegmentToNumberedRoad.SegmentId);
-//                        }
-//
-//                        if (problems.AreAcceptable())
-//                        {
-//                            acceptedChanges.Add(addGradeSeparatedJunction.Accept(problems));
-//                        }
-//                        else
-//                        {
-//                            rejectedChanges.Add(addGradeSeparatedJunction.Reject(problems));
-//                        }
-//                    }
-//                        break;
+                    case AddGradeSeparatedJunction addGradeSeparatedJunction:
+                    {
+                        if (!requestView.Segments.ContainsKey(addGradeSeparatedJunction.UpperSegmentId))
+                        {
+                            problems = problems.UpperRoadSegmentMissing(
+                                addGradeSeparatedJunction.TemporaryUpperSegmentId ?? addGradeSeparatedJunction.UpperSegmentId);
+                        }
+
+                        if (!requestView.Segments.ContainsKey(addGradeSeparatedJunction.LowerSegmentId))
+                        {
+                            problems = problems.LowerRoadSegmentMissing(
+                                addGradeSeparatedJunction.TemporaryLowerSegmentId ?? addGradeSeparatedJunction.LowerSegmentId);
+                        }
+
+                        if (problems.AreAcceptable())
+                        {
+                            acceptedChanges.Add(addGradeSeparatedJunction.Accept(problems));
+                        }
+                        else
+                        {
+                            rejectedChanges.Add(addGradeSeparatedJunction.Reject(problems));
+                        }
+                    }
+                        break;
                 }
             }
 

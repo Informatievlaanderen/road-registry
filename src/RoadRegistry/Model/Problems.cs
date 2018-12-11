@@ -231,5 +231,23 @@ namespace RoadRegistry.Model
                         new ProblemParameter("SegmentId", segmentId.ToInt32().ToString()))),
                 _requestedChanges);
         }
+
+        public Problems UpperRoadSegmentMissing(RoadSegmentId segmentId)
+        {
+            return new Problems(
+                _problems.Add(
+                    new Error(nameof(UpperRoadSegmentMissing),
+                        new ProblemParameter("SegmentId", segmentId.ToInt32().ToString()))),
+                _requestedChanges);
+        }
+
+        public Problems LowerRoadSegmentMissing(RoadSegmentId segmentId)
+        {
+            return new Problems(
+                _problems.Add(
+                    new Error(nameof(LowerRoadSegmentMissing),
+                        new ProblemParameter("SegmentId", segmentId.ToInt32().ToString()))),
+                _requestedChanges);
+        }
     }
 }
