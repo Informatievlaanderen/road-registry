@@ -10,6 +10,19 @@ namespace RoadRegistry.Model
 
     internal static class Customizations
     {
+        public static void CustomizeGradeSeparatedJunctionId(this IFixture fixture)
+        {
+            fixture.Customize<GradeSeparatedJunctionId>(composer =>
+                composer.FromFactory<int>(value => new GradeSeparatedJunctionId(Math.Abs(value)))
+            );
+        }
+
+        public static void CustomizeGradeSeparatedJunctionType(this IFixture fixture)
+        {
+            fixture.Customize<GradeSeparatedJunctionType>(composer =>
+                composer.FromFactory<int>(value => GradeSeparatedJunctionType.All[value % GradeSeparatedJunctionType.All.Length]));
+        }
+
         public static void CustomizeRoadNodeId(this IFixture fixture)
         {
             fixture.Customize<RoadNodeId>(composer =>

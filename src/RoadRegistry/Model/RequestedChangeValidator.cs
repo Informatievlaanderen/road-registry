@@ -12,6 +12,7 @@
             RuleFor(c => c.AddRoadSegmentToEuropeanRoad).SetValidator(new AddRoadSegmentToEuropeanRoadValidator());
             RuleFor(c => c.AddRoadSegmentToNationalRoad).SetValidator(new AddRoadSegmentToNationalRoadValidator());
             RuleFor(c => c.AddRoadSegmentToNumberedRoad).SetValidator(new AddRoadSegmentToNumberedRoadValidator());
+            RuleFor(c => c.AddGradeSeparatedJunction).SetValidator(new AddGradeSeparatedJunctionValidator());
         }
     }
 }

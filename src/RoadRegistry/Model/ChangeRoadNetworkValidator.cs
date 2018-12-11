@@ -25,8 +25,31 @@ namespace RoadRegistry.Model
                 .Must(OnlyHaveUniqueWidthAttributeIdentifiers)
                 .WithMessage("One or more width attribute identifiers are not unique.")
                 .Must(OnlyHaveUniqueSurfaceAttributeIdentifiers)
-                .WithMessage("One or more surface attribute identifiers are not unique.");
-            RuleForEach(c => c.Changes).NotNull().SetValidator(new RequestedChangeValidator());
+                .WithMessage("One or more surface attribute identifiers are not unique.")
+                .Must(OnlyHaveUniqueGradeSeparatedIdentifiers)
+                .WithMessage("One or more grade separated junction identifiers are not unique.");
+            RuleForEach(c => c.Changes)
+                .NotNull()
+                .Must(HaveExactlyOneNonNullChange)
+                .WithMessage("Exactly one change must be not null.")
+                .SetValidator(new RequestedChangeValidator());
+        }
+
+        private static bool HaveExactlyOneNonNullChange(RequestedChange change)
+        {
+            if (change == null) return true;
+
+            return
+                new object[]
+                   {
+                       change.AddRoadNode,
+                       change.AddRoadSegment,
+                       change.AddRoadSegmentToEuropeanRoad,
+                       change.AddRoadSegmentToNationalRoad,
+                       change.AddRoadSegmentToNumberedRoad,
+                       change.AddGradeSeparatedJunction
+                   }
+                   .Count(_ => !ReferenceEquals(_, null)) != 1;
         }
 
         private static bool OnlyHaveUniqueRoadNodeIdentifiers(RequestedChange[] changes)
@@ -47,6 +70,17 @@ namespace RoadRegistry.Model
             var identifiers = changes
                 .Where(change => change?.AddRoadSegment != null)
                 .Select(change => change.AddRoadSegment.TemporaryId)
+                .ToArray();
+            return identifiers.Length == identifiers.Distinct().Count();
+        }
+
+        private static bool OnlyHaveUniqueGradeSeparatedIdentifiers(RequestedChange[] changes)
+        {
+            if (changes == null) return true;
+
+            var identifiers = changes
+                .Where(change => change?.AddGradeSeparatedJunction != null)
+                .Select(change => change.AddGradeSeparatedJunction.TemporaryId)
                 .ToArray();
             return identifiers.Length == identifiers.Distinct().Count();
         }

@@ -34,6 +34,8 @@ namespace RoadRegistry.Model
             Fixture.CustomizeEuropeanRoadNumber();
             Fixture.CustomizeNationalRoadNumber();
             Fixture.CustomizeNumberedRoadNumber();
+            Fixture.CustomizeGradeSeparatedJunctionId();
+            Fixture.CustomizeGradeSeparatedJunctionType();
 
             Fixture.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
                 composer.Do(instance =>
@@ -115,14 +117,26 @@ namespace RoadRegistry.Model
                             Lanes = Fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray(),
                             Widths = Fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray(),
                             Surfaces = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttribute>().ToArray()
-                        })
+                        }).OmitAutoProperties()
+            );
+            Fixture.Customize<Messages.AddGradeSeparatedJunction>(
+                composer =>
+                    composer.FromFactory(random =>
+                        new Messages.AddGradeSeparatedJunction
+                        {
+                            TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
+                            UpperSegmentId = Fixture.Create<RoadSegmentId>(),
+                            LowerSegmentId = Fixture.Create<RoadSegmentId>(),
+                            Type = Fixture.Create<GradeSeparatedJunctionType>()
+                        }
+                    ).OmitAutoProperties()
             );
             Fixture.Customize<RequestedChange>(
                 composer =>
                     composer.FromFactory(random =>
                         {
                             var result = new RequestedChange();
-                            switch(random.Next(0, 2))
+                            switch(random.Next(0, 3))
                             {
                                 case 0:
                                     result.AddRoadNode = Fixture.Create<Messages.AddRoadNode>();
@@ -130,10 +144,13 @@ namespace RoadRegistry.Model
                                 case 1:
                                     result.AddRoadSegment = Fixture.Create<Messages.AddRoadSegment>();
                                     break;
+                                case 2:
+                                    result.AddGradeSeparatedJunction = Fixture.Create<Messages.AddGradeSeparatedJunction>();
+                                    break;
                             }
                             return result;
                         }
-                    )
+                    ).OmitAutoProperties()
                 );
             Validator = new ChangeRoadNetworkValidator();
         }
@@ -160,10 +177,10 @@ namespace RoadRegistry.Model
         [Fact]
         public void AllTemporaryRoadNodeIdentifiersMustBeUnique()
         {
-            var addRoadNodes = Fixture.CreateMany<Messages.AddRoadNode>(10).ToArray();
-            Array.ForEach(addRoadNodes, addRoadNode => addRoadNode.TemporaryId = 1);
-            var data = Array.ConvertAll(addRoadNodes,
-                addRoadNode => new RequestedChange {AddRoadNode = addRoadNode});
+            var changes = Fixture.CreateMany<Messages.AddRoadNode>(10).ToArray();
+            Array.ForEach(changes, addRoadNode => addRoadNode.TemporaryId = 1);
+            var data = Array.ConvertAll(changes,
+                change => new RequestedChange {AddRoadNode = change});
 
             Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
         }
@@ -171,10 +188,57 @@ namespace RoadRegistry.Model
         [Fact]
         public void AllTemporaryRoadSegmentIdentifiersMustBeUnique()
         {
-            var addRoadSegments = Fixture.CreateMany<Messages.AddRoadSegment>(10).ToArray();
-            Array.ForEach(addRoadSegments, addRoadSegment => addRoadSegment.TemporaryId = 1);
-            var data = Array.ConvertAll(addRoadSegments,
-                addRoadSegment => new RequestedChange {AddRoadSegment = addRoadSegment});
+            var changes = Fixture.CreateMany<Messages.AddRoadSegment>(10).ToArray();
+            Array.ForEach(changes, addRoadSegment => addRoadSegment.TemporaryId = 1);
+            var data = Array.ConvertAll(changes,
+                change => new RequestedChange {AddRoadSegment = change});
+
+            Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        }
+
+        [Fact]
+        public void AllTemporaryGradeSeparatedJunctionIdentifiersMustBeUnique()
+        {
+            var changes = Fixture.CreateMany<Messages.AddGradeSeparatedJunction>(10).ToArray();
+            Array.ForEach(changes, addRoadSegment => addRoadSegment.TemporaryId = 1);
+            var data = Array.ConvertAll(changes,
+                change => new RequestedChange {AddGradeSeparatedJunction = change});
+
+            Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        }
+
+        [Fact]
+        public void AllChangesAreNull()
+        {
+            var data = Fixture.CreateMany<RequestedChange>(10).ToArray();
+            var index = new Random().Next(0, data.Length);
+            data[index] = new RequestedChange
+            {
+                AddGradeSeparatedJunction = null,
+                AddRoadNode = null,
+                AddRoadSegment = null,
+                AddRoadSegmentToEuropeanRoad = null,
+                AddRoadSegmentToNationalRoad = null,
+                AddRoadSegmentToNumberedRoad = null
+            };
+
+            Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        }
+
+        [Fact]
+        public void MoreThanOneChangeIsNotNull()
+        {
+            var data = Fixture.CreateMany<RequestedChange>(10).ToArray();
+            var index = new Random().Next(0, data.Length);
+            data[index] = new RequestedChange
+            {
+                AddGradeSeparatedJunction = Fixture.Create<Messages.AddGradeSeparatedJunction>(),
+                AddRoadNode = Fixture.Create<Messages.AddRoadNode>(),
+                AddRoadSegment = Fixture.Create<Messages.AddRoadSegment>(),
+                AddRoadSegmentToEuropeanRoad = Fixture.Create<Messages.AddRoadSegmentToEuropeanRoad>(),
+                AddRoadSegmentToNationalRoad = Fixture.Create<Messages.AddRoadSegmentToNationalRoad>(),
+                AddRoadSegmentToNumberedRoad = Fixture.Create<Messages.AddRoadSegmentToNumberedRoad>(),
+            };
 
             Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
         }
