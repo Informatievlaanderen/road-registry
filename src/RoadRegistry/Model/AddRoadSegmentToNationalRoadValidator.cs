@@ -1,7 +1,6 @@
 namespace RoadRegistry.Model
 {
     using FluentValidation;
-    using Messages;
 
     public class AddRoadSegmentToNationalRoadValidator : AbstractValidator<Messages.AddRoadSegmentToNationalRoad>
     {

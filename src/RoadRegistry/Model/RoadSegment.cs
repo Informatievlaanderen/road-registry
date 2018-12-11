@@ -2,7 +2,6 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
-    using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
 
     public class RoadSegment

@@ -4,7 +4,6 @@ namespace RoadRegistry.Model
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
-    using System.Net.Sockets;
 
     public class RoadNetworkView
     {
@@ -180,15 +179,10 @@ namespace RoadRegistry.Model
                         new AttributeId(@event.Surfaces.Max(_ => _.AttributeId)),
                         _maximumSurfaceAttributeId)
                     : _maximumSurfaceAttributeId,
-                _segmentLaneAttributeIdentifiers
-                    .Remove(id)
-                    .Add(id, @event.Lanes.Select(lane => new AttributeId(lane.AttributeId)).ToArray()),
-                _segmentWidthAttributeIdentifiers
-                    .Remove(id)
-                    .Add(id, @event.Widths.Select(width => new AttributeId(width.AttributeId)).ToArray()),
-                _segmentSurfaceAttributeIdentifiers
-                    .Remove(id)
-                    .Add(id, @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)).ToArray()));
+                _segmentLaneAttributeIdentifiers.AddOrMergeDistinct(id, @event.Lanes.Select(lane => new AttributeId(lane.AttributeId))),
+                _segmentWidthAttributeIdentifiers.AddOrMergeDistinct(id, @event.Widths.Select(width => new AttributeId(width.AttributeId))),
+                _segmentSurfaceAttributeIdentifiers.AddOrMergeDistinct(id, @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)))
+            );
         }
 
         public RoadNetworkView Given(Messages.ImportedGradeSeparatedJunction @event)
@@ -317,15 +311,10 @@ namespace RoadRegistry.Model
                         new AttributeId(@event.Surfaces.Max(_ => _.AttributeId)),
                         _maximumSurfaceAttributeId)
                     : _maximumSurfaceAttributeId,
-                _segmentLaneAttributeIdentifiers
-                    .Remove(id)
-                    .Add(id, @event.Lanes.Select(lane => new AttributeId(lane.AttributeId)).ToArray()),
-                _segmentWidthAttributeIdentifiers
-                    .Remove(id)
-                    .Add(id, @event.Widths.Select(width => new AttributeId(width.AttributeId)).ToArray()),
-                _segmentSurfaceAttributeIdentifiers
-                    .Remove(id)
-                    .Add(id, @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)).ToArray()));
+                _segmentLaneAttributeIdentifiers.AddOrMergeDistinct(id, @event.Lanes.Select(lane => new AttributeId(lane.AttributeId))),
+                _segmentWidthAttributeIdentifiers.AddOrMergeDistinct(id, @event.Widths.Select(width => new AttributeId(width.AttributeId))),
+                _segmentSurfaceAttributeIdentifiers.AddOrMergeDistinct(id, @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)))
+            );
         }
 
         private RoadNetworkView Given(Messages.GradeSeparatedJunctionAdded @event)
@@ -475,7 +464,8 @@ namespace RoadRegistry.Model
                     .TryReplaceValue(command.StartNodeId, node => node.ConnectWith(command.Id))
                     .TryReplaceValue(command.EndNodeId, node => node.ConnectWith(command.Id)),
                 _segments.Add(command.Id,
-                    new RoadSegment(command.Id, command.Geometry, command.StartNodeId, command.EndNodeId, attributeHash)),
+                    new RoadSegment(command.Id, command.Geometry, command.StartNodeId, command.EndNodeId,
+                        attributeHash)),
                 _maximumNodeId,
                 RoadSegmentId.Max(command.Id, _maximumSegmentId),
                 _maximumGradeSeparatedJunctionId,
@@ -485,15 +475,10 @@ namespace RoadRegistry.Model
                 _maximumLaneAttributeId,
                 _maximumWidthAttributeId,
                 _maximumSurfaceAttributeId,
-                _segmentLaneAttributeIdentifiers
-                    .Remove(command.Id)
-                    .Add(command.Id, command.Lanes.Select(lane => lane.Id).ToArray()),
-                _segmentWidthAttributeIdentifiers
-                    .Remove(command.Id)
-                    .Add(command.Id, command.Widths.Select(width => width.Id).ToArray()),
-                _segmentSurfaceAttributeIdentifiers
-                    .Remove(command.Id)
-                    .Add(command.Id, command.Surfaces.Select(surface => surface.Id).ToArray()));
+                _segmentLaneAttributeIdentifiers.AddOrMergeDistinct(command.Id, command.Lanes.Select(lane => new AttributeId(lane.Id))),
+                _segmentWidthAttributeIdentifiers.AddOrMergeDistinct(command.Id, command.Widths.Select(width => new AttributeId(width.Id))),
+                _segmentSurfaceAttributeIdentifiers.AddOrMergeDistinct(command.Id, command.Surfaces.Select(surface => new AttributeId(surface.Id)))
+            );
         }
 
         private RoadNetworkView With(AddGradeSeparatedJunction command)

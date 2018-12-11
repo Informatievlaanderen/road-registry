@@ -1,8 +1,6 @@
 namespace RoadRegistry.Model
 {
     using System;
-    using System.Collections.Immutable;
-    using System.Linq;
     using Framework;
     using Messages;
 
