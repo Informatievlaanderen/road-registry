@@ -22,6 +22,7 @@ namespace RoadRegistry.Model
                     var translator = new RequestedChangeTranslator(
                         network.ProvidesNextRoadNodeId(),
                         network.ProvidesNextRoadSegmentId(),
+                        network.ProvidesNextGradeSeparatedJunctionId(),
                         network.ProvidesNextEuropeanRoadAttributeId(),
                         network.ProvidesNextNationalRoadAttributeId(),
                         network.ProvidesNextNumberedRoadAttributeId(),

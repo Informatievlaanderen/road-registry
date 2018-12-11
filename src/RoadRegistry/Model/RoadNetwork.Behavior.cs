@@ -381,6 +381,28 @@ namespace RoadRegistry.Model
             }
         }
 
+        public Func<GradeSeparatedJunctionId> ProvidesNextGradeSeparatedJunctionId()
+        {
+            return new NextGradeSeparatedJunctionIdProvider(_view.MaximumGradeSeparatedJunctionId).Next;
+        }
+
+        private class NextGradeSeparatedJunctionIdProvider
+        {
+            private GradeSeparatedJunctionId _current;
+
+            public NextGradeSeparatedJunctionIdProvider(GradeSeparatedJunctionId current)
+            {
+                _current = current;
+            }
+
+            public GradeSeparatedJunctionId Next()
+            {
+                var next = _current.Next();
+                _current = next;
+                return next;
+            }
+        }
+
         public Func<AttributeId> ProvidesNextEuropeanRoadAttributeId()
         {
             return new NextAttributeIdProvider(_view.MaximumEuropeanRoadAttributeId).Next;

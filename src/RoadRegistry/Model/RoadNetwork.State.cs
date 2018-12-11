@@ -22,6 +22,11 @@ namespace RoadRegistry.Model
                 _view = _view.Given(e);
             });
 
+            On<ImportedGradeSeparatedJunction>(e =>
+            {
+                _view = _view.Given(e);
+            });
+
             On<ImportedRoadSegment>(e =>
             {
                 _view = _view.Given(e);

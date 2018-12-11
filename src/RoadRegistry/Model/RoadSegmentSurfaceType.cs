@@ -74,7 +74,7 @@
             if (value == null) throw new ArgumentNullException(nameof(value));
             if (!TryParse(value, out var parsed))
             {
-                throw new FormatException($"The value {value} is not a well known road surface.");
+                throw new FormatException($"The value {value} is not a well known type of road surface.");
             }
             return parsed;
         }

@@ -16,7 +16,8 @@
                     change.AddRoadSegment,
                     change.AddRoadSegmentToEuropeanRoad,
                     change.AddRoadSegmentToNationalRoad,
-                    change.AddRoadSegmentToNumberedRoad
+                    change.AddRoadSegmentToNumberedRoad,
+                    change.AddGradeSeparatedJunction
                 }
                 .Single(_ => !ReferenceEquals(_, null));
 
@@ -30,7 +31,8 @@
                     change.RoadSegmentAdded,
                     change.RoadSegmentAddedToEuropeanRoad,
                     change.RoadSegmentAddedToNationalRoad,
-                    change.RoadSegmentAddedToNumberedRoad
+                    change.RoadSegmentAddedToNumberedRoad,
+                    change.GradeSeparatedJunctionAdded
                 }
                 .Single(_ => !ReferenceEquals(_, null));
     }

@@ -141,15 +141,15 @@ namespace RoadRegistry.LegacyStreamExtraction
             return RoadSegmentAccessRestrictionIndex[index];
         }
 
-        public static Messages.GradeSeparatedJunctionType ToGradeSeparatedJunctionType(int code)
+        public static string ToGradeSeparatedJunctionType(int code)
         {
-            var result = Messages.GradeSeparatedJunctionType.Unknown;
+            var result = GradeSeparatedJunctionType.Unknown;
 
             switch (code)
             {
                 //case -8: result = GradeSeparatedJunctionType.Unknown; break;
-                case 1: result = Messages.GradeSeparatedJunctionType.Tunnel; break;
-                case 2: result = Messages.GradeSeparatedJunctionType.Bridge; break;
+                case 1: result = GradeSeparatedJunctionType.Tunnel; break;
+                case 2: result = GradeSeparatedJunctionType.Bridge; break;
             }
 
             return result;

@@ -6,20 +6,23 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Infrastructure;
     using Messages;
+    using Model;
     using Xunit;
 
     public class GradeSeparatedJunctionRecordProjectionTests
     {
         private readonly Fixture _fixture;
-        private readonly GradeSeparatedJunctionTypeTranslator _gradeSeparatedJunctionTypeTranslator;
 
         public GradeSeparatedJunctionRecordProjectionTests()
         {
             _fixture = new Fixture();
+            _fixture.CustomizeGradeSeparatedJunctionType();
+            _fixture.CustomizeGradeSeparatedJunctionId();
+            _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeMaintenanceAuthorityId();
             _fixture.CustomizeMaintenanceAuthorityName();
             _fixture.CustomizeOriginProperties();
-            _gradeSeparatedJunctionTypeTranslator = new GradeSeparatedJunctionTypeTranslator();
+            _fixture.CustomizeImportedGradeSeparatedJunction();
         }
 
         [Fact]
@@ -35,8 +38,8 @@ namespace RoadRegistry.Projections.Tests
                         DbaseRecord = new GradeSeparatedJunctionDbaseRecord
                         {
                             OK_OIDN = { Value = junction.Id },
-                            TYPE = { Value = _gradeSeparatedJunctionTypeTranslator.TranslateToIdentifier(junction.Type) },
-                            LBLTYPE = { Value = _gradeSeparatedJunctionTypeTranslator.TranslateToDutchName(junction.Type) },
+                            TYPE = { Value = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Identifier },
+                            LBLTYPE = { Value = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name },
                             BO_WS_OIDN = { Value = junction.UpperRoadSegmentId },
                             ON_WS_OIDN = { Value = junction.LowerRoadSegmentId },
                             BEGINTIJD = { Value = junction.Origin.Since },
@@ -52,7 +55,7 @@ namespace RoadRegistry.Projections.Tests
                     };
                 }).ToList();
 
-            return new GradeSeparatedJunctionRecordProjection(_gradeSeparatedJunctionTypeTranslator, Encoding.UTF8)
+            return new GradeSeparatedJunctionRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.junction))
                 .Expect(data.Select(d => d.expected));

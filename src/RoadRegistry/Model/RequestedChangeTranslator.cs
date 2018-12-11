@@ -10,6 +10,7 @@
     {
         private readonly Func<RoadNodeId> _nextRoadNodeId;
         private readonly Func<RoadSegmentId> _nextRoadSegmentId;
+        private readonly Func<GradeSeparatedJunctionId> _nextGradeSeparatedJunctionId;
         private readonly Func<AttributeId> _nextEuropeanRoadAttributeId;
         private readonly Func<AttributeId> _nextNationalRoadAttributeId;
         private readonly Func<AttributeId> _nextNumberedRoadAttributeId;
@@ -20,6 +21,7 @@
         public RequestedChangeTranslator(
             Func<RoadNodeId> nextRoadNodeId,
             Func<RoadSegmentId> nextRoadSegmentId,
+            Func<GradeSeparatedJunctionId> nextGradeSeparatedJunctionId,
             Func<AttributeId> nextEuropeanRoadAttributeId,
             Func<AttributeId> nextNationalRoadAttributeId,
             Func<AttributeId> nextNumberedRoadAttributeId,
@@ -31,6 +33,8 @@
                 nextRoadNodeId ?? throw new ArgumentNullException(nameof(nextRoadNodeId));
             _nextRoadSegmentId =
                 nextRoadSegmentId ?? throw new ArgumentNullException(nameof(nextRoadSegmentId));
+            _nextGradeSeparatedJunctionId =
+                nextGradeSeparatedJunctionId ?? throw new ArgumentNullException(nameof(nextGradeSeparatedJunctionId));
             _nextEuropeanRoadAttributeId =
                 nextEuropeanRoadAttributeId ?? throw new ArgumentNullException(nameof(nextEuropeanRoadAttributeId));
             _nextNationalRoadAttributeId =
@@ -50,7 +54,7 @@
             if (changes == null)
                 throw new ArgumentNullException(nameof(changes));
 
-            var changeSet = RequestedChanges.Empty;
+            var translated = RequestedChanges.Empty;
             foreach (var change in changes
                 .Flatten()
                 .Select((change, ordinal) => new SortableChange(change, ordinal))
@@ -60,24 +64,27 @@
                 switch (change)
                 {
                     case Messages.AddRoadNode command:
-                        changeSet = changeSet.Append(Translate(command));
+                        translated = translated.Append(Translate(command));
                         break;
                     case Messages.AddRoadSegment command:
-                        changeSet = changeSet.Append(Translate(command, changeSet));
+                        translated = translated.Append(Translate(command, translated));
                         break;
                     case Messages.AddRoadSegmentToEuropeanRoad command:
-                        changeSet = changeSet.Append(Translate(command, changeSet));
+                        translated = translated.Append(Translate(command, translated));
                         break;
                     case Messages.AddRoadSegmentToNationalRoad command:
-                        changeSet = changeSet.Append(Translate(command, changeSet));
+                        translated = translated.Append(Translate(command, translated));
                         break;
                     case Messages.AddRoadSegmentToNumberedRoad command:
-                        changeSet = changeSet.Append(Translate(command, changeSet));
+                        translated = translated.Append(Translate(command, translated));
+                        break;
+                    case Messages.AddGradeSeparatedJunction command:
+                        translated = translated.Append(Translate(command, translated));
                         break;
                 }
             }
 
-            return changeSet;
+            return translated;
         }
 
         private AddRoadNode Translate(Messages.AddRoadNode command)
@@ -284,6 +291,45 @@
             );
         }
 
+        private AddGradeSeparatedJunction Translate(Messages.AddGradeSeparatedJunction command, IRequestedChanges requestedChanges)
+        {
+            var permanent = _nextGradeSeparatedJunctionId();
+            var temporary = new GradeSeparatedJunctionId(command.TemporaryId);
+
+            var upperSegmentId = new RoadSegmentId(command.UpperSegmentId);
+            RoadSegmentId? temporaryUpperSegmentId;
+            if (requestedChanges.TryResolvePermanent(upperSegmentId, out var permanentUpperSegmentId))
+            {
+                temporaryUpperSegmentId = upperSegmentId;
+                upperSegmentId = permanentUpperSegmentId;
+            }
+            else
+            {
+                temporaryUpperSegmentId = null;
+            }
+
+            var lowerSegmentId = new RoadSegmentId(command.LowerSegmentId);
+            RoadSegmentId? temporaryLowerSegmentId;
+            if (requestedChanges.TryResolvePermanent(lowerSegmentId, out var permanentLowerSegmentId))
+            {
+                temporaryLowerSegmentId = lowerSegmentId;
+                lowerSegmentId = permanentLowerSegmentId;
+            }
+            else
+            {
+                temporaryLowerSegmentId = null;
+            }
+
+            return new AddGradeSeparatedJunction(
+                permanent,
+                temporary,
+                GradeSeparatedJunctionType.Parse(command.Type),
+                upperSegmentId,
+                temporaryUpperSegmentId,
+                lowerSegmentId,
+                temporaryLowerSegmentId);
+        }
+
         private class SortableChange
         {
             public int Ordinal { get; }
@@ -304,7 +350,8 @@
                 typeof(Messages.AddRoadSegment),
                 typeof(Messages.AddRoadSegmentToEuropeanRoad),
                 typeof(Messages.AddRoadSegmentToNationalRoad),
-                typeof(Messages.AddRoadSegmentToNumberedRoad)
+                typeof(Messages.AddRoadSegmentToNumberedRoad),
+                typeof(Messages.AddGradeSeparatedJunction)
             };
 
             public int Compare(SortableChange left, SortableChange right)
@@ -328,26 +375,34 @@
                 ImmutableDictionary<RoadNodeId, RoadNodeId>.Empty,
                 ImmutableDictionary<RoadNodeId, RoadNodeId>.Empty,
                 ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty,
-                ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty);
+                ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty,
+                ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty,
+                ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty);
 
             private readonly ImmutableList<IRequestedChange> _changes;
             private readonly ImmutableDictionary<RoadNodeId, RoadNodeId> _mapToPermanentNodeIdentifiers;
             private readonly ImmutableDictionary<RoadNodeId, RoadNodeId> _mapToTemporaryNodeIdentifiers;
             private readonly ImmutableDictionary<RoadSegmentId, RoadSegmentId> _mapToPermanentSegmentIdentifiers;
             private readonly ImmutableDictionary<RoadSegmentId, RoadSegmentId> _mapToTemporarySegmentIdentifiers;
+            private readonly ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId> _mapToPermanentGradeSeparatedJunctionIdentifiers;
+            private readonly ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId> _mapToTemporaryGradeSeparatedJunctionIdentifiers;
 
             private RequestedChanges(
                 ImmutableList<IRequestedChange> changes,
                 ImmutableDictionary<RoadNodeId, RoadNodeId> mapToPermanentNodeIdentifiers,
                 ImmutableDictionary<RoadNodeId, RoadNodeId> mapToTemporaryNodeIdentifiers,
                 ImmutableDictionary<RoadSegmentId, RoadSegmentId> mapToPermanentSegmentIdentifiers,
-                ImmutableDictionary<RoadSegmentId, RoadSegmentId> mapToTemporarySegmentIdentifiers)
+                ImmutableDictionary<RoadSegmentId, RoadSegmentId> mapToTemporarySegmentIdentifiers,
+                ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId> mapToPermanentGradeSeparatedJunctionIdentifiers,
+                ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId> mapToTemporaryGradeSeparatedJunctionIdentifiers)
             {
                 _changes = changes;
                 _mapToPermanentNodeIdentifiers = mapToPermanentNodeIdentifiers;
                 _mapToTemporaryNodeIdentifiers = mapToTemporaryNodeIdentifiers;
                 _mapToPermanentSegmentIdentifiers = mapToPermanentSegmentIdentifiers;
                 _mapToTemporarySegmentIdentifiers = mapToTemporarySegmentIdentifiers;
+                _mapToPermanentGradeSeparatedJunctionIdentifiers = mapToPermanentGradeSeparatedJunctionIdentifiers;
+                _mapToTemporaryGradeSeparatedJunctionIdentifiers = mapToTemporaryGradeSeparatedJunctionIdentifiers;
             }
 
             public RequestedChanges Append(AddRoadNode change)
@@ -360,7 +415,9 @@
                     _mapToPermanentNodeIdentifiers.Add(change.TemporaryId, change.Id),
                     _mapToTemporaryNodeIdentifiers.Add(change.Id, change.TemporaryId),
                     _mapToPermanentSegmentIdentifiers,
-                    _mapToTemporarySegmentIdentifiers);
+                    _mapToTemporarySegmentIdentifiers,
+                    _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                    _mapToTemporaryGradeSeparatedJunctionIdentifiers);
             }
 
             public RequestedChanges Append(AddRoadSegment change)
@@ -373,7 +430,9 @@
                     _mapToPermanentNodeIdentifiers,
                     _mapToTemporaryNodeIdentifiers,
                     _mapToPermanentSegmentIdentifiers.Add(change.TemporaryId, change.Id),
-                    _mapToTemporarySegmentIdentifiers.Add(change.Id, change.TemporaryId));
+                    _mapToTemporarySegmentIdentifiers.Add(change.Id, change.TemporaryId),
+                    _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                    _mapToTemporaryGradeSeparatedJunctionIdentifiers);
             }
 
             public RequestedChanges Append(AddRoadSegmentToEuropeanRoad change)
@@ -386,7 +445,9 @@
                     _mapToPermanentNodeIdentifiers,
                     _mapToTemporaryNodeIdentifiers,
                     _mapToPermanentSegmentIdentifiers,
-                    _mapToTemporarySegmentIdentifiers);
+                    _mapToTemporarySegmentIdentifiers,
+                    _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                    _mapToTemporaryGradeSeparatedJunctionIdentifiers);
             }
 
             public RequestedChanges Append(AddRoadSegmentToNationalRoad change)
@@ -399,7 +460,9 @@
                     _mapToPermanentNodeIdentifiers,
                     _mapToTemporaryNodeIdentifiers,
                     _mapToPermanentSegmentIdentifiers,
-                    _mapToTemporarySegmentIdentifiers);
+                    _mapToTemporarySegmentIdentifiers,
+                    _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                    _mapToTemporaryGradeSeparatedJunctionIdentifiers);
             }
 
             public RequestedChanges Append(AddRoadSegmentToNumberedRoad change)
@@ -412,7 +475,24 @@
                     _mapToPermanentNodeIdentifiers,
                     _mapToTemporaryNodeIdentifiers,
                     _mapToPermanentSegmentIdentifiers,
-                    _mapToTemporarySegmentIdentifiers);
+                    _mapToTemporarySegmentIdentifiers,
+                    _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                    _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+            }
+
+            public RequestedChanges Append(AddGradeSeparatedJunction change)
+            {
+                if (change == null)
+                    throw new ArgumentNullException(nameof(change));
+
+                return new RequestedChanges(
+                    _changes.Add(change),
+                    _mapToPermanentNodeIdentifiers,
+                    _mapToTemporaryNodeIdentifiers,
+                    _mapToPermanentSegmentIdentifiers,
+                    _mapToTemporarySegmentIdentifiers,
+                    _mapToPermanentGradeSeparatedJunctionIdentifiers.Add(change.TemporaryId, change.Id),
+                    _mapToTemporaryGradeSeparatedJunctionIdentifiers.Add(change.Id, change.TemporaryId));
             }
 
             public bool TryResolvePermanent(RoadNodeId id, out RoadNodeId permanent)
@@ -420,19 +500,29 @@
                 return _mapToPermanentNodeIdentifiers.TryGetValue(id, out permanent);
             }
 
-            public bool TryResolvePermanent(RoadSegmentId id, out RoadSegmentId permanent)
-            {
-                return _mapToPermanentSegmentIdentifiers.TryGetValue(id, out permanent);
-            }
-
             public bool TryResolveTemporary(RoadNodeId id, out RoadNodeId temporary)
             {
                 return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out temporary);
             }
 
+            public bool TryResolvePermanent(RoadSegmentId id, out RoadSegmentId permanent)
+            {
+                return _mapToPermanentSegmentIdentifiers.TryGetValue(id, out permanent);
+            }
+
             public bool TryResolveTemporary(RoadSegmentId id, out RoadSegmentId temporary)
             {
                 return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out temporary);
+            }
+
+            public bool TryResolvePermanent(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
+            {
+                return _mapToPermanentGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
+            }
+
+            public bool TryResolveTemporary(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
+            {
+                return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
             }
 
             public IEnumerator<IRequestedChange> GetEnumerator() =>

@@ -44,7 +44,6 @@ namespace RoadRegistry.Projections.Tests
             _fixture.CustomizeRoadSegmentCategory();
             _fixture.CustomizeRoadSegmentAccessRestriction();
             _fixture.CustomizeRoadSegmentGeometryVersion();
-
             _fixture.CustomizeImportedRoadSegment();
             _fixture.CustomizeImportedRoadSegmentEuropeanRoadAttributes();
             _fixture.CustomizeImportedRoadSegmentNationalRoadAttributes();
@@ -53,6 +52,11 @@ namespace RoadRegistry.Projections.Tests
             _fixture.CustomizeImportedRoadSegmentWidthAttributes();
             _fixture.CustomizeImportedRoadSegmentSurfaceAttributes();
             _fixture.CustomizeImportedRoadSegmentSideAttributes();
+
+            _fixture.CustomizeGradeSeparatedJunctionId();
+            _fixture.CustomizeGradeSeparatedJunctionType();
+            _fixture.CustomizeImportedGradeSeparatedJunction();
+
             _fixture.CustomizeOriginProperties();
         }
 

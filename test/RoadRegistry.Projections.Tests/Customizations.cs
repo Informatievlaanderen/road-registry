@@ -26,6 +26,12 @@ namespace RoadRegistry.Projections.Tests
             );
         }
 
+        public static void CustomizeGradeSeparatedJunctionType(this IFixture fixture)
+        {
+            fixture.Customize<GradeSeparatedJunctionType>(composer =>
+                composer.FromFactory<int>(value => GradeSeparatedJunctionType.All[value % GradeSeparatedJunctionType.All.Length]));
+        }
+
         public static void CustomizeMaintenanceAuthorityId(this IFixture fixture)
         {
             fixture.Customize<MaintenanceAuthorityId>(composer =>
@@ -50,6 +56,13 @@ namespace RoadRegistry.Projections.Tests
         {
             fixture.Customize<RoadSegmentId>(composer =>
                 composer.FromFactory<int>(value => new RoadSegmentId(Math.Abs(value)))
+            );
+        }
+
+        public static void CustomizeGradeSeparatedJunctionId(this IFixture fixture)
+        {
+            fixture.Customize<GradeSeparatedJunctionId>(composer =>
+                composer.FromFactory<int>(value => new GradeSeparatedJunctionId(Math.Abs(value)))
             );
         }
 
@@ -336,6 +349,24 @@ namespace RoadRegistry.Projections.Tests
                             Id = fixture.Create<RoadNodeId>(),
                             Type = fixture.Create<RoadNodeType>(),
                             Geometry = GeometryTranslator.Translate(fixture.Create<PointM>()),
+                            Origin = fixture.Create<OriginProperties>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeImportedGradeSeparatedJunction(this IFixture fixture)
+        {
+            fixture.Customize<ImportedGradeSeparatedJunction>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new ImportedGradeSeparatedJunction
+                        {
+                            Id = fixture.Create<GradeSeparatedJunctionId>(),
+                            Type = fixture.Create<GradeSeparatedJunctionType>(),
+                            LowerRoadSegmentId = fixture.Create<RoadSegmentId>(),
+                            UpperRoadSegmentId = fixture.Create<RoadSegmentId>(),
                             Origin = fixture.Create<OriginProperties>()
                         }
                     )

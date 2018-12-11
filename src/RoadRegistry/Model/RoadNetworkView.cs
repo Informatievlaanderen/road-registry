@@ -4,6 +4,7 @@ namespace RoadRegistry.Model
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
+    using System.Net.Sockets;
 
     public class RoadNetworkView
     {
@@ -12,6 +13,7 @@ namespace RoadRegistry.Model
             ImmutableDictionary<RoadSegmentId, RoadSegment>.Empty,
             new RoadNodeId(0),
             new RoadSegmentId(0),
+            new GradeSeparatedJunctionId(0),
             new AttributeId(0),
             new AttributeId(0),
             new AttributeId(0),
@@ -26,6 +28,7 @@ namespace RoadRegistry.Model
         private readonly ImmutableDictionary<RoadSegmentId, RoadSegment> _segments;
         private readonly RoadNodeId _maximumNodeId;
         private readonly RoadSegmentId _maximumSegmentId;
+        private readonly GradeSeparatedJunctionId _maximumGradeSeparatedJunctionId;
         private readonly AttributeId _maximumEuropeanRoadAttributeId;
         private readonly AttributeId _maximumNationalRoadAttributeId;
         private readonly AttributeId _maximumNumberedRoadAttributeId;
@@ -44,6 +47,7 @@ namespace RoadRegistry.Model
             ImmutableDictionary<RoadSegmentId, RoadSegment> segments,
             RoadNodeId maximumNodeId,
             RoadSegmentId maximumSegmentId,
+            GradeSeparatedJunctionId maximumGradeSeparatedJunctionId,
             AttributeId maximumEuropeanRoadAttributeId,
             AttributeId maximumNationalRoadAttributeId,
             AttributeId maximumNumberedRoadAttributeId,
@@ -58,6 +62,7 @@ namespace RoadRegistry.Model
             _segments = segments;
             _maximumNodeId = maximumNodeId;
             _maximumSegmentId = maximumSegmentId;
+            _maximumGradeSeparatedJunctionId = maximumGradeSeparatedJunctionId;
             _maximumEuropeanRoadAttributeId = maximumEuropeanRoadAttributeId;
             _maximumNationalRoadAttributeId = maximumNationalRoadAttributeId;
             _maximumNumberedRoadAttributeId = maximumNumberedRoadAttributeId;
@@ -73,6 +78,7 @@ namespace RoadRegistry.Model
         public IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments => _segments;
         public RoadNodeId MaximumNodeId => _maximumNodeId;
         public RoadSegmentId MaximumSegmentId => _maximumSegmentId;
+        public GradeSeparatedJunctionId MaximumGradeSeparatedJunctionId => _maximumGradeSeparatedJunctionId;
         public AttributeId MaximumEuropeanRoadAttributeId => _maximumEuropeanRoadAttributeId;
         public AttributeId MaximumNationalRoadAttributeId => _maximumNationalRoadAttributeId;
         public AttributeId MaximumNumberedRoadAttributeId => _maximumNumberedRoadAttributeId;
@@ -98,7 +104,7 @@ namespace RoadRegistry.Model
                 _nodes.Add(id, node),
                 _segments,
                 RoadNodeId.Max(id, _maximumNodeId),
-                _maximumSegmentId,
+                _maximumSegmentId, _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
                 _maximumNationalRoadAttributeId,
                 _maximumNumberedRoadAttributeId,
@@ -143,7 +149,7 @@ namespace RoadRegistry.Model
                     .TryReplaceValue(end, node => node.ConnectWith(id)),
                 _segments.Add(id, segment),
                 _maximumNodeId,
-                RoadSegmentId.Max(id, _maximumSegmentId),
+                RoadSegmentId.Max(id, _maximumSegmentId), _maximumGradeSeparatedJunctionId,
                 @event.PartOfEuropeanRoads.Length != 0
                     ? AttributeId.Max(
                         new AttributeId(@event.PartOfEuropeanRoads.Max(_ => _.AttributeId)),
@@ -185,6 +191,27 @@ namespace RoadRegistry.Model
                     .Add(id, @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)).ToArray()));
         }
 
+        public RoadNetworkView Given(Messages.ImportedGradeSeparatedJunction @event)
+        {
+            if (@event == null) throw new ArgumentNullException(nameof(@event));
+            var id = new GradeSeparatedJunctionId(@event.Id);
+            return new RoadNetworkView(
+                _nodes,
+                _segments,
+                _maximumNodeId,
+                _maximumSegmentId,
+                GradeSeparatedJunctionId.Max(id, _maximumGradeSeparatedJunctionId),
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
+        }
+
         public RoadNetworkView Given(Messages.RoadNetworkChangesAccepted @event)
         {
             if (@event == null) throw new ArgumentNullException(nameof(@event));
@@ -208,6 +235,9 @@ namespace RoadRegistry.Model
                     case Messages.RoadSegmentAddedToNumberedRoad roadSegmentAddedToNumberedRoad:
                         result = result.Given(roadSegmentAddedToNumberedRoad);
                         break;
+                    case Messages.GradeSeparatedJunctionAdded gradeSeparatedJunctionAdded:
+                        result = result.Given(gradeSeparatedJunctionAdded);
+                        break;
                 }
             }
 
@@ -223,6 +253,7 @@ namespace RoadRegistry.Model
                 _segments,
                 RoadNodeId.Max(id, _maximumNodeId),
                 _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
                 _maximumNationalRoadAttributeId,
                 _maximumNumberedRoadAttributeId,
@@ -267,6 +298,7 @@ namespace RoadRegistry.Model
                 _segments.Add(id, segment),
                 _maximumNodeId,
                 RoadSegmentId.Max(id, _maximumSegmentId),
+                _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
                 _maximumNationalRoadAttributeId,
                 _maximumNumberedRoadAttributeId,
@@ -296,6 +328,26 @@ namespace RoadRegistry.Model
                     .Add(id, @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)).ToArray()));
         }
 
+        private RoadNetworkView Given(Messages.GradeSeparatedJunctionAdded @event)
+        {
+            var id = new GradeSeparatedJunctionId(@event.Id);
+            return new RoadNetworkView(
+                _nodes,
+                _segments,
+                _maximumNodeId,
+                _maximumSegmentId,
+                GradeSeparatedJunctionId.Max(id, _maximumGradeSeparatedJunctionId),
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
+        }
+
         private RoadNetworkView Given(Messages.RoadSegmentAddedToEuropeanRoad @event)
         {
             return new RoadNetworkView(
@@ -303,6 +355,7 @@ namespace RoadRegistry.Model
                 _segments,
                 _maximumNodeId,
                 _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
                 AttributeId.Max(new AttributeId(@event.AttributeId), _maximumEuropeanRoadAttributeId),
                 _maximumNationalRoadAttributeId,
                 _maximumNumberedRoadAttributeId,
@@ -321,6 +374,7 @@ namespace RoadRegistry.Model
                 _segments,
                 _maximumNodeId,
                 _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
                 AttributeId.Max(new AttributeId(@event.AttributeId), _maximumNationalRoadAttributeId),
                 _maximumNumberedRoadAttributeId,
@@ -339,6 +393,7 @@ namespace RoadRegistry.Model
                 _segments,
                 _maximumNodeId,
                 _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
                 _maximumNationalRoadAttributeId,
                 AttributeId.Max(new AttributeId(@event.AttributeId), _maximumNumberedRoadAttributeId),
@@ -375,6 +430,9 @@ namespace RoadRegistry.Model
                     case AddRoadSegmentToNumberedRoad addRoadSegmentToNumberedRoad:
                         result = result.With(addRoadSegmentToNumberedRoad);
                         break;
+                    case AddGradeSeparatedJunction addGradeSeparatedJunction:
+                        result = result.With(addGradeSeparatedJunction);
+                        break;
                 }
             }
 
@@ -389,6 +447,7 @@ namespace RoadRegistry.Model
                 _segments,
                 RoadNodeId.Max(command.Id, _maximumNodeId),
                 _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
                 _maximumNationalRoadAttributeId,
                 _maximumNumberedRoadAttributeId,
@@ -419,6 +478,7 @@ namespace RoadRegistry.Model
                     new RoadSegment(command.Id, command.Geometry, command.StartNodeId, command.EndNodeId, attributeHash)),
                 _maximumNodeId,
                 RoadSegmentId.Max(command.Id, _maximumSegmentId),
+                _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
                 _maximumNationalRoadAttributeId,
                 _maximumNumberedRoadAttributeId,
@@ -436,6 +496,26 @@ namespace RoadRegistry.Model
                     .Add(command.Id, command.Surfaces.Select(surface => surface.Id).ToArray()));
         }
 
+        private RoadNetworkView With(AddGradeSeparatedJunction command)
+        {
+            var id = new GradeSeparatedJunctionId(command.Id);
+            return new RoadNetworkView(
+                _nodes,
+                _segments,
+                _maximumNodeId,
+                _maximumSegmentId,
+                GradeSeparatedJunctionId.Max(id, _maximumGradeSeparatedJunctionId),
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId,
+                _segmentLaneAttributeIdentifiers,
+                _segmentWidthAttributeIdentifiers,
+                _segmentSurfaceAttributeIdentifiers);
+        }
+
         private RoadNetworkView With(AddRoadSegmentToEuropeanRoad command)
         {
             return new RoadNetworkView(
@@ -443,6 +523,7 @@ namespace RoadRegistry.Model
                 _segments,
                 _maximumNodeId,
                 _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
                 AttributeId.Max(command.AttributeId, _maximumEuropeanRoadAttributeId),
                 _maximumNationalRoadAttributeId,
                 _maximumNumberedRoadAttributeId,
@@ -461,6 +542,7 @@ namespace RoadRegistry.Model
                 _segments,
                 _maximumNodeId,
                 _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
                 AttributeId.Max(command.AttributeId, _maximumNationalRoadAttributeId),
                 _maximumNumberedRoadAttributeId,
@@ -479,6 +561,7 @@ namespace RoadRegistry.Model
                 _segments,
                 _maximumNodeId,
                 _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
                 _maximumNationalRoadAttributeId,
                 AttributeId.Max(command.AttributeId, _maximumNumberedRoadAttributeId),

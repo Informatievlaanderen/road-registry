@@ -7,8 +7,7 @@
     public class ImportedGradeSeparatedJunction
     {
         public int Id { get; set; }
-        // TODO: Version meenemen voor wegknoop en wegsegment
-        public GradeSeparatedJunctionType Type { get; set; }
+        public string Type { get; set; }
         public int UpperRoadSegmentId { get; set; }
         public int LowerRoadSegmentId { get; set; }
         public OriginProperties Origin { get; set; }
