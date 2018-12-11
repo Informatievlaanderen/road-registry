@@ -222,5 +222,14 @@ namespace RoadRegistry.Model
                         new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))),
                 _requestedChanges);
         }
+
+        public Problems RoadSegmentMissing(RoadSegmentId segmentId)
+        {
+            return new Problems(
+                _problems.Add(
+                    new Error(nameof(RoadSegmentMissing),
+                        new ProblemParameter("SegmentId", segmentId.ToInt32().ToString()))),
+                _requestedChanges);
+        }
     }
 }

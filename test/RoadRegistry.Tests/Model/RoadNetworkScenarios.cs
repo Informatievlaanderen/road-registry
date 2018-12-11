@@ -6,6 +6,8 @@ namespace RoadRegistry.Model
     using System.Threading.Tasks;
     using AutoFixture;
     using Aiv.Vbr.Shaperon;
+    using Aiv.Vbr.Utilities;
+    using FluentAssertions;
     using GeoAPI.Geometries;
     using Testing;
     using Xunit;
@@ -1128,39 +1130,58 @@ namespace RoadRegistry.Model
             EndNode2Added.Id = 3;
             Segment2Added.EndNodeId = EndNode2Added.Id;
 
-            foreach (var index in Enumerable.Range(0, 7).Except(new[] {new Random().Next(0, 7)}))
+            AddSegment2.Status = AddSegment1.Status;
+            Segment2Added.Status = AddSegment1.Status;
+            AddSegment2.Morphology = AddSegment1.Morphology;
+            Segment2Added.Morphology = AddSegment1.Morphology;
+            AddSegment2.Category = AddSegment1.Category;
+            Segment2Added.Category = AddSegment1.Category;
+            AddSegment2.MaintenanceAuthority = AddSegment1.MaintenanceAuthority;
+            Segment2Added.MaintenanceAuthority.Code = AddSegment1.MaintenanceAuthority;
+            AddSegment2.AccessRestriction = AddSegment1.AccessRestriction;
+            Segment2Added.AccessRestriction = AddSegment1.AccessRestriction;
+            AddSegment2.LeftSideStreetNameId = AddSegment1.LeftSideStreetNameId;
+            Segment2Added.LeftSide.StreetNameId = AddSegment1.LeftSideStreetNameId;
+            AddSegment2.RightSideStreetNameId = AddSegment1.RightSideStreetNameId;
+            Segment2Added.RightSide.StreetNameId = AddSegment1.RightSideStreetNameId;
+
+            switch (new Random().Next(0, 7))
             {
-                switch (index)
-                {
-                    case 0:
-                        AddSegment2.Status = AddSegment1.Status;
-                        Segment2Added.Status = AddSegment1.Status;
-                        break;
-                    case 1:
-                        AddSegment2.Morphology = AddSegment1.Morphology;
-                        Segment2Added.Morphology = AddSegment1.Morphology;
-                        break;
-                    case 2:
-                        AddSegment2.Category = AddSegment1.Category;
-                        Segment2Added.Category = AddSegment1.Category;
-                        break;
-                    case 3:
-                        AddSegment2.MaintenanceAuthority = AddSegment1.MaintenanceAuthority;
-                        Segment2Added.MaintenanceAuthority.Code = AddSegment1.MaintenanceAuthority;
-                        break;
-                    case 4:
-                        AddSegment2.AccessRestriction = AddSegment1.AccessRestriction;
-                        Segment2Added.AccessRestriction = AddSegment1.AccessRestriction;
-                        break;
-                    case 5:
-                        AddSegment2.LeftSideStreetNameId = AddSegment1.LeftSideStreetNameId;
-                        Segment2Added.LeftSide.StreetNameId = AddSegment1.LeftSideStreetNameId;
-                        break;
-                    case 6:
-                        AddSegment2.RightSideStreetNameId = AddSegment1.RightSideStreetNameId;
-                        Segment2Added.RightSide.StreetNameId = AddSegment1.RightSideStreetNameId;
-                        break;
-                }
+                case 0:
+                    AddSegment2.Status = new Generator<RoadSegmentStatus>(Fixture)
+                        .First(candidate => candidate != AddSegment1.Status);
+                    Segment2Added.Status = AddSegment2.Status;
+                    break;
+                case 1:
+                    AddSegment2.Morphology = new Generator<RoadSegmentMorphology>(Fixture)
+                        .First(candidate => candidate != AddSegment1.Morphology);
+                    Segment2Added.Morphology = AddSegment2.Morphology;
+                    break;
+                case 2:
+                    AddSegment2.Category = new Generator<RoadSegmentCategory>(Fixture)
+                        .First(candidate => candidate != AddSegment1.Category);;
+                    Segment2Added.Category = AddSegment2.Category;
+                    break;
+                case 3:
+                    AddSegment2.MaintenanceAuthority = new Generator<MaintenanceAuthorityId>(Fixture)
+                        .First(candidate => candidate != AddSegment1.MaintenanceAuthority);
+                    Segment2Added.MaintenanceAuthority.Code = AddSegment2.MaintenanceAuthority;
+                    break;
+                case 4:
+                    AddSegment2.AccessRestriction = new Generator<RoadSegmentAccessRestriction>(Fixture)
+                        .First(candidate => candidate != AddSegment1.AccessRestriction);
+                    Segment2Added.AccessRestriction = AddSegment2.AccessRestriction;
+                    break;
+                case 5:
+                    AddSegment2.LeftSideStreetNameId = new Generator<CrabStreetnameId?>(Fixture)
+                        .First(candidate => candidate != AddSegment1.LeftSideStreetNameId);
+                    Segment2Added.LeftSide.StreetNameId = AddSegment2.LeftSideStreetNameId;
+                    break;
+                case 6:
+                    AddSegment2.RightSideStreetNameId = new Generator<CrabStreetnameId?>(Fixture)
+                        .First(candidate => candidate != AddSegment1.RightSideStreetNameId);
+                    Segment2Added.RightSide.StreetNameId = AddSegment2.RightSideStreetNameId;
+                    break;
             }
 
             return Run(scenario => scenario
@@ -3244,6 +3265,338 @@ namespace RoadRegistry.Model
                         {
                             AddRoadSegment = AddSegment1,
                             Errors = new[] { problem },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_to_a_european_road()
+        {
+            var addRoadSegmentToEuropeanRoad = new Messages.AddRoadSegmentToEuropeanRoad
+            {
+                TemporaryAttributeId = Fixture.Create<AttributeId>(),
+                RoadNumber = Fixture.Create<EuropeanRoadNumber>(),
+                SegmentId = AddSegment1.TemporaryId
+            };
+
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegmentToEuropeanRoad = addRoadSegmentToEuropeanRoad
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                {
+                    Changes = new[]
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAddedToEuropeanRoad = new Messages.RoadSegmentAddedToEuropeanRoad
+                            {
+                                AttributeId = 1,
+                                TemporaryAttributeId = addRoadSegmentToEuropeanRoad.TemporaryAttributeId,
+                                RoadNumber = addRoadSegmentToEuropeanRoad.RoadNumber,
+                                SegmentId = Segment1Added.Id
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_missing_segment_to_a_european_road()
+        {
+            var addRoadSegmentToEuropeanRoad = new Messages.AddRoadSegmentToEuropeanRoad
+            {
+                TemporaryAttributeId = Fixture.Create<AttributeId>(),
+                RoadNumber = Fixture.Create<EuropeanRoadNumber>(),
+                SegmentId = AddSegment1.TemporaryId
+            };
+
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegmentToEuropeanRoad = addRoadSegmentToEuropeanRoad
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new[]
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegmentToEuropeanRoad = addRoadSegmentToEuropeanRoad,
+                            Errors = new []
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadSegmentMissing",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "SegmentId",
+                                            Value = addRoadSegmentToEuropeanRoad.SegmentId.ToString()
+                                        }
+                                    }
+                                }
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_to_a_national_road()
+        {
+            var addRoadSegmentToNationalRoad = new Messages.AddRoadSegmentToNationalRoad
+            {
+                TemporaryAttributeId = Fixture.Create<AttributeId>(),
+                Ident2 = Fixture.Create<NationalRoadNumber>(),
+                SegmentId = AddSegment1.TemporaryId
+            };
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegmentToNationalRoad = addRoadSegmentToNationalRoad
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                {
+                    Changes = new[]
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAddedToNationalRoad = new Messages.RoadSegmentAddedToNationalRoad
+                            {
+                                AttributeId = 1,
+                                TemporaryAttributeId = addRoadSegmentToNationalRoad.TemporaryAttributeId,
+                                Ident2 = addRoadSegmentToNationalRoad.Ident2,
+                                SegmentId = Segment1Added.Id
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_missing_segment_to_a_national_road()
+        {
+            var addRoadSegmentToNationalRoad = new Messages.AddRoadSegmentToNationalRoad
+            {
+                TemporaryAttributeId = Fixture.Create<AttributeId>(),
+                Ident2 = Fixture.Create<NationalRoadNumber>(),
+                SegmentId = AddSegment1.TemporaryId
+            };
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegmentToNationalRoad = addRoadSegmentToNationalRoad
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new[]
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegmentToNationalRoad = addRoadSegmentToNationalRoad,
+                            Errors = new []
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadSegmentMissing",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "SegmentId",
+                                            Value = addRoadSegmentToNationalRoad.SegmentId.ToString()
+                                        }
+                                    }
+                                }
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_to_a_numbered_road()
+        {
+            var addRoadSegmentToNumberedRoad = new Messages.AddRoadSegmentToNumberedRoad
+            {
+                TemporaryAttributeId = Fixture.Create<AttributeId>(),
+                Ident8 = Fixture.Create<NumberedRoadNumber>(),
+                Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
+                Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
+                SegmentId = AddSegment1.TemporaryId
+            };
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegmentToNumberedRoad = addRoadSegmentToNumberedRoad
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                {
+                    Changes = new[]
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added,
+                            Warnings = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added,
+                            Warnings = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added,
+                            Warnings = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAddedToNumberedRoad = new Messages.RoadSegmentAddedToNumberedRoad
+                            {
+                                AttributeId = 1,
+                                TemporaryAttributeId = addRoadSegmentToNumberedRoad.TemporaryAttributeId,
+                                Ident8 = addRoadSegmentToNumberedRoad.Ident8,
+                                Direction = addRoadSegmentToNumberedRoad.Direction,
+                                Ordinal = addRoadSegmentToNumberedRoad.Ordinal,
+                                SegmentId = Segment1Added.Id
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_missing_segment_to_a_numbered_road()
+        {
+            var addRoadSegmentToNumberedRoad = new Messages.AddRoadSegmentToNumberedRoad
+            {
+                TemporaryAttributeId = Fixture.Create<AttributeId>(),
+                Ident8 = Fixture.Create<NumberedRoadNumber>(),
+                Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
+                Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
+                SegmentId = AddSegment1.TemporaryId
+            };
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegmentToNumberedRoad = addRoadSegmentToNumberedRoad
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new[]
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegmentToNumberedRoad = addRoadSegmentToNumberedRoad,
+                            Errors = new []
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadSegmentMissing",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "SegmentId",
+                                            Value = addRoadSegmentToNumberedRoad.SegmentId.ToString()
+                                        }
+                                    }
+                                }
+                            },
                             Warnings = new Messages.Problem[0]
                         }
                     }

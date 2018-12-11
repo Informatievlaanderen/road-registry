@@ -20,7 +20,7 @@ namespace RoadRegistry.Model
         public RoadNodeType Type { get; }
         public Point Geometry { get; }
 
-        public Messages.AcceptedChange Accept(IReadOnlyCollection<Problem> reasons)
+        public Messages.AcceptedChange Accept(IReadOnlyCollection<Problem> problems)
         {
             return new Messages.AcceptedChange
             {
@@ -39,11 +39,11 @@ namespace RoadRegistry.Model
                         }
                     }
                 },
-                Warnings = reasons.OfType<Warning>().Select(warning => warning.Translate()).ToArray()
+                Warnings = problems.OfType<Warning>().Select(warning => warning.Translate()).ToArray()
             };
         }
 
-        public Messages.RejectedChange Reject(IReadOnlyCollection<Problem> reasons)
+        public Messages.RejectedChange Reject(IReadOnlyCollection<Problem> problems)
         {
             return new Messages.RejectedChange
             {
@@ -53,8 +53,8 @@ namespace RoadRegistry.Model
                     Type = Type.ToString(),
                     Geometry = GeometryTranslator.Translate(Geometry)
                 },
-                Errors = reasons.OfType<Error>().Select(error => error.Translate()).ToArray(),
-                Warnings = reasons.OfType<Warning>().Select(warning => warning.Translate()).ToArray()
+                Errors = problems.OfType<Error>().Select(error => error.Translate()).ToArray(),
+                Warnings = problems.OfType<Warning>().Select(warning => warning.Translate()).ToArray()
             };
         }
     }

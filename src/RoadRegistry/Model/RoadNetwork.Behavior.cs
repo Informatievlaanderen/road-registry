@@ -20,11 +20,12 @@ namespace RoadRegistry.Model
                 switch (change)
                 {
                     case AddRoadNode addRoadNode:
+                    {
 //                        // there's no way to test this without composing the changes manually (e.g. bypassing the translator).
 //                        // but this prevents from reusing the same node id in a set of changes
 //                        if (incrementalNodes.ContainsKey(addRoadNode.Id))
 //                        {
-//                            reasons = reasons.BecauseRoadNodeIdTaken();
+//                            problems = problems.BecauseRoadNodeIdTaken();
 //                        }
 
                         var byOtherNode =
@@ -50,7 +51,8 @@ namespace RoadRegistry.Model
                         {
                             if (!addRoadNode.Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
                             {
-                                problems = problems.RoadNodeTypeMismatch(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode);
+                                problems = problems.RoadNodeTypeMismatch(RoadNodeType.FakeNode,
+                                    RoadNodeType.TurningLoopNode);
                             }
                             else if (addRoadNode.Type == RoadNodeType.FakeNode)
                             {
@@ -60,14 +62,16 @@ namespace RoadRegistry.Model
                                 var segment2 = segments[1];
                                 if (segment1.AttributeHash.Equals(segment2.AttributeHash))
                                 {
-                                    problems = problems.FakeRoadNodeConnectedSegmentsDoNotDiffer(segment1.Id, segment2.Id);
+                                    problems = problems.FakeRoadNodeConnectedSegmentsDoNotDiffer(segment1.Id,
+                                        segment2.Id);
                                 }
                             }
                         }
                         else if (connectedSegmentCount > 2 &&
                                  !addRoadNode.Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
                         {
-                            problems = problems.RoadNodeTypeMismatch(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout);
+                            problems = problems.RoadNodeTypeMismatch(RoadNodeType.RealNode,
+                                RoadNodeType.MiniRoundabout);
                         }
 
                         if (problems.AreAcceptable())
@@ -79,15 +83,16 @@ namespace RoadRegistry.Model
                         {
                             rejectedChanges.Add(addRoadNode.Reject(problems));
                         }
-
+                    }
                         break;
 
                     case AddRoadSegment addRoadSegment:
+                    {
 //                        // there's no way to test this without composing the changes manually (e.g. bypassing the translator).
 //                        // but this prevents from reusing the same segment id in a set of changes
 //                        if (incrementalSegments.ContainsKey(addRoadSegment.Id))
 //                        {
-//                            reasons = reasons.BecauseRoadSegmentIdTaken();
+//                            problems = problems.BecauseRoadSegmentIdTaken();
 //                        }
 
                         if (Math.Abs(addRoadSegment.Geometry.Length) <= 0.001)
@@ -167,7 +172,8 @@ namespace RoadRegistry.Model
 
                         if (previousLane != null)
                         {
-                            if (Math.Abs(Math.Abs(Convert.ToDouble(previousLane.To.ToDecimal()) - line.Length)) > 0.0001)
+                            if (Math.Abs(Math.Abs(Convert.ToDouble(previousLane.To.ToDecimal()) - line.Length)) >
+                                0.0001)
                             {
                                 problems =
                                     problems.RoadSegmentLaneAttributeToPositionNotEqualToLength(
@@ -202,7 +208,8 @@ namespace RoadRegistry.Model
 
                         if (previousWidth != null)
                         {
-                            if (Math.Abs(Math.Abs(Convert.ToDouble(previousWidth.To.ToDecimal()) - line.Length)) > 0.0001)
+                            if (Math.Abs(Math.Abs(Convert.ToDouble(previousWidth.To.ToDecimal()) - line.Length)) >
+                                0.0001)
                             {
                                 problems =
                                     problems.RoadSegmentWidthAttributeToPositionNotEqualToLength(
@@ -218,7 +225,8 @@ namespace RoadRegistry.Model
                                 if (lane.From != RoadSegmentPosition.Zero)
                                 {
                                     problems =
-                                        problems.RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(lane.TemporaryId);
+                                        problems.RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(
+                                            lane.TemporaryId);
                                 }
                             }
                             else
@@ -237,7 +245,8 @@ namespace RoadRegistry.Model
 
                         if (previousSurface != null)
                         {
-                            if (Math.Abs(Math.Abs(Convert.ToDouble(previousSurface.To.ToDecimal()) - line.Length)) > 0.0001)
+                            if (Math.Abs(Math.Abs(Convert.ToDouble(previousSurface.To.ToDecimal()) - line.Length)) >
+                                0.0001)
                             {
                                 problems =
                                     problems.RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
@@ -253,7 +262,61 @@ namespace RoadRegistry.Model
                         {
                             rejectedChanges.Add(addRoadSegment.Reject(problems));
                         }
+                    }
+                        break;
+                    case AddRoadSegmentToEuropeanRoad addRoadSegmentToEuropeanRoad:
+                    {
+                        if (!requestView.Segments.ContainsKey(addRoadSegmentToEuropeanRoad.SegmentId))
+                        {
+                            problems = problems.RoadSegmentMissing(
+                                addRoadSegmentToEuropeanRoad.TemporarySegmentId ?? addRoadSegmentToEuropeanRoad.SegmentId);
+                        }
 
+                        if (problems.AreAcceptable())
+                        {
+                            acceptedChanges.Add(addRoadSegmentToEuropeanRoad.Accept(problems));
+                        }
+                        else
+                        {
+                            rejectedChanges.Add(addRoadSegmentToEuropeanRoad.Reject(problems));
+                        }
+                    }
+                        break;
+                    case AddRoadSegmentToNationalRoad addRoadSegmentToNationalRoad:
+                    {
+                        if (!requestView.Segments.ContainsKey(addRoadSegmentToNationalRoad.SegmentId))
+                        {
+                            problems = problems.RoadSegmentMissing(
+                                addRoadSegmentToNationalRoad.TemporarySegmentId ?? addRoadSegmentToNationalRoad.SegmentId);
+                        }
+
+                        if (problems.AreAcceptable())
+                        {
+                            acceptedChanges.Add(addRoadSegmentToNationalRoad.Accept(problems));
+                        }
+                        else
+                        {
+                            rejectedChanges.Add(addRoadSegmentToNationalRoad.Reject(problems));
+                        }
+                    }
+                        break;
+                    case AddRoadSegmentToNumberedRoad addRoadSegmentToNumberedRoad:
+                    {
+                        if (!requestView.Segments.ContainsKey(addRoadSegmentToNumberedRoad.SegmentId))
+                        {
+                            problems = problems.RoadSegmentMissing(
+                                addRoadSegmentToNumberedRoad.TemporarySegmentId ?? addRoadSegmentToNumberedRoad.SegmentId);
+                        }
+
+                        if (problems.AreAcceptable())
+                        {
+                            acceptedChanges.Add(addRoadSegmentToNumberedRoad.Accept(problems));
+                        }
+                        else
+                        {
+                            rejectedChanges.Add(addRoadSegmentToNumberedRoad.Reject(problems));
+                        }
+                    }
                         break;
                 }
             }
