@@ -2,6 +2,7 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
     using AutoFixture;
@@ -93,9 +94,9 @@ namespace RoadRegistry.Model
                     instance.Type = Fixture.Create<RoadSegmentSurfaceType>();
                 }).OmitAutoProperties());
 
-            StartPoint1 = new PointM(0.0, 0.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            MiddlePoint1 = new PointM(50.0, 50.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            EndPoint1 = new PointM(100.0, 100.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            StartPoint1 = new PointM(0.0, 0.0, double.NaN, 0.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            MiddlePoint1 = new PointM(50.0, 50.0, double.NaN, 50.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            EndPoint1 = new PointM(100.0, 100.0, double.NaN, 100.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             MultiLineString1 = new MultiLineString(
                 new ILineString[]
                 {
@@ -105,9 +106,9 @@ namespace RoadRegistry.Model
                     )
                 }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
-            StartPoint2 = new PointM(0.0, 200.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            MiddlePoint2 = new PointM(50.0, 250.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            EndPoint2 = new PointM(100.0, 300.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            StartPoint2 = new PointM(0.0, 200.0, double.NaN, 0.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            MiddlePoint2 = new PointM(50.0, 250.0, double.NaN, 50.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            EndPoint2 = new PointM(100.0, 300.0, double.NaN, 100.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             MultiLineString2 = new MultiLineString(
                 new ILineString[]
                 {
@@ -117,9 +118,9 @@ namespace RoadRegistry.Model
                     )
                 }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
-            StartPoint3 = new PointM(0.0, 500.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            MiddlePoint3 = new PointM(50.0, 550.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            EndPoint3 = new PointM(100.0, 600.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            StartPoint3 = new PointM(0.0, 500.0, double.NaN, 0.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            MiddlePoint3 = new PointM(50.0, 550.0, double.NaN, 50.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            EndPoint3 = new PointM(100.0, 600.0, double.NaN, 100.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             MultiLineString3 = new MultiLineString(
                 new ILineString[]
                 {
@@ -610,7 +611,6 @@ namespace RoadRegistry.Model
             };
         }
 
-
         public PointM StartPoint1 { get; }
         public PointM MiddlePoint1 { get; }
         public PointM EndPoint1 { get; }
@@ -836,15 +836,15 @@ namespace RoadRegistry.Model
                 .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
                 .ToString();
 
-            var startPoint = new PointM(10.0, 0.0)
+            var startPoint = new PointM(10.0, 0.0, double.NaN, 0.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint1 = new PointM(10.0, 10.0)
+            var endPoint1 = new PointM(10.0, 10.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint2 = new PointM(20.0, 0.0)
+            var endPoint2 = new PointM(20.0, 0.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -948,15 +948,15 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_start_node_connecting_two_segments_as_a_fake_node_but_the_segments_do_not_differ_by_any_attribute()
         {
-            var startPoint = new PointM(10.0, 0.0)
+            var startPoint = new PointM(10.0, 0.0, double.NaN, 0.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint1 = new PointM(10.0, 10.0)
+            var endPoint1 = new PointM(10.0, 10.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint2 = new PointM(20.0, 0.0)
+            var endPoint2 = new PointM(20.0, 0.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -1069,15 +1069,15 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_start_node_connecting_two_segments_as_a_fake_node_and_the_segments_differ_by_one_attribute()
         {
-            var startPoint = new PointM(10.0, 0.0)
+            var startPoint = new PointM(10.0, 0.0, double.NaN, 0.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint1 = new PointM(10.0, 10.0)
+            var endPoint1 = new PointM(10.0, 10.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint2 = new PointM(20.0, 0.0)
+            var endPoint2 = new PointM(20.0, 0.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -1248,15 +1248,15 @@ namespace RoadRegistry.Model
                 .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
                 .ToString();
 
-            var endPoint = new PointM(10.0, 0.0)
+            var endPoint = new PointM(10.0, 0.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var startPoint1 = new PointM(10.0, 10.0)
+            var startPoint1 = new PointM(10.0, 10.0, double.NaN, 0.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var startPoint2 = new PointM(20.0, 0.0)
+            var startPoint2 = new PointM(20.0, 0.0, double.NaN, 0.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -1364,19 +1364,19 @@ namespace RoadRegistry.Model
                 .First(type => type != RoadNodeType.RealNode && type != RoadNodeType.MiniRoundabout)
                 .ToString();
 
-            var startPoint = new PointM(10.0, 0.0)
+            var startPoint = new PointM(10.0, 0.0, double.NaN, 0.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint1 = new PointM(10.0, 10.0)
+            var endPoint1 = new PointM(10.0, 10.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint2 = new PointM(20.0, 0.0)
+            var endPoint2 = new PointM(20.0, 0.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint3 = new PointM(0.0, 0.0)
+            var endPoint3 = new PointM(0.0, 0.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -1511,19 +1511,19 @@ namespace RoadRegistry.Model
                 .First(type => type != RoadNodeType.RealNode && type != RoadNodeType.MiniRoundabout)
                 .ToString();
 
-            var endPoint = new PointM(10.0, 0.0)
+            var endPoint = new PointM(10.0, 0.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var startPoint1 = new PointM(10.0, 10.0)
+            var startPoint1 = new PointM(10.0, 10.0, double.NaN, 0.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var startPoint2 = new PointM(20.0, 0.0)
+            var startPoint2 = new PointM(20.0, 0.0, double.NaN, 0.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var startPoint3 = new PointM(0.0, 0.0)
+            var startPoint3 = new PointM(0.0, 0.0, double.NaN, 0.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -1665,7 +1665,14 @@ namespace RoadRegistry.Model
                     new ILineString[]
                     {
                         new LineString(
-                            new PointSequence(new[] {StartPoint1, MiddlePoint2, EndPoint2}),
+                            new PointSequence(new[]
+                            {
+                                new PointM(StartPoint1.X, StartPoint1.Y, double.NaN, 0.0),
+                                new PointM(MiddlePoint2.X, MiddlePoint2.Y, double.NaN, StartPoint1.Distance(MiddlePoint2)),
+                                new PointM(EndPoint2.X, EndPoint2.Y, double.NaN,
+                                    StartPoint1.Distance(MiddlePoint2) +
+                                    MiddlePoint2.Distance(EndPoint2))
+                            }),
                             GeometryConfiguration.GeometryFactory
                         )
                     }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
@@ -1751,7 +1758,12 @@ namespace RoadRegistry.Model
                     new ILineString[]
                     {
                         new LineString(
-                            new PointSequence(new[] {StartPoint2, MiddlePoint2, EndPoint1}),
+                            new PointSequence(new[]
+                            {
+                                new PointM(StartPoint2.X, StartPoint2.Y, double.NaN, 0.0),
+                                new PointM(MiddlePoint2.X, MiddlePoint2.Y, double.NaN, 70.7107),
+                                new PointM(EndPoint1.X, EndPoint1.Y, double.NaN, 228.8245)
+                            }),
                             GeometryConfiguration.GeometryFactory
                         )
                     }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
@@ -2182,15 +2194,15 @@ namespace RoadRegistry.Model
         {
             get
             {
-                var startPoint1 = new PointM(0.0, 0.0)
+                var startPoint1 = new PointM(0.0, 0.0, double.NaN, 0.0)
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var middlePoint1 = new PointM(10.0, 0.0)
+                var middlePoint1 = new PointM(10.0, 0.0, double.NaN, 10.0)
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var endPoint1 = new PointM(5.0, 0.0)
+                var endPoint1 = new PointM(5.0, 0.0, double.NaN, 15.0)
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
@@ -2200,7 +2212,7 @@ namespace RoadRegistry.Model
                         new LineString(
                             new PointSequence(new[] { startPoint1, middlePoint1, endPoint1 }),
                             GeometryConfiguration.GeometryFactory
-                        ),
+                        )
                     })
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
@@ -2209,27 +2221,27 @@ namespace RoadRegistry.Model
                 //covers itself
                 yield return new object[] {startPoint1, endPoint1, multiLineString1};
 
-                var startPoint2 = new PointM(5.0, 0.0)
+                var startPoint2 = new PointM(5.0, 0.0, double.NaN, 0.0)
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var middlePoint2A = new PointM(20.0, 0.0)
+                var middlePoint2A = new PointM(20.0, 0.0, double.NaN, 15.0)
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var middlePoint2B = new PointM(20.0, 10.0)
+                var middlePoint2B = new PointM(20.0, 10.0, double.NaN, 25.0)
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var middlePoint2C = new PointM(0.0, 10.0)
+                var middlePoint2C = new PointM(0.0, 10.0, double.NaN, 45.0)
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var middlePoint2D = new PointM(0.0, 0.0)
+                var middlePoint2D = new PointM(0.0, 0.0, double.NaN, 55.0)
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var endPoint2 = new PointM(8.0, 0.0)
+                var endPoint2 = new PointM(8.0, 0.0, double.NaN, 63.0)
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
@@ -2239,7 +2251,7 @@ namespace RoadRegistry.Model
                         new LineString(
                             new PointSequence(new[] { startPoint2, middlePoint2A, middlePoint2B, middlePoint2C, middlePoint2D, endPoint2 }),
                             GeometryConfiguration.GeometryFactory
-                        ),
+                        )
                     })
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
@@ -2377,29 +2389,30 @@ namespace RoadRegistry.Model
         [Fact]
         public Task when_adding_a_segment_with_a_geometry_that_self_intersects()
         {
-            var startPoint = new PointM(0.0, 10.0)
+            var startPoint = new PointM(0.0, 10.0, double.NaN, 0.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var middlePoint1 = new PointM(10.0, 10.0)
+            var middlePoint1 = new PointM(10.0, 10.0, double.NaN, 10.0)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var middlePoint2 = new PointM(5.0, 20.0)
+            var middlePoint2 = new PointM(5.0, 20.0, double.NaN, 21.1803)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint = new PointM(5.0, 0.0)
+            var endPoint = new PointM(5.0, 0.0, double.NaN, 41.1803)
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
+            var lineString = new LineString(
+                new PointSequence(new[] { startPoint, middlePoint1, middlePoint2, endPoint }),
+                GeometryConfiguration.GeometryFactory
+            );
             var multiLineString = new MultiLineString(
                 new ILineString[]
                 {
-                    new LineString(
-                        new PointSequence(new[] { startPoint, middlePoint1, middlePoint2, endPoint }),
-                        GeometryConfiguration.GeometryFactory
-                    )
+                    lineString
                 })
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
@@ -3866,6 +3879,440 @@ namespace RoadRegistry.Model
                                 {
                                     Reason = "UpperAndLowerRoadSegmentDoNotIntersect",
                                     Parameters = new Messages.ProblemParameter[0]
+                                }
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_where_first_measure_is_not_zero()
+        {
+            var startPoint = new PointM(0.0, 0.0, 0.0, 10.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var endPoint = new PointM(14.0, 14.0, 0.0, Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0)))
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            AddSegment1.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            AddSegment1.Widths = new Messages.RequestedRoadSegmentWidthAttribute[0];
+            AddSegment1.Surfaces = new Messages.RequestedRoadSegmentSurfaceAttribute[0];
+            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            {
+                new LineString(
+                    new PointSequence(new[]
+                    {
+                        startPoint,
+                        new PointM(11.0, 11.0, 0.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0)))
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        new PointM(12.0, 12.0, 0.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0)))
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        new PointM(13.0, 13.0, 0.0, Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0)))
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        endPoint
+                    }),
+                    GeometryConfiguration.GeometryFactory)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                }
+            })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            });
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new[]
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Errors = new []
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadSegmentStartPointMeasureValueNotEqualToZero",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "PointX", Value = "0"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "PointY", Value = "0"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Measure", Value = "10"
+                                        }
+                                    }
+                                }
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_where_last_measure_is_not_equal_to_length()
+        {
+            var startPoint = new PointM(0.0, 0.0, 0.0, 0.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var length = Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0));
+            var endPoint = new PointM(14.0, 14.0, 0.0, 100.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            AddSegment1.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            AddSegment1.Widths = new Messages.RequestedRoadSegmentWidthAttribute[0];
+            AddSegment1.Surfaces = new Messages.RequestedRoadSegmentSurfaceAttribute[0];
+            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            {
+                new LineString(
+                    new PointSequence(new[]
+                    {
+                        startPoint,
+                        new PointM(11.0, 11.0, 0.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0)))
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        new PointM(12.0, 12.0, 0.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0)))
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        new PointM(13.0, 13.0, 0.0, Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0)))
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        endPoint
+                    }),
+                    GeometryConfiguration.GeometryFactory)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                }
+            })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            });
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new[]
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Errors = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadSegmentEndPointMeasureValueNotEqualToLength",
+                                    Parameters = new[]
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "PointX", Value = "14"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "PointY", Value = "14"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Measure", Value = "100"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Length",
+                                            Value = length.ToString(CultureInfo.InvariantCulture)
+                                        }
+                                    }
+                                }
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_segment_where_measure_is_out_of_range()
+        {
+            var startPoint = new PointM(0.0, 0.0, 0.0, 0.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var length = Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0));
+            var endPoint = new PointM(14.0, 14.0, 0.0, length)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            AddSegment1.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            AddSegment1.Widths = new Messages.RequestedRoadSegmentWidthAttribute[0];
+            AddSegment1.Surfaces = new Messages.RequestedRoadSegmentSurfaceAttribute[0];
+            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            {
+                new LineString(
+                    new PointSequence(new[]
+                    {
+                        startPoint,
+                        new PointM(11.0, 11.0, 0.0, -1.0)
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        new PointM(12.0, 12.0, 0.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0)))
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        new PointM(13.0, 13.0, 0.0, 100.0)
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        endPoint
+                    }),
+                    GeometryConfiguration.GeometryFactory)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                }
+            })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            });
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new[]
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Errors = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadSegmentPointMeasureValueOutOfRange",
+                                    Parameters = new[]
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "PointX", Value = "11"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "PointY", Value = "11"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Measure", Value = "-1"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "MeasureLowerBoundary",
+                                            Value = "0"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "MeasureUpperBoundary",
+                                            Value = length.ToString(CultureInfo.InvariantCulture)
+                                        }
+                                    }
+                                },
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadSegmentPointMeasureValueOutOfRange",
+                                    Parameters = new[]
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "PointX", Value = "13"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "PointY", Value = "13"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Measure", Value = "100"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "MeasureLowerBoundary",
+                                            Value = "0"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "MeasureUpperBoundary",
+                                            Value = length.ToString(CultureInfo.InvariantCulture)
+                                        }
+                                    }
+                                }
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+
+        [Fact]
+        public Task when_adding_a_segment_where_measure_is_not_an_increasing_distance_from_start_point()
+        {
+            var startPoint = new PointM(0.0, 0.0, 0.0, 0.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var length = Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0));
+            var endPoint = new PointM(14.0, 14.0, 0.0, length)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            AddSegment1.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
+            AddSegment1.Widths = new Messages.RequestedRoadSegmentWidthAttribute[0];
+            AddSegment1.Surfaces = new Messages.RequestedRoadSegmentSurfaceAttribute[0];
+            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            {
+                new LineString(
+                    new PointSequence(new[]
+                    {
+                        startPoint,
+                        new PointM(11.0, 11.0, 0.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0)))
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        new PointM(12.0, 12.0, 0.0, Math.Sqrt(Math.Pow(10.0, 2.0) + Math.Pow(10.0, 2.0)))
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        new PointM(13.0, 13.0, 0.0, Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0)))
+                        {
+                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        },
+                        endPoint
+                    }),
+                    GeometryConfiguration.GeometryFactory)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                }
+            })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            });
+            return Run(scenario => scenario
+                .GivenNone()
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddStartNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadNode = AddEndNode1
+                    },
+                    new Messages.RequestedChange
+                    {
+                        AddRoadSegment = AddSegment1
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new[]
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Errors = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadSegmentPointMeasureValueDoesNotIncrease",
+                                    Parameters = new[]
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "PointX", Value = "12"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "PointY", Value = "12"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Measure",
+                                            Value = Math.Sqrt(Math.Pow(10.0, 2.0) + Math.Pow(10.0, 2.0)).ToString(CultureInfo.InvariantCulture)
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "PreviousMeasure",
+                                            Value = Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0)).ToString(CultureInfo.InvariantCulture)
+                                        }
+                                    }
                                 }
                             },
                             Warnings = new Messages.Problem[0]

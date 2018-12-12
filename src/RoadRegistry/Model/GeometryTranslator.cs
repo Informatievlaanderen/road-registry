@@ -1,6 +1,7 @@
 namespace RoadRegistry.Model
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Aiv.Vbr.Shaperon;
     using GeoAPI.Geometries;
@@ -46,22 +47,32 @@ namespace RoadRegistry.Model
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
-            return new NetTopologySuite.Geometries.MultiLineString(
-                Array.ConvertAll(
-                    geometry.MultiLineString,
-                    line => (ILineString) new NetTopologySuite.Geometries.LineString(
-                        new PointSequence(
-                            Array.ConvertAll(
-                                line.Points,
-                                point => new PointM(point.X, point.Y, double.NaN, point.M)
-                                {
-                                    SRID = geometry.SpatialReferenceSystemIdentifier
-                                })),
-                        GeometryConfiguration.GeometryFactory)
-
+            var toLineStrings = new List<ILineString>();
+            foreach (var fromLineString in geometry.MultiLineString)
+            {
+                var toPoints = new List<PointM>();
+                for (var index = 0; index < fromLineString.Points.Length && index < fromLineString.Measures.Length; index++)
+                {
+                    var fromPoint = fromLineString.Points[index];
+                    var fromMeasure = fromLineString.Measures[index];
+                    toPoints.Add(new PointM(fromPoint.X, fromPoint.Y, double.NaN, fromMeasure)
                     {
                         SRID = geometry.SpatialReferenceSystemIdentifier
-                    }),
+                    });
+                }
+
+                toLineStrings.Add(
+                    new NetTopologySuite.Geometries.LineString(
+                        new PointSequence(toPoints.ToArray()),
+                        GeometryConfiguration.GeometryFactory)
+                    {
+                        SRID = geometry.SpatialReferenceSystemIdentifier
+                    }
+                );
+            }
+
+            return new NetTopologySuite.Geometries.MultiLineString(
+                toLineStrings.ToArray(),
                 GeometryConfiguration.GeometryFactory);
         }
 
@@ -69,32 +80,32 @@ namespace RoadRegistry.Model
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
-            var multiLineString = new Messages.LineString[geometry.NumGeometries];
+            var toMultiLineString = new Messages.LineString[geometry.NumGeometries];
             var lineIndex = 0;
             foreach (var fromLineString in geometry.Geometries.OfType<NetTopologySuite.Geometries.LineString>())
             {
                 var toLineString = new Messages.LineString
                 {
-                    Points = new Messages.PointWithM[fromLineString.NumPoints]
+                    Points = new Messages.Point[fromLineString.NumPoints],
+                    Measures = fromLineString.GetOrdinates(Ordinate.M)
                 };
 
                 for (var pointIndex = 0; pointIndex < fromLineString.NumPoints; pointIndex++)
                 {
-                    toLineString.Points[pointIndex] = new Messages.PointWithM
+                    toLineString.Points[pointIndex] = new Messages.Point
                     {
                         X = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.X),
-                        Y = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.Y),
-                        M = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.M)
+                        Y = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.Y)
                     };
                 }
 
-                multiLineString[lineIndex] = toLineString;
+                toMultiLineString[lineIndex] = toLineString;
                 lineIndex++;
             }
             return new Messages.RoadSegmentGeometry
             {
                 SpatialReferenceSystemIdentifier = geometry.SRID,
-                MultiLineString = multiLineString
+                MultiLineString = toMultiLineString
             };
         }
     }

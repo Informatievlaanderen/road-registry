@@ -2,6 +2,7 @@ namespace RoadRegistry.Messages
 {
     public class LineString
     {
-        public PointWithM[] Points { get; set; }
+        public Point[] Points { get; set; }
+        public double[] Measures { get; set; }
     }
 }

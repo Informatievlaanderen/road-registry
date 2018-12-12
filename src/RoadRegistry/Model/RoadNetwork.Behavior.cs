@@ -3,10 +3,15 @@ namespace RoadRegistry.Model
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
+    using Aiv.Vbr.Shaperon;
+    using GeoAPI.Geometries;
     using Messages;
 
     public partial class RoadNetwork
     {
+        public static readonly double OneMillimeterTolerance = 0.001;
+
         public void Change(IRequestedChanges requestedChanges)
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
@@ -145,6 +150,46 @@ namespace RoadRegistry.Model
                             problems = problems.RoadSegmentGeometrySelfIntersects();
                         }
 
+                        if (line.NumPoints > 0)
+                        {
+                            var previousPointMeasure = 0.0;
+                            var pointSequence = (PointSequence) line.CoordinateSequence;
+                            for (var index = 0; index < pointSequence.Count; index++)
+                            {
+                                var measure = pointSequence.GetOrdinate(index, Ordinate.M);
+                                var x = pointSequence.GetX(index);
+                                var y = pointSequence.GetY(index);
+                                if(index == 0 && Math.Abs(measure) > OneMillimeterTolerance)
+                                {
+                                    problems =
+                                        problems.RoadSegmentStartPointMeasureValueNotEqualToZero(x, y, measure);
+                                }
+                                else if(index == pointSequence.Count - 1 && Math.Abs(measure - line.Length) > OneMillimeterTolerance)
+                                {
+                                    problems =
+                                        problems.RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length);
+                                }
+                                else if (measure < 0.0 || measure > line.Length)
+                                {
+                                    problems =
+                                        problems.RoadSegmentPointMeasureValueOutOfRange(x, y, measure, 0.0, line.Length);
+                                }
+                                else
+                                {
+                                    if (index != 0 && Math.Sign(measure - previousPointMeasure) <= 0)
+                                    {
+                                        problems =
+                                            problems.RoadSegmentPointMeasureValueDoesNotIncrease(x, y, measure,
+                                                previousPointMeasure);
+                                    }
+                                    else
+                                    {
+                                        previousPointMeasure = measure;
+                                    }
+                                }
+                            }
+                        }
+
                         RoadSegmentLaneAttribute previousLane = null;
                         foreach (var lane in addRoadSegment.Lanes)
                         {
@@ -173,7 +218,7 @@ namespace RoadRegistry.Model
                         if (previousLane != null)
                         {
                             if (Math.Abs(Math.Abs(Convert.ToDouble(previousLane.To.ToDecimal()) - line.Length)) >
-                                0.0001)
+                                OneMillimeterTolerance)
                             {
                                 problems =
                                     problems.RoadSegmentLaneAttributeToPositionNotEqualToLength(
@@ -182,34 +227,34 @@ namespace RoadRegistry.Model
                         }
 
                         RoadSegmentWidthAttribute previousWidth = null;
-                        foreach (var lane in addRoadSegment.Widths)
+                        foreach (var width in addRoadSegment.Widths)
                         {
                             if (previousWidth == null)
                             {
-                                if (lane.From != RoadSegmentPosition.Zero)
+                                if (width.From != RoadSegmentPosition.Zero)
                                 {
                                     problems =
-                                        problems.RoadSegmentWidthAttributeFromPositionNotEqualToZero(lane.TemporaryId);
+                                        problems.RoadSegmentWidthAttributeFromPositionNotEqualToZero(width.TemporaryId);
                                 }
                             }
                             else
                             {
-                                if (lane.From != previousWidth.To)
+                                if (width.From != previousWidth.To)
                                 {
                                     problems =
                                         problems.RoadSegmentWidthAttributesNotAdjacent(
                                             previousWidth.TemporaryId,
-                                            lane.TemporaryId);
+                                            width.TemporaryId);
                                 }
                             }
 
-                            previousWidth = lane;
+                            previousWidth = width;
                         }
 
                         if (previousWidth != null)
                         {
                             if (Math.Abs(Math.Abs(Convert.ToDouble(previousWidth.To.ToDecimal()) - line.Length)) >
-                                0.0001)
+                                OneMillimeterTolerance)
                             {
                                 problems =
                                     problems.RoadSegmentWidthAttributeToPositionNotEqualToLength(
@@ -218,35 +263,35 @@ namespace RoadRegistry.Model
                         }
 
                         RoadSegmentSurfaceAttribute previousSurface = null;
-                        foreach (var lane in addRoadSegment.Surfaces)
+                        foreach (var surface in addRoadSegment.Surfaces)
                         {
                             if (previousSurface == null)
                             {
-                                if (lane.From != RoadSegmentPosition.Zero)
+                                if (surface.From != RoadSegmentPosition.Zero)
                                 {
                                     problems =
                                         problems.RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(
-                                            lane.TemporaryId);
+                                            surface.TemporaryId);
                                 }
                             }
                             else
                             {
-                                if (lane.From != previousSurface.To)
+                                if (surface.From != previousSurface.To)
                                 {
                                     problems =
                                         problems.RoadSegmentSurfaceAttributesNotAdjacent(
                                             previousSurface.TemporaryId,
-                                            lane.TemporaryId);
+                                            surface.TemporaryId);
                                 }
                             }
 
-                            previousSurface = lane;
+                            previousSurface = surface;
                         }
 
                         if (previousSurface != null)
                         {
                             if (Math.Abs(Math.Abs(Convert.ToDouble(previousSurface.To.ToDecimal()) - line.Length)) >
-                                0.0001)
+                                OneMillimeterTolerance)
                             {
                                 problems =
                                     problems.RoadSegmentSurfaceAttributeToPositionNotEqualToLength(

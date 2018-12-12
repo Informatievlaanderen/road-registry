@@ -25,17 +25,53 @@ namespace RoadRegistry.Model
         [Fact]
         public void PointsCanNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Points, (Messages.PointWithM[])null);
+            Validator.ShouldHaveValidationErrorFor(c => c.Points, (Messages.Point[])null);
         }
 
         [Fact]
         public void PointCanNotBeNull()
         {
-            var data = Fixture.CreateMany<Messages.PointWithM>(10).ToArray();
+            var data = Fixture.CreateMany<Messages.Point>(10).ToArray();
             var index = new Random().Next(0, data.Length);
             data[index] = null;
 
             Validator.ShouldHaveValidationErrorFor(c => c.Points, data);
+        }
+
+        [Fact]
+        public void MeasuresCanNotBeNull()
+        {
+            Validator.ShouldHaveValidationErrorFor(c => c.Measures, (double[])null);
+        }
+
+        [Fact]
+        public void MeasureCanNotBeNaN()
+        {
+            var data = Fixture.CreateMany<double>(10).ToArray();
+            var index = new Random().Next(0, data.Length);
+            data[index] = double.NaN;
+
+            Validator.ShouldHaveValidationErrorFor(c => c.Measures, data);
+        }
+
+        [Fact]
+        public void MeasureCanNotBeNegativeInfinity()
+        {
+            var data = Fixture.CreateMany<double>(10).ToArray();
+            var index = new Random().Next(0, data.Length);
+            data[index] = double.NegativeInfinity;
+
+            Validator.ShouldHaveValidationErrorFor(c => c.Measures, data);
+        }
+
+        [Fact]
+        public void MeasureCanNotBePositiveInfinity()
+        {
+            var data = Fixture.CreateMany<double>(10).ToArray();
+            var index = new Random().Next(0, data.Length);
+            data[index] = double.PositiveInfinity;
+
+            Validator.ShouldHaveValidationErrorFor(c => c.Measures, data);
         }
 
         [Fact]

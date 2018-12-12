@@ -4,6 +4,7 @@ namespace RoadRegistry.Model
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Globalization;
     using System.Linq;
 
     internal class Problems : IReadOnlyCollection<Problem>
@@ -249,6 +250,50 @@ namespace RoadRegistry.Model
         {
             return new Problems(
                 _problems.Add(new Error(nameof(UpperAndLowerRoadSegmentDoNotIntersect))),
+                _requestedChanges);
+        }
+
+        public Problems RoadSegmentPointMeasureValueOutOfRange(double pointX, double pointY, double measure, double measureLowerBoundary, double measureUpperBoundary)
+        {
+            return new Problems(
+                _problems.Add(new Error(nameof(RoadSegmentPointMeasureValueOutOfRange),
+                    new ProblemParameter("PointX", pointX.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("PointY", pointY.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("Measure", measure.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("MeasureLowerBoundary", measureLowerBoundary.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("MeasureUpperBoundary", measureUpperBoundary.ToString(CultureInfo.InvariantCulture)))),
+                _requestedChanges);
+        }
+
+        public Problems RoadSegmentStartPointMeasureValueNotEqualToZero(double pointX, double pointY, double measure)
+        {
+            return new Problems(
+                _problems.Add(new Error(nameof(RoadSegmentStartPointMeasureValueNotEqualToZero),
+                    new ProblemParameter("PointX", pointX.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("PointY", pointY.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("Measure", measure.ToString(CultureInfo.InvariantCulture)))),
+                _requestedChanges);
+        }
+
+        public Problems RoadSegmentEndPointMeasureValueNotEqualToLength(double pointX, double pointY, double measure, double length)
+        {
+            return new Problems(
+                _problems.Add(new Error(nameof(RoadSegmentEndPointMeasureValueNotEqualToLength),
+                    new ProblemParameter("PointX", pointX.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("PointY", pointY.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("Measure", measure.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("Length", length.ToString(CultureInfo.InvariantCulture)))),
+                _requestedChanges);
+        }
+
+        public Problems RoadSegmentPointMeasureValueDoesNotIncrease(double pointX, double pointY, double measure, double previousMeasure)
+        {
+            return new Problems(
+                _problems.Add(new Error(nameof(RoadSegmentPointMeasureValueDoesNotIncrease),
+                    new ProblemParameter("PointX", pointX.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("PointY", pointY.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("Measure", measure.ToString(CultureInfo.InvariantCulture)),
+                    new ProblemParameter("PreviousMeasure", previousMeasure.ToString(CultureInfo.InvariantCulture)))),
                 _requestedChanges);
         }
     }

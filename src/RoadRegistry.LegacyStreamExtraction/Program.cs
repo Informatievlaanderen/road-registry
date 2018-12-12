@@ -159,18 +159,13 @@ namespace RoadRegistry.LegacyStreamExtraction
                             {
                                 Points = Array.ConvertAll(
                                     input.Coordinates,
-                                    coordinate => new PointWithM
+                                    coordinate => new Point
                                     {
                                         X = coordinate.X,
                                         Y = coordinate.Y
-                                    })
+                                    }),
+                                Measures = geometry.GetOrdinates(Ordinate.M)
                             });
-                        var points = multiLineString.SelectMany(line => line.Points).ToArray();
-                        var measures = geometry.GetOrdinates(Ordinate.M);
-                        for (var index = 0; index < points.Length && index < measures.Length; index++)
-                        {
-                            points[index].M = measures[index];
-                        }
 
                         var segment = new ImportedRoadSegment
                         {
