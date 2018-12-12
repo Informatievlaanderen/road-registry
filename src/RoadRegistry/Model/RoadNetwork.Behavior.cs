@@ -320,16 +320,22 @@ namespace RoadRegistry.Model
                         break;
                     case AddGradeSeparatedJunction addGradeSeparatedJunction:
                     {
-                        if (!requestView.Segments.ContainsKey(addGradeSeparatedJunction.UpperSegmentId))
+                        if (!requestView.Segments.TryGetValue(addGradeSeparatedJunction.UpperSegmentId, out var upperSegment))
                         {
-                            problems = problems.UpperRoadSegmentMissing(
-                                addGradeSeparatedJunction.TemporaryUpperSegmentId ?? addGradeSeparatedJunction.UpperSegmentId);
+                            problems = problems.UpperRoadSegmentMissing();
                         }
 
-                        if (!requestView.Segments.ContainsKey(addGradeSeparatedJunction.LowerSegmentId))
+                        if (!requestView.Segments.TryGetValue(addGradeSeparatedJunction.LowerSegmentId, out var lowerSegment))
                         {
-                            problems = problems.LowerRoadSegmentMissing(
-                                addGradeSeparatedJunction.TemporaryLowerSegmentId ?? addGradeSeparatedJunction.LowerSegmentId);
+                            problems = problems.LowerRoadSegmentMissing();
+                        }
+
+                        if (upperSegment != null && lowerSegment != null)
+                        {
+                            if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))
+                            {
+                                problems = problems.UpperAndLowerRoadSegmentDoNotIntersect();
+                            }
                         }
 
                         if (problems.AreAcceptable())

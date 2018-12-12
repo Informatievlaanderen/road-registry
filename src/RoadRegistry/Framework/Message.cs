@@ -8,7 +8,7 @@ namespace RoadRegistry.Framework
         public Message(IDictionary<string, object> head, object body)
         {
             Head = head ?? throw new ArgumentNullException(nameof(head));
-            Body = body ?? throw new ArgumentNullException(nameof(body)); ;
+            Body = body ?? throw new ArgumentNullException(nameof(body));
         }
 
         public IDictionary<string, object> Head { get; }

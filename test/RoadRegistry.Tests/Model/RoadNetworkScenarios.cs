@@ -6,8 +6,6 @@ namespace RoadRegistry.Model
     using System.Threading.Tasks;
     using AutoFixture;
     using Aiv.Vbr.Shaperon;
-    using Aiv.Vbr.Utilities;
-    using FluentAssertions;
     using GeoAPI.Geometries;
     using Testing;
     using Xunit;
@@ -3606,6 +3604,97 @@ namespace RoadRegistry.Model
         }
 
         [Fact]
+        public Task when_adding_a_grade_separated_junction_with_segments_that_intersect()
+        {
+            Segment1Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            {
+                new LineString(
+                    new PointSequence(new[] {new PointM(0.0, 0.0), new PointM(50.0, 50.0)}),
+                    GeometryConfiguration.GeometryFactory)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                }
+            }));
+            Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
+            Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
+            Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
+            Segment2Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            {
+                new LineString(
+                    new PointSequence(new[] {new PointM(0.0, 50.0), new PointM(50.0, 0.0)}),
+                    GeometryConfiguration.GeometryFactory)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                }
+            }));
+            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
+            Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
+            Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
+            var addGradeSeparatedJunction = new Messages.AddGradeSeparatedJunction
+            {
+                TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
+                Type = Fixture.Create<GradeSeparatedJunctionType>(),
+                UpperSegmentId = Segment1Added.Id,
+                LowerSegmentId = Segment2Added.Id
+            };
+            return Run(scenario => scenario
+                .Given(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                {
+                    Changes = new []
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode2Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode2Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment2Added
+                        }
+                    }
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddGradeSeparatedJunction = addGradeSeparatedJunction
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                {
+                    Changes = new[]
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            GradeSeparatedJunctionAdded = new Messages.GradeSeparatedJunctionAdded
+                            {
+                                Id = 1,
+                                TemporaryId = addGradeSeparatedJunction.TemporaryId,
+                                UpperSegmentId = Segment1Added.Id,
+                                LowerSegmentId = Segment2Added.Id,
+                                Type = addGradeSeparatedJunction.Type
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
         public Task when_adding_a_grade_separated_junction_with_a_missing_upper_segment()
         {
             var addGradeSeparatedJunction = new Messages.AddGradeSeparatedJunction
@@ -3626,7 +3715,7 @@ namespace RoadRegistry.Model
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode2Added
+                            RoadNodeAdded = EndNode1Added
                         },
                         new Messages.AcceptedChange
                         {
@@ -3652,14 +3741,7 @@ namespace RoadRegistry.Model
                                 new Messages.Problem
                                 {
                                     Reason = "UpperRoadSegmentMissing",
-                                    Parameters = new []
-                                    {
-                                        new Messages.ProblemParameter
-                                        {
-                                            Name = "SegmentId",
-                                            Value = addGradeSeparatedJunction.UpperSegmentId.ToString()
-                                        }
-                                    }
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
                             },
                             Warnings = new Messages.Problem[0]
@@ -3689,7 +3771,7 @@ namespace RoadRegistry.Model
                         },
                         new Messages.AcceptedChange
                         {
-                            RoadNodeAdded = StartNode2Added
+                            RoadNodeAdded = EndNode1Added
                         },
                         new Messages.AcceptedChange
                         {
@@ -3715,14 +3797,75 @@ namespace RoadRegistry.Model
                                 new Messages.Problem
                                 {
                                     Reason = "LowerRoadSegmentMissing",
-                                    Parameters = new []
-                                    {
-                                        new Messages.ProblemParameter
-                                        {
-                                            Name = "SegmentId",
-                                            Value = addGradeSeparatedJunction.LowerSegmentId.ToString()
-                                        }
-                                    }
+                                    Parameters = new Messages.ProblemParameter[0]
+                                }
+                            },
+                            Warnings = new Messages.Problem[0]
+                        }
+                    }
+                }));
+        }
+
+        [Fact]
+        public Task when_adding_a_grade_separated_junction_with_segments_that_do_not_intersect()
+        {
+            var addGradeSeparatedJunction = new Messages.AddGradeSeparatedJunction
+            {
+                TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
+                Type = Fixture.Create<GradeSeparatedJunctionType>(),
+                UpperSegmentId = Segment1Added.Id,
+                LowerSegmentId = Segment2Added.Id
+            };
+            return Run(scenario => scenario
+                .Given(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                {
+                    Changes = new []
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode2Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode2Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment2Added
+                        }
+                    }
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    new Messages.RequestedChange
+                    {
+                        AddGradeSeparatedJunction = addGradeSeparatedJunction
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                {
+                    Changes = new[]
+                    {
+                        new Messages.RejectedChange
+                        {
+                            AddGradeSeparatedJunction = addGradeSeparatedJunction,
+                            Errors = new []
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "UpperAndLowerRoadSegmentDoNotIntersect",
+                                    Parameters = new Messages.ProblemParameter[0]
                                 }
                             },
                             Warnings = new Messages.Problem[0]
