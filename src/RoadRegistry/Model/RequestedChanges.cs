@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Linq;
 
     public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequestedChangeIdentityTranslator
     {
@@ -185,6 +186,14 @@
             return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out var temporary)
                 ? temporary
                 : id;
+        }
+
+        public VerifiedChanges VerifyWith(RoadNetworkView view)
+        {
+            var context = new VerificationContext(view, this);
+            return _changes.Aggregate(
+                VerifiedChanges.Empty,
+                (verifiedChanges, requestedChange) => verifiedChanges.Append(requestedChange.Verify(context)));
         }
     }
 }

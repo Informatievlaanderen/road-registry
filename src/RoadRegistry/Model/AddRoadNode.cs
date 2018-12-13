@@ -20,7 +20,7 @@ namespace RoadRegistry.Model
         public RoadNodeType Type { get; }
         public Point Geometry { get; }
 
-        public IVerifiedChange Verify(ChangeContext context)
+        public IVerifiedChange Verify(VerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -37,6 +37,17 @@ namespace RoadRegistry.Model
             }
 
             var node = context.View.Nodes[Id];
+
+            errors = context.View.Segments.Values
+                .Where(s =>
+                    !node.Segments.Contains(s.Id) &&
+                    s.Geometry.IsWithinDistance(Geometry, VerificationContext.TooCloseDistance)
+                )
+                .Aggregate(
+                    errors,
+                    (current, segment) =>
+                        current.RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id)));
+
             var connectedSegmentCount = node.Segments.Count;
             if (connectedSegmentCount == 0)
             {

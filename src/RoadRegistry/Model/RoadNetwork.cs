@@ -9,7 +9,6 @@ namespace RoadRegistry.Model
     public class RoadNetwork : EventSourcedEntity
     {
         public static readonly Func<RoadNetwork> Factory = () => new RoadNetwork();
-        public static readonly double TooCloseDistance = 2.0;
 
         private RoadNetworkView _view;
 
@@ -42,11 +41,8 @@ namespace RoadRegistry.Model
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
-            var context = new ChangeContext(_view.With(requestedChanges), requestedChanges);
             requestedChanges
-                .Aggregate(
-                    VerifiedChanges.Empty,
-                    (verifiedChanges, requestedChange) => verifiedChanges.Append(requestedChange.Verify(context)))
+                .VerifyWith(_view.With(requestedChanges))
                 .RecordUsing(Apply);
         }
 

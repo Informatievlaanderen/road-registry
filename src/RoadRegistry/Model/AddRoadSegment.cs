@@ -67,7 +67,7 @@ namespace RoadRegistry.Model
         public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
         public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
 
-        public IVerifiedChange Verify(ChangeContext context)
+        public IVerifiedChange Verify(VerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 

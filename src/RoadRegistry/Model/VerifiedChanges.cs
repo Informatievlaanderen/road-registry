@@ -4,7 +4,7 @@ namespace RoadRegistry.Model
     using System.Collections.Immutable;
     using System.Linq;
 
-    internal class VerifiedChanges
+    public class VerifiedChanges
     {
         private readonly ImmutableList<IVerifiedChange> _changes;
 
@@ -27,7 +27,7 @@ namespace RoadRegistry.Model
         public void RecordUsing(Action<object> applier)
         {
             if (_changes.Count == 0) return;
-            
+
             if (_changes.OfType<RejectedChange>().Any())
             {
                 applier(new Messages.RoadNetworkChangesRejected

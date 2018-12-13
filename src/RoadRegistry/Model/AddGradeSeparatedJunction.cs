@@ -32,7 +32,7 @@ namespace RoadRegistry.Model
         public RoadSegmentId LowerSegmentId { get; }
         public RoadSegmentId? TemporaryLowerSegmentId { get; }
 
-        public IVerifiedChange Verify(ChangeContext context)
+        public IVerifiedChange Verify(VerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 

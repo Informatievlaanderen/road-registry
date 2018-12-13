@@ -29,7 +29,7 @@ namespace RoadRegistry.Model
             Ordinal = ordinal;
         }
 
-        public IVerifiedChange Verify(ChangeContext context)
+        public IVerifiedChange Verify(VerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 

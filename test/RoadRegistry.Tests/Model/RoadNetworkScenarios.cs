@@ -1735,6 +1735,18 @@ namespace RoadRegistry.Model
                                             Value = "1"
                                         }
                                     }
+                                },
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTooClose",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ToOtherSegment",
+                                            Value = "1"
+                                        }
+                                    }
                                 }
                             },
                             Warnings = new Messages.Problem[0]
@@ -1826,6 +1838,18 @@ namespace RoadRegistry.Model
                                             Value = "2"
                                         }
                                     }
+                                },
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTooClose",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ToOtherSegment",
+                                            Value = "1"
+                                        }
+                                    }
                                 }
                             },
                             Warnings = new Messages.Problem[0]
@@ -1904,22 +1928,35 @@ namespace RoadRegistry.Model
                 }));
         }
 
-        [Fact(Skip = "This test should be about being within two meters of another segment")]
-        public Task when_adding_a_start_node_that_is_within_two_meters_of_another_node()
+        [Fact]
+        public Task when_adding_a_start_node_that_is_within_two_meters_of_another_segment()
         {
             var random = new Random();
             var startPoint = new PointM(
-                StartPoint1.X + random.NextDouble() * RoadNetwork.TooCloseDistance,
-                StartPoint1.Y + random.NextDouble() * RoadNetwork.TooCloseDistance
-            );
+                StartPoint1.X + random.Next(1, 1000) / 1000.0 * VerificationContext.TooCloseDistance,
+                StartPoint1.Y + random.Next(1, 1000) / 1000.0 * VerificationContext.TooCloseDistance
+            ) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()};
             AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
+            AddSegment2.Widths = new Messages.RequestedRoadSegmentWidthAttribute[0];
+            Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
+            AddSegment2.Surfaces = new Messages.RequestedRoadSegmentSurfaceAttribute[0];
+            Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
                     new ILineString[]
                     {
                         new LineString(
-                            new PointSequence(new[] {startPoint, MiddlePoint2, EndPoint2}),
+                            new PointSequence(new[]
+                            {
+                                new PointM(startPoint.X, startPoint.Y, double.NaN, 0.0)
+                                    {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()},
+                                new PointM(MiddlePoint2.X, MiddlePoint2.Y, double.NaN, startPoint.Distance(MiddlePoint2))
+                                    {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()},
+                                new PointM(EndPoint2.X, EndPoint2.Y, double.NaN,
+                                    startPoint.Distance(MiddlePoint2) + MiddlePoint2.Distance(EndPoint2))
+                                    {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
+                            }),
                             GeometryConfiguration.GeometryFactory
                         )
                     }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
@@ -1977,7 +2014,7 @@ namespace RoadRegistry.Model
                                     {
                                         new Messages.ProblemParameter
                                         {
-                                            Name = "ToOtherNode",
+                                            Name = "ToOtherSegment",
                                             Value = "1"
                                         }
                                     }
@@ -1995,9 +2032,8 @@ namespace RoadRegistry.Model
         {
             var random = new Random();
             var endPoint = new PointM(
-                EndPoint1.X + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance,
-                EndPoint1.Y + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance,
-                EndPoint1.Z + random.NextDouble() / 2.0 * RoadNetwork.TooCloseDistance
+                EndPoint1.X + random.NextDouble() / 2.0 * VerificationContext.TooCloseDistance,
+                EndPoint1.Y + random.NextDouble() / 2.0 * VerificationContext.TooCloseDistance
             );
             AddSegment2.Lanes = new Messages.RequestedRoadSegmentLaneAttribute[0];
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];

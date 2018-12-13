@@ -36,16 +36,16 @@ namespace RoadRegistry.Model
             );
         }
 
-//        public Errors RoadNodeTooClose(RoadNodeId toOtherNode)
-//        {
-//            return new Errors(_errors.Add(
-//                    new Error(
-//                        nameof(RoadNodeTooClose),
-//                        new ProblemParameter(
-//                            "ToOtherNode",
-//                            toOtherNode.ToInt32().ToString())))
-//            );
-//        }
+        public Errors RoadNodeTooClose(RoadSegmentId toOtherSegment)
+        {
+            return new Errors(_errors.Add(
+                    new Error(
+                        nameof(RoadNodeTooClose),
+                        new ProblemParameter(
+                            "ToOtherSegment",
+                            toOtherSegment.ToInt32().ToString())))
+            );
+        }
 
         public Errors RoadNodeNotConnectedToAnySegment() => new Errors(_errors.Add(new Error(nameof(RoadNodeNotConnectedToAnySegment))));
 

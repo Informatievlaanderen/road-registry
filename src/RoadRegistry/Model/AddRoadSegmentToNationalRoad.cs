@@ -23,7 +23,7 @@ namespace RoadRegistry.Model
             Number = number;
         }
 
-        public IVerifiedChange Verify(ChangeContext context)
+        public IVerifiedChange Verify(VerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
