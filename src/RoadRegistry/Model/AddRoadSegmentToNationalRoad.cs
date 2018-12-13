@@ -1,8 +1,5 @@
 namespace RoadRegistry.Model
 {
-    using System.Collections.Generic;
-    using System.Linq;
-
     public class AddRoadSegmentToNationalRoad : IRequestedChange
     {
         public AttributeId AttributeId { get; }
@@ -24,33 +21,40 @@ namespace RoadRegistry.Model
             Number = number;
         }
 
-        public Messages.AcceptedChange Accept(IReadOnlyCollection<Problem> problems)
+        public IVerifiedChange Verify(ChangeContext context)
         {
-            return new Messages.AcceptedChange
+            var errors = Errors.None;
+
+            if (!context.View.Segments.ContainsKey(SegmentId))
             {
-                RoadSegmentAddedToNationalRoad = new Messages.RoadSegmentAddedToNationalRoad
-                {
-                    AttributeId = AttributeId,
-                    Ident2 = Number,
-                    SegmentId = SegmentId,
-                    TemporaryAttributeId = TemporaryAttributeId
-                },
-                Warnings = problems.OfType<Warning>().Select(warning => warning.Translate()).ToArray()
+                errors = errors.RoadSegmentMissing(TemporarySegmentId ?? SegmentId);
+            }
+
+            if (errors.Count > 0)
+            {
+                return new RejectedChange(this, errors, Warnings.None);
+            }
+            return new AcceptedChange(this, Warnings.None);
+        }
+
+        public void TranslateTo(Messages.AcceptedChange message)
+        {
+            message.RoadSegmentAddedToNationalRoad = new Messages.RoadSegmentAddedToNationalRoad
+            {
+                AttributeId = AttributeId,
+                Ident2 = Number,
+                SegmentId = SegmentId,
+                TemporaryAttributeId = TemporaryAttributeId
             };
         }
 
-        public Messages.RejectedChange Reject(IReadOnlyCollection<Problem> problems)
+        public void TranslateTo(Messages.RejectedChange message)
         {
-            return new Messages.RejectedChange
+            message.AddRoadSegmentToNationalRoad = new Messages.AddRoadSegmentToNationalRoad
             {
-                AddRoadSegmentToNationalRoad = new Messages.AddRoadSegmentToNationalRoad
-                {
-                    TemporaryAttributeId = TemporaryAttributeId,
-                    Ident2 = Number,
-                    SegmentId = SegmentId
-                },
-                Errors = problems.OfType<Error>().Select(error => error.Translate()).ToArray(),
-                Warnings = problems.OfType<Warning>().Select(warning => warning.Translate()).ToArray()
+                TemporaryAttributeId = TemporaryAttributeId,
+                Ident2 = Number,
+                SegmentId = SegmentId
             };
         }
     }

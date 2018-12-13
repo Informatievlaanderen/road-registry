@@ -107,7 +107,7 @@
 
             var startNodeId = new RoadNodeId(command.StartNodeId);
             RoadNodeId? temporaryStartNodeId;
-            if (requestedChanges.TryResolvePermanent(startNodeId, out var permanentStartNodeId))
+            if (requestedChanges.TryTranslateToPermanent(startNodeId, out var permanentStartNodeId))
             {
                 temporaryStartNodeId = startNodeId;
                 startNodeId = permanentStartNodeId;
@@ -119,7 +119,7 @@
 
             var endNodeId = new RoadNodeId(command.EndNodeId);
             RoadNodeId? temporaryEndNodeId;
-            if (requestedChanges.TryResolvePermanent(endNodeId, out var permanentEndNodeId))
+            if (requestedChanges.TryTranslateToPermanent(endNodeId, out var permanentEndNodeId))
             {
                 temporaryEndNodeId = endNodeId;
                 endNodeId = permanentEndNodeId;
@@ -210,7 +210,7 @@
 
             var segmentId = new RoadSegmentId(command.SegmentId);
             RoadSegmentId? temporarySegmentId;
-            if (requestedChanges.TryResolvePermanent(segmentId, out var permanentSegmentId))
+            if (requestedChanges.TryTranslateToPermanent(segmentId, out var permanentSegmentId))
             {
                 temporarySegmentId = segmentId;
                 segmentId = permanentSegmentId;
@@ -238,7 +238,7 @@
 
             var segmentId = new RoadSegmentId(command.SegmentId);
             RoadSegmentId? temporarySegmentId;
-            if (requestedChanges.TryResolvePermanent(segmentId, out var permanentSegmentId))
+            if (requestedChanges.TryTranslateToPermanent(segmentId, out var permanentSegmentId))
             {
                 temporarySegmentId = segmentId;
                 segmentId = permanentSegmentId;
@@ -266,7 +266,7 @@
 
             var segmentId = new RoadSegmentId(command.SegmentId);
             RoadSegmentId? temporarySegmentId;
-            if (requestedChanges.TryResolvePermanent(segmentId, out var permanentSegmentId))
+            if (requestedChanges.TryTranslateToPermanent(segmentId, out var permanentSegmentId))
             {
                 temporarySegmentId = segmentId;
                 segmentId = permanentSegmentId;
@@ -298,7 +298,7 @@
 
             var upperSegmentId = new RoadSegmentId(command.UpperSegmentId);
             RoadSegmentId? temporaryUpperSegmentId;
-            if (requestedChanges.TryResolvePermanent(upperSegmentId, out var permanentUpperSegmentId))
+            if (requestedChanges.TryTranslateToPermanent(upperSegmentId, out var permanentUpperSegmentId))
             {
                 temporaryUpperSegmentId = upperSegmentId;
                 upperSegmentId = permanentUpperSegmentId;
@@ -310,7 +310,7 @@
 
             var lowerSegmentId = new RoadSegmentId(command.LowerSegmentId);
             RoadSegmentId? temporaryLowerSegmentId;
-            if (requestedChanges.TryResolvePermanent(lowerSegmentId, out var permanentLowerSegmentId))
+            if (requestedChanges.TryTranslateToPermanent(lowerSegmentId, out var permanentLowerSegmentId))
             {
                 temporaryLowerSegmentId = lowerSegmentId;
                 lowerSegmentId = permanentLowerSegmentId;
@@ -405,6 +405,10 @@
                 _mapToTemporaryGradeSeparatedJunctionIdentifiers = mapToTemporaryGradeSeparatedJunctionIdentifiers;
             }
 
+            public IEnumerator<IRequestedChange> GetEnumerator() => _changes.GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            public int Count => _changes.Count;
+
             public RequestedChanges Append(AddRoadNode change)
             {
                 if (change == null)
@@ -495,42 +499,56 @@
                     _mapToTemporaryGradeSeparatedJunctionIdentifiers.Add(change.Id, change.TemporaryId));
             }
 
-            public bool TryResolvePermanent(RoadNodeId id, out RoadNodeId permanent)
+            public bool TryTranslateToPermanent(RoadNodeId id, out RoadNodeId permanent)
             {
                 return _mapToPermanentNodeIdentifiers.TryGetValue(id, out permanent);
             }
 
-            public bool TryResolveTemporary(RoadNodeId id, out RoadNodeId temporary)
-            {
-                return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out temporary);
-            }
-
-            public bool TryResolvePermanent(RoadSegmentId id, out RoadSegmentId permanent)
+            public bool TryTranslateToPermanent(RoadSegmentId id, out RoadSegmentId permanent)
             {
                 return _mapToPermanentSegmentIdentifiers.TryGetValue(id, out permanent);
             }
 
-            public bool TryResolveTemporary(RoadSegmentId id, out RoadSegmentId temporary)
-            {
-                return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out temporary);
-            }
-
-            public bool TryResolvePermanent(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
+            public bool TryTranslateToPermanent(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
             {
                 return _mapToPermanentGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
             }
 
-            public bool TryResolveTemporary(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
+            public bool TryTranslateToTemporary(RoadNodeId id, out RoadNodeId temporary)
+            {
+                return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out temporary);
+            }
+
+            public bool TryTranslateToTemporary(RoadSegmentId id, out RoadSegmentId temporary)
+            {
+                return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out temporary);
+            }
+
+            public bool TryTranslateToTemporary(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
             {
                 return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
             }
 
-            public IEnumerator<IRequestedChange> GetEnumerator() =>
-                ((IEnumerable<IRequestedChange>) _changes).GetEnumerator();
+            public RoadNodeId TranslateToTemporaryOrId(RoadNodeId id)
+            {
+                return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out var temporary)
+                    ? temporary
+                    : id;
+            }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            public RoadSegmentId TranslateToTemporaryOrId(RoadSegmentId id)
+            {
+                return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out var temporary)
+                    ? temporary
+                    : id;
+            }
 
-            public int Count => _changes.Count;
+            public GradeSeparatedJunctionId TranslateToTemporaryOrId(GradeSeparatedJunctionId id)
+            {
+                return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out var temporary)
+                    ? temporary
+                    : id;
+            }
         }
     }
 }

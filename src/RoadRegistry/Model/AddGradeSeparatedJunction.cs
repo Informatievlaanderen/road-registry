@@ -7,9 +7,9 @@ namespace RoadRegistry.Model
     public class AddGradeSeparatedJunction : IRequestedChange
     {
         public AddGradeSeparatedJunction(
-            GradeSeparatedJunctionId id, 
+            GradeSeparatedJunctionId id,
             GradeSeparatedJunctionId temporaryId,
-            GradeSeparatedJunctionType type, 
+            GradeSeparatedJunctionType type,
             RoadSegmentId upperSegmentId,
             RoadSegmentId? temporaryUpperSegmentId,
             RoadSegmentId lowerSegmentId,
@@ -32,35 +32,54 @@ namespace RoadRegistry.Model
         public RoadSegmentId LowerSegmentId { get; }
         public RoadSegmentId? TemporaryLowerSegmentId { get; }
 
-        public Messages.AcceptedChange Accept(IReadOnlyCollection<Problem> problems)
+        public IVerifiedChange Verify(ChangeContext context)
         {
-            return new Messages.AcceptedChange
+            var errors = Errors.None;
+            if (!context.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
             {
-                GradeSeparatedJunctionAdded = new Messages.GradeSeparatedJunctionAdded
+                errors = errors.UpperRoadSegmentMissing();
+            }
+
+            if (!context.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
+            {
+                errors = errors.LowerRoadSegmentMissing();
+            }
+
+            if (upperSegment != null && lowerSegment != null)
+            {
+                if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))
                 {
-                    Id = Id,
-                    TemporaryId = TemporaryId,
-                    Type = Type.ToString(),
-                    UpperSegmentId = UpperSegmentId,
-                    LowerSegmentId = LowerSegmentId
-                },
-                Warnings = problems.OfType<Warning>().Select(warning => warning.Translate()).ToArray()
+                    errors = errors.UpperAndLowerRoadSegmentDoNotIntersect();
+                }
+            }
+
+            if (errors.Count > 0)
+            {
+                return new RejectedChange(this, errors, Warnings.None);
+            }
+            return new AcceptedChange(this, Warnings.None);
+        }
+
+        public void TranslateTo(Messages.AcceptedChange message)
+        {
+            message.GradeSeparatedJunctionAdded = new Messages.GradeSeparatedJunctionAdded
+            {
+                Id = Id,
+                TemporaryId = TemporaryId,
+                Type = Type.ToString(),
+                UpperSegmentId = UpperSegmentId,
+                LowerSegmentId = LowerSegmentId
             };
         }
 
-        public Messages.RejectedChange Reject(IReadOnlyCollection<Problem> problems)
+        public void TranslateTo(Messages.RejectedChange message)
         {
-            return new Messages.RejectedChange
+            message.AddGradeSeparatedJunction = new Messages.AddGradeSeparatedJunction
             {
-                AddGradeSeparatedJunction = new Messages.AddGradeSeparatedJunction
-                {
-                    TemporaryId = TemporaryId,
-                    Type = Type.ToString(),
-                    UpperSegmentId = TemporaryUpperSegmentId ?? UpperSegmentId,
-                    LowerSegmentId = TemporaryLowerSegmentId ?? LowerSegmentId
-                },
-                Errors = problems.OfType<Error>().Select(error => error.Translate()).ToArray(),
-                Warnings = problems.OfType<Warning>().Select(warning => warning.Translate()).ToArray()
+                TemporaryId = TemporaryId,
+                Type = Type.ToString(),
+                UpperSegmentId = TemporaryUpperSegmentId ?? UpperSegmentId,
+                LowerSegmentId = TemporaryLowerSegmentId ?? LowerSegmentId
             };
         }
     }

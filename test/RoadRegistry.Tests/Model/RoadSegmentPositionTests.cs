@@ -47,6 +47,17 @@
         }
 
         [Fact]
+        public void ToDoubleReturnsExpectedValue()
+        {
+            var value = _fixture.Create<decimal>();
+            var sut =  new RoadSegmentPosition(value);
+
+            var result = sut.ToDouble();
+
+            Assert.Equal(decimal.ToDouble(value), result);
+        }
+
+        [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = _fixture.Create<decimal>();

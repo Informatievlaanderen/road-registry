@@ -21,10 +21,10 @@
                 }
                 .Single(_ => !ReferenceEquals(_, null));
 
-        public static IEnumerable<object> Flatten(this IEnumerable<AcceptedChange> changes) =>
+        public static IEnumerable<object> Flatten(this IEnumerable<Messages.AcceptedChange> changes) =>
             changes.Select(change => change.Flatten());
 
-        private static object Flatten(this AcceptedChange change) =>
+        private static object Flatten(this Messages.AcceptedChange change) =>
             new object[]
                 {
                     change.RoadNodeAdded,

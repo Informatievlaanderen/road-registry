@@ -20,41 +20,89 @@ namespace RoadRegistry.Model
         public RoadNodeType Type { get; }
         public Point Geometry { get; }
 
-        public Messages.AcceptedChange Accept(IReadOnlyCollection<Problem> problems)
+        public IVerifiedChange Verify(ChangeContext context)
         {
-            return new Messages.AcceptedChange
+            var errors = Errors.None;
+            var byOtherNode =
+                context.View.Nodes.Values.FirstOrDefault(n =>
+                    n.Id != Id &&
+                    n.Geometry.EqualsExact(Geometry));
+            if (byOtherNode != null)
             {
-                RoadNodeAdded = new Messages.RoadNodeAdded
+                errors = errors.RoadNodeGeometryTaken(
+                    context.Translator.TranslateToTemporaryOrId(byOtherNode.Id)
+                );
+            }
+
+            var node = context.View.Nodes[Id];
+            var connectedSegmentCount = node.Segments.Count;
+            if (connectedSegmentCount == 0)
+            {
+                errors = errors.RoadNodeNotConnectedToAnySegment();
+            }
+            else if (connectedSegmentCount == 1 && Type != RoadNodeType.EndNode)
+            {
+                errors = errors.RoadNodeTypeMismatch(RoadNodeType.EndNode);
+            }
+            else if (connectedSegmentCount == 2)
+            {
+                if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
                 {
-                    Id = Id,
-                    TemporaryId = TemporaryId,
-                    Type = Type.ToString(),
-                    Geometry = new Messages.RoadNodeGeometry
+                    errors = errors.RoadNodeTypeMismatch(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode);
+                }
+                else if (Type == RoadNodeType.FakeNode)
+                {
+                    var segments = node.Segments.Select(segmentId => context.View.Segments[segmentId])
+                        .ToArray();
+                    var segment1 = segments[0];
+                    var segment2 = segments[1];
+                    if (segment1.AttributeHash.Equals(segment2.AttributeHash))
                     {
-                        SpatialReferenceSystemIdentifier = Geometry.SRID,
-                        Point = new Messages.Point
-                        {
-                            X = Geometry.X,
-                            Y = Geometry.Y
-                        }
+                        errors = errors.FakeRoadNodeConnectedSegmentsDoNotDiffer(
+                            context.Translator.TranslateToTemporaryOrId(segment1.Id),
+                            context.Translator.TranslateToTemporaryOrId(segment2.Id)
+                        );
                     }
-                },
-                Warnings = problems.OfType<Warning>().Select(warning => warning.Translate()).ToArray()
+                }
+            }
+            else if (connectedSegmentCount > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
+            {
+                errors = errors.RoadNodeTypeMismatch(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout);
+            }
+
+            if (errors.Count > 0)
+            {
+                return new RejectedChange(this, errors, Warnings.None);
+            }
+            return new AcceptedChange(this, Warnings.None);
+        }
+
+        public void TranslateTo(Messages.AcceptedChange message)
+        {
+            message.RoadNodeAdded = new Messages.RoadNodeAdded
+            {
+                Id = Id,
+                TemporaryId = TemporaryId,
+                Type = Type.ToString(),
+                Geometry = new Messages.RoadNodeGeometry
+                {
+                    SpatialReferenceSystemIdentifier = Geometry.SRID,
+                    Point = new Messages.Point
+                    {
+                        X = Geometry.X,
+                        Y = Geometry.Y
+                    }
+                }
             };
         }
 
-        public Messages.RejectedChange Reject(IReadOnlyCollection<Problem> problems)
+        public void TranslateTo(Messages.RejectedChange message)
         {
-            return new Messages.RejectedChange
+            message.AddRoadNode = new Messages.AddRoadNode
             {
-                AddRoadNode = new Messages.AddRoadNode
-                {
-                    TemporaryId = TemporaryId,
-                    Type = Type.ToString(),
-                    Geometry = GeometryTranslator.Translate(Geometry)
-                },
-                Errors = problems.OfType<Error>().Select(error => error.Translate()).ToArray(),
-                Warnings = problems.OfType<Warning>().Select(warning => warning.Translate()).ToArray()
+                TemporaryId = TemporaryId,
+                Type = Type.ToString(),
+                Geometry = GeometryTranslator.Translate(Geometry)
             };
         }
     }

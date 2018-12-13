@@ -20,6 +20,8 @@
 
         [Pure]
         public decimal ToDecimal() => _value;
+        [Pure]
+        public double ToDouble() => decimal.ToDouble(_value);
         public bool Equals(RoadSegmentPosition other) => _value.Equals(other._value);
         public override bool Equals(object other) => other is RoadSegmentPosition id && Equals(id);
         public override int GetHashCode() => _value.GetHashCode();

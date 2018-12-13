@@ -37,7 +37,7 @@ namespace RoadRegistry
             var method = type
                 .GetMethods()
                 .SingleOrDefault(candidate =>
-                    candidate.Name == ("To" + typeof(TResult).Name)
+                    candidate.Name == "To" + typeof(TResult).Name
                     && candidate.GetParameters().Length == 0
                     && candidate.ReturnParameter.ParameterType == typeof(TResult));
 
@@ -63,7 +63,7 @@ namespace RoadRegistry
             catch (Exception exception)
             {
                 throw new ImplicitConversionOperatorException(type, typeof(TResult),
-                    $"The explicit conversion method to type '{nameof(TResult)}' of type '{type.Name}' threw an exception.", exception);
+                    $"The explicit conversion method to type '{typeof(TResult).Name}' of type '{type.Name}' threw an exception.", exception);
             }
         }
     }
