@@ -2,9 +2,54 @@ namespace RoadRegistry.Model
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using Framework;
+    using Messages;
 
-    public partial class RoadNetwork
+    public class RoadNetwork : EventSourcedEntity
     {
+        public static readonly Func<RoadNetwork> Factory = () => new RoadNetwork();
+        public static readonly double TooCloseDistance = 2.0;
+
+        private RoadNetworkView _view;
+
+        private RoadNetwork()
+        {
+            _view = RoadNetworkView.Empty;
+
+            On<ImportedRoadNode>(e =>
+            {
+                _view = _view.Given(e);
+            });
+
+            On<ImportedGradeSeparatedJunction>(e =>
+            {
+                _view = _view.Given(e);
+            });
+
+            On<ImportedRoadSegment>(e =>
+            {
+                _view = _view.Given(e);
+            });
+
+            On<RoadNetworkChangesAccepted>(e =>
+            {
+                _view = _view.Given(e);
+            });
+        }
+
+        public void Change(IRequestedChanges requestedChanges)
+        {
+            //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
+
+            var context = new ChangeContext(_view.With(requestedChanges), requestedChanges);
+            requestedChanges
+                .Aggregate(
+                    VerifiedChanges.Empty,
+                    (verifiedChanges, change) => verifiedChanges.Append(change.Verify(context)))
+                .RecordUsing(Apply);
+        }
+
         public Func<RoadNodeId> ProvidesNextRoadNodeId()
         {
             return new NextRoadNodeIdProvider(_view.MaximumNodeId).Next;
