@@ -38,7 +38,7 @@ namespace RoadRegistry.Model
             });
         }
 
-        public void Change(IRequestedChanges requestedChanges)
+        public void Change(RequestedChanges requestedChanges)
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
@@ -46,7 +46,7 @@ namespace RoadRegistry.Model
             requestedChanges
                 .Aggregate(
                     VerifiedChanges.Empty,
-                    (verifiedChanges, change) => verifiedChanges.Append(change.Verify(context)))
+                    (verifiedChanges, requestedChange) => verifiedChanges.Append(requestedChange.Verify(context)))
                 .RecordUsing(Apply);
         }
 

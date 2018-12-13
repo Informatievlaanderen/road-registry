@@ -22,6 +22,8 @@ namespace RoadRegistry.Model
 
         public IVerifiedChange Verify(ChangeContext context)
         {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
             var errors = Errors.None;
             var byOtherNode =
                 context.View.Nodes.Values.FirstOrDefault(n =>
@@ -79,6 +81,8 @@ namespace RoadRegistry.Model
 
         public void TranslateTo(Messages.AcceptedChange message)
         {
+            if (message == null) throw new ArgumentNullException(nameof(message));
+
             message.RoadNodeAdded = new Messages.RoadNodeAdded
             {
                 Id = Id,
@@ -98,6 +102,8 @@ namespace RoadRegistry.Model
 
         public void TranslateTo(Messages.RejectedChange message)
         {
+            if (message == null) throw new ArgumentNullException(nameof(message));
+
             message.AddRoadNode = new Messages.AddRoadNode
             {
                 TemporaryId = TemporaryId,

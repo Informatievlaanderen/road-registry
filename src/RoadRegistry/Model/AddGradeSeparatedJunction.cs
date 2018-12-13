@@ -34,6 +34,8 @@ namespace RoadRegistry.Model
 
         public IVerifiedChange Verify(ChangeContext context)
         {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
             var errors = Errors.None;
             if (!context.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
             {
@@ -62,6 +64,8 @@ namespace RoadRegistry.Model
 
         public void TranslateTo(Messages.AcceptedChange message)
         {
+            if (message == null) throw new ArgumentNullException(nameof(message));
+
             message.GradeSeparatedJunctionAdded = new Messages.GradeSeparatedJunctionAdded
             {
                 Id = Id,
@@ -74,6 +78,8 @@ namespace RoadRegistry.Model
 
         public void TranslateTo(Messages.RejectedChange message)
         {
+            if (message == null) throw new ArgumentNullException(nameof(message));
+
             message.AddGradeSeparatedJunction = new Messages.AddGradeSeparatedJunction
             {
                 TemporaryId = TemporaryId,

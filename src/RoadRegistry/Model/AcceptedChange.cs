@@ -1,5 +1,6 @@
 namespace RoadRegistry.Model
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -10,8 +11,8 @@ namespace RoadRegistry.Model
 
         public AcceptedChange(IRequestedChange change, IReadOnlyCollection<Warning> warnings)
         {
-            _change = change;
-            _warnings = warnings;
+            _change = change ?? throw new ArgumentNullException(nameof(change));
+            _warnings = warnings ?? throw new ArgumentNullException(nameof(warnings));
         }
 
         public Messages.AcceptedChange Translate()

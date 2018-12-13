@@ -69,6 +69,8 @@ namespace RoadRegistry.Model
 
         public IVerifiedChange Verify(ChangeContext context)
         {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
             var errors = Errors.None;
             if (Math.Abs(Geometry.Length) <= context.Tolerance)
             {
@@ -272,6 +274,8 @@ namespace RoadRegistry.Model
 
         public void TranslateTo(Messages.AcceptedChange message)
         {
+            if (message == null) throw new ArgumentNullException(nameof(message));
+
             message.RoadSegmentAdded = new Messages.RoadSegmentAdded
             {
                 Id = Id,
@@ -332,6 +336,8 @@ namespace RoadRegistry.Model
 
         public void TranslateTo(Messages.RejectedChange message)
         {
+            if (message == null) throw new ArgumentNullException(nameof(message));
+
             message.AddRoadSegment = new Messages.AddRoadSegment
             {
                 TemporaryId = TemporaryId,

@@ -1,5 +1,7 @@
 namespace RoadRegistry.Model
 {
+    using System;
+
     public class AddRoadSegmentToNationalRoad : IRequestedChange
     {
         public AttributeId AttributeId { get; }
@@ -23,6 +25,8 @@ namespace RoadRegistry.Model
 
         public IVerifiedChange Verify(ChangeContext context)
         {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
             var errors = Errors.None;
 
             if (!context.View.Segments.ContainsKey(SegmentId))
@@ -39,6 +43,8 @@ namespace RoadRegistry.Model
 
         public void TranslateTo(Messages.AcceptedChange message)
         {
+            if (message == null) throw new ArgumentNullException(nameof(message));
+
             message.RoadSegmentAddedToNationalRoad = new Messages.RoadSegmentAddedToNationalRoad
             {
                 AttributeId = AttributeId,
@@ -50,6 +56,8 @@ namespace RoadRegistry.Model
 
         public void TranslateTo(Messages.RejectedChange message)
         {
+            if (message == null) throw new ArgumentNullException(nameof(message));
+
             message.AddRoadSegmentToNationalRoad = new Messages.AddRoadSegmentToNationalRoad
             {
                 TemporaryAttributeId = TemporaryAttributeId,
