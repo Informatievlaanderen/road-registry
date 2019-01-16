@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Api.Tests
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Downloads;
@@ -10,21 +11,21 @@
     using Projections;
     using Xunit;
 
-    [Collection(nameof(SqlServerDatabaseCollection))]
+    [Collection(nameof(SqlServerCollection))]
     public class DownloadControllerTests
     {
-        private readonly SqlServerDatabaseFixture _fixture;
+        private readonly SqlServer _fixture;
 
-        public DownloadControllerTests(SqlServerDatabaseFixture fixture)
+        public DownloadControllerTests(SqlServer fixture)
         {
-            _fixture = fixture;
+            _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }
 
         [Fact]
         public async Task When_downloading_before_an_import()
         {
             var controller = new DownloadController();
-            using (var context = await _fixture.CreateEmptyShapeContextAsync())
+            using (var context = await _fixture.CreateEmptyShapeContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 var result = await controller.Get(context, CancellationToken.None);
 
@@ -37,7 +38,8 @@
         public async Task When_downloading_during_an_import()
         {
             var controller = new DownloadController();
-            using (var context = await _fixture.CreateEmptyShapeContextAsync())
+            var database = await _fixture.CreateDatabaseAsync();
+            using (var context = await _fixture.CreateEmptyShapeContextAsync(database))
             {
                 context.RoadNetworkInfo.Add(new RoadNetworkInfo
                 {
@@ -47,7 +49,7 @@
                 await context.SaveChangesAsync();
             }
 
-            using (var context = await _fixture.CreateShapeContextAsync())
+            using (var context = await _fixture.CreateShapeContextAsync(database))
             {
                 var result = await controller.Get(context, CancellationToken.None);
 
@@ -60,7 +62,8 @@
         public async Task When_downloading_after_an_import()
         {
             var controller = new DownloadController();
-            using (var context = await _fixture.CreateEmptyShapeContextAsync())
+            var database = await _fixture.CreateDatabaseAsync();
+            using (var context = await _fixture.CreateEmptyShapeContextAsync(database))
             {
                 context.RoadNetworkInfo.Add(new RoadNetworkInfo
                 {
@@ -70,7 +73,7 @@
                 await context.SaveChangesAsync();
             }
 
-            using (var context = await _fixture.CreateShapeContextAsync())
+            using (var context = await _fixture.CreateShapeContextAsync(database))
             {
                 var result = await controller.Get(context, CancellationToken.None);
 

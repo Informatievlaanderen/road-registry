@@ -26,6 +26,8 @@ namespace RoadRegistry.Model
 
         public void RecordUsing(Action<object> applier)
         {
+            if (applier == null) throw new ArgumentNullException(nameof(applier));
+
             if (_changes.Count == 0) return;
 
             if (_changes.OfType<RejectedChange>().Any())

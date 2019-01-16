@@ -1,24 +1,46 @@
-namespace RoadRegistry.Api.Tests.Framework
+namespace RoadRegistry.Framework
 {
     using System;
+    using System.Data.SqlClient;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     using Projections;
-    using Xunit;
 
-    public class SqlServerDatabaseFixture : IAsyncLifetime
+    public class SqlServer : ISqlServerDatabase
     {
-        public SqlServerDatabaseFixture()
+        private readonly ISqlServerDatabase _inner;
+
+        public SqlServer()
         {
-            Database = new SqlServerDatabase(Guid.NewGuid().ToString("N"));
+            if (Environment.GetEnvironmentVariable("CI") == null)
+            {
+                _inner = new SqlServerEmbeddedContainer();
+            }
+            else
+            {
+                _inner = new SqlServerComposedContainer();
+            }
         }
 
-        public SqlServerDatabase Database { get; }
+        public Task InitializeAsync()
+        {
+            return _inner.InitializeAsync();
+        }
 
-        public async Task<ShapeContext> CreateShapeContextAsync()
+        public Task DisposeAsync()
+        {
+            return _inner.DisposeAsync();
+        }
+
+        public Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
+        {
+            return _inner.CreateDatabaseAsync();
+        }
+
+        public async Task<ShapeContext> CreateShapeContextAsync(SqlConnectionStringBuilder builder)
         {
             var options = new DbContextOptionsBuilder<ShapeContext>()
-                .UseSqlServer(Database.CreateConnectionStringBuilder().ConnectionString)
+                .UseSqlServer(builder.ConnectionString)
                 .EnableSensitiveDataLogging()
                 .Options;
 
@@ -27,9 +49,9 @@ namespace RoadRegistry.Api.Tests.Framework
             return context;
         }
 
-        public async Task<ShapeContext> CreateEmptyShapeContextAsync()
+        public async Task<ShapeContext> CreateEmptyShapeContextAsync(SqlConnectionStringBuilder builder)
         {
-            var context = await CreateShapeContextAsync();
+            var context = await CreateShapeContextAsync(builder);
 
             context.Organizations.RemoveRange(context.Organizations);
             context.RoadNodes.RemoveRange(context.RoadNodes);
@@ -46,16 +68,6 @@ namespace RoadRegistry.Api.Tests.Framework
             await context.SaveChangesAsync();
 
             return context;
-        }
-
-        public Task InitializeAsync()
-        {
-            return Database.CreateDatabase();
-        }
-
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
         }
     }
 }

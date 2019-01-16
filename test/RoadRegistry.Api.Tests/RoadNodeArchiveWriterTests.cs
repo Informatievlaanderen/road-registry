@@ -9,14 +9,14 @@
     using Projections;
     using Xunit;
 
-    [Collection(nameof(SqlServerDatabaseCollection))]
+    [Collection(nameof(SqlServerCollection))]
     public class RoadNodeArchiveWriterTests
     {
-        private readonly SqlServerDatabaseFixture _fixture;
+        private readonly SqlServer _fixture;
 
-        public RoadNodeArchiveWriterTests(SqlServerDatabaseFixture fixture)
+        public RoadNodeArchiveWriterTests(SqlServer fixture)
         {
-            _fixture = fixture;
+            _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }
 
         [Fact]

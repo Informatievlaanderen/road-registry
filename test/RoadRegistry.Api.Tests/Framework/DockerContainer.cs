@@ -1,150 +1,197 @@
-namespace RoadRegistry.Api.Tests.Framework
+namespace RoadRegistry.Framework
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using Docker.DotNet;
     using Docker.DotNet.Models;
+    using Xunit;
 
-    internal class DockerContainer
+    public abstract class DockerContainer : IAsyncLifetime
     {
         private const string UnixPipe = "unix:///var/run/docker.sock";
         private const string WindowsPipe = "npipe://./pipe/docker_engine";
 
-        private static readonly Uri s_DockerUri =
-            new Uri(Environment.OSVersion.Platform.Equals(PlatformID.Unix) ? UnixPipe : WindowsPipe);
+        private static readonly Uri DockerUri =
+            new Uri(
+                Environment.GetEnvironmentVariable("DOCKER_HOST") ??
+                (
+                    Environment.OSVersion.Platform.Equals(PlatformID.Unix)
+                        ? UnixPipe
+                        : WindowsPipe
+                )
+            );
 
-        private static readonly DockerClientConfiguration s_dockerClientConfiguration =
-            new DockerClientConfiguration(s_DockerUri);
+        private static readonly DockerClientConfiguration DockerClientConfiguration =
+            new DockerClientConfiguration(DockerUri);
 
-        private readonly IDictionary<int, int> _ports;
-        private readonly string _image;
-        private readonly string _tag;
-        private readonly Func<CancellationToken, Task<bool>> _healthCheck;
-        private readonly IDockerClient _dockerClient;
+        private readonly DockerClient _client;
 
-        private string ImageWithTag => $"{_image}:{_tag}";
-
-        public string ContainerName { get; set; } = Guid.NewGuid().ToString("n");
-
-        public string[] Env { get; set; } = Array.Empty<string>();
-
-        public DockerContainer(
-            string image,
-            string tag,
-            Func<CancellationToken, Task<bool>> healthCheck,
-            IDictionary<int, int> ports)
+        protected DockerContainer()
         {
-            _dockerClient = s_dockerClientConfiguration.CreateClient();
-            _ports = ports;
-            _image = image;
-            _tag = tag;
-            _healthCheck = healthCheck;
+            _client = DockerClientConfiguration.CreateClient();
         }
 
-        public async Task TryStart(CancellationToken cancellationToken = default)
-        {
-            var images = await _dockerClient.Images.ListImagesAsync(new ImagesListParameters
-                {
-                    MatchName = ImageWithTag
-                },
-                cancellationToken).ConfigureAwait(false);
+        public DockerContainerConfiguration Configuration { get; protected set; }
 
-            if (images.Count == 0)
+        public async Task InitializeAsync()
+        {
+            var found = await TryFindContainer();
+            if (found != null)
             {
-                // No image found. Pulling latest ..
-                await _dockerClient
-                    .Images
-                    .CreateImageAsync(new ImagesCreateParameters
-                        {
-                            FromImage = _image,
-                            Tag = _tag
-                        },
-                        null,
-                        IgnoreProgress.Forever,
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                await StopContainer(found);
+                await RemoveContainer(found);
+
+                var created = await CreateContainer();
+                if (created != null)
+                {
+                    await StartContainer(created);
+                }
             }
+            else
+            {
+                await CreateImageIfNotExists();
 
-            var containerId = await FindContainer(cancellationToken).ConfigureAwait(false)
-                              ?? await CreateContainer(cancellationToken).ConfigureAwait(false);
-
-            await StartContainer(containerId, cancellationToken);
+                var created = await CreateContainer();
+                if (created != null)
+                {
+                    await StartContainer(created);
+                }
+            }
         }
 
-        private async Task<string> FindContainer(CancellationToken cancellationToken)
+        private async Task<string> TryFindContainer()
         {
-            var containers = await _dockerClient.Containers.ListContainersAsync(new ContainersListParameters
+            var containers = await _client.Containers.ListContainersAsync(
+                new ContainersListParameters
                 {
                     All = true,
                     Filters = new Dictionary<string, IDictionary<string, bool>>
                     {
                         ["name"] = new Dictionary<string, bool>
                         {
-                            [ContainerName] = true
+                            [Configuration.Container.Name] = true
                         }
                     }
-                },
-                cancellationToken).ConfigureAwait(false);
+                }).ConfigureAwait(false);
 
             return containers
-                .Where(c => c.State != "exited")
-                .Select(x => x.ID).FirstOrDefault();
+                .FirstOrDefault(container => container.State != "exited")
+                ?.ID;
         }
 
-        private async Task<string> CreateContainer(CancellationToken cancellationToken)
+        private async Task<string> CreateContainer()
         {
-            var portBindings = _ports.ToDictionary(
-                pair => $"{pair.Key}/tcp",
-                pair => (IList<PortBinding>) new List<PortBinding>
+            var container = await _client
+                .Containers
+                .CreateContainerAsync(new CreateContainerParameters
                 {
-                    new PortBinding
+                    Image = Configuration.Image.FullyQualifiedName,
+                    Name = Configuration.Container.Name,
+                    Tty = true,
+                    Env = Configuration.Container.EnvironmentVariables,
+                    HostConfig = new HostConfig
                     {
-                        HostPort = pair.Value.ToString()
+                        PortBindings = Configuration.Container.PortBindings.ToDictionary(
+                            binding => $"{binding.GuestPort}/tcp",
+                            binding => (IList<Docker.DotNet.Models.PortBinding>)new List<Docker.DotNet.Models.PortBinding>
+                            {
+                                new Docker.DotNet.Models.PortBinding
+                                {
+                                    HostPort = binding.HostPort.ToString(CultureInfo.InvariantCulture)
+                                }
+                            })
                     }
-                });
-
-            var createContainerParameters = new CreateContainerParameters
-            {
-                Image = ImageWithTag,
-                Name = ContainerName,
-                Tty = true,
-                Env = Env,
-                HostConfig = new HostConfig
-                {
-                    PortBindings = portBindings
-                }
-            };
-
-            var container = await _dockerClient.Containers.CreateContainerAsync(
-                createContainerParameters,
-                cancellationToken).ConfigureAwait(false);
+                })
+                .ConfigureAwait(false);
 
             return container.ID;
         }
 
-        private async Task StartContainer(string containerId, CancellationToken cancellationToken)
+        private async Task StartContainer(string id)
         {
-            // Starting the container ...
-            var started = await _dockerClient.Containers.StartContainerAsync(
-                containerId,
-                new ContainerStartParameters(),
-                cancellationToken).ConfigureAwait(false);
+            var started = await _client
+                .Containers
+                .StartContainerAsync(id, new ContainerStartParameters())
+                .ConfigureAwait(false);
 
             if (started)
             {
-                while (!await _healthCheck(cancellationToken).ConfigureAwait(false))
+                var attempt = 0;
+                var result = await Configuration.WaitUntilAvailable(attempt++);
+                while (result > TimeSpan.Zero)
                 {
-                    await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken).ConfigureAwait(false);
+                    await Task.Delay(result);
+                    result = await Configuration.WaitUntilAvailable(attempt++);
                 }
             }
         }
 
-        private class IgnoreProgress : IProgress<JSONMessage>
+        private async Task StopContainer(string id)
         {
-            public static readonly IProgress<JSONMessage> Forever = new IgnoreProgress();
+            await _client
+                .Containers
+                .StopContainerAsync(id, new ContainerStopParameters { WaitBeforeKillSeconds = 10 })
+                .ConfigureAwait(false);
+        }
+
+        private async Task RemoveContainer(string id)
+        {
+            await _client
+                .Containers
+                .RemoveContainerAsync(id, new ContainerRemoveParameters { Force = false })
+                .ConfigureAwait(false);
+        }
+
+        private async Task CreateImageIfNotExists()
+        {
+            if (!await ImageExists().ConfigureAwait(false))
+            {
+                await _client
+                    .Images
+                    .CreateImageAsync(
+                        new ImagesCreateParameters
+                        {
+                            FromImage = Configuration.Image.RegistryQualifiedName,
+                            Tag = Configuration.Image.Tag
+                        },
+                        null,
+                        Progress.IsBeingIgnored)
+                    .ConfigureAwait(false);
+            }
+        }
+
+        private async Task<bool> ImageExists()
+        {
+            var images = await _client
+                .Images
+                .ListImagesAsync(new ImagesListParameters { MatchName = Configuration.Image.RegistryQualifiedName })
+                .ConfigureAwait(false);
+            return images.Count != 0;
+        }
+
+        public async Task DisposeAsync()
+        {
+            if (Configuration.Container.StopContainer)
+            {
+                var found = await TryFindContainer();
+                if (found != null)
+                {
+                    await StopContainer(found);
+                    if (Configuration.Container.RemoveContainer)
+                    {
+                        await RemoveContainer(found);
+                    }
+                }
+            }
+            _client.Dispose();
+        }
+
+        private class Progress : IProgress<JSONMessage>
+        {
+            public static readonly IProgress<JSONMessage> IsBeingIgnored = new Progress();
 
             public void Report(JSONMessage value)
             {

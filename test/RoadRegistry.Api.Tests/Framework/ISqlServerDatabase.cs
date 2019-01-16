@@ -1,17 +1,11 @@
-﻿namespace RoadRegistry.Api.Tests.Framework
+﻿namespace RoadRegistry.Framework
 {
     using System.Data.SqlClient;
-    using System.Threading;
     using System.Threading.Tasks;
+    using Xunit;
 
-    public interface ISqlServerDatabase
+    public interface ISqlServerDatabase : IAsyncLifetime
     {
-        SqlConnection CreateMasterConnection();
-
-        SqlConnectionStringBuilder CreateMasterConnectionStringBuilder();
-
-        SqlConnectionStringBuilder CreateConnectionStringBuilder();
-
-        Task CreateDatabase(CancellationToken cancellationToken = default);
+        Task<SqlConnectionStringBuilder> CreateDatabaseAsync();
     }
 }
