@@ -128,7 +128,7 @@ nuget Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac ~> 4.4
 nuget Aiv.Vbr.Utilities.HashCodeCalculator ~> 2.0
 nuget Aiv.Vbr.Utilities.HexByteConvertor ~> 2.0
 nuget Aiv.Vbr.Testing.Infrastructure.Events ~> 1.2.1
-nuget Aiv.Vbr.Build.Pipeline ~> 2.1
+nuget Aiv.Vbr.Build.Pipeline ~> 2.1.1
 nuget Aiv.Vbr.Shaperon ~> 3.3.0
 
 // DOCS STUFF

@@ -94,7 +94,7 @@ NUGET
       Microsoft.Extensions.FileProviders.Embedded (>= 2.1.1)
       Newtonsoft.Json (>= 11.0.2)
       Swashbuckle.AspNetCore (>= 3.0)
-    Aiv.Vbr.Build.Pipeline (2.1.0)
+    Aiv.Vbr.Build.Pipeline (2.1.1)
     Aiv.Vbr.CommandHandling (3.0.5)
     Aiv.Vbr.CommandHandling.Idempotency (3.0.5)
       Aiv.Vbr.Converters.Timestamp (>= 2.0 < 3.0)
