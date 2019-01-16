@@ -6,6 +6,8 @@ pipelines:
     master:
       - step:
           script:
+            - echo 'export SA_PASSWORD=E@syP@ssw0rd' >> ~/.bashrc
+            - source ~/.bashrc
             - ./build.sh PushAll
           services:
             - docker
@@ -18,6 +20,8 @@ pipelines:
     '**':
       - step:
           script:
+            - echo 'export SA_PASSWORD=E@syP@ssw0rd' >> ~/.bashrc
+            - source ~/.bashrc
             - ./build.sh PublishAll
           services:
             - mssql
