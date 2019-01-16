@@ -6,7 +6,6 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Messages;
     using Aiv.Vbr.Shaperon;
-    using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
     using Xunit;
     using Model;
@@ -83,8 +82,6 @@ namespace RoadRegistry.Projections.Tests
                     Id = 0,
                     CompletedImport = false,
                     OrganizationCount = 0,
-                    ReferencePointCount = 0,
-                    TotalReferencePointShapeLength = 0,
                     RoadNodeCount = 0,
                     TotalRoadNodeShapeLength = 0,
                     RoadSegmentCount = 0,
@@ -116,8 +113,6 @@ namespace RoadRegistry.Projections.Tests
                     Id = 0,
                     CompletedImport = true,
                     OrganizationCount = 0,
-                    ReferencePointCount = 0,
-                    TotalReferencePointShapeLength = 0,
                     RoadNodeCount = 0,
                     TotalRoadNodeShapeLength = 0,
                     RoadSegmentCount = 0,
@@ -153,8 +148,6 @@ namespace RoadRegistry.Projections.Tests
                         Id = 0,
                         CompletedImport = false,
                         OrganizationCount = 1,
-                        ReferencePointCount = 0,
-                        TotalReferencePointShapeLength = 0,
                         RoadNodeCount = 0,
                         TotalRoadNodeShapeLength = 0,
                         RoadSegmentCount = 0,
@@ -194,8 +187,6 @@ namespace RoadRegistry.Projections.Tests
                         Id = 0,
                         CompletedImport = false,
                         OrganizationCount = imported_organizations.Length,
-                        ReferencePointCount = 0,
-                        TotalReferencePointShapeLength = 0,
                         RoadNodeCount = 0,
                         TotalRoadNodeShapeLength = 0,
                         RoadSegmentCount = 0,
@@ -234,8 +225,6 @@ namespace RoadRegistry.Projections.Tests
                         Id = 0,
                         CompletedImport = false,
                         OrganizationCount = 0,
-                        ReferencePointCount = 0,
-                        TotalReferencePointShapeLength = 0,
                         RoadNodeCount = 0,
                         TotalRoadNodeShapeLength = 0,
                         RoadSegmentCount = 0,
@@ -278,8 +267,6 @@ namespace RoadRegistry.Projections.Tests
                         Id = 0,
                         CompletedImport = false,
                         OrganizationCount = 0,
-                        ReferencePointCount = 0,
-                        TotalReferencePointShapeLength = 0,
                         RoadNodeCount = 0,
                         TotalRoadNodeShapeLength = 0,
                         RoadSegmentCount = 0,
@@ -291,107 +278,6 @@ namespace RoadRegistry.Projections.Tests
                         RoadSegmentNumberedRoadAttributeCount = 0,
                         TotalRoadSegmentShapeLength = 0,
                         GradeSeparatedJunctionCount = imported_junctions.Length
-                    }
-                );
-        }
-
-        [Fact]
-        public Task When_a_reference_point_was_imported()
-        {
-            var writer = new WellKnownBinaryWriter();
-            var geometry = _fixture.Create<PointM>();
-            var reader = new WellKnownBinaryReader();
-            return new RoadNetworkInfoProjection(reader)
-                .Scenario()
-                .Given(
-                    new BeganRoadNetworkImport(),
-                    new ImportedReferencePoint
-                    {
-                        Id = _fixture.Create<int>(),
-                        Type = _fixture.Create<ReferencePointType>(),
-                        Geometry = writer.Write(geometry),
-                        Caption = _fixture.Create<double>(),
-                        Ident8 = _fixture.Create<string>(),
-                        Version = _fixture.Create<int>(),
-                        Origin = _fixture.Create<OriginProperties>()
-                    }
-                )
-                .Expect(
-                    new RoadNetworkInfo
-                    {
-                        Id = 0,
-                        CompletedImport = false,
-                        OrganizationCount = 0,
-                        ReferencePointCount = 1,
-                        TotalReferencePointShapeLength = ShapeRecord.HeaderLength
-                            .Plus(new PointShapeContent(geometry).ContentLength).ToInt32(),
-                        RoadNodeCount = 0,
-                        TotalRoadNodeShapeLength = 0,
-                        RoadSegmentCount = 0,
-                        RoadSegmentSurfaceAttributeCount = 0,
-                        RoadSegmentLaneAttributeCount = 0,
-                        RoadSegmentWidthAttributeCount = 0,
-                        RoadSegmentEuropeanRoadAttributeCount = 0,
-                        RoadSegmentNationalRoadAttributeCount = 0,
-                        RoadSegmentNumberedRoadAttributeCount = 0,
-                        TotalRoadSegmentShapeLength = 0,
-                        GradeSeparatedJunctionCount = 0
-                    }
-                );
-        }
-
-        [Fact]
-        public Task When_reference_points_were_imported()
-        {
-            var writer = new WellKnownBinaryWriter();
-            var imported_reference_points = Enumerable
-                .Range(0, new Random().Next(10))
-                .Select(index => new ImportedReferencePoint
-                {
-                    Id = _fixture.Create<int>(),
-                    Type = _fixture.Create<ReferencePointType>(),
-                    Geometry = writer.Write(_fixture.Create<PointM>()),
-                    Caption = _fixture.Create<double>(),
-                    Ident8 = _fixture.Create<string>(),
-                    Version = _fixture.Create<int>(),
-                    Origin = _fixture.Create<OriginProperties>()
-                })
-                .ToArray();
-            var givens = Array.ConvertAll(imported_reference_points, imported => (object) imported);
-            var reader = new WellKnownBinaryReader();
-            return new RoadNetworkInfoProjection(reader)
-                .Scenario()
-                .Given(
-                    new BeganRoadNetworkImport()
-                )
-                .Given(givens)
-                .Expect(
-                    new RoadNetworkInfo
-                    {
-                        Id = 0,
-                        CompletedImport = false,
-                        OrganizationCount = 0,
-                        ReferencePointCount = imported_reference_points.Length,
-                        TotalReferencePointShapeLength = imported_reference_points.Aggregate(
-                            new WordLength(0),
-                            (current, imported) =>
-                                current
-                                    .Plus(
-                                        new PointShapeContent(reader.ReadAs<PointM>(imported.Geometry))
-                                            .ContentLength
-                                            .Plus(ShapeRecord.HeaderLength))
-                        ).ToInt32(),
-                        RoadNodeCount = 0,
-                        TotalRoadNodeShapeLength = 0,
-                        RoadSegmentCount = 0,
-                        RoadSegmentSurfaceAttributeCount = 0,
-                        RoadSegmentLaneAttributeCount = 0,
-                        RoadSegmentWidthAttributeCount = 0,
-                        RoadSegmentEuropeanRoadAttributeCount = 0,
-                        RoadSegmentNationalRoadAttributeCount = 0,
-                        RoadSegmentNumberedRoadAttributeCount = 0,
-                        TotalRoadSegmentShapeLength = 0,
-                        GradeSeparatedJunctionCount = 0
                     }
                 );
         }
@@ -419,8 +305,6 @@ namespace RoadRegistry.Projections.Tests
                         Id = 0,
                         CompletedImport = false,
                         OrganizationCount = 0,
-                        ReferencePointCount = 0,
-                        TotalReferencePointShapeLength = 0,
                         RoadNodeCount = 1,
                         TotalRoadNodeShapeLength = ShapeRecord.HeaderLength
                             .Plus(new PointShapeContent(geometry).ContentLength).ToInt32(),
@@ -464,8 +348,6 @@ namespace RoadRegistry.Projections.Tests
                         Id = 0,
                         CompletedImport = false,
                         OrganizationCount = 0,
-                        ReferencePointCount = 0,
-                        TotalReferencePointShapeLength = 0,
                         RoadNodeCount = imported_nodes.Length,
                         TotalRoadNodeShapeLength = imported_nodes.Aggregate(
                             new WordLength(0),
@@ -536,8 +418,6 @@ namespace RoadRegistry.Projections.Tests
                         Id = 0,
                         CompletedImport = false,
                         OrganizationCount = 0,
-                        ReferencePointCount = 0,
-                        TotalReferencePointShapeLength = 0,
                         RoadNodeCount = 0,
                         TotalRoadNodeShapeLength = 0,
                         RoadSegmentCount = 1,
@@ -599,8 +479,6 @@ namespace RoadRegistry.Projections.Tests
                         Id = 0,
                         CompletedImport = false,
                         OrganizationCount = 0,
-                        ReferencePointCount = 0,
-                        TotalReferencePointShapeLength = 0,
                         RoadNodeCount = 0,
                         TotalRoadNodeShapeLength = 0,
                         RoadSegmentCount = imported_segments.Length,

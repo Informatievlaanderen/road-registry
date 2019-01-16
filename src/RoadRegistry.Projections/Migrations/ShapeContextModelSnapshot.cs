@@ -81,10 +81,6 @@ namespace RoadRegistry.Projections.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
 
-                    b.Property<int>("ReferencePointCount")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(0);
-
                     b.Property<int>("RoadNodeCount")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
@@ -117,8 +113,6 @@ namespace RoadRegistry.Projections.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
 
-                    b.Property<int>("TotalReferencePointShapeLength");
-
                     b.Property<int>("TotalRoadNodeShapeLength");
 
                     b.Property<int>("TotalRoadSegmentShapeLength");
@@ -145,22 +139,6 @@ namespace RoadRegistry.Projections.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("RoadNode","RoadRegistryShape");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Projections.RoadReferencePointRecord", b =>
-                {
-                    b.Property<int>("Id");
-
-                    b.Property<byte[]>("DbaseRecord");
-
-                    b.Property<byte[]>("ShapeRecordContent");
-
-                    b.Property<int>("ShapeRecordContentLength");
-
-                    b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("RoadReferencePoint","RoadRegistryShape");
                 });
 
             modelBuilder.Entity("RoadRegistry.Projections.RoadSegmentEuropeanRoadAttributeRecord", b =>
@@ -282,29 +260,6 @@ namespace RoadRegistry.Projections.Migrations
                             b1.HasOne("RoadRegistry.Projections.RoadNodeRecord")
                                 .WithOne("Envelope")
                                 .HasForeignKey("RoadRegistry.Projections.BoundingBox2D", "RoadNodeRecordId")
-                                .OnDelete(DeleteBehavior.Cascade);
-                        });
-                });
-
-            modelBuilder.Entity("RoadRegistry.Projections.RoadReferencePointRecord", b =>
-                {
-                    b.OwnsOne("RoadRegistry.Projections.BoundingBox2D", "Envelope", b1 =>
-                        {
-                            b1.Property<int>("RoadReferencePointRecordId");
-
-                            b1.Property<double>("MaximumX");
-
-                            b1.Property<double>("MaximumY");
-
-                            b1.Property<double>("MinimumX");
-
-                            b1.Property<double>("MinimumY");
-
-                            b1.ToTable("RoadReferencePoint","RoadRegistryShape");
-
-                            b1.HasOne("RoadRegistry.Projections.RoadReferencePointRecord")
-                                .WithOne("Envelope")
-                                .HasForeignKey("RoadRegistry.Projections.BoundingBox2D", "RoadReferencePointRecordId")
                                 .OnDelete(DeleteBehavior.Cascade);
                         });
                 });

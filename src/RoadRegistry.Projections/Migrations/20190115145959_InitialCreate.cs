@@ -76,8 +76,6 @@ namespace RoadRegistry.Projections.Migrations
                     RoadSegmentLaneAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
                     RoadSegmentWidthAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
                     RoadSegmentSurfaceAttributeCount = table.Column<int>(nullable: false, defaultValue: 0),
-                    ReferencePointCount = table.Column<int>(nullable: false, defaultValue: 0),
-                    TotalReferencePointShapeLength = table.Column<int>(nullable: false),
                     GradeSeparatedJunctionCount = table.Column<int>(nullable: false, defaultValue: 0)
                 },
                 constraints: table =>
@@ -102,26 +100,6 @@ namespace RoadRegistry.Projections.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RoadNode", x => x.Id)
-                        .Annotation("SqlServer:Clustered", false);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RoadReferencePoint",
-                schema: "RoadRegistryShape",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false),
-                    ShapeRecordContent = table.Column<byte[]>(nullable: true),
-                    ShapeRecordContentLength = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
-                    Envelope_MinimumX = table.Column<double>(nullable: false),
-                    Envelope_MaximumX = table.Column<double>(nullable: false),
-                    Envelope_MinimumY = table.Column<double>(nullable: false),
-                    Envelope_MaximumY = table.Column<double>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RoadReferencePoint", x => x.Id)
                         .Annotation("SqlServer:Clustered", false);
                 });
 
@@ -270,10 +248,6 @@ namespace RoadRegistry.Projections.Migrations
 
             migrationBuilder.DropTable(
                 name: "RoadNode",
-                schema: "RoadRegistryShape");
-
-            migrationBuilder.DropTable(
-                name: "RoadReferencePoint",
                 schema: "RoadRegistryShape");
 
             migrationBuilder.DropTable(

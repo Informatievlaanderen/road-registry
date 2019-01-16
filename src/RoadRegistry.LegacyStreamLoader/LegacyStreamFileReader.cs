@@ -62,14 +62,6 @@ namespace RoadRegistry.LegacyStreamLoader
                                     };
                                     break;
 
-                                case nameof(ImportedReferencePoint):
-                                    reader.Read(); // StartObject (move to content for deserializer to work)
-                                    yield return new StreamEvent {
-                                        Stream = stream,
-                                        Event = serializer.Deserialize<ImportedReferencePoint>(reader)
-                                    };
-                                    break;
-
                                 case nameof(ImportedRoadNode):
                                     reader.Read(); // StartObject (move to content for deserializer to work)
                                     yield return new StreamEvent {

@@ -25,7 +25,6 @@
             b.Property(p => p.RoadSegmentEuropeanRoadAttributeCount).HasDefaultValue(0);
             b.Property(p => p.RoadSegmentNationalRoadAttributeCount).HasDefaultValue(0);
             b.Property(p => p.RoadSegmentNumberedRoadAttributeCount).HasDefaultValue(0);
-            b.Property(p => p.ReferencePointCount).HasDefaultValue(0);
             b.Property(p => p.GradeSeparatedJunctionCount).HasDefaultValue(0);
         }
     }

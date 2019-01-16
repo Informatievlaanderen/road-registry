@@ -37,7 +37,7 @@ namespace RoadRegistry.Model
                 composer.Do(instance =>
                 {
                     instance.AttributeId = Fixture.Create<AttributeId>();
-                    instance.RoadNumber = Fixture.Create<EuropeanRoadNumber>();
+                    instance.Number = Fixture.Create<EuropeanRoadNumber>();
                 }).OmitAutoProperties());
             Fixture.Customize<RoadSegmentNationalRoadAttributes>(composer =>
                 composer.Do(instance =>

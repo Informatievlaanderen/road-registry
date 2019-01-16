@@ -8,10 +8,10 @@ namespace RoadRegistry.Model
         {
             RuleFor(c => c.TemporaryAttributeId).GreaterThanOrEqualTo(0);
             RuleFor(c => c.SegmentId).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.RoadNumber)
+            RuleFor(c => c.Number)
                 .NotEmpty()
                 .Must(EuropeanRoadNumber.CanParse)
-                .When(c => c.RoadNumber != null, ApplyConditionTo.CurrentValidator);
+                .When(c => c.Number != null, ApplyConditionTo.CurrentValidator);
         }
     }
 }

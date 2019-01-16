@@ -47,7 +47,7 @@ namespace RoadRegistry.Model
                 composer.Do(instance =>
                     {
                         instance.AttributeId = Fixture.Create<AttributeId>();
-                        instance.RoadNumber = Fixture.Create<EuropeanRoadNumber>();
+                        instance.Number = Fixture.Create<EuropeanRoadNumber>();
                     })
                     .OmitAutoProperties());
             Fixture.Customize<Messages.RoadSegmentNationalRoadAttributes>(composer =>
@@ -3326,7 +3326,7 @@ namespace RoadRegistry.Model
             var addRoadSegmentToEuropeanRoad = new Messages.AddRoadSegmentToEuropeanRoad
             {
                 TemporaryAttributeId = Fixture.Create<AttributeId>(),
-                RoadNumber = Fixture.Create<EuropeanRoadNumber>(),
+                Number = Fixture.Create<EuropeanRoadNumber>(),
                 SegmentId = AddSegment1.TemporaryId
             };
 
@@ -3375,7 +3375,7 @@ namespace RoadRegistry.Model
                             {
                                 AttributeId = 1,
                                 TemporaryAttributeId = addRoadSegmentToEuropeanRoad.TemporaryAttributeId,
-                                RoadNumber = addRoadSegmentToEuropeanRoad.RoadNumber,
+                                Number = addRoadSegmentToEuropeanRoad.Number,
                                 SegmentId = Segment1Added.Id
                             },
                             Warnings = new Messages.Problem[0]
@@ -3390,7 +3390,7 @@ namespace RoadRegistry.Model
             var addRoadSegmentToEuropeanRoad = new Messages.AddRoadSegmentToEuropeanRoad
             {
                 TemporaryAttributeId = Fixture.Create<AttributeId>(),
-                RoadNumber = Fixture.Create<EuropeanRoadNumber>(),
+                Number = Fixture.Create<EuropeanRoadNumber>(),
                 SegmentId = AddSegment1.TemporaryId
             };
 

@@ -36,7 +36,6 @@ namespace RoadRegistry.LegacyStreamExtraction
             var output = new FileInfo(root[LEGACY_STREAM_FILE_NAME]);
             var connectionString = root.GetConnectionString("Legacy");
             var importedRoadNodes = new List<ImportedRoadNode>();
-            var importedReferencePoints = new List<ImportedReferencePoint>();
             var importedRoadSegments = new Dictionary<long, ImportedRoadSegment>();
             var importedGradeSeparatedJunctions = new List<ImportedGradeSeparatedJunction>();
             var importedOrganizations = new List<ImportedOrganization>();
@@ -242,7 +241,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         var props = new ImportedRoadSegmentEuropeanRoadAttributes
                         {
                             AttributeId = reader.GetInt32(1),
-                            RoadNumber = reader.GetString(2),
+                            Number = reader.GetString(2),
                             Origin = new OriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(3),
@@ -501,51 +500,12 @@ namespace RoadRegistry.LegacyStreamExtraction
                     });
                 Console.WriteLine("Reading junctions took {0}ms", watch.ElapsedMilliseconds);
 
-                Console.WriteLine("Reading reference points started ...");
-                watch.Restart();
-                await
-                    new SqlCommand(
-                        @"SELECT rp.[referentiepuntID] --0
-                            ,rp.[geometrie].AsBinaryZM() --1
-                            ,rp.[ident8] --2
-                            ,rp.[type] --3
-                            ,rp.[opschrift] --4
-                            ,rp.[beginorganisatie] --5
-                            ,lo.[label] --6
-                            ,rp.[begintijd] --7
-                            ,rp.[referentiepuntversie] --8
-                        FROM [dbo].[referentiepunt] rp
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON rp.[beginorganisatie] = lo.[code]", connection
-                    ).ForEachDataRecord(reader =>
-                    {
-                        var wellKnownBinary =
-                            new SpatialReferenceWriter().WriteWithSpatialReference(reader.GetAllBytes(1));
-
-                        var point = new ImportedReferencePoint
-                        {
-                            Id = reader.GetInt32(0),
-                            Version = reader.GetInt32(8),
-                            Geometry = wellKnownBinary,
-                            Ident8 = reader.GetString(2),
-                            Type = Translate.ToReferencePointType(reader.GetInt32(3)),
-                            Caption = (double)reader.GetDecimal(4),
-                            Origin = new OriginProperties
-                            {
-                                OrganizationId = reader.GetNullableString(5),
-                                Organization = reader.GetNullableString(6),
-                                Since = reader.GetDateTime(7)
-                            }
-                        };
-
-                        importedReferencePoints.Add(point);
-                    });
-                Console.WriteLine("Reading reference points took {0}ms", watch.ElapsedMilliseconds);
                 connection.Close();
 
                 Console.WriteLine("Writing stream to json started ...");
                 watch.Restart();
                 await new ExtractedStreamsWriter(output)
-                    .WriteAsync(importedOrganizations, importedRoadNodes, importedRoadSegments.Values, importedGradeSeparatedJunctions, importedReferencePoints);
+                    .WriteAsync(importedOrganizations, importedRoadNodes, importedRoadSegments.Values, importedGradeSeparatedJunctions);
                 Console.WriteLine("Writing stream to json took {0}ms", watch.ElapsedMilliseconds);
 
 

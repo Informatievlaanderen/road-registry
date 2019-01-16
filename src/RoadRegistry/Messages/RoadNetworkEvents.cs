@@ -8,11 +8,11 @@ namespace RoadRegistry.Messages
             typeof(BeganRoadNetworkImport),
             typeof(CompletedRoadNetworkImport),
             typeof(ImportedGradeSeparatedJunction),
-            typeof(ImportedReferencePoint),
             typeof(ImportedRoadNode),
             typeof(ImportedRoadSegment),
             typeof(ImportedOrganization),
-            typeof(RoadNetworkChangesAccepted)
+            typeof(RoadNetworkChangesAccepted),
+            typeof(RoadNetworkChangesRejected)
         };
     }
 }

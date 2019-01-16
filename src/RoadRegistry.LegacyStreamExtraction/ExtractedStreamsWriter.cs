@@ -22,8 +22,7 @@ namespace RoadRegistry.LegacyStreamExtraction
             IEnumerable<ImportedOrganization> organizations,
             IEnumerable<ImportedRoadNode> nodes,
             IEnumerable<ImportedRoadSegment> segments,
-            IEnumerable<ImportedGradeSeparatedJunction> junctions,
-            IEnumerable<ImportedReferencePoint> points)
+            IEnumerable<ImportedGradeSeparatedJunction> junctions)
         {
             using (var fileStream = Output.OpenWrite())
             using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create))
@@ -39,16 +38,15 @@ namespace RoadRegistry.LegacyStreamExtraction
                     foreach (var organization in organizations)
                     {
                         await writer.WriteStream(
-                            "organization-" + organization.Code.ToLowerInvariant(), 
+                            "organization-" + organization.Code.ToLowerInvariant(),
                             new object[] { organization });
                     }
 
                     await writer.WriteStream(
-                        "roadnetwork", 
+                        "roadnetwork",
                         nodes
                             .Concat(segments)
                             .Concat(junctions)
-                            .Concat(points)
                             .Concat(new [] { new CompletedRoadNetworkImport() })
                     );
 

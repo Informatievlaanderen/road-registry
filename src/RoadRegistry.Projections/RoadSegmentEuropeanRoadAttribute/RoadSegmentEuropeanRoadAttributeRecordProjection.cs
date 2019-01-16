@@ -33,7 +33,7 @@ namespace RoadRegistry.Projections
                     {
                         EU_OIDN = { Value = europeanRoad.AttributeId },
                         WS_OIDN = { Value = @event.Id },
-                        EUNUMMER = { Value = europeanRoad.RoadNumber },
+                        EUNUMMER = { Value = europeanRoad.Number },
                         BEGINTIJD = { Value = europeanRoad.Origin.Since },
                         BEGINORG = { Value = europeanRoad.Origin.OrganizationId },
                         LBLBGNORG = { Value = europeanRoad.Origin.Organization },

@@ -61,18 +61,6 @@
                 info.RoadSegmentNationalRoadAttributeCount += envelope.Message.PartOfNationalRoads.Length;
                 info.RoadSegmentNumberedRoadAttributeCount += envelope.Message.PartOfNumberedRoads.Length;
             });
-            When<Envelope<ImportedReferencePoint>>(async (context, envelope, token) =>
-            {
-                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
-                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
-                info.ReferencePointCount += 1;
-                info.TotalReferencePointShapeLength +=
-                    new PointShapeContent(
-                        reader.ReadAs<PointM>(envelope.Message.Geometry)
-                    )
-                    .ContentLength.Plus(ShapeRecord.HeaderLength)
-                    .ToInt32();
-            });
             When<Envelope<ImportedGradeSeparatedJunction>>(async (context, envelope, token) =>
             {
                 var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??

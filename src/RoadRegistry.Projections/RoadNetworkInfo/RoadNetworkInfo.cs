@@ -15,8 +15,6 @@
         public int RoadSegmentLaneAttributeCount { get; set; }
         public int RoadSegmentWidthAttributeCount { get; set; }
         public int RoadSegmentSurfaceAttributeCount { get; set; }
-        public int ReferencePointCount { get; set; }
-        public int TotalReferencePointShapeLength { get; set; }
         public int GradeSeparatedJunctionCount { get; set; }
     }
 }

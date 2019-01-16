@@ -41,7 +41,6 @@ namespace RoadRegistry.Api.Tests.Framework
             context.RoadSegmentWidthAttributes.RemoveRange(context.RoadSegmentWidthAttributes);
             context.RoadSegmentSurfaceAttributes.RemoveRange(context.RoadSegmentSurfaceAttributes);
             context.GradeSeparatedJunctions.RemoveRange(context.GradeSeparatedJunctions);
-            context.RoadReferencePoints.RemoveRange(context.RoadReferencePoints);
             context.RoadNetworkInfo.RemoveRange(context.RoadNetworkInfo);
             context.ProjectionStates.RemoveRange(context.ProjectionStates);
             await context.SaveChangesAsync();

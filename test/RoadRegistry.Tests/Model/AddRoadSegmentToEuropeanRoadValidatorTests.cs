@@ -33,7 +33,7 @@ namespace RoadRegistry.Model
         {
             var acceptable = Array.ConvertAll(EuropeanRoadNumber.All, candidate => candidate.ToString());
             var value = new Generator<string>(Fixture).First(candidate => !acceptable.Contains(candidate));
-            Validator.ShouldHaveValidationErrorFor(c => c.RoadNumber, value);
+            Validator.ShouldHaveValidationErrorFor(c => c.Number, value);
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace RoadRegistry.Model
             var data = new Messages.AddRoadSegmentToEuropeanRoad
             {
                 TemporaryAttributeId = Fixture.Create<AttributeId>(),
-                RoadNumber = EuropeanRoadNumber.All[new Random().Next(0, EuropeanRoadNumber.All.Length)].ToString()
+                Number = EuropeanRoadNumber.All[new Random().Next(0, EuropeanRoadNumber.All.Length)].ToString()
             };
 
             Validator.ValidateAndThrow(data);

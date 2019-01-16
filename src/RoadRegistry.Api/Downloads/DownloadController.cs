@@ -54,7 +54,6 @@ namespace RoadRegistry.Api.Downloads
                     fileBuilder.CreateRoadSegmentNationalRoadAttributesFile(context.RoadSegmentNationalRoadAttributes),
                     fileBuilder.CreateRoadSegmentEuropeanRoadAttributesFile(context.RoadSegmentEuropeanRoadAttributes),
                     fileBuilder.CreateRoadSegmentNumberedRoadAttributesFile(context.RoadSegmentNumberedRoadAttributes),
-                    fileBuilder.CreateReferencePointsFiles(context),
                     fileBuilder.CreateGradeSeperatedJunctionsFile(context.GradeSeparatedJunctions),
                     fileBuilder.CreateRoadNodeTypesFile(),
                     fileBuilder.CreateSurfaceTypesFile(),

@@ -127,63 +127,6 @@ namespace RoadRegistry.Api.Downloads
             );
         }
 
-        public IEnumerable<ExtractFile> CreateReferencePointsFiles(ShapeContext context)
-        {
-            const string fileName = "Refpunt";
-            const ShapeType shapeType = ShapeType.Point;
-            Expression<Func<RoadReferencePointRecord, int>> referencePointId = record => record.Id;
-            Func<BinaryReader, ShapeContent> readShape = PointShapeContent.Read;
-
-            yield return CreateDbfFile<RoadReferencePointDbaseRecord>(
-                fileName,
-                new RoadReferencePointDbaseSchema(),
-                context
-                    .RoadReferencePoints
-                    .OrderQueryBy(referencePointId)
-                    .Select(record => record.DbaseRecord),
-                context.RoadReferencePoints.Count
-            );
-
-            var boundingBox =
-                context
-                    .RoadReferencePoints
-                    .GroupBy(record => 1)
-                    .Select(all_records => new BoundingBox2D
-                {
-                    MinimumX = all_records.Min(record => record.Envelope.MinimumX),
-                    MaximumX = all_records.Max(record => record.Envelope.MaximumX),
-                    MinimumY = all_records.Min(record => record.Envelope.MinimumY),
-                    MaximumY = all_records.Max(record => record.Envelope.MaximumY)
-                })
-                .SingleOrDefault()?.ToBoundingBox3D() ??
-                new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-
-            yield return CreateShapeFile<PointShapeContent>(
-                fileName,
-                shapeType,
-                context
-                    .RoadReferencePoints
-                    .OrderQueryBy(referencePointId)
-                    .Select(record => record.ShapeRecordContent),
-                readShape,
-                context
-                    .RoadReferencePoints
-                    .Select(record => record.ShapeRecordContentLength),
-                boundingBox
-            );
-
-            yield return CreateShapeIndexFile(
-                fileName,
-                shapeType,
-                context
-                    .RoadReferencePoints
-                    .OrderQueryBy(referencePointId)
-                    .Select(record => record.ShapeRecordContentLength),
-                context.RoadReferencePoints.Count,
-                boundingBox
-            );
-        }
-
         public ExtractFile CreateOrganizationsFile(DbSet<OrganizationRecord> organizations)
         {
             return CreateDbfFile<OrganizationDbaseRecord>(
@@ -496,7 +439,7 @@ namespace RoadRegistry.Api.Downloads
                 {
                     var totalShapeRecordsLength = shapeLengths.Aggregate(
                         new WordLength(0),
-                        (current, shapeLength) => 
+                        (current, shapeLength) =>
                             current.Plus(ShapeRecord.HeaderLength.Plus(new WordLength(shapeLength)))
                     );
                     var shpFile = new ShpFileWriter(

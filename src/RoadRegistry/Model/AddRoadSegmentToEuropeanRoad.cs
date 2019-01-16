@@ -50,7 +50,7 @@ namespace RoadRegistry.Model
             message.RoadSegmentAddedToEuropeanRoad = new Messages.RoadSegmentAddedToEuropeanRoad
             {
                 AttributeId = AttributeId,
-                RoadNumber = Number,
+                Number = Number,
                 SegmentId = SegmentId,
                 TemporaryAttributeId = TemporaryAttributeId
             };
@@ -63,7 +63,7 @@ namespace RoadRegistry.Model
             message.AddRoadSegmentToEuropeanRoad = new Messages.AddRoadSegmentToEuropeanRoad
             {
                 TemporaryAttributeId = TemporaryAttributeId,
-                RoadNumber = Number,
+                Number = Number,
                 SegmentId = SegmentId
             };
         }

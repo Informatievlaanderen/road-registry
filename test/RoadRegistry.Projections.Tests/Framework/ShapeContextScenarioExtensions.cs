@@ -104,7 +104,6 @@ namespace RoadRegistry.Projections
             var records = new List<object>();
             records.AddRange(await context.RoadNodes.ToArrayAsync());
             records.AddRange(await context.RoadSegments.ToArrayAsync());
-            records.AddRange(await context.RoadReferencePoints.ToArrayAsync());
             records.AddRange(await context.RoadSegmentLaneAttributes.ToArrayAsync());
             records.AddRange(await context.RoadSegmentWidthAttributes.ToArrayAsync());
             records.AddRange(await context.RoadSegmentSurfaceAttributes.ToArrayAsync());

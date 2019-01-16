@@ -16,7 +16,6 @@ namespace RoadRegistry.Projections
                 loggerFactory.CreateLogger("RoadShapeRunner"),
                 new RoadNodeRecordProjection(reader,Encoding.GetEncoding(1252)),
                 new RoadSegmentRecordProjection(reader,Encoding.GetEncoding(1252)),
-                new RoadReferencePointRecordProjection(reader,new ReferencePointTypeTranslator(),Encoding.GetEncoding(1252)),
                 new RoadSegmentSurfaceAttributeRecordProjection(Encoding.GetEncoding(1252)),
                 new RoadSegmentLaneAttributeRecordProjection(Encoding.GetEncoding(1252)),
                 new RoadSegmentWidthAttributeRecordProjection(Encoding.GetEncoding(1252)),

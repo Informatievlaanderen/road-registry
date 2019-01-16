@@ -218,7 +218,7 @@
                 temporarySegmentId = null;
             }
 
-            var number = EuropeanRoadNumber.Parse(command.RoadNumber);
+            var number = EuropeanRoadNumber.Parse(command.Number);
             return new AddRoadSegmentToEuropeanRoad
             (
                 permanent,

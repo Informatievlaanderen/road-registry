@@ -440,7 +440,7 @@ namespace RoadRegistry.Projections.Tests
                         new ImportedRoadSegmentEuropeanRoadAttributes
                         {
                             AttributeId = fixture.Create<int>(),
-                            RoadNumber = fixture.Create<EuropeanRoadNumber>(),
+                            Number = fixture.Create<EuropeanRoadNumber>(),
                             Origin = fixture.Create<OriginProperties>()
                         }
                     )
