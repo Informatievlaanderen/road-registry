@@ -63,7 +63,7 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
 
                 Container = new ContainerSettings
                 {
-                    Name = "blobstore-db",
+                    Name = "roadregistry-api-db",
                     PortBindings = new[]
                     {
                         new PortBinding
