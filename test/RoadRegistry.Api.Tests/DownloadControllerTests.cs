@@ -1,14 +1,14 @@
-﻿namespace RoadRegistry.Api.Tests
+﻿namespace RoadRegistry
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using Downloads;
+    using Api.Downloads;
+    using Api.Infrastructure;
+    using BackOfficeSchema;
     using Framework;
-    using Infrastructure;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using Projections;
     using Xunit;
 
     [Collection(nameof(SqlServerCollection))]

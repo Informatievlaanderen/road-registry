@@ -6,10 +6,21 @@ namespace RoadRegistry.Api.Downloads
     using System.Linq;
     using System.Linq.Expressions;
     using Aiv.Vbr.Shaperon;
+    using BackOfficeSchema;
+    using BackOfficeSchema.GradeSeparatedJunctions;
+    using BackOfficeSchema.Organizations;
+    using BackOfficeSchema.ReferenceData;
+    using BackOfficeSchema.RoadNodes;
+    using BackOfficeSchema.RoadSegmentEuropeanRoadAttributes;
+    using BackOfficeSchema.RoadSegmentLaneAttributes;
+    using BackOfficeSchema.RoadSegmentNationalRoadAttributes;
+    using BackOfficeSchema.RoadSegmentNumberedRoadAttributes;
+    using BackOfficeSchema.RoadSegments;
+    using BackOfficeSchema.RoadSegmentSurfaceAttributes;
+    using BackOfficeSchema.RoadSegmentWidthAttributes;
     using ExtractFiles;
     using Infrastructure;
     using Microsoft.EntityFrameworkCore;
-    using Projections;
 
     public class RoadRegistryExtractsBuilder
     {
@@ -227,7 +238,7 @@ namespace RoadRegistry.Api.Downloads
             return CreateDbfFile(
                 "WegknoopLktType",
                 new RoadNodeTypeDbaseSchema(),
-                RoadNodeTypeDbaseRecord.All
+                Lists.AllRoadNodeTypeDbaseRecords
             );
         }
 
@@ -236,7 +247,7 @@ namespace RoadRegistry.Api.Downloads
             return CreateDbfFile(
                 "WegsegmentLktWegcat",
                 new RoadSegmentCategoryDbaseSchema(),
-                RoadSegmentCategoryDbaseRecord.All
+                Lists.AllRoadSegmentCategoryDbaseRecords
             );
         }
 
@@ -245,7 +256,7 @@ namespace RoadRegistry.Api.Downloads
             return CreateDbfFile(
                 "WegsegmentLktMethode",
                 new RoadSegmentGeometryDrawMethodDbaseSchema(),
-                RoadSegmentGeometryDrawMethodDbaseRecord.All
+                Lists.AllRoadSegmentGeometryDrawMethodDbaseRecords
             );
         }
 
@@ -254,7 +265,7 @@ namespace RoadRegistry.Api.Downloads
             return CreateDbfFile(
                 "WegsegmentLktStatus",
                 new RoadSegmentStatusDbaseSchema(),
-                RoadSegmentStatusDbaseRecord.All
+                Lists.AllRoadSegmentStatusDbaseRecords
             );
         }
 
@@ -263,16 +274,7 @@ namespace RoadRegistry.Api.Downloads
             return CreateDbfFile(
                 "WegsegmentLktTgbep",
                 new RoadSegmentAccessRestrictionDbaseSchema(),
-                RoadSegmentAccessRestrictionDbaseRecord.All
-            );
-        }
-
-        public ExtractFile CreateReferencePointTypesFile()
-        {
-            return CreateDbfFile(
-                "RefpuntLktType",
-                new ReferencePointTypeDbaseSchema(),
-                ReferencePointTypeDbaseRecord.All
+                Lists.AllRoadSegmentAccessRestrictionDbaseRecords
             );
         }
 
@@ -281,7 +283,7 @@ namespace RoadRegistry.Api.Downloads
             return CreateDbfFile(
                 "WegsegmentLktMorf",
                 new RoadSegmentMorphologyDbaseSchema(),
-                RoadSegmentMorphologyDbaseRecord.All
+                Lists.AllRoadSegmentMorphologyDbaseRecords
             );
         }
 
@@ -290,7 +292,7 @@ namespace RoadRegistry.Api.Downloads
             return CreateDbfFile(
                 "OgkruisingLktType",
                 new GradeSeparatedJunctionTypeDbaseSchema(),
-                GradeSeparatedJunctionTypeDbaseRecord.All
+                Lists.AllGradeSeparatedJunctionTypeDbaseRecords
             );
         }
 
@@ -299,7 +301,7 @@ namespace RoadRegistry.Api.Downloads
             return CreateDbfFile(
                 "GenumwegLktRichting",
                 new NumberedRoadSegmentDirectionDbaseSchema(),
-                NumberedRoadSegmentDirectionDbaseRecord.All
+                Lists.AllNumberedRoadSegmentDirectionDbaseRecords
             );
         }
 
@@ -308,7 +310,7 @@ namespace RoadRegistry.Api.Downloads
             return CreateDbfFile(
                 "WegverhardLktType",
                 new SurfaceTypeDbaseSchema(),
-                SurfaceTypeDbaseRecord.All
+                Lists.AllSurfaceTypeDbaseRecords
             );
         }
 
@@ -317,7 +319,7 @@ namespace RoadRegistry.Api.Downloads
             return CreateDbfFile(
                 "RijstrokenLktRichting",
                 new LaneDirectionDbaseSchema(),
-                LaneDirectionDbaseRecord.All
+                Lists.AllLaneDirectionDbaseRecords
             );
         }
 

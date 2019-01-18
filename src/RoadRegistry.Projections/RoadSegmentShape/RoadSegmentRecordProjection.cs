@@ -9,6 +9,8 @@ namespace RoadRegistry.Projections
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
     using Aiv.Vbr.Shaperon;
+    using BackOfficeSchema;
+    using BackOfficeSchema.RoadSegments;
     using Messages;
     using Model;
     using RoadSegmentAccessRestriction = Model.RoadSegmentAccessRestriction;

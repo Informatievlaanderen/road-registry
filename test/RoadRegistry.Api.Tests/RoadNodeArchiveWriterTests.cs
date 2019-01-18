@@ -1,12 +1,12 @@
-﻿namespace RoadRegistry.Api.Tests
+﻿namespace RoadRegistry
 {
     using System;
     using System.IO;
     using System.IO.Compression;
     using System.Threading.Tasks;
-    using Downloads;
+    using Api.Downloads;
+    using BackOfficeSchema;
     using Framework;
-    using Projections;
     using Xunit;
 
     [Collection(nameof(SqlServerCollection))]

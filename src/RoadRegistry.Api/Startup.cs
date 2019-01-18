@@ -4,7 +4,6 @@ namespace RoadRegistry.Api
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.IO.Compression;
-    using System.Linq;
     using System.Reflection;
     using System.Text;
     using System.Threading;

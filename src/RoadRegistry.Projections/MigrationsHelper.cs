@@ -1,6 +1,6 @@
 namespace RoadRegistry.Projections
 {
-    using Infrastructure;
+    using BackOfficeSchema;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
 

@@ -9,6 +9,7 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.Connector.Testing;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
+    using BackOfficeSchema;
     using KellermanSoftware.CompareNetObjects;
     using Microsoft.EntityFrameworkCore;
     using Xunit.Sdk;

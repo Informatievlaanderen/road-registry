@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.Projections\RoadRegistry.Projections.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry\RoadRegistry.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOfficeSchema\RoadRegistry.BackOfficeSchema.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="test-results" />

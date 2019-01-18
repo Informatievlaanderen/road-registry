@@ -3,7 +3,7 @@ namespace RoadRegistry.Api.Downloads
     using System;
     using System.IO.Compression;
     using System.Threading.Tasks;
-    using Projections;
+    using BackOfficeSchema;
 
     public class RoadNodeArchiveWriter
     {

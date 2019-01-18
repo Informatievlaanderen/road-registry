@@ -4,11 +4,12 @@ namespace RoadRegistry.Projections.Tests
     using System.Linq;
     using System.Threading.Tasks;
     using AutoFixture;
-    using Infrastructure;
     using Aiv.Vbr.Shaperon;
     using Xunit;
     using NetTopologySuite.Geometries;
     using System.Text;
+    using BackOfficeSchema;
+    using BackOfficeSchema.RoadSegments;
     using Messages;
     using RoadSegmentAccessRestriction = Model.RoadSegmentAccessRestriction;
     using RoadSegmentCategory = Model.RoadSegmentCategory;

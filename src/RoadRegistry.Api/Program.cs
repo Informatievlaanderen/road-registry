@@ -1,12 +1,9 @@
 namespace RoadRegistry.Api
 {
     using System;
-    using System.Data.SqlClient;
     using System.IO;
     using System.Net;
     using System.Security.Cryptography.X509Certificates;
-    using System.Threading;
-    using System.Threading.Tasks;
     using Aiv.Vbr.AspNetCore.Mvc.Formatters.Json;
     using Destructurama;
     using Microsoft.AspNetCore.Hosting;

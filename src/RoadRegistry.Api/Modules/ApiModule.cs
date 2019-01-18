@@ -6,7 +6,7 @@ namespace RoadRegistry.Api.Modules
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
-    using RoadRegistry.Infrastructure;
+    using BackOfficeSchema;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -47,9 +47,9 @@ namespace RoadRegistry.Api.Modules
 
             containerBuilder
                 .RegisterModule(new EnvelopeModule());
-
-            containerBuilder
-                .RegisterModule(new CommandHandlingModule(_configuration));
+//
+//            containerBuilder
+//                .RegisterModule(new CommandHandlingModule(_configuration));
 
             containerBuilder.Populate(_services);
         }

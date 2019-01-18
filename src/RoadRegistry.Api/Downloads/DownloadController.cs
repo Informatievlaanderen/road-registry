@@ -5,11 +5,11 @@ namespace RoadRegistry.Api.Downloads
     using System.Threading.Tasks;
     using Aiv.Vbr.Api;
     using Aiv.Vbr.Api.Exceptions;
+    using BackOfficeSchema;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json.Converters;
-    using Projections;
     using Responses;
     using Swashbuckle.AspNetCore.Filters;
 
@@ -58,7 +58,6 @@ namespace RoadRegistry.Api.Downloads
                     fileBuilder.CreateRoadNodeTypesFile(),
                     fileBuilder.CreateSurfaceTypesFile(),
                     fileBuilder.CreateNumberedRoadSegmentDirectionsFile(),
-                    fileBuilder.CreateReferencePointTypesFile(),
                     fileBuilder.CreateRoadSegmentCategoriesFile(),
                     fileBuilder.CreateRoadSegmentAccessRestrictionsFile(),
                     fileBuilder.CreateRoadSegmentGeometryDrawMethodsFile(),

@@ -1,0 +1,5 @@
+Microsoft.EntityFrameworkCore.SqlServer
+Microsoft.EntityFrameworkCore.InMemory
+Microsoft.EntityFrameworkCore.Design
+Aiv.Vbr.Shaperon
+Aiv.Vbr.ProjectionHandling.Runner

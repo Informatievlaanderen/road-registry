@@ -9,6 +9,7 @@ namespace RoadRegistry.Projections.Shape
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using Autofac.Features.OwnedInstances;
+    using BackOfficeSchema;
     using Destructurama;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;

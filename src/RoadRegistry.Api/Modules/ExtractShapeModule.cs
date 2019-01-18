@@ -2,12 +2,11 @@ namespace RoadRegistry.Api.Modules
 {
     using System;
     using Autofac;
+    using BackOfficeSchema;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
-    using Projections;
-    using RoadRegistry.Infrastructure;
 
     public class ExtractShapeModule : Module
     {
@@ -16,7 +15,7 @@ namespace RoadRegistry.Api.Modules
             IServiceCollection services,
             ILoggerFactory loggerFactory)
         {
-            var logger = loggerFactory.CreateLogger<ShapeModule>();
+            var logger = loggerFactory.CreateLogger<ExtractShapeModule>();
             var projectionsConnectionString = configuration.GetConnectionString("ShapeProjections");
 
             services

@@ -7,6 +7,7 @@
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Aiv.Vbr.Shaperon;
+    using BackOfficeSchema;
     using Messages;
     using GeoAPI.Geometries;
     using Microsoft.EntityFrameworkCore;

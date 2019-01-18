@@ -7,6 +7,8 @@ namespace RoadRegistry.Projections
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
+    using BackOfficeSchema;
+    using BackOfficeSchema.RoadSegmentSurfaceAttributes;
     using Messages;
     using Model;
 

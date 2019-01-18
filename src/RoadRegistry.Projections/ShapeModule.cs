@@ -2,7 +2,7 @@ namespace RoadRegistry.Projections
 {
     using System;
     using Autofac;
-    using Infrastructure;
+    using BackOfficeSchema;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;

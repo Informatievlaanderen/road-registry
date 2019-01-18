@@ -7,6 +7,8 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Aiv.Vbr.Shaperon;
+    using BackOfficeSchema;
+    using BackOfficeSchema.RoadNodes;
     using Messages;
     using Model;
     using RoadNodeType = Model.RoadNodeType;

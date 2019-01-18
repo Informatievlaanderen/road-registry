@@ -5,6 +5,7 @@ namespace RoadRegistry.Projections
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Microsoft.Extensions.Logging;
     using Aiv.Vbr.Shaperon;
+    using BackOfficeSchema;
     using Messages;
 
     public class RoadShapeRunner : Runner<ShapeContext>
