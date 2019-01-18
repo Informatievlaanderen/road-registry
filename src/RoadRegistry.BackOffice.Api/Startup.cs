@@ -181,12 +181,10 @@ namespace RoadRegistry.Api
             IApplicationLifetime appLifetime,
             ILoggerFactory loggerFactory,
             IApiVersionDescriptionProvider provider,
-            EnvelopeFactory envelopeFactory,
-            IStreamStore streamStore,
             IConfiguration config)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            
+
             var connectionStringBuilder = new SqlConnectionStringBuilder(config.GetConnectionString("Events"));
             WaitForStreamStore(connectionStringBuilder);
 

@@ -17,7 +17,7 @@ namespace RoadRegistry.LegacyStreamLoader
     using System.Threading;
     using Amazon.S3;
     using Amazon.S3.Model;
-    using Messages;
+    using BackOffice.Messages;
 
 
     public class Program
@@ -224,7 +224,7 @@ END",
 
             return null;
         }
-    
+
         private static async Task WaitForSqlServer(SqlConnectionStringBuilder builder, CancellationToken token = default)
         {
             var exit = false;

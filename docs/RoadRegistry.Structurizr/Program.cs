@@ -6,10 +6,11 @@ namespace RoadRegistry.Structurizr
     using System.Linq;
     using System.Reflection;
     using Aiv.Vbr.EventHandling;
+    using BackOffice;
+    using BackOffice.Messages;
     using Microsoft.Extensions.Configuration;
     using global::Structurizr;
     using global::Structurizr.Api;
-    using Messages;
 
     public static class Ids
     {

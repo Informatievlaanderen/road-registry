@@ -3,9 +3,9 @@ namespace RoadRegistry.Api.Modules
     using Aiv.Vbr.CommandHandling.Idempotency;
     using Aiv.Vbr.EventHandling;
     using Aiv.Vbr.EventHandling.Autofac;
-    using Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
+    using BackOffice;
     using BackOffice.Schema;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -44,12 +44,6 @@ namespace RoadRegistry.Api.Modules
 
             containerBuilder
                 .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
-
-            containerBuilder
-                .RegisterModule(new EnvelopeModule());
-//
-//            containerBuilder
-//                .RegisterModule(new CommandHandlingModule(_configuration));
 
             containerBuilder.Populate(_services);
         }

@@ -21,13 +21,12 @@ Target "Clean" (fun _ ->
 
 Target "Build_CoreComponents" (fun _ ->
   [
-    "RoadRegistry"
+    "RoadRegistry.BackOffice"
   ] |> List.iter build
 )
 Target "Test_CoreComponents" (fun _ ->
   [
-    "test" @@ "RoadRegistry.Api.Tests"
-    "test" @@ "RoadRegistry.Tests"
+    "test" @@ "RoadRegistry.BackOffice.Tests"
   ] |> List.iter testWithXunit
 )
 
@@ -45,10 +44,7 @@ Target "PushContainer_LegacyDataLoader" (fun _ -> push "legacy-stream-loader")
 
 // Projections
 Target "Build_Projections" (fun _ -> build "RoadRegistry.BackOffice.Projections")
-Target "Test_Projections" (fun _ ->
-  [ "test" @@ "RoadRegistry.Projections.Tests" ]
-  |> List.iter testWithXunit
-)
+Target "Test_Projections" DoNothing
 Target "Publish_Projections" (fun _ -> publish "RoadRegistry.BackOffice.Projections")
 Target "Package_Projections" (fun _ -> containerize "RoadRegistry.BackOffice.Projections" "projections-legacy")
 Target "PushContainer_Projections" (fun _ -> push "projections-legacy")

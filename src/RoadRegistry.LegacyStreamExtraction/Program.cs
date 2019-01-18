@@ -10,8 +10,8 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Threading.Tasks;
     using Aiv.Vbr.Shaperon;
     using Amazon.S3;
+    using BackOffice.Messages;
     using GeoAPI.Geometries;
-    using Messages;
     using Microsoft.Extensions.Configuration;
 
     public class Program

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>RoadRegistry.BackOffice</RootNamespace>
+    <RuntimeFrameworkVersion>2.1.1</RuntimeFrameworkVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Schema\RoadRegistry.BackOffice.Schema.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Projections\RoadRegistry.BackOffice.Projections.csproj" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

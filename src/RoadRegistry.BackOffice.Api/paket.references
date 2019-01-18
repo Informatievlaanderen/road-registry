@@ -55,4 +55,3 @@ Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac
 Aiv.Vbr.EventHandling
 Aiv.Vbr.EventHandling.Autofac
 Aiv.Vbr.Generators.Guid.Deterministic
-Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac

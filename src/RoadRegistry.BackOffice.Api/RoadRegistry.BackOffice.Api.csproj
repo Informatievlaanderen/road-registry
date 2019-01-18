@@ -38,8 +38,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.Schema\RoadRegistry.BackOffice.Schema.csproj" />
-    <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.aocws207.json">

@@ -12,17 +12,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C2F8FF63-7A4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8EA18457-86E2-4D2D-AC9E-2552FDC9676F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Projections", "src\RoadRegistry.BackOffice.Projections\RoadRegistry.BackOffice.Projections.csproj", "{1DB4FC79-FCB0-4186-AB90-693334475938}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice", "src\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj", "{BE9DCAED-271E-49EB-B2CC-BB4D727AFA21}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry", "src\RoadRegistry\RoadRegistry.csproj", "{BE9DCAED-271E-49EB-B2CC-BB4D727AFA21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Api", "src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj", "{FF17E3C0-79EB-4585-978F-D77CEFF70BD5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.BackOffice.Schema", "src\RoadRegistry.BackOffice.Schema\RoadRegistry.BackOffice.Schema.csproj", "{940C6D7A-3D79-4CF1-AC43-1B059A389296}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Projections", "src\RoadRegistry.BackOffice.Projections\RoadRegistry.BackOffice.Projections.csproj", "{1DB4FC79-FCB0-4186-AB90-693334475938}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Structurizr", "docs\RoadRegistry.Structurizr\RoadRegistry.Structurizr.csproj", "{E769594D-0625-4928-8061-481BF7FFFCFD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{FCF39E66-4EE0-4265-B8D6-0AD721AF138C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Tests", "test\RoadRegistry.Tests\RoadRegistry.Tests.csproj", "{0943FA25-9B89-4023-81DE-4A320B88EA7F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projections.Tests", "test\RoadRegistry.Projections.Tests\RoadRegistry.Projections.Tests.csproj", "{0B257FCE-C282-48F4-941B-2832DC0C0A87}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Tests", "test\RoadRegistry.BackOffice.Tests\RoadRegistry.BackOffice.Tests.csproj", "{0943FA25-9B89-4023-81DE-4A320B88EA7F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1710F546-49E2-4BAA-A8AB-655D55AD91CF}"
 	ProjectSection(SolutionItems) = preProject
@@ -38,13 +40,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.LegacyStreamEx
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.LegacyStreamLoader", "src\RoadRegistry.LegacyStreamLoader\RoadRegistry.LegacyStreamLoader.csproj", "{89A34C62-12D6-4505-AE09-9ECC7B5D07D6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Api", "src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj", "{FF17E3C0-79EB-4585-978F-D77CEFF70BD5}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.UI", "src\RoadRegistry.UI\RoadRegistry.UI.csproj", "{A728F9A0-76BB-4659-AB57-9F591D66618A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.Api.Tests", "test\RoadRegistry.Api.Tests\RoadRegistry.Api.Tests.csproj", "{17AEDAFA-9984-444D-80F7-2F49B3C0B348}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.BackOffice.Schema", "src\RoadRegistry.BackOffice.Schema\RoadRegistry.BackOffice.Schema.csproj", "{940C6D7A-3D79-4CF1-AC43-1B059A389296}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -104,18 +100,6 @@ Global
 		{0943FA25-9B89-4023-81DE-4A320B88EA7F}.Release|x64.Build.0 = Release|Any CPU
 		{0943FA25-9B89-4023-81DE-4A320B88EA7F}.Release|x86.ActiveCfg = Release|Any CPU
 		{0943FA25-9B89-4023-81DE-4A320B88EA7F}.Release|x86.Build.0 = Release|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Debug|x64.Build.0 = Debug|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Debug|x86.Build.0 = Debug|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Release|x64.ActiveCfg = Release|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Release|x64.Build.0 = Release|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Release|x86.ActiveCfg = Release|Any CPU
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87}.Release|x86.Build.0 = Release|Any CPU
 		{B5267E8A-DB8F-44C3-9046-69573A75B104}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B5267E8A-DB8F-44C3-9046-69573A75B104}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5267E8A-DB8F-44C3-9046-69573A75B104}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -164,18 +148,6 @@ Global
 		{A728F9A0-76BB-4659-AB57-9F591D66618A}.Release|x64.Build.0 = Release|Any CPU
 		{A728F9A0-76BB-4659-AB57-9F591D66618A}.Release|x86.ActiveCfg = Release|Any CPU
 		{A728F9A0-76BB-4659-AB57-9F591D66618A}.Release|x86.Build.0 = Release|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|x64.Build.0 = Debug|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Debug|x86.Build.0 = Debug|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|Any CPU.Build.0 = Release|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|x64.ActiveCfg = Release|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|x64.Build.0 = Release|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|x86.ActiveCfg = Release|Any CPU
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348}.Release|x86.Build.0 = Release|Any CPU
 		{940C6D7A-3D79-4CF1-AC43-1B059A389296}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{940C6D7A-3D79-4CF1-AC43-1B059A389296}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{940C6D7A-3D79-4CF1-AC43-1B059A389296}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -197,12 +169,10 @@ Global
 		{BE9DCAED-271E-49EB-B2CC-BB4D727AFA21} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{E769594D-0625-4928-8061-481BF7FFFCFD} = {FCF39E66-4EE0-4265-B8D6-0AD721AF138C}
 		{0943FA25-9B89-4023-81DE-4A320B88EA7F} = {8EA18457-86E2-4D2D-AC9E-2552FDC9676F}
-		{0B257FCE-C282-48F4-941B-2832DC0C0A87} = {8EA18457-86E2-4D2D-AC9E-2552FDC9676F}
 		{B5267E8A-DB8F-44C3-9046-69573A75B104} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{89A34C62-12D6-4505-AE09-9ECC7B5D07D6} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{FF17E3C0-79EB-4585-978F-D77CEFF70BD5} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{A728F9A0-76BB-4659-AB57-9F591D66618A} = {C2F8FF63-7A48-4179-A720-86206C42F496}
-		{17AEDAFA-9984-444D-80F7-2F49B3C0B348} = {8EA18457-86E2-4D2D-AC9E-2552FDC9676F}
 		{940C6D7A-3D79-4CF1-AC43-1B059A389296} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

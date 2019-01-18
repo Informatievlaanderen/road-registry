@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Aiv.Vbr.Shaperon;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
+    using Messages;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -36,7 +37,7 @@ namespace RoadRegistry.BackOffice.Projections
                 .RegisterModule(new ShapeModule(_configuration, _services, _loggerFactory));
 
             containerBuilder
-                .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
+                .RegisterModule(new EventHandlingModule(typeof(RoadNetworkEvents).Assembly, eventSerializerSettings));
 
             containerBuilder
                 .RegisterModule(new EnvelopeModule());

@@ -1,7 +1,7 @@
 namespace RoadRegistry.LegacyStreamExtraction
 {
     using System;
-    using Model;
+    using BackOffice.Model;
 
     internal static class Translate
     {
@@ -194,20 +194,6 @@ namespace RoadRegistry.LegacyStreamExtraction
                 //case -8: result = RoadSegmentSurfaceType.Unknown; break;
                 case 1: result = RoadSegmentSurfaceType.SolidSurface; break;
                 case 2: result = RoadSegmentSurfaceType.LooseSurface; break;
-            }
-
-            return result;
-        }
-
-        public static Messages.ReferencePointType ToReferencePointType(int code)
-        {
-            var result = Messages.ReferencePointType.Unknown;
-
-            switch (code)
-            {
-                //case -8: result = Messages.ReferencePointType.Unknown; break;
-                case 1: result = Messages.ReferencePointType.KilometerMarker; break;
-                case 2: result = Messages.ReferencePointType.HectometerMarker; break;
             }
 
             return result;
