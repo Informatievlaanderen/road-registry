@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.Shape
+namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using System.Data.SqlClient;
@@ -9,11 +9,11 @@ namespace RoadRegistry.Projections.Shape
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using Autofac.Features.OwnedInstances;
-    using BackOffice.Schema;
     using Destructurama;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using Schema;
     using Serilog;
     using SqlStreamStore;
 

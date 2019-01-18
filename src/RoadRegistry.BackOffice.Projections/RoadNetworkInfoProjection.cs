@@ -1,18 +1,14 @@
-﻿namespace RoadRegistry.Projections
+﻿namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
     using Aiv.Vbr.Shaperon;
-    using BackOffice.Schema;
     using Messages;
-    using GeoAPI.Geometries;
     using Microsoft.EntityFrameworkCore;
     using Model;
-    using NetTopologySuite.Geometries;
+    using Schema;
 
     public class RoadNetworkInfoProjection : ConnectedProjection<ShapeContext>
     {

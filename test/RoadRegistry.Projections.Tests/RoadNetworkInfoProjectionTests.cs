@@ -6,6 +6,7 @@ namespace RoadRegistry.Projections.Tests
     using AutoFixture;
     using Messages;
     using Aiv.Vbr.Shaperon;
+    using BackOffice.Projections;
     using BackOffice.Schema;
     using NetTopologySuite.Geometries;
     using Xunit;

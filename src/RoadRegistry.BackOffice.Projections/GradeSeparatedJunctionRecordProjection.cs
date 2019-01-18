@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections
+namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using System.Text;
@@ -6,10 +6,10 @@ namespace RoadRegistry.Projections
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
-    using BackOffice.Schema;
-    using BackOffice.Schema.GradeSeparatedJunctions;
     using Messages;
     using Model;
+    using Schema;
+    using Schema.GradeSeparatedJunctions;
 
     public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<ShapeContext>
     {

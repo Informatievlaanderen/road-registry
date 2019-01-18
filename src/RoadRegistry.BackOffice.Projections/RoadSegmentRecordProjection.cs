@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections
+namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using System.Text;
@@ -6,13 +6,11 @@ namespace RoadRegistry.Projections
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
-    using GeoAPI.Geometries;
-    using NetTopologySuite.Geometries;
     using Aiv.Vbr.Shaperon;
-    using BackOffice.Schema;
-    using BackOffice.Schema.RoadSegments;
     using Messages;
     using Model;
+    using Schema;
+    using Schema.RoadSegments;
     using RoadSegmentAccessRestriction = Model.RoadSegmentAccessRestriction;
     using RoadSegmentCategory = Model.RoadSegmentCategory;
     using RoadSegmentGeometryDrawMethod = Model.RoadSegmentGeometryDrawMethod;

@@ -1,8 +1,8 @@
-namespace RoadRegistry.Projections
+namespace RoadRegistry.BackOffice.Projections
 {
-    using BackOffice.Schema;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
+    using Schema;
 
     public static class MigrationsHelper
     {

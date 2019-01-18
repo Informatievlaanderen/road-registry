@@ -1,12 +1,11 @@
-namespace RoadRegistry.Projections
+namespace RoadRegistry.BackOffice.Projections
 {
     using System.Text;
     using Aiv.Vbr.ProjectionHandling.Runner;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
-    using Microsoft.Extensions.Logging;
     using Aiv.Vbr.Shaperon;
-    using BackOffice.Schema;
-    using Messages;
+    using Microsoft.Extensions.Logging;
+    using Schema;
 
     public class RoadShapeRunner : Runner<ShapeContext>
     {

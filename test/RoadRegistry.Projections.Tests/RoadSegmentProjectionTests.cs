@@ -8,6 +8,7 @@ namespace RoadRegistry.Projections.Tests
     using Xunit;
     using NetTopologySuite.Geometries;
     using System.Text;
+    using BackOffice.Projections;
     using BackOffice.Schema;
     using BackOffice.Schema.RoadSegments;
     using Messages;

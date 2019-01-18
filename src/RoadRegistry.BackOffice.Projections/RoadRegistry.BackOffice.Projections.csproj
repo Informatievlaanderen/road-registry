@@ -13,7 +13,7 @@
     <OutputType>Exe</OutputType>
     <StartupObject />
     <RuntimeFrameworkVersion>2.1.1</RuntimeFrameworkVersion>
-    <RootNamespace>RoadRegistry.Projections</RootNamespace>
+    <RootNamespace>RoadRegistry.BackOffice.Projections</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="appsettings.json">

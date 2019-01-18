@@ -19,7 +19,6 @@ Target "Clean" (fun _ ->
   CleanDir ("src" @@ "RoadRegistry.UI" @@ "wwwroot")
 )
 
-// Core: shape-library, domain-library
 Target "Build_CoreComponents" (fun _ ->
   [
     "RoadRegistry"
@@ -45,13 +44,13 @@ Target "Package_LegacyDataLoader" (fun _ -> containerize "RoadRegistry.LegacyStr
 Target "PushContainer_LegacyDataLoader" (fun _ -> push "legacy-stream-loader")
 
 // Projections
-Target "Build_Projections" (fun _ -> build "RoadRegistry.Projections")
+Target "Build_Projections" (fun _ -> build "RoadRegistry.BackOffice.Projections")
 Target "Test_Projections" (fun _ ->
   [ "test" @@ "RoadRegistry.Projections.Tests" ]
   |> List.iter testWithXunit
 )
-Target "Publish_Projections" (fun _ -> publish "RoadRegistry.Projections")
-Target "Package_Projections" (fun _ -> containerize "RoadRegistry.Projections" "projections-legacy")
+Target "Publish_Projections" (fun _ -> publish "RoadRegistry.BackOffice.Projections")
+Target "Package_Projections" (fun _ -> containerize "RoadRegistry.BackOffice.Projections" "projections-legacy")
 Target "PushContainer_Projections" (fun _ -> push "projections-legacy")
 
 // Site (api + ui)
@@ -71,20 +70,20 @@ Target "Build_Site" (fun _ ->
   )
 
   [
-    "RoadRegistry.Api"
+    "RoadRegistry.BackOffice.Api"
     "RoadRegistry.UI"
   ] |> List.iter build
 )
 Target "Test_Site" DoNothing
 Target "Publish_Site" (fun _ ->
   [
-    "RoadRegistry.Api"
+    "RoadRegistry.BackOffice.Api"
     "RoadRegistry.UI"
   ] |> List.iter publish
 )
 Target "Package_Site" (fun _ ->
   [
-    ("RoadRegistry.Api", "api-legacy")
+    ("RoadRegistry.BackOffice.Api", "api-legacy")
     ("RoadRegistry.UI", "ui")
   ] |> List.iter (fun (project, containerName) -> containerize project containerName)
 )

@@ -1,16 +1,16 @@
-namespace RoadRegistry.Projections
+namespace RoadRegistry.BackOffice.Projections
 {
     using Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac;
     using Aiv.Vbr.EventHandling;
     using Aiv.Vbr.EventHandling.Autofac;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac;
+    using Aiv.Vbr.Shaperon;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
-    using Aiv.Vbr.Shaperon;
-    using BackOffice.Schema;
+    using Schema;
 
     public class ShapeRunnerModule : Module
     {

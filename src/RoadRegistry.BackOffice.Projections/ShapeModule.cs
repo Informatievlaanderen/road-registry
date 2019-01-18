@@ -1,12 +1,12 @@
-namespace RoadRegistry.Projections
+namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using Autofac;
-    using BackOffice.Schema;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using Schema;
 
     public class ShapeModule : Module
     {

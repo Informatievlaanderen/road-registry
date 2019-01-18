@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections
+namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using System.Collections.Generic;
@@ -7,9 +7,9 @@ namespace RoadRegistry.Projections
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
-    using BackOffice.Schema;
-    using BackOffice.Schema.Organizations;
     using Messages;
+    using Schema;
+    using Schema.Organizations;
 
     public class OrganizationRecordProjection : ConnectedProjection<ShapeContext>
     {

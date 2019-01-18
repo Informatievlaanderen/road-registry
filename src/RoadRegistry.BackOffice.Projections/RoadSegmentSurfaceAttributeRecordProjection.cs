@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections
+namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using System.Linq;
@@ -7,10 +7,10 @@ namespace RoadRegistry.Projections
     using System.Threading.Tasks;
     using Aiv.Vbr.ProjectionHandling.Connector;
     using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
-    using BackOffice.Schema;
-    using BackOffice.Schema.RoadSegmentSurfaceAttributes;
     using Messages;
     using Model;
+    using Schema;
+    using Schema.RoadSegmentSurfaceAttributes;
 
     public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {
