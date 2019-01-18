@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Model
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using Aiv.Vbr.EventHandling;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
     using Framework;
     using Newtonsoft.Json;
     using SqlStreamStore;

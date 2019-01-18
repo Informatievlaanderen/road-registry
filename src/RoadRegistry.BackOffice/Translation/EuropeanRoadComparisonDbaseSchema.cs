@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Translation
 {
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class EuropeanRoadComparisonDbaseSchema : DbaseSchema
     {

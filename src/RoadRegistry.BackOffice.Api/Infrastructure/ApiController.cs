@@ -8,11 +8,11 @@ namespace RoadRegistry.Api.Infrastructure
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Aiv.Vbr.Api.Exceptions;
-    using Aiv.Vbr.AspNetCore.Mvc.Middleware;
-    using Aiv.Vbr.CommandHandling;
-    using Aiv.Vbr.CommandHandling.Idempotency;
-    using Aiv.Vbr.Utilities.HexByteConvertor;
+    using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+    using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware;
+    using Be.Vlaanderen.Basisregisters.CommandHandling;
+    using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+    using Be.Vlaanderen.Basisregisters.Utilities.HexByteConvertor;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;

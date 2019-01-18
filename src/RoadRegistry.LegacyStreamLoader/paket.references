@@ -18,5 +18,5 @@ Newtonsoft.Json
 AWSSDK.S3
 AWSSDK.Extensions.NETCore.Setup
 
-Aiv.Vbr.EventHandling
-Aiv.Vbr.Generators.Guid.Deterministic
+Be.Vlaanderen.Basisregisters.EventHandling
+Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic

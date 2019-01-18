@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Schema.RoadSegmentWidthAttributes
 {
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class RoadSegmentWidthAttributeDbaseRecord : DbaseRecord
     {

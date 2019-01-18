@@ -6,9 +6,9 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Aiv.Vbr.ProjectionHandling.Connector;
-    using Aiv.Vbr.ProjectionHandling.Connector.Testing;
-    using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using KellermanSoftware.CompareNetObjects;
     using Microsoft.EntityFrameworkCore;
     using Schema;

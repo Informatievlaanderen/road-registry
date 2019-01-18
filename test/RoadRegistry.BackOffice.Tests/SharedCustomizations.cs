@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice
 {
     using System;
     using System.Linq;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using AutoFixture.Dsl;
     using GeoAPI.Geometries;

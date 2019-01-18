@@ -21,7 +21,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Aiv.Vbr.ProjectionHandling.Runner.ProjectionStates.ProjectionStateItem", b =>
+            modelBuilder.Entity("Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates.ProjectionStateItem", b =>
                 {
                     b.Property<string>("Name")
                         .ValueGeneratedOnAdd();

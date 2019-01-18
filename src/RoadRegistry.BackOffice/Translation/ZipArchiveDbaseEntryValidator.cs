@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.IO;
     using System.IO.Compression;
     using System.Text;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class ZipArchiveDbaseEntryValidator : IZipArchiveEntryValidator
     {

@@ -4,8 +4,8 @@ namespace RoadRegistry.BackOffice
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Aiv.Vbr.AggregateSource;
-    using Aiv.Vbr.EventHandling;
+    using Be.Vlaanderen.Basisregisters.AggregateSource;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
     using FluentAssertions;
     using Messages;
     using Newtonsoft.Json;

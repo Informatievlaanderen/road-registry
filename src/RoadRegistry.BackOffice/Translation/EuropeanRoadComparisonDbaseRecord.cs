@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Translation
 {
     using System;
     using System.Collections.Generic;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class EuropeanRoadComparisonDbaseRecord : DbaseRecord
     {

@@ -5,9 +5,9 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Aiv.Vbr.EventHandling;
-    using Aiv.Vbr.Generators.Guid;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
+    using Be.Vlaanderen.Basisregisters.Generators.Guid;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using FluentValidation.Results;
     using KellermanSoftware.CompareNetObjects;
     using KellermanSoftware.CompareNetObjects.TypeComparers;

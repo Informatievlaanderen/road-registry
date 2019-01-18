@@ -5,8 +5,8 @@ namespace RoadRegistry.BackOffice.Projections
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Aiv.Vbr.ProjectionHandling.Connector;
-    using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Messages;
     using Schema;
     using Schema.RoadSegmentNationalRoadAttributes;

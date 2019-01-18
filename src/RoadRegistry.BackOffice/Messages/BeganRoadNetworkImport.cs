@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Messages
 {
-    using Aiv.Vbr.EventHandling;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
 
     [EventName("BeganRoadNetworkImport")]
     [EventDescription("Indicates the import of the road network registry was begun.")]

@@ -1,4 +1,4 @@
-#load "packages/Aiv.Vbr.Build.Pipeline/Content/build-generic.fsx"
+#load "packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/build-generic.fsx"
 
 open Fake
 open Fake.NpmHelper

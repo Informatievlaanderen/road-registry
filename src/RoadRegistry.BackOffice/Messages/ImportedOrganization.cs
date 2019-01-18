@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Messages
 {
-    using Aiv.Vbr.EventHandling;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
 
     [EventName("ImportedOrganization")]
     [EventDescription("Indicates an organization was imported.")]

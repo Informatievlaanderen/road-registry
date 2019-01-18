@@ -5,7 +5,7 @@ namespace RoadRegistry.Structurizr
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using Aiv.Vbr.EventHandling;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
     using BackOffice;
     using BackOffice.Messages;
     using Microsoft.Extensions.Configuration;

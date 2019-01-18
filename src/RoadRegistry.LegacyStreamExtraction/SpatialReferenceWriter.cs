@@ -1,6 +1,6 @@
 namespace RoadRegistry.LegacyStreamExtraction
 {
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class SpatialReferenceWriter
     {

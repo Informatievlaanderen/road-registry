@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     internal class DbaseRecordComparer<TDbaseRecord> : IEqualityComparer<TDbaseRecord>
         where TDbaseRecord :DbaseRecord

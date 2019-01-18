@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Messages
 {
-    using Aiv.Vbr.EventHandling;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
 
     [EventName("CompletedRoadNetworkImport")]
     [EventDescription("Indicates the import of the legacy road network was finished.")]

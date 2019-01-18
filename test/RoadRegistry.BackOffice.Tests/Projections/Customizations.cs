@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using System.Linq;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using BackOffice;
     using Messages;

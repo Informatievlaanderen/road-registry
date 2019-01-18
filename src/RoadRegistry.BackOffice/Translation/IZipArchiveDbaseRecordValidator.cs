@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Translation
 {
     using System.IO.Compression;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public interface IZipArchiveDbaseRecordValidator
     {

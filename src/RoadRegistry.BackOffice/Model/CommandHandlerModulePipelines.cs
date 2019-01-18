@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System;
-    using Aiv.Vbr.EventHandling;
-    using Aiv.Vbr.Generators.Guid;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
+    using Be.Vlaanderen.Basisregisters.Generators.Guid;
     using FluentValidation;
     using Framework;
     using Messages;

@@ -1,10 +1,10 @@
 namespace RoadRegistry.BackOffice.Projections
 {
-    using Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac;
-    using Aiv.Vbr.EventHandling;
-    using Aiv.Vbr.EventHandling.Autofac;
-    using Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
+    using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using Messages;

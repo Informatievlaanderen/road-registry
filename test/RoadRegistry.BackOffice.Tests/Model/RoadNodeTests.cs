@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System.Linq;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using Xunit;
 

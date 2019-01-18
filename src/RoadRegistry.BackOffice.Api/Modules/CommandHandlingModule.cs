@@ -1,7 +1,7 @@
 //namespace RoadRegistry.Api.Modules
 //{
-//    using Aiv.Vbr.AggregateSource;
-//    using Aiv.Vbr.CommandHandling;
+//    using Be.Vlaanderen.Basisregisters.AggregateSource;
+//    using Be.Vlaanderen.Basisregisters.CommandHandling;
 //    using Autofac;
 //    using BackOfficeSchema;
 //    using Microsoft.Extensions.Configuration;

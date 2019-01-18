@@ -1,13 +1,18 @@
 namespace RoadRegistry.BackOffice.Translation
 {
     using System;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public static class DbaseFieldValueExtensions
     {
         public static void CopyValueTo(this DbaseFieldValue value, DbaseInt32 other)
         {
             value.Inspect(new DbaseInt32Setter(other));
+        }
+
+        public static void CopyValueTo(this DbaseFieldValue value, DbaseInt16 other)
+        {
+            value.Inspect(new DbaseInt16Setter(other));
         }
 
         public static void CopyValueTo(this DbaseFieldValue value, DbaseString other)
@@ -45,6 +50,21 @@ namespace RoadRegistry.BackOffice.Translation
             }
 
             public override void Inspect(DbaseDateTime value)
+            {
+                _value.Value = value.Value;
+            }
+        }
+
+        private class DbaseInt16Setter : DbaseFieldValueSetter
+        {
+            private readonly DbaseInt16 _value;
+
+            public DbaseInt16Setter(DbaseInt16 value)
+            {
+                _value = value ?? throw new ArgumentNullException(nameof(value));
+            }
+
+            public override void Inspect(DbaseInt16 value)
             {
                 _value.Value = value.Value;
             }
@@ -159,45 +179,7 @@ namespace RoadRegistry.BackOffice.Translation
             {
             }
 
-            public virtual void Inspect(DbaseInt32 value)
-            {
-            }
-
-            public virtual void Inspect(DbaseString value)
-            {
-            }
-
-            public virtual void Inspect(DbaseBoolean value)
-            {
-            }
-        }
-
-        private class DbaseFieldValueSetter2 : IDbaseFieldValueInspector
-        {
-            private readonly DbaseFieldValue _target;
-
-            public DbaseFieldValueSetter2(DbaseFieldValue target)
-            {
-                _target = target ?? throw new ArgumentNullException(nameof(target));
-            }
-
-            public void Inspect(DbaseDateTime value)
-            {
-                if (_target.Field.Equals(value.Field))
-                {
-
-                }
-            }
-
-            public virtual void Inspect(DbaseDecimal value)
-            {
-            }
-
-            public virtual void Inspect(DbaseDouble value)
-            {
-            }
-
-            public virtual void Inspect(DbaseSingle value)
+            public virtual void Inspect(DbaseInt16 value)
             {
             }
 

@@ -4,9 +4,9 @@ namespace RoadRegistry.BackOffice.Projections
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Aiv.Vbr.ProjectionHandling.Connector;
-    using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Messages;
     using Model;
     using Schema;

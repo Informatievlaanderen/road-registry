@@ -2,7 +2,7 @@ namespace RoadRegistry.Api.Downloads.ExtractFiles
 {
     using System.IO;
     using System.Text;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class DbfFileWriter<TDbaseRecord> : ExtractFileWriter
         where TDbaseRecord : DbaseRecord

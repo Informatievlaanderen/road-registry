@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Schema.Organizations
 {
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class OrganizationDbaseSchema : DbaseSchema
     {

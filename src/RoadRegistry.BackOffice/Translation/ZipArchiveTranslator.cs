@@ -5,7 +5,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.IO.Compression;
     using System.Text;
     using System.Threading.Tasks;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class ZipArchiveTranslator
     {

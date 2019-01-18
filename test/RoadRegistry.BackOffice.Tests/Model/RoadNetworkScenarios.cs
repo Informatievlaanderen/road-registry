@@ -5,7 +5,7 @@ namespace RoadRegistry.BackOffice.Model
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using Framework.Testing;
     using GeoAPI.Geometries;

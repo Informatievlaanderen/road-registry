@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Schema
 {
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using GeoAPI.Geometries;
 
     public class BoundingBox2D

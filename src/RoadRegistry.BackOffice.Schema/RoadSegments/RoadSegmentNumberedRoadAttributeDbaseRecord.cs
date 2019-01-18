@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttributes
 {
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class RoadSegmentNumberedRoadAttributeDbaseRecord : DbaseRecord
     {

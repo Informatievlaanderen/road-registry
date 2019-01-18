@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Model
 {
     using System;
     using System.Linq;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using FluentValidation.TestHelper;
     using Messages;

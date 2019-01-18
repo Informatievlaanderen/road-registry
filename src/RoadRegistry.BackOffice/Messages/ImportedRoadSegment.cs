@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Messages
 {
     using System;
-    using Aiv.Vbr.EventHandling;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
 
     [EventName("ImportedRoadSegment")]
     [EventDescription("Indicates a road network segment was imported.")]

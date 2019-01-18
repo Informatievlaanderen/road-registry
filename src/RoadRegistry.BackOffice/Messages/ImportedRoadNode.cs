@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Messages
 {
-    using Aiv.Vbr.EventHandling;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
 
     [EventName("ImportedRoadNode")]
     [EventDescription("Indicates a road network node was imported.")]

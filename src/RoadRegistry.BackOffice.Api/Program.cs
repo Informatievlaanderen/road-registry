@@ -4,7 +4,7 @@ namespace RoadRegistry.Api
     using System.IO;
     using System.Net;
     using System.Security.Cryptography.X509Certificates;
-    using Aiv.Vbr.AspNetCore.Mvc.Formatters.Json;
+    using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Formatters.Json;
     using Destructurama;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc.Formatters;

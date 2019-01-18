@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.IO;
     using System.IO.Compression;
     using System.Text;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class ZipArchiveShapeEntryValidator : IZipArchiveEntryValidator
     {
@@ -69,7 +69,7 @@ namespace RoadRegistry.BackOffice.Translation
                         catch (Exception exception)
                         {
                             errors = errors.ShapeRecordFormatError(entry.Name.ToUpperInvariant(), afterRecordNumber, exception);
-                            continueReading = false; // depends on the exception but no guarantee we can read after this
+                            continueReading = false;
                         }
 
                         if (record != null)

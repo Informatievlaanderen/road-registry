@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Model
 {
-    using Aiv.Vbr.EventHandling;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
     using Framework;
     using Newtonsoft.Json;
     using SqlStreamStore;

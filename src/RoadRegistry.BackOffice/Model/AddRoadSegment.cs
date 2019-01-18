@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.Model
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
 

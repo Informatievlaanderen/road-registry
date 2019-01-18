@@ -6,8 +6,8 @@ namespace RoadRegistry.LegacyStreamLoader
     using System.Diagnostics;
     using System.IO;
     using System.Threading.Tasks;
-    using Aiv.Vbr.EventHandling;
-    using Aiv.Vbr.Generators.Guid;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
+    using Be.Vlaanderen.Basisregisters.Generators.Guid;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
     using SqlStreamStore;

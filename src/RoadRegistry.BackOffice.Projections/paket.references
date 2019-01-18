@@ -21,14 +21,14 @@ Serilog.Sinks.Console
 Serilog.Enrichers.Thread
 Serilog.Enrichers.Environment
 
-Aiv.Vbr.AggregateSource.SqlStreamStore.Autofac
-Aiv.Vbr.EntityFrameworkCore.EntityTypeConfiguration
-Aiv.Vbr.EventHandling.Autofac
-Aiv.Vbr.ProjectionHandling.Connector
-Aiv.Vbr.ProjectionHandling.Runner
-Aiv.Vbr.ProjectionHandling.SqlStreamStore
-Aiv.Vbr.ProjectionHandling.SqlStreamStore.Autofac
-Aiv.Vbr.Shaperon
+Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac
+Be.Vlaanderen.Basisregisters.EntityFrameworkCore.EntityTypeConfiguration
+Be.Vlaanderen.Basisregisters.EventHandling.Autofac
+Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
+Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
+Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore
+Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
+Be.Vlaanderen.Basisregisters.Shaperon
 
 NetTopologySuite
 System.Text.Encoding.CodePages

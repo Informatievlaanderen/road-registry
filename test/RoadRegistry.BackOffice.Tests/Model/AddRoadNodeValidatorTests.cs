@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Model
 {
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using FluentValidation;
     using FluentValidation.TestHelper;

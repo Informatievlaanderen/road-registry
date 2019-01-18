@@ -3,8 +3,8 @@ namespace RoadRegistry.Api.Downloads
     using System.Data;
     using System.Threading;
     using System.Threading.Tasks;
-    using Aiv.Vbr.Api;
-    using Aiv.Vbr.Api.Exceptions;
+    using Be.Vlaanderen.Basisregisters.Api;
+    using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using BackOffice.Schema;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;

@@ -2,14 +2,14 @@ Autofac
 Newtonsoft.Json
 SqlStreamStore.MsSql
 
-Aiv.Vbr.AggregateSource
-Aiv.Vbr.AggregateSource.ExplicitRouting
-Aiv.Vbr.CommandHandling
-Aiv.Vbr.CommandHandling.SqlStreamStore.Autofac
-Aiv.Vbr.EventHandling
-Aiv.Vbr.Generators.Guid.Deterministic
-Aiv.Vbr.Utilities.HexByteConvertor
-Aiv.Vbr.Shaperon
+Be.Vlaanderen.Basisregisters.AggregateSource
+Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting
+Be.Vlaanderen.Basisregisters.CommandHandling
+Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore.Autofac
+Be.Vlaanderen.Basisregisters.EventHandling
+Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic
+Be.Vlaanderen.Basisregisters.Utilities.HexByteConvertor
+Be.Vlaanderen.Basisregisters.Shaperon
 
 System.Threading.Tasks.Dataflow
 System.Collections.Immutable

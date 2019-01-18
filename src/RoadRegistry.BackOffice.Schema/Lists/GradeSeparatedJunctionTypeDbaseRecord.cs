@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Schema.ReferenceData
 {
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class GradeSeparatedJunctionTypeDbaseRecord : DbaseRecord
     {

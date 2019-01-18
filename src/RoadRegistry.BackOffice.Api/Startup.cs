@@ -7,15 +7,15 @@ namespace RoadRegistry.Api
     using System.Reflection;
     using System.Text;
     using System.Threading;
-    using Aiv.Vbr.Api.Exceptions;
-    using Aiv.Vbr.AspNetCore.Mvc.Formatters.Csv;
-    using Aiv.Vbr.AspNetCore.Mvc.Formatters.Json;
-    using Aiv.Vbr.AspNetCore.Mvc.Logging;
-    using Aiv.Vbr.AspNetCore.Mvc.Middleware;
-    using Aiv.Vbr.AspNetCore.Swagger;
-    using Aiv.Vbr.AspNetCore.Swagger.ReDoc;
-    using Aiv.Vbr.CommandHandling.Idempotency;
-    using Aiv.Vbr.ProjectionHandling.SqlStreamStore;
+    using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+    using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Formatters.Csv;
+    using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Formatters.Json;
+    using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Logging;
+    using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware;
+    using Be.Vlaanderen.Basisregisters.AspNetCore.Swagger;
+    using Be.Vlaanderen.Basisregisters.AspNetCore.Swagger.ReDoc;
+    using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using Configuration;
@@ -110,12 +110,12 @@ namespace RoadRegistry.Api
                 //.Services
 
                 .AddApiExplorer()
+                .Services
                 .AddVersionedApiExplorer(options =>
                 {
                     options.GroupNameFormat = "'v'VVV";
                     options.SubstituteApiVersionInUrl = true;
                 })
-                .Services
 
                 .AddApiVersioning(x => x.ReportApiVersions = true)
                 .AddSwagger<Startup>(

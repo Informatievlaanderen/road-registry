@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Model
 {
     using System;
     using System.Threading.Tasks;
-    using Aiv.Vbr.EventHandling;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
     using AutoFixture;
     using Framework;
     using Framework.Testing;

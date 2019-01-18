@@ -8,7 +8,7 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Amazon.S3;
     using BackOffice.Messages;
     using GeoAPI.Geometries;

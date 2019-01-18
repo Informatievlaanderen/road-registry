@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Immutable;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
     public class ZipArchiveErrors: IReadOnlyCollection<Error>

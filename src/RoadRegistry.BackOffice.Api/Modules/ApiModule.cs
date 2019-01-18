@@ -1,8 +1,8 @@
 namespace RoadRegistry.Api.Modules
 {
-    using Aiv.Vbr.CommandHandling.Idempotency;
-    using Aiv.Vbr.EventHandling;
-    using Aiv.Vbr.EventHandling.Autofac;
+    using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
+    using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using BackOffice;

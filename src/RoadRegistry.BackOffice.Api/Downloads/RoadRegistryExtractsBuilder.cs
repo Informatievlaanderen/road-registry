@@ -5,7 +5,7 @@ namespace RoadRegistry.Api.Downloads
     using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
-    using Aiv.Vbr.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using BackOffice.Schema;
     using BackOffice.Schema.GradeSeparatedJunctions;
     using BackOffice.Schema.Organizations;
