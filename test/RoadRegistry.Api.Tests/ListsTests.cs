@@ -2,7 +2,7 @@ namespace RoadRegistry
 {
     using Aiv.Vbr.Shaperon;
     using Api.Downloads;
-    using BackOfficeSchema.ReferenceData;
+    using BackOffice.Schema.ReferenceData;
     using Framework;
     using Model;
     using Xunit;

@@ -5,7 +5,7 @@ namespace RoadRegistry.Projections.Tests
     using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
-    using BackOfficeSchema.RoadSegmentNumberedRoadAttributes;
+    using BackOffice.Schema.RoadSegmentNumberedRoadAttributes;
     using Messages;
     using Model;
     using Xunit;

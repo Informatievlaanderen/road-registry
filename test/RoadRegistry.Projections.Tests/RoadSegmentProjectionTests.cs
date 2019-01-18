@@ -8,8 +8,8 @@ namespace RoadRegistry.Projections.Tests
     using Xunit;
     using NetTopologySuite.Geometries;
     using System.Text;
-    using BackOfficeSchema;
-    using BackOfficeSchema.RoadSegments;
+    using BackOffice.Schema;
+    using BackOffice.Schema.RoadSegments;
     using Messages;
     using RoadSegmentAccessRestriction = Model.RoadSegmentAccessRestriction;
     using RoadSegmentCategory = Model.RoadSegmentCategory;

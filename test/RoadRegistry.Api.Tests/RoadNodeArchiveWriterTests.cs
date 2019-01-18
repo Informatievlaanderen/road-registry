@@ -5,7 +5,7 @@
     using System.IO.Compression;
     using System.Threading.Tasks;
     using Api.Downloads;
-    using BackOfficeSchema;
+    using BackOffice.Schema;
     using Framework;
     using Xunit;
 

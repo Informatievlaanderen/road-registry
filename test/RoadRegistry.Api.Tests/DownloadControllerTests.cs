@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Api.Downloads;
     using Api.Infrastructure;
-    using BackOfficeSchema;
+    using BackOffice.Schema;
     using Framework;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;

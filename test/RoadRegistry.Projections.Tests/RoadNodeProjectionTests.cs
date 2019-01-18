@@ -6,8 +6,8 @@ namespace RoadRegistry.Projections.Tests
     using System.Threading.Tasks;
     using AutoFixture;
     using Aiv.Vbr.Shaperon;
-    using BackOfficeSchema;
-    using BackOfficeSchema.RoadNodes;
+    using BackOffice.Schema;
+    using BackOffice.Schema.RoadNodes;
     using Messages;
     using Model;
     using Xunit;

@@ -4,7 +4,7 @@ namespace RoadRegistry.Projections.Tests
     using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
-    using BackOfficeSchema.GradeSeparatedJunctions;
+    using BackOffice.Schema.GradeSeparatedJunctions;
     using Messages;
     using Model;
     using Xunit;

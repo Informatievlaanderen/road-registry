@@ -3,7 +3,7 @@ namespace RoadRegistry.Framework
     using System;
     using System.Data.SqlClient;
     using System.Threading.Tasks;
-    using BackOfficeSchema;
+    using BackOffice.Schema;
     using Microsoft.EntityFrameworkCore;
 
     public class SqlServer : ISqlServerDatabase
