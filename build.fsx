@@ -14,11 +14,6 @@ let build = build assemblyVersionNumber
 let publish = publish assemblyVersionNumber
 let pack = pack nugetVersionNumber
 
-Target "Clean" (fun _ ->
-  CleanDir buildDir
-  CleanDir ("src" @@ "RoadRegistry.UI" @@ "wwwroot")
-)
-
 Target "Build_CoreComponents" (fun _ ->
   [
     "RoadRegistry.BackOffice"
@@ -50,6 +45,9 @@ Target "Package_Projections" (fun _ -> containerize "RoadRegistry.BackOffice.Pro
 Target "PushContainer_Projections" (fun _ -> push "projections-legacy")
 
 // Site (api + ui)
+Target "Clean_Site" (fun _ -> 
+  CleanDir ("src" @@ "RoadRegistry.UI" @@ "wwwroot")
+)
 Target "Build_Site" (fun _ ->
   let uiProjectDirectory = "src" @@ "RoadRegistry.UI"
   Npm (fun p ->
@@ -98,7 +96,7 @@ Target "PushAll" DoNothing
 
 // -- TARGET DEPENDENCIES --
 // Publish artefacts to build folder
-"DotNetCli" ==> "Clean" ==> "Restore" ==> "Build_CoreComponents" ==> "Test_CoreComponents" ==> "BuildCore"
+"DotNetCli" ==> "Clean" ==> "Clean_Site" ==> "Restore" ==> "Build_CoreComponents" ==> "Test_CoreComponents" ==> "BuildCore"
 "BuildCore" ==> "Build_LegacyDataExtraction" ==> "Test_LegacyDataExtraction" ==> "Publish_LegacyDataExtraction"
 "BuildCore" ==> "Build_LegacyDataLoader" ==> "Test_LegacyDataLoader" ==> "Publish_LegacyDataLoader"
 "BuildCore" ==> "Build_Projections" ==> "Test_Projections" ==> "Publish_Projections"
