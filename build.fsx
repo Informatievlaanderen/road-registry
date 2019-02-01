@@ -52,16 +52,7 @@ Target "Publish_Solution" (fun _ ->
     "RoadRegistry.UI"
   ] |> List.iter publish)
 
-Target "Pack_Solution" (fun _ ->
-  [
-    "RoadRegistry.BackOffice"
-    "RoadRegistry.BackOffice.Schema"
-    "RoadRegistry.BackOffice.Projections"
-    "RoadRegistry.LegacyStreamLoader"
-    "RoadRegistry.LegacyStreamExtraction"
-    "RoadRegistry.BackOffice.Api"
-    "RoadRegistry.UI"
-  ] |> List.iter pack)
+Target "Pack_Solution" DoNothing
 
 Target "Containerize_Api" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
 Target "PushContainer_Api" (fun _ -> push "backoffice-api")
