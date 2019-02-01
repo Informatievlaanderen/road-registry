@@ -8,7 +8,7 @@ pipelines:
           script:
             - echo 'export SA_PASSWORD=E@syP@ssw0rd' >> ~/.bashrc
             - source ~/.bashrc
-            - ./build.sh PushAll
+            - ./build.sh Push
           services:
             - docker
             - mssql
@@ -22,7 +22,7 @@ pipelines:
           script:
             - echo 'export SA_PASSWORD=E@syP@ssw0rd' >> ~/.bashrc
             - source ~/.bashrc
-            - ./build.sh PublishAll
+            - ./build.sh Pack
           services:
             - mssql
           caches:
