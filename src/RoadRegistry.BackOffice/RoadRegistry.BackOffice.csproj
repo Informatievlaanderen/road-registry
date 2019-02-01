@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
   <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <NetStandardImplicitPackageVersion>2.0.3</NetStandardImplicitPackageVersion>
     <RootNamespace>RoadRegistry.BackOffice</RootNamespace>
   </PropertyGroup>
   <ItemGroup>

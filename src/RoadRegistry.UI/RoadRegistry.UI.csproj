@@ -2,18 +2,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <LangVersion>latest</LangVersion>
-
+    <RuntimeFrameworkVersion>2.2.0</RuntimeFrameworkVersion>
+    <DisableImplicitFrameworkReferences>True</DisableImplicitFrameworkReferences>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <ServerGarbageCollection>true</ServerGarbageCollection>
     <OutputType>Exe</OutputType>
-    <RuntimeFrameworkVersion>2.1.1</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,7 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
-
   <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RuntimeFrameworkVersion>2.2.0</RuntimeFrameworkVersion>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <OutputType>Exe</OutputType>
+
     <RootNamespace>RoadRegistry.LegacyStreamLoader</RootNamespace>
     <AssemblyName>RoadRegistry.LegacyStreamLoader</AssemblyName>
   </PropertyGroup>
