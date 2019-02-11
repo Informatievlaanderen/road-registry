@@ -2,14 +2,14 @@ namespace RoadRegistry.BackOffice.Translation
 {
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
-    public class EuropeanRoadComparisonDbaseSchema : DbaseSchema
+    public class NationalRoadChangeDbaseSchema : DbaseSchema
     {
-        public EuropeanRoadComparisonDbaseSchema()
+        public NationalRoadChangeDbaseSchema()
         {
             Fields = new DbaseField[]
             {
                 DbaseField.CreateInt32Field(
-                    new DbaseFieldName(nameof(EU_OIDN)),
+                    new DbaseFieldName(nameof(NW_OIDN)),
                     new DbaseFieldLength(10)),
 
                 DbaseField
@@ -19,8 +19,8 @@ namespace RoadRegistry.BackOffice.Translation
 
                 DbaseField
                     .CreateStringField(
-                        new DbaseFieldName(nameof(EUNUMMER)),
-                        new DbaseFieldLength(4)),
+                        new DbaseFieldName(nameof(IDENT2)),
+                        new DbaseFieldLength(8)),
 
                 DbaseField
                     .CreateInt32Field(
@@ -34,14 +34,14 @@ namespace RoadRegistry.BackOffice.Translation
             };
         }
 
-        public DbaseField EU_OIDN { get; }
+        public DbaseField NW_OIDN => Fields[0];
 
-        public DbaseField WS_OIDN { get; }
+        public DbaseField WS_OIDN => Fields[1];
 
-        public DbaseField EUNUMMER { get; }
+        public DbaseField IDENT2 => Fields[2];
 
-        public DbaseField TransactID { get; }
+        public DbaseField TransactID => Fields[3];
 
-        public DbaseField RecordType { get; }
+        public DbaseField RecordType => Fields[4];
     }
 }

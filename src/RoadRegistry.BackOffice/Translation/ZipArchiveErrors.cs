@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Linq;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
@@ -17,6 +18,10 @@ namespace RoadRegistry.BackOffice.Translation
         {
             _errors = errors;
         }
+
+        public bool Equals(ZipArchiveErrors other) => other != null && _errors.SequenceEqual(other._errors);
+        public override bool Equals(object obj) => obj is ZipArchiveErrors other && Equals(other);
+        public override int GetHashCode() => _errors.Aggregate(0, (current, error) => current ^ error.GetHashCode());
 
         public IEnumerator<Error> GetEnumerator() => _errors.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -197,6 +202,38 @@ namespace RoadRegistry.BackOffice.Translation
                     new ProblemParameter("File", file),
                     new ProblemParameter("Exception", exception.ToString())))
             );
+        }
+
+        public ZipArchiveErrors IdentifierZero(string file, RecordNumber recordNumber)
+        {
+            return new ZipArchiveErrors(_errors.Add(
+                new Error(
+                    nameof(IdentifierZero),
+                    new ProblemParameter("File", file),
+                    new ProblemParameter("RecordNumber", recordNumber.ToString())))
+            );
+        }
+
+        public ZipArchiveErrors IdentifierMissing(string file, RecordNumber recordNumber)
+        {
+            return new ZipArchiveErrors(_errors.Add(
+                new Error(
+                    nameof(IdentifierMissing),
+                    new ProblemParameter("File", file),
+                    new ProblemParameter("RecordNumber", recordNumber.ToString())))
+            );
+        }
+
+        public ZipArchiveErrors IdentifierNotUnique(string file, AttributeId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
+        {
+            return new ZipArchiveErrors(_errors.Add(
+                new Error(
+                    nameof(IdentifierMissing),
+                    new ProblemParameter("File", file),
+                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
+                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
+                )
+            ));
         }
     }
 }

@@ -15,6 +15,15 @@ namespace RoadRegistry.BackOffice.Model
             _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         }
 
+        public bool Equals(Problem other) => other != null
+                                                      && string.Equals(_reason, other._reason)
+                                                      && _parameters.SequenceEqual(other._parameters);
+
+        public override bool Equals(object obj) => obj is Problem other && Equals(other);
+        public override int GetHashCode() => _parameters.Aggregate(
+            _reason.GetHashCode(),
+            (current, parameter) => current ^ parameter.GetHashCode());
+
         public Messages.Problem Translate() =>
             new Messages.Problem
             {
