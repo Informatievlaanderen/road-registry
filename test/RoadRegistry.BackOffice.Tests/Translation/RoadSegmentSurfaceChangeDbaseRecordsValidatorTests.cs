@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Translation
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
     using System.Linq;
@@ -16,6 +17,7 @@ namespace RoadRegistry.BackOffice.Translation
         private readonly MemoryStream _stream;
         private readonly ZipArchiveEntry _entry;
         private readonly Fixture _fixture;
+        private IEnumerator<RoadSegmentSurfaceChangeDbaseRecord> _enumerator;
 
         public RoadSegmentSurfaceChangeDbaseRecordsValidatorTests()
         {
@@ -39,6 +41,7 @@ namespace RoadRegistry.BackOffice.Translation
                     .OmitAutoProperties());
 
             _sut = new RoadSegmentSurfaceChangeDbaseRecordsValidator();
+            _enumerator = new List<RoadSegmentSurfaceChangeDbaseRecord>().GetEnumerator();
             _stream = new MemoryStream();
             _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
             _entry = _archive.CreateEntry("attwegverharding_all.dbf");
@@ -53,7 +56,7 @@ namespace RoadRegistry.BackOffice.Translation
         [Fact]
         public void ValidateEntryCanNotBeNull()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, new RoadSegmentSurfaceChangeDbaseRecord[0]));
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator));
         }
 
         [Fact]
@@ -65,7 +68,7 @@ namespace RoadRegistry.BackOffice.Translation
         [Fact]
         public void ValidateWithoutRecordsReturnsExpectedResult()
         {
-            var result = _sut.Validate(_entry, new RoadSegmentSurfaceChangeDbaseRecord[0]);
+            var result = _sut.Validate(_entry, _enumerator);
 
             Assert.Equal(
                 ZipArchiveErrors.None.NoDbaseRecords(_entry.Name),
@@ -81,7 +84,8 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     record.WV_OIDN.Value = index + 1;
                     return record;
-                });
+                })
+                .GetEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -99,7 +103,8 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     record.WV_OIDN.Value = 1;
                     return record;
-                });
+                })
+                .GetEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -123,7 +128,8 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     record.WV_OIDN.Value = 0;
                     return record;
-                });
+                })
+                .GetEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -144,7 +150,8 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     record.WV_OIDN.Value = null;
                     return record;
-                });
+                })
+                .GetEnumerator();
 
             var result = _sut.Validate(_entry, records);
 

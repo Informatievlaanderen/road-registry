@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
+    using System.Text;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
@@ -180,26 +181,16 @@ namespace RoadRegistry.BackOffice.Translation
             );
         }
 
-        public ZipArchiveErrors DbaseRecordFormatError(string file, int? afterRecordNumber, Exception exception)
+        public ZipArchiveErrors DbaseRecordFormatError(string file, RecordNumber recordNumber, Exception exception)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
             if (exception == null) throw new ArgumentNullException(nameof(exception));
-
-            if (afterRecordNumber.HasValue)
-            {
-                return new ZipArchiveErrors(_errors.Add(
-                    new Error(
-                        nameof(DbaseRecordFormatError),
-                        new ProblemParameter("File", file),
-                        new ProblemParameter("AfterRecordNumber", afterRecordNumber.Value.ToString()),
-                        new ProblemParameter("Exception", exception.ToString())))
-                );
-            }
 
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(DbaseRecordFormatError),
                     new ProblemParameter("File", file),
+                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("Exception", exception.ToString())))
             );
         }
@@ -274,6 +265,39 @@ namespace RoadRegistry.BackOffice.Translation
                     new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
                 )
             ));
+        }
+
+        public ZipArchiveErrors DbaseSchemaMismatch(string file, DbaseSchema expectedSchema, DbaseSchema actualSchema)
+        {
+            return new ZipArchiveErrors(_errors.Add(
+                new Error(
+                    nameof(DbaseSchemaMismatch),
+                    new ProblemParameter("File", file),
+                    new ProblemParameter("ExpectedSchema", Describe(expectedSchema)),
+                    new ProblemParameter("ActualSchema", Describe(actualSchema))
+                )
+            ));
+        }
+
+        private static string Describe(DbaseSchema schema)
+        {
+            var builder = new StringBuilder();
+            var index = 0;
+            foreach (var field in schema.Fields)
+            {
+                if (index > 0) builder.Append(",");
+                builder.Append(field.Name.ToString());
+                builder.Append("[");
+                builder.Append(field.FieldType.ToString());
+                builder.Append("(");
+                builder.Append(field.Length.ToString());
+                builder.Append(",");
+                builder.Append(field.DecimalCount.ToString());
+                builder.Append(")");
+                builder.Append("]");
+                index++;
+            }
+            return builder.ToString();
         }
     }
 }

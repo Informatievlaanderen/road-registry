@@ -1,22 +1,25 @@
 namespace RoadRegistry.BackOffice.Translation
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
     using System.Text;
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
-    public class ZipArchiveDbaseEntryValidator : IZipArchiveEntryValidator
+    public class ZipArchiveDbaseEntryValidator<TRecord> : IZipArchiveEntryValidator
+        where TRecord : DbaseRecord, new()
     {
         private readonly Encoding _encoding;
         private readonly DbaseSchema _schema;
-        private readonly Func<IZipArchiveDbaseRecordValidator> _recordValidatorFactory;
+        private readonly IZipArchiveDbaseRecordsValidator<TRecord> _recordValidator;
 
-        public ZipArchiveDbaseEntryValidator(Encoding encoding, DbaseSchema schema, Func<IZipArchiveDbaseRecordValidator> recordValidatorFactory)
+        public ZipArchiveDbaseEntryValidator(Encoding encoding, DbaseSchema schema, IZipArchiveDbaseRecordsValidator<TRecord> recordValidator)
         {
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
             _schema = schema ?? throw new ArgumentNullException(nameof(schema));
-            _recordValidatorFactory = recordValidatorFactory ?? throw new ArgumentNullException(nameof(recordValidatorFactory));
+            _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
         }
 
         public ZipArchiveErrors Validate(ZipArchiveEntry entry)
@@ -39,64 +42,94 @@ namespace RoadRegistry.BackOffice.Translation
 
                 if (header != null)
                 {
-                    if (header.RecordCount.Equals(new DbaseRecordCount(0)))
-                    {
-                        errors = errors.NoDbaseRecords(entry.Name.ToUpperInvariant());
-                    }
-
                     if (!header.Schema.Equals(_schema))
                     {
-                        //Report which columns are missing
-                        //Report which columns do not match
-                        //Report which columns are unexpected
+                        errors = errors.DbaseSchemaMismatch(entry.Name, _schema, header.Schema);
                     }
                     else
                     {
-                        var recordValidator = _recordValidatorFactory();
-                        var continueReading = true;
-                        var afterRecordNumber = new int?();
-                        while (continueReading)
-                        {
-                            var record = header.CreateDbaseRecord();
-                            try
-                            {
-                                if (reader.PeekChar() == DbaseRecord.EndOfFile)
-                                {
-                                    continueReading = false;
-                                }
-                                else
-                                {
-                                    record.Read(reader);
-                                    if (afterRecordNumber.HasValue)
-                                    {
-                                        afterRecordNumber = afterRecordNumber.Value + 1;
-                                    }
-                                    else
-                                    {
-                                        afterRecordNumber = 1;
-                                    }
-                                }
-                            }
-                            catch (EndOfStreamException)
-                            {
-                                continueReading = false;
-                            }
-                            catch (Exception exception)
-                            {
-                                errors = errors.DbaseRecordFormatError(entry.Name.ToUpperInvariant(), afterRecordNumber, exception);
-                                continueReading = false;
-                            }
-
-                            if (continueReading)
-                            {
-                                errors = errors.CombineWith(recordValidator.Validate(entry, record));
-                            }
-                        }
+                        errors = errors.CombineWith(_recordValidator.Validate(entry, new RecordEnumerator(reader)));
                     }
                 }
             }
 
             return errors;
+        }
+
+        private class RecordEnumerator : IEnumerator<TRecord>
+        {
+            private readonly BinaryReader _reader;
+            private readonly TRecord _record;
+            private bool _started;
+            private bool _ended;
+
+            public RecordEnumerator(BinaryReader reader)
+            {
+                _reader = reader ?? throw new ArgumentNullException(nameof(reader));
+                _record = new TRecord();
+                _started = false;
+                _ended = false;
+            }
+
+            public bool MoveNext()
+            {
+                if (_ended) { return false; }
+                _started = true;
+
+                var moved = false;
+                try
+                {
+                    if (_reader.PeekChar() != DbaseRecord.EndOfFile)
+                    {
+                        _record.Read(_reader);
+                        moved = true;
+                    }
+                    else
+                    {
+                        _ended = true;
+                    }
+                }
+                catch (EndOfStreamException)
+                {
+                    _ended = true;
+                }
+                catch (Exception exception)
+                {
+                    _ended = true;
+                    throw new DbaseRecordException($"There was a problem reading a {typeof(TRecord).Name} dbase record: {exception.Message}", exception);
+                }
+
+                return moved;
+            }
+
+            public void Reset()
+            {
+                throw new NotSupportedException("Enumeration can only be performed once.");
+            }
+
+            public TRecord Current
+            {
+                get
+                {
+                    if (!_started)
+                    {
+                        throw new InvalidOperationException("Enumeration has not started. Call MoveNext.");
+                    }
+
+                    if (_ended)
+                    {
+                        throw new InvalidOperationException("Enumeration has already ended. Reset is not supported.");
+                    }
+
+                    return _record;
+                }
+            }
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose()
+            {
+            }
         }
     }
 }

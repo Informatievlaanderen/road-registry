@@ -18,6 +18,6 @@ namespace RoadRegistry.BackOffice.Translation
     public interface IZipArchiveDbaseRecordsValidator<in TRecord>
         where TRecord : DbaseRecord, new()
     {
-        ZipArchiveErrors Validate(ZipArchiveEntry entry, IEnumerable<TRecord> records);
+        ZipArchiveErrors Validate(ZipArchiveEntry entry, IEnumerator<TRecord> records);
     }
 }
