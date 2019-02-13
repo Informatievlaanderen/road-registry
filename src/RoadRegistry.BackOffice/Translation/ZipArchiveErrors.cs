@@ -228,8 +228,48 @@ namespace RoadRegistry.BackOffice.Translation
         {
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
-                    nameof(IdentifierMissing),
+                    nameof(IdentifierNotUnique),
                     new ProblemParameter("File", file),
+                    new ProblemParameter("Identifier", identifier.ToString()),
+                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
+                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
+                )
+            ));
+        }
+
+        public ZipArchiveErrors IdentifierNotUnique(string file, GradeSeparatedJunctionId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
+        {
+            return new ZipArchiveErrors(_errors.Add(
+                new Error(
+                    nameof(IdentifierNotUnique),
+                    new ProblemParameter("File", file),
+                    new ProblemParameter("Identifier", identifier.ToString()),
+                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
+                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
+                )
+            ));
+        }
+
+        public ZipArchiveErrors IdentifierNotUnique(string file, RoadNodeId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
+        {
+            return new ZipArchiveErrors(_errors.Add(
+                new Error(
+                    nameof(IdentifierNotUnique),
+                    new ProblemParameter("File", file),
+                    new ProblemParameter("Identifier", identifier.ToString()),
+                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
+                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
+                )
+            ));
+        }
+
+        public ZipArchiveErrors IdentifierNotUnique(string file, RoadSegmentId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
+        {
+            return new ZipArchiveErrors(_errors.Add(
+                new Error(
+                    nameof(IdentifierNotUnique),
+                    new ProblemParameter("File", file),
+                    new ProblemParameter("Identifier", identifier.ToString()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
                 )

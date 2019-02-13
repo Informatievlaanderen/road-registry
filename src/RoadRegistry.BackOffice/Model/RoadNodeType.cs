@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
 
     public class RoadNodeType : IEquatable<RoadNodeType>
@@ -52,6 +53,9 @@ namespace RoadRegistry.BackOffice.Model
             );
 
         public static readonly RoadNodeType[] All = {RealNode, FakeNode, EndNode, MiniRoundabout, TurningLoopNode};
+
+        public static readonly IReadOnlyDictionary<int, RoadNodeType> ByIdentifier =
+            All.ToDictionary(key => key.Translation.Identifier);
 
         private readonly string _value;
         private readonly DutchTranslation _dutchTranslation;

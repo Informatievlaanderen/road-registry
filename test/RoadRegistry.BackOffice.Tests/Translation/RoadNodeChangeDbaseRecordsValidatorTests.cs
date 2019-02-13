@@ -9,48 +9,46 @@ namespace RoadRegistry.BackOffice.Translation
     using Model;
     using Xunit;
 
-    public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
+    public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
     {
-        private readonly NationalRoadChangeDbaseRecordsValidator _sut;
+        private readonly RoadNodeChangeDbaseRecordsValidator _sut;
         private readonly ZipArchive _archive;
         private readonly MemoryStream _stream;
         private readonly ZipArchiveEntry _entry;
         private readonly Fixture _fixture;
 
-        public NationalRoadChangeDbaseRecordsValidatorTests()
+        public RoadNodeChangeDbaseRecordsValidatorTests()
         {
             _fixture = new Fixture();
-            _fixture.CustomizeAttributeId();
-            _fixture.CustomizeRoadSegmentId();
-            _fixture.CustomizeNationalRoadNumber();
-            _fixture.Customize<NationalRoadChangeDbaseRecord>(
+            _fixture.CustomizeRoadNodeId();
+            _fixture.CustomizeRoadNodeType();
+            _fixture.Customize<RoadNodeChangeDbaseRecord>(
                 composer => composer
-                    .FromFactory(random => new NationalRoadChangeDbaseRecord
+                    .FromFactory(random => new RoadNodeChangeDbaseRecord
                     {
                         RecordType = {Value = random.Next(1, 5)},
                         TransactID = {Value = random.Next(1, 9999)},
-                        NW_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
-                        WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
-                        IDENT2 = {Value = _fixture.Create<NationalRoadNumber>().ToString()}
+                        WEGKNOOPID = { Value = new RoadNodeId(random.Next(1, int.MaxValue))},
+                        TYPE = { Value = (short)_fixture.Create<RoadNodeType>().Translation.Identifier }
                     })
                     .OmitAutoProperties());
 
-            _sut = new NationalRoadChangeDbaseRecordsValidator();
+            _sut = new RoadNodeChangeDbaseRecordsValidator();
             _stream = new MemoryStream();
             _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
-            _entry = _archive.CreateEntry("attnationweg_all.dbf");
+            _entry = _archive.CreateEntry("wegknoop_all.dbf");
         }
 
         [Fact]
         public void IsZipArchiveDbaseRecordsValidator()
         {
-            Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<NationalRoadChangeDbaseRecord>>(_sut);
+            Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<RoadNodeChangeDbaseRecord>>(_sut);
         }
 
         [Fact]
         public void ValidateEntryCanNotBeNull()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, new NationalRoadChangeDbaseRecord[0]));
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, new RoadNodeChangeDbaseRecord[0]));
         }
 
         [Fact]
@@ -62,7 +60,7 @@ namespace RoadRegistry.BackOffice.Translation
         [Fact]
         public void ValidateWithoutRecordsReturnsExpectedResult()
         {
-            var result = _sut.Validate(_entry, new NationalRoadChangeDbaseRecord[0]);
+            var result = _sut.Validate(_entry, new RoadNodeChangeDbaseRecord[0]);
 
             Assert.Equal(
                 ZipArchiveErrors.None.NoDbaseRecords(_entry.Name),
@@ -73,10 +71,10 @@ namespace RoadRegistry.BackOffice.Translation
         public void ValidateWithValidRecordsReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(new Random().Next(1, 5))
+                .CreateMany<RoadNodeChangeDbaseRecord>(new Random().Next(1, 5))
                 .Select((record, index) =>
                 {
-                    record.NW_OIDN.Value = index + 1;
+                    record.WEGKNOOPID.Value = index + 1;
                     return record;
                 });
 
@@ -88,13 +86,13 @@ namespace RoadRegistry.BackOffice.Translation
         }
 
         [Fact]
-        public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierReturnsExpectedResult()
+        public void ValidateWithRecordsThatHaveTheSameRoadNodeIdentifierReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(2)
+                .CreateMany<RoadNodeChangeDbaseRecord>(2)
                 .Select(record =>
                 {
-                    record.NW_OIDN.Value = 1;
+                    record.WEGKNOOPID.Value = 1;
                     return record;
                 });
 
@@ -105,20 +103,20 @@ namespace RoadRegistry.BackOffice.Translation
                     .None
                     .IdentifierNotUnique(
                         _entry.Name,
-                        new AttributeId(1),
+                        new RoadNodeId(1),
                         new RecordNumber(2),
                         new RecordNumber(1)),
                 result);
         }
 
         [Fact]
-        public void ValidateWithRecordsThatHaveZeroAsAttributeIdentifierReturnsExpectedResult()
+        public void ValidateWithRecordsThatHaveZeroAsRoadNodeIdentifierReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(2)
+                .CreateMany<RoadNodeChangeDbaseRecord>(2)
                 .Select(record =>
                 {
-                    record.NW_OIDN.Value = 0;
+                    record.WEGKNOOPID.Value = 0;
                     return record;
                 });
 
@@ -133,13 +131,13 @@ namespace RoadRegistry.BackOffice.Translation
         }
 
         [Fact]
-        public void ValidateWithRecordsThatAreMissingAnAttributeIdentifierReturnsExpectedResult()
+        public void ValidateWithRecordsThatAreMissingAnRoadNodeIdentifierReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(2)
+                .CreateMany<RoadNodeChangeDbaseRecord>(2)
                 .Select(record =>
                 {
-                    record.NW_OIDN.Value = null;
+                    record.WEGKNOOPID.Value = null;
                     return record;
                 });
 

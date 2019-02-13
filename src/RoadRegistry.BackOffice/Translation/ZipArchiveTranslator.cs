@@ -31,4 +31,7 @@ namespace RoadRegistry.BackOffice.Translation
             return Task.CompletedTask;
         }
     }
+
+    //ZipArchiveTranslator: Task<ChangeRoadNetwork> Translate(ZipArchive);
+    //ZipArchiveEntryTranslator: Task Translate(ZipArchiveEntry, ChangeRoadNetwork)
 }

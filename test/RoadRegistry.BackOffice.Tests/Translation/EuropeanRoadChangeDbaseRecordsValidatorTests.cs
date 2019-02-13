@@ -38,7 +38,7 @@ namespace RoadRegistry.BackOffice.Translation
             _sut = new EuropeanRoadChangeDbaseRecordsValidator();
             _stream = new MemoryStream();
             _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
-            _entry = _archive.CreateEntry("entry");
+            _entry = _archive.CreateEntry("atteuropweg_all.dbf");
         }
 
         [Fact]

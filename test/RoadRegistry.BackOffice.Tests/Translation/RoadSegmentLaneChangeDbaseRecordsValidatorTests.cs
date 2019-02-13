@@ -9,48 +9,53 @@ namespace RoadRegistry.BackOffice.Translation
     using Model;
     using Xunit;
 
-    public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
+    public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     {
-        private readonly NationalRoadChangeDbaseRecordsValidator _sut;
+        private readonly RoadSegmentLaneChangeDbaseRecordsValidator _sut;
         private readonly ZipArchive _archive;
         private readonly MemoryStream _stream;
         private readonly ZipArchiveEntry _entry;
         private readonly Fixture _fixture;
 
-        public NationalRoadChangeDbaseRecordsValidatorTests()
+        public RoadSegmentLaneChangeDbaseRecordsValidatorTests()
         {
             _fixture = new Fixture();
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
-            _fixture.CustomizeNationalRoadNumber();
-            _fixture.Customize<NationalRoadChangeDbaseRecord>(
+            _fixture.CustomizeRoadSegmentLaneCount();
+            _fixture.CustomizeRoadSegmentLaneDirection();
+            _fixture.CustomizeRoadSegmentPosition();
+            _fixture.Customize<RoadSegmentLaneChangeDbaseRecord>(
                 composer => composer
-                    .FromFactory(random => new NationalRoadChangeDbaseRecord
+                    .FromFactory(random => new RoadSegmentLaneChangeDbaseRecord
                     {
                         RecordType = {Value = random.Next(1, 5)},
                         TransactID = {Value = random.Next(1, 9999)},
-                        NW_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
+                        RS_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
-                        IDENT2 = {Value = _fixture.Create<NationalRoadNumber>().ToString()}
+                        VAN_POSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
+                        TOT_POSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
+                        AANTAL = { Value = (short)_fixture.Create<RoadSegmentLaneCount>().ToInt32() },
+                        RICHTING = {Value = (short) _fixture.Create<RoadSegmentLaneDirection>().Translation.Identifier}
                     })
                     .OmitAutoProperties());
 
-            _sut = new NationalRoadChangeDbaseRecordsValidator();
+            _sut = new RoadSegmentLaneChangeDbaseRecordsValidator();
             _stream = new MemoryStream();
             _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
-            _entry = _archive.CreateEntry("attnationweg_all.dbf");
+            _entry = _archive.CreateEntry("attrijstroken_all.dbf");
         }
 
         [Fact]
         public void IsZipArchiveDbaseRecordsValidator()
         {
-            Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<NationalRoadChangeDbaseRecord>>(_sut);
+            Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<RoadSegmentLaneChangeDbaseRecord>>(_sut);
         }
 
         [Fact]
         public void ValidateEntryCanNotBeNull()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, new NationalRoadChangeDbaseRecord[0]));
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, new RoadSegmentLaneChangeDbaseRecord[0]));
         }
 
         [Fact]
@@ -62,7 +67,7 @@ namespace RoadRegistry.BackOffice.Translation
         [Fact]
         public void ValidateWithoutRecordsReturnsExpectedResult()
         {
-            var result = _sut.Validate(_entry, new NationalRoadChangeDbaseRecord[0]);
+            var result = _sut.Validate(_entry, new RoadSegmentLaneChangeDbaseRecord[0]);
 
             Assert.Equal(
                 ZipArchiveErrors.None.NoDbaseRecords(_entry.Name),
@@ -73,10 +78,10 @@ namespace RoadRegistry.BackOffice.Translation
         public void ValidateWithValidRecordsReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(new Random().Next(1, 5))
+                .CreateMany<RoadSegmentLaneChangeDbaseRecord>(new Random().Next(1, 5))
                 .Select((record, index) =>
                 {
-                    record.NW_OIDN.Value = index + 1;
+                    record.RS_OIDN.Value = index + 1;
                     return record;
                 });
 
@@ -91,10 +96,10 @@ namespace RoadRegistry.BackOffice.Translation
         public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(2)
+                .CreateMany<RoadSegmentLaneChangeDbaseRecord>(2)
                 .Select(record =>
                 {
-                    record.NW_OIDN.Value = 1;
+                    record.RS_OIDN.Value = 1;
                     return record;
                 });
 
@@ -115,10 +120,10 @@ namespace RoadRegistry.BackOffice.Translation
         public void ValidateWithRecordsThatHaveZeroAsAttributeIdentifierReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(2)
+                .CreateMany<RoadSegmentLaneChangeDbaseRecord>(2)
                 .Select(record =>
                 {
-                    record.NW_OIDN.Value = 0;
+                    record.RS_OIDN.Value = 0;
                     return record;
                 });
 
@@ -136,10 +141,10 @@ namespace RoadRegistry.BackOffice.Translation
         public void ValidateWithRecordsThatAreMissingAnAttributeIdentifierReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(2)
+                .CreateMany<RoadSegmentLaneChangeDbaseRecord>(2)
                 .Select(record =>
                 {
-                    record.NW_OIDN.Value = null;
+                    record.RS_OIDN.Value = null;
                     return record;
                 });
 

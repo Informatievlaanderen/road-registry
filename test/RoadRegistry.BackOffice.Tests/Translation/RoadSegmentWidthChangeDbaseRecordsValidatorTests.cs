@@ -9,48 +9,51 @@ namespace RoadRegistry.BackOffice.Translation
     using Model;
     using Xunit;
 
-    public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
+    public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
     {
-        private readonly NationalRoadChangeDbaseRecordsValidator _sut;
+        private readonly RoadSegmentWidthChangeDbaseRecordsValidator _sut;
         private readonly ZipArchive _archive;
         private readonly MemoryStream _stream;
         private readonly ZipArchiveEntry _entry;
         private readonly Fixture _fixture;
 
-        public NationalRoadChangeDbaseRecordsValidatorTests()
+        public RoadSegmentWidthChangeDbaseRecordsValidatorTests()
         {
             _fixture = new Fixture();
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
-            _fixture.CustomizeNationalRoadNumber();
-            _fixture.Customize<NationalRoadChangeDbaseRecord>(
+            _fixture.CustomizeRoadSegmentWidth();
+            _fixture.CustomizeRoadSegmentPosition();
+            _fixture.Customize<RoadSegmentWidthChangeDbaseRecord>(
                 composer => composer
-                    .FromFactory(random => new NationalRoadChangeDbaseRecord
+                    .FromFactory(random => new RoadSegmentWidthChangeDbaseRecord
                     {
                         RecordType = {Value = random.Next(1, 5)},
                         TransactID = {Value = random.Next(1, 9999)},
-                        NW_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
+                        WB_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
-                        IDENT2 = {Value = _fixture.Create<NationalRoadNumber>().ToString()}
+                        VAN_POSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
+                        TOT_POSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
+                        BREEDTE = { Value = (short)_fixture.Create<RoadSegmentWidth>().ToInt32() }
                     })
                     .OmitAutoProperties());
 
-            _sut = new NationalRoadChangeDbaseRecordsValidator();
+            _sut = new RoadSegmentWidthChangeDbaseRecordsValidator();
             _stream = new MemoryStream();
             _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
-            _entry = _archive.CreateEntry("attnationweg_all.dbf");
+            _entry = _archive.CreateEntry("attwegbreedte_all.dbf");
         }
 
         [Fact]
         public void IsZipArchiveDbaseRecordsValidator()
         {
-            Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<NationalRoadChangeDbaseRecord>>(_sut);
+            Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<RoadSegmentWidthChangeDbaseRecord>>(_sut);
         }
 
         [Fact]
         public void ValidateEntryCanNotBeNull()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, new NationalRoadChangeDbaseRecord[0]));
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, new RoadSegmentWidthChangeDbaseRecord[0]));
         }
 
         [Fact]
@@ -62,7 +65,7 @@ namespace RoadRegistry.BackOffice.Translation
         [Fact]
         public void ValidateWithoutRecordsReturnsExpectedResult()
         {
-            var result = _sut.Validate(_entry, new NationalRoadChangeDbaseRecord[0]);
+            var result = _sut.Validate(_entry, new RoadSegmentWidthChangeDbaseRecord[0]);
 
             Assert.Equal(
                 ZipArchiveErrors.None.NoDbaseRecords(_entry.Name),
@@ -73,10 +76,10 @@ namespace RoadRegistry.BackOffice.Translation
         public void ValidateWithValidRecordsReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(new Random().Next(1, 5))
+                .CreateMany<RoadSegmentWidthChangeDbaseRecord>(new Random().Next(1, 5))
                 .Select((record, index) =>
                 {
-                    record.NW_OIDN.Value = index + 1;
+                    record.WB_OIDN.Value = index + 1;
                     return record;
                 });
 
@@ -91,10 +94,10 @@ namespace RoadRegistry.BackOffice.Translation
         public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(2)
+                .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
                 .Select(record =>
                 {
-                    record.NW_OIDN.Value = 1;
+                    record.WB_OIDN.Value = 1;
                     return record;
                 });
 
@@ -115,10 +118,10 @@ namespace RoadRegistry.BackOffice.Translation
         public void ValidateWithRecordsThatHaveZeroAsAttributeIdentifierReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(2)
+                .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
                 .Select(record =>
                 {
-                    record.NW_OIDN.Value = 0;
+                    record.WB_OIDN.Value = 0;
                     return record;
                 });
 
@@ -136,10 +139,10 @@ namespace RoadRegistry.BackOffice.Translation
         public void ValidateWithRecordsThatAreMissingAnAttributeIdentifierReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(2)
+                .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
                 .Select(record =>
                 {
-                    record.NW_OIDN.Value = null;
+                    record.WB_OIDN.Value = null;
                     return record;
                 });
 
