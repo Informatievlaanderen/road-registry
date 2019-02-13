@@ -13,8 +13,8 @@ namespace RoadRegistry.BackOffice.Translation
             IDENT8 = new DbaseString(Schema.IDENT8);
             RICHTING = new DbaseInt16(Schema.RICHTING);
             VOLGNUMMER = new DbaseInt32(Schema.VOLGNUMMER);
-            TransactID = new DbaseInt32(Schema.TransactID);
-            RecordType = new DbaseInt32(Schema.RecordType);
+            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 
             Values = new DbaseFieldValue[]
             {
@@ -23,8 +23,8 @@ namespace RoadRegistry.BackOffice.Translation
                 IDENT8,
                 RICHTING,
                 VOLGNUMMER,
-                TransactID,
-                RecordType
+                TRANSACTID,
+                RECORDTYPE
             };
         }
 
@@ -38,8 +38,8 @@ namespace RoadRegistry.BackOffice.Translation
 
         public DbaseInt32 VOLGNUMMER { get; }
 
-        public DbaseInt32 TransactID { get; }
+        public DbaseInt16 TRANSACTID { get; }
 
-        public DbaseInt32 RecordType { get; }
+        public DbaseInt16 RECORDTYPE { get; }
     }
 }

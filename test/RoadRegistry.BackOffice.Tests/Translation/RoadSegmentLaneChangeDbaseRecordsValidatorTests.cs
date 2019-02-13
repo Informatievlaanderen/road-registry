@@ -29,12 +29,12 @@ namespace RoadRegistry.BackOffice.Translation
                 composer => composer
                     .FromFactory(random => new RoadSegmentLaneChangeDbaseRecord
                     {
-                        RecordType = {Value = random.Next(1, 5)},
-                        TransactID = {Value = random.Next(1, 9999)},
+                        RECORDTYPE = {Value = (short)random.Next(1, 5)},
+                        TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         RS_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
-                        VAN_POSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
-                        TOT_POSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
+                        VANPOSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
+                        TOTPOSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
                         AANTAL = { Value = (short)_fixture.Create<RoadSegmentLaneCount>().ToInt32() },
                         RICHTING = {Value = (short) _fixture.Create<RoadSegmentLaneDirection>().Translation.Identifier}
                     })

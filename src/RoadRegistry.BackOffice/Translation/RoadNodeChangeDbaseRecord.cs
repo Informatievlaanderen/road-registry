@@ -10,15 +10,15 @@ namespace RoadRegistry.BackOffice.Translation
         {
             WEGKNOOPID = new DbaseInt32(Schema.WEGKNOOPID);
             TYPE = new DbaseInt16(Schema.TYPE);
-            TransactID = new DbaseInt32(Schema.TransactID);
-            RecordType = new DbaseInt32(Schema.RecordType);
+            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 
             Values = new DbaseFieldValue[]
             {
                 WEGKNOOPID,
                 TYPE,
-                TransactID,
-                RecordType
+                TRANSACTID,
+                RECORDTYPE
             };
         }
 
@@ -28,8 +28,8 @@ namespace RoadRegistry.BackOffice.Translation
 
         public DbaseString EUNUMMER { get; }
 
-        public DbaseInt32 TransactID { get; }
+        public DbaseInt16 TRANSACTID { get; }
 
-        public DbaseInt32 RecordType { get; }
+        public DbaseInt16 RECORDTYPE { get; }
     }
 }

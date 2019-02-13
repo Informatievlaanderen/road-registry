@@ -19,8 +19,8 @@ namespace RoadRegistry.BackOffice.Translation
             LSTRNMID = new DbaseInt32(Schema.LSTRNMID);
             RSTRNMID = new DbaseInt32(Schema.RSTRNMID);
             TGBEP = new DbaseInt16(Schema.TGBEP);
-            TransactID = new DbaseInt32(Schema.TransactID);
-            RecordType = new DbaseInt32(Schema.RecordType);
+            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
             EVENTIDN = new DbaseInt32(Schema.EVENTIDN);
 
             Values = new DbaseFieldValue[]
@@ -36,8 +36,8 @@ namespace RoadRegistry.BackOffice.Translation
                 LSTRNMID,
                 RSTRNMID,
                 TGBEP,
-                TransactID,
-                RecordType,
+                TRANSACTID,
+                RECORDTYPE,
                 EVENTIDN
             };
         }
@@ -64,9 +64,9 @@ namespace RoadRegistry.BackOffice.Translation
 
         public DbaseInt16 TGBEP { get; }
 
-        public DbaseInt32 TransactID { get; }
+        public DbaseInt16 TRANSACTID { get; }
 
-        public DbaseInt32 RecordType { get; }
+        public DbaseInt16 RECORDTYPE { get; }
 
         public DbaseInt32 EVENTIDN { get; }
     }

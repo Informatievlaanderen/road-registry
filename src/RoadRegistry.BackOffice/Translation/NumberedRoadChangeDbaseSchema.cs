@@ -33,13 +33,13 @@ namespace RoadRegistry.BackOffice.Translation
                         new DbaseFieldLength(5)),
 
                 DbaseField
-                    .CreateInt32Field(
-                        new DbaseFieldName("transactID"),
+                    .CreateInt16Field(
+                        new DbaseFieldName(nameof(TRANSACTID)),
                         new DbaseFieldLength(4)),
 
                 DbaseField
-                    .CreateInt32Field(
-                        new DbaseFieldName("recordtype"),
+                    .CreateInt16Field(
+                        new DbaseFieldName(nameof(RECORDTYPE)),
                         new DbaseFieldLength(4))
             };
         }
@@ -54,8 +54,8 @@ namespace RoadRegistry.BackOffice.Translation
 
         public DbaseField VOLGNUMMER => Fields[4];
 
-        public DbaseField TransactID => Fields[5];
+        public DbaseField TRANSACTID => Fields[5];
 
-        public DbaseField RecordType => Fields[6];
+        public DbaseField RECORDTYPE => Fields[6];
     }
 }

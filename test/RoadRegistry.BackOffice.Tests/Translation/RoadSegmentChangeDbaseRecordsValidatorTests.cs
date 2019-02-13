@@ -32,8 +32,8 @@ namespace RoadRegistry.BackOffice.Translation
                 composer => composer
                     .FromFactory(random => new RoadSegmentChangeDbaseRecord
                     {
-                        RecordType = {Value = random.Next(1, 5)},
-                        TransactID = {Value = random.Next(1, 9999)},
+                        RECORDTYPE = {Value = (short)random.Next(1, 5)},
+                        TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         WS_OIDN = { Value = new RoadSegmentId(random.Next(1, int.MaxValue))},
                         METHODE = { Value = (short)_fixture.Create<RoadSegmentGeometryDrawMethod>().Translation.Identifier },
                         BEHEERDER = { Value = _fixture.Create<MaintenanceAuthorityId>() },

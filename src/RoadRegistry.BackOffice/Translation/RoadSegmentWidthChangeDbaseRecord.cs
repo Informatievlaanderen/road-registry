@@ -10,21 +10,21 @@ namespace RoadRegistry.BackOffice.Translation
         {
             WB_OIDN = new DbaseInt32(Schema.WB_OIDN);
             WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-            VAN_POSITIE = new DbaseDouble(Schema.VAN_POSITIE);
-            TOT_POSITIE = new DbaseDouble(Schema.TOT_POSITIE);
+            VANPOSITIE = new DbaseDouble(Schema.VANPOSITIE);
+            TOTPOSITIE = new DbaseDouble(Schema.TOTPOSITIE);
             BREEDTE = new DbaseInt16(Schema.BREEDTE);
-            TransactID = new DbaseInt32(Schema.TransactID);
-            RecordType = new DbaseInt32(Schema.RecordType);
+            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 
             Values = new DbaseFieldValue[]
             {
                 WB_OIDN,
                 WS_OIDN,
-                VAN_POSITIE,
-                TOT_POSITIE,
+                VANPOSITIE,
+                TOTPOSITIE,
                 BREEDTE,
-                TransactID,
-                RecordType
+                TRANSACTID,
+                RECORDTYPE
             };
         }
 
@@ -32,14 +32,14 @@ namespace RoadRegistry.BackOffice.Translation
 
         public DbaseInt32 WS_OIDN { get; }
 
-        public DbaseDouble VAN_POSITIE { get; }
-        
-        public DbaseDouble TOT_POSITIE { get; }
-        
-        public DbaseInt16 BREEDTE { get; }
-        
-        public DbaseInt32 TransactID { get; }
+        public DbaseDouble VANPOSITIE { get; }
 
-        public DbaseInt32 RecordType { get; }
+        public DbaseDouble TOTPOSITIE { get; }
+
+        public DbaseInt16 BREEDTE { get; }
+
+        public DbaseInt16 TRANSACTID { get; }
+
+        public DbaseInt16 RECORDTYPE { get; }
     }
 }

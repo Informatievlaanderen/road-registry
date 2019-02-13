@@ -27,8 +27,8 @@ namespace RoadRegistry.BackOffice.Translation
                 composer => composer
                     .FromFactory(random => new EuropeanRoadChangeDbaseRecord
                     {
-                        RecordType = {Value = random.Next(1, 5)},
-                        TransactID = {Value = random.Next(1, 9999)},
+                        RECORDTYPE = {Value = (short)random.Next(1, 5)},
+                        TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         EU_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
                         EUNUMMER = {Value = _fixture.Create<EuropeanRoadNumber>().ToString()}

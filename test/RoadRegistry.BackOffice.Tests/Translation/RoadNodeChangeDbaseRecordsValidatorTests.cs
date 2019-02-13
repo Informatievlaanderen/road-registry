@@ -26,8 +26,8 @@ namespace RoadRegistry.BackOffice.Translation
                 composer => composer
                     .FromFactory(random => new RoadNodeChangeDbaseRecord
                     {
-                        RecordType = {Value = random.Next(1, 5)},
-                        TransactID = {Value = random.Next(1, 9999)},
+                        RECORDTYPE = {Value = (short)random.Next(1, 5)},
+                        TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         WEGKNOOPID = { Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         TYPE = { Value = (short)_fixture.Create<RoadNodeType>().Translation.Identifier }
                     })

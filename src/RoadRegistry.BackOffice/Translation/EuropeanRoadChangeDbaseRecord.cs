@@ -13,16 +13,16 @@ namespace RoadRegistry.BackOffice.Translation
             EU_OIDN = new DbaseInt32(Schema.EU_OIDN);
             WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
             EUNUMMER = new DbaseString(Schema.EUNUMMER);
-            TransactID = new DbaseInt32(Schema.TransactID);
-            RecordType = new DbaseInt32(Schema.RecordType);
+            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 
             Values = new DbaseFieldValue[]
             {
                 EU_OIDN,
                 WS_OIDN,
                 EUNUMMER,
-                TransactID,
-                RecordType
+                TRANSACTID,
+                RECORDTYPE
             };
         }
 
@@ -32,8 +32,8 @@ namespace RoadRegistry.BackOffice.Translation
 
         public DbaseString EUNUMMER { get; }
 
-        public DbaseInt32 TransactID { get; }
+        public DbaseInt16 TRANSACTID { get; }
 
-        public DbaseInt32 RecordType { get; }
+        public DbaseInt16 RECORDTYPE { get; }
     }
 }

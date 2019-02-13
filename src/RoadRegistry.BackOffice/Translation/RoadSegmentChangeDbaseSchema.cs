@@ -63,13 +63,13 @@ namespace RoadRegistry.BackOffice.Translation
                         new DbaseFieldLength(2)),
 
                 DbaseField
-                    .CreateInt32Field(
-                        new DbaseFieldName("transactID"),
+                    .CreateInt16Field(
+                        new DbaseFieldName(nameof(TRANSACTID)),
                         new DbaseFieldLength(4)),
 
                 DbaseField
-                    .CreateInt32Field(
-                        new DbaseFieldName("recordtype"),
+                    .CreateInt16Field(
+                        new DbaseFieldName(nameof(RECORDTYPE)),
                         new DbaseFieldLength(4)),
 
                 DbaseField
@@ -101,9 +101,9 @@ namespace RoadRegistry.BackOffice.Translation
 
         public DbaseField TGBEP => Fields[10];
 
-        public DbaseField TransactID => Fields[11];
+        public DbaseField TRANSACTID => Fields[11];
 
-        public DbaseField RecordType => Fields[12];
+        public DbaseField RECORDTYPE => Fields[12];
 
         public DbaseField EVENTIDN => Fields[13];
     }

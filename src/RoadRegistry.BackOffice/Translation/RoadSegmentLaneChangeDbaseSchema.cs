@@ -19,34 +19,34 @@ namespace RoadRegistry.BackOffice.Translation
 
                 DbaseField
                     .CreateDoubleField(
-                        new DbaseFieldName("vanPositie"),
+                        new DbaseFieldName(nameof(VANPOSITIE)),
                         new DbaseFieldLength(7),
                         new DbaseDecimalCount(3)),
 
                 DbaseField
                     .CreateDoubleField(
-                        new DbaseFieldName("totPositie"),
+                        new DbaseFieldName(nameof(TOTPOSITIE)),
                         new DbaseFieldLength(7),
                         new DbaseDecimalCount(3)),
 
                 DbaseField
                     .CreateInt16Field(
-                        new DbaseFieldName("aantal"),
+                        new DbaseFieldName(nameof(AANTAL)),
                         new DbaseFieldLength(4)),
 
                 DbaseField
                     .CreateInt16Field(
-                        new DbaseFieldName("richting"),
+                        new DbaseFieldName(nameof(RICHTING)),
                         new DbaseFieldLength(4)),
 
                 DbaseField
-                    .CreateInt32Field(
-                        new DbaseFieldName("transactID"),
+                    .CreateInt16Field(
+                        new DbaseFieldName(nameof(TRANSACTID)),
                         new DbaseFieldLength(4)),
 
                 DbaseField
-                    .CreateInt32Field(
-                        new DbaseFieldName("recordtype"),
+                    .CreateInt16Field(
+                        new DbaseFieldName(nameof(RECORDTYPE)),
                         new DbaseFieldLength(4))
             };
         }
@@ -55,16 +55,16 @@ namespace RoadRegistry.BackOffice.Translation
 
         public DbaseField WS_OIDN => Fields[1];
 
-        public DbaseField VAN_POSITIE => Fields[2];
+        public DbaseField VANPOSITIE => Fields[2];
 
-        public DbaseField TOT_POSITIE => Fields[3];
+        public DbaseField TOTPOSITIE => Fields[3];
 
         public DbaseField AANTAL => Fields[4];
 
         public DbaseField RICHTING => Fields[5];
 
-        public DbaseField TransactID => Fields[6];
+        public DbaseField TRANSACTID => Fields[6];
 
-        public DbaseField RecordType => Fields[7];
+        public DbaseField RECORDTYPE => Fields[7];
     }
 }
