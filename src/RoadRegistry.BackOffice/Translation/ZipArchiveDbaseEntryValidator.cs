@@ -59,14 +59,13 @@ namespace RoadRegistry.BackOffice.Translation
         private class RecordEnumerator : IEnumerator<TRecord>
         {
             private readonly BinaryReader _reader;
-            private readonly TRecord _record;
+            private TRecord _record;
             private bool _started;
             private bool _ended;
 
             public RecordEnumerator(BinaryReader reader)
             {
                 _reader = reader ?? throw new ArgumentNullException(nameof(reader));
-                _record = new TRecord();
                 _started = false;
                 _ended = false;
             }
@@ -79,24 +78,23 @@ namespace RoadRegistry.BackOffice.Translation
                 var moved = false;
                 try
                 {
-                    if (_reader.PeekChar() != DbaseRecord.EndOfFile)
-                    {
-                        _record.Read(_reader);
-                        moved = true;
-                    }
-                    else
-                    {
-                        _ended = true;
-                    }
+                    var record = new TRecord();
+                    record.Read(_reader);
+                    _record = record;
+                    moved = true;
                 }
                 catch (EndOfStreamException)
+                {
+                    _ended = true;
+                }
+                catch (DbaseRecordException)
                 {
                     _ended = true;
                 }
                 catch (Exception exception)
                 {
                     _ended = true;
-                    throw new DbaseRecordException($"There was a problem reading a {typeof(TRecord).Name} dbase record: {exception.Message}", exception);
+                    throw new DbaseRecordException($"There was a problem reading a {typeof(TRecord).Name}: {exception.Message}", exception);
                 }
 
                 return moved;
