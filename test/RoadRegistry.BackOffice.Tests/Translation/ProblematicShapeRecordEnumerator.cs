@@ -5,7 +5,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections.Generic;
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
-    public class ProblematicRecordEnumerator<TRecord> : IEnumerator<TRecord>
+    public class ProblematicShapeRecordEnumerator<TRecord> : IEnumerator<TRecord>
         where TRecord : DbaseRecord
     {
         private readonly TRecord[] _records;
@@ -13,7 +13,7 @@ namespace RoadRegistry.BackOffice.Translation
         private readonly Exception _failure;
         private int _index;
 
-        public ProblematicRecordEnumerator(TRecord[] records, int failAt, Exception failure)
+        public ProblematicShapeRecordEnumerator(TRecord[] records, int failAt, Exception failure)
         {
             _records = records ?? throw new ArgumentNullException(nameof(records));
             _failAt = failAt;
