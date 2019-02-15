@@ -61,7 +61,7 @@ namespace RoadRegistry.BackOffice.Translation
             }
             catch (Exception exception)
             {
-                errors = errors.DbaseRecordFormatError(entry.Name.ToUpperInvariant(), recordNumber, exception);
+                errors = errors.DbaseRecordFormatError(entry.Name, recordNumber, exception);
             }
 
             return errors;

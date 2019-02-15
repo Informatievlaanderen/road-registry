@@ -33,7 +33,7 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 catch (Exception exception)
                 {
-                    errors = errors.ShapeHeaderFormatError(entry.Name.ToUpperInvariant(), exception);
+                    errors = errors.ShapeHeaderFormatError(entry.Name, exception);
                 }
 
                 if (header != null)
@@ -68,7 +68,7 @@ namespace RoadRegistry.BackOffice.Translation
                         }
                         catch (Exception exception)
                         {
-                            errors = errors.ShapeRecordFormatError(entry.Name.ToUpperInvariant(), afterRecordNumber, exception);
+                            errors = errors.ShapeRecordFormatError(entry.Name, afterRecordNumber, exception);
                             continueReading = false;
                         }
 
@@ -80,7 +80,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                     if (recordCount == 0)
                     {
-                        errors = errors.NoShapeRecords(entry.Name.ToUpperInvariant());
+                        errors = errors.NoShapeRecords(entry.Name);
                     }
                 }
             }

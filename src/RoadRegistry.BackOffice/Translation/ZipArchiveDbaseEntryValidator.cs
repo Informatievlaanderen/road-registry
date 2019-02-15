@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 catch (Exception exception)
                 {
-                    errors = errors.DbaseHeaderFormatError(entry.Name.ToUpperInvariant(), exception);
+                    errors = errors.DbaseHeaderFormatError(entry.Name, exception);
                 }
 
                 if (header != null)

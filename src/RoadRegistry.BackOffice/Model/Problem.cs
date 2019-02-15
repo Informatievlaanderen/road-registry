@@ -6,29 +6,29 @@ namespace RoadRegistry.BackOffice.Model
 
     public abstract class Problem
     {
-        private readonly string _reason;
-        private readonly IReadOnlyCollection<ProblemParameter> _parameters;
-
         protected Problem(string reason, IReadOnlyCollection<ProblemParameter> parameters)
         {
-            _reason = reason ?? throw new ArgumentNullException(nameof(reason));
-            _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+            Reason = reason ?? throw new ArgumentNullException(nameof(reason));
+            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         }
 
-        public bool Equals(Problem other) => other != null
-                                                      && string.Equals(_reason, other._reason)
-                                                      && _parameters.SequenceEqual(other._parameters);
+        public string Reason { get; }
 
+        public IReadOnlyCollection<ProblemParameter> Parameters { get; }
+
+        public bool Equals(Problem other) => other != null
+                                                      && string.Equals(Reason, other.Reason)
+                                                      && Parameters.SequenceEqual(other.Parameters);
         public override bool Equals(object obj) => obj is Problem other && Equals(other);
-        public override int GetHashCode() => _parameters.Aggregate(
-            _reason.GetHashCode(),
+        public override int GetHashCode() => Parameters.Aggregate(
+            Reason.GetHashCode(),
             (current, parameter) => current ^ parameter.GetHashCode());
 
         public Messages.Problem Translate() =>
             new Messages.Problem
             {
-                Reason = _reason,
-                Parameters = _parameters.Select(parameter => parameter.Translate()).ToArray()
+                Reason = Reason,
+                Parameters = Parameters.Select(parameter => parameter.Translate()).ToArray()
             };
     }
 }

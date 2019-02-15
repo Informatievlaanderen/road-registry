@@ -4,11 +4,13 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Diagnostics;
     using System.Linq;
     using System.Text;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
+    [DebuggerDisplay("Errors = {" + nameof(_errors) + "}")]
     public class ZipArchiveErrors: IReadOnlyCollection<Error>
     {
         private readonly ImmutableList<Error> _errors;
@@ -53,7 +55,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(ShapeHeaderFormatError),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Exception", exception.ToString())))
             );
         }
@@ -68,7 +70,7 @@ namespace RoadRegistry.BackOffice.Translation
                 return new ZipArchiveErrors(_errors.Add(
                     new Error(
                         nameof(ShapeRecordFormatError),
-                        new ProblemParameter("File", file),
+                        new ProblemParameter("File", file.ToUpperInvariant()),
                         new ProblemParameter("AfterRecordNumber", afterRecordNumber.Value.ToString()),
                         new ProblemParameter("Exception", exception.ToString())))
                 );
@@ -77,7 +79,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(ShapeRecordFormatError),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Exception", exception.ToString())))
             );
         }
@@ -89,7 +91,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(NoShapeRecords),
-                    new ProblemParameter("File", file)))
+                    new ProblemParameter("File", file.ToUpperInvariant())))
             );
         }
 
@@ -100,7 +102,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(ShapeRecordShapeTypeMismatch),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("ExpectedShapeType", expectedShapeType.ToString()),
                     new ProblemParameter("ActualShapeType", actualShapeType.ToString())))
@@ -114,7 +116,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(ShapeRecordShapeTypeMismatch),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }
@@ -126,7 +128,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(ShapeRecordGeometryLineCountMismatch),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("ExpectedLineCount", expectedLineCount.ToString()),
                     new ProblemParameter("ActualLineCount", actualLineCount.ToString())))
@@ -140,7 +142,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(ShapeRecordGeometrySelfOverlaps),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }
@@ -152,7 +154,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(ShapeRecordGeometrySelfIntersects),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }
@@ -165,7 +167,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(DbaseHeaderFormatError),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Exception", exception.ToString())))
             );
         }
@@ -177,7 +179,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(NoDbaseRecords),
-                    new ProblemParameter("File", file)))
+                    new ProblemParameter("File", file.ToUpperInvariant())))
             );
         }
 
@@ -189,7 +191,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(DbaseRecordFormatError),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("Exception", exception.ToString())))
             );
@@ -197,30 +199,33 @@ namespace RoadRegistry.BackOffice.Translation
 
         public ZipArchiveErrors IdentifierZero(string file, RecordNumber recordNumber)
         {
+            if (file == null) throw new ArgumentNullException(nameof(file));
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(IdentifierZero),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }
 
         public ZipArchiveErrors IdentifierMissing(string file, RecordNumber recordNumber)
         {
+            if (file == null) throw new ArgumentNullException(nameof(file));
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(IdentifierMissing),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }
 
         public ZipArchiveErrors IdentifierNotUnique(string file, AttributeId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
         {
+            if (file == null) throw new ArgumentNullException(nameof(file));
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(IdentifierNotUnique),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Identifier", identifier.ToString()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
@@ -230,10 +235,11 @@ namespace RoadRegistry.BackOffice.Translation
 
         public ZipArchiveErrors IdentifierNotUnique(string file, GradeSeparatedJunctionId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
         {
+            if (file == null) throw new ArgumentNullException(nameof(file));
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(IdentifierNotUnique),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Identifier", identifier.ToString()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
@@ -243,10 +249,11 @@ namespace RoadRegistry.BackOffice.Translation
 
         public ZipArchiveErrors IdentifierNotUnique(string file, RoadNodeId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
         {
+            if (file == null) throw new ArgumentNullException(nameof(file));
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(IdentifierNotUnique),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Identifier", identifier.ToString()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
@@ -256,10 +263,11 @@ namespace RoadRegistry.BackOffice.Translation
 
         public ZipArchiveErrors IdentifierNotUnique(string file, RoadSegmentId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
         {
+            if (file == null) throw new ArgumentNullException(nameof(file));
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(IdentifierNotUnique),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Identifier", identifier.ToString()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
@@ -269,10 +277,11 @@ namespace RoadRegistry.BackOffice.Translation
 
         public ZipArchiveErrors DbaseSchemaMismatch(string file, DbaseSchema expectedSchema, DbaseSchema actualSchema)
         {
+            if (file == null) throw new ArgumentNullException(nameof(file));
             return new ZipArchiveErrors(_errors.Add(
                 new Error(
                     nameof(DbaseSchemaMismatch),
-                    new ProblemParameter("File", file),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("ExpectedSchema", Describe(expectedSchema)),
                     new ProblemParameter("ActualSchema", Describe(actualSchema))
                 )
