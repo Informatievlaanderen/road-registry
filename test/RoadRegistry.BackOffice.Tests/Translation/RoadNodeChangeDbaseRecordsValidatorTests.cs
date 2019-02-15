@@ -165,7 +165,7 @@ namespace RoadRegistry.BackOffice.Translation
                 .CreateMany<RoadNodeChangeDbaseRecord>(2)
                 .ToArray();
             var exception = new Exception("problem");
-            var enumerator = new ProblematicRecordEnumerator<RoadNodeChangeDbaseRecord>(records, 1, exception);
+            var enumerator = new ProblematicDbaseRecordEnumerator<RoadNodeChangeDbaseRecord>(records, 1, exception);
 
             var result = _sut.Validate(_entry, enumerator);
 

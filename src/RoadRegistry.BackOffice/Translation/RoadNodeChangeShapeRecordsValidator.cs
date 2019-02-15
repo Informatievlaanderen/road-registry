@@ -30,10 +30,9 @@ namespace RoadRegistry.BackOffice.Translation
                                 ShapeType.Point,
                                 record.Content.ShapeType);
                         }
-
-                        if (record.Content is PointShapeContent content)
+                        else if (record.Content is PointShapeContent content)
                         {
-                            if (content.Shape.IsEmpty)
+                            if (!content.Shape.IsValid)
                             {
                                 errors = errors.ShapeRecordGeometryMismatch(
                                     entry.Name,

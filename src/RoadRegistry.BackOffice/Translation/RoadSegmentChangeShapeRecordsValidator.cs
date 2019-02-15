@@ -35,7 +35,7 @@ namespace RoadRegistry.BackOffice.Translation
                         }
                         else if (record.Content is PolyLineMShapeContent content)
                         {
-                            if (content.Shape.IsEmpty)
+                            if (!content.Shape.IsValid)
                             {
                                 errors = errors.ShapeRecordGeometryMismatch(
                                     entry.Name,

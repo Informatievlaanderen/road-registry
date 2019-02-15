@@ -5,15 +5,14 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections.Generic;
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
-    public class ProblematicShapeRecordEnumerator<TRecord> : IEnumerator<TRecord>
-        where TRecord : DbaseRecord
+    public class ProblematicShapeRecordEnumerator : IEnumerator<ShapeRecord>
     {
-        private readonly TRecord[] _records;
+        private readonly ShapeRecord[] _records;
         private readonly int _failAt;
         private readonly Exception _failure;
         private int _index;
 
-        public ProblematicShapeRecordEnumerator(TRecord[] records, int failAt, Exception failure)
+        public ProblematicShapeRecordEnumerator(ShapeRecord[] records, int failAt, Exception failure)
         {
             _records = records ?? throw new ArgumentNullException(nameof(records));
             _failAt = failAt;
@@ -37,7 +36,7 @@ namespace RoadRegistry.BackOffice.Translation
             _index = -1;
         }
 
-        public TRecord Current
+        public ShapeRecord Current
         {
             get
             {
