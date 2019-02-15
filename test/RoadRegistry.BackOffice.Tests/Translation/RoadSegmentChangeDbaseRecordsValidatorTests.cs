@@ -174,6 +174,25 @@ namespace RoadRegistry.BackOffice.Translation
                 result);
         }
 
+        [Fact]
+        public void ValidateWithProblematicRecordsReturnsExpectedResult()
+        {
+            var records = _fixture
+                .CreateMany<RoadSegmentChangeDbaseRecord>(2)
+                .ToArray();
+            var exception = new Exception("problem");
+            var enumerator = new ProblematicRecordEnumerator<RoadSegmentChangeDbaseRecord>(records, 1, exception);
+
+            var result = _sut.Validate(_entry, enumerator);
+
+            Assert.Equal(
+                ZipArchiveErrors
+                    .None
+                    .DbaseRecordFormatError(_entry.Name, new RecordNumber(2), exception),
+                result,
+                new ErrorComparer());
+        }
+
         public void Dispose()
         {
             _archive?.Dispose();

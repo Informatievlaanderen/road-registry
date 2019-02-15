@@ -4,7 +4,6 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
-    using System.Linq;
     using System.Text;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -334,39 +333,6 @@ namespace RoadRegistry.BackOffice.Translation
             }
 
             public FakeDbaseRecord[] Collected { get; private set; }
-        }
-
-        private class ErrorComparer : IEqualityComparer<Error>
-        {
-            public bool Equals(Error expected, Error actual)
-            {
-                if (expected == null && actual == null) return true;
-                if (expected == null || actual == null) return false;
-                return expected.Reason.Equals(actual.Reason) &&
-                       expected.Parameters.SequenceEqual(actual.Parameters, new ProblemParameterComparer());
-
-            }
-
-            public int GetHashCode(Error obj)
-            {
-                return obj.GetHashCode();
-            }
-        }
-
-        private class ProblemParameterComparer : IEqualityComparer<ProblemParameter>
-        {
-            public bool Equals(ProblemParameter expected, ProblemParameter actual)
-            {
-                if (expected == null && actual == null) return true;
-                if (expected == null || actual == null) return false;
-                return expected.Name.Equals(actual.Name) &&
-                       actual.Value.Contains(expected.Value);
-            }
-
-            public int GetHashCode(ProblemParameter obj)
-            {
-                return obj.GetHashCode();
-            }
         }
     }
 }
