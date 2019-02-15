@@ -211,6 +211,89 @@ namespace RoadRegistry.BackOffice.Translation
         }
 
         [Fact]
+        public void ValidateWithSelfOverlappingRecordsReturnsExpectedResult()
+        {
+            var startPoint = new PointM(0.0, 0.0, double.NaN, 0.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var middlePoint = new PointM(10.0, 0.0, double.NaN, 10.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var endPoint = new PointM(5.0, 0.0, double.NaN, 15.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var multiLineString = new MultiLineString(
+                new ILineString[]
+                {
+                    new LineString(
+                        new PointSequence(new[] { startPoint, middlePoint, endPoint }),
+                        GeometryConfiguration.GeometryFactory
+                    )
+                })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var records = new List<ShapeRecord>
+                {
+                    new PolyLineMShapeContent(multiLineString).RecordAs(new RecordNumber(1))
+                }
+                .GetEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveErrors.None.ShapeRecordGeometrySelfOverlaps(_entry.Name, new RecordNumber(1)),
+                result);
+        }
+
+        [Fact]
+        public void ValidateWithSelfIntersectingRecordsReturnsExpectedResult()
+        {
+            var startPoint = new PointM(0.0, 10.0, double.NaN, 0.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var middlePoint1 = new PointM(10.0, 10.0, double.NaN, 10.0)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var middlePoint2 = new PointM(5.0, 20.0, double.NaN, 21.1803)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var endPoint = new PointM(5.0, 0.0, double.NaN, 41.1803)
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var lineString = new LineString(
+                new PointSequence(new[] { startPoint, middlePoint1, middlePoint2, endPoint }),
+                GeometryConfiguration.GeometryFactory
+            );
+            var multiLineString = new MultiLineString(
+                new ILineString[]
+                {
+                    lineString
+                })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var records = new List<ShapeRecord>
+                {
+                    new PolyLineMShapeContent(multiLineString).RecordAs(new RecordNumber(1))
+                }
+                .GetEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveErrors.None.ShapeRecordGeometrySelfIntersects(_entry.Name, new RecordNumber(1)),
+                result);
+        }
+
+        [Fact]
         public void ValidateWithProblematicRecordsReturnsExpectedResult()
         {
             var records = _fixture
