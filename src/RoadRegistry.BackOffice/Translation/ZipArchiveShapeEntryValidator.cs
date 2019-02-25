@@ -68,6 +68,13 @@ namespace RoadRegistry.BackOffice.Translation
             public bool MoveNext()
             {
                 if (_ended) { return false; }
+
+                if (_lengthRead == _header.FileLength)
+                {
+                    _ended = true;
+                    return false;
+                }
+
                 _started = true;
 
                 var moved = false;
@@ -75,7 +82,6 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     _record = ShapeRecord.Read(_reader);
                     _lengthRead = _lengthRead.Plus(_record.Length);
-                    _ended = _lengthRead == _header.FileLength;
                     moved = true;
                 }
                 catch (EndOfStreamException)
