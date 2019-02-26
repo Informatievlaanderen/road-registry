@@ -65,7 +65,7 @@ namespace RoadRegistry.BackOffice.Translation
             Assert.Throws<ArgumentNullException>(() => sut.Validate(null));
         }
 
-        [Fact(Skip = "Waiting for a newer version of Shaperon.")]
+        [Fact]
         public void ValidateReturnsExpectedResultWhenEntryStreamIsEmpty()
         {
             var sut = new ZipArchiveShapeEntryValidator(

@@ -139,7 +139,7 @@ nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication ~> 1.0
 nuget Be.Vlaanderen.Basisregisters.Utilities.HashCodeCalculator ~> 1.0
 nuget Be.Vlaanderen.Basisregisters.Utilities.HexByteConvertor ~> 1.0
 
-nuget Be.Vlaanderen.Basisregisters.Shaperon ~> 2.0
+nuget Be.Vlaanderen.Basisregisters.Shaperon ~> 3.0.1
 nuget Be.Vlaanderen.Basisregisters.BlobStore ~> 1.1
 
 nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing ~> 1.0
