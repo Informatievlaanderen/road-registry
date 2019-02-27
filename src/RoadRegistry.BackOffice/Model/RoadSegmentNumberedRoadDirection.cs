@@ -1,6 +1,8 @@
 ﻿namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNumberedRoadDirection>
     {
@@ -35,6 +37,9 @@
         public static readonly RoadSegmentNumberedRoadDirection[] All = {
             Unknown, Forward, Backward
         };
+
+        public static readonly IDictionary<int, RoadSegmentNumberedRoadDirection> ByIdentifier =
+            All.ToDictionary(key => key.Translation.Identifier);
 
         private readonly string _value;
         private readonly DutchTranslation _dutchTranslation;
