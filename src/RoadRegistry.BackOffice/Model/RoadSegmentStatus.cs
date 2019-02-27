@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
     {
@@ -63,6 +65,9 @@ namespace RoadRegistry.BackOffice.Model
         public static readonly RoadSegmentStatus[] All = {
             Unknown, PermitRequested, BuildingPermitGranted, UnderConstruction, InUse, OutOfUse
         };
+
+        public static readonly IReadOnlyDictionary<int, RoadSegmentStatus> ByIdentifier =
+            All.ToDictionary(key => key.Translation.Identifier);
 
         private readonly string _value;
         private readonly DutchTranslation _dutchTranslation;

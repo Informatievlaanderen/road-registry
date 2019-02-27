@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
     {
@@ -207,6 +209,9 @@ namespace RoadRegistry.BackOffice.Model
             SecondaryRoadType3,
             SecondaryRoadType4
         };
+
+        public static readonly IReadOnlyDictionary<string, RoadSegmentCategory> ByIdentifier =
+            All.ToDictionary(key => key.Translation.Identifier, StringComparer.InvariantCultureIgnoreCase);
 
         private readonly string _value;
         private readonly DutchTranslation _dutchTranslation;

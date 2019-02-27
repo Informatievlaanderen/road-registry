@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessRestriction>
     {
@@ -72,6 +74,9 @@ namespace RoadRegistry.BackOffice.Model
             Seasonal,
             Toll
         };
+
+        public static IReadOnlyDictionary<int, RoadSegmentAccessRestriction> ByIdentifier =
+            All.ToDictionary(key => key.Translation.Identifier);
 
         private readonly string _value;
         private readonly DutchTranslation _dutchTranslation;

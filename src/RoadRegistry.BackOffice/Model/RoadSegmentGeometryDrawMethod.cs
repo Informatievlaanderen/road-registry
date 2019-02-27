@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeometryDrawMethod>
     {
@@ -36,6 +38,9 @@ namespace RoadRegistry.BackOffice.Model
         public static readonly RoadSegmentGeometryDrawMethod[] All = {
             Outlined, Measured, Measured_according_to_GRB_specifications
         };
+
+        public static readonly IReadOnlyDictionary<int, RoadSegmentGeometryDrawMethod> ByIdentifier =
+            All.ToDictionary(key => key.Translation.Identifier);
 
         private readonly string _value;
         private readonly DutchTranslation _dutchTranslation;

@@ -1,25 +1,29 @@
 namespace RoadRegistry.BackOffice.Translation
 {
     using System;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
     using NetTopologySuite.Geometries;
 
     public class AddRoadNode : ITranslatedChange
     {
-        public AddRoadNode(RoadNodeId temporaryId, RoadNodeType type)
+        public AddRoadNode(RecordNumber recordNumber, RoadNodeId temporaryId, RoadNodeType type)
         {
+            RecordNumber = recordNumber;
             TemporaryId = temporaryId;
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Geometry = null;
         }
 
-        private AddRoadNode(RoadNodeId temporaryId, RoadNodeType type, Point geometry)
+        private AddRoadNode(RecordNumber recordNumber, RoadNodeId temporaryId, RoadNodeType type, Point geometry)
         {
+            RecordNumber = recordNumber;
             TemporaryId = temporaryId;
             Type = type;
             Geometry = geometry;
         }
 
+        public RecordNumber RecordNumber { get; }
         public RoadNodeId TemporaryId { get; }
         public RoadNodeType Type { get; }
         public Point Geometry { get; }
@@ -27,7 +31,7 @@ namespace RoadRegistry.BackOffice.Translation
         public AddRoadNode WithGeometry(Point geometry)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
-            return new AddRoadNode(TemporaryId, Type, geometry);
+            return new AddRoadNode(RecordNumber, TemporaryId, Type, geometry);
         }
 
         public void TranslateTo(Messages.RequestedChange message)

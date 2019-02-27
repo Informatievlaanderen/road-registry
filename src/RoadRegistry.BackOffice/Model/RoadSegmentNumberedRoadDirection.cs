@@ -38,7 +38,7 @@
             Unknown, Forward, Backward
         };
 
-        public static readonly IDictionary<int, RoadSegmentNumberedRoadDirection> ByIdentifier =
+        public static readonly IReadOnlyDictionary<int, RoadSegmentNumberedRoadDirection> ByIdentifier =
             All.ToDictionary(key => key.Translation.Identifier);
 
         private readonly string _value;
