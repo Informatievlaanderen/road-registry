@@ -17,7 +17,7 @@ namespace RoadRegistry.BackOffice.Translation
         private readonly MemoryStream _stream;
         private readonly ZipArchiveEntry _entry;
         private readonly Fixture _fixture;
-        private IEnumerator<RoadSegmentSurfaceChangeDbaseRecord> _enumerator;
+        private readonly IDbaseRecordEnumerator<RoadSegmentSurfaceChangeDbaseRecord> _enumerator;
 
         public RoadSegmentSurfaceChangeDbaseRecordsValidatorTests()
         {
@@ -41,7 +41,7 @@ namespace RoadRegistry.BackOffice.Translation
                     .OmitAutoProperties());
 
             _sut = new RoadSegmentSurfaceChangeDbaseRecordsValidator();
-            _enumerator = new List<RoadSegmentSurfaceChangeDbaseRecord>().GetEnumerator();
+            _enumerator = new List<RoadSegmentSurfaceChangeDbaseRecord>().ToDbaseRecordEnumerator();
             _stream = new MemoryStream();
             _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
             _entry = _archive.CreateEntry("attwegverharding_all.dbf");
@@ -85,7 +85,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.WV_OIDN.Value = index + 1;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -104,7 +104,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.WV_OIDN.Value = 1;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -129,7 +129,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.WV_OIDN.Value = 0;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -151,7 +151,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.WV_OIDN.Value = null;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 

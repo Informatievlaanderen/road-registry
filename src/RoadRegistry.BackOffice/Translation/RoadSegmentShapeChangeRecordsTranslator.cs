@@ -5,7 +5,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.IO.Compression;
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
-    public class RoadNodeShapeChangeRecordsTranslator : IZipArchiveShapeRecordsTranslator
+    public class RoadSegmentShapeChangeRecordsTranslator : IZipArchiveShapeRecordsTranslator
     {
         public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
         {
@@ -15,11 +15,11 @@ namespace RoadRegistry.BackOffice.Translation
             while (records.MoveNext())
             {
                 var record = records.Current;
-                if (record != null && record.Content is PointShapeContent content)
+                if (record != null && record.Content is PolyLineMShapeContent content)
                 {
-                    if (changes.TryTranslateToRoadNodeId(record.Header.RecordNumber, out var id))
+                    if (changes.TryTranslateToRoadSegmentId(record.Header.RecordNumber, out var id))
                     {
-                        if (changes.TryFindAddRoadNode(id, out var change))
+                        if (changes.TryFindAddRoadSegment(id, out var change))
                         {
                             changes = changes.Replace(change, change.WithGeometry(content.Shape));
                         }

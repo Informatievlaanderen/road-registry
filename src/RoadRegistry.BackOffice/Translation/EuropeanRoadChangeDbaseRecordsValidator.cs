@@ -8,60 +8,60 @@ namespace RoadRegistry.BackOffice.Translation
 
     public class EuropeanRoadChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<EuropeanRoadChangeDbaseRecord>
     {
-        public ZipArchiveErrors Validate(ZipArchiveEntry entry, IEnumerator<EuropeanRoadChangeDbaseRecord> records)
+        public ZipArchiveErrors Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<EuropeanRoadChangeDbaseRecord> records)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
             var errors = ZipArchiveErrors.None;
-            var recordNumber = RecordNumber.Initial;
             try
             {
                 var identifiers = new Dictionary<AttributeId, RecordNumber>();
-                var count = 0;
-                while (records.MoveNext())
+                var moved = records.MoveNext();
+                if (moved)
                 {
-                    var record = records.Current;
-                    if (record != null)
+                    while (moved)
                     {
-                        if (record.EU_OIDN.Value.HasValue)
+                        var record = records.Current;
+                        if (record != null)
                         {
-                            if (record.EU_OIDN.Value.Value == 0)
+                            if (record.EU_OIDN.Value != null)
                             {
-                                errors = errors.IdentifierZero(entry.Name, recordNumber);
-                            }
-                            else
-                            {
-                                var identifier = new AttributeId(record.EU_OIDN.Value.Value);
-                                if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
+                                if (record.EU_OIDN.Value.Value == 0)
                                 {
-                                    errors = errors.IdentifierNotUnique(entry.Name, identifier, recordNumber,
-                                        takenByRecordNumber);
+                                    errors = errors.IdentifierZero(entry.Name, records.CurrentRecordNumber);
                                 }
                                 else
                                 {
-                                    identifiers.Add(identifier, recordNumber);
+                                    var identifier = new AttributeId(record.EU_OIDN.Value.Value);
+                                    if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
+                                    {
+                                        errors = errors.IdentifierNotUnique(entry.Name, identifier, records.CurrentRecordNumber,
+                                            takenByRecordNumber);
+                                    }
+                                    else
+                                    {
+                                        identifiers.Add(identifier, records.CurrentRecordNumber);
+                                    }
                                 }
                             }
+                            else
+                            {
+                                errors = errors.IdentifierMissing(entry.Name, records.CurrentRecordNumber);
+                            }
                         }
-                        else
-                        {
-                            errors = errors.IdentifierMissing(entry.Name, recordNumber);
-                        }
+
+                        moved = records.MoveNext();
                     }
-
-                    count++;
-                    recordNumber = recordNumber.Next();
                 }
-
-                if (count == 0)
+                else
                 {
                     errors = errors.NoDbaseRecords(entry.Name);
                 }
             }
             catch (Exception exception)
             {
-                errors = errors.DbaseRecordFormatError(entry.Name, recordNumber, exception);
+                errors = errors.DbaseRecordFormatError(entry.Name, records.CurrentRecordNumber, exception);
             }
 
             return errors;

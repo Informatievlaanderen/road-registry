@@ -8,14 +8,14 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Text;
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
-    public class ZipArchiveDbaseEntryValidator<TRecord> : IZipArchiveEntryValidator
-        where TRecord : DbaseRecord, new()
+    public class ZipArchiveDbaseEntryValidator<TDbaseRecord> : IZipArchiveEntryValidator
+        where TDbaseRecord : DbaseRecord, new()
     {
         private readonly Encoding _encoding;
         private readonly DbaseSchema _schema;
-        private readonly IZipArchiveDbaseRecordsValidator<TRecord> _recordValidator;
+        private readonly IZipArchiveDbaseRecordsValidator<TDbaseRecord> _recordValidator;
 
-        public ZipArchiveDbaseEntryValidator(Encoding encoding, DbaseSchema schema, IZipArchiveDbaseRecordsValidator<TRecord> recordValidator)
+        public ZipArchiveDbaseEntryValidator(Encoding encoding, DbaseSchema schema, IZipArchiveDbaseRecordsValidator<TDbaseRecord> recordValidator)
         {
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
             _schema = schema ?? throw new ArgumentNullException(nameof(schema));
@@ -48,86 +48,15 @@ namespace RoadRegistry.BackOffice.Translation
                     }
                     else
                     {
-                        errors = errors.CombineWith(_recordValidator.Validate(entry, new RecordEnumerator(reader)));
+                        errors = errors.CombineWith(
+                            _recordValidator.Validate(
+                                entry,
+                                header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader)));
                     }
                 }
             }
 
             return errors;
-        }
-
-        private class RecordEnumerator : IEnumerator<TRecord>
-        {
-            private readonly BinaryReader _reader;
-            private TRecord _record;
-            private bool _started;
-            private bool _ended;
-
-            public RecordEnumerator(BinaryReader reader)
-            {
-                _reader = reader ?? throw new ArgumentNullException(nameof(reader));
-                _started = false;
-                _ended = false;
-            }
-
-            public bool MoveNext()
-            {
-                if (_ended) { return false; }
-                _started = true;
-
-                var moved = false;
-                try
-                {
-                    var record = new TRecord();
-                    record.Read(_reader);
-                    _record = record;
-                    moved = true;
-                }
-                catch (EndOfStreamException)
-                {
-                    _ended = true;
-                }
-                catch (DbaseRecordException)
-                {
-                    _ended = true;
-                }
-                catch (Exception exception)
-                {
-                    _ended = true;
-                    throw new DbaseRecordException($"There was a problem reading a {typeof(TRecord).Name}: {exception.Message}", exception);
-                }
-
-                return moved;
-            }
-
-            public void Reset()
-            {
-                throw new NotSupportedException("Enumeration can only be performed once.");
-            }
-
-            public TRecord Current
-            {
-                get
-                {
-                    if (!_started)
-                    {
-                        throw new InvalidOperationException("Enumeration has not started. Call MoveNext.");
-                    }
-
-                    if (_ended)
-                    {
-                        throw new InvalidOperationException("Enumeration has already ended. Reset is not supported.");
-                    }
-
-                    return _record;
-                }
-            }
-
-            object IEnumerator.Current => Current;
-
-            public void Dispose()
-            {
-            }
         }
     }
 }

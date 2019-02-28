@@ -17,7 +17,7 @@ namespace RoadRegistry.BackOffice.Translation
         private readonly MemoryStream _stream;
         private readonly ZipArchiveEntry _entry;
         private readonly Fixture _fixture;
-        private IEnumerator<RoadNodeChangeDbaseRecord> _enumerator;
+        private readonly IDbaseRecordEnumerator<RoadNodeChangeDbaseRecord> _enumerator;
 
         public RoadNodeChangeDbaseRecordsValidatorTests()
         {
@@ -36,7 +36,7 @@ namespace RoadRegistry.BackOffice.Translation
                     .OmitAutoProperties());
 
             _sut = new RoadNodeChangeDbaseRecordsValidator();
-            _enumerator = new List<RoadNodeChangeDbaseRecord>().GetEnumerator();
+            _enumerator = new List<RoadNodeChangeDbaseRecord>().ToDbaseRecordEnumerator();
             _stream = new MemoryStream();
             _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
             _entry = _archive.CreateEntry("wegknoop_all.dbf");
@@ -80,7 +80,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.WEGKNOOPID.Value = index + 1;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -99,7 +99,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.WEGKNOOPID.Value = 1;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -124,7 +124,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.WEGKNOOPID.Value = 0;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -146,7 +146,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.WEGKNOOPID.Value = null;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 

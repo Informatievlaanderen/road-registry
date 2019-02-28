@@ -8,7 +8,7 @@ namespace RoadRegistry.BackOffice.Translation
 
     public class RoadNodeDbaseChangeRecordsTranslator : IZipArchiveDbaseRecordsTranslator<RoadNodeChangeDbaseRecord>
     {
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<RoadNodeChangeDbaseRecord> records, TranslatedChanges changes)
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadNodeChangeDbaseRecord> records, TranslatedChanges changes)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));

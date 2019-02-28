@@ -8,13 +8,12 @@ namespace RoadRegistry.BackOffice.Translation
 
     public class RoadSegmentDbaseChangeRecordsTranslator : IZipArchiveDbaseRecordsTranslator<RoadSegmentChangeDbaseRecord>
     {
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<RoadSegmentChangeDbaseRecord> records, TranslatedChanges changes)
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentChangeDbaseRecord> records, TranslatedChanges changes)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
             if (changes == null) throw new ArgumentNullException(nameof(changes));
 
-            var recordNumber = RecordNumber.Initial;
             while (records.MoveNext())
             {
                 var record = records.Current;
@@ -25,7 +24,7 @@ namespace RoadRegistry.BackOffice.Translation
                         case RecordTypes.Added:
                             changes = changes.Append(
                                 new AddRoadSegment(
-                                    recordNumber,
+                                    records.CurrentRecordNumber,
                                     new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault()),
                                     new RoadNodeId(record.B_WK_OIDN.Value.GetValueOrDefault()),
                                     new RoadNodeId(record.E_WK_OIDN.Value.GetValueOrDefault()),
@@ -42,8 +41,6 @@ namespace RoadRegistry.BackOffice.Translation
                             break;
                     }
                 }
-
-                recordNumber = recordNumber.Next();
             }
 
             return changes;

@@ -17,7 +17,7 @@ namespace RoadRegistry.BackOffice.Translation
         private readonly MemoryStream _stream;
         private readonly ZipArchiveEntry _entry;
         private readonly Fixture _fixture;
-        private IEnumerator<GradeSeparatedJunctionChangeDbaseRecord> _enumerator;
+        private readonly IDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord> _enumerator;
 
         public GradeSeparatedJunctionChangeDbaseRecordsValidatorTests()
         {
@@ -39,7 +39,7 @@ namespace RoadRegistry.BackOffice.Translation
                     .OmitAutoProperties());
 
             _sut = new GradeSeparatedJunctionChangeDbaseRecordsValidator();
-            _enumerator = new List<GradeSeparatedJunctionChangeDbaseRecord>().GetEnumerator();
+            _enumerator = new List<GradeSeparatedJunctionChangeDbaseRecord>().ToDbaseRecordEnumerator();
             _stream = new MemoryStream();
             _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
             _entry = _archive.CreateEntry("rltogkruising_all.dbf");
@@ -83,7 +83,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.OK_OIDN.Value = index + 1;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -102,7 +102,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.OK_OIDN.Value = 1;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -127,7 +127,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.OK_OIDN.Value = 0;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
@@ -149,7 +149,7 @@ namespace RoadRegistry.BackOffice.Translation
                     record.OK_OIDN.Value = null;
                     return record;
                 })
-                .GetEnumerator();
+                .ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 

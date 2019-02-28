@@ -3,11 +3,12 @@ namespace RoadRegistry.BackOffice.Translation
     using System;
     using System.Collections.Generic;
     using System.IO.Compression;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
     public class RoadSegmentWidthDbaseChangeRecordsTranslator : IZipArchiveDbaseRecordsTranslator<RoadSegmentWidthChangeDbaseRecord>
     {
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<RoadSegmentWidthChangeDbaseRecord> records, TranslatedChanges changes)
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentWidthChangeDbaseRecord> records, TranslatedChanges changes)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));

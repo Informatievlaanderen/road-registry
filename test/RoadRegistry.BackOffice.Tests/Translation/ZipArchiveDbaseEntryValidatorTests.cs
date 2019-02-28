@@ -312,7 +312,7 @@ namespace RoadRegistry.BackOffice.Translation
                 _errors = errors ?? throw new ArgumentNullException(nameof(errors));
             }
 
-            public ZipArchiveErrors Validate(ZipArchiveEntry entry, IEnumerator<FakeDbaseRecord> records)
+            public ZipArchiveErrors Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records)
             {
                 return ZipArchiveErrors.None.CombineWith(_errors);
             }
@@ -320,7 +320,7 @@ namespace RoadRegistry.BackOffice.Translation
 
         private class CollectDbaseRecordValidator : IZipArchiveDbaseRecordsValidator<FakeDbaseRecord>
         {
-            public ZipArchiveErrors Validate(ZipArchiveEntry entry, IEnumerator<FakeDbaseRecord> records)
+            public ZipArchiveErrors Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records)
             {
                 var collected = new List<FakeDbaseRecord>();
                 while (records.MoveNext())
