@@ -6,7 +6,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Linq;
     using System.Text;
 
-    public class ZipArchiveValidator
+    public class ZipArchiveValidator : IZipArchiveValidator
     {
         private readonly Dictionary<string, IZipArchiveEntryValidator> _validators;
 
@@ -111,6 +111,9 @@ namespace RoadRegistry.BackOffice.Translation
 
         public ZipArchiveErrors Validate(ZipArchive archive)
         {
+            if (archive == null)
+                throw new ArgumentNullException(nameof(archive));
+
             var errors = ZipArchiveErrors.None;
 
             // Report all missing required files

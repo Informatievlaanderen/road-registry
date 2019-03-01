@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.IO.Compression;
     using System.Text;
 
-    public class ZipArchiveTranslator
+    public class ZipArchiveTranslator : IZipArchiveTranslator
     {
         private readonly Encoding _encoding;
 

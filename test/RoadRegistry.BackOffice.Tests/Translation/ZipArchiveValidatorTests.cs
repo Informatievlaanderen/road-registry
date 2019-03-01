@@ -20,6 +20,22 @@ namespace RoadRegistry.BackOffice.Translation
             Assert.Throws<ArgumentNullException>(() => new ZipArchiveValidator(null));
         }
 
+        [Fact]
+        public void IsZipArchiveValidator()
+        {
+            var sut = new ZipArchiveValidator(Encoding.UTF8);
+
+            Assert.IsAssignableFrom<IZipArchiveValidator>(sut);
+        }
+
+        [Fact]
+        public void ValidateArchiveCanNotBeNull()
+        {
+            var sut = new ZipArchiveValidator(Encoding.UTF8);
+
+            Assert.Throws<ArgumentNullException>(() => sut.Validate(null));
+        }
+
         [Theory]
         [MemberData(nameof(MissingRequiredFileCases))]
         public void ValidateReturnsExpectedResultWhenRequiredFileMissing(ZipArchive archive, ZipArchiveErrors expected)
