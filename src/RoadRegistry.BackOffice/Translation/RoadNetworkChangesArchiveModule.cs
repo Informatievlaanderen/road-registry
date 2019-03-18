@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Translation
 {
     using System;
     using System.IO.Compression;
-    using System.Linq;
+    using Autofac.Core.Resolving;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Framework;
     using Messages;
@@ -27,33 +27,25 @@ namespace RoadRegistry.BackOffice.Translation
                 .Handle(async (context, message, ct) =>
                 {
                     var archiveId = new ArchiveId(message.Body.ArchiveId);
+                    var upload = await context.RoadNetworkChangesArchives.Get(archiveId);
                     var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
-                    using (var archiveStream = await archiveBlob.OpenAsync(ct))
-                    using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read, false))
+                    using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
+                    using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
-                        var errors = validator.Validate(archive);
-                        if (errors.Count == 0)
-                        {
-                            using (var archiveStream = await archiveBlob.OpenAsync(ct))
-                            using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read, false))
-                            {
-                                translator.Translate()
-                                new RoadNetworkChangesArchiveAccepted
-                                {
-                                    ArchiveId = archiveId,
-                                    Warnings = new Messages.Problem[0]
-                                };
-                            }
-                        }
-                        else
-                        {
-                            new RoadNetworkChangesArchiveRejected
-                            {
-                                ArchiveId = archiveId,
-                                Errors = errors.Select(error => error.Translate()).ToArray(),
-                                Warnings = new Messages.Problem[0]
-                            };
-                        }
+                        upload.ValidateArchiveUsing(archive, validator);
+                    }
+                });
+            For<RoadNetworkChangesArchiveAccepted>()
+                .UseRoadRegistryContext(store)
+                .Handle(async (context, message, ct) =>
+                {
+                    var archiveId = new ArchiveId(message.Body.ArchiveId);
+                    var upload = await context.RoadNetworkChangesArchives.Get(archiveId);
+                    var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
+                    using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
+                    using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
+                    {
+                        var translation = translator.Translate(archive);
                     }
                 });
         }
