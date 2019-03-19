@@ -5,18 +5,16 @@ namespace RoadRegistry.BackOffice.Translation
     using System.IO.Compression;
     using System.Text;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using NetTopologySuite.Algorithm;
 
-    public class ZipArchiveDbaseEntryTranslator<TRecord> : IZipArchiveEntryTranslator
-        where TRecord : DbaseRecord, new()
+    public class ZipArchiveShapeEntryTranslator : IZipArchiveEntryTranslator
     {
         private readonly Encoding _encoding;
-        private readonly IZipArchiveDbaseRecordsTranslator<TRecord> _translator;
+        private readonly IZipArchiveShapeRecordsTranslator _recordTranslator;
 
-        public ZipArchiveDbaseEntryTranslator(Encoding encoding, IZipArchiveDbaseRecordsTranslator<TRecord> translator)
+        public ZipArchiveShapeEntryTranslator(Encoding encoding, IZipArchiveShapeRecordsTranslator recordValidator)
         {
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-            _translator = translator ?? throw new ArgumentNullException(nameof(translator));
+            _recordTranslator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
         }
 
         public TranslatedChanges Translate(ZipArchiveEntry entry, TranslatedChanges changes)
@@ -27,9 +25,9 @@ namespace RoadRegistry.BackOffice.Translation
             using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, _encoding))
             {
-                var header = DbaseFileHeader.Read(reader);
-                var enumerator = header.CreateDbaseRecordEnumerator<TRecord>(reader);
-                return _translator.Translate(entry, enumerator, changes);
+                var header = ShapeFileHeader.Read(reader);
+                var enumerator = header.CreateShapeRecordEnumerator(reader);
+                return _recordTranslator.Translate(entry, enumerator, changes);
             }
         }
     }

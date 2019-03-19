@@ -5,7 +5,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.IO.Compression;
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
-    public class RoadSegmentShapeChangeRecordsTranslator : IZipArchiveShapeRecordsTranslator
+    public class RoadSegmentChangeShapeRecordsTranslator : IZipArchiveShapeRecordsTranslator
     {
         public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
         {

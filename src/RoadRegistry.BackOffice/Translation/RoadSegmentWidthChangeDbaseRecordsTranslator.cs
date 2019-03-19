@@ -6,7 +6,7 @@ namespace RoadRegistry.BackOffice.Translation
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
-    public class RoadSegmentWidthDbaseChangeRecordsTranslator : IZipArchiveDbaseRecordsTranslator<RoadSegmentWidthChangeDbaseRecord>
+    public class RoadSegmentWidthChangeDbaseRecordsTranslator : IZipArchiveDbaseRecordsTranslator<RoadSegmentWidthChangeDbaseRecord>
     {
         public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentWidthChangeDbaseRecord> records, TranslatedChanges changes)
         {

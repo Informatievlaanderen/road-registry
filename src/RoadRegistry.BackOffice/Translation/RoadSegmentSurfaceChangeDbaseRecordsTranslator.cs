@@ -6,9 +6,9 @@ namespace RoadRegistry.BackOffice.Translation
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
-    public class RoadSegmentLaneDbaseChangeRecordsTranslator : IZipArchiveDbaseRecordsTranslator<RoadSegmentLaneChangeDbaseRecord>
+    public class RoadSegmentSurfaceChangeDbaseRecordsTranslator : IZipArchiveDbaseRecordsTranslator<RoadSegmentSurfaceChangeDbaseRecord>
     {
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentLaneChangeDbaseRecord> records, TranslatedChanges changes)
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentSurfaceChangeDbaseRecord> records, TranslatedChanges changes)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
@@ -25,18 +25,17 @@ namespace RoadRegistry.BackOffice.Translation
                         case RecordTypes.Modified:
                         case RecordTypes.Added:
                             var segmentId = new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault());
-                            if (changes.TryFindAddRoadSegment(segmentId, out var change))
+                            if (changes.TryFindAddRoadSegment(segmentId, out var before))
                             {
-                                var lane = new RoadSegmentLaneAttribute(
-                                    new AttributeId(record.RS_OIDN.Value.GetValueOrDefault()),
-                                    new RoadSegmentLaneCount(record.AANTAL.Value.GetValueOrDefault()),
-                                    RoadSegmentLaneDirection.ByIdentifier[record.RICHTING.Value.GetValueOrDefault()],
+                                var surface = new RoadSegmentSurfaceAttribute(
+                                    new AttributeId(record.WV_OIDN.Value.GetValueOrDefault()),
+                                    RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value.GetValueOrDefault()],
                                     new RoadSegmentPosition(
                                         Convert.ToDecimal(record.VANPOSITIE.Value.GetValueOrDefault())),
                                     new RoadSegmentPosition(
                                         Convert.ToDecimal(record.TOTPOSITIE.Value.GetValueOrDefault()))
                                 );
-                                changes = changes.Replace(change, change.WithLane(lane));
+                                changes = changes.Replace(before, before.WithSurface(surface));
                             }
                             break;
                     }

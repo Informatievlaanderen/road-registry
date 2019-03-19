@@ -6,9 +6,9 @@ namespace RoadRegistry.BackOffice.Translation
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
-    public class EuropeanRoadDbaseChangeRecordsTranslator : IZipArchiveDbaseRecordsTranslator<EuropeanRoadChangeDbaseRecord>
+    public class NationalRoadChangeDbaseRecordsTranslator : IZipArchiveDbaseRecordsTranslator<NationalRoadChangeDbaseRecord>
     {
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<EuropeanRoadChangeDbaseRecord> records, TranslatedChanges changes)
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<NationalRoadChangeDbaseRecord> records, TranslatedChanges changes)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
@@ -23,10 +23,10 @@ namespace RoadRegistry.BackOffice.Translation
                     {
                         case RecordTypes.Added:
                             changes = changes.Append(
-                                new AddRoadSegmentToEuropeanRoad(
-                                    new AttributeId(record.EU_OIDN.Value.GetValueOrDefault()),
+                                new AddRoadSegmentToNationalRoad(
+                                    new AttributeId(record.NW_OIDN.Value.GetValueOrDefault()),
                                     new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault()),
-                                    EuropeanRoadNumber.Parse(record.EUNUMMER.Value)
+                                    NationalRoadNumber.Parse(record.IDENT2.Value)
                                 )
                             );
                             break;

@@ -6,14 +6,15 @@ namespace RoadRegistry.BackOffice.Translation
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
-    public class NationalRoadDbaseChangeRecordsTranslator : IZipArchiveDbaseRecordsTranslator<NationalRoadChangeDbaseRecord>
+    public class RoadNodeChangeDbaseRecordsTranslator : IZipArchiveDbaseRecordsTranslator<RoadNodeChangeDbaseRecord>
     {
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<NationalRoadChangeDbaseRecord> records, TranslatedChanges changes)
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadNodeChangeDbaseRecord> records, TranslatedChanges changes)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
             if (changes == null) throw new ArgumentNullException(nameof(changes));
 
+            var recordNumber = RecordNumber.Initial;
             while (records.MoveNext())
             {
                 var record = records.Current;
@@ -23,15 +24,16 @@ namespace RoadRegistry.BackOffice.Translation
                     {
                         case RecordTypes.Added:
                             changes = changes.Append(
-                                new AddRoadSegmentToNationalRoad(
-                                    new AttributeId(record.NW_OIDN.Value.GetValueOrDefault()),
-                                    new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault()),
-                                    NationalRoadNumber.Parse(record.IDENT2.Value)
+                                new AddRoadNode(
+                                    recordNumber,
+                                    new RoadNodeId(record.WEGKNOOPID.Value.GetValueOrDefault()),
+                                    RoadNodeType.ByIdentifier[record.TYPE.Value.GetValueOrDefault()]
                                 )
                             );
                             break;
                     }
                 }
+                recordNumber = recordNumber.Next();
             }
 
             return changes;

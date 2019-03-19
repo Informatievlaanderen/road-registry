@@ -1,6 +1,8 @@
 ﻿namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJunctionType>
     {
@@ -35,6 +37,9 @@
         public static readonly GradeSeparatedJunctionType[] All = {
             Unknown, Tunnel, Bridge
         };
+        
+        public static readonly IReadOnlyDictionary<int, GradeSeparatedJunctionType> ByIdentifier =
+            All.ToDictionary(key => key.Translation.Identifier);
 
         private readonly string _value;
         private readonly DutchTranslation _dutchTranslation;

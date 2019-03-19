@@ -49,9 +49,7 @@ namespace RoadRegistry.BackOffice.Translation
                         )
                     },
                     {
-                        "" +
-                        "ATTEUROPWEG" +
-                        "_ALL.DBF",
+                        "ATTEUROPWEG_ALL.DBF",
                         new ZipArchiveDbaseEntryValidator<EuropeanRoadChangeDbaseRecord>(
                             encoding,
                             EuropeanRoadChangeDbaseRecord.Schema,
