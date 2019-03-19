@@ -1,7 +1,9 @@
 namespace RoadRegistry.BackOffice.Translation
 {
     using System;
+    using System.Collections.Generic;
     using System.IO.Compression;
+    using System.Linq;
     using Autofac.Core.Resolving;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Framework;
@@ -22,6 +24,18 @@ namespace RoadRegistry.BackOffice.Translation
             if (validator == null) throw new ArgumentNullException(nameof(validator));
             if (translator == null) throw new ArgumentNullException(nameof(translator));
 
+            For<UploadRoadNetworkChangesArchive>()
+                .UseRoadRegistryContext(store)
+                .Handle(async (context, message, ct) =>
+                {
+                    var archiveId = new ArchiveId(message.Body.ArchiveId);
+                    if (await client.BlobExistsAsync(new BlobName(archiveId), ct))
+                    {
+                        var upload = RoadNetworkChangesArchive.Upload(archiveId);
+                        context.RoadNetworkChangesArchives.Add(upload);
+                    }
+                });
+
             For<RoadNetworkChangesArchiveUploaded>()
                 .UseRoadRegistryContext(store)
                 .Handle(async (context, message, ct) =>
@@ -35,17 +49,28 @@ namespace RoadRegistry.BackOffice.Translation
                         upload.ValidateArchiveUsing(archive, validator);
                     }
                 });
+
             For<RoadNetworkChangesArchiveAccepted>()
                 .UseRoadRegistryContext(store)
                 .Handle(async (context, message, ct) =>
                 {
                     var archiveId = new ArchiveId(message.Body.ArchiveId);
-                    var upload = await context.RoadNetworkChangesArchives.Get(archiveId);
                     var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
                     using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
-                        var translation = translator.Translate(archive);
+                        var requestedChanges = new List<Messages.RequestedChange>();
+                        foreach (var change in translator.Translate(archive))
+                        {
+                            var requestedChange = new Messages.RequestedChange();
+                            change.TranslateTo(requestedChange);
+                            requestedChanges.Add(requestedChange);
+                        }
+
+                        var command = new Messages.ChangeRoadNetwork
+                        {
+                            Changes = requestedChanges.ToArray()
+                        };
                     }
                 });
         }

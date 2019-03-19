@@ -219,6 +219,18 @@ namespace RoadRegistry.BackOffice.Translation
             );
         }
 
+        public ZipArchiveErrors NotEuropeanRoadNumber(string file, string number, RecordNumber recordNumber)
+        {
+            if (file == null) throw new ArgumentNullException(nameof(file));
+            return new ZipArchiveErrors(_errors.Add(
+                new Error(
+                    nameof(NotEuropeanRoadNumber),
+                    new ProblemParameter("File", file.ToUpperInvariant()),
+                    new ProblemParameter("Number", number?.ToUpperInvariant() ?? "<null>"),
+                    new ProblemParameter("RecordNumber", recordNumber.ToString())))
+            );
+        }
+
         public ZipArchiveErrors IdentifierNotUnique(string file, AttributeId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));

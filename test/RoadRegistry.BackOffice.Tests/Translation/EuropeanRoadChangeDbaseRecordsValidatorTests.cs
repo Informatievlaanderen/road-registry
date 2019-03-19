@@ -160,6 +160,32 @@ namespace RoadRegistry.BackOffice.Translation
                 result);
         }
 
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        [InlineData("X40")]
+        public void ValidateWithRecordsThatDoNotHaveEuropeanRoadNumbersReturnsExpectedResult(string number)
+        {
+            var records = _fixture
+                .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
+                .Select((record, index) =>
+                {
+                    record.EU_OIDN.Value = index + 1;
+                    record.EUNUMMER.Value = number;
+                    return record;
+                })
+                .ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveErrors
+                    .None
+                    .NotEuropeanRoadNumber(_entry.Name, number, new RecordNumber(1))
+                    .NotEuropeanRoadNumber(_entry.Name, number, new RecordNumber(2)),
+                result);
+        }
+
         [Fact]
         public void ValidateWithProblematicRecordsReturnsExpectedResult()
         {

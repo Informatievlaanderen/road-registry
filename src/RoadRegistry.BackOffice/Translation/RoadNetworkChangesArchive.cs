@@ -10,12 +10,12 @@ namespace RoadRegistry.BackOffice.Translation
     {
         public static readonly Func<RoadNetworkChangesArchive> Factory = () => new RoadNetworkChangesArchive();
 
-        private ArchiveId _id;
-
         private RoadNetworkChangesArchive()
         {
-            On<RoadNetworkChangesArchiveUploaded>(e => _id = new ArchiveId(e.ArchiveId));
+            On<RoadNetworkChangesArchiveUploaded>(e => Id = new ArchiveId(e.ArchiveId));
         }
+
+        public ArchiveId Id { get; private set; }
 
         public static RoadNetworkChangesArchive Upload(ArchiveId id)
         {
@@ -35,7 +35,7 @@ namespace RoadRegistry.BackOffice.Translation
                 Apply(
                     new RoadNetworkChangesArchiveAccepted
                     {
-                        ArchiveId = _id,
+                        ArchiveId = Id,
                         Warnings = new Messages.Problem[0]
                     });
             }
@@ -44,7 +44,7 @@ namespace RoadRegistry.BackOffice.Translation
                 Apply(
                     new RoadNetworkChangesArchiveRejected
                     {
-                        ArchiveId = _id,
+                        ArchiveId = Id,
                         Errors = errors.Select(error => error.Translate()).ToArray(),
                         Warnings = new Messages.Problem[0]
                     });

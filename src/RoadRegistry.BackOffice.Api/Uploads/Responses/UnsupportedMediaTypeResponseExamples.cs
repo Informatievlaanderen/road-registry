@@ -2,7 +2,7 @@ namespace RoadRegistry.Api.Uploads.Responses
 {
     using Swashbuckle.AspNetCore.Filters;
 
-    public class UploadResponseExamples : IExamplesProvider
+    public class UnsupportedMediaTypeResponseExamples : IExamplesProvider
     {
         public object GetExamples()
         {

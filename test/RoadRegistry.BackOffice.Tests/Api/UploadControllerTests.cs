@@ -1,0 +1,105 @@
+namespace RoadRegistry.BackOffice.Api
+{
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Be.Vlaanderen.Basisregisters.BlobStore;
+    using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
+    using Framework;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Http.Internal;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Primitives;
+    using Newtonsoft.Json;
+    using RoadRegistry.Api.Uploads;
+    using SqlStreamStore;
+    using SqlStreamStore.Streams;
+    using Translation;
+    using Xunit;
+
+    public class UploadControllerTests
+    {
+        [Fact]
+        public async Task When_uploading_a_file_that_is_not_a_zip()
+        {
+            var controller = new UploadController();
+            var client = new MemoryBlobClient();
+            var store = new InMemoryStreamStore();
+            var validator = new ZipArchiveValidator(Encoding.UTF8);
+            var translator = new ZipArchiveTranslator(Encoding.UTF8);
+            var resolver = Resolve.WhenEqualToMessage(
+                new RoadNetworkChangesArchiveModule(
+                    client,
+                    store,
+                    validator,
+                    translator
+                )
+            );
+            var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
+            {
+                Headers = new HeaderDictionary(new Dictionary<string, StringValues>
+                {
+                    { "Content-Type", StringValues.Concat(StringValues.Empty, "application/octet-stream")}
+                })
+            };
+            var result = await controller.Post(
+                resolver,
+                client,
+                formFile,
+                default(CancellationToken)
+            );
+
+            Assert.IsType<UnsupportedMediaTypeResult>(result);
+        }
+
+        [Fact]
+        public async Task When_uploading_a_file_that_is_a_zip()
+        {
+            var controller = new UploadController();
+            var client = new MemoryBlobClient();
+            var store = new InMemoryStreamStore();
+            var validator = new ZipArchiveValidator(Encoding.UTF8);
+            var translator = new ZipArchiveTranslator(Encoding.UTF8);
+            var resolver = Resolve.WhenEqualToMessage(
+                new RoadNetworkChangesArchiveModule(
+                    client,
+                    store,
+                    validator,
+                    translator
+                )
+            );
+            var formFile = new FormFile(new MemoryStream(new byte[] { 1, 2, 3, 4 }), 0L, 4L, "name", "name")
+            {
+                Headers = new HeaderDictionary(new Dictionary<string, StringValues>
+                {
+                    { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip")}
+                })
+            };
+            var result = await controller.Post(
+                resolver,
+                client,
+                formFile,
+                default(CancellationToken)
+            );
+
+            Assert.IsType<OkResult>(result);
+
+            var page = await store.ReadAllForwards(Position.Start, int.MaxValue, true);
+            var message = Assert.Single(page.Messages);
+            Assert.Equal(nameof(Messages.RoadNetworkChangesArchiveUploaded), message.Type);
+            var uploaded = JsonConvert.DeserializeObject<Messages.RoadNetworkChangesArchiveUploaded>(await message.GetJsonData());
+
+            Assert.True(await client.BlobExistsAsync(new BlobName(uploaded.ArchiveId)));
+            var blob = await client.GetBlobAsync(new BlobName(uploaded.ArchiveId));
+            using (var openStream = await blob.OpenAsync())
+            {
+                var resultStream = new MemoryStream();
+                openStream.CopyTo(resultStream);
+                resultStream.Position = 0;
+                Assert.Equal(new byte[] {1, 2, 3, 4}, resultStream.ToArray());
+            }
+        }
+    }
+}

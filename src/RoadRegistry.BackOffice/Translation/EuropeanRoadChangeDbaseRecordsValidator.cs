@@ -49,6 +49,12 @@ namespace RoadRegistry.BackOffice.Translation
                             {
                                 errors = errors.IdentifierMissing(entry.Name, records.CurrentRecordNumber);
                             }
+
+
+                            if (record.EUNUMMER.Value == null || !EuropeanRoadNumber.CanParse(record.EUNUMMER.Value))
+                            {
+                                errors = errors.NotEuropeanRoadNumber(entry.Name, record.EUNUMMER.Value, records.CurrentRecordNumber);
+                            }
                         }
 
                         moved = records.MoveNext();
