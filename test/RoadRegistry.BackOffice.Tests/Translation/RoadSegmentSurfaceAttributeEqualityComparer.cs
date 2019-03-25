@@ -11,7 +11,7 @@ namespace RoadRegistry.BackOffice.Translation
             if (left == null || right == null) return true;
             return left.Type.Equals(right.Type)
                    && left.TemporaryId.Equals(right.TemporaryId)
-                   && left.From.Equals(right.From)
+                   && left.From.Equals(left.From)
                    && left.To.Equals(right.To);
         }
 

@@ -301,6 +301,7 @@ namespace RoadRegistry.BackOffice.Translation
                 var gradeSeparatedJunctionChangeDbaseRecord = fixture.Create<GradeSeparatedJunctionChangeDbaseRecord>();
                 gradeSeparatedJunctionChangeDbaseRecord.BO_WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
                 gradeSeparatedJunctionChangeDbaseRecord.ON_WS_OIDN.Value = roadSegmentChangeDbaseRecord2.WS_OIDN.Value;
+                gradeSeparatedJunctionChangeDbaseRecord.RECORDTYPE.Value = RecordTypes.Added;
                 var gradeSeparatedJunctionChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
                     new DbaseFileHeader(
@@ -482,48 +483,6 @@ namespace RoadRegistry.BackOffice.Translation
                         )
                         .Append(
                             new AddRoadSegment(
-                                    new RecordNumber(1),
-                                    new RoadSegmentId(roadSegmentChangeDbaseRecord1.WS_OIDN.Value.GetValueOrDefault()),
-                                    new RoadNodeId(roadSegmentChangeDbaseRecord1.B_WK_OIDN.Value.GetValueOrDefault()),
-                                    new RoadNodeId(roadSegmentChangeDbaseRecord1.E_WK_OIDN.Value.GetValueOrDefault()),
-                                    new MaintenanceAuthorityId(roadSegmentChangeDbaseRecord1.BEHEERDER.Value),
-                                    RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentChangeDbaseRecord1.METHODE.Value.GetValueOrDefault()],
-                                    RoadSegmentMorphology.ByIdentifier[roadSegmentChangeDbaseRecord1.MORFOLOGIE.Value.GetValueOrDefault()],
-                                    RoadSegmentStatus.ByIdentifier[roadSegmentChangeDbaseRecord1.STATUS.Value.GetValueOrDefault()],
-                                    RoadSegmentCategory.ByIdentifier[roadSegmentChangeDbaseRecord1.WEGCAT.Value],
-                                    RoadSegmentAccessRestriction.ByIdentifier[roadSegmentChangeDbaseRecord1.TGBEP.Value.GetValueOrDefault()],
-                                    roadSegmentChangeDbaseRecord1.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.LSTRNMID.Value.GetValueOrDefault()) : default,
-                                    roadSegmentChangeDbaseRecord1.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.RSTRNMID.Value.GetValueOrDefault()) : default
-                                )
-                                .WithGeometry(((PolyLineMShapeContent)roadSegmentShapeChangeRecord1.Content).Shape)
-                                .WithLane(
-                                    new RoadSegmentLaneAttribute(
-                                        new AttributeId(laneChangeDbaseRecord.RS_OIDN.Value.GetValueOrDefault()),
-                                        new RoadSegmentLaneCount(laneChangeDbaseRecord.AANTAL.Value.GetValueOrDefault()),
-                                        RoadSegmentLaneDirection.ByIdentifier[laneChangeDbaseRecord.RICHTING.Value.GetValueOrDefault()],
-                                        new RoadSegmentPosition(Convert.ToDecimal(laneChangeDbaseRecord.VANPOSITIE.Value.GetValueOrDefault())),
-                                        new RoadSegmentPosition(Convert.ToDecimal(laneChangeDbaseRecord.TOTPOSITIE.Value.GetValueOrDefault()))
-                                    )
-                                )
-                                .WithWidth(
-                                    new RoadSegmentWidthAttribute(
-                                        new AttributeId(widthChangeDbaseRecord.WB_OIDN.Value.GetValueOrDefault()),
-                                        new RoadSegmentWidth(widthChangeDbaseRecord.BREEDTE.Value.GetValueOrDefault()),
-                                        new RoadSegmentPosition(Convert.ToDecimal(widthChangeDbaseRecord.VANPOSITIE.Value.GetValueOrDefault())),
-                                        new RoadSegmentPosition(Convert.ToDecimal(widthChangeDbaseRecord.TOTPOSITIE.Value.GetValueOrDefault()))
-                                    )
-                                )
-                                .WithSurface(
-                                    new RoadSegmentSurfaceAttribute(
-                                        new AttributeId(surfaceChangeDbaseRecord.WV_OIDN.Value.GetValueOrDefault()),
-                                        RoadSegmentSurfaceType.ByIdentifier[surfaceChangeDbaseRecord.TYPE.Value.GetValueOrDefault()],
-                                        new RoadSegmentPosition(Convert.ToDecimal(widthChangeDbaseRecord.VANPOSITIE.Value.GetValueOrDefault())),
-                                        new RoadSegmentPosition(Convert.ToDecimal(widthChangeDbaseRecord.TOTPOSITIE.Value.GetValueOrDefault()))
-                                    )
-                                )
-                        )
-                        .Append(
-                            new AddRoadSegment(
                                 new RecordNumber(2),
                                 new RoadSegmentId(roadSegmentChangeDbaseRecord2.WS_OIDN.Value.GetValueOrDefault()),
                                 new RoadNodeId(roadSegmentChangeDbaseRecord2.B_WK_OIDN.Value.GetValueOrDefault()),
@@ -563,6 +522,48 @@ namespace RoadRegistry.BackOffice.Translation
                                 RoadSegmentNumberedRoadDirection.ByIdentifier[numberedRoadChangeDbaseRecord.RICHTING.Value.GetValueOrDefault()],
                                 new RoadSegmentNumberedRoadOrdinal(numberedRoadChangeDbaseRecord.VOLGNUMMER.Value.GetValueOrDefault())
                             )
+                        )
+                        .Append(
+                            new AddRoadSegment(
+                                    new RecordNumber(1),
+                                    new RoadSegmentId(roadSegmentChangeDbaseRecord1.WS_OIDN.Value.GetValueOrDefault()),
+                                    new RoadNodeId(roadSegmentChangeDbaseRecord1.B_WK_OIDN.Value.GetValueOrDefault()),
+                                    new RoadNodeId(roadSegmentChangeDbaseRecord1.E_WK_OIDN.Value.GetValueOrDefault()),
+                                    new MaintenanceAuthorityId(roadSegmentChangeDbaseRecord1.BEHEERDER.Value),
+                                    RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentChangeDbaseRecord1.METHODE.Value.GetValueOrDefault()],
+                                    RoadSegmentMorphology.ByIdentifier[roadSegmentChangeDbaseRecord1.MORFOLOGIE.Value.GetValueOrDefault()],
+                                    RoadSegmentStatus.ByIdentifier[roadSegmentChangeDbaseRecord1.STATUS.Value.GetValueOrDefault()],
+                                    RoadSegmentCategory.ByIdentifier[roadSegmentChangeDbaseRecord1.WEGCAT.Value],
+                                    RoadSegmentAccessRestriction.ByIdentifier[roadSegmentChangeDbaseRecord1.TGBEP.Value.GetValueOrDefault()],
+                                    roadSegmentChangeDbaseRecord1.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.LSTRNMID.Value.GetValueOrDefault()) : default,
+                                    roadSegmentChangeDbaseRecord1.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.RSTRNMID.Value.GetValueOrDefault()) : default
+                                )
+                                .WithGeometry(((PolyLineMShapeContent)roadSegmentShapeChangeRecord1.Content).Shape)
+                                .WithLane(
+                                    new RoadSegmentLaneAttribute(
+                                        new AttributeId(laneChangeDbaseRecord.RS_OIDN.Value.GetValueOrDefault()),
+                                        new RoadSegmentLaneCount(laneChangeDbaseRecord.AANTAL.Value.GetValueOrDefault()),
+                                        RoadSegmentLaneDirection.ByIdentifier[laneChangeDbaseRecord.RICHTING.Value.GetValueOrDefault()],
+                                        new RoadSegmentPosition(Convert.ToDecimal(laneChangeDbaseRecord.VANPOSITIE.Value.GetValueOrDefault())),
+                                        new RoadSegmentPosition(Convert.ToDecimal(laneChangeDbaseRecord.TOTPOSITIE.Value.GetValueOrDefault()))
+                                    )
+                                )
+                                .WithWidth(
+                                    new RoadSegmentWidthAttribute(
+                                        new AttributeId(widthChangeDbaseRecord.WB_OIDN.Value.GetValueOrDefault()),
+                                        new RoadSegmentWidth(widthChangeDbaseRecord.BREEDTE.Value.GetValueOrDefault()),
+                                        new RoadSegmentPosition(Convert.ToDecimal(widthChangeDbaseRecord.VANPOSITIE.Value.GetValueOrDefault())),
+                                        new RoadSegmentPosition(Convert.ToDecimal(widthChangeDbaseRecord.TOTPOSITIE.Value.GetValueOrDefault()))
+                                    )
+                                )
+                                .WithSurface(
+                                    new RoadSegmentSurfaceAttribute(
+                                        new AttributeId(surfaceChangeDbaseRecord.WV_OIDN.Value.GetValueOrDefault()),
+                                        RoadSegmentSurfaceType.ByIdentifier[surfaceChangeDbaseRecord.TYPE.Value.GetValueOrDefault()],
+                                        new RoadSegmentPosition(Convert.ToDecimal(widthChangeDbaseRecord.VANPOSITIE.Value.GetValueOrDefault())),
+                                        new RoadSegmentPosition(Convert.ToDecimal(widthChangeDbaseRecord.TOTPOSITIE.Value.GetValueOrDefault()))
+                                    )
+                                )
                         )
                         .Append(
                             new AddGradeSeparatedJunction
