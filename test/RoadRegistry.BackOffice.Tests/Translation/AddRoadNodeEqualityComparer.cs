@@ -9,9 +9,12 @@ namespace RoadRegistry.BackOffice.Translation
         {
             if (left == null && right == null) return true;
             if (left == null || right == null) return false;
+            var sameGeometry =
+                left.Geometry == null && right.Geometry == null
+                || left.Geometry != null && right.Geometry != null && left.Geometry.EqualsTopologically(right.Geometry);
             return left.TemporaryId.Equals(right.TemporaryId)
                    && left.Type.Equals(right.Type)
-                   && Equals(left.Geometry, right.Geometry)
+                   && sameGeometry
                    && left.RecordNumber.Equals(right.RecordNumber);
         }
 

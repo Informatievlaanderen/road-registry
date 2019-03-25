@@ -111,6 +111,9 @@ namespace RoadRegistry.BackOffice.Translation
 
         public TranslatedChanges Translate(ZipArchive archive)
         {
+            if (archive == null)
+                throw new ArgumentNullException(nameof(archive));
+
             return archive
                 .Entries
                 .Where(entry => Array.IndexOf(TranslationOrder, entry.FullName.ToUpperInvariant()) != -1)

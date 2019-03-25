@@ -10,6 +10,9 @@ namespace RoadRegistry.BackOffice.Translation
         {
             if (left == null && right == null) return true;
             if (left == null || right == null) return false;
+            var sameGeometry =
+                left.Geometry == null && right.Geometry == null
+                || left.Geometry != null && right.Geometry != null && left.Geometry.EqualsTopologically(right.Geometry);
             return left.TemporaryId.Equals(right.TemporaryId)
                    && left.StartNodeId.Equals(right.StartNodeId)
                    && left.EndNodeId.Equals(right.EndNodeId)
@@ -19,7 +22,7 @@ namespace RoadRegistry.BackOffice.Translation
                    && left.Category.Equals(right.Category)
                    && left.Morphology.Equals(right.Morphology)
                    && left.GeometryDrawMethod.Equals(right.GeometryDrawMethod)
-                   && Equals(left.Geometry, right.Geometry)
+                   && sameGeometry
                    && left.LeftSideStreetNameId.Equals(right.LeftSideStreetNameId)
                    && left.RightSideStreetNameId.Equals(right.RightSideStreetNameId)
                    && left.Lanes.SequenceEqual(right.Lanes, new RoadSegmentLaneAttributeEqualityComparer())
