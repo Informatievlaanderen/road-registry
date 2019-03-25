@@ -16,7 +16,7 @@ namespace RoadRegistry.BackOffice.Translation
         private readonly MemoryStream _stream;
         private readonly ZipArchiveEntry _entry;
         private readonly Fixture _fixture;
-        private IEnumerator<ShapeRecord> _enumerator;
+        private readonly IEnumerator<ShapeRecord> _enumerator;
 
         public RoadNodeChangeShapeRecordsValidatorTests()
         {

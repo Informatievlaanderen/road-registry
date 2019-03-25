@@ -34,10 +34,6 @@ namespace RoadRegistry.BackOffice.Translation
 
         public DbaseInt32 ON_WS_OIDN { get; }
 
-        public DbaseDouble VANPOSITIE { get; }
-
-        public DbaseDouble TOTPOSITIE { get; }
-
         public DbaseInt16 TRANSACTID { get; }
 
         public DbaseInt16 RECORDTYPE { get; }

@@ -113,6 +113,7 @@ namespace RoadRegistry.BackOffice.Translation
         {
             return archive
                 .Entries
+                .Where(entry => Array.IndexOf(TranslationOrder, entry.FullName.ToUpperInvariant()) != -1)
                 .OrderBy(entry => Array.IndexOf(TranslationOrder, entry.FullName.ToUpperInvariant()))
                 .Aggregate(
                     TranslatedChanges.Empty,

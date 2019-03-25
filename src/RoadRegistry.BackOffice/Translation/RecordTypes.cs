@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Translation
 {
-    internal static class RecordTypes
+    public static class RecordTypes
     {
         public const short Equal = 1;
         public const short Added = 2;

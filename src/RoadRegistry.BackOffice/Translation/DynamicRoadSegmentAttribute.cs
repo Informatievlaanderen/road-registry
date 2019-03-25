@@ -22,8 +22,6 @@
             To = to;
         }
 
-        public AttributeId Id { get; }
-
         public AttributeId TemporaryId { get; }
 
         public RoadSegmentPosition From { get; }
