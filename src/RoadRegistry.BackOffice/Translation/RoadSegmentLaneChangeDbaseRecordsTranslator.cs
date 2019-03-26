@@ -31,10 +31,8 @@ namespace RoadRegistry.BackOffice.Translation
                                     new AttributeId(record.RS_OIDN.Value.GetValueOrDefault()),
                                     new RoadSegmentLaneCount(record.AANTAL.Value.GetValueOrDefault()),
                                     RoadSegmentLaneDirection.ByIdentifier[record.RICHTING.Value.GetValueOrDefault()],
-                                    new RoadSegmentPosition(
-                                        Convert.ToDecimal(record.VANPOSITIE.Value.GetValueOrDefault())),
-                                    new RoadSegmentPosition(
-                                        Convert.ToDecimal(record.TOTPOSITIE.Value.GetValueOrDefault()))
+                                    RoadSegmentPosition.FromDouble(record.VANPOSITIE.Value.GetValueOrDefault()),
+                                    RoadSegmentPosition.FromDouble(record.TOTPOSITIE.Value.GetValueOrDefault())
                                 );
                                 changes = changes.Replace(change, change.WithLane(lane));
                             }

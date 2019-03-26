@@ -560,8 +560,8 @@ namespace RoadRegistry.BackOffice.Translation
                                     new RoadSegmentSurfaceAttribute(
                                         new AttributeId(surfaceChangeDbaseRecord.WV_OIDN.Value.GetValueOrDefault()),
                                         RoadSegmentSurfaceType.ByIdentifier[surfaceChangeDbaseRecord.TYPE.Value.GetValueOrDefault()],
-                                        new RoadSegmentPosition(Convert.ToDecimal(widthChangeDbaseRecord.VANPOSITIE.Value.GetValueOrDefault())),
-                                        new RoadSegmentPosition(Convert.ToDecimal(widthChangeDbaseRecord.TOTPOSITIE.Value.GetValueOrDefault()))
+                                        new RoadSegmentPosition(Convert.ToDecimal(surfaceChangeDbaseRecord.VANPOSITIE.Value.GetValueOrDefault())),
+                                        new RoadSegmentPosition(Convert.ToDecimal(surfaceChangeDbaseRecord.TOTPOSITIE.Value.GetValueOrDefault()))
                                     )
                                 )
                         )

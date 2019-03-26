@@ -30,10 +30,8 @@ namespace RoadRegistry.BackOffice.Translation
                                 var surface = new RoadSegmentSurfaceAttribute(
                                     new AttributeId(record.WV_OIDN.Value.GetValueOrDefault()),
                                     RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value.GetValueOrDefault()],
-                                    new RoadSegmentPosition(
-                                        Convert.ToDecimal(record.VANPOSITIE.Value.GetValueOrDefault())),
-                                    new RoadSegmentPosition(
-                                        Convert.ToDecimal(record.TOTPOSITIE.Value.GetValueOrDefault()))
+                                    RoadSegmentPosition.FromDouble(record.VANPOSITIE.Value.GetValueOrDefault()),
+                                    RoadSegmentPosition.FromDouble(record.TOTPOSITIE.Value.GetValueOrDefault())
                                 );
                                 changes = changes.Replace(before, before.WithSurface(surface));
                             }

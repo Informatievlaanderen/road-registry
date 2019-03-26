@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Model
 {
+    using System;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Framework;
@@ -39,6 +40,16 @@
                 new GreaterThanOperatorCompareToSelfAssertion(_fixture),
                 new GreaterThanOrEqualOperatorCompareToSelfAssertion(_fixture)
             ).Verify(typeof(RoadSegmentPosition));
+        }
+
+        [Fact]
+        public void FromDoubleReturnsExpectedResult()
+        {
+            var value = _fixture.Create<double>();
+
+            var result = RoadSegmentPosition.FromDouble(value);
+
+            Assert.Equal(new RoadSegmentPosition(Convert.ToDecimal(value)), result);
         }
 
         [Fact]

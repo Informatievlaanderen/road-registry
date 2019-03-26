@@ -30,10 +30,8 @@ namespace RoadRegistry.BackOffice.Translation
                                 var width = new RoadSegmentWidthAttribute(
                                     new AttributeId(record.WB_OIDN.Value.GetValueOrDefault()),
                                     new RoadSegmentWidth(record.BREEDTE.Value.GetValueOrDefault()),
-                                    new RoadSegmentPosition(
-                                        Convert.ToDecimal(record.VANPOSITIE.Value.GetValueOrDefault())),
-                                    new RoadSegmentPosition(
-                                        Convert.ToDecimal(record.TOTPOSITIE.Value.GetValueOrDefault()))
+                                    RoadSegmentPosition.FromDouble(record.VANPOSITIE.Value.GetValueOrDefault()),
+                                    RoadSegmentPosition.FromDouble(record.TOTPOSITIE.Value.GetValueOrDefault())
                                 );
                                 changes = changes.Replace(before, before.WithWidth(width));
                             }

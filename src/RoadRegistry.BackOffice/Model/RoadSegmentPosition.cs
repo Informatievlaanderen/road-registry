@@ -18,6 +18,11 @@
             _value = value;
         }
 
+        public static RoadSegmentPosition FromDouble(double value)
+        {
+            return new RoadSegmentPosition(Convert.ToDecimal(value));
+        }
+
         [Pure]
         public decimal ToDecimal() => _value;
         [Pure]
