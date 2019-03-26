@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.IO.Compression;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -70,35 +71,54 @@ namespace RoadRegistry.BackOffice.Api
                     translator
                 )
             );
-            var formFile = new FormFile(new MemoryStream(new byte[] { 1, 2, 3, 4 }), 0L, 4L, "name", "name")
+
+            using (var sourceStream = new MemoryStream())
             {
-                Headers = new HeaderDictionary(new Dictionary<string, StringValues>
+                using (var archive = new ZipArchive(sourceStream, ZipArchiveMode.Create, true, Encoding.UTF8))
                 {
-                    { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip")}
-                })
-            };
-            var result = await controller.Post(
-                resolver,
-                client,
-                formFile,
-                default(CancellationToken)
-            );
+                    var entry = archive.CreateEntry("entry");
+                    using (var entryStream = entry.Open())
+                    {
+                        entryStream.Write(new byte[] {1, 2, 3, 4});
+                        entryStream.Flush();
+                    }
+                }
 
-            Assert.IsType<OkResult>(result);
+                sourceStream.Position = 0;
 
-            var page = await store.ReadAllForwards(Position.Start, int.MaxValue, true);
-            var message = Assert.Single(page.Messages);
-            Assert.Equal(nameof(Messages.RoadNetworkChangesArchiveUploaded), message.Type);
-            var uploaded = JsonConvert.DeserializeObject<Messages.RoadNetworkChangesArchiveUploaded>(await message.GetJsonData());
+                var formFile = new FormFile(sourceStream, 0L, sourceStream.Length, "name", "name")
+                {
+                    Headers = new HeaderDictionary(new Dictionary<string, StringValues>
+                    {
+                        {"Content-Type", StringValues.Concat(StringValues.Empty, "application/zip")}
+                    })
+                };
+                var result = await controller.Post(
+                    resolver,
+                    client,
+                    formFile,
+                    default(CancellationToken)
+                );
 
-            Assert.True(await client.BlobExistsAsync(new BlobName(uploaded.ArchiveId)));
-            var blob = await client.GetBlobAsync(new BlobName(uploaded.ArchiveId));
-            using (var openStream = await blob.OpenAsync())
-            {
-                var resultStream = new MemoryStream();
-                openStream.CopyTo(resultStream);
-                resultStream.Position = 0;
-                Assert.Equal(new byte[] {1, 2, 3, 4}, resultStream.ToArray());
+                Assert.IsType<OkResult>(result);
+
+                var page = await store.ReadAllForwards(Position.Start, 1, true);
+                var message = Assert.Single(page.Messages);
+                Assert.Equal(nameof(Messages.RoadNetworkChangesArchiveUploaded), message.Type);
+                var uploaded =
+                    JsonConvert.DeserializeObject<Messages.RoadNetworkChangesArchiveUploaded>(
+                        await message.GetJsonData());
+
+                Assert.True(await client.BlobExistsAsync(new BlobName(uploaded.ArchiveId)));
+                var blob = await client.GetBlobAsync(new BlobName(uploaded.ArchiveId));
+                using (var openStream = await blob.OpenAsync())
+                {
+                    var resultStream = new MemoryStream();
+                    openStream.CopyTo(resultStream);
+                    resultStream.Position = 0;
+                    sourceStream.Position = 0;
+                    Assert.Equal(sourceStream.ToArray(), resultStream.ToArray());
+                }
             }
         }
     }
