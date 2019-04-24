@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="wwwroot\**\*" CopyToOutputDirectory="Always" />
+    <Content Include="dist\**\*" CopyToOutputDirectory="Always" />
     <Content Include="Dockerfile" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
   </ItemGroup>
