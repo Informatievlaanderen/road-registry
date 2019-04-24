@@ -18,6 +18,11 @@ namespace RoadRegistry.Api
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
+    using BackOffice.Model;
+    using BackOffice.Translation;
+    using Be.Vlaanderen.Basisregisters.BlobStore;
+    using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
+    using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
     using Configuration;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -30,9 +35,11 @@ namespace RoadRegistry.Api
     using Microsoft.Extensions.Logging;
     using Microsoft.Net.Http.Headers;
     using Modules;
+    using NodaTime;
     using Serilog;
     using SqlStreamStore;
     using Swashbuckle.AspNetCore.Swagger;
+    using RoadRegistry.BackOffice.Framework;
 
 
     /// <summary>Represents the startup process for the application.</summary>
@@ -58,6 +65,9 @@ namespace RoadRegistry.Api
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services
+                .AddAsyncInitialization()
+                .AddAsyncInitializer<BlobStoreInitialization>()
+                .AddAsyncInitializer<WaitForSqlStreamStore>()
                 .AddMvcCore(options =>
                 {
                     options.RespectBrowserAcceptHeader = true;
@@ -111,6 +121,21 @@ namespace RoadRegistry.Api
 
                 .AddApiExplorer()
                 .Services
+                .AddSingleton<IStreamStore>(sp => new MsSqlStreamStore(new MsSqlStreamStoreSettings(sp.GetService<IConfiguration>().GetConnectionString("Events")) { Schema = "RoadRegistry" }))
+                .AddSingleton<IBlobClient>(sp => new SqlBlobClient(new SqlConnectionStringBuilder(sp.GetService<IConfiguration>().GetConnectionString("Blobs")), "RoadRegistryBlobs"))
+                .AddSingleton(sp => Resolve.WhenEqualToMessage(
+                    new CommandHandlerModule[] {
+                        new RoadNetworkChangesArchiveModule(
+                            sp.GetService<IBlobClient>(),
+                            sp.GetService<IStreamStore>(),
+                            new ZipArchiveValidator(Encoding.UTF8),
+                            new ZipArchiveTranslator(Encoding.UTF8)
+                        ),
+                        new RoadNetworkCommandHandlerModule(
+                            sp.GetService<IStreamStore>(),
+                            SystemClock.Instance
+                        )
+                    }))
                 .AddVersionedApiExplorer(options =>
                 {
                     options.GroupNameFormat = "'v'VVV";
@@ -180,15 +205,9 @@ namespace RoadRegistry.Api
             IHostingEnvironment env,
             IApplicationLifetime appLifetime,
             ILoggerFactory loggerFactory,
-            IApiVersionDescriptionProvider provider,
-            IConfiguration config)
+            IApiVersionDescriptionProvider provider)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-            var connectionStringBuilder = new SqlConnectionStringBuilder(config.GetConnectionString("Events"));
-            WaitForStreamStore(connectionStringBuilder);
-
-            //EnsureSqlStreamStoreSchema(streamStore);
 
             if (env.IsDevelopment())
                 app
@@ -247,38 +266,6 @@ namespace RoadRegistry.Api
                 // Don't terminate the process immediately, wait for the Main thread to exit gracefully.
                 eventArgs.Cancel = true;
             };
-        }
-
-        private static void EnsureSqlStreamStoreSchema(IStreamStore streamStore)
-        {
-            if (!(streamStore is MsSqlStreamStore msSqlStreamStore))
-                return;
-
-            var checkSchemaResult = msSqlStreamStore.CheckSchema().GetAwaiter().GetResult();
-            if (!checkSchemaResult.IsMatch())
-                msSqlStreamStore.CreateSchema().GetAwaiter().GetResult();
-        }
-
-        private static void WaitForStreamStore(SqlConnectionStringBuilder builder)
-        {
-            var exit = false;
-            while(!exit)
-            {
-                try
-                {
-                    using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(builder.ConnectionString)
-                    {
-                        Schema = "RoadRegistry"
-                    }))
-                    {
-                        streamStore.ReadHeadPosition(CancellationToken.None).GetAwaiter().GetResult();
-                        exit = true;
-                    }
-                }
-                catch (Exception)
-                {
-                }
-            }
         }
     }
 }

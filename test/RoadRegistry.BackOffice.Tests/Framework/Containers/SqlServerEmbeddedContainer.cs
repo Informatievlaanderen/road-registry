@@ -7,7 +7,7 @@ namespace RoadRegistry.BackOffice.Framework.Containers
 
     public class SqlServerEmbeddedContainer : DockerContainer, ISqlServerDatabase
     {
-        private const int HostPort = 21433;
+        private const int HostPort = 21533;
         private const string Password = "E@syP@ssw0rd";
 
         private int _db;
@@ -23,7 +23,7 @@ namespace RoadRegistry.BackOffice.Framework.Containers
         private static SqlConnectionStringBuilder CreateConnectionStringBuilder(string database) =>
             new SqlConnectionStringBuilder
             {
-                DataSource = "tcp:localhost,21433",
+                DataSource = "tcp:localhost," + HostPort,
                 InitialCatalog = database,
                 UserID = "sa",
                 Password = Password,

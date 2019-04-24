@@ -83,6 +83,7 @@ nuget Albedo
 nuget NetTopologySuite 1.15.1
 nuget Docker.DotNet
 nuget FluentValidation
+nuget AspNetCore.AsyncInitialization
 
 nuget NodaTime
 nuget NodaTime.Testing

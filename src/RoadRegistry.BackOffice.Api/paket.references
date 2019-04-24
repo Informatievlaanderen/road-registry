@@ -18,6 +18,8 @@ Microsoft.VisualStudio.Web.BrowserLink
 
 Autofac.Extensions.DependencyInjection
 
+AspNetCore.AsyncInitialization
+
 Destructurama.JsonNet
 
 Serilog

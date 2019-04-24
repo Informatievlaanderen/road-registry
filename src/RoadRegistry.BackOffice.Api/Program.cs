@@ -4,6 +4,7 @@ namespace RoadRegistry.Api
     using System.IO;
     using System.Net;
     using System.Security.Cryptography.X509Certificates;
+    using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Formatters.Json;
     using Destructurama;
     using Microsoft.AspNetCore.Hosting;
@@ -14,7 +15,7 @@ namespace RoadRegistry.Api
 
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             Serilog.Debugging.SelfLog.Enable(Console.WriteLine);
 
@@ -27,9 +28,9 @@ namespace RoadRegistry.Api
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
                 Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
 
-            CreateWebHostBuilder(args)
-                .Build()
-                .Run();
+            var host = CreateWebHostBuilder(args).Build();
+            await host.InitAsync();
+            host.Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)

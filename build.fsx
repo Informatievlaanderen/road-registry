@@ -9,7 +9,6 @@ let assemblyVersionNumber = (sprintf "2.%s")
 let nugetVersionNumber = (sprintf "%s")
 
 let build = buildSolution assemblyVersionNumber
-let test = testSolution
 let publish = publish assemblyVersionNumber
 let pack = pack nugetVersionNumber
 let containerize = containerize dockerRepository
@@ -39,7 +38,7 @@ Target "Build_Solution" (fun _ ->
   build "RoadRegistry"
 )
 
-Target "Test_Solution" (fun _ -> test "RoadRegistry")
+Target "Test_Solution" (fun _ -> test "RoadRegistry.BackOffice.Tests")
 
 Target "Publish_Solution" (fun _ ->
   [
