@@ -11,6 +11,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Messages;
     using Model;
     using Schema;
+    using Schema.RoadNodes;
     using Schema.RoadSegments;
     using Xunit;
     using RoadSegmentAccessRestriction = Model.RoadSegmentAccessRestriction;
@@ -75,7 +76,7 @@ namespace RoadRegistry.BackOffice.Projections
                         Id = importedRoadSegment.Id,
                         ShapeRecordContent = polyLineMShapeContent.ToBytes(),
                         ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                        Envelope = BoundingBox2D.From(polyLineMShapeContent.Shape.EnvelopeInternal),
+                        BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                         DbaseRecord = new RoadSegmentDbaseRecord
                         {
                             WS_OIDN = { Value = importedRoadSegment.Id },

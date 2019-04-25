@@ -61,7 +61,7 @@ namespace RoadRegistry.BackOffice.Projections
                         }.ToBytes(Encoding.UTF8),
                         ShapeRecordContent = pointShapeContent.ToBytes(),
                         ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                        Envelope = BoundingBox2D.From(pointShapeContent.Shape.EnvelopeInternal)
+                        BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
                     };
 
                     return new

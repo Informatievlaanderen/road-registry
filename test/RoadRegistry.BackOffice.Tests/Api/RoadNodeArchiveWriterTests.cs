@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.IO.Compression;
+    using System.Text;
     using System.Threading.Tasks;
     using Framework.Containers;
     using RoadRegistry.Api.Downloads;
@@ -22,17 +23,17 @@
         [Fact]
         public Task ArchiveCanNotBeNull()
         {
-            var sut = new RoadNodeArchiveWriter();
+            var sut = new RoadNodeArchiveWriter(Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
-                () => sut.WriteAsync(null, new ShapeContext()));
+                () => sut.WriteAsync(null, new ShapeContext(), default));
         }
 
         [Fact]
         public Task ContextCanNotBeNull()
         {
-            var sut = new RoadNodeArchiveWriter();
+            var sut = new RoadNodeArchiveWriter(Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
-                () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null));
+                () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
         }
 
         [Fact(Skip = "Complete once value objects become available")]

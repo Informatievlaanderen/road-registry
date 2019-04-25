@@ -29,7 +29,7 @@ showAlert model title =
 
 hideAlert : AlertModel -> AlertModel
 hideAlert model =
-    { model | visible = True }
+    { model | visible = False }
 
 
 onClickNoBubble : msg -> Html.Attribute msg

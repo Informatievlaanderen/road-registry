@@ -3,15 +3,15 @@ module Download exposing (Msg(..), init, main, subscriptions, update, view)
 import Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showAlert, viewAlert)
 import Browser
 import Bytes exposing (Bytes)
-import Bytes.Decode exposing (Decoder)
 import File.Download
 import Footer
 import Header exposing (HeaderAction, HeaderModel, TabAction)
-import Html exposing (Html, a, button, div, h1, h2, header, li, main_, nav, span, text, ul)
-import Html.Attributes exposing (attribute, class, classList, href, id, style, target)
+import Html exposing (Html, a, div, h1, h2, li, main_, span, text, ul)
+import Html.Attributes exposing (class, classList, id, style)
 import Html.Events exposing (onClick)
 import Http
 import HttpBytes
+import Filesize
 
 
 main =
@@ -19,7 +19,7 @@ main =
 
 
 type alias DownloadModel =
-    { title : String, url : String, downloading : Bool, progressing : Bool, progress : Int }
+    { title : String, url : String, downloading : Bool, progressing : Bool, progress : String }
 
 
 type alias Model =
@@ -43,7 +43,7 @@ init url =
             , url = String.concat [ url, "/v1/download" ]
             , downloading = False
             , progressing = False
-            , progress = 0
+            , progress = ""
             }
       , alert =
             { title = ""
@@ -87,8 +87,8 @@ update msg model =
                 }
             )
 
-        GotAlertMsg alertmsg ->
-            case alertmsg of
+        GotAlertMsg alertMsg ->
+            case alertMsg of
                 CloseAlert ->
                     ( { model | alert = hideAlert model.alert }
                     , Cmd.none
@@ -104,11 +104,8 @@ update msg model =
                         oldDownload =
                             model.download
 
-                        bytesReceived =
-                            model.download.progress + r.received
-
                         newDownload =
-                            { oldDownload | progressing = True, progress = bytesReceived }
+                            { oldDownload | progressing = True, progress = Filesize.format r.received }
                     in
                     ( { model | download = newDownload }
                     , Cmd.none
@@ -122,7 +119,7 @@ update msg model =
                             model.download
 
                         newDownload =
-                            { oldDownload | downloading = False, progressing = False, progress = 0 }
+                            { oldDownload | downloading = False, progressing = False, progress = "" }
                     in
                     ( { model | download = newDownload, alert = hideAlert model.alert }
                     , File.Download.bytes "download.zip" "application/zip" bytes
@@ -134,10 +131,10 @@ update msg model =
                             model.download
 
                         newDownload =
-                            { oldDownload | downloading = False, progressing = False, progress = 0 }
+                            { oldDownload | downloading = False, progressing = False, progress = "" }
                     in
                     case error of
-                        Http.BadUrl url ->
+                        Http.BadUrl _ ->
                             ( { model | download = newDownload, alert = showAlert model.alert "Er was een probleem bij het downloaden - de url blijkt foutief te zijn." }
                             , Cmd.none
                             )
@@ -164,7 +161,7 @@ update msg model =
                                     , Cmd.none
                                     )
 
-                        Http.BadBody bad ->
+                        Http.BadBody _ ->
                             ( { model | download = newDownload, alert = showAlert model.alert "Er was een probleem bij het downloaden - dit kan duiden op een probleem met de website." }
                             , Cmd.none
                             )
@@ -194,7 +191,7 @@ viewDownload model =
                                     div [ class "download-progress" ]
                                         (if model.progressing then
                                             [ span [ class "progress" ]
-                                                [ text (String.concat [ String.fromInt model.progress, " byte(s) ontvangen" ]) ]
+                                                [ text (String.concat [ model.progress, " ontvangen" ]) ]
                                             , div [ class "loader" ]
                                                 []
                                             ]
@@ -227,5 +224,5 @@ view model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Http.track "download" GotDownloadProgress

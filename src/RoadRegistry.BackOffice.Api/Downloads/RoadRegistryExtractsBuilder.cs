@@ -45,12 +45,12 @@ namespace RoadRegistry.Api.Downloads
                 context
                     .RoadSegments
                     .GroupBy(record => 1)
-                    .Select(all_records => new BoundingBox2D
+                    .Select(all_records => new RoadSegmentBoundingBox3D
                 {
-                    MinimumX = all_records.Min(record => record.Envelope.MinimumX),
-                    MaximumX = all_records.Max(record => record.Envelope.MaximumX),
-                    MinimumY = all_records.Min(record => record.Envelope.MinimumY),
-                    MaximumY = all_records.Max(record => record.Envelope.MaximumY)
+                    MinimumX = all_records.Min(record => record.BoundingBox.MinimumX),
+                    MaximumX = all_records.Max(record => record.BoundingBox.MaximumX),
+                    MinimumY = all_records.Min(record => record.BoundingBox.MinimumY),
+                    MaximumY = all_records.Max(record => record.BoundingBox.MaximumY)
                 })
                 .SingleOrDefault()?.ToBoundingBox3D() ??
                 new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, double.NegativeInfinity, double.PositiveInfinity);
@@ -102,12 +102,12 @@ namespace RoadRegistry.Api.Downloads
                 context
                     .RoadNodes
                     .GroupBy(record => 1)
-                    .Select(all_records => new BoundingBox2D
+                    .Select(all_records => new RoadNodeBoundingBox2D
                 {
-                    MinimumX = all_records.Min(record => record.Envelope.MinimumX),
-                    MaximumX = all_records.Max(record => record.Envelope.MaximumX),
-                    MinimumY = all_records.Min(record => record.Envelope.MinimumY),
-                    MaximumY = all_records.Max(record => record.Envelope.MaximumY)
+                    MinimumX = all_records.Min(record => record.BoundingBox.MinimumX),
+                    MaximumX = all_records.Max(record => record.BoundingBox.MaximumX),
+                    MinimumY = all_records.Min(record => record.BoundingBox.MinimumY),
+                    MaximumY = all_records.Max(record => record.BoundingBox.MaximumY)
                 })
                 .SingleOrDefault()?.ToBoundingBox3D() ??
                 new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);

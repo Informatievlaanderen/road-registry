@@ -19,7 +19,7 @@ let push = push dockerRepository
 Target "Restore_Solution" (fun _ -> restore "RoadRegistry")
 
 Target "Build_Solution" (fun _ ->
-  CleanDir ("src" @@ "RoadRegistry.UI" @@ "dist")
+  CleanDir ("src" @@ "RoadRegistry.UI" @@ "wwwroot")
 
   Npm (fun p ->
     { p with

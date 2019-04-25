@@ -10,14 +10,14 @@ using RoadRegistry.BackOffice.Schema;
 namespace RoadRegistry.BackOffice.Schema.Migrations
 {
     [DbContext(typeof(ShapeContext))]
-    [Migration("20190118105654_InitialCreate")]
+    [Migration("20190425154603_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.3-rtm-32065")
+                .HasAnnotation("ProductVersion", "2.2.0-rtm-35687")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -34,7 +34,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("ProjectionStates","RoadRegistryProjectionMetaData");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.GradeSeparatedJunction.GradeSeparatedJunctionRecord", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.GradeSeparatedJunctions.GradeSeparatedJunctionRecord", b =>
                 {
                     b.Property<int>("Id");
 
@@ -46,7 +46,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("GradeSeparatedJunction","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.Organization.OrganizationRecord", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.Organizations.OrganizationRecord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,7 +66,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("Organization","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNetworkInfo.RoadNetworkInfo", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNetworkInfo", b =>
                 {
                     b.Property<int>("Id")
                         .HasDefaultValue(0);
@@ -127,7 +127,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("RoadNetworkInfo","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNodeShape.RoadNodeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNodes.RoadNodeRecord", b =>
                 {
                     b.Property<int>("Id");
 
@@ -143,7 +143,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("RoadNode","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentEuropeanRoadAttribute.RoadSegmentEuropeanRoadAttributeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentEuropeanRoadAttributes.RoadSegmentEuropeanRoadAttributeRecord", b =>
                 {
                     b.Property<int>("Id");
 
@@ -157,7 +157,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("RoadSegmentEuropeanRoadAttribute","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentLaneAttribute.RoadSegmentLaneAttributeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentLaneAttributes.RoadSegmentLaneAttributeRecord", b =>
                 {
                     b.Property<int>("Id");
 
@@ -171,7 +171,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("RoadSegmentLaneAttribute","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentNationalRoadAttribute.RoadSegmentNationalRoadAttributeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentNationalRoadAttributes.RoadSegmentNationalRoadAttributeRecord", b =>
                 {
                     b.Property<int>("Id");
 
@@ -185,7 +185,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("RoadSegmentNationalRoadAttribute","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttribute.RoadSegmentNumberedRoadAttributeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttributes.RoadSegmentNumberedRoadAttributeRecord", b =>
                 {
                     b.Property<int>("Id");
 
@@ -199,7 +199,35 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("RoadSegmentNumberedRoadAttribute","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentShape.RoadSegmentRecord", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentSurfaceAttributes.RoadSegmentSurfaceAttributeRecord", b =>
+                {
+                    b.Property<int>("Id");
+
+                    b.Property<byte[]>("DbaseRecord");
+
+                    b.Property<int>("RoadSegmentId");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RoadSegmentSurfaceAttribute","RoadRegistryShape");
+                });
+
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentWidthAttributes.RoadSegmentWidthAttributeRecord", b =>
+                {
+                    b.Property<int>("Id");
+
+                    b.Property<byte[]>("DbaseRecord");
+
+                    b.Property<int>("RoadSegmentId");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RoadSegmentWidthAttribute","RoadRegistryShape");
+                });
+
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegments.RoadSegmentRecord", b =>
                 {
                     b.Property<int>("Id");
 
@@ -215,37 +243,9 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("RoadSegment","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentSurfaceAttribute.RoadSegmentSurfaceAttributeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNodes.RoadNodeRecord", b =>
                 {
-                    b.Property<int>("Id");
-
-                    b.Property<byte[]>("DbaseRecord");
-
-                    b.Property<int>("RoadSegmentId");
-
-                    b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("RoadSegmentSurfaceAttribute","RoadRegistryShape");
-                });
-
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentWidthAttribute.RoadSegmentWidthAttributeRecord", b =>
-                {
-                    b.Property<int>("Id");
-
-                    b.Property<byte[]>("DbaseRecord");
-
-                    b.Property<int>("RoadSegmentId");
-
-                    b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("RoadSegmentWidthAttribute","RoadRegistryShape");
-                });
-
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNodeShape.RoadNodeRecord", b =>
-                {
-                    b.OwnsOne("RoadRegistry.BackOffice.Schema.BoundingBox2D", "Envelope", b1 =>
+                    b.OwnsOne("RoadRegistry.BackOffice.Schema.RoadNodes.RoadNodeBoundingBox", "BoundingBox", b1 =>
                         {
                             b1.Property<int>("RoadNodeRecordId");
 
@@ -257,34 +257,42 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
                             b1.Property<double>("MinimumY");
 
+                            b1.HasKey("RoadNodeRecordId");
+
                             b1.ToTable("RoadNode","RoadRegistryShape");
 
-                            b1.HasOne("RoadRegistry.BackOffice.Schema.RoadNodeShape.RoadNodeRecord")
-                                .WithOne("Envelope")
-                                .HasForeignKey("RoadRegistry.BackOffice.Schema.BoundingBox2D", "RoadNodeRecordId")
+                            b1.HasOne("RoadRegistry.BackOffice.Schema.RoadNodes.RoadNodeRecord")
+                                .WithOne("BoundingBox")
+                                .HasForeignKey("RoadRegistry.BackOffice.Schema.RoadNodes.RoadNodeBoundingBox", "RoadNodeRecordId")
                                 .OnDelete(DeleteBehavior.Cascade);
                         });
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentShape.RoadSegmentRecord", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegments.RoadSegmentRecord", b =>
                 {
-                    b.OwnsOne("RoadRegistry.BackOffice.Schema.BoundingBox2D", "Envelope", b1 =>
+                    b.OwnsOne("RoadRegistry.BackOffice.Schema.RoadSegments.RoadSegmentBoundingBox", "BoundingBox", b1 =>
                         {
                             b1.Property<int>("RoadSegmentRecordId");
+
+                            b1.Property<double>("MaximumM");
 
                             b1.Property<double>("MaximumX");
 
                             b1.Property<double>("MaximumY");
 
+                            b1.Property<double>("MinimumM");
+
                             b1.Property<double>("MinimumX");
 
                             b1.Property<double>("MinimumY");
 
+                            b1.HasKey("RoadSegmentRecordId");
+
                             b1.ToTable("RoadSegment","RoadRegistryShape");
 
-                            b1.HasOne("RoadRegistry.BackOffice.Schema.RoadSegmentShape.RoadSegmentRecord")
-                                .WithOne("Envelope")
-                                .HasForeignKey("RoadRegistry.BackOffice.Schema.BoundingBox2D", "RoadSegmentRecordId")
+                            b1.HasOne("RoadRegistry.BackOffice.Schema.RoadSegments.RoadSegmentRecord")
+                                .WithOne("BoundingBox")
+                                .HasForeignKey("RoadRegistry.BackOffice.Schema.RoadSegments.RoadSegmentBoundingBox", "RoadSegmentRecordId")
                                 .OnDelete(DeleteBehavior.Cascade);
                         });
                 });

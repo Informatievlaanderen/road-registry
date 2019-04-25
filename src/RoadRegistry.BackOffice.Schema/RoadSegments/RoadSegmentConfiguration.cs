@@ -18,7 +18,7 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
             b.Property(p => p.ShapeRecordContentLength);
             b.Property(p => p.DbaseRecord);
 
-            b.OwnsOne(p => p.Envelope);
+            b.OwnsOne(p => p.BoundingBox);
         }
     }
 }

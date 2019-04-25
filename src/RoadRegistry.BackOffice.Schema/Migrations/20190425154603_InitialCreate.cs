@@ -92,10 +92,10 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     ShapeRecordContent = table.Column<byte[]>(nullable: true),
                     ShapeRecordContentLength = table.Column<int>(nullable: false),
                     DbaseRecord = table.Column<byte[]>(nullable: true),
-                    Envelope_MinimumX = table.Column<double>(nullable: false),
-                    Envelope_MaximumX = table.Column<double>(nullable: false),
-                    Envelope_MinimumY = table.Column<double>(nullable: false),
-                    Envelope_MaximumY = table.Column<double>(nullable: false)
+                    BoundingBox_MinimumX = table.Column<double>(nullable: false),
+                    BoundingBox_MaximumX = table.Column<double>(nullable: false),
+                    BoundingBox_MinimumY = table.Column<double>(nullable: false),
+                    BoundingBox_MaximumY = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,10 +112,12 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     ShapeRecordContent = table.Column<byte[]>(nullable: true),
                     ShapeRecordContentLength = table.Column<int>(nullable: false),
                     DbaseRecord = table.Column<byte[]>(nullable: true),
-                    Envelope_MinimumX = table.Column<double>(nullable: false),
-                    Envelope_MaximumX = table.Column<double>(nullable: false),
-                    Envelope_MinimumY = table.Column<double>(nullable: false),
-                    Envelope_MaximumY = table.Column<double>(nullable: false)
+                    BoundingBox_MinimumX = table.Column<double>(nullable: false),
+                    BoundingBox_MaximumX = table.Column<double>(nullable: false),
+                    BoundingBox_MinimumY = table.Column<double>(nullable: false),
+                    BoundingBox_MaximumY = table.Column<double>(nullable: false),
+                    BoundingBox_MinimumM = table.Column<double>(nullable: false),
+                    BoundingBox_MaximumM = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {

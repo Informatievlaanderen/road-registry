@@ -5,6 +5,7 @@ services:
     environment:
       ACCEPT_EULA: 'Y'
       SA_PASSWORD: 'E@syP@ssw0rd'
+      MSSQL_MEMORY_LIMIT_MB: 4000
     ports:
       - "21433:1433"
     volumes:

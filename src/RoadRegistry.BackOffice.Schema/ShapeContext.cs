@@ -28,6 +28,8 @@ namespace RoadRegistry.BackOffice.Schema
         public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
         public DbSet<OrganizationRecord> Organizations { get; set; }
         public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }
+        public DbQuery<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
+        public DbQuery<RoadSegmentBoundingBox3D> RoadSegmentBoundingBox { get; set; }
 
         public ShapeContext() {}
 

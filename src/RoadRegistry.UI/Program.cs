@@ -18,7 +18,7 @@ namespace RoadRegistry.UI
             return WebHost
                 .CreateDefaultBuilder(args)
                 .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseWebRoot("dist")
+                .UseWebRoot("wwwroot")
                 .UseIISIntegration()
                 .UseStartup<Startup>();
         }
