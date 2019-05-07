@@ -1,38 +1,38 @@
-namespace RoadRegistry.Api.Downloads
+namespace RoadRegistry.Api.ZipArchiveWriters
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
+    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice.Schema;
+    using BackOffice.Schema.RoadSegmentLaneAttributes;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Microsoft.EntityFrameworkCore;
 
-    public class DbaseFileArchiveWriter
+    public class RoadSegmentLaneAttributesToZipArchiveWriter : IZipArchiveWriter
     {
-        private readonly string _filename;
-        private readonly DbaseSchema _schema;
         private readonly Encoding _encoding;
 
-        public DbaseFileArchiveWriter(string filename, DbaseSchema schema, Encoding encoding)
+        public RoadSegmentLaneAttributesToZipArchiveWriter(Encoding encoding)
         {
-            _filename = filename ?? throw new ArgumentNullException(nameof(filename));
-            _schema = schema ?? throw new ArgumentNullException(nameof(schema));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, IReadOnlyCollection<DbaseRecord> dbfRecords, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, ShapeContext context, CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (dbfRecords == null) throw new ArgumentNullException(nameof(dbfRecords));
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var dbfEntry = archive.CreateEntry(_filename);
+            var count = await context.RoadSegmentLaneAttributes.CountAsync(cancellationToken);
+            var dbfEntry = archive.CreateEntry("AttRijstroken.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
-                new DbaseRecordCount(dbfRecords.Count),
-                _schema
+                new DbaseRecordCount(count),
+                RoadSegmentLaneAttributeDbaseRecord.Schema
             );
             using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
@@ -40,10 +40,13 @@ namespace RoadRegistry.Api.Downloads
                     dbfHeader,
                     new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
-                foreach (var dbfRecord in dbfRecords)
+                var dbfRecord = new RoadSegmentLaneAttributeDbaseRecord();
+                foreach (var data in context.RoadSegmentLaneAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
+                    dbfRecord.FromBytes(data, _encoding);
                     dbfWriter.Write(dbfRecord);
                 }
+
                 dbfWriter.Writer.Flush();
                 await dbfEntryStream.FlushAsync(cancellationToken);
             }

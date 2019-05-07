@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Downloads
+namespace RoadRegistry.Api.ZipArchiveWriters
 {
     using System;
     using BackOffice.Model;

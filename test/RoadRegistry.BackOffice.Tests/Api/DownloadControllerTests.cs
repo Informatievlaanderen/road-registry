@@ -24,10 +24,13 @@
         [Fact]
         public async Task When_downloading_before_an_import()
         {
-            var controller = new DownloadController();
+            var controller = new DownloadController
+            {
+                ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
+            };
             using (var context = await _fixture.CreateEmptyShapeContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.Get(context, CancellationToken.None);
+                var result = await controller.Get(context);
 
                 var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
                 Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
@@ -37,7 +40,10 @@
         [Fact]
         public async Task When_downloading_during_an_import()
         {
-            var controller = new DownloadController();
+            var controller = new DownloadController
+            {
+                ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
+            };
             var database = await _fixture.CreateDatabaseAsync();
             using (var context = await _fixture.CreateEmptyShapeContextAsync(database))
             {
@@ -51,7 +57,7 @@
 
             using (var context = await _fixture.CreateShapeContextAsync(database))
             {
-                var result = await controller.Get(context, CancellationToken.None);
+                var result = await controller.Get(context);
 
                 var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
                 Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
@@ -61,7 +67,10 @@
         [Fact]
         public async Task When_downloading_after_an_import()
         {
-            var controller = new DownloadController();
+            var controller = new DownloadController
+            {
+                ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
+            };
             var database = await _fixture.CreateDatabaseAsync();
             using (var context = await _fixture.CreateEmptyShapeContextAsync(database))
             {
@@ -75,7 +84,7 @@
 
             using (var context = await _fixture.CreateShapeContextAsync(database))
             {
-                var result = await controller.Get(context, CancellationToken.None);
+                var result = await controller.Get(context);
 
                 var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
                 Assert.Equal("wegenregister.zip", fileCallbackResult.FileDownloadName);

@@ -1,15 +1,11 @@
 namespace RoadRegistry.Api.Downloads
 {
-    using System.Collections.Generic;
-    using System.Data;
     using System.IO.Compression;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using BackOffice.Schema;
-    using BackOffice.Schema.ReferenceData;
     using Infrastructure;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -18,6 +14,7 @@ namespace RoadRegistry.Api.Downloads
     using Newtonsoft.Json.Converters;
     using Responses;
     using Swashbuckle.AspNetCore.Filters;
+    using ZipArchiveWriters;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]
@@ -29,7 +26,6 @@ namespace RoadRegistry.Api.Downloads
         /// Request an archive of the entire road registry for shape editing purposes.
         /// </summary>
         /// <param name="context">The database context to query data with.</param>
-        /// <param name="cancellationToken">The token that controls request cancellation.</param>
         /// <response code="200">Returned if the road registry can be downloaded.</response>
         /// <response code="500">Returned if the road registry can not be downloaded due to an unforeseen server error.</response>
         /// <response code="503">Returned if the road registry can not yet be downloaded (e.g. because the import has not yet completed).</response>
@@ -39,10 +35,9 @@ namespace RoadRegistry.Api.Downloads
         [SwaggerResponseExample(StatusCodes.Status200OK, typeof(DownloadResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         public async Task<IActionResult> Get(
-            [FromServices] ShapeContext context,
-            CancellationToken cancellationToken)
+            [FromServices] ShapeContext context)
         {
-            var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(cancellationToken);
+            var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
             if (info == null || !info.CompletedImport)
             {
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
@@ -53,49 +48,10 @@ namespace RoadRegistry.Api.Downloads
                 async (stream, actionContext) =>
                 {
                     var encoding = Encoding.ASCII; // TODO: Inject
-                    using(await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
+                    var writer = new RoadNetworkForShapeEditingZipArchiveWriter(encoding);
+                    using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
                     {
-                        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
-                        {
-                            await new OrganizationArchiveWriter(encoding).WriteAsync(archive, context, cancellationToken);
-                            await new RoadNodeArchiveWriter(encoding).WriteAsync(archive, context, cancellationToken);
-                            await new RoadSegmentArchiveWriter(encoding).WriteAsync(archive, context,
-                                cancellationToken);
-                            await new RoadSegmentLaneAttributeArchiveWriter(encoding).WriteAsync(archive, context,
-                                cancellationToken);
-                            await new RoadSegmentWidthAttributeArchiveWriter(encoding).WriteAsync(archive, context,
-                                cancellationToken);
-                            await new RoadSegmentSurfaceAttributeArchiveWriter(encoding).WriteAsync(archive, context,
-                                cancellationToken);
-                            await new RoadSegmentNationalRoadAttributeArchiveWriter(encoding).WriteAsync(archive, context,
-                                cancellationToken);
-                            await new RoadSegmentEuropeanRoadAttributeArchiveWriter(encoding).WriteAsync(archive, context,
-                                cancellationToken);
-                            await new RoadSegmentNumberedRoadAttributeArchiveWriter(encoding).WriteAsync(archive, context,
-                                cancellationToken);
-                            await new GradeSeperatedJunctionArchiveWriter(encoding).WriteAsync(archive, context,
-                                cancellationToken);
-                            await new DbaseFileArchiveWriter("WegknoopLktType.dbf", RoadNodeTypeDbaseRecord.Schema, encoding)
-                                .WriteAsync(archive, Lists.AllRoadNodeTypeDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter("WegverhardLktType.dbf", SurfaceTypeDbaseRecord.Schema, encoding)
-                                .WriteAsync(archive, Lists.AllSurfaceTypeDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter("GenumwegLktRichting.dbf", NumberedRoadSegmentDirectionDbaseRecord.Schema, encoding)
-                                .WriteAsync(archive, Lists.AllNumberedRoadSegmentDirectionDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter("WegsegmentLktWegcat.dbf", RoadSegmentCategoryDbaseRecord.Schema, encoding)
-                                .WriteAsync(archive, Lists.AllRoadSegmentCategoryDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter("WegsegmentLktTgbep.dbf", RoadSegmentAccessRestrictionDbaseRecord.Schema, encoding)
-                                .WriteAsync(archive, Lists.AllRoadSegmentAccessRestrictionDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter("WegsegmentLktMethode.dbf", RoadSegmentGeometryDrawMethodDbaseRecord.Schema, encoding)
-                                .WriteAsync(archive, Lists.AllRoadSegmentGeometryDrawMethodDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter("WegsegmentLktMorf.dbf", RoadSegmentMorphologyDbaseRecord.Schema, encoding)
-                                .WriteAsync(archive, Lists.AllRoadSegmentMorphologyDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter("WegsegmentLktStatus.dbf", RoadSegmentStatusDbaseRecord.Schema, encoding)
-                                .WriteAsync(archive, Lists.AllRoadSegmentStatusDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter("OgkruisingLktType.dbf", GradeSeparatedJunctionTypeDbaseRecord.Schema, encoding)
-                                .WriteAsync(archive, Lists.AllGradeSeparatedJunctionTypeDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter("RijstrokenLktRichting.dbf", LaneDirectionDbaseRecord.Schema, encoding)
-                                .WriteAsync(archive, Lists.AllLaneDirectionDbaseRecords, cancellationToken);
-                        }
+                        await writer.WriteAsync(archive, context, HttpContext.RequestAborted);
                     }
                 })
             {

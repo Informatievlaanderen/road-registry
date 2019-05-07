@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Downloads
+namespace RoadRegistry.Api.ZipArchiveWriters
 {
     using System;
     using System.IO;
@@ -12,7 +12,7 @@ namespace RoadRegistry.Api.Downloads
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.EntityFrameworkCore;
 
-    public class GradeSeperatedJunctionArchiveWriter
+    public class GradeSeperatedJunctionArchiveWriter : IZipArchiveWriter
     {
         private readonly Encoding _encoding;
 

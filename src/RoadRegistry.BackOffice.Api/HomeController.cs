@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Infrastructure
+namespace RoadRegistry.Api
 {
     using System.Reflection;
     using System.Threading;
@@ -8,7 +8,7 @@ namespace RoadRegistry.Api.Infrastructure
 
     [ApiVersionNeutral]
     [Route("")]
-    public class EmptyController : ControllerBase
+    public class HomeController : ControllerBase
     {
         [HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]

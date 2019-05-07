@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Downloads
+namespace RoadRegistry.Api.ZipArchiveWriters
 {
     using System;
     using System.IO;
@@ -8,15 +8,15 @@ namespace RoadRegistry.Api.Downloads
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice.Schema;
-    using BackOffice.Schema.RoadNodes;
+    using BackOffice.Schema.RoadSegments;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.EntityFrameworkCore;
 
-    public class RoadNodeArchiveWriter
+    public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter
     {
         private readonly Encoding _encoding;
 
-        public RoadNodeArchiveWriter(Encoding encoding)
+        public RoadSegmentsToZipArchiveWriter(Encoding encoding)
         {
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
@@ -26,13 +26,13 @@ namespace RoadRegistry.Api.Downloads
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var count = await context.RoadNodes.CountAsync(cancellationToken);
-            var dbfEntry = archive.CreateEntry("Wegknoop.dbf");
+            var count = await context.RoadSegments.CountAsync(cancellationToken);
+            var dbfEntry = archive.CreateEntry("Wegsegment.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
                 new DbaseRecordCount(count),
-                RoadNodeDbaseRecord.Schema
+                RoadSegmentDbaseRecord.Schema
             );
             using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
@@ -40,8 +40,8 @@ namespace RoadRegistry.Api.Downloads
                     dbfHeader,
                     new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
-                var dbfRecord = new RoadNodeDbaseRecord();
-                foreach (var data in context.RoadNodes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+                var dbfRecord = new RoadSegmentDbaseRecord();
+                foreach (var data in context.RoadSegments.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
                     dbfRecord.FromBytes(data, _encoding);
                     dbfWriter.Write(dbfRecord);
@@ -52,18 +52,18 @@ namespace RoadRegistry.Api.Downloads
 
             var shpBoundingBox =
                 (await
-                     context
-                    .RoadNodeBoundingBox
-                    .FromSql("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [RoadRegistry].[RoadRegistryShape].[RoadNode]")
-                    .SingleOrDefaultAsync(cancellationToken)
+                    context
+                        .RoadSegmentBoundingBox
+                        .FromSql("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [RoadRegistry].[RoadRegistryShape].[RoadSegment]")
+                        .SingleOrDefaultAsync(cancellationToken)
                 )?.ToBoundingBox3D()
                 ?? new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             var info = await context.RoadNetworkInfo.SingleAsync(cancellationToken);
 
-            var shpEntry = archive.CreateEntry("Wegknoop.shp");
+            var shpEntry = archive.CreateEntry("Wegsegment.shp");
             var shpHeader = new ShapeFileHeader(
-                new WordLength(info.TotalRoadNodeShapeLength),
-                ShapeType.Point,
+                new WordLength(info.TotalRoadSegmentShapeLength),
+                ShapeType.PolyLineM,
                 shpBoundingBox);
             using (var shpEntryStream = shpEntry.Open())
             using (var shpWriter =
@@ -72,7 +72,7 @@ namespace RoadRegistry.Api.Downloads
                     new BinaryWriter(shpEntryStream, _encoding, true)))
             {
                 var number = RecordNumber.Initial;
-                foreach (var data in context.RoadNodes.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+                foreach (var data in context.RoadSegments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
                 {
                     shpWriter.Write(
                         ShapeContent
@@ -85,7 +85,7 @@ namespace RoadRegistry.Api.Downloads
                 await shpEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shxEntry = archive.CreateEntry("Wegknoop.shx");
+            var shxEntry = archive.CreateEntry("Wegsegment.shx");
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(count));
             using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =
@@ -95,7 +95,7 @@ namespace RoadRegistry.Api.Downloads
             {
                 var offset = ShapeIndexRecord.InitialOffset;
                 var number = RecordNumber.Initial;
-                foreach (var data in context.RoadNodes.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+                foreach (var data in context.RoadSegments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
                 {
                     var shpRecord = ShapeContent
                         .FromBytes(data, _encoding)
@@ -110,5 +110,3 @@ namespace RoadRegistry.Api.Downloads
         }
     }
 }
-
-

@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Downloads
+namespace RoadRegistry.Api.ZipArchiveWriters
 {
     using System;
     using System.IO;
@@ -8,15 +8,15 @@ namespace RoadRegistry.Api.Downloads
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice.Schema;
-    using BackOffice.Schema.RoadSegmentWidthAttributes;
+    using BackOffice.Schema.RoadSegmentSurfaceAttributes;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.EntityFrameworkCore;
 
-    public class RoadSegmentWidthAttributeArchiveWriter
+    public class RoadSegmentSurfaceAttributesToZipArchiveWriter : IZipArchiveWriter
     {
         private readonly Encoding _encoding;
 
-        public RoadSegmentWidthAttributeArchiveWriter(Encoding encoding)
+        public RoadSegmentSurfaceAttributesToZipArchiveWriter(Encoding encoding)
         {
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
@@ -26,13 +26,13 @@ namespace RoadRegistry.Api.Downloads
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var count = await context.RoadSegmentWidthAttributes.CountAsync(cancellationToken);
-            var dbfEntry = archive.CreateEntry("AttWegbreedte.dbf");
+            var count = await context.RoadSegmentSurfaceAttributes.CountAsync(cancellationToken);
+            var dbfEntry = archive.CreateEntry("AttWegverharding.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
                 new DbaseRecordCount(count),
-                RoadSegmentWidthAttributeDbaseRecord.Schema
+                RoadSegmentSurfaceAttributeDbaseRecord.Schema
             );
             using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
@@ -40,8 +40,8 @@ namespace RoadRegistry.Api.Downloads
                     dbfHeader,
                     new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
-                var dbfRecord = new RoadSegmentWidthAttributeDbaseRecord();
-                foreach (var data in context.RoadSegmentWidthAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+                var dbfRecord = new RoadSegmentSurfaceAttributeDbaseRecord();
+                foreach (var data in context.RoadSegmentSurfaceAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
                     dbfRecord.FromBytes(data, _encoding);
                     dbfWriter.Write(dbfRecord);

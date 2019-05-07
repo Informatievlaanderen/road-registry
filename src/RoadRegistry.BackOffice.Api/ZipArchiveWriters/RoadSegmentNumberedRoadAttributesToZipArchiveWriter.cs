@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Downloads
+namespace RoadRegistry.Api.ZipArchiveWriters
 {
     using System;
     using System.IO;
@@ -8,16 +8,15 @@ namespace RoadRegistry.Api.Downloads
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice.Schema;
-    using BackOffice.Schema.Organizations;
+    using BackOffice.Schema.RoadSegmentNumberedRoadAttributes;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.EntityFrameworkCore;
-    using Remotion.Linq.Clauses;
 
-    public class OrganizationArchiveWriter
+    public class RoadSegmentNumberedRoadAttributesToZipArchiveWriter : IZipArchiveWriter
     {
         private readonly Encoding _encoding;
 
-        public OrganizationArchiveWriter(Encoding encoding)
+        public RoadSegmentNumberedRoadAttributesToZipArchiveWriter(Encoding encoding)
         {
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
@@ -27,12 +26,13 @@ namespace RoadRegistry.Api.Downloads
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var dbfEntry = archive.CreateEntry("LstOrg.dbf");
+            var count = await context.RoadSegmentNumberedRoadAttributes.CountAsync(cancellationToken);
+            var dbfEntry = archive.CreateEntry("AttGenumweg.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
-                new DbaseRecordCount(await context.Organizations.CountAsync(cancellationToken)),
-                OrganizationDbaseRecord.Schema
+                new DbaseRecordCount(count),
+                RoadSegmentNumberedRoadAttributeDbaseRecord.Schema
             );
             using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
@@ -40,12 +40,13 @@ namespace RoadRegistry.Api.Downloads
                     dbfHeader,
                     new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
-                var dbfRecord = new OrganizationDbaseRecord();
-                foreach (var data in context.Organizations.OrderBy(_ => _.SortableCode).Select(_ => _.DbaseRecord))
+                var dbfRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord();
+                foreach (var data in context.RoadSegmentNumberedRoadAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
                     dbfRecord.FromBytes(data, _encoding);
                     dbfWriter.Write(dbfRecord);
                 }
+
                 dbfWriter.Writer.Flush();
                 await dbfEntryStream.FlushAsync(cancellationToken);
             }
