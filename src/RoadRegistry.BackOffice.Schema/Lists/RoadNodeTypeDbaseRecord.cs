@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
     public class RoadNodeTypeDbaseRecord : DbaseRecord
     {
-        private static readonly RoadNodeTypeDbaseSchema Schema = new RoadNodeTypeDbaseSchema();
+        public static readonly RoadNodeTypeDbaseSchema Schema = new RoadNodeTypeDbaseSchema();
 
         public RoadNodeTypeDbaseRecord()
         {

@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
     public class GradeSeparatedJunctionTypeDbaseRecord : DbaseRecord
     {
-        private static readonly GradeSeparatedJunctionTypeDbaseSchema Schema = new GradeSeparatedJunctionTypeDbaseSchema();
+        public static readonly GradeSeparatedJunctionTypeDbaseSchema Schema = new GradeSeparatedJunctionTypeDbaseSchema();
 
         public GradeSeparatedJunctionTypeDbaseRecord()
         {

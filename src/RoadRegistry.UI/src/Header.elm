@@ -28,7 +28,7 @@ viewHeaderAction action =
                 ]
 
         Nothing ->
-            li 
+            li
                 [ class "functional-header__action" ]
                 [ text action.title ]
 
@@ -37,7 +37,7 @@ viewTabAction : TabAction -> Html msg
 viewTabAction action =
     li
         [ classList [ ( "tab", True ), ( "tab--active", action.active ) ] ]
-        [ a 
+        [ a
             [ class "tab__link", href action.link ]
             [ text action.title ]
         ]

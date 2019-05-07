@@ -1,4 +1,4 @@
-module Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showAlert, viewAlert)
+module Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showError, showSuccess, viewAlert)
 
 import Html exposing (Html, a, div, span, text)
 import Html.Attributes exposing (class, classList, href, name)
@@ -22,9 +22,14 @@ type AlertMsg
     = CloseAlert
 
 
-showAlert : AlertModel -> String -> AlertModel
-showAlert model title =
-    { model | title = title, visible = True }
+showError : AlertModel -> String -> AlertModel
+showError model title =
+    { model | title = title, kind = Error, visible = True }
+
+
+showSuccess : AlertModel -> String -> AlertModel
+showSuccess model title =
+    { model | title = title, kind = Success, visible = True }
 
 
 hideAlert : AlertModel -> AlertModel

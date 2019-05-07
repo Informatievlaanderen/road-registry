@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
     public class RoadSegmentAccessRestrictionDbaseRecord : DbaseRecord
     {
-        private static readonly RoadSegmentAccessRestrictionDbaseSchema Schema = new RoadSegmentAccessRestrictionDbaseSchema();
+        public static readonly RoadSegmentAccessRestrictionDbaseSchema Schema = new RoadSegmentAccessRestrictionDbaseSchema();
 
         public RoadSegmentAccessRestrictionDbaseRecord()
         {

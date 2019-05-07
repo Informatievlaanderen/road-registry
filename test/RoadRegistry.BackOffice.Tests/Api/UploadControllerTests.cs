@@ -46,7 +46,7 @@ namespace RoadRegistry.BackOffice.Api
                 })
             };
             var result = await controller.Post(
-                resolver,
+                Dispatch.Using(resolver),
                 client,
                 formFile,
                 default(CancellationToken)
@@ -94,7 +94,7 @@ namespace RoadRegistry.BackOffice.Api
                     })
                 };
                 var result = await controller.Post(
-                    resolver,
+                    Dispatch.Using(resolver),
                     client,
                     formFile,
                     default(CancellationToken)
@@ -158,7 +158,7 @@ namespace RoadRegistry.BackOffice.Api
                     })
                 };
                 var result = await controller.Post(
-                    resolver,
+                    Dispatch.Using(resolver),
                     client,
                     formFile,
                     default(CancellationToken)

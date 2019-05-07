@@ -29,7 +29,7 @@ namespace RoadRegistry.Api.Uploads
         /// <summary>
         /// Request an archive of the entire road registry for shape editing purposes.
         /// </summary>
-        /// <param name="resolver">The command handler resolver.</param>
+        /// <param name="dispatcher">The command handler dispatcher.</param>
         /// <param name="archive">The file to upload.</param>
         /// <param name="client">The blob client to upload the file with.</param>
         /// <param name="cancellationToken">The token that controls request cancellation.</param>
@@ -43,12 +43,17 @@ namespace RoadRegistry.Api.Uploads
         [SwaggerResponseExample(StatusCodes.Status200OK, typeof(UploadResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status415UnsupportedMediaType, typeof(UnsupportedMediaTypeResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
+        [RequestSizeLimit(10485760)]
         public async Task<IActionResult> Post(
-            [FromServices] CommandHandlerResolver resolver,
+            [FromServices] CommandHandlerDispatcher dispatcher,
             [FromServices] IBlobClient client,
             IFormFile archive,
             CancellationToken cancellationToken)
         {
+            if (dispatcher == null) throw new ArgumentNullException(nameof(dispatcher));
+            if (client == null) throw new ArgumentNullException(nameof(client));
+            if (archive == null) throw new ArgumentNullException(nameof(archive));
+
             if (!ContentType.TryParse(archive.ContentType, out var parsed) ||
                 parsed != ContentType.Parse("application/zip"))
             {
@@ -74,7 +79,7 @@ namespace RoadRegistry.Api.Uploads
                         ArchiveId = archiveId.ToString()
                     });
 
-                await resolver(message).Handler(message, cancellationToken);
+                await dispatcher(message, cancellationToken);
             }
 
             return Ok();

@@ -9,30 +9,30 @@ namespace RoadRegistry.Api.Downloads
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
-    public class DbaseFileArchiveWriter<TDbaseRecord, TDbaseSchema>
-        where TDbaseRecord : DbaseRecord
-        where TDbaseSchema : DbaseSchema, new()
+    public class DbaseFileArchiveWriter
     {
         private readonly string _filename;
+        private readonly DbaseSchema _schema;
         private readonly Encoding _encoding;
 
-        public DbaseFileArchiveWriter(string filename, Encoding encoding)
+        public DbaseFileArchiveWriter(string filename, DbaseSchema schema, Encoding encoding)
         {
             _filename = filename ?? throw new ArgumentNullException(nameof(filename));
+            _schema = schema ?? throw new ArgumentNullException(nameof(schema));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, IReadOnlyCollection<TDbaseRecord> dbfRecords, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, IReadOnlyCollection<DbaseRecord> dbfRecords, CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (dbfRecords == null) throw new ArgumentNullException(nameof(dbfRecords));
-            
+
             var dbfEntry = archive.CreateEntry(_filename);
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
                 new DbaseRecordCount(dbfRecords.Count),
-                new TDbaseSchema()
+                _schema
             );
             using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =

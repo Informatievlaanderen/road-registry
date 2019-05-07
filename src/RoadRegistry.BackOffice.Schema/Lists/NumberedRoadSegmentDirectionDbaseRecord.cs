@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
     public class NumberedRoadSegmentDirectionDbaseRecord : DbaseRecord
     {
-        private static readonly NumberedRoadSegmentDirectionDbaseSchema Schema = new NumberedRoadSegmentDirectionDbaseSchema();
+        public static readonly NumberedRoadSegmentDirectionDbaseSchema Schema = new NumberedRoadSegmentDirectionDbaseSchema();
 
         public NumberedRoadSegmentDirectionDbaseRecord()
         {

@@ -1,9 +1,10 @@
 module Download exposing (Msg(..), init, main, subscriptions, update, view)
 
-import Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showAlert, viewAlert)
+import Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showError, viewAlert)
 import Browser
 import Bytes exposing (Bytes)
 import File.Download
+import Filesize
 import Footer
 import Header exposing (HeaderAction, HeaderModel, TabAction)
 import Html exposing (Html, a, div, h1, h2, li, main_, span, text, ul)
@@ -11,7 +12,6 @@ import Html.Attributes exposing (class, classList, id, style)
 import Html.Events exposing (onClick)
 import Http
 import HttpBytes
-import Filesize
 
 
 main =
@@ -58,16 +58,16 @@ init url =
 
 
 type Msg
-    = Download
+    = DownloadFile
     | GotDownloadProgress Http.Progress
-    | Downloaded (Result Http.Error Bytes)
+    | FileDownloaded (Result Http.Error Bytes)
     | GotAlertMsg AlertMsg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Download ->
+        DownloadFile ->
             let
                 oldDownload =
                     model.download
@@ -81,7 +81,7 @@ update msg model =
                 , headers = []
                 , url = model.download.url
                 , body = Http.emptyBody
-                , expect = HttpBytes.expect Downloaded
+                , expect = HttpBytes.expect FileDownloaded
                 , timeout = Nothing
                 , tracker = Just "download"
                 }
@@ -111,7 +111,7 @@ update msg model =
                     , Cmd.none
                     )
 
-        Downloaded result ->
+        FileDownloaded result ->
             case result of
                 Ok bytes ->
                     let
@@ -135,34 +135,34 @@ update msg model =
                     in
                     case error of
                         Http.BadUrl _ ->
-                            ( { model | download = newDownload, alert = showAlert model.alert "Er was een probleem bij het downloaden - de url blijkt foutief te zijn." }
+                            ( { model | download = newDownload, alert = showError model.alert "Er was een probleem bij het downloaden - de url blijkt foutief te zijn." }
                             , Cmd.none
                             )
 
                         Http.Timeout ->
-                            ( { model | download = newDownload, alert = showAlert model.alert "Er was een probleem bij het downloaden - de operatie nam teveel tijd in beslag."}
+                            ( { model | download = newDownload, alert = showError model.alert "Er was een probleem bij het downloaden - de operatie nam teveel tijd in beslag." }
                             , Cmd.none
                             )
 
                         Http.NetworkError ->
-                            ( { model | download = newDownload, alert = showAlert model.alert "Er was een probleem bij het downloaden - een netwerk fout ligt aan de basis." }
+                            ( { model | download = newDownload, alert = showError model.alert "Er was een probleem bij het downloaden - een netwerk fout ligt aan de basis." }
                             , Cmd.none
                             )
 
                         Http.BadStatus statusCode ->
                             case statusCode of
                                 503 ->
-                                    ( { model | download = newDownload, alert = showAlert model.alert "Downloaden is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
+                                    ( { model | download = newDownload, alert = showError model.alert "Downloaden is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
                                     , Cmd.none
                                     )
 
                                 _ ->
-                                    ( { model | download = newDownload, alert = showAlert model.alert "Er was een probleem bij het downloaden - dit kan duiden op een probleem met de website." }
+                                    ( { model | download = newDownload, alert = showError model.alert "Er was een probleem bij het downloaden - dit kan duiden op een probleem met de website." }
                                     , Cmd.none
                                     )
 
                         Http.BadBody _ ->
-                            ( { model | download = newDownload, alert = showAlert model.alert "Er was een probleem bij het downloaden - dit kan duiden op een probleem met de website." }
+                            ( { model | download = newDownload, alert = showError model.alert "Er was een probleem bij het downloaden - dit kan duiden op een probleem met de website." }
                             , Cmd.none
                             )
 
@@ -180,7 +180,7 @@ viewDownload model =
                         [ li [ class "col--4-12 col--6-12--m col--12-12--xs" ]
                             [ a
                                 [ classList [ ( "not-allowed", False ), ( "doormat", True ), ( "doormat--graphic", True ), ( "js-equal-height", True ), ( "paragraph--type--doormat-graphic", True ), ( "paragraph--view-mode--default", True ) ]
-                                , onClick Download
+                                , onClick DownloadFile
                                 ]
                                 [ div [ class "doormat__graphic-wrapper" ]
                                     []

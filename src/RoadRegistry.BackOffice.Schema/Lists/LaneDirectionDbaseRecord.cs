@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
     public class LaneDirectionDbaseRecord : DbaseRecord
     {
-        private static readonly LaneDirectionDbaseSchema Schema = new LaneDirectionDbaseSchema();
+        public static readonly LaneDirectionDbaseSchema Schema = new LaneDirectionDbaseSchema();
 
         public LaneDirectionDbaseRecord()
         {

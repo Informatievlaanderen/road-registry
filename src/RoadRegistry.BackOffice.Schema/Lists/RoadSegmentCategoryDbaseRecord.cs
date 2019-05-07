@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
     public class RoadSegmentCategoryDbaseRecord : DbaseRecord
     {
-        private static readonly RoadSegmentCategoryDbaseSchema Schema = new RoadSegmentCategoryDbaseSchema();
+        public static readonly RoadSegmentCategoryDbaseSchema Schema = new RoadSegmentCategoryDbaseSchema();
 
         public RoadSegmentCategoryDbaseRecord()
         {

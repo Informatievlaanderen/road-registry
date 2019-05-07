@@ -1,7 +1,8 @@
 module HttpBytes exposing (expect)
 
-import Bytes exposing(Bytes)
+import Bytes exposing (Bytes)
 import Http
+
 
 rawBytesFromResponse : Http.Response Bytes -> Result Http.Error Bytes
 rawBytesFromResponse response =
@@ -20,6 +21,7 @@ rawBytesFromResponse response =
 
         Http.GoodStatus_ metadata body ->
             Ok body
+
 
 expect : (Result Http.Error Bytes -> msg) -> Http.Expect msg
 expect toMessage =

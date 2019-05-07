@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
     public class RoadSegmentGeometryDrawMethodDbaseRecord : DbaseRecord
     {
-        private static readonly RoadSegmentGeometryDrawMethodDbaseSchema Schema = new RoadSegmentGeometryDrawMethodDbaseSchema();
+        public static readonly RoadSegmentGeometryDrawMethodDbaseSchema Schema = new RoadSegmentGeometryDrawMethodDbaseSchema();
 
         public RoadSegmentGeometryDrawMethodDbaseRecord()
         {

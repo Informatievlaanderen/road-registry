@@ -41,9 +41,9 @@ update () model =
 
 viewEmpty : () -> Html ()
 viewEmpty () =
-    main_ 
+    main_
         [ id "main" ]
-        [ div 
+        [ div
             [ class "region" ]
             [ div
                 [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]

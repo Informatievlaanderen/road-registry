@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
     public class SurfaceTypeDbaseRecord : DbaseRecord
     {
-        private static readonly SurfaceTypeDbaseSchema Schema = new SurfaceTypeDbaseSchema();
+        public static readonly SurfaceTypeDbaseSchema Schema = new SurfaceTypeDbaseSchema();
 
         public SurfaceTypeDbaseRecord()
         {

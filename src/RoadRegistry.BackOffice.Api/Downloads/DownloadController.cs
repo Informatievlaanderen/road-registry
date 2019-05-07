@@ -75,35 +75,25 @@ namespace RoadRegistry.Api.Downloads
                                 cancellationToken);
                             await new GradeSeperatedJunctionArchiveWriter(encoding).WriteAsync(archive, context,
                                 cancellationToken);
-                            await new DbaseFileArchiveWriter<RoadNodeTypeDbaseRecord, RoadNodeTypeDbaseSchema>(
-                                    "WegknoopLktType.dbf", encoding)
+                            await new DbaseFileArchiveWriter("WegknoopLktType.dbf", RoadNodeTypeDbaseRecord.Schema, encoding)
                                 .WriteAsync(archive, Lists.AllRoadNodeTypeDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter<SurfaceTypeDbaseRecord, SurfaceTypeDbaseSchema>(
-                                    "WegverhardLktType.dbf", encoding)
+                            await new DbaseFileArchiveWriter("WegverhardLktType.dbf", SurfaceTypeDbaseRecord.Schema, encoding)
                                 .WriteAsync(archive, Lists.AllSurfaceTypeDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter<NumberedRoadSegmentDirectionDbaseRecord, NumberedRoadSegmentDirectionDbaseSchema>(
-                                    "GenumwegLktRichting.dbf", encoding)
+                            await new DbaseFileArchiveWriter("GenumwegLktRichting.dbf", NumberedRoadSegmentDirectionDbaseRecord.Schema, encoding)
                                 .WriteAsync(archive, Lists.AllNumberedRoadSegmentDirectionDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter<RoadSegmentCategoryDbaseRecord, RoadSegmentCategoryDbaseSchema>(
-                                    "WegsegmentLktWegcat.dbf", encoding)
+                            await new DbaseFileArchiveWriter("WegsegmentLktWegcat.dbf", RoadSegmentCategoryDbaseRecord.Schema, encoding)
                                 .WriteAsync(archive, Lists.AllRoadSegmentCategoryDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter<RoadSegmentAccessRestrictionDbaseRecord, RoadSegmentAccessRestrictionDbaseSchema>(
-                                    "WegsegmentLktTgbep.dbf", encoding)
+                            await new DbaseFileArchiveWriter("WegsegmentLktTgbep.dbf", RoadSegmentAccessRestrictionDbaseRecord.Schema, encoding)
                                 .WriteAsync(archive, Lists.AllRoadSegmentAccessRestrictionDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter<RoadSegmentGeometryDrawMethodDbaseRecord, RoadSegmentGeometryDrawMethodDbaseSchema>(
-                                    "WegsegmentLktMethode.dbf", encoding)
+                            await new DbaseFileArchiveWriter("WegsegmentLktMethode.dbf", RoadSegmentGeometryDrawMethodDbaseRecord.Schema, encoding)
                                 .WriteAsync(archive, Lists.AllRoadSegmentGeometryDrawMethodDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter<RoadSegmentMorphologyDbaseRecord, RoadSegmentMorphologyDbaseSchema>(
-                                    "WegsegmentLktMorf.dbf", encoding)
+                            await new DbaseFileArchiveWriter("WegsegmentLktMorf.dbf", RoadSegmentMorphologyDbaseRecord.Schema, encoding)
                                 .WriteAsync(archive, Lists.AllRoadSegmentMorphologyDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter<RoadSegmentStatusDbaseRecord, RoadSegmentStatusDbaseSchema>(
-                                    "WegsegmentLktStatus.dbf", encoding)
+                            await new DbaseFileArchiveWriter("WegsegmentLktStatus.dbf", RoadSegmentStatusDbaseRecord.Schema, encoding)
                                 .WriteAsync(archive, Lists.AllRoadSegmentStatusDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter<GradeSeparatedJunctionTypeDbaseRecord, GradeSeparatedJunctionTypeDbaseSchema>(
-                                    "OgkruisingLktType.dbf", encoding)
+                            await new DbaseFileArchiveWriter("OgkruisingLktType.dbf", GradeSeparatedJunctionTypeDbaseRecord.Schema, encoding)
                                 .WriteAsync(archive, Lists.AllGradeSeparatedJunctionTypeDbaseRecords, cancellationToken);
-                            await new DbaseFileArchiveWriter<LaneDirectionDbaseRecord, LaneDirectionDbaseSchema>(
-                                    "RijstrokenLktRichting.dbf", encoding)
+                            await new DbaseFileArchiveWriter("RijstrokenLktRichting.dbf", LaneDirectionDbaseRecord.Schema, encoding)
                                 .WriteAsync(archive, Lists.AllLaneDirectionDbaseRecords, cancellationToken);
                         }
                     }
