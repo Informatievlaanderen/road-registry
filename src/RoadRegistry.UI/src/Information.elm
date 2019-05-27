@@ -158,7 +158,7 @@ viewInformation model =
             [ div
                 [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
                 [ div [ class "u-table-overflow" ]
-                    [ table [ class "data-table data-table--hover" ]
+                    [ table [ class "data-table data-table--lined" ]
                         [ thead []
                             [ tr []
                                 [ th []
