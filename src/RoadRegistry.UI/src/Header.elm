@@ -1,4 +1,4 @@
-module Header exposing (HeaderAction, HeaderModel, TabAction, viewBanner, viewHeader)
+module Header exposing (HeaderAction, HeaderModel, TabAction, activityBecameActive, downloadBecameActive, homeBecameActive, informationBecameActive, init, uploadBecameActive, viewBanner, viewHeader)
 
 import Html exposing (Html, a, div, h1, header, li, nav, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, id, target)
@@ -14,6 +14,55 @@ type alias HeaderAction =
 
 type alias HeaderModel =
     { headerActions : List HeaderAction, tabActions : List TabAction }
+
+
+init : HeaderModel
+init =
+    { headerActions =
+        [ { title = "Operator", link = Nothing }
+        , { title = "Afmelden", link = Nothing }
+        ]
+    , tabActions =
+        [ { title = "Activiteit", link = "/activity.html", active = False }
+        , { title = "Informatie", link = "/information.html", active = False }
+        , { title = "Downloaden", link = "/download.html", active = False }
+        , { title = "Opladen", link = "/upload.html", active = False }
+        ]
+    }
+
+
+activateTitle : String -> TabAction -> TabAction
+activateTitle title tabAction =
+    if tabAction.title == title then
+        { tabAction | active = True }
+
+    else
+        { tabAction | active = False }
+
+
+downloadBecameActive : HeaderModel -> HeaderModel
+downloadBecameActive model =
+    { model | tabActions = List.map (activateTitle "Downloaden") model.tabActions }
+
+
+uploadBecameActive : HeaderModel -> HeaderModel
+uploadBecameActive model =
+    { model | tabActions = List.map (activateTitle "Opladen") model.tabActions }
+
+
+informationBecameActive : HeaderModel -> HeaderModel
+informationBecameActive model =
+    { model | tabActions = List.map (activateTitle "Informatie") model.tabActions }
+
+
+activityBecameActive : HeaderModel -> HeaderModel
+activityBecameActive model =
+    { model | tabActions = List.map (activateTitle "Activiteit") model.tabActions }
+
+
+homeBecameActive : HeaderModel -> HeaderModel
+homeBecameActive model =
+    { model | tabActions = List.map (\tabAction -> { tabAction | active = False }) model.tabActions }
 
 
 viewHeaderAction : HeaderAction -> Html msg

@@ -4,7 +4,7 @@ import Browser
 import File.Download as Download
 import Footer
 import Header exposing (HeaderAction, HeaderModel, TabAction)
-import Html exposing (Html, a, button, div, h1, h2, header, li, main_, nav, span, text, ul)
+import Html exposing (Html, a, button, div, h1, h2, header, li, main_, nav, section, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, id, style, target)
 import Html.Events exposing (onClick)
 
@@ -19,17 +19,7 @@ type alias Model =
 
 init : () -> ( Model, Cmd () )
 init () =
-    ( { header =
-            { headerActions =
-                [ { title = "Operator", link = Nothing }
-                , { title = "Afmelden", link = Nothing }
-                ]
-            , tabActions =
-                [ { title = "Downloaden", link = "/download.html", active = False }
-                , { title = "Opladen", link = "/upload.html", active = False }
-                ]
-            }
-      }
+    ( { header = Header.init |> Header.homeBecameActive }
     , Cmd.none
     )
 
@@ -43,7 +33,7 @@ viewEmpty : () -> Html ()
 viewEmpty () =
     main_
         [ id "main" ]
-        [ div
+        [ section
             [ class "region" ]
             [ div
                 [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]

@@ -7,7 +7,7 @@ import File.Download
 import Filesize
 import Footer
 import Header exposing (HeaderAction, HeaderModel, TabAction)
-import Html exposing (Html, a, div, h1, h2, li, main_, span, text, ul)
+import Html exposing (Html, a, div, h1, h2, li, main_, section, span, text, ul)
 import Html.Attributes exposing (class, classList, id, style)
 import Html.Events exposing (onClick)
 import Http
@@ -28,16 +28,7 @@ type alias Model =
 
 init : String -> ( Model, Cmd Msg )
 init url =
-    ( { header =
-            { headerActions =
-                [ { title = "Operator", link = Nothing }
-                , { title = "Afmelden", link = Nothing }
-                ]
-            , tabActions =
-                [ { title = "Downloaden", link = "/download.html", active = True }
-                , { title = "Opladen", link = "/upload.html", active = False }
-                ]
-            }
+    ( { header = Header.init |> Header.downloadBecameActive
       , download =
             { title = "Register dump"
             , url = String.concat [ url, "/v1/download" ]
@@ -170,7 +161,7 @@ update msg model =
 viewDownload : DownloadModel -> Html Msg
 viewDownload model =
     main_ [ id "main" ]
-        [ div [ class "region" ]
+        [ section [ class "region" ]
             [ div
                 [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
                 [ div []

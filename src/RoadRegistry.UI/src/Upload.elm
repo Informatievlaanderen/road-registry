@@ -7,7 +7,7 @@ import File.Select as Select
 import Filesize
 import Footer
 import Header exposing (HeaderAction, HeaderModel, TabAction)
-import Html exposing (Html, a, button, div, h1, h2, header, i, input, label, li, main_, nav, small, span, text, ul)
+import Html exposing (Html, a, button, div, h1, h2, header, i, input, label, li, main_, nav, section, small, span, text, ul)
 import Html.Attributes exposing (accept, attribute, class, classList, for, href, id, name, style, target, type_)
 import Html.Events exposing (onClick)
 import Http
@@ -27,16 +27,7 @@ type alias Model =
 
 init : String -> ( Model, Cmd Msg )
 init url =
-    ( { header =
-            { headerActions =
-                [ { title = "Operator", link = Nothing }
-                , { title = "Afmelden", link = Nothing }
-                ]
-            , tabActions =
-                [ { title = "Downloaden", link = "/download.html", active = False }
-                , { title = "Opladen", link = "/upload.html", active = True }
-                ]
-            }
+    ( { header = Header.init |> Header.uploadBecameActive
       , upload =
             { title = "Feature compare"
             , url = String.concat [ url, "/v1/upload" ]
@@ -180,7 +171,7 @@ update msg model =
 viewUpload : UploadModel -> Html Msg
 viewUpload model =
     main_ [ id "main" ]
-        [ div [ class "region" ]
+        [ section [ class "region" ]
             [ div
                 [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
                 [ div []
@@ -214,38 +205,6 @@ viewUpload model =
                                   else
                                     text ""
                                 ]
-                            ]
-                        ]
-                    ]
-                , div
-                    [ class "upload js-upload"
-                    , attribute "data-upload-t-close" "Sluiten"
-                    , attribute "data-upload-t-drop" "Laat de bijlage hier los om op te laden"
-                    , attribute "data-upload-allow-drop" ""
-                    ]
-                    [ div
-                        [ class "upload__element" ]
-                        [ input
-                            [ class "upload__element__input"
-                            , type_ "file"
-                            , name "files[1]"
-                            , id "files[1]"
-                            , attribute "data-upload-multiple-caption" "{count} bestand(en) geselecteerd"
-                            , attribute "data-upload-error-message-filesize" "Het bestand mag max :maxFsz zijn."
-                            , attribute "data-upload-error-message-maxfiles" "Je kan maximum :maxfl bestand(en) opladen."
-                            , attribute "data-upload-max-size" "10485760"
-                            , attribute "data-upload-max-files" "1"
-                            , accept ".zip"
-                            ]
-                            []
-                        , label
-                            [ class "upload__element__label", for "files[1]" ]
-                            [ i [ class "vi vi-paperclip" ]
-                                []
-                            , span []
-                                [ text "Bijlage toevoegen" ]
-                            , small []
-                                [ text "Sleep de bijlage naar hier om toe te voegen" ]
                             ]
                         ]
                     ]
