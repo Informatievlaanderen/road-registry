@@ -10,8 +10,8 @@
   },
   "private": true,
   "scripts": {
-    "build": "node_modules/.bin/parcel build --out-dir wwwroot index.html download.html upload.html",
-    "live": "node_modules/.bin/parcel index.html download.html upload.html"
+    "build": "node_modules/.bin/parcel build --out-dir wwwroot index.html activity.html information.html download.html upload.html",
+    "live": "node_modules/.bin/parcel index.html activity.html information.html download.html upload.html"
   },
   "engines": {
     "node": ">= 8.16.0",
