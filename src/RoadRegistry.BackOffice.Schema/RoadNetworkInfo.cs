@@ -1,5 +1,7 @@
 ﻿namespace RoadRegistry.BackOffice.Schema
 {
+    using System;
+
     public class RoadNetworkInfo
     {
         public int Id { get; set; } = 0;

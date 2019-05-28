@@ -117,7 +117,7 @@ update msg model =
                         newUpload =
                             { oldUpload | uploading = False, progressing = False, progress = "" }
                     in
-                    ( { model | upload = newUpload, alert = showSuccess model.alert "Oplading is gelukt. We gaan nu het bestand inhoudelijk controleren en daarna de wijzigingen toepassen." }
+                    ( { model | upload = newUpload, alert = showSuccess model.alert "Oplading is gelukt. We gaan nu het bestand inhoudelijk controleren en daarna de wijzigingen toepassen. U kan de vooruitgang volgen via Activiteit." }
                     , Cmd.none
                     )
 
@@ -170,56 +170,61 @@ update msg model =
 
 viewUpload : UploadModel -> Html Msg
 viewUpload model =
-    main_ [ id "main" ]
-        [ section [ class "region" ]
-            [ div
-                [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
-                [ div []
-                    [ h1 [ class "h2 cta-title__title" ]
-                        [ text "Opladen" ]
-                    , ul [ class "grid grid--is-stacked js-equal-height-container u-spacer", style "clear" "both" ]
-                        [ li [ class "col--4-12 col--6-12--m col--12-12--xs" ]
-                            [ a
-                                [ classList [ ( "not-allowed", False ), ( "doormat", True ), ( "doormat--graphic", True ), ( "js-equal-height", True ), ( "paragraph--type--doormat-graphic", True ), ( "paragraph--view-mode--default", True ) ]
-                                , onClick SelectFile
-                                ]
-                                [ div [ class "doormat__graphic-wrapper" ]
-                                    []
-                                , h2 [ class "doormat__title" ]
-                                    [ span [] [ text model.title ] ]
-                                , text "Selecteer het zip‑bestand met de op te laden verschillen."
-                                , if model.uploading then
-                                    div [ class "download-progress" ]
-                                        (if model.progressing then
-                                            [ span [ class "progress" ]
-                                                [ text (String.concat [ model.progress, " verzonden" ]) ]
-                                            , div [ class "loader" ]
-                                                []
-                                            ]
+    section [ class "region" ]
+        [ div
+            [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
+            [ div []
+                [ h1 [ class "h2 cta-title__title" ]
+                    [ text "Opladen" ]
+                , ul [ class "grid grid--is-stacked js-equal-height-container u-spacer", style "clear" "both" ]
+                    [ li [ class "col--4-12 col--6-12--m col--12-12--xs" ]
+                        [ a
+                            [ classList [ ( "not-allowed", False ), ( "doormat", True ), ( "doormat--graphic", True ), ( "js-equal-height", True ), ( "paragraph--type--doormat-graphic", True ), ( "paragraph--view-mode--default", True ) ]
+                            , onClick SelectFile
+                            ]
+                            [ div [ class "doormat__graphic-wrapper" ]
+                                []
+                            , h2 [ class "doormat__title" ]
+                                [ span [] [ text model.title ] ]
+                            , text "Selecteer het zip‑bestand met de op te laden verschillen."
+                            , if model.uploading then
+                                div [ class "download-progress" ]
+                                    (if model.progressing then
+                                        [ span [ class "progress" ]
+                                            [ text (String.concat [ model.progress, " verzonden" ]) ]
+                                        , div [ class "loader" ]
+                                            []
+                                        ]
 
-                                         else
-                                            [ div [ class "loader" ] []
-                                            ]
-                                        )
+                                        else
+                                        [ div [ class "loader" ] []
+                                        ]
+                                    )
 
-                                  else
-                                    text ""
-                                ]
+                                else
+                                text ""
                             ]
                         ]
                     ]
                 ]
             ]
         ]
+    
 
+viewMain : Model -> Html Msg
+viewMain model =
+    main_ [ id "main" ]
+        [ 
+            viewAlert model.alert |> Html.map GotAlertMsg,
+            viewUpload model.upload
+        ]
 
 view : Model -> Html Msg
 view model =
     div [ class "page" ]
         [ Header.viewBanner ()
         , Header.viewHeader model.header
-        , viewAlert model.alert |> Html.map GotAlertMsg
-        , viewUpload model.upload
+        , viewMain model
         , Footer.viewFooter ()
         ]
 

@@ -1,15 +1,14 @@
-﻿namespace RoadRegistry.BackOffice.Model
+namespace RoadRegistry.BackOffice.Messages
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Messages;
 
-    internal static class ChangeExtensions
+    public static class ChangeExtensions
     {
         public static IEnumerable<object> Flatten(this IEnumerable<RequestedChange> changes) =>
-            changes.Select(change => change.Flatten());
+            changes.Select(change => Flatten((RequestedChange) change));
 
-        private static object Flatten(this RequestedChange change) =>
+        public static object Flatten(this RequestedChange change) =>
             new object[]
                 {
                     change.AddRoadNode,
@@ -24,7 +23,7 @@
         public static IEnumerable<object> Flatten(this IEnumerable<Messages.AcceptedChange> changes) =>
             changes.Select(change => change.Flatten());
 
-        private static object Flatten(this Messages.AcceptedChange change) =>
+        public static object Flatten(this Messages.AcceptedChange change) =>
             new object[]
                 {
                     change.RoadNodeAdded,

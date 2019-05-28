@@ -141,11 +141,9 @@ update msg model =
                     , Cmd.none
                     )
 
-
-viewInformation : RoadNetworkInfo -> Html Msg
-viewInformation model =
-    main_ [ id "main" ]
-        [ section [ class "region" ]
+viewInformationTitle : RoadNetworkInfo -> Html Msg
+viewInformationTitle model =
+        section [ class "region" ]
             [ div
                 [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
                 [ div []
@@ -154,7 +152,10 @@ viewInformation model =
                     ]
                 ]
             ]
-        , section [ class "region" ]
+
+viewInformation : RoadNetworkInfo -> Html Msg
+viewInformation model =
+        section [ class "region" ]
             [ div
                 [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
                 [ div [ class "u-table-overflow" ]
@@ -197,16 +198,21 @@ viewInformation model =
                     ]
                 ]
             ]
-        ]
 
+viewMain : Model -> Html Msg
+viewMain model =
+    main_ [ id "main" ]
+        [ 
+          viewAlert model.alert |> Html.map GotAlertMsg
+        , viewInformation model.information.roadNetworkInfo
+        ]
 
 view : Model -> Html Msg
 view model =
     div [ class "page" ]
         [ Header.viewBanner ()
         , Header.viewHeader model.header
-        , viewAlert model.alert |> Html.map GotAlertMsg
-        , viewInformation model.information.roadNetworkInfo
+        , viewMain model
         , Footer.viewFooter ()
         ]
 

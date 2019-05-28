@@ -43,7 +43,8 @@ namespace RoadRegistry.Api.Uploads
         [SwaggerResponseExample(StatusCodes.Status200OK, typeof(UploadResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status415UnsupportedMediaType, typeof(UnsupportedMediaTypeResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
-        [RequestSizeLimit(10485760)]
+        [DisableRequestSizeLimit]
+        [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
         public async Task<IActionResult> Post(
             [FromServices] CommandHandlerDispatcher dispatcher,
             [FromServices] IBlobClient client,

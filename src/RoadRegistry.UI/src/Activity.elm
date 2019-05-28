@@ -11,7 +11,7 @@ import Html.Attributes.Aria exposing (ariaHidden)
 import Html.Events exposing (onClick)
 import Http
 import HttpBytes
-
+import Json.Decode as Decode
 
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
@@ -42,7 +42,28 @@ init url =
             { title = "Register dump"
             , url = String.concat [ url, "/v1/activity" ]
             , entries =
-                [ { id = "2"
+                [ { id = "4"
+                  , title = "Oplading werd aanvaard"
+                  , day = "05"
+                  , month = "mei"
+                  , expanded = False
+                  , disabled = False
+                  , detail =
+                        RoadNetworkChangesArchiveRejected
+                            { archive = ""
+                            , warnings = []
+                            , errors = []
+                            }
+                  }
+                , { id = "3"
+                  , title = "Oplading ontvangen"
+                  , day = "05"
+                  , month = "mei"
+                  , expanded = False
+                  , disabled = False
+                  , detail = RoadNetworkChangesArchiveUploaded { archive = "" }
+                  }
+                , { id = "2"
                   , title = "Oplading werd niet aanvaard"
                   , day = "02"
                   , month = "mei"
@@ -99,6 +120,9 @@ update msg model =
                     , Cmd.none
                     )
 
+onClickNoBubble : msg -> Html.Attribute msg
+onClickNoBubble message =
+    Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = True, preventDefault = True })
 
 viewActivityEntryDetail : ActivityListEntryDetail -> Html Msg
 viewActivityEntryDetail detail =
@@ -186,10 +210,9 @@ viewActivityEntry entry =
             ]
 
 
-viewActivity : ActivityModel -> Html Msg
-viewActivity model =
-    main_ [ id "main" ]
-        [ section [ class "region" ]
+viewActivityTitle : ActivityModel -> Html Msg
+viewActivityTitle model =
+        section [ class "region" ]
             [ div
                 [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
                 [ div []
@@ -198,7 +221,10 @@ viewActivity model =
                     ]
                 ]
             ]
-        , section [ class "region" ]
+
+viewActivity : ActivityModel -> Html Msg
+viewActivity model =
+        section [ class "region" ]
             [ div
                 [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
                 [ ul
@@ -206,16 +232,22 @@ viewActivity model =
                     (List.map viewActivityEntry model.entries)
                 ]
             ]
-        ]
 
+viewMain : Model -> Html Msg
+viewMain model =
+    main_ [ id "main" ]
+        [ 
+          viewAlert model.alert |> Html.map GotAlertMsg
+        , viewActivityTitle model.activity
+        , viewActivity model.activity
+        ]
 
 view : Model -> Html Msg
 view model =
     div [ class "page" ]
         [ Header.viewBanner ()
         , Header.viewHeader model.header
-        , viewAlert model.alert |> Html.map GotAlertMsg
-        , viewActivity model.activity
+        , viewMain model
         , Footer.viewFooter ()
         ]
 
