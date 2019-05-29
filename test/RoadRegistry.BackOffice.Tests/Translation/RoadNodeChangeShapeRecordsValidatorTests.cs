@@ -69,7 +69,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, _enumerator);
 
             Assert.Equal(
-                ZipArchiveErrors.None.NoShapeRecords(_entry.Name),
+                ZipArchiveProblems.None.NoShapeRecords(_entry.Name),
                 result);
         }
 
@@ -84,7 +84,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveErrors.None,
+                ZipArchiveProblems.None,
                 result);
         }
 
@@ -101,7 +101,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveErrors.None.ShapeRecordShapeTypeMismatch(
+                ZipArchiveProblems.None.ShapeRecordShapeTypeMismatch(
                     _entry.Name,
                     RecordNumber.Initial,
                     ShapeType.Point,
@@ -121,7 +121,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveErrors.None
+                ZipArchiveProblems.None
                     .ShapeRecordGeometryMismatch(_entry.Name, new RecordNumber(1))
                     .ShapeRecordGeometryMismatch(_entry.Name, new RecordNumber(2)),
                 result);
@@ -140,11 +140,11 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, enumerator);
 
             Assert.Equal(
-                ZipArchiveErrors
+                ZipArchiveProblems
                     .None
                     .ShapeRecordFormatError(_entry.Name, new RecordNumber(2), exception),
                 result,
-                new ErrorComparer());
+                new FileProblemComparer());
         }
 
         public void Dispose()

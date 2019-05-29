@@ -69,7 +69,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, _enumerator);
 
             Assert.Equal(
-                ZipArchiveErrors.None.NoDbaseRecords(_entry.Name),
+                ZipArchiveProblems.None.NoDbaseRecords(_entry.Name),
                 result);
         }
 
@@ -88,7 +88,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveErrors.None,
+                ZipArchiveProblems.None,
                 result);
         }
 
@@ -107,7 +107,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveErrors
+                ZipArchiveProblems
                     .None
                     .IdentifierNotUnique(
                         _entry.Name,
@@ -132,7 +132,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveErrors
+                ZipArchiveProblems
                     .None
                     .IdentifierZero(_entry.Name, new RecordNumber(1))
                     .IdentifierZero(_entry.Name, new RecordNumber(2)),
@@ -154,7 +154,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveErrors
+                ZipArchiveProblems
                     .None
                     .IdentifierMissing(_entry.Name, new RecordNumber(1))
                     .IdentifierMissing(_entry.Name, new RecordNumber(2)),
@@ -173,11 +173,11 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, enumerator);
 
             Assert.Equal(
-                ZipArchiveErrors
+                ZipArchiveProblems
                     .None
                     .DbaseRecordFormatError(_entry.Name, new RecordNumber(2), exception),
                 result,
-                new ErrorComparer());
+                new FileProblemComparer());
         }
 
         public void Dispose()

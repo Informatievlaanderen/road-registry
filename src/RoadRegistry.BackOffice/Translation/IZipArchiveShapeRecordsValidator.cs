@@ -6,6 +6,6 @@ namespace RoadRegistry.BackOffice.Translation
 
     public interface IZipArchiveShapeRecordsValidator
     {
-        ZipArchiveErrors Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records);
+        ZipArchiveProblems Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records);
     }
 }

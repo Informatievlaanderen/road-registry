@@ -81,29 +81,29 @@ namespace RoadRegistry.BackOffice.Projections
                     }, ct));
         }
 
-        private static readonly Converter<Problem, string> ProblemWithZipArchiveTranslator =
+        private static readonly Converter<Messages.FileProblem, string> ProblemWithZipArchiveTranslator =
             problem =>
             {
                 var result = string.Empty;
                 switch (problem.Reason)
                 {
-                    case nameof(ZipArchiveErrors.RequiredFileMissing):
+                    case nameof(ZipArchiveProblems.RequiredFileMissing):
                         result = $"Het vereist bestand '{problem.Parameters[0].Value}' ontbreekt in het archief.";
                         break;
 
-                    case nameof(ZipArchiveErrors.NoDbaseRecords):
+                    case nameof(ZipArchiveProblems.NoDbaseRecords):
                         result = $"Het bestand '{problem.Parameters[0].Value}' bevat geen rijen.";
                         break;
 
-                    case nameof(ZipArchiveErrors.DbaseHeaderFormatError):
+                    case nameof(ZipArchiveProblems.DbaseHeaderFormatError):
                         result = $"De hoofding van het bestand '{problem.Parameters[0].Value}' is niet correct geformateerd.";
                         break;
 
-                    case nameof(ZipArchiveErrors.NoShapeRecords):
+                    case nameof(ZipArchiveProblems.NoShapeRecords):
                         result = $"Het bestand '{problem.Parameters[0].Value}' bevat geen geometrien.";
                         break;
 
-                    case nameof(ZipArchiveErrors.ShapeHeaderFormatError):
+                    case nameof(ZipArchiveProblems.ShapeHeaderFormatError):
                         result = $"De hoofding van het bestand '{problem.Parameters[0].Value}' is niet correct geformateerd.";
                         break;
                 }

@@ -38,7 +38,7 @@ namespace RoadRegistry.BackOffice.Translation
 
         [Theory]
         [MemberData(nameof(MissingRequiredFileCases))]
-        public void ValidateReturnsExpectedResultWhenRequiredFileMissing(ZipArchive archive, ZipArchiveErrors expected)
+        public void ValidateReturnsExpectedResultWhenRequiredFileMissing(ZipArchive archive, ZipArchiveProblems expected)
         {
             using (archive)
             {
@@ -60,7 +60,7 @@ namespace RoadRegistry.BackOffice.Translation
                 var result = sut.Validate(archive);
 
                 Assert.Equal(
-                    ZipArchiveErrors.None
+                    ZipArchiveProblems.None
                         .NoShapeRecords("WEGSEGMENT_ALL.SHP")
                         .NoDbaseRecords("WEGSEGMENT_ALL.DBF")
                         .NoShapeRecords("WEGKNOOP_ALL.SHP")
@@ -280,7 +280,7 @@ namespace RoadRegistry.BackOffice.Translation
                     roadNodeDbaseChangeStream.Position = 0;
                     gradeSeparatedJunctionChangeStream.Position = 0;
 
-                    var errors = ZipArchiveErrors.None;
+                    var errors = ZipArchiveProblems.None;
                     var archiveStream = new MemoryStream();
                     using (var createArchive =
                         new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
@@ -864,7 +864,7 @@ namespace RoadRegistry.BackOffice.Translation
             roadNodeDbaseChangeStream.Position = 0;
             gradeSeparatedJunctionChangeStream.Position = 0;
 
-            var errors = ZipArchiveErrors.None;
+            var errors = ZipArchiveProblems.None;
             var archiveStream = new MemoryStream();
             using (var createArchive =
                 new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))

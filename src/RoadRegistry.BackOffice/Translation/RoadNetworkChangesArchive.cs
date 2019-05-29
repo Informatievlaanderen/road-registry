@@ -29,14 +29,14 @@ namespace RoadRegistry.BackOffice.Translation
 
         public void ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator)
         {
-            var errors = validator.Validate(archive);
-            if (errors.Count == 0)
+            var problems = validator.Validate(archive);
+            if (!problems.OfType<FileError>().Any())
             {
                 Apply(
                     new RoadNetworkChangesArchiveAccepted
                     {
                         ArchiveId = Id,
-                        Warnings = new Messages.Problem[0]
+                        Warnings = problems.OfType<FileWarning>().Select(warning => warning.Translate()).ToArray()
                     });
             }
             else
@@ -45,8 +45,8 @@ namespace RoadRegistry.BackOffice.Translation
                     new RoadNetworkChangesArchiveRejected
                     {
                         ArchiveId = Id,
-                        Errors = errors.Select(error => error.Translate()).ToArray(),
-                        Warnings = new Messages.Problem[0]
+                        Errors = problems.OfType<FileError>().Select(error => error.Translate()).ToArray(),
+                        Warnings = problems.OfType<FileWarning>().Select(warning => warning.Translate()).ToArray()
                     });
             }
         }

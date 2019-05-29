@@ -8,12 +8,12 @@ namespace RoadRegistry.BackOffice.Translation
 
     public class EuropeanRoadChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<EuropeanRoadChangeDbaseRecord>
     {
-        public ZipArchiveErrors Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<EuropeanRoadChangeDbaseRecord> records)
+        public ZipArchiveProblems Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<EuropeanRoadChangeDbaseRecord> records)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
-            var errors = ZipArchiveErrors.None;
+            var problems = ZipArchiveProblems.None;
             try
             {
                 var identifiers = new Dictionary<AttributeId, RecordNumber>();
@@ -29,14 +29,14 @@ namespace RoadRegistry.BackOffice.Translation
                             {
                                 if (record.EU_OIDN.Value.Value == 0)
                                 {
-                                    errors = errors.IdentifierZero(entry.Name, records.CurrentRecordNumber);
+                                    problems = problems.IdentifierZero(entry.Name, records.CurrentRecordNumber);
                                 }
                                 else
                                 {
                                     var identifier = new AttributeId(record.EU_OIDN.Value.Value);
                                     if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
                                     {
-                                        errors = errors.IdentifierNotUnique(entry.Name, identifier, records.CurrentRecordNumber,
+                                        problems = problems.IdentifierNotUnique(entry.Name, identifier, records.CurrentRecordNumber,
                                             takenByRecordNumber);
                                     }
                                     else
@@ -47,13 +47,13 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                errors = errors.IdentifierMissing(entry.Name, records.CurrentRecordNumber);
+                                problems = problems.IdentifierMissing(entry.Name, records.CurrentRecordNumber);
                             }
 
 
                             if (record.EUNUMMER.Value == null || !EuropeanRoadNumber.CanParse(record.EUNUMMER.Value))
                             {
-                                errors = errors.NotEuropeanRoadNumber(entry.Name, record.EUNUMMER.Value, records.CurrentRecordNumber);
+                                problems = problems.NotEuropeanRoadNumber(entry.Name, record.EUNUMMER.Value, records.CurrentRecordNumber);
                             }
                         }
 
@@ -62,15 +62,15 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 else
                 {
-                    errors = errors.NoDbaseRecords(entry.Name);
+                    problems = problems.NoDbaseRecords(entry.Name);
                 }
             }
             catch (Exception exception)
             {
-                errors = errors.DbaseRecordFormatError(entry.Name, records.CurrentRecordNumber, exception);
+                problems = problems.DbaseRecordFormatError(entry.Name, records.CurrentRecordNumber, exception);
             }
 
-            return errors;
+            return problems;
         }
     }
 }

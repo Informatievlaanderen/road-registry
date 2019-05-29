@@ -107,12 +107,12 @@ namespace RoadRegistry.BackOffice.Translation
                 };
         }
 
-        public ZipArchiveErrors Validate(ZipArchive archive)
+        public ZipArchiveProblems Validate(ZipArchive archive)
         {
             if (archive == null)
                 throw new ArgumentNullException(nameof(archive));
 
-            var errors = ZipArchiveErrors.None;
+            var errors = ZipArchiveProblems.None;
 
             // Report all missing required files
 

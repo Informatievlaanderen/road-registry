@@ -77,11 +77,11 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveErrors.None.DbaseHeaderFormatError(
+                        ZipArchiveProblems.None.DbaseHeaderFormatError(
                             entry.Name,
                             new EndOfStreamException("Unable to read beyond the end of the stream.")),
                         result,
-                        new ErrorComparer());
+                        new FileProblemComparer());
                 }
             }
         }
@@ -115,11 +115,11 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveErrors.None.DbaseHeaderFormatError(
+                        ZipArchiveProblems.None.DbaseHeaderFormatError(
                             entry.Name,
                             new DbaseFileHeaderException("The database file type must be 3 (dBase III).")),
                         result,
-                        new ErrorComparer());
+                        new FileProblemComparer());
                 }
             }
         }
@@ -160,7 +160,7 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveErrors.None.DbaseSchemaMismatch(
+                        ZipArchiveProblems.None.DbaseSchemaMismatch(
                             entry.Name,
                             new FakeDbaseSchema(),
                             new AnonymousDbaseSchema(new DbaseField[0])),
@@ -172,16 +172,16 @@ namespace RoadRegistry.BackOffice.Translation
         [Fact]
         public void ValidateReturnsExpectedResultWhenDbaseRecordValidatorReturnsErrors()
         {
-            var errors = new[]
+            var problems = new FileProblem[]
             {
-                new Error("error1", new ProblemParameter("parameter1", "value1")),
-                new Error("error2", new ProblemParameter("parameter2", "value2"))
+                new FileError("file1", "error1", new ProblemParameter("parameter1", "value1")),
+                new FileWarning("file2", "error2", new ProblemParameter("parameter2", "value2"))
             };
             var schema = new FakeDbaseSchema();
             var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
                 Encoding.UTF8,
                 schema,
-                new FakeDbaseRecordValidator(errors));
+                new FakeDbaseRecordValidator(problems));
             var date = DateTime.Today;
             var header = new DbaseFileHeader(
                 date,
@@ -211,7 +211,7 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveErrors.None.CombineWith(errors),
+                        ZipArchiveProblems.None.CombineWith(problems),
                         result);
                 }
             }
@@ -264,7 +264,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                     var result = sut.Validate(entry);
 
-                    Assert.Equal(ZipArchiveErrors.None, result);
+                    Assert.Equal(ZipArchiveProblems.None, result);
                     Assert.Equal(records, validator.Collected);
                 }
             }
@@ -305,22 +305,22 @@ namespace RoadRegistry.BackOffice.Translation
 
         private class FakeDbaseRecordValidator : IZipArchiveDbaseRecordsValidator<FakeDbaseRecord>
         {
-            private readonly Error[] _errors;
+            private readonly FileProblem[] _problems;
 
-            public FakeDbaseRecordValidator(params Error[] errors)
+            public FakeDbaseRecordValidator(params FileProblem[] problems)
             {
-                _errors = errors ?? throw new ArgumentNullException(nameof(errors));
+                _problems = problems ?? throw new ArgumentNullException(nameof(problems));
             }
 
-            public ZipArchiveErrors Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records)
+            public ZipArchiveProblems Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records)
             {
-                return ZipArchiveErrors.None.CombineWith(_errors);
+                return ZipArchiveProblems.None.CombineWith(_problems);
             }
         }
 
         private class CollectDbaseRecordValidator : IZipArchiveDbaseRecordsValidator<FakeDbaseRecord>
         {
-            public ZipArchiveErrors Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records)
+            public ZipArchiveProblems Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records)
             {
                 var collected = new List<FakeDbaseRecord>();
                 while (records.MoveNext())
@@ -329,7 +329,7 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 Collected = collected.ToArray();
 
-                return ZipArchiveErrors.None;
+                return ZipArchiveProblems.None;
             }
 
             public FakeDbaseRecord[] Collected { get; private set; }

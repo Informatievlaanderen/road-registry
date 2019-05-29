@@ -10,234 +10,234 @@ namespace RoadRegistry.BackOffice.Translation
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
-    [DebuggerDisplay("Errors = {" + nameof(_errors) + "}")]
-    public class ZipArchiveErrors: IReadOnlyCollection<Error>
+    [DebuggerDisplay("Problems = {" + nameof(_problems) + "}")]
+    public class ZipArchiveProblems : IReadOnlyCollection<FileProblem>
     {
-        private readonly ImmutableList<Error> _errors;
+        private readonly ImmutableList<FileProblem> _problems;
 
-        public static readonly ZipArchiveErrors None = new ZipArchiveErrors(ImmutableList<Error>.Empty);
+        public static readonly ZipArchiveProblems None = new ZipArchiveProblems(ImmutableList<FileProblem>.Empty);
 
-        private ZipArchiveErrors(ImmutableList<Error> errors)
+        private ZipArchiveProblems(ImmutableList<FileProblem> problems)
         {
-            _errors = errors;
+            _problems = problems;
         }
 
-        public bool Equals(ZipArchiveErrors other) => other != null && _errors.SequenceEqual(other._errors);
-        public override bool Equals(object obj) => obj is ZipArchiveErrors other && Equals(other);
-        public override int GetHashCode() => _errors.Aggregate(0, (current, error) => current ^ error.GetHashCode());
+        public bool Equals(ZipArchiveProblems other) => other != null && _problems.SequenceEqual(other._problems);
+        public override bool Equals(object obj) => obj is ZipArchiveProblems other && Equals(other);
+        public override int GetHashCode() => _problems.Aggregate(0, (current, error) => current ^ error.GetHashCode());
 
-        public IEnumerator<Error> GetEnumerator() => _errors.GetEnumerator();
+        public IEnumerator<FileProblem> GetEnumerator() => _problems.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        public int Count => _errors.Count;
+        public int Count => _problems.Count;
 
-        public ZipArchiveErrors CombineWith(IEnumerable<Error> errors)
+        public ZipArchiveProblems CombineWith(IEnumerable<FileProblem> problems)
         {
-            if (errors == null) throw new ArgumentNullException(nameof(errors));
-            return new ZipArchiveErrors(_errors.AddRange(errors));
+            if (problems == null) throw new ArgumentNullException(nameof(problems));
+            return new ZipArchiveProblems(_problems.AddRange(problems));
         }
 
-        public ZipArchiveErrors RequiredFileMissing(string file)
+        public ZipArchiveProblems RequiredFileMissing(string file)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
-                    nameof(RequiredFileMissing),
-                    new ProblemParameter("File",file)))
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(file.ToUpperInvariant(), nameof(RequiredFileMissing)))
             );
         }
 
-        public ZipArchiveErrors ShapeHeaderFormatError(string file, Exception exception)
+        public ZipArchiveProblems ShapeHeaderFormatError(string file, Exception exception)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
             if (exception == null) throw new ArgumentNullException(nameof(exception));
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(ShapeHeaderFormatError),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Exception", exception.ToString())))
             );
         }
 
-        public ZipArchiveErrors ShapeRecordFormatError(string file, RecordNumber? afterRecordNumber, Exception exception)
+        public ZipArchiveProblems ShapeRecordFormatError(string file, RecordNumber? afterRecordNumber,
+            Exception exception)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
             if (exception == null) throw new ArgumentNullException(nameof(exception));
 
             if (afterRecordNumber.HasValue)
             {
-                return new ZipArchiveErrors(_errors.Add(
-                    new Error(
+                return new ZipArchiveProblems(_problems.Add(
+                    new FileError(
+                        file.ToUpperInvariant(),
                         nameof(ShapeRecordFormatError),
-                        new ProblemParameter("File", file.ToUpperInvariant()),
                         new ProblemParameter("AfterRecordNumber", afterRecordNumber.Value.ToString()),
                         new ProblemParameter("Exception", exception.ToString())))
                 );
             }
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(ShapeRecordFormatError),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Exception", exception.ToString())))
             );
         }
 
-        public ZipArchiveErrors NoShapeRecords(string file)
+        public ZipArchiveProblems NoShapeRecords(string file)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
-                    nameof(NoShapeRecords),
-                    new ProblemParameter("File", file.ToUpperInvariant())))
-            );
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(file.ToUpperInvariant(), nameof(NoShapeRecords)
+                )));
         }
 
-        public ZipArchiveErrors ShapeRecordShapeTypeMismatch(string file, RecordNumber recordNumber, ShapeType expectedShapeType, ShapeType actualShapeType)
+        public ZipArchiveProblems ShapeRecordShapeTypeMismatch(string file, RecordNumber recordNumber,
+            ShapeType expectedShapeType, ShapeType actualShapeType)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(ShapeRecordShapeTypeMismatch),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("ExpectedShapeType", expectedShapeType.ToString()),
                     new ProblemParameter("ActualShapeType", actualShapeType.ToString())))
             );
         }
 
-        public ZipArchiveErrors ShapeRecordGeometryMismatch(string file, RecordNumber recordNumber)
+        public ZipArchiveProblems ShapeRecordGeometryMismatch(string file, RecordNumber recordNumber)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(ShapeRecordShapeTypeMismatch),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }
 
-        public ZipArchiveErrors ShapeRecordGeometryLineCountMismatch(string file, RecordNumber recordNumber, int expectedLineCount, int actualLineCount)
+        public ZipArchiveProblems ShapeRecordGeometryLineCountMismatch(string file, RecordNumber recordNumber,
+            int expectedLineCount, int actualLineCount)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(ShapeRecordGeometryLineCountMismatch),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("ExpectedLineCount", expectedLineCount.ToString()),
                     new ProblemParameter("ActualLineCount", actualLineCount.ToString())))
             );
         }
 
-        public ZipArchiveErrors ShapeRecordGeometrySelfOverlaps(string file, RecordNumber recordNumber)
+        public ZipArchiveProblems ShapeRecordGeometrySelfOverlaps(string file, RecordNumber recordNumber)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(ShapeRecordGeometrySelfOverlaps),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }
 
-        public ZipArchiveErrors ShapeRecordGeometrySelfIntersects(string file, RecordNumber recordNumber)
+        public ZipArchiveProblems ShapeRecordGeometrySelfIntersects(string file, RecordNumber recordNumber)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(ShapeRecordGeometrySelfIntersects),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }
 
-        public ZipArchiveErrors DbaseHeaderFormatError(string file, Exception exception)
+        public ZipArchiveProblems DbaseHeaderFormatError(string file, Exception exception)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
             if (exception == null) throw new ArgumentNullException(nameof(exception));
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(DbaseHeaderFormatError),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Exception", exception.ToString())))
             );
         }
 
-        public ZipArchiveErrors NoDbaseRecords(string file)
+        public ZipArchiveProblems NoDbaseRecords(string file)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
-                    nameof(NoDbaseRecords),
-                    new ProblemParameter("File", file.ToUpperInvariant())))
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
+                    nameof(NoDbaseRecords)))
             );
         }
 
-        public ZipArchiveErrors DbaseRecordFormatError(string file, RecordNumber recordNumber, Exception exception)
+        public ZipArchiveProblems DbaseRecordFormatError(string file, RecordNumber recordNumber, Exception exception)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
             if (exception == null) throw new ArgumentNullException(nameof(exception));
 
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(DbaseRecordFormatError),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("Exception", exception.ToString())))
             );
         }
 
-        public ZipArchiveErrors IdentifierZero(string file, RecordNumber recordNumber)
+        public ZipArchiveProblems IdentifierZero(string file, RecordNumber recordNumber)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(IdentifierZero),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }
 
-        public ZipArchiveErrors IdentifierMissing(string file, RecordNumber recordNumber)
+        public ZipArchiveProblems IdentifierMissing(string file, RecordNumber recordNumber)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(IdentifierMissing),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }
 
-        public ZipArchiveErrors NotEuropeanRoadNumber(string file, string number, RecordNumber recordNumber)
+        public ZipArchiveProblems NotEuropeanRoadNumber(string file, string number, RecordNumber recordNumber)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(NotEuropeanRoadNumber),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Number", number?.ToUpperInvariant() ?? "<null>"),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }
 
-        public ZipArchiveErrors IdentifierNotUnique(string file, AttributeId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
+        public ZipArchiveProblems IdentifierNotUnique(string file, AttributeId identifier, RecordNumber recordNumber,
+            RecordNumber takenByRecordNumber)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(IdentifierNotUnique),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Identifier", identifier.ToString()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
@@ -245,13 +245,14 @@ namespace RoadRegistry.BackOffice.Translation
             ));
         }
 
-        public ZipArchiveErrors IdentifierNotUnique(string file, GradeSeparatedJunctionId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
+        public ZipArchiveProblems IdentifierNotUnique(string file, GradeSeparatedJunctionId identifier,
+            RecordNumber recordNumber, RecordNumber takenByRecordNumber)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(IdentifierNotUnique),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Identifier", identifier.ToString()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
@@ -259,13 +260,14 @@ namespace RoadRegistry.BackOffice.Translation
             ));
         }
 
-        public ZipArchiveErrors IdentifierNotUnique(string file, RoadNodeId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
+        public ZipArchiveProblems IdentifierNotUnique(string file, RoadNodeId identifier, RecordNumber recordNumber,
+            RecordNumber takenByRecordNumber)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(IdentifierNotUnique),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Identifier", identifier.ToString()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
@@ -273,13 +275,14 @@ namespace RoadRegistry.BackOffice.Translation
             ));
         }
 
-        public ZipArchiveErrors IdentifierNotUnique(string file, RoadSegmentId identifier, RecordNumber recordNumber, RecordNumber takenByRecordNumber)
+        public ZipArchiveProblems IdentifierNotUnique(string file, RoadSegmentId identifier, RecordNumber recordNumber,
+            RecordNumber takenByRecordNumber)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(IdentifierNotUnique),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("Identifier", identifier.ToString()),
                     new ProblemParameter("RecordNumber", recordNumber.ToString()),
                     new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
@@ -287,13 +290,13 @@ namespace RoadRegistry.BackOffice.Translation
             ));
         }
 
-        public ZipArchiveErrors DbaseSchemaMismatch(string file, DbaseSchema expectedSchema, DbaseSchema actualSchema)
+        public ZipArchiveProblems DbaseSchemaMismatch(string file, DbaseSchema expectedSchema, DbaseSchema actualSchema)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveErrors(_errors.Add(
-                new Error(
+            return new ZipArchiveProblems(_problems.Add(
+                new FileError(
+                    file.ToUpperInvariant(),
                     nameof(DbaseSchemaMismatch),
-                    new ProblemParameter("File", file.ToUpperInvariant()),
                     new ProblemParameter("ExpectedSchema", Describe(expectedSchema)),
                     new ProblemParameter("ActualSchema", Describe(actualSchema))
                 )
@@ -318,6 +321,7 @@ namespace RoadRegistry.BackOffice.Translation
                 builder.Append("]");
                 index++;
             }
+
             return builder.ToString();
         }
     }

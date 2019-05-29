@@ -10,12 +10,12 @@ namespace RoadRegistry.BackOffice.Translation
 
     public class RoadSegmentChangeShapeRecordsValidator : IZipArchiveShapeRecordsValidator
     {
-        public ZipArchiveErrors Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records)
+        public ZipArchiveProblems Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
-            var errors = ZipArchiveErrors.None;
+            var problems = ZipArchiveProblems.None;
             var recordNumber = RecordNumber.Initial;
             try
             {
@@ -27,7 +27,7 @@ namespace RoadRegistry.BackOffice.Translation
                     {
                         if (record.Content.ShapeType != ShapeType.PolyLineM)
                         {
-                            errors = errors.ShapeRecordShapeTypeMismatch(
+                            problems = problems.ShapeRecordShapeTypeMismatch(
                                 entry.Name,
                                 record.Header.RecordNumber,
                                 ShapeType.PolyLineM,
@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Translation
                         {
                             if (!content.Shape.IsValid)
                             {
-                                errors = errors.ShapeRecordGeometryMismatch(
+                                problems = problems.ShapeRecordGeometryMismatch(
                                     entry.Name,
                                     record.Header.RecordNumber);
                             }
@@ -49,7 +49,7 @@ namespace RoadRegistry.BackOffice.Translation
                                     .ToArray();
                                 if (lines.Length != 1)
                                 {
-                                    errors = errors.ShapeRecordGeometryLineCountMismatch(
+                                    problems = problems.ShapeRecordGeometryLineCountMismatch(
                                         entry.Name,
                                         record.Header.RecordNumber,
                                         1,
@@ -60,13 +60,13 @@ namespace RoadRegistry.BackOffice.Translation
                                     var line = lines[0];
                                     if (line.SelfOverlaps())
                                     {
-                                        errors = errors.ShapeRecordGeometrySelfOverlaps(
+                                        problems = problems.ShapeRecordGeometrySelfOverlaps(
                                             entry.Name,
                                             record.Header.RecordNumber);
                                     }
                                     else if (line.SelfIntersects())
                                     {
-                                        errors = errors.ShapeRecordGeometrySelfIntersects(
+                                        problems = problems.ShapeRecordGeometrySelfIntersects(
                                             entry.Name,
                                             record.Header.RecordNumber);
                                     }
@@ -81,15 +81,15 @@ namespace RoadRegistry.BackOffice.Translation
 
                 if (count == 0)
                 {
-                    errors = errors.NoShapeRecords(entry.Name);
+                    problems = problems.NoShapeRecords(entry.Name);
                 }
             }
             catch (Exception exception)
             {
-                errors = errors.ShapeRecordFormatError(entry.Name, recordNumber, exception);
+                problems = problems.ShapeRecordFormatError(entry.Name, recordNumber, exception);
             }
 
-            return errors;
+            return problems;
         }
     }
 }

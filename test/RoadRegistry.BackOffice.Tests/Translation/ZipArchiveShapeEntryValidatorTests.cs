@@ -89,11 +89,11 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveErrors.None.ShapeHeaderFormatError(
+                        ZipArchiveProblems.None.ShapeHeaderFormatError(
                             entry.Name,
                             new EndOfStreamException("Unable to read beyond the end of the stream.")),
                         result,
-                        new ErrorComparer());
+                        new FileProblemComparer());
                 }
             }
         }
@@ -130,11 +130,11 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveErrors.None.ShapeHeaderFormatError(
+                        ZipArchiveProblems.None.ShapeHeaderFormatError(
                             entry.Name,
                             new ShapeFileHeaderException("The File Code field does not match 9994.")),
                         result,
-                        new ErrorComparer());
+                        new FileProblemComparer());
                 }
             }
         }
@@ -142,14 +142,14 @@ namespace RoadRegistry.BackOffice.Translation
         [Fact]
         public void ValidateReturnsExpectedResultWhenShapeRecordValidatorReturnsErrors()
         {
-            var errors = new[]
+            var problems = new FileProblem[]
             {
-                new Error("error1", new ProblemParameter("parameter1", "value1")),
-                new Error("error2", new ProblemParameter("parameter2", "value2"))
+                new FileError("file1", "error1", new ProblemParameter("parameter1", "value1")),
+                new FileWarning("file2", "error2", new ProblemParameter("parameter2", "value2"))
             };
             var sut = new ZipArchiveShapeEntryValidator(
                 Encoding.UTF8,
-                new FakeShapeRecordValidator(errors));
+                new FakeShapeRecordValidator(problems));
             var header = new ShapeFileHeader(
                 ShapeFileHeader.Length,
                 ShapeType.Point,
@@ -178,7 +178,7 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveErrors.None.CombineWith(errors),
+                        ZipArchiveProblems.None.CombineWith(problems),
                         result);
                 }
             }
@@ -223,7 +223,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                     var result = sut.Validate(entry);
 
-                    Assert.Equal(ZipArchiveErrors.None, result);
+                    Assert.Equal(ZipArchiveProblems.None, result);
                     Assert.Equal(records, validator.Collected, new ShapeRecordEqualityComparer());
                 }
             }
@@ -231,22 +231,22 @@ namespace RoadRegistry.BackOffice.Translation
 
         private class FakeShapeRecordValidator : IZipArchiveShapeRecordsValidator
         {
-            private readonly Error[] _errors;
+            private readonly FileProblem[] _problems;
 
-            public FakeShapeRecordValidator(params Error[] errors)
+            public FakeShapeRecordValidator(params FileProblem[] problems)
             {
-                _errors = errors ?? throw new ArgumentNullException(nameof(errors));
+                _problems = problems ?? throw new ArgumentNullException(nameof(problems));
             }
 
-            public ZipArchiveErrors Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records)
+            public ZipArchiveProblems Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records)
             {
-                return ZipArchiveErrors.None.CombineWith(_errors);
+                return ZipArchiveProblems.None.CombineWith(_problems);
             }
         }
 
         private class CollectShapeRecordValidator : IZipArchiveShapeRecordsValidator
         {
-            public ZipArchiveErrors Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records)
+            public ZipArchiveProblems Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records)
             {
                 var collected = new List<ShapeRecord>();
                 while (records.MoveNext())
@@ -256,7 +256,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                 Collected = collected.ToArray();
 
-                return ZipArchiveErrors.None;
+                return ZipArchiveProblems.None;
             }
 
             public ShapeRecord[] Collected { get; private set; }

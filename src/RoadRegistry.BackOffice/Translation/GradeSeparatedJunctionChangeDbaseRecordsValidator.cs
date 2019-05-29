@@ -9,12 +9,12 @@ namespace RoadRegistry.BackOffice.Translation
 
     public class GradeSeparatedJunctionChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<GradeSeparatedJunctionChangeDbaseRecord>
     {
-        public ZipArchiveErrors Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord> records)
+        public ZipArchiveProblems Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord> records)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
-            var errors = ZipArchiveErrors.None;
+            var problems = ZipArchiveProblems.None;
             try
             {
                 var identifiers = new Dictionary<GradeSeparatedJunctionId, RecordNumber>();
@@ -30,14 +30,14 @@ namespace RoadRegistry.BackOffice.Translation
                             {
                                 if (record.OK_OIDN.Value.Value == 0)
                                 {
-                                    errors = errors.IdentifierZero(entry.Name, records.CurrentRecordNumber);
+                                    problems = problems.IdentifierZero(entry.Name, records.CurrentRecordNumber);
                                 }
                                 else
                                 {
                                     var identifier = new GradeSeparatedJunctionId(record.OK_OIDN.Value.Value);
                                     if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
                                     {
-                                        errors = errors.IdentifierNotUnique(
+                                        problems = problems.IdentifierNotUnique(
                                             entry.Name,
                                             identifier,
                                             records.CurrentRecordNumber,
@@ -51,7 +51,7 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                errors = errors.IdentifierMissing(entry.Name, records.CurrentRecordNumber);
+                                problems = problems.IdentifierMissing(entry.Name, records.CurrentRecordNumber);
                             }
 
                             moved = records.MoveNext();
@@ -60,15 +60,15 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 else
                 {
-                    errors = errors.NoDbaseRecords(entry.Name);
+                    problems = problems.NoDbaseRecords(entry.Name);
                 }
             }
             catch (Exception exception)
             {
-                errors = errors.DbaseRecordFormatError(entry.Name, records.CurrentRecordNumber, exception);
+                problems = problems.DbaseRecordFormatError(entry.Name, records.CurrentRecordNumber, exception);
             }
 
-            return errors;
+            return problems;
         }
     }
 }

@@ -4,18 +4,19 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Linq;
     using Model;
 
-    public class ErrorComparer : IEqualityComparer<Error>
+    public class FileProblemComparer : IEqualityComparer<FileProblem>
     {
-        public bool Equals(Error expected, Error actual)
+        public bool Equals(FileProblem expected, FileProblem actual)
         {
             if (expected == null && actual == null) return true;
             if (expected == null || actual == null) return false;
-            return expected.Reason.Equals(actual.Reason) &&
+            return expected.File.Equals(actual.File) &&
+                   expected.Reason.Equals(actual.Reason) &&
                    expected.Parameters.SequenceEqual(actual.Parameters, new ProblemParameterValueContainsComparer());
 
         }
 
-        public int GetHashCode(Error obj)
+        public int GetHashCode(FileProblem obj)
         {
             return obj.GetHashCode();
         }

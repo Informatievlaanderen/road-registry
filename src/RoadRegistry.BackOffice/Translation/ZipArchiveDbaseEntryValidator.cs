@@ -22,10 +22,10 @@ namespace RoadRegistry.BackOffice.Translation
             _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
         }
 
-        public ZipArchiveErrors Validate(ZipArchiveEntry entry)
+        public ZipArchiveProblems Validate(ZipArchiveEntry entry)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
-            var errors = ZipArchiveErrors.None;
+            var problems = ZipArchiveProblems.None;
 
             using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, _encoding))
@@ -37,18 +37,18 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 catch (Exception exception)
                 {
-                    errors = errors.DbaseHeaderFormatError(entry.Name, exception);
+                    problems = problems.DbaseHeaderFormatError(entry.Name, exception);
                 }
 
                 if (header != null)
                 {
                     if (!header.Schema.Equals(_schema))
                     {
-                        errors = errors.DbaseSchemaMismatch(entry.Name, _schema, header.Schema);
+                        problems = problems.DbaseSchemaMismatch(entry.Name, _schema, header.Schema);
                     }
                     else
                     {
-                        errors = errors.CombineWith(
+                        problems = problems.CombineWith(
                             _recordValidator.Validate(
                                 entry,
                                 header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader)));
@@ -56,7 +56,7 @@ namespace RoadRegistry.BackOffice.Translation
                 }
             }
 
-            return errors;
+            return problems;
         }
     }
 }
