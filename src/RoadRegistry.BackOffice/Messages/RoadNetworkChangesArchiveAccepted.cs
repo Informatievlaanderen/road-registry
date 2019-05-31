@@ -8,6 +8,6 @@ namespace RoadRegistry.BackOffice.Messages
     {
         public string ArchiveId { get; set; }
 
-        public FileProblem[] Warnings { get; set; }
+        public FileProblem[] Problems { get; set; }
     }
 }

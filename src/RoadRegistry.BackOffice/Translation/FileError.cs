@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Translation
 {
+    using System.Linq;
     using Model;
 
     public class FileError : FileProblem
@@ -8,5 +9,14 @@ namespace RoadRegistry.BackOffice.Translation
             : base(file, reason, parameters)
         {
         }
+
+        public override Messages.FileProblem Translate() =>
+            new Messages.FileProblem
+            {
+                File = File,
+                Severity = Messages.FileProblemSeverity.Error,
+                Reason = Reason,
+                Parameters = Parameters.Select(parameter => parameter.Translate()).ToArray()
+            };
     }
 }

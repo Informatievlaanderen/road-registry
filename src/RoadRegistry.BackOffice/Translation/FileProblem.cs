@@ -28,12 +28,6 @@ namespace RoadRegistry.BackOffice.Translation
             File.GetHashCode() ^ Reason.GetHashCode(),
             (current, parameter) => current ^ parameter.GetHashCode());
 
-        public Messages.FileProblem Translate() =>
-            new Messages.FileProblem
-            {
-                File = File,
-                Reason = Reason,
-                Parameters = Parameters.Select(parameter => parameter.Translate()).ToArray()
-            };
+        public abstract Messages.FileProblem Translate();
     }
 }

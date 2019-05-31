@@ -36,7 +36,7 @@ namespace RoadRegistry.BackOffice.Translation
                     new RoadNetworkChangesArchiveAccepted
                     {
                         ArchiveId = Id,
-                        Warnings = problems.OfType<FileWarning>().Select(warning => warning.Translate()).ToArray()
+                        Problems = problems.Select(problem => problem.Translate()).ToArray()
                     });
             }
             else
@@ -45,8 +45,7 @@ namespace RoadRegistry.BackOffice.Translation
                     new RoadNetworkChangesArchiveRejected
                     {
                         ArchiveId = Id,
-                        Errors = problems.OfType<FileError>().Select(error => error.Translate()).ToArray(),
-                        Warnings = problems.OfType<FileWarning>().Select(warning => warning.Translate()).ToArray()
+                        Problems = problems.Select(problem => problem.Translate()).ToArray()
                     });
             }
         }

@@ -114,6 +114,7 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
             records.AddRange(await context.GradeSeparatedJunctions.ToArrayAsync());
             records.AddRange(await context.Organizations.ToArrayAsync());
             records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
+            records.AddRange(await context.RoadNetworkActivities.ToArrayAsync());
             return records.ToArray();
         }
 

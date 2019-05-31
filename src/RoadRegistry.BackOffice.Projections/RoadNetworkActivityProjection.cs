@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Projections
 {
     using System;
+    using System.Linq;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Messages;
@@ -13,71 +14,52 @@ namespace RoadRegistry.BackOffice.Projections
         {
             When<Envelope<RoadNetworkChangesArchiveUploaded>>((context, envelope, ct) =>
                 context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkActivity
+                    new RoadNetworkChangesArchiveUploadedActivity
                     {
                         Title = "Oplading bestand ontvangen",
                         Type = nameof(RoadNetworkChangesArchiveUploaded),
-                        RelatesToArchiveId = envelope.Message.ArchiveId,
-                        Errors = null,
-                        Warnings = null
+                        ArchiveId = envelope.Message.ArchiveId
                     }, ct));
 
             When<Envelope<RoadNetworkChangesArchiveAccepted>>((context, envelope, ct) =>
                 context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkActivity
+                    new RoadNetworkChangesArchiveAcceptedActivity
                     {
                         Title = "Oplading bestand werd aanvaard",
                         Type = nameof(RoadNetworkChangesArchiveAccepted),
-                        RelatesToArchiveId = envelope.Message.ArchiveId,
-                        Errors = null,
-                        Warnings =
-                            Array.FindAll(
-                                Array.ConvertAll(envelope.Message.Warnings,ProblemWithZipArchiveTranslator),
-                                translation => translation != null
-                            )
+                        ArchiveId = envelope.Message.ArchiveId,
+                        Files = envelope.Message.Problems
+                            .GroupBy(problem => problem.File)
+                            .Select(group => new RoadNetworkChangesArchiveAcceptedFile
+                            {
+                                File = group.Key,
+                                Problems = group
+                                    .Select(problem => ProblemWithZipArchiveTranslator(problem))
+                                    .Where(translation => translation != null)
+                                    .ToArray()
+                            })
+                            .ToList()
                     }, ct));
 
 
             When<Envelope<RoadNetworkChangesArchiveRejected>>((context, envelope, ct) =>
                 context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkActivity
+                    new RoadNetworkChangesArchiveRejectedActivity
                     {
                         Title = "Oplading bestand werd geweigerd",
                         Type = nameof(RoadNetworkChangesArchiveRejected),
-                        RelatesToArchiveId = envelope.Message.ArchiveId,
-                        Errors = Array.FindAll(
-                            Array.ConvertAll(envelope.Message.Errors,ProblemWithZipArchiveTranslator),
-                            translation => translation != null
-                        ),
-                        Warnings =
-                            Array.FindAll(
-                                Array.ConvertAll(envelope.Message.Warnings,ProblemWithZipArchiveTranslator),
-                                translation => translation != null
-                            )
-                    }, ct));
-
-            When<Envelope<RoadNetworkChangesAccepted>>((context, envelope, ct) =>
-                context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkActivity
-                    {
-                        Title = "Oplading werd aanvaard",
-                        Type = nameof(RoadNetworkChangesAccepted),
-                        Errors = null,
-                        Warnings =
-                            Array.FindAll(
-                                Array.ConvertAll(envelope.Message.Changes, ProblemWithRequestedChangeTranslator),
-                                translation => translation != null
-                            )
-                    }, ct));
-
-            When<Envelope<RoadNetworkChangesRejected>>((context, envelope, ct) =>
-                context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkActivity
-                    {
-                        Title = "Oplading werd geweigerd",
-                        Type = nameof(RoadNetworkChangesRejected),
-                        Errors = null,
-                        Warnings = null
+                        ArchiveId = envelope.Message.ArchiveId,
+                        Files = envelope.Message.Problems
+                            .GroupBy(problem => problem.File)
+                            .Select(group => new RoadNetworkChangesArchiveRejectedFile
+                            {
+                                File = group.Key,
+                                Problems = group
+                                    .Select(problem => ProblemWithZipArchiveTranslator(problem))
+                                    .Where(translation => translation != null)
+                                    .ToArray()
+                            })
+                            .ToList()
                     }, ct));
         }
 
@@ -88,41 +70,60 @@ namespace RoadRegistry.BackOffice.Projections
                 switch (problem.Reason)
                 {
                     case nameof(ZipArchiveProblems.RequiredFileMissing):
-                        result = $"Het vereist bestand '{problem.Parameters[0].Value}' ontbreekt in het archief.";
+                        result = $"Het bestand ontbreekt in het archief.";
                         break;
 
                     case nameof(ZipArchiveProblems.NoDbaseRecords):
-                        result = $"Het bestand '{problem.Parameters[0].Value}' bevat geen rijen.";
+                        result = $"Het bestand bevat geen rijen.";
                         break;
 
                     case nameof(ZipArchiveProblems.DbaseHeaderFormatError):
-                        result = $"De hoofding van het bestand '{problem.Parameters[0].Value}' is niet correct geformateerd.";
+                        result = $"De hoofding van het bestand is niet correct geformateerd.";
+                        break;
+
+                    case nameof(ZipArchiveProblems.DbaseRecordFormatError):
+                        result = $"De dbase record na record {problem.Parameters[0].Value} is niet correct geformateerd.";
                         break;
 
                     case nameof(ZipArchiveProblems.NoShapeRecords):
-                        result = $"Het bestand '{problem.Parameters[0].Value}' bevat geen geometrien.";
+                        result = $"Het bestand bevat geen enkele geometrie.";
                         break;
 
                     case nameof(ZipArchiveProblems.ShapeHeaderFormatError):
-                        result = $"De hoofding van het bestand '{problem.Parameters[0].Value}' is niet correct geformateerd.";
+                        result = $"De hoofding van het bestand is niet correct geformateerd.";
                         break;
-                }
 
-                return result;
-            };
+                    case nameof(ZipArchiveProblems.ShapeRecordFormatError):
+                        result = $"De shape record na record {problem.Parameters[0].Value} is niet correct geformateerd.";
+                        break;
 
-        private static readonly Converter<AcceptedChange, string> ProblemWithRequestedChangeTranslator =
-            change =>
-            {
-                var result = string.Empty;
-                switch (change.Flatten())
-                {
+                    case nameof(ZipArchiveProblems.ShapeRecordShapeTypeMismatch):
+                        result = $"De shape record {problem.Parameters[0].Value} bevat geen {problem.Parameters[1].Value} maar een {problem.Parameters[2].Value}.";
+                        break;
 
-                }
+                    case nameof(ZipArchiveProblems.ShapeRecordGeometryMismatch):
+                        result = $"De shape record {problem.Parameters[0].Value} geometrie is ongeldig.";
+                        break;
 
-                switch (change.Flatten())
-                {
+                    case nameof(ZipArchiveProblems.IdentifierZero):
+                        result = $"De dbase record {problem.Parameters[0].Value} bevat een identificator die 0 is.";
+                        break;
 
+                    case nameof(ZipArchiveProblems.IdentifierMissing):
+                        result = $"De dbase record {problem.Parameters[0].Value} ontbreekt een identificator.";
+                        break;
+
+                    case nameof(ZipArchiveProblems.IdentifierNotUnique):
+                        result = $"De dbase record {problem.Parameters[1].Value} bevat dezelfde identifier {problem.Parameters[0].Value} als dbase record {problem.Parameters[2].Value}.";
+                        break;
+
+                    case nameof(ZipArchiveProblems.NotEuropeanRoadNumber):
+                        result = $"De dbase record {problem.Parameters[1].Value} bevat een nummer {problem.Parameters[0].Value} dat geen europees wegnummer is.";
+                        break;
+
+                    case nameof(ZipArchiveProblems.DbaseSchemaMismatch):
+                        result = $"Het verwachte dbase schema {problem.Parameters[0].Value} stemt niet overeen met het eigenlijke dbase schema {problem.Parameters[1].Value}.";
+                        break;
                 }
 
                 return result;

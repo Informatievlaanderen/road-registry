@@ -10,7 +10,8 @@ namespace RoadRegistry.BackOffice.Translation
         {
             if (expected == null && actual == null) return true;
             if (expected == null || actual == null) return false;
-            return expected.File.Equals(actual.File) &&
+            return expected.GetType() == actual.GetType() &&
+                   expected.File.Equals(actual.File) &&
                    expected.Reason.Equals(actual.Reason) &&
                    expected.Parameters.SequenceEqual(actual.Parameters, new ProblemParameterValueContainsComparer());
 

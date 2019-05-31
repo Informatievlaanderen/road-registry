@@ -109,7 +109,7 @@ namespace RoadRegistry.BackOffice.Projections
             return new RoadSegmentWidthAttributeRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
-                .Expect(new object[0]);
+                .ExpectNone();
         }
     }
 }

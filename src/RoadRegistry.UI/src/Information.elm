@@ -38,7 +38,10 @@ informationDecoder =
 type alias InformationModel =
     { title : String
     , url : String
-    , roadNetworkInfo : RoadNetworkInfo
+    , organizationCount : String
+    , roadNodeCount : String
+    , roadSegmentCount : String
+    , gradeSeparatedJunctionCount : String
     }
 
 
@@ -52,12 +55,10 @@ init url =
       , information =
             { title = "Register dump"
             , url = String.concat [ url, "/v1/information" ]
-            , roadNetworkInfo =
-                { organizationCount = 0
-                , roadNodeCount = 0
-                , roadSegmentCount = 0
-                , gradeSeparatedJunctionCount = 0
-                }
+            , organizationCount = ""
+            , roadNodeCount = ""
+            , roadSegmentCount = ""
+            , gradeSeparatedJunctionCount = ""
             }
       , alert =
             { title = ""
@@ -99,7 +100,11 @@ update msg model =
                             model.information
 
                         newInformation =
-                            { oldInformation | roadNetworkInfo = info }
+                            { oldInformation 
+                            | organizationCount = String.fromInt info.organizationCount
+                            , roadNodeCount = String.fromInt info.roadNodeCount
+                            , roadSegmentCount = String.fromInt info.roadSegmentCount
+                            , gradeSeparatedJunctionCount = String.fromInt info.gradeSeparatedJunctionCount }
                     in
                     ( { model | information = newInformation, alert = hideAlert model.alert }
                     , Cmd.none
@@ -153,7 +158,7 @@ viewInformationTitle model =
                 ]
             ]
 
-viewInformation : RoadNetworkInfo -> Html Msg
+viewInformation : InformationModel -> Html Msg
 viewInformation model =
         section [ class "region" ]
             [ div
@@ -173,25 +178,25 @@ viewInformation model =
                                 [ td []
                                     [ text "# organisaties" ]
                                 , td []
-                                    [ text (String.fromInt model.organizationCount) ]
+                                    [ text model.organizationCount ]
                                 ]
                             , tr []
                                 [ td []
                                     [ text "# wegknopen" ]
                                 , td []
-                                    [ text (String.fromInt model.roadNodeCount) ]
+                                    [ text model.roadNodeCount ]
                                 ]
                             , tr []
                                 [ td []
                                     [ text "# wegsegmenten" ]
                                 , td []
-                                    [ text (String.fromInt model.roadSegmentCount) ]
+                                    [ text model.roadSegmentCount ]
                                 ]
                             , tr []
                                 [ td []
                                     [ text "# ongelijkgrondse kruisingen" ]
                                 , td []
-                                    [ text (String.fromInt model.gradeSeparatedJunctionCount) ]
+                                    [ text model.gradeSeparatedJunctionCount ]
                                 ]
                             ]
                         ]
@@ -204,7 +209,7 @@ viewMain model =
     main_ [ id "main" ]
         [ 
           viewAlert model.alert |> Html.map GotAlertMsg
-        , viewInformation model.information.roadNetworkInfo
+        , viewInformation model.information
         ]
 
 view : Model -> Html Msg

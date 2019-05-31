@@ -24,7 +24,8 @@ namespace RoadRegistry.BackOffice.Projections
                 new RoadSegmentNumberedRoadAttributeRecordProjection(Encoding.GetEncoding(1252)),
                 new OrganizationRecordProjection(Encoding.GetEncoding(1252)),
                 new GradeSeparatedJunctionRecordProjection(Encoding.GetEncoding(1252)),
-                new RoadNetworkInfoProjection(reader))
+                new RoadNetworkInfoProjection(reader),
+                new RoadNetworkActivityProjection())
             { }
     }
 }
