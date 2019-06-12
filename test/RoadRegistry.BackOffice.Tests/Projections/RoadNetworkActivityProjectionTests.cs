@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Projections
     using AutoFixture;
     using Framework.Testing.Projections;
     using Messages;
+    using Newtonsoft.Json;
     using Schema;
     using Translation;
     using Xunit;
@@ -27,12 +28,15 @@ namespace RoadRegistry.BackOffice.Projections
                 {
                     ArchiveId = archiveId
                 })
-                .Expect(new RoadNetworkChangesArchiveUploadedActivity
+                .Expect(new RoadNetworkActivity
                 {
                     Id = 1,
-                    ArchiveId = archiveId,
                     Title = "Oplading bestand ontvangen",
-                    Type = nameof(RoadNetworkChangesArchiveUploaded)
+                    ContentType = nameof(RoadNetworkChangesArchiveUploaded),
+                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedActivity
+                    {
+                        ArchiveId = archiveId
+                    })
                 });
         }
 
@@ -74,30 +78,105 @@ namespace RoadRegistry.BackOffice.Projections
                         }
                     }
                 })
-                .Expect(new RoadNetworkChangesArchiveUploadedActivity
-                {
-                    Id = 1,
-                    ArchiveId = archiveId,
-                    Title = "Oplading bestand ontvangen",
-                    Type = nameof(RoadNetworkChangesArchiveUploaded)
-                }, new RoadNetworkChangesArchiveAcceptedActivity
+                .Expect(new RoadNetworkActivity
                 {
                     Id = 2,
-                    ArchiveId = archiveId,
-                    Title = "Oplading bestand werd aanvaard",
-                    Type = nameof(RoadNetworkChangesArchiveAccepted),
-                    Files = new[]
+                    Title = "Oplading bestand ontvangen",
+                    ContentType = nameof(RoadNetworkChangesArchiveUploaded),
+                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedActivity
                     {
-                        new RoadNetworkChangesArchiveAcceptedFile
+                        ArchiveId = archiveId
+                    })
+                }, new RoadNetworkActivity
+                {
+                    Id = 3,
+                    Title = "Oplading bestand werd aanvaard",
+                    ContentType = nameof(RoadNetworkChangesArchiveAccepted),
+                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedActivity
+                    {
+                        ArchiveId = archiveId,
+                        Files = new[]
+                        {
+                            new RoadNetworkChangesArchiveFile
+                            {
+                                File = file,
+                                Problems = new[]
+                                {
+                                    "De shape record 1 geometrie is ongeldig."
+                                }
+                            }
+                        }
+                    })
+                });
+        }
+
+        [Fact]
+        public Task When_an_archive_is_rejected()
+        {
+            var file = _fixture.Create<string>();
+            var archiveId = _fixture.Create<ArchiveId>();
+            return new RoadNetworkActivityProjection()
+                .Scenario()
+                .Given(new RoadNetworkChangesArchiveUploaded
+                {
+                    ArchiveId = archiveId
+                }, new RoadNetworkChangesArchiveRejected
+                {
+                    ArchiveId = archiveId,
+                    Problems = new[]
+                    {
+                        new Messages.FileProblem
                         {
                             File = file,
-                            Problems = new[]
+                            Severity = FileProblemSeverity.Error,
+                            Reason = nameof(ZipArchiveProblems.ShapeRecordGeometryMismatch),
+                            Parameters = new[]
                             {
-                                "De shape record 1 geometrie is ongeldig."
-                            },
-                            AllProblems = "De shape record 1 geometrie is ongeldig."
+                                new ProblemParameter
+                                {
+                                    Name = "RecordNumber", Value = "1"
+                                },
+                                new ProblemParameter
+                                {
+                                    Name = "ExpectedShapeType", Value = "Point"
+                                },
+                                new ProblemParameter
+                                {
+                                    Name = "ActualShapeType", Value = "PolygonM"
+                                }
+                            }
                         }
                     }
+                })
+                .Expect(new RoadNetworkActivity
+                {
+                    Id = 4,
+                    Title = "Oplading bestand ontvangen",
+                    ContentType = nameof(RoadNetworkChangesArchiveUploaded),
+                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedActivity
+                    {
+                        ArchiveId = archiveId
+                    })
+                }, new RoadNetworkActivity
+                {
+                    Id = 5,
+                    Title = "Oplading bestand werd geweigerd",
+                    ContentType = nameof(RoadNetworkChangesArchiveRejected),
+                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveRejectedActivity
+                    {
+                        ArchiveId = archiveId,
+                        Files = new[]
+                        {
+                            new RoadNetworkChangesArchiveFile
+                            {
+                                File = file,
+                                Problems = new[]
+                                {
+                                    "De shape record 1 geometrie is ongeldig."
+                                }
+                            }
+                        }
+                    })
                 });
         }
     }

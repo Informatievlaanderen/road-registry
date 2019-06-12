@@ -66,7 +66,7 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
 
             var specification = scenario.Verify(async context =>
             {
-                var comparisonConfig = new ComparisonConfig { MaxDifferences = 5 };
+                var comparisonConfig = new ComparisonConfig { MaxDifferences = 5, MembersToIgnore = { "Id" }};
                 var comparer = new CompareLogic(comparisonConfig);
                 var actualRecords = await context.AllRecords();
                 var result = comparer.Compare(

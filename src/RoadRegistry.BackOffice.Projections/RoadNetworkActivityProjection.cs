@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Messages;
+    using Newtonsoft.Json;
     using Schema;
     using Translation;
 
@@ -14,52 +15,64 @@ namespace RoadRegistry.BackOffice.Projections
         {
             When<Envelope<RoadNetworkChangesArchiveUploaded>>((context, envelope, ct) =>
                 context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkChangesArchiveUploadedActivity
+                    new RoadNetworkActivity
                     {
                         Title = "Oplading bestand ontvangen",
-                        Type = nameof(RoadNetworkChangesArchiveUploaded),
-                        ArchiveId = envelope.Message.ArchiveId
+                        ContentType = nameof(RoadNetworkChangesArchiveUploaded),
+                        Content = JsonConvert.SerializeObject(
+                            new RoadNetworkChangesArchiveUploadedActivity
+                            {
+                                ArchiveId = envelope.Message.ArchiveId
+                            })
                     }, ct));
 
             When<Envelope<RoadNetworkChangesArchiveAccepted>>((context, envelope, ct) =>
                 context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkChangesArchiveAcceptedActivity
+                    new RoadNetworkActivity
                     {
                         Title = "Oplading bestand werd aanvaard",
-                        Type = nameof(RoadNetworkChangesArchiveAccepted),
-                        ArchiveId = envelope.Message.ArchiveId,
-                        Files = envelope.Message.Problems
-                            .GroupBy(problem => problem.File)
-                            .Select(group => new RoadNetworkChangesArchiveAcceptedFile
+                        ContentType = nameof(RoadNetworkChangesArchiveAccepted),
+                        Content = JsonConvert.SerializeObject(
+                            new RoadNetworkChangesArchiveAcceptedActivity
                             {
-                                File = group.Key,
-                                Problems = group
-                                    .Select(problem => ProblemWithZipArchiveTranslator(problem))
-                                    .Where(translation => translation != null)
+                                ArchiveId = envelope.Message.ArchiveId,
+                                Files = envelope.Message.Problems
+                                    .GroupBy(problem => problem.File)
+                                    .Select(group => new RoadNetworkChangesArchiveFile
+                                    {
+                                        File = group.Key,
+                                        Problems = group
+                                            .Select(problem => ProblemWithZipArchiveTranslator(problem))
+                                            .Where(translation => translation != null)
+                                            .ToArray()
+                                    })
                                     .ToArray()
                             })
-                            .ToList()
                     }, ct));
 
 
             When<Envelope<RoadNetworkChangesArchiveRejected>>((context, envelope, ct) =>
                 context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkChangesArchiveRejectedActivity
+                    new RoadNetworkActivity
                     {
                         Title = "Oplading bestand werd geweigerd",
-                        Type = nameof(RoadNetworkChangesArchiveRejected),
-                        ArchiveId = envelope.Message.ArchiveId,
-                        Files = envelope.Message.Problems
-                            .GroupBy(problem => problem.File)
-                            .Select(group => new RoadNetworkChangesArchiveRejectedFile
+                        ContentType = nameof(RoadNetworkChangesArchiveRejected),
+                        Content = JsonConvert.SerializeObject(
+                            new RoadNetworkChangesArchiveRejectedActivity
                             {
-                                File = group.Key,
-                                Problems = group
-                                    .Select(problem => ProblemWithZipArchiveTranslator(problem))
-                                    .Where(translation => translation != null)
+                                ArchiveId = envelope.Message.ArchiveId,
+                                Files = envelope.Message.Problems
+                                    .GroupBy(problem => problem.File)
+                                    .Select(group => new RoadNetworkChangesArchiveFile
+                                    {
+                                        File = group.Key,
+                                        Problems = group
+                                            .Select(problem => ProblemWithZipArchiveTranslator(problem))
+                                            .Where(translation => translation != null)
+                                            .ToArray()
+                                    })
                                     .ToArray()
                             })
-                            .ToList()
                     }, ct));
         }
 
@@ -82,7 +95,8 @@ namespace RoadRegistry.BackOffice.Projections
                         break;
 
                     case nameof(ZipArchiveProblems.DbaseRecordFormatError):
-                        result = $"De dbase record na record {problem.Parameters[0].Value} is niet correct geformateerd.";
+                        result =
+                            $"De dbase record na record {problem.Parameters[0].Value} is niet correct geformateerd.";
                         break;
 
                     case nameof(ZipArchiveProblems.NoShapeRecords):
@@ -94,11 +108,13 @@ namespace RoadRegistry.BackOffice.Projections
                         break;
 
                     case nameof(ZipArchiveProblems.ShapeRecordFormatError):
-                        result = $"De shape record na record {problem.Parameters[0].Value} is niet correct geformateerd.";
+                        result =
+                            $"De shape record na record {problem.Parameters[0].Value} is niet correct geformateerd.";
                         break;
 
                     case nameof(ZipArchiveProblems.ShapeRecordShapeTypeMismatch):
-                        result = $"De shape record {problem.Parameters[0].Value} bevat geen {problem.Parameters[1].Value} maar een {problem.Parameters[2].Value}.";
+                        result =
+                            $"De shape record {problem.Parameters[0].Value} bevat geen {problem.Parameters[1].Value} maar een {problem.Parameters[2].Value}.";
                         break;
 
                     case nameof(ZipArchiveProblems.ShapeRecordGeometryMismatch):
@@ -114,15 +130,18 @@ namespace RoadRegistry.BackOffice.Projections
                         break;
 
                     case nameof(ZipArchiveProblems.IdentifierNotUnique):
-                        result = $"De dbase record {problem.Parameters[1].Value} bevat dezelfde identifier {problem.Parameters[0].Value} als dbase record {problem.Parameters[2].Value}.";
+                        result =
+                            $"De dbase record {problem.Parameters[1].Value} bevat dezelfde identifier {problem.Parameters[0].Value} als dbase record {problem.Parameters[2].Value}.";
                         break;
 
                     case nameof(ZipArchiveProblems.NotEuropeanRoadNumber):
-                        result = $"De dbase record {problem.Parameters[1].Value} bevat een nummer {problem.Parameters[0].Value} dat geen europees wegnummer is.";
+                        result =
+                            $"De dbase record {problem.Parameters[1].Value} bevat een nummer {problem.Parameters[0].Value} dat geen europees wegnummer is.";
                         break;
 
                     case nameof(ZipArchiveProblems.DbaseSchemaMismatch):
-                        result = $"Het verwachte dbase schema {problem.Parameters[0].Value} stemt niet overeen met het eigenlijke dbase schema {problem.Parameters[1].Value}.";
+                        result =
+                            $"Het verwachte dbase schema {problem.Parameters[0].Value} stemt niet overeen met het eigenlijke dbase schema {problem.Parameters[1].Value}.";
                         break;
                 }
 
