@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Schema
 {
+    using System;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -7,8 +8,9 @@ namespace RoadRegistry.BackOffice.Schema
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public string ContentType { get; set; }
+        public string Type { get; set; }
         public string Content { get; set; }
+        //public DateTime When { get; set; }
     }
 
     public class RoadNetworkActivityConfiguration : IEntityTypeConfiguration<RoadNetworkActivity>
@@ -23,7 +25,7 @@ namespace RoadRegistry.BackOffice.Schema
 
             b.Property(p => p.Id).ValueGeneratedOnAdd();
             b.Property(p => p.Title);
-            b.Property(p => p.ContentType);
+            b.Property(p => p.Type);
             b.Property(p => p.Content);
         }
     }

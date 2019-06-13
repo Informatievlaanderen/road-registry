@@ -12,19 +12,25 @@ import Html.Events exposing (onClick)
 import Http
 import HttpBytes
 import Json.Decode as Decode
+import Json.Decode.Extra exposing(when)
+import Time exposing(Posix, every)
 
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
-type ActivityListEntryDetail
-    = RoadNetworkChangesArchiveAccepted { archive : String, warnings : List String }
-    | RoadNetworkChangesArchiveRejected { archive : String, errors : List String, warnings : List String }
+type alias FileProblems = { file: String, problems: List String }
+
+type ActivityListEntryContent
+    = BeganRoadNetworkImport
+    | CompletedRoadNetworkImport
+    | RoadNetworkChangesArchiveAccepted { archive : String, problems : FileProblems }
+    | RoadNetworkChangesArchiveRejected { archive : String, problems : FileProblems }
     | RoadNetworkChangesArchiveUploaded { archive : String }
 
 
 type alias ActivityListEntry =
-    { id : String, title : String, day : String, month : String, expanded : Bool, disabled : Bool, detail : ActivityListEntryDetail }
+    { id : String, title : String, day : String, month : String, expanded : Bool, disabled : Bool, detail : ActivityListEntryContent }
 
 
 type alias ActivityModel =
@@ -34,6 +40,45 @@ type alias ActivityModel =
 type alias Model =
     { header : HeaderModel, activity : ActivityModel, alert : AlertModel }
 
+decodeEntryContentType: Decode.Decoder String
+decodeEntryContentType =
+    Decode.field "type" Decode.string
+
+is : a -> a -> Bool
+is a b =
+    a == b
+
+decodeFileProblem: Decode.Decoder FileProblems
+decodeFileProblem =
+    Decode.map2 FileProblems
+      (Decode.field "file" Decode.string)
+      (Decode.field "problems" (Decode.list Decode.string))
+
+decodeRoadNetworkChangesArchiveAccepted : Decode.Decoder ActivityListEntryContent
+decodeRoadNetworkChangesArchiveAccepted =
+    Decode.field "content"
+      (
+        Decode.map2 RoadNetworkChangesArchiveAccepted
+          (Decode.field "archiveId" Decode.string)
+          (Decode.field "problems" (Decode.list decodeFileProblem))
+      )
+
+decodeEntry : Decode.Decoder ActivityListEntry
+decodeEntry =
+    Decode.map7 ActivityListEntry
+      (Decode.field "id" Decode.int |> Decode.map String.fromInt)
+      (Decode.field "title" Decode.string)
+      (Decode.succeed "14")
+      (Decode.succeed "jun")
+      (Decode.succeed True)
+      (Decode.succeed False)
+      (Decode.oneOf [
+        when decodeEntryContentType (is "BeganRoadNetworkImport") (Decode.succeed BeganRoadNetworkImport)
+        , when decodeEntryContentType (is "CompletedRoadNetworkImport") (Decode.succeed CompletedRoadNetworkImport)
+        , when decodeEntryContentType (is "RoadNetworkChangesArchiveAccepted") (Decode.succeed CompletedRoadNetworkImport)
+        , when decodeEntryContentType (is "RoadNetworkChangesArchiveRejected") (Decode.succeed CompletedRoadNetworkImport)
+        , when decodeEntryContentType (is "RoadNetworkChangesArchiveUploaded") (Decode.succeed CompletedRoadNetworkImport)
+      ])
 
 init : String -> ( Model, Cmd Msg )
 init url =
@@ -105,6 +150,8 @@ init url =
 type Msg
     = ToggleExpandEntry String
     | GotAlertMsg AlertMsg
+    | Tick Posix
+    | GotActivity (Result Http.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -119,15 +166,38 @@ update msg model =
                     ( { model | alert = hideAlert model.alert }
                     , Cmd.none
                     )
+        Tick time ->
+            ( model
+            , Http.get { url = model.activity.url
+                         , expect = Http.expectJson GotActivity
+                         })
 
 onClickNoBubble : msg -> Html.Attribute msg
 onClickNoBubble message =
     Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = True, preventDefault = True })
 
-viewActivityEntryDetail : ActivityListEntryDetail -> Html Msg
-viewActivityEntryDetail detail =
-    case detail of
-        RoadNetworkChangesArchiveUploaded uploaded ->
+viewActivityEntryContent : ActivityListEntryContent -> Html Msg
+viewActivityEntryContent content =
+    case content of
+        BeganRoadNetworkImport ->
+                    div [ class "step__content" ]
+                        [ text "Archief: "
+                        , a [ href "", class "link--icon link--icon--inline" ]
+                            [ i [ class "vi vi-paperclip", ariaHidden True ]
+                                []
+                            , text "archief.zip"
+                            ]
+                        ]
+        CompletedRoadNetworkImport ->
+                    div [ class "step__content" ]
+                        [ text "Archief: "
+                        , a [ href "", class "link--icon link--icon--inline" ]
+                            [ i [ class "vi vi-paperclip", ariaHidden True ]
+                                []
+                            , text "archief.zip"
+                            ]
+                        ]
+        RoadNetworkChangesArchiveUploaded _ ->
             div [ class "step__content" ]
                 [ text "Archief: "
                 , a [ href "", class "link--icon link--icon--inline" ]
@@ -204,7 +274,7 @@ viewActivityEntry entry =
                     ]
                 , div
                     [ class "step__content-wrapper" ]
-                    [ viewActivityEntryDetail entry.detail
+                    [ viewActivityEntryContent entry.detail
                     ]
                 ]
             ]
@@ -236,7 +306,7 @@ viewActivity model =
 viewMain : Model -> Html Msg
 viewMain model =
     main_ [ id "main" ]
-        [ 
+        [
           viewAlert model.alert |> Html.map GotAlertMsg
         , viewActivityTitle model.activity
         , viewActivity model.activity
@@ -254,4 +324,4 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    every (60 * 1000) Tick

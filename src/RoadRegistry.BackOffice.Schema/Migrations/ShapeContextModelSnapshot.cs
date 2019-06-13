@@ -64,6 +64,26 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("Organization","RoadRegistryShape");
                 });
 
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNetworkActivity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Content");
+
+                    b.Property<string>("Title");
+
+                    b.Property<string>("Type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RoadNetworkActivity","RoadRegistryShape");
+                });
+
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNetworkInfo", b =>
                 {
                     b.Property<int>("Id")

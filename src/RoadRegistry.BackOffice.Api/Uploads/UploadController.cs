@@ -32,10 +32,9 @@ namespace RoadRegistry.Api.Uploads
         /// <param name="dispatcher">The command handler dispatcher.</param>
         /// <param name="archive">The file to upload.</param>
         /// <param name="client">The blob client to upload the file with.</param>
-        /// <param name="cancellationToken">The token that controls request cancellation.</param>
         /// <response code="200">Returned if the file was uploaded.</response>
-        /// <response code="500">Returned if the road registry can not be downloaded due to an unforeseen server error.</response>
-        /// <response code="503">Returned if the road registry can not yet be downloaded (e.g. because the import has not yet completed).</response>
+        /// <response code="415">Returned if the file can not be uploaded due to an unsupported media type.</response>
+        /// <response code="500">Returned if the file can not be uploaded due to an unforeseen server error.</response>
         [HttpPost("")]
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(UnsupportedMediaTypeResult), StatusCodes.Status415UnsupportedMediaType)]
@@ -48,8 +47,7 @@ namespace RoadRegistry.Api.Uploads
         public async Task<IActionResult> Post(
             [FromServices] CommandHandlerDispatcher dispatcher,
             [FromServices] IBlobClient client,
-            IFormFile archive,
-            CancellationToken cancellationToken)
+            IFormFile archive)
         {
             if (dispatcher == null) throw new ArgumentNullException(nameof(dispatcher));
             if (client == null) throw new ArgumentNullException(nameof(client));
@@ -70,7 +68,7 @@ namespace RoadRegistry.Api.Uploads
                     Metadata.None,
                     ContentType.Parse("application/zip"),
                     readStream,
-                    cancellationToken
+                    HttpContext.RequestAborted
                 );
 
                 var message = new Message(
@@ -80,7 +78,7 @@ namespace RoadRegistry.Api.Uploads
                         ArchiveId = archiveId.ToString()
                     });
 
-                await dispatcher(message, cancellationToken);
+                await dispatcher(message, HttpContext.RequestAborted);
             }
 
             return Ok();

@@ -19,6 +19,43 @@ namespace RoadRegistry.BackOffice.Projections
         }
 
         [Fact]
+        public Task When_import_began()
+        {
+            return new RoadNetworkActivityProjection()
+                .Scenario()
+                .Given(new BeganRoadNetworkImport())
+                .Expect(new RoadNetworkActivity
+                {
+                    Id = 1,
+                    Title = "Begonnen met importeren",
+                    Type = nameof(BeganRoadNetworkImport),
+                    Content = null
+                });
+        }
+
+        [Fact]
+        public Task When_import_completed()
+        {
+            return new RoadNetworkActivityProjection()
+                .Scenario()
+                .Given(new BeganRoadNetworkImport(), new CompletedRoadNetworkImport())
+                .Expect(new RoadNetworkActivity
+                    {
+                        Id = 1,
+                        Title = "Begonnen met importeren",
+                        Type = nameof(BeganRoadNetworkImport),
+                        Content = null
+                    },
+                    new RoadNetworkActivity
+                    {
+                        Id = 2,
+                        Title = "Klaar met importeren",
+                        Type = nameof(CompletedRoadNetworkImport),
+                        Content = null
+                    });
+        }
+
+        [Fact]
         public Task When_uploading_an_archive()
         {
             var archiveId = _fixture.Create<ArchiveId>();
@@ -32,7 +69,7 @@ namespace RoadRegistry.BackOffice.Projections
                 {
                     Id = 1,
                     Title = "Oplading bestand ontvangen",
-                    ContentType = nameof(RoadNetworkChangesArchiveUploaded),
+                    Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedActivity
                     {
                         ArchiveId = archiveId
@@ -82,7 +119,7 @@ namespace RoadRegistry.BackOffice.Projections
                 {
                     Id = 2,
                     Title = "Oplading bestand ontvangen",
-                    ContentType = nameof(RoadNetworkChangesArchiveUploaded),
+                    Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedActivity
                     {
                         ArchiveId = archiveId
@@ -91,7 +128,7 @@ namespace RoadRegistry.BackOffice.Projections
                 {
                     Id = 3,
                     Title = "Oplading bestand werd aanvaard",
-                    ContentType = nameof(RoadNetworkChangesArchiveAccepted),
+                    Type = nameof(RoadNetworkChangesArchiveAccepted),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedActivity
                     {
                         ArchiveId = archiveId,
@@ -152,7 +189,7 @@ namespace RoadRegistry.BackOffice.Projections
                 {
                     Id = 4,
                     Title = "Oplading bestand ontvangen",
-                    ContentType = nameof(RoadNetworkChangesArchiveUploaded),
+                    Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedActivity
                     {
                         ArchiveId = archiveId
@@ -161,7 +198,7 @@ namespace RoadRegistry.BackOffice.Projections
                 {
                     Id = 5,
                     Title = "Oplading bestand werd geweigerd",
-                    ContentType = nameof(RoadNetworkChangesArchiveRejected),
+                    Type = nameof(RoadNetworkChangesArchiveRejected),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveRejectedActivity
                     {
                         ArchiveId = archiveId,

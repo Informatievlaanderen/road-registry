@@ -13,12 +13,30 @@ namespace RoadRegistry.BackOffice.Projections
     {
         public RoadNetworkActivityProjection()
         {
+            When<Envelope<BeganRoadNetworkImport>>((context, envelope, ct) =>
+                context.RoadNetworkActivities.AddAsync(
+                    new RoadNetworkActivity
+                    {
+                        Title = "Begonnen met importeren",
+                        Type = nameof(BeganRoadNetworkImport),
+                        Content = null
+                    }, ct));
+
+            When<Envelope<CompletedRoadNetworkImport>>((context, envelope, ct) =>
+                context.RoadNetworkActivities.AddAsync(
+                    new RoadNetworkActivity
+                    {
+                        Title = "Klaar met importeren",
+                        Type = nameof(CompletedRoadNetworkImport),
+                        Content = null
+                    }, ct));
+
             When<Envelope<RoadNetworkChangesArchiveUploaded>>((context, envelope, ct) =>
                 context.RoadNetworkActivities.AddAsync(
                     new RoadNetworkActivity
                     {
                         Title = "Oplading bestand ontvangen",
-                        ContentType = nameof(RoadNetworkChangesArchiveUploaded),
+                        Type = nameof(RoadNetworkChangesArchiveUploaded),
                         Content = JsonConvert.SerializeObject(
                             new RoadNetworkChangesArchiveUploadedActivity
                             {
@@ -31,7 +49,7 @@ namespace RoadRegistry.BackOffice.Projections
                     new RoadNetworkActivity
                     {
                         Title = "Oplading bestand werd aanvaard",
-                        ContentType = nameof(RoadNetworkChangesArchiveAccepted),
+                        Type = nameof(RoadNetworkChangesArchiveAccepted),
                         Content = JsonConvert.SerializeObject(
                             new RoadNetworkChangesArchiveAcceptedActivity
                             {
@@ -56,7 +74,7 @@ namespace RoadRegistry.BackOffice.Projections
                     new RoadNetworkActivity
                     {
                         Title = "Oplading bestand werd geweigerd",
-                        ContentType = nameof(RoadNetworkChangesArchiveRejected),
+                        Type = nameof(RoadNetworkChangesArchiveRejected),
                         Content = JsonConvert.SerializeObject(
                             new RoadNetworkChangesArchiveRejectedActivity
                             {

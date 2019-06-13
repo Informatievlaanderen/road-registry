@@ -59,6 +59,22 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RoadNetworkActivity",
+                schema: "RoadRegistryShape",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Title = table.Column<string>(nullable: true),
+                    Type = table.Column<string>(nullable: true),
+                    Content = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoadNetworkActivity", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoadNetworkInfo",
                 schema: "RoadRegistryShape",
                 columns: table => new
@@ -223,6 +239,13 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoadNetworkActivity_Id",
+                schema: "RoadRegistryShape",
+                table: "RoadNetworkActivity",
+                column: "Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RoadNetworkInfo_Id",
                 schema: "RoadRegistryShape",
                 table: "RoadNetworkInfo",
@@ -242,6 +265,10 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.DropTable(
                 name: "Organization",
+                schema: "RoadRegistryShape");
+
+            migrationBuilder.DropTable(
+                name: "RoadNetworkActivity",
                 schema: "RoadRegistryShape");
 
             migrationBuilder.DropTable(
