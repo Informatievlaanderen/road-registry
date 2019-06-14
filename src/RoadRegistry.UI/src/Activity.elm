@@ -24,8 +24,8 @@ type alias FileProblems = { file: String, problems: List String }
 type ActivityListEntryContent
     = BeganRoadNetworkImport
     | CompletedRoadNetworkImport
-    | RoadNetworkChangesArchiveAccepted { archive : String, problems : FileProblems }
-    | RoadNetworkChangesArchiveRejected { archive : String, problems : FileProblems }
+    | RoadNetworkChangesArchiveAccepted { archive : String, problems : List FileProblems }
+    | RoadNetworkChangesArchiveRejected { archive : String, problems : List FileProblems }
     | RoadNetworkChangesArchiveUploaded { archive : String }
 
 
@@ -34,7 +34,7 @@ type alias ActivityListEntry =
 
 
 type alias ActivityModel =
-    { title : String, url : String, entries : List ActivityListEntry }
+    { url : String, entries : List ActivityListEntry }
 
 
 type alias Model =
@@ -54,13 +54,33 @@ decodeFileProblem =
       (Decode.field "file" Decode.string)
       (Decode.field "problems" (Decode.list Decode.string))
 
+decodeRoadNetworkChangesArchiveUploaded : Decode.Decoder ActivityListEntryContent
+decodeRoadNetworkChangesArchiveUploaded =
+    Decode.field "content"
+      (
+        Decode.map
+          (\archive -> RoadNetworkChangesArchiveUploaded { archive = archive })
+          (Decode.field "archiveId" Decode.string)
+      )
+
 decodeRoadNetworkChangesArchiveAccepted : Decode.Decoder ActivityListEntryContent
 decodeRoadNetworkChangesArchiveAccepted =
     Decode.field "content"
       (
-        Decode.map2 RoadNetworkChangesArchiveAccepted
+        Decode.map2 
+          (\archive problems -> RoadNetworkChangesArchiveAccepted { archive = archive, problems = problems })
           (Decode.field "archiveId" Decode.string)
-          (Decode.field "problems" (Decode.list decodeFileProblem))
+          (Decode.field "files" (Decode.list decodeFileProblem))
+      )
+
+decodeRoadNetworkChangesArchiveRejected : Decode.Decoder ActivityListEntryContent
+decodeRoadNetworkChangesArchiveRejected =
+    Decode.field "content"
+      (
+        Decode.map2 
+          (\archive problems -> RoadNetworkChangesArchiveRejected { archive = archive, problems = problems })
+          (Decode.field "archiveId" Decode.string)
+          (Decode.field "files" (Decode.list decodeFileProblem))
       )
 
 decodeEntry : Decode.Decoder ActivityListEntry
@@ -75,65 +95,17 @@ decodeEntry =
       (Decode.oneOf [
         when decodeEntryContentType (is "BeganRoadNetworkImport") (Decode.succeed BeganRoadNetworkImport)
         , when decodeEntryContentType (is "CompletedRoadNetworkImport") (Decode.succeed CompletedRoadNetworkImport)
-        , when decodeEntryContentType (is "RoadNetworkChangesArchiveAccepted") (Decode.succeed CompletedRoadNetworkImport)
-        , when decodeEntryContentType (is "RoadNetworkChangesArchiveRejected") (Decode.succeed CompletedRoadNetworkImport)
-        , when decodeEntryContentType (is "RoadNetworkChangesArchiveUploaded") (Decode.succeed CompletedRoadNetworkImport)
+        , when decodeEntryContentType (is "RoadNetworkChangesArchiveAccepted") decodeRoadNetworkChangesArchiveAccepted
+        , when decodeEntryContentType (is "RoadNetworkChangesArchiveRejected") decodeRoadNetworkChangesArchiveRejected
+        , when decodeEntryContentType (is "RoadNetworkChangesArchiveUploaded") decodeRoadNetworkChangesArchiveUploaded
       ])
 
 init : String -> ( Model, Cmd Msg )
 init url =
     ( { header = Header.init |> Header.activityBecameActive
       , activity =
-            { title = "Register dump"
-            , url = String.concat [ url, "/v1/activity" ]
-            , entries =
-                [ { id = "4"
-                  , title = "Oplading werd aanvaard"
-                  , day = "05"
-                  , month = "mei"
-                  , expanded = False
-                  , disabled = False
-                  , detail =
-                        RoadNetworkChangesArchiveRejected
-                            { archive = ""
-                            , warnings = []
-                            , errors = []
-                            }
-                  }
-                , { id = "3"
-                  , title = "Oplading ontvangen"
-                  , day = "05"
-                  , month = "mei"
-                  , expanded = False
-                  , disabled = False
-                  , detail = RoadNetworkChangesArchiveUploaded { archive = "" }
-                  }
-                , { id = "2"
-                  , title = "Oplading werd niet aanvaard"
-                  , day = "02"
-                  , month = "mei"
-                  , expanded = False
-                  , disabled = False
-                  , detail =
-                        RoadNetworkChangesArchiveRejected
-                            { archive = ""
-                            , warnings = []
-                            , errors =
-                                [ "Het vereiste bestand WEGSEGMENT_ALL.SHP ontbreekt."
-                                , "Het vereiste bestand WEGSEGMENT_ALL.DBF ontbreekt."
-                                , "Het bestand WEGKNOOP_ALL.SHP bevat een record (325) dat geen punt is maar een polygoon."
-                                ]
-                            }
-                  }
-                , { id = "1"
-                  , title = "Oplading ontvangen"
-                  , day = "02"
-                  , month = "mei"
-                  , expanded = False
-                  , disabled = False
-                  , detail = RoadNetworkChangesArchiveUploaded { archive = "" }
-                  }
-                ]
+            { url = String.concat [ url, "/v1/activity" ]
+            , entries = []
             }
       , alert =
             { title = ""
@@ -151,7 +123,7 @@ type Msg
     = ToggleExpandEntry String
     | GotAlertMsg AlertMsg
     | Tick Posix
-    | GotActivity (Result Http.Error String)
+    | GotActivity (Result Http.Error (List ActivityListEntry))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -169,8 +141,49 @@ update msg model =
         Tick time ->
             ( model
             , Http.get { url = model.activity.url
-                         , expect = Http.expectJson GotActivity
+                         , expect = Http.expectJson GotActivity (Decode.field "activities" (Decode.list decodeEntry))
                          })
+        GotActivity result ->
+            case result of
+                Ok entries ->
+                    let
+                        oldActivity = model.activity
+                        newActivity = { oldActivity | entries = entries }
+                    in
+                        ( { model | activity = newActivity }, Cmd.none)
+                Err error ->
+                    case error of
+                        Http.BadUrl _ ->
+                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteit - de url blijkt foutief te zijn." }
+                            , Cmd.none
+                            )
+
+                        Http.Timeout ->
+                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteit - de operatie nam teveel tijd in beslag." }
+                            , Cmd.none
+                            )
+
+                        Http.NetworkError ->
+                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteit - een netwerk fout ligt aan de basis." }
+                            , Cmd.none
+                            )
+
+                        Http.BadStatus statusCode ->
+                            case statusCode of
+                                503 ->
+                                    ( { model | alert = showError model.alert "Activiteit opvragen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
+                                    , Cmd.none
+                                    )
+
+                                _ ->
+                                    ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteit - dit kan duiden op een probleem met de website." }
+                                    , Cmd.none
+                                    )
+
+                        Http.BadBody badBody ->
+                            ( { model | alert = showError model.alert (String.concat [badBody, "Er was een probleem bij het opvragen van de activiteit - dit kan duiden op een probleem met de website."]) }
+                            , Cmd.none
+                            )
 
 onClickNoBubble : msg -> Html.Attribute msg
 onClickNoBubble message =
@@ -210,9 +223,7 @@ viewActivityEntryContent content =
         RoadNetworkChangesArchiveRejected rejected ->
             div [ class "step__content" ]
                 [ ul []
-                    (List.map (\error -> li [] [ text error ]) rejected.errors)
-                , ul []
-                    (List.map (\warning -> li [] [ text warning ]) rejected.warnings)
+                    (List.map (\problem -> li [] [ text problem.file ]) rejected.problems)
                 , br [] []
                 , text "Archief: "
                 , a [ href "", class "link--icon link--icon--inline" ]
@@ -225,7 +236,7 @@ viewActivityEntryContent content =
         RoadNetworkChangesArchiveAccepted accepted ->
             div [ class "step__content" ]
                 [ ul []
-                    (List.map (\warning -> li [] [ text warning ]) accepted.warnings)
+                    (List.map (\problem -> li [] [ text problem.file ]) accepted.problems)
                 ]
 
 
@@ -324,4 +335,4 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    every (60 * 1000) Tick
+    every (5000) Tick
