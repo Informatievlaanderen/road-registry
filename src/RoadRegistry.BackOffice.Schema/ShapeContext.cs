@@ -30,7 +30,7 @@ namespace RoadRegistry.BackOffice.Schema
         public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }
         public DbQuery<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
         public DbQuery<RoadSegmentBoundingBox3D> RoadSegmentBoundingBox { get; set; }
-        public DbSet<RoadNetworkActivity> RoadNetworkActivities { get; set; }
+        public DbSet<RoadNetworkChange> RoadNetworkChanges { get; set; }
 
         public ShapeContext() {}
 

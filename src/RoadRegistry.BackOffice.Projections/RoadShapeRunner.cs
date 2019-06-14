@@ -25,7 +25,7 @@ namespace RoadRegistry.BackOffice.Projections
                 new OrganizationRecordProjection(Encoding.GetEncoding(1252)),
                 new GradeSeparatedJunctionRecordProjection(Encoding.GetEncoding(1252)),
                 new RoadNetworkInfoProjection(reader),
-                new RoadNetworkActivityProjection())
+                new RoadNetworkChangeFeedProjection())
             { }
     }
 }

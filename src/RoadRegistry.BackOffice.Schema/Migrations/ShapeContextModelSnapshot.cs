@@ -64,11 +64,9 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("Organization","RoadRegistryShape");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNetworkActivity", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNetworkChange", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<long>("Id");
 
                     b.Property<string>("Content");
 

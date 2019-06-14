@@ -1,24 +1,25 @@
 namespace RoadRegistry.Api.Activities
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using BackOffice.Messages;
     using BackOffice.Schema;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+    using Changes.Responses;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
-    using Responses;
     using Swashbuckle.AspNetCore.Filters;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]
-    [ApiRoute("activity")]
-    [ApiExplorerSettings(GroupName = "Activities")]
-    public class ActivityController : ControllerBase
+    [ApiRoute("changefeed")]
+    [ApiExplorerSettings(GroupName = "ChangeFeed")]
+    public class ChangeFeedController : ControllerBase
     {
         /// <summary>
         /// Request an archive of the entire road registry for shape editing purposes.
@@ -29,14 +30,17 @@ namespace RoadRegistry.Api.Activities
         [HttpGet("")]
         [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BasicApiProblem), StatusCodes.Status500InternalServerError)]
-        [SwaggerResponseExample(StatusCodes.Status200OK, typeof(ActivityResponseExamples), jsonConverter: typeof(StringEnumConverter))]
+        [SwaggerResponseExample(StatusCodes.Status200OK, typeof(ChangeFeedResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         public async Task<IActionResult> Get([FromServices] ShapeContext context)
         {
-            var activities = new List<ActivityResponseItem>();
-            await context.RoadNetworkActivities.ForEachAsync(activity =>
+            var activities = new List<ChangeFeedEntry>();
+            await context
+                .RoadNetworkChanges
+                .OrderByDescending(_ => _.Id)
+                .ForEachAsync(activity =>
             {
-                var item = new ActivityResponseItem
+                var item = new ChangeFeedEntry
                 {
                     Id = activity.Id,
                     Title = activity.Title,
@@ -52,24 +56,24 @@ namespace RoadRegistry.Api.Activities
                         break;
                     case nameof(RoadNetworkChangesArchiveUploaded):
                         item.Content = JsonConvert.DeserializeObject(activity.Content,
-                            typeof(RoadNetworkChangesArchiveUploadedActivity));
+                            typeof(RoadNetworkChangesArchiveUploadedEntry));
                         break;
                     case nameof(RoadNetworkChangesArchiveAccepted):
                         item.Content = JsonConvert.DeserializeObject(activity.Content,
-                            typeof(RoadNetworkChangesArchiveAcceptedActivity));
+                            typeof(RoadNetworkChangesArchiveAcceptedEntry));
                         break;
                     case nameof(RoadNetworkChangesArchiveRejected):
                         item.Content = JsonConvert.DeserializeObject(activity.Content,
-                            typeof(RoadNetworkChangesArchiveRejectedActivity));
+                            typeof(RoadNetworkChangesArchiveRejectedEntry));
                         break;
                 }
 
                 activities.Add(item);
             }, HttpContext.RequestAborted);
 
-            return new JsonResult(new ActivityResponse
+            return new JsonResult(new ChangeFeedResponse
             {
-                Activities = activities.ToArray()
+                Entries = activities.ToArray()
             })
             {
                 StatusCode = StatusCodes.Status200OK

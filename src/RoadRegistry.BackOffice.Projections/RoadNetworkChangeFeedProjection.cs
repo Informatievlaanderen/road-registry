@@ -9,49 +9,53 @@ namespace RoadRegistry.BackOffice.Projections
     using Schema;
     using Translation;
 
-    public class RoadNetworkActivityProjection : ConnectedProjection<ShapeContext>
+    public class RoadNetworkChangeFeedProjection : ConnectedProjection<ShapeContext>
     {
-        public RoadNetworkActivityProjection()
+        public RoadNetworkChangeFeedProjection()
         {
             When<Envelope<BeganRoadNetworkImport>>((context, envelope, ct) =>
-                context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkActivity
+                context.RoadNetworkChanges.AddAsync(
+                    new RoadNetworkChange
                     {
+                        Id = envelope.Position,
                         Title = "Begonnen met importeren",
                         Type = nameof(BeganRoadNetworkImport),
                         Content = null
                     }, ct));
 
             When<Envelope<CompletedRoadNetworkImport>>((context, envelope, ct) =>
-                context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkActivity
+                context.RoadNetworkChanges.AddAsync(
+                    new RoadNetworkChange
                     {
+                        Id = envelope.Position,
                         Title = "Klaar met importeren",
                         Type = nameof(CompletedRoadNetworkImport),
                         Content = null
                     }, ct));
 
             When<Envelope<RoadNetworkChangesArchiveUploaded>>((context, envelope, ct) =>
-                context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkActivity
+                context.RoadNetworkChanges.AddAsync(
+                    new RoadNetworkChange
                     {
+                        Id = envelope.Position,
                         Title = "Oplading bestand ontvangen",
                         Type = nameof(RoadNetworkChangesArchiveUploaded),
                         Content = JsonConvert.SerializeObject(
-                            new RoadNetworkChangesArchiveUploadedActivity
+                            new RoadNetworkChangesArchiveUploadedEntry
                             {
                                 ArchiveId = envelope.Message.ArchiveId
                             })
                     }, ct));
 
             When<Envelope<RoadNetworkChangesArchiveAccepted>>((context, envelope, ct) =>
-                context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkActivity
+                context.RoadNetworkChanges.AddAsync(
+                    new RoadNetworkChange
                     {
+                        Id = envelope.Position,
                         Title = "Oplading bestand werd aanvaard",
                         Type = nameof(RoadNetworkChangesArchiveAccepted),
                         Content = JsonConvert.SerializeObject(
-                            new RoadNetworkChangesArchiveAcceptedActivity
+                            new RoadNetworkChangesArchiveAcceptedEntry
                             {
                                 ArchiveId = envelope.Message.ArchiveId,
                                 Files = envelope.Message.Problems
@@ -70,13 +74,14 @@ namespace RoadRegistry.BackOffice.Projections
 
 
             When<Envelope<RoadNetworkChangesArchiveRejected>>((context, envelope, ct) =>
-                context.RoadNetworkActivities.AddAsync(
-                    new RoadNetworkActivity
+                context.RoadNetworkChanges.AddAsync(
+                    new RoadNetworkChange
                     {
+                        Id = envelope.Position,
                         Title = "Oplading bestand werd geweigerd",
                         Type = nameof(RoadNetworkChangesArchiveRejected),
                         Content = JsonConvert.SerializeObject(
-                            new RoadNetworkChangesArchiveRejectedActivity
+                            new RoadNetworkChangesArchiveRejectedEntry
                             {
                                 ArchiveId = envelope.Message.ArchiveId,
                                 Files = envelope.Message.Problems

@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Schema
 {
-    public class RoadNetworkChangesArchiveUploadedActivity
+    public class RoadNetworkChangesArchiveUploadedEntry
     {
         public string ArchiveId { get; set; }
     }

@@ -8,7 +8,7 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
     using RoadRegistry.Api.Activities;
-    using RoadRegistry.Api.Activities.Responses;
+    using RoadRegistry.Api.Changes.Responses;
     using Schema;
     using Translation;
     using Xunit;
@@ -26,31 +26,31 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_activities_of_empty_registry()
         {
-            var controller = new ActivityController{ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
+            var controller = new ChangeFeedController{ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
             using (var context = await _fixture.CreateEmptyShapeContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 var result = await controller.Get(context);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
-                var response = Assert.IsType<ActivityResponse>(jsonResult.Value);
-                Assert.Empty(response.Activities);
+                var response = Assert.IsType<ChangeFeedResponse>(jsonResult.Value);
+                Assert.Empty(response.Entries);
             }
         }
 
         [Fact]
         public async Task When_downloading_activities_of_filled_registry()
         {
-            var controller = new ActivityController{ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
+            var controller = new ChangeFeedController{ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
             var database = await _fixture.CreateDatabaseAsync();
             var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
             using (var context = await _fixture.CreateEmptyShapeContextAsync(database))
             {
-                context.RoadNetworkActivities.Add(new RoadNetworkActivity
+                context.RoadNetworkChanges.Add(new RoadNetworkChange
                 {
                     Title = "De oplading werd ontvangen.",
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
-                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedActivity
+                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
                         ArchiveId = archiveId
                     })
@@ -64,13 +64,13 @@ namespace RoadRegistry.BackOffice.Api
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
-                var response = Assert.IsType<ActivityResponse>(jsonResult.Value);
-                var item = Assert.Single(response.Activities);
+                var response = Assert.IsType<ChangeFeedResponse>(jsonResult.Value);
+                var item = Assert.Single(response.Entries);
                 Assert.NotNull(item);
                 Assert.Equal(1, item.Id);
                 Assert.Equal("De oplading werd ontvangen.", item.Title);
                 Assert.Equal(nameof(RoadNetworkChangesArchiveUploaded), item.Type);
-                var content = Assert.IsType<RoadNetworkChangesArchiveUploadedActivity>(item.Content);
+                var content = Assert.IsType<RoadNetworkChangesArchiveUploadedEntry>(item.Content);
                 Assert.Equal(archiveId.ToString(), content.ArchiveId);
             }
         }

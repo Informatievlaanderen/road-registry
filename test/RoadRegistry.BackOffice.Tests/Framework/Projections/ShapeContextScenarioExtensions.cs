@@ -66,7 +66,7 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
 
             var specification = scenario.Verify(async context =>
             {
-                var comparisonConfig = new ComparisonConfig { MaxDifferences = 5, MembersToIgnore = { "Id" }};
+                var comparisonConfig = new ComparisonConfig { MaxDifferences = 5};
                 var comparer = new CompareLogic(comparisonConfig);
                 var actualRecords = await context.AllRecords();
                 var result = comparer.Compare(
@@ -82,10 +82,12 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
             using (var context = CreateContextFor(database))
             {
                 var projector = new ConnectedProjector<ShapeContext>(specification.Resolver);
+                var position = 0L;
                 foreach (var message in specification.Messages)
                 {
-                    var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
+                    var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position }}).ToGenericEnvelope();
                     await projector.ProjectAsync(context, envelope);
+                    position++;
                 }
 
                 await context.SaveChangesAsync();
@@ -114,7 +116,7 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
             records.AddRange(await context.GradeSeparatedJunctions.ToArrayAsync());
             records.AddRange(await context.Organizations.ToArrayAsync());
             records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
-            records.AddRange(await context.RoadNetworkActivities.ToArrayAsync());
+            records.AddRange(await context.RoadNetworkChanges.ToArrayAsync());
             return records.ToArray();
         }
 

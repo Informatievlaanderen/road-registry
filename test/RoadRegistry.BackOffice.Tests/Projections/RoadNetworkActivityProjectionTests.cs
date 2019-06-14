@@ -21,12 +21,12 @@ namespace RoadRegistry.BackOffice.Projections
         [Fact]
         public Task When_import_began()
         {
-            return new RoadNetworkActivityProjection()
+            return new RoadNetworkChangeFeedProjection()
                 .Scenario()
                 .Given(new BeganRoadNetworkImport())
-                .Expect(new RoadNetworkActivity
+                .Expect(new RoadNetworkChange
                 {
-                    Id = 1,
+                    Id = 0,
                     Title = "Begonnen met importeren",
                     Type = nameof(BeganRoadNetworkImport),
                     Content = null
@@ -36,19 +36,19 @@ namespace RoadRegistry.BackOffice.Projections
         [Fact]
         public Task When_import_completed()
         {
-            return new RoadNetworkActivityProjection()
+            return new RoadNetworkChangeFeedProjection()
                 .Scenario()
                 .Given(new BeganRoadNetworkImport(), new CompletedRoadNetworkImport())
-                .Expect(new RoadNetworkActivity
+                .Expect(new RoadNetworkChange
                     {
-                        Id = 1,
+                        Id = 0,
                         Title = "Begonnen met importeren",
                         Type = nameof(BeganRoadNetworkImport),
                         Content = null
                     },
-                    new RoadNetworkActivity
+                    new RoadNetworkChange
                     {
-                        Id = 2,
+                        Id = 1,
                         Title = "Klaar met importeren",
                         Type = nameof(CompletedRoadNetworkImport),
                         Content = null
@@ -59,18 +59,18 @@ namespace RoadRegistry.BackOffice.Projections
         public Task When_uploading_an_archive()
         {
             var archiveId = _fixture.Create<ArchiveId>();
-            return new RoadNetworkActivityProjection()
+            return new RoadNetworkChangeFeedProjection()
                 .Scenario()
                 .Given(new RoadNetworkChangesArchiveUploaded
                 {
                     ArchiveId = archiveId
                 })
-                .Expect(new RoadNetworkActivity
+                .Expect(new RoadNetworkChange
                 {
-                    Id = 1,
+                    Id = 0,
                     Title = "Oplading bestand ontvangen",
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
-                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedActivity
+                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
                         ArchiveId = archiveId
                     })
@@ -82,7 +82,7 @@ namespace RoadRegistry.BackOffice.Projections
         {
             var file = _fixture.Create<string>();
             var archiveId = _fixture.Create<ArchiveId>();
-            return new RoadNetworkActivityProjection()
+            return new RoadNetworkChangeFeedProjection()
                 .Scenario()
                 .Given(new RoadNetworkChangesArchiveUploaded
                 {
@@ -115,21 +115,21 @@ namespace RoadRegistry.BackOffice.Projections
                         }
                     }
                 })
-                .Expect(new RoadNetworkActivity
+                .Expect(new RoadNetworkChange
                 {
-                    Id = 2,
+                    Id = 0,
                     Title = "Oplading bestand ontvangen",
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
-                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedActivity
+                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
                         ArchiveId = archiveId
                     })
-                }, new RoadNetworkActivity
+                }, new RoadNetworkChange
                 {
-                    Id = 3,
+                    Id = 1,
                     Title = "Oplading bestand werd aanvaard",
                     Type = nameof(RoadNetworkChangesArchiveAccepted),
-                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedActivity
+                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
                     {
                         ArchiveId = archiveId,
                         Files = new[]
@@ -152,7 +152,7 @@ namespace RoadRegistry.BackOffice.Projections
         {
             var file = _fixture.Create<string>();
             var archiveId = _fixture.Create<ArchiveId>();
-            return new RoadNetworkActivityProjection()
+            return new RoadNetworkChangeFeedProjection()
                 .Scenario()
                 .Given(new RoadNetworkChangesArchiveUploaded
                 {
@@ -185,21 +185,21 @@ namespace RoadRegistry.BackOffice.Projections
                         }
                     }
                 })
-                .Expect(new RoadNetworkActivity
+                .Expect(new RoadNetworkChange
                 {
-                    Id = 4,
+                    Id = 0,
                     Title = "Oplading bestand ontvangen",
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
-                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedActivity
+                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
                         ArchiveId = archiveId
                     })
-                }, new RoadNetworkActivity
+                }, new RoadNetworkChange
                 {
-                    Id = 5,
+                    Id = 1,
                     Title = "Oplading bestand werd geweigerd",
                     Type = nameof(RoadNetworkChangesArchiveRejected),
-                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveRejectedActivity
+                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveRejectedEntry
                     {
                         ArchiveId = archiveId,
                         Files = new[]

@@ -63,8 +63,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 schema: "RoadRegistryShape",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Id = table.Column<long>(nullable: false),
                     Title = table.Column<string>(nullable: true),
                     Type = table.Column<string>(nullable: true),
                     Content = table.Column<string>(nullable: true)

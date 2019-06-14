@@ -2,26 +2,27 @@ module Activity exposing (Msg(..), init, main, subscriptions, update, view)
 
 import Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showError, viewAlert)
 import Browser
-import Bytes exposing (Bytes)
 import Footer
 import Header exposing (HeaderAction, HeaderModel, TabAction)
 import Html exposing (Html, a, br, div, h1, h2, h3, i, li, main_, section, span, text, ul)
 import Html.Attributes exposing (class, classList, href, id, style)
 import Html.Attributes.Aria exposing (ariaHidden)
-import Html.Events exposing (onClick)
+import Html.Events
 import Http
-import HttpBytes
 import Json.Decode as Decode
-import Json.Decode.Extra exposing(when)
-import Time exposing(Posix, every)
+import Json.Decode.Extra exposing (when)
+import Time exposing (Posix, every)
+
 
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
-type alias FileProblems = { file: String, problems: List String }
+type alias FileProblems =
+    { file : String, problems : List String }
 
-type ActivityListEntryContent
+
+type ChangeFeedEntryContent
     = BeganRoadNetworkImport
     | CompletedRoadNetworkImport
     | RoadNetworkChangesArchiveAccepted { archive : String, problems : List FileProblems }
@@ -29,82 +30,93 @@ type ActivityListEntryContent
     | RoadNetworkChangesArchiveUploaded { archive : String }
 
 
-type alias ActivityListEntry =
-    { id : String, title : String, day : String, month : String, expanded : Bool, disabled : Bool, detail : ActivityListEntryContent }
+type alias ChangeFeedEntry =
+    { id : String, title : String, day : String, month : String, expanded : Bool, disabled : Bool, detail : ChangeFeedEntryContent }
 
 
 type alias ActivityModel =
-    { url : String, entries : List ActivityListEntry }
+    { url : String, entries : List ChangeFeedEntry }
 
 
 type alias Model =
     { header : HeaderModel, activity : ActivityModel, alert : AlertModel }
 
-decodeEntryContentType: Decode.Decoder String
+
+decodeEntryContentType : Decode.Decoder String
 decodeEntryContentType =
     Decode.field "type" Decode.string
+
 
 is : a -> a -> Bool
 is a b =
     a == b
 
-decodeFileProblem: Decode.Decoder FileProblems
+
+decodeFileProblem : Decode.Decoder FileProblems
 decodeFileProblem =
     Decode.map2 FileProblems
-      (Decode.field "file" Decode.string)
-      (Decode.field "problems" (Decode.list Decode.string))
+        (Decode.field "file" Decode.string)
+        (Decode.field "problems" (Decode.list Decode.string))
 
-decodeRoadNetworkChangesArchiveUploaded : Decode.Decoder ActivityListEntryContent
+
+decodeRoadNetworkChangesArchiveUploaded : Decode.Decoder ChangeFeedEntryContent
 decodeRoadNetworkChangesArchiveUploaded =
     Decode.field "content"
-      (
-        Decode.map
-          (\archive -> RoadNetworkChangesArchiveUploaded { archive = archive })
-          (Decode.field "archiveId" Decode.string)
-      )
+        (Decode.map
+            (\archive -> RoadNetworkChangesArchiveUploaded { archive = archive })
+            (Decode.field "archiveId" Decode.string)
+        )
 
-decodeRoadNetworkChangesArchiveAccepted : Decode.Decoder ActivityListEntryContent
+
+decodeRoadNetworkChangesArchiveAccepted : Decode.Decoder ChangeFeedEntryContent
 decodeRoadNetworkChangesArchiveAccepted =
     Decode.field "content"
-      (
-        Decode.map2 
-          (\archive problems -> RoadNetworkChangesArchiveAccepted { archive = archive, problems = problems })
-          (Decode.field "archiveId" Decode.string)
-          (Decode.field "files" (Decode.list decodeFileProblem))
-      )
+        (Decode.map2
+            (\archive problems -> RoadNetworkChangesArchiveAccepted { archive = archive, problems = problems })
+            (Decode.field "archiveId" Decode.string)
+            (Decode.field "files" (Decode.list decodeFileProblem))
+        )
 
-decodeRoadNetworkChangesArchiveRejected : Decode.Decoder ActivityListEntryContent
+
+decodeRoadNetworkChangesArchiveRejected : Decode.Decoder ChangeFeedEntryContent
 decodeRoadNetworkChangesArchiveRejected =
     Decode.field "content"
-      (
-        Decode.map2 
-          (\archive problems -> RoadNetworkChangesArchiveRejected { archive = archive, problems = problems })
-          (Decode.field "archiveId" Decode.string)
-          (Decode.field "files" (Decode.list decodeFileProblem))
-      )
+        (Decode.map2
+            (\archive problems -> RoadNetworkChangesArchiveRejected { archive = archive, problems = problems })
+            (Decode.field "archiveId" Decode.string)
+            (Decode.field "files" (Decode.list decodeFileProblem))
+        )
 
-decodeEntry : Decode.Decoder ActivityListEntry
+
+decodeEntry : Decode.Decoder ChangeFeedEntry
 decodeEntry =
-    Decode.map7 ActivityListEntry
-      (Decode.field "id" Decode.int |> Decode.map String.fromInt)
-      (Decode.field "title" Decode.string)
-      (Decode.succeed "14")
-      (Decode.succeed "jun")
-      (Decode.succeed True)
-      (Decode.succeed False)
-      (Decode.oneOf [
-        when decodeEntryContentType (is "BeganRoadNetworkImport") (Decode.succeed BeganRoadNetworkImport)
-        , when decodeEntryContentType (is "CompletedRoadNetworkImport") (Decode.succeed CompletedRoadNetworkImport)
-        , when decodeEntryContentType (is "RoadNetworkChangesArchiveAccepted") decodeRoadNetworkChangesArchiveAccepted
-        , when decodeEntryContentType (is "RoadNetworkChangesArchiveRejected") decodeRoadNetworkChangesArchiveRejected
-        , when decodeEntryContentType (is "RoadNetworkChangesArchiveUploaded") decodeRoadNetworkChangesArchiveUploaded
-      ])
+    Decode.map7 ChangeFeedEntry
+        (Decode.field "id" Decode.int |> Decode.map String.fromInt)
+        (Decode.field "title" Decode.string)
+        (Decode.succeed "14")
+        (Decode.succeed "jun")
+        (Decode.succeed True)
+        (Decode.succeed False)
+        (Decode.oneOf
+            [ when decodeEntryContentType (is "BeganRoadNetworkImport") (Decode.succeed BeganRoadNetworkImport)
+            , when decodeEntryContentType (is "CompletedRoadNetworkImport") (Decode.succeed CompletedRoadNetworkImport)
+            , when decodeEntryContentType (is "RoadNetworkChangesArchiveAccepted") decodeRoadNetworkChangesArchiveAccepted
+            , when decodeEntryContentType (is "RoadNetworkChangesArchiveRejected") decodeRoadNetworkChangesArchiveRejected
+            , when decodeEntryContentType (is "RoadNetworkChangesArchiveUploaded") decodeRoadNetworkChangesArchiveUploaded
+            ]
+        )
+
+
+decodeResponse : Decode.Decoder (List ChangeFeedEntry)
+decodeResponse =
+    Decode.field "entries" (Decode.list decodeEntry)
+
 
 init : String -> ( Model, Cmd Msg )
 init url =
     ( { header = Header.init |> Header.activityBecameActive
       , activity =
-            { url = String.concat [ url, "/v1/activity" ]
+            { url = String.concat [ url, "/v1/changefeed" ]
             , entries = []
             }
       , alert =
@@ -115,7 +127,10 @@ init url =
             , hasIcon = True
             }
       }
-    , Cmd.none
+    , Http.get
+        { url = String.concat [ url, "/v1/changefeed" ]
+        , expect = Http.expectJson GotActivity decodeResponse
+        }
     )
 
 
@@ -123,7 +138,7 @@ type Msg
     = ToggleExpandEntry String
     | GotAlertMsg AlertMsg
     | Tick Posix
-    | GotActivity (Result Http.Error (List ActivityListEntry))
+    | GotActivity (Result Http.Error (List ChangeFeedEntry))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -138,78 +153,90 @@ update msg model =
                     ( { model | alert = hideAlert model.alert }
                     , Cmd.none
                     )
+
         Tick time ->
             ( model
-            , Http.get { url = model.activity.url
-                         , expect = Http.expectJson GotActivity (Decode.field "activities" (Decode.list decodeEntry))
-                         })
+            , Http.get
+                { url = model.activity.url
+                , expect = Http.expectJson GotActivity decodeResponse
+                }
+            )
+
         GotActivity result ->
             case result of
                 Ok entries ->
                     let
-                        oldActivity = model.activity
-                        newActivity = { oldActivity | entries = entries }
+                        oldActivity =
+                            model.activity
+
+                        newActivity =
+                            { oldActivity | entries = entries }
                     in
-                        ( { model | activity = newActivity }, Cmd.none)
+                    ( { model | activity = newActivity }, Cmd.none )
+
                 Err error ->
                     case error of
                         Http.BadUrl _ ->
-                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteit - de url blijkt foutief te zijn." }
+                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteiten - de url blijkt foutief te zijn." }
                             , Cmd.none
                             )
 
                         Http.Timeout ->
-                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteit - de operatie nam teveel tijd in beslag." }
+                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteiten - de operatie nam teveel tijd in beslag." }
                             , Cmd.none
                             )
 
                         Http.NetworkError ->
-                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteit - een netwerk fout ligt aan de basis." }
+                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteiten - een netwerk fout ligt aan de basis." }
                             , Cmd.none
                             )
 
                         Http.BadStatus statusCode ->
                             case statusCode of
                                 503 ->
-                                    ( { model | alert = showError model.alert "Activiteit opvragen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
+                                    ( { model | alert = showError model.alert "Activiteiten opvragen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
                                     , Cmd.none
                                     )
 
                                 _ ->
-                                    ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteit - dit kan duiden op een probleem met de website." }
+                                    ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteiten - dit kan duiden op een probleem met de website." }
                                     , Cmd.none
                                     )
 
-                        Http.BadBody badBody ->
-                            ( { model | alert = showError model.alert (String.concat [badBody, "Er was een probleem bij het opvragen van de activiteit - dit kan duiden op een probleem met de website."]) }
+                        Http.BadBody _ ->
+                            ( { model | alert = showError model.alert "Er was een probleem bij het interpreteren van de activiteiten - dit kan duiden op een probleem met de website." }
                             , Cmd.none
                             )
+
 
 onClickNoBubble : msg -> Html.Attribute msg
 onClickNoBubble message =
     Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = True, preventDefault = True })
 
-viewActivityEntryContent : ActivityListEntryContent -> Html Msg
+
+viewActivityEntryContent : ChangeFeedEntryContent -> Html Msg
 viewActivityEntryContent content =
     case content of
         BeganRoadNetworkImport ->
-                    div [ class "step__content" ]
-                        [ text "Archief: "
-                        , a [ href "", class "link--icon link--icon--inline" ]
-                            [ i [ class "vi vi-paperclip", ariaHidden True ]
-                                []
-                            , text "archief.zip"
-                            ]
-                        ]
+            div [ class "step__content" ]
+                [ text "Archief: "
+                , a [ href "", class "link--icon link--icon--inline" ]
+                    [ i [ class "vi vi-paperclip", ariaHidden True ]
+                        []
+                    , text "archief.zip"
+                    ]
+                ]
+
         CompletedRoadNetworkImport ->
-                    div [ class "step__content" ]
-                        [ text "Archief: "
-                        , a [ href "", class "link--icon link--icon--inline" ]
-                            [ i [ class "vi vi-paperclip", ariaHidden True ]
-                                []
-                            , text "archief.zip"
-                            ]
-                        ]
+            div [ class "step__content" ]
+                [ text "Archief: "
+                , a [ href "", class "link--icon link--icon--inline" ]
+                    [ i [ class "vi vi-paperclip", ariaHidden True ]
+                        []
+                    , text "archief.zip"
+                    ]
+                ]
+
         RoadNetworkChangesArchiveUploaded _ ->
             div [ class "step__content" ]
                 [ text "Archief: "
@@ -240,7 +267,7 @@ viewActivityEntryContent content =
                 ]
 
 
-viewActivityEntry : ActivityListEntry -> Html Msg
+viewActivityEntry : ChangeFeedEntry -> Html Msg
 viewActivityEntry entry =
     if entry.disabled then
         li
@@ -293,35 +320,37 @@ viewActivityEntry entry =
 
 viewActivityTitle : ActivityModel -> Html Msg
 viewActivityTitle model =
-        section [ class "region" ]
-            [ div
-                [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
-                [ div []
-                    [ h1 [ class "h2 cta-title__title" ]
-                        [ text "Activiteit" ]
-                    ]
+    section [ class "region" ]
+        [ div
+            [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
+            [ div []
+                [ h1 [ class "h2 cta-title__title" ]
+                    [ text "Activiteit" ]
                 ]
             ]
+        ]
+
 
 viewActivity : ActivityModel -> Html Msg
 viewActivity model =
-        section [ class "region" ]
-            [ div
-                [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
-                [ ul
-                    [ class "steps steps--timeline" ]
-                    (List.map viewActivityEntry model.entries)
-                ]
+    section [ class "region" ]
+        [ div
+            [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
+            [ ul
+                [ class "steps steps--timeline" ]
+                (List.map viewActivityEntry model.entries)
             ]
+        ]
+
 
 viewMain : Model -> Html Msg
 viewMain model =
     main_ [ id "main" ]
-        [
-          viewAlert model.alert |> Html.map GotAlertMsg
+        [ viewAlert model.alert |> Html.map GotAlertMsg
         , viewActivityTitle model.activity
         , viewActivity model.activity
         ]
+
 
 view : Model -> Html Msg
 view model =
@@ -335,4 +364,4 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    every (5000) Tick
+    every 5000 Tick
