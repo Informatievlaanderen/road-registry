@@ -28,8 +28,10 @@ namespace RoadRegistry.BackOffice.Model
         }
 
         public static ICommandHandlerBuilder<IRoadRegistryContext, TCommand> UseRoadRegistryContext<TCommand>(
-            this ICommandHandlerBuilder<TCommand> builder, IStreamStore store)
+            this ICommandHandlerBuilder<TCommand> builder, IStreamStore store, EventEnricher enricher)
         {
+            if (store == null) throw new ArgumentNullException(nameof(store));
+            if (enricher == null) throw new ArgumentNullException(nameof(enricher));
             return builder.Pipe<IRoadRegistryContext>(next => async (message, ct) =>
                 {
                     var map = new EventSourcedEntityMap();
@@ -42,11 +44,13 @@ namespace RoadRegistry.BackOffice.Model
                         var events = entry.Entity.TakeEvents();
                         if (events.Length != 0)
                         {
+
                             var messageId =
                                 message.Head.TryGetValue("MessageId", out object value)
                                     ? value.ToString()
                                     : Guid.NewGuid().ToString("N");
                             var version = entry.ExpectedVersion;
+                            Array.ForEach(events, @event => enricher(@event));
                             var messages = Array.ConvertAll(
                                 events,
                                 @event =>

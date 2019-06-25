@@ -11,6 +11,7 @@ namespace RoadRegistry.BackOffice.Model
     using GeoAPI.Geometries;
     using Messages;
     using NetTopologySuite.Geometries;
+    using NodaTime.Text;
     using Xunit;
     using LineString = NetTopologySuite.Geometries.LineString;
 
@@ -690,7 +691,8 @@ namespace RoadRegistry.BackOffice.Model
                             RoadSegmentAdded = Segment1Added,
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -722,7 +724,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -774,7 +777,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -826,7 +830,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -942,7 +947,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -1063,7 +1069,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -1239,7 +1246,8 @@ namespace RoadRegistry.BackOffice.Model
                             RoadSegmentAdded = Segment2Added,
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -1354,7 +1362,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -1501,7 +1510,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -1648,7 +1658,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -1701,7 +1712,8 @@ namespace RoadRegistry.BackOffice.Model
                             RoadSegmentAdded = Segment1Added,
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
@@ -1753,7 +1765,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -1804,7 +1817,8 @@ namespace RoadRegistry.BackOffice.Model
                             RoadSegmentAdded = Segment1Added,
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
@@ -1856,7 +1870,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -1926,7 +1941,8 @@ namespace RoadRegistry.BackOffice.Model
                             RoadSegmentAdded = Segment2Added,
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -1984,7 +2000,8 @@ namespace RoadRegistry.BackOffice.Model
                             RoadSegmentAdded = Segment1Added,
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
@@ -2024,7 +2041,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -2070,7 +2088,8 @@ namespace RoadRegistry.BackOffice.Model
                             RoadSegmentAdded = Segment1Added,
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
@@ -2110,7 +2129,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -2160,7 +2180,8 @@ namespace RoadRegistry.BackOffice.Model
                             RoadSegmentAdded = Segment1Added,
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
         }
@@ -2192,7 +2213,8 @@ namespace RoadRegistry.BackOffice.Model
                             RoadSegmentAdded = Segment1Added,
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
@@ -2224,7 +2246,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -2420,7 +2443,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -2569,7 +2593,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -2605,7 +2630,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -2641,7 +2667,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -2683,7 +2710,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -2712,7 +2740,8 @@ namespace RoadRegistry.BackOffice.Model
                             RoadSegmentAdded = Segment1Added,
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
@@ -2741,7 +2770,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -2783,7 +2813,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -2812,7 +2843,8 @@ namespace RoadRegistry.BackOffice.Model
                             RoadSegmentAdded = Segment1Added,
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
@@ -2841,7 +2873,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -2893,7 +2926,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3038,7 +3072,8 @@ namespace RoadRegistry.BackOffice.Model
                             Errors = new[] { problem },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3178,7 +3213,8 @@ namespace RoadRegistry.BackOffice.Model
                             Errors = new[] { problem },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3318,7 +3354,8 @@ namespace RoadRegistry.BackOffice.Model
                             Errors = new[] { problem },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3382,7 +3419,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3428,7 +3466,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3491,7 +3530,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3536,7 +3576,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3603,7 +3644,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3650,7 +3692,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3717,7 +3760,8 @@ namespace RoadRegistry.BackOffice.Model
                         {
                             RoadSegmentAdded = Segment2Added
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
@@ -3741,7 +3785,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3772,7 +3817,8 @@ namespace RoadRegistry.BackOffice.Model
                         {
                             RoadSegmentAdded = Segment1Added
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
@@ -3797,7 +3843,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3828,7 +3875,8 @@ namespace RoadRegistry.BackOffice.Model
                         {
                             RoadSegmentAdded = Segment1Added
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
@@ -3853,7 +3901,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -3896,7 +3945,8 @@ namespace RoadRegistry.BackOffice.Model
                         {
                             RoadSegmentAdded = Segment2Added
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetwork(
                     new RequestedChange
@@ -3921,7 +3971,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -4016,7 +4067,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -4117,7 +4169,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -4252,7 +4305,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
 
@@ -4355,7 +4409,8 @@ namespace RoadRegistry.BackOffice.Model
                             },
                             Warnings = new Messages.Problem[0]
                         }
-                    }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }));
         }
     }

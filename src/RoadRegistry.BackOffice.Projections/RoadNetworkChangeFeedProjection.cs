@@ -20,7 +20,8 @@ namespace RoadRegistry.BackOffice.Projections
                         Id = envelope.Position,
                         Title = "Begonnen met importeren",
                         Type = nameof(BeganRoadNetworkImport),
-                        Content = null
+                        Content = null,
+                        When = envelope.Message.When
                     }, ct));
 
             When<Envelope<CompletedRoadNetworkImport>>((context, envelope, ct) =>
@@ -30,7 +31,8 @@ namespace RoadRegistry.BackOffice.Projections
                         Id = envelope.Position,
                         Title = "Klaar met importeren",
                         Type = nameof(CompletedRoadNetworkImport),
-                        Content = null
+                        Content = null,
+                        When = envelope.Message.When
                     }, ct));
 
             When<Envelope<RoadNetworkChangesArchiveUploaded>>((context, envelope, ct) =>
@@ -44,7 +46,8 @@ namespace RoadRegistry.BackOffice.Projections
                             new RoadNetworkChangesArchiveUploadedEntry
                             {
                                 ArchiveId = envelope.Message.ArchiveId
-                            })
+                            }),
+                        When = envelope.Message.When
                     }, ct));
 
             When<Envelope<RoadNetworkChangesArchiveAccepted>>((context, envelope, ct) =>
@@ -69,7 +72,8 @@ namespace RoadRegistry.BackOffice.Projections
                                             .ToArray()
                                     })
                                     .ToArray()
-                            })
+                            }),
+                        When = envelope.Message.When
                     }, ct));
 
 
@@ -95,7 +99,8 @@ namespace RoadRegistry.BackOffice.Projections
                                             .ToArray()
                                     })
                                     .ToArray()
-                            })
+                            }),
+                        When = envelope.Message.When
                     }, ct));
         }
 

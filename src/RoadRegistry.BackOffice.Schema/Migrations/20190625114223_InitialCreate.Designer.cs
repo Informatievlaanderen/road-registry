@@ -10,7 +10,7 @@ using RoadRegistry.BackOffice.Schema;
 namespace RoadRegistry.BackOffice.Schema.Migrations
 {
     [DbContext(typeof(ShapeContext))]
-    [Migration("20190614141815_InitialCreate")]
+    [Migration("20190625114223_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -76,12 +76,14 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
                     b.Property<string>("Type");
 
+                    b.Property<string>("When");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("RoadNetworkActivity","RoadRegistryShape");
+                    b.ToTable("RoadNetworkChange","RoadRegistryShape");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNetworkInfo", b =>

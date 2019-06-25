@@ -7,6 +7,9 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
+    using NodaTime;
+    using NodaTime.Testing;
+    using NodaTime.Text;
     using RoadRegistry.Api.Activities;
     using RoadRegistry.Api.Changes.Responses;
     using Schema;
@@ -14,11 +17,11 @@ namespace RoadRegistry.BackOffice.Api
     using Xunit;
 
     [Collection(nameof(SqlServerCollection))]
-    public class ActivityControllerTests
+    public class ChangeFeedControllerTests
     {
         private readonly SqlServer _fixture;
 
-        public ActivityControllerTests(SqlServer fixture)
+        public ChangeFeedControllerTests(SqlServer fixture)
         {
             _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }
@@ -26,7 +29,8 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_activities_of_empty_registry()
         {
-            var controller = new ChangeFeedController{ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
+            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
+                {ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
             using (var context = await _fixture.CreateEmptyShapeContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 var result = await controller.Get(context);
@@ -41,7 +45,8 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_activities_of_filled_registry()
         {
-            var controller = new ChangeFeedController{ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
+            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
+                {ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
             var database = await _fixture.CreateDatabaseAsync();
             var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
             using (var context = await _fixture.CreateEmptyShapeContextAsync(database))
@@ -53,7 +58,8 @@ namespace RoadRegistry.BackOffice.Api
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
                         ArchiveId = archiveId
-                    })
+                    }),
+                    When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                 });
                 await context.SaveChangesAsync();
             }
@@ -67,11 +73,14 @@ namespace RoadRegistry.BackOffice.Api
                 var response = Assert.IsType<ChangeFeedResponse>(jsonResult.Value);
                 var item = Assert.Single(response.Entries);
                 Assert.NotNull(item);
-                Assert.Equal(1, item.Id);
+                Assert.Equal(0, item.Id);
                 Assert.Equal("De oplading werd ontvangen.", item.Title);
                 Assert.Equal(nameof(RoadNetworkChangesArchiveUploaded), item.Type);
                 var content = Assert.IsType<RoadNetworkChangesArchiveUploadedEntry>(item.Content);
                 Assert.Equal(archiveId.ToString(), content.ArchiveId);
+                Assert.Equal("01", item.Day);
+                Assert.Equal("jan.", item.Month);
+                Assert.Equal("01:00", item.TimeOfDay);
             }
         }
     }

@@ -13,6 +13,8 @@ namespace RoadRegistry.LegacyStreamExtraction
     using BackOffice.Messages;
     using GeoAPI.Geometries;
     using Microsoft.Extensions.Configuration;
+    using NodaTime;
+    using NodaTime.Text;
 
     public class Program
     {
@@ -39,6 +41,7 @@ namespace RoadRegistry.LegacyStreamExtraction
             var importedRoadSegments = new Dictionary<long, ImportedRoadSegment>();
             var importedGradeSeparatedJunctions = new List<ImportedGradeSeparatedJunction>();
             var importedOrganizations = new List<ImportedOrganization>();
+            var clock = SystemClock.Instance;
 
             using (var connection = new SqlConnection(connectionString))
             {
@@ -57,7 +60,8 @@ namespace RoadRegistry.LegacyStreamExtraction
                         var organization = new ImportedOrganization
                         {
                             Code = reader.GetString(0),
-                            Name = reader.GetString(1)
+                            Name = reader.GetString(1),
+                            When = InstantPattern.ExtendedIso.Format(clock.GetCurrentInstant())
                         };
                         importedOrganizations.Add(organization);
                     });
@@ -100,7 +104,8 @@ namespace RoadRegistry.LegacyStreamExtraction
                                 OrganizationId = reader.GetNullableString(4),
                                 Organization = reader.GetNullableString(5),
                                 Since = reader.GetDateTime(6)
-                            }
+                            },
+                            When = InstantPattern.ExtendedIso.Format(clock.GetCurrentInstant())
                         };
                         importedRoadNodes.Add(node);
                     });
@@ -215,6 +220,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                             Lanes = Array.Empty<ImportedRoadSegmentLaneAttributes>(),
                             Widths = Array.Empty<ImportedRoadSegmentWidthAttributes>(),
                             Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttributes>(),
+                            When = InstantPattern.ExtendedIso.Format(clock.GetCurrentInstant())
                         };
                         importedRoadSegments.Add(segment.Id, segment);
                     });
@@ -493,7 +499,8 @@ namespace RoadRegistry.LegacyStreamExtraction
                                 OrganizationId = reader.GetNullableString(4),
                                 Organization = reader.GetNullableString(5),
                                 Since = reader.GetDateTime(6)
-                            }
+                            },
+                            When = InstantPattern.ExtendedIso.Format(clock.GetCurrentInstant())
                         };
 
                         importedGradeSeparatedJunctions.Add(junction);

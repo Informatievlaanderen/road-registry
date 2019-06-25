@@ -12,6 +12,7 @@ import Http
 import Json.Decode as Decode
 import Json.Decode.Extra exposing (when)
 import Time exposing (Posix, every)
+import Iso8601
 
 
 main =
@@ -31,7 +32,7 @@ type ChangeFeedEntryContent
 
 
 type alias ChangeFeedEntry =
-    { id : String, title : String, day : String, month : String, expanded : Bool, disabled : Bool, detail : ChangeFeedEntryContent }
+    { id : String, title : String, day : String, month: String, timeOfDay: String, content : ChangeFeedEntryContent }
 
 
 type alias ActivityModel =
@@ -90,13 +91,12 @@ decodeRoadNetworkChangesArchiveRejected =
 
 decodeEntry : Decode.Decoder ChangeFeedEntry
 decodeEntry =
-    Decode.map7 ChangeFeedEntry
+    Decode.map6 ChangeFeedEntry
         (Decode.field "id" Decode.int |> Decode.map String.fromInt)
         (Decode.field "title" Decode.string)
-        (Decode.succeed "14")
-        (Decode.succeed "jun")
-        (Decode.succeed True)
-        (Decode.succeed False)
+        (Decode.field "day" Decode.string)
+        (Decode.field "month" Decode.string)
+        (Decode.field "timeOfDay" Decode.string)
         (Decode.oneOf
             [ when decodeEntryContentType (is "BeganRoadNetworkImport") (Decode.succeed BeganRoadNetworkImport)
             , when decodeEntryContentType (is "CompletedRoadNetworkImport") (Decode.succeed CompletedRoadNetworkImport)
@@ -269,53 +269,31 @@ viewActivityEntryContent content =
 
 viewActivityEntry : ChangeFeedEntry -> Html Msg
 viewActivityEntry entry =
-    if entry.disabled then
-        li
-            [ classList [ ( "step", True ), ( "step--disabled", True ), ( "js-accordion", True ) ] ]
-            [ div [ class "step__icon" ]
-                [ text entry.day
-                , span [ class "step__icon__sub" ] [ text entry.month ]
-                ]
-            , div [ class "step__wrapper" ]
-                [ div [ class "step__header" ]
-                    [ div [ class "step__header__titles" ]
-                        [ h3 [ class "step__title" ]
-                            [ text entry.title ]
-                        ]
-                    , div [ class "step__header__info" ]
-                        [ i [ class "step__accordion-toggle" ]
-                            []
-                        ]
-                    ]
-                ]
-            ]
-
-    else
-        li
-            [ classList [ ( "step", True ), ( "js-accordion", True ) ] ]
-            [ div [ class "step__icon" ]
-                [ text entry.day
-                , span [ class "step__icon__sub" ] [ text entry.month ]
-                ]
-            , div [ class "step__wrapper" ]
-                [ a [ href "#", class "step__header js-accordion__toggle" ]
-                    [ div [ class "step__header__titles" ]
-                        [ h3 [ class "step__title" ]
-                            [ text entry.title ]
-                        ]
-                    , div [ class "step__header__info" ]
-                        [ i [ class "vi vi-paperclip vi-u-s" ]
-                            []
-                        , i [ class "step__accordion-toggle" ]
-                            []
-                        ]
-                    ]
-                , div
-                    [ class "step__content-wrapper" ]
-                    [ viewActivityEntryContent entry.detail
-                    ]
-                ]
-            ]
+      li
+          [ classList [ ( "step", True ), ( "js-accordion", True ) ] ]
+          [ div [ class "step__icon" ]
+              [ text entry.day
+              , span [ class "step__icon__sub" ] [ text entry.month ]
+              ]
+          , div [ class "step__wrapper" ]
+              [ a [ href "#", class "step__header js-accordion__toggle" ]
+                  [ div [ class "step__header__titles" ]
+                      [ h3 [ class "step__title" ]
+                          [ text entry.title ]
+                      ]
+                  , div [ class "step__header__info" ]
+                      [ i [ class "vi vi-paperclip vi-u-s" ]
+                          []
+                      , i [ class "step__accordion-toggle" ]
+                          []
+                      ]
+                  ]
+              , div
+                  [ class "step__content-wrapper" ]
+                  [ viewActivityEntryContent entry.content
+                  ]
+              ]
+          ]
 
 
 viewActivityTitle : ActivityModel -> Html Msg

@@ -5,5 +5,7 @@
     [EventName("BeganRoadNetworkImport")]
     [EventDescription("Indicates the import of the road network registry was begun.")]
     public class BeganRoadNetworkImport
-    {}
+    {
+        public string When { get; set; }
+    }
 }

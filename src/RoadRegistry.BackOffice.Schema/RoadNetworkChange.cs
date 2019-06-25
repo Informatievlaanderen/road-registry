@@ -10,12 +10,12 @@ namespace RoadRegistry.BackOffice.Schema
         public string Title { get; set; }
         public string Type { get; set; }
         public string Content { get; set; }
-        //public DateTime When { get; set; }
+        public string When { get; set; }
     }
 
-    public class RoadNetworkActivityConfiguration : IEntityTypeConfiguration<RoadNetworkChange>
+    public class RoadNetworkChangeConfiguration : IEntityTypeConfiguration<RoadNetworkChange>
     {
-        public const string TableName = "RoadNetworkActivity";
+        public const string TableName = "RoadNetworkChange";
 
         public void Configure(EntityTypeBuilder<RoadNetworkChange> b)
         {
@@ -27,6 +27,7 @@ namespace RoadRegistry.BackOffice.Schema
             b.Property(p => p.Title);
             b.Property(p => p.Type);
             b.Property(p => p.Content);
+            b.Property(p => p.When);
         }
     }
 }

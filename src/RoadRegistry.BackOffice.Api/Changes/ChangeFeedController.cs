@@ -1,6 +1,8 @@
 namespace RoadRegistry.Api.Activities
 {
+    using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
     using BackOffice.Messages;
@@ -13,6 +15,8 @@ namespace RoadRegistry.Api.Activities
     using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
+    using NodaTime;
+    using NodaTime.Text;
     using Swashbuckle.AspNetCore.Filters;
 
     [ApiVersion("1.0")]
@@ -21,6 +25,19 @@ namespace RoadRegistry.Api.Activities
     [ApiExplorerSettings(GroupName = "ChangeFeed")]
     public class ChangeFeedController : ControllerBase
     {
+        private readonly IClock _clock;
+        private readonly DateTimeZone _localTimeZone;
+        private readonly LocalTimePattern _localTimeOfDayPattern;
+        private readonly LocalDatePattern _localMonthPattern;
+
+        public ChangeFeedController(IClock clock)
+        {
+            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+            _localTimeZone = DateTimeZoneProviders.Tzdb["Europe/Brussels"];
+            _localMonthPattern = LocalDatePattern.Create("MMM", new CultureInfo("nl-BE"));
+            _localTimeOfDayPattern = LocalTimePattern.CreateWithInvariantCulture("HH':'mm");
+        }
+
         /// <summary>
         /// Request an archive of the entire road registry for shape editing purposes.
         /// </summary>
@@ -34,46 +51,52 @@ namespace RoadRegistry.Api.Activities
         [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         public async Task<IActionResult> Get([FromServices] ShapeContext context)
         {
-            var activities = new List<ChangeFeedEntry>();
+            var entries = new List<ChangeFeedEntry>();
             await context
                 .RoadNetworkChanges
                 .OrderByDescending(_ => _.Id)
-                .ForEachAsync(activity =>
-            {
-                var item = new ChangeFeedEntry
+                .ForEachAsync(change =>
                 {
-                    Id = activity.Id,
-                    Title = activity.Title,
-                    Type = activity.Type
-                };
-                switch (activity.Type)
-                {
-                    case nameof(BeganRoadNetworkImport):
-                        item.Content = null;
-                        break;
-                    case nameof(CompletedRoadNetworkImport):
-                        item.Content = null;
-                        break;
-                    case nameof(RoadNetworkChangesArchiveUploaded):
-                        item.Content = JsonConvert.DeserializeObject(activity.Content,
-                            typeof(RoadNetworkChangesArchiveUploadedEntry));
-                        break;
-                    case nameof(RoadNetworkChangesArchiveAccepted):
-                        item.Content = JsonConvert.DeserializeObject(activity.Content,
-                            typeof(RoadNetworkChangesArchiveAcceptedEntry));
-                        break;
-                    case nameof(RoadNetworkChangesArchiveRejected):
-                        item.Content = JsonConvert.DeserializeObject(activity.Content,
-                            typeof(RoadNetworkChangesArchiveRejectedEntry));
-                        break;
-                }
+                    var when = InstantPattern.ExtendedIso.Parse(change.When).GetValueOrThrow();
+                    var localWhen = when.InZone(_localTimeZone).LocalDateTime;
+                    var item = new ChangeFeedEntry
+                    {
+                        Id = change.Id,
+                        Title = change.Title,
+                        Type = change.Type,
+                        Day = localWhen.Day.ToString("00"),
+                        Month = _localMonthPattern.Format(localWhen.Date),
+                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay)
 
-                activities.Add(item);
-            }, HttpContext.RequestAborted);
+                    };
+                    switch (change.Type)
+                    {
+                        case nameof(BeganRoadNetworkImport):
+                            item.Content = null;
+                            break;
+                        case nameof(CompletedRoadNetworkImport):
+                            item.Content = null;
+                            break;
+                        case nameof(RoadNetworkChangesArchiveUploaded):
+                            item.Content = JsonConvert.DeserializeObject(change.Content,
+                                typeof(RoadNetworkChangesArchiveUploadedEntry));
+                            break;
+                        case nameof(RoadNetworkChangesArchiveAccepted):
+                            item.Content = JsonConvert.DeserializeObject(change.Content,
+                                typeof(RoadNetworkChangesArchiveAcceptedEntry));
+                            break;
+                        case nameof(RoadNetworkChangesArchiveRejected):
+                            item.Content = JsonConvert.DeserializeObject(change.Content,
+                                typeof(RoadNetworkChangesArchiveRejectedEntry));
+                            break;
+                    }
+
+                    entries.Add(item);
+                }, HttpContext.RequestAborted);
 
             return new JsonResult(new ChangeFeedResponse
             {
-                Entries = activities.ToArray()
+                Entries = entries.ToArray()
             })
             {
                 StatusCode = StatusCodes.Status200OK

@@ -15,7 +15,7 @@ namespace RoadRegistry.BackOffice.Model
 
             For<ChangeRoadNetwork>()
                 .UseValidator(new ChangeRoadNetworkValidator())
-                .UseRoadRegistryContext(store)
+                .UseRoadRegistryContext(store, EnrichEvent.WithTime(clock))
                 .Handle(async (context, message, ct) =>
                 {
                     var network = await context.RoadNetworks.Get(ct);

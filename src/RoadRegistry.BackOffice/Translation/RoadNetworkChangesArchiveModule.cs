@@ -9,6 +9,7 @@ namespace RoadRegistry.BackOffice.Translation
     using Framework;
     using Messages;
     using Model;
+    using NodaTime;
     using SqlStreamStore;
 
     public class RoadNetworkChangesArchiveModule : CommandHandlerModule
@@ -17,15 +18,17 @@ namespace RoadRegistry.BackOffice.Translation
             IBlobClient client,
             IStreamStore store,
             IZipArchiveValidator validator,
-            IZipArchiveTranslator translator)
+            IZipArchiveTranslator translator,
+            IClock clock)
         {
             if (client == null) throw new ArgumentNullException(nameof(client));
             if (store == null) throw new ArgumentNullException(nameof(store));
             if (validator == null) throw new ArgumentNullException(nameof(validator));
             if (translator == null) throw new ArgumentNullException(nameof(translator));
+            if (clock == null) throw new ArgumentNullException(nameof(clock));
 
             For<UploadRoadNetworkChangesArchive>()
-                .UseRoadRegistryContext(store)
+                .UseRoadRegistryContext(store, EnrichEvent.WithTime(clock))
                 .Handle(async (context, message, ct) =>
                 {
                     var archiveId = new ArchiveId(message.Body.ArchiveId);
@@ -40,7 +43,7 @@ namespace RoadRegistry.BackOffice.Translation
                 });
 
             For<RoadNetworkChangesArchiveAccepted>()
-                .UseRoadRegistryContext(store)
+                .UseRoadRegistryContext(store, EnrichEvent.WithTime(clock))
                 .Handle(async (context, message, ct) =>
                 {
                     var archiveId = new ArchiveId(message.Body.ArchiveId);

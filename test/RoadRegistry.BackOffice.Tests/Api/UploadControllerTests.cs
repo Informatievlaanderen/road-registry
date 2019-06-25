@@ -4,7 +4,6 @@ namespace RoadRegistry.BackOffice.Api
     using System.IO;
     using System.IO.Compression;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
@@ -14,6 +13,7 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Primitives;
     using Newtonsoft.Json;
+    using NodaTime;
     using RoadRegistry.Api.Uploads;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
@@ -35,7 +35,8 @@ namespace RoadRegistry.BackOffice.Api
                     client,
                     store,
                     validator,
-                    translator
+                    translator,
+                    SystemClock.Instance
                 )
             );
             var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
@@ -67,7 +68,8 @@ namespace RoadRegistry.BackOffice.Api
                     client,
                     store,
                     validator,
-                    translator
+                    translator,
+                    SystemClock.Instance
                 )
             );
 
@@ -133,7 +135,8 @@ namespace RoadRegistry.BackOffice.Api
                     client,
                     store,
                     validator,
-                    translator
+                    translator,
+                    SystemClock.Instance
                 )
             );
 

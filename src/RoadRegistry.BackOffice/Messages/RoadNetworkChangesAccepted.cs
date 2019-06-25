@@ -7,5 +7,6 @@
     public class RoadNetworkChangesAccepted
     {
         public AcceptedChange[] Changes { get; set; }
+        public string When { get; set; }
     }
 }

@@ -29,5 +29,6 @@ namespace RoadRegistry.BackOffice.Messages
         public ImportedRoadSegmentSurfaceAttributes[] Surfaces { get; set; }
         public DateTime RecordingDate { get; set; }
         public OriginProperties Origin { get; set; }
+        public string When { get; set; }
     }
 }

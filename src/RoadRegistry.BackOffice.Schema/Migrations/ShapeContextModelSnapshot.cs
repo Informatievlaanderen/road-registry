@@ -74,12 +74,14 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
                     b.Property<string>("Type");
 
+                    b.Property<string>("When");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("RoadNetworkActivity","RoadRegistryShape");
+                    b.ToTable("RoadNetworkChange","RoadRegistryShape");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNetworkInfo", b =>

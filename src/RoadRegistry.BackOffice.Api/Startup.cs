@@ -123,17 +123,19 @@ namespace RoadRegistry.Api
                 .Services
                 .AddSingleton<IStreamStore>(sp => new MsSqlStreamStore(new MsSqlStreamStoreSettings(sp.GetService<IConfiguration>().GetConnectionString("Events")) { Schema = "RoadRegistry" }))
                 .AddSingleton<IBlobClient>(sp => new SqlBlobClient(new SqlConnectionStringBuilder(sp.GetService<IConfiguration>().GetConnectionString("Blobs")), "RoadRegistryBlobs"))
-                .AddSingleton<CommandHandlerDispatcher>(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
+                .AddSingleton<IClock>(SystemClock.Instance)
+                .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                     new CommandHandlerModule[] {
                         new RoadNetworkChangesArchiveModule(
                             sp.GetService<IBlobClient>(),
                             sp.GetService<IStreamStore>(),
                             new ZipArchiveValidator(Encoding.UTF8),
-                            new ZipArchiveTranslator(Encoding.UTF8)
+                            new ZipArchiveTranslator(Encoding.UTF8),
+                            sp.GetService<IClock>()
                         ),
                         new RoadNetworkCommandHandlerModule(
                             sp.GetService<IStreamStore>(),
-                            SystemClock.Instance
+                            sp.GetService<IClock>()
                         )
                     })))
                 .AddVersionedApiExplorer(options =>

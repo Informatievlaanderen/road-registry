@@ -11,5 +11,6 @@ namespace RoadRegistry.BackOffice.Messages
         public RoadNodeGeometry Geometry { get; set; }
         public string Type { get; set; }
         public OriginProperties Origin { get; set; }
+        public string When { get; set; }
     }
 }
