@@ -4,6 +4,7 @@
 .idea/
 .cache/
 elm-stuff/
+.ionide/
 
 [Pp]ackages/
 [Pp]aket-files/
