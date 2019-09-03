@@ -23,7 +23,7 @@
             return Builder.Given(events);
         }
 
-        public IScenarioWhenStateBuilder When(Message command)
+        public IScenarioWhenStateBuilder When(Command command)
         {
             return Builder.When(command);
         }
@@ -38,11 +38,11 @@
             IScenarioThrowsStateBuilder
         {
             private readonly RecordedEvent[] _givens;
-            private readonly Message _when;
+            private readonly Command _when;
             private readonly RecordedEvent[] _thens;
             private readonly Exception _throws;
 
-            public ScenarioBuilder(RecordedEvent[] givens, Message when, RecordedEvent[] thens, Exception throws)
+            public ScenarioBuilder(RecordedEvent[] givens, Command when, RecordedEvent[] thens, Exception throws)
             {
                 _givens = givens;
                 _when = when;
@@ -67,22 +67,22 @@
                 return new ScenarioBuilder(events.ToArray(), _when, _thens, _throws);
             }
 
-            IScenarioWhenStateBuilder IScenarioGivenStateBuilder.When(Message command)
+            IScenarioWhenStateBuilder IScenarioGivenStateBuilder.When(Command command)
             {
                 return When(command);
             }
 
-            IScenarioWhenStateBuilder IScenarioGivenNoneStateBuilder.When(Message command)
+            IScenarioWhenStateBuilder IScenarioGivenNoneStateBuilder.When(Command command)
             {
                 return When(command);
             }
 
-            IScenarioWhenStateBuilder IScenarioInitialStateBuilder.When(Message command)
+            IScenarioWhenStateBuilder IScenarioInitialStateBuilder.When(Command command)
             {
                 return When(command);
             }
 
-            private IScenarioWhenStateBuilder When(Message command)
+            private IScenarioWhenStateBuilder When(Command command)
             {
                 if (command == null) throw new ArgumentNullException(nameof(command));
                 return new ScenarioBuilder(_givens, command, _thens, _throws);

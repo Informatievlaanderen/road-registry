@@ -5,12 +5,12 @@
     public class ExpectEventsScenario
     {
         public RecordedEvent[] Givens { get; }
-        public Message When { get; }
+        public Command When { get; }
         public RecordedEvent[] Thens { get; }
 
         public ExpectEventsScenario(
             RecordedEvent[] givens,
-            Message when,
+            Command when,
             RecordedEvent[] thens)
         {
             Givens = givens ?? throw new ArgumentNullException(nameof(givens));

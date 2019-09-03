@@ -7,14 +7,14 @@ namespace RoadRegistry.BackOffice.Framework
     public class CommandHandlerBuilder<TCommand>
       : ICommandHandlerBuilder<TCommand>
     {
-        internal CommandHandlerBuilder(Action<Func<Message<TCommand>, CancellationToken, Task>> builder)
+        internal CommandHandlerBuilder(Action<Func<Command<TCommand>, CancellationToken, Task>> builder)
         {
             Builder = builder ??
               throw new ArgumentNullException(nameof(builder));
         }
-        public Action<Func<Message<TCommand>, CancellationToken, Task>> Builder { get; }
+        public Action<Func<Command<TCommand>, CancellationToken, Task>> Builder { get; }
 
-        public void Handle(Func<Message<TCommand>, CancellationToken, Task> handler)
+        public void Handle(Func<Command<TCommand>, CancellationToken, Task> handler)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
@@ -24,8 +24,8 @@ namespace RoadRegistry.BackOffice.Framework
 
         public ICommandHandlerBuilder<TCommand> Pipe(
         Func<
-          Func<Message<TCommand>, CancellationToken, Task>,
-          Func<Message<TCommand>, CancellationToken, Task>> pipe)
+          Func<Command<TCommand>, CancellationToken, Task>,
+          Func<Command<TCommand>, CancellationToken, Task>> pipe)
         {
             if (pipe == null)
                 throw new ArgumentNullException(nameof(pipe));
@@ -35,8 +35,8 @@ namespace RoadRegistry.BackOffice.Framework
 
         public ICommandHandlerBuilder<TContext, TCommand> Pipe<TContext>(
             Func<
-                Func<TContext, Message<TCommand>, CancellationToken, Task>,
-                Func<Message<TCommand>, CancellationToken, Task>> pipe)
+                Func<TContext, Command<TCommand>, CancellationToken, Task>,
+                Func<Command<TCommand>, CancellationToken, Task>> pipe)
         {
             if (pipe == null)
                 throw new ArgumentNullException(nameof(pipe));
@@ -47,26 +47,26 @@ namespace RoadRegistry.BackOffice.Framework
         private class WithPipeline : ICommandHandlerBuilder<TCommand>
         {
             public WithPipeline(
-              Action<Func<Message<TCommand>, CancellationToken, Task>> builder,
+              Action<Func<Command<TCommand>, CancellationToken, Task>> builder,
               Func<
-                Func<Message<TCommand>, CancellationToken, Task>,
-                Func<Message<TCommand>, CancellationToken, Task>> pipeline)
+                Func<Command<TCommand>, CancellationToken, Task>,
+                Func<Command<TCommand>, CancellationToken, Task>> pipeline)
             {
                 Builder = builder;
                 Pipeline = pipeline;
             }
 
-            public Action<Func<Message<TCommand>, CancellationToken, Task>> Builder { get; }
+            public Action<Func<Command<TCommand>, CancellationToken, Task>> Builder { get; }
 
             public Func<
-              Func<Message<TCommand>, CancellationToken, Task>,
-              Func<Message<TCommand>, CancellationToken, Task>> Pipeline
+              Func<Command<TCommand>, CancellationToken, Task>,
+              Func<Command<TCommand>, CancellationToken, Task>> Pipeline
             { get; }
 
             public ICommandHandlerBuilder<TCommand> Pipe(
                 Func<
-                    Func<Message<TCommand>, CancellationToken, Task>,
-                    Func<Message<TCommand>, CancellationToken, Task>> pipe)
+                    Func<Command<TCommand>, CancellationToken, Task>,
+                    Func<Command<TCommand>, CancellationToken, Task>> pipe)
             {
                 if (pipe == null)
                     throw new ArgumentNullException(nameof(pipe));
@@ -76,8 +76,8 @@ namespace RoadRegistry.BackOffice.Framework
 
             public ICommandHandlerBuilder<TContext, TCommand> Pipe<TContext>(
                 Func<
-                    Func<TContext, Message<TCommand>, CancellationToken, Task>,
-                    Func<Message<TCommand>, CancellationToken, Task>> pipe)
+                    Func<TContext, Command<TCommand>, CancellationToken, Task>,
+                    Func<Command<TCommand>, CancellationToken, Task>> pipe)
             {
                 if (pipe == null)
                     throw new ArgumentNullException(nameof(pipe));
@@ -86,7 +86,7 @@ namespace RoadRegistry.BackOffice.Framework
             }
 
 
-            public void Handle(Func<Message<TCommand>, CancellationToken, Task> handler)
+            public void Handle(Func<Command<TCommand>, CancellationToken, Task> handler)
             {
                 if (handler == null)
                     throw new ArgumentNullException(nameof(handler));
@@ -98,26 +98,26 @@ namespace RoadRegistry.BackOffice.Framework
         private class WithContextPipeline<TContext> : ICommandHandlerBuilder<TContext, TCommand>
         {
             public WithContextPipeline(
-                Action<Func<Message<TCommand>, CancellationToken, Task>> builder,
+                Action<Func<Command<TCommand>, CancellationToken, Task>> builder,
                 Func<
-                    Func<TContext, Message<TCommand>, CancellationToken, Task>,
-                    Func<Message<TCommand>, CancellationToken, Task>> pipeline)
+                    Func<TContext, Command<TCommand>, CancellationToken, Task>,
+                    Func<Command<TCommand>, CancellationToken, Task>> pipeline)
             {
                 Builder = builder;
                 Pipeline = pipeline;
             }
 
-            public Action<Func<Message<TCommand>, CancellationToken, Task>> Builder { get; }
+            public Action<Func<Command<TCommand>, CancellationToken, Task>> Builder { get; }
 
             public Func<
-                Func<TContext, Message<TCommand>, CancellationToken, Task>,
-                Func<Message<TCommand>, CancellationToken, Task>> Pipeline
+                Func<TContext, Command<TCommand>, CancellationToken, Task>,
+                Func<Command<TCommand>, CancellationToken, Task>> Pipeline
             { get; }
 
             public ICommandHandlerBuilder<TContext, TCommand> Pipe(
                 Func<
-                    Func<TContext, Message<TCommand>, CancellationToken, Task>,
-                    Func<TContext, Message<TCommand>, CancellationToken, Task>> pipe)
+                    Func<TContext, Command<TCommand>, CancellationToken, Task>,
+                    Func<TContext, Command<TCommand>, CancellationToken, Task>> pipe)
             {
                 if (pipe == null)
                     throw new ArgumentNullException(nameof(pipe));
@@ -125,7 +125,7 @@ namespace RoadRegistry.BackOffice.Framework
                 return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
             }
 
-            public void Handle(Func<TContext, Message<TCommand>, CancellationToken, Task> handler)
+            public void Handle(Func<TContext, Command<TCommand>, CancellationToken, Task> handler)
             {
                 if (handler == null)
                     throw new ArgumentNullException(nameof(handler));

@@ -2,6 +2,6 @@
 {
     public interface IScenarioGivenNoneStateBuilder
     {
-        IScenarioWhenStateBuilder When(Message command);
+        IScenarioWhenStateBuilder When(Command command);
     }
 }

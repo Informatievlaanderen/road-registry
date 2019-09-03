@@ -32,7 +32,7 @@ namespace RoadRegistry.BackOffice.Model
             Clock = new FakeClock(NodaConstants.UnixEpoch);
 
             _runner = new ScenarioRunner(
-                Resolve.WhenEqualToMessage(new RoadNetworkCommandHandlerModule(Store, Clock)),
+                Resolve.WhenEqualToMessage(new RoadNetworkCommandModule(Store, Clock)),
                 Store,
                 Settings,
                 Mapping,

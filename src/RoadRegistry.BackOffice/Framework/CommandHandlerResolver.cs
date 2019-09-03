@@ -1,4 +1,8 @@
 namespace RoadRegistry.BackOffice.Framework
 {
-    public delegate CommandHandler CommandHandlerResolver(Message message);
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    public delegate Func<Command, CancellationToken, Task> CommandHandlerResolver(Command command);
 }

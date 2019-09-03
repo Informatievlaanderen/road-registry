@@ -34,10 +34,10 @@ namespace RoadRegistry.BackOffice.Framework.Testing
             await Writer.WriteLineAsync("");
 
             await Writer.WriteLineAsync(string.Format("\t{0}", Translator.Translate(scenario.When.Body)));
-            foreach (var header in scenario.When.Head)
-            {
-                await Writer.WriteLineAsync(string.Format("\t{0}", Translator.Translate(header)));
-            }
+//            foreach (var header in scenario.When.Head)
+//            {
+//                await Writer.WriteLineAsync(string.Format("\t{0}", Translator.Translate(header)));
+//            }
 
             await Writer.WriteLineAsync("Then");
             await Writer.WriteLineAsync("");
@@ -67,10 +67,10 @@ namespace RoadRegistry.BackOffice.Framework.Testing
             await Writer.WriteLineAsync("");
 
             await Writer.WriteLineAsync(string.Format("\t{0}", Translator.Translate(scenario.When.Body)));
-            foreach (var header in scenario.When.Head)
-            {
-                await Writer.WriteLineAsync(string.Format("\t{0}", Translator.Translate(header)));
-            }
+//            foreach (var header in scenario.When.Head)
+//            {
+//                await Writer.WriteLineAsync(string.Format("\t{0}", Translator.Translate(header)));
+//            }
 
             await Writer.WriteLineAsync("Throws");
             await Writer.WriteLineAsync("");

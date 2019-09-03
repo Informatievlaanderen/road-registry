@@ -6,9 +6,9 @@ namespace RoadRegistry.BackOffice.Model
 
     public static class TheOperator
     {
-        public static Message ChangesTheRoadNetwork(params RequestedChange[] changes)
+        public static Command ChangesTheRoadNetwork(params RequestedChange[] changes)
         {
-            return new Message(new Dictionary<string, object>(), new ChangeRoadNetwork
+            return new Command(new ChangeRoadNetwork
             {
                 Changes = changes
             });

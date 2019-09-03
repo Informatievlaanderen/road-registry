@@ -13,3 +13,4 @@ AWSSDK.Extensions.NETCore.Setup
 NodaTime
 
 Be.Vlaanderen.Basisregisters.Shaperon
+Be.Vlaanderen.Basisregisters.BlobStore

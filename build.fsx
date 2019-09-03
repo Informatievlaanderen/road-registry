@@ -45,6 +45,8 @@ Target "Publish_Solution" (fun _ ->
     "RoadRegistry.BackOffice"
     "RoadRegistry.BackOffice.Schema"
     "RoadRegistry.BackOffice.Projections"
+    "RoadRegistry.BackOffice.EventHost"
+    "RoadRegistry.BackOffice.CommandHost"
     "RoadRegistry.LegacyStreamLoader"
     "RoadRegistry.LegacyStreamExtraction"
     "RoadRegistry.BackOffice.Api"
@@ -61,6 +63,12 @@ Target "PushContainer_UI" (fun _ -> push "backoffice-ui")
 
 Target "Containerize_Projections" (fun _ -> containerize "RoadRegistry.BackOffice.Projections" "backoffice-projections")
 Target "PushContainer_Projections" (fun _ -> push "backoffice-projections")
+
+Target "Containerize_EventHost" (fun _ -> containerize "RoadRegistry.BackOffice.EventHost" "backoffice-eventhost")
+Target "PushContainer_EventHost" (fun _ -> push "backoffice-eventhost")
+
+Target "Containerize_CommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
+Target "PushContainer_CommandHost" (fun _ -> push "backoffice-commandhost")
 
 Target "Containerize_LegacyStreamLoader" (fun _ -> containerize "RoadRegistry.LegacyStreamLoader" "legacystreamloader")
 Target "PushContainer_LegacyStreamLoader" (fun _ -> push "legacystreamloader")
@@ -92,6 +100,8 @@ Target "Push" DoNothing
 "Containerize_Api"                        ==> "Containerize"
 "Containerize_UI"                         ==> "Containerize"
 "Containerize_Projections"                ==> "Containerize"
+"Containerize_EventHost"                  ==> "Containerize"
+"Containerize_CommandHost"                ==> "Containerize"
 "Containerize_LegacyStreamLoader"         ==> "Containerize"
 // Possibly add more projects to containerize here
 
@@ -100,6 +110,8 @@ Target "Push" DoNothing
 "PushContainer_Api"                       ==> "Push"
 "PushContainer_UI"                        ==> "Push"
 "PushContainer_Projections"               ==> "Push"
+"PushContainer_EventHost"                 ==> "Push"
+"PushContainer_CommandHost"               ==> "Push"
 "PushContainer_LegacyStreamLoader"        ==> "Push"
 // Possibly add more projects to push here
 

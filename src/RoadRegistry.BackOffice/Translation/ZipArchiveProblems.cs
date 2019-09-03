@@ -114,7 +114,7 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveProblems(_problems.Add(
                 new FileError(
                     file.ToUpperInvariant(),
-                    nameof(ShapeRecordShapeTypeMismatch),
+                    nameof(ShapeRecordGeometryMismatch),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
             );
         }

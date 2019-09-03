@@ -16,14 +16,14 @@ namespace RoadRegistry.BackOffice.Framework
 
         public CommandHandler[] Handlers => _handlers.ToArray();
 
-        protected void Handle<TCommand>(Func<Message<TCommand>, CancellationToken, Task> handler)
+        protected void Handle<TCommand>(Func<Command<TCommand>, CancellationToken, Task> handler)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
             _handlers.Add(
                 new CommandHandler(
                     typeof(TCommand),
-                    (message, ct) => handler(new Message<TCommand>(message), ct)
+                    (message, ct) => handler(new Command<TCommand>(message), ct)
             ));
         }
 
@@ -34,7 +34,7 @@ namespace RoadRegistry.BackOffice.Framework
                 _handlers.Add(
                     new CommandHandler(
                         typeof(TCommand),
-                        (message, ct) => handler(new Message<TCommand>(message), ct)
+                        (message, ct) => handler(new Command<TCommand>(message), ct)
                 ));
             });
         }

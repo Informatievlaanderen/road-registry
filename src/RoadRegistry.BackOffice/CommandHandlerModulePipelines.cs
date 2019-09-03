@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Model
+namespace RoadRegistry.BackOffice
 {
     using System;
     using Be.Vlaanderen.Basisregisters.EventHandling;
@@ -6,15 +6,16 @@ namespace RoadRegistry.BackOffice.Model
     using FluentValidation;
     using Framework;
     using Messages;
+    using Model;
     using Newtonsoft.Json;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
 
     internal static class CommandHandlerModulePipelines
     {
-        private static readonly JsonSerializerSettings Settings =
+        private static readonly JsonSerializerSettings SerializerSettings =
             EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        private static readonly EventMapping Mapping =
+        private static readonly EventMapping EventMapping =
             new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
         public static ICommandHandlerBuilder<TCommand> UseValidator<TCommand>(
@@ -35,7 +36,7 @@ namespace RoadRegistry.BackOffice.Model
             return builder.Pipe<IRoadRegistryContext>(next => async (message, ct) =>
                 {
                     var map = new EventSourcedEntityMap();
-                    var context = new RoadRegistryContext(map, store, Settings, Mapping);
+                    var context = new RoadRegistryContext(map, store, SerializerSettings, EventMapping);
 
                     await next(context, message, ct);
 
@@ -45,10 +46,7 @@ namespace RoadRegistry.BackOffice.Model
                         if (events.Length != 0)
                         {
 
-                            var messageId =
-                                message.Head.TryGetValue("MessageId", out object value)
-                                    ? value.ToString()
-                                    : Guid.NewGuid().ToString("N");
+                            var messageId = message.MessageId.ToString("N");
                             var version = entry.ExpectedVersion;
                             Array.ForEach(events, @event => enricher(@event));
                             var messages = Array.ConvertAll(
@@ -57,8 +55,8 @@ namespace RoadRegistry.BackOffice.Model
                                     new NewStreamMessage(
                                         Deterministic.Create(Deterministic.Namespaces.Events,
                                             $"{messageId}-{version++}"),
-                                        Mapping.GetEventName(@event.GetType()),
-                                        JsonConvert.SerializeObject(@event, Settings)
+                                        EventMapping.GetEventName(@event.GetType()),
+                                        JsonConvert.SerializeObject(@event, SerializerSettings)
                                     ));
                             await store.AppendToStream(entry.Stream, entry.ExpectedVersion, messages, ct);
                         }

@@ -29,6 +29,24 @@ services:
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__SHAPEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__SHAPEPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+  eventhost:
+    build: dist/RoadRegistry.BackOffice.EventHost/linux
+    depends_on:
+      - mssql
+    environment:
+      CONNECTIONSTRINGS__BLOBS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__EVENTHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__EVENTHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+  commandhost:
+    build: dist/RoadRegistry.BackOffice.CommandHost/linux
+    depends_on:
+      - mssql
+    environment:
+      CONNECTIONSTRINGS__BLOBS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
   api:
     build: dist/RoadRegistry.BackOffice.Api/linux
     depends_on:

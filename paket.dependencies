@@ -28,6 +28,7 @@ nuget Microsoft.Extensions.Configuration.Json 2.2.0
 nuget Microsoft.Extensions.Configuration.EnvironmentVariables 2.2.0
 nuget Microsoft.Extensions.Options.ConfigurationExtensions 2.2.0
 nuget Microsoft.Extensions.Configuration.Binder 2.2.0
+nuget Microsoft.Extensions.Hosting 2.2.0
 
 nuget Autofac 4.8.1
 nuget Autofac.Extensions.DependencyInjection 4.3.1

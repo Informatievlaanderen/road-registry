@@ -126,14 +126,13 @@ namespace RoadRegistry.Api
                 .AddSingleton<IClock>(SystemClock.Instance)
                 .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                     new CommandHandlerModule[] {
-                        new RoadNetworkChangesArchiveModule(
+                        new RoadNetworkChangesArchiveCommandModule(
                             sp.GetService<IBlobClient>(),
                             sp.GetService<IStreamStore>(),
                             new ZipArchiveValidator(Encoding.UTF8),
-                            new ZipArchiveTranslator(Encoding.UTF8),
                             sp.GetService<IClock>()
                         ),
-                        new RoadNetworkCommandHandlerModule(
+                        new RoadNetworkCommandModule(
                             sp.GetService<IStreamStore>(),
                             sp.GetService<IClock>()
                         )

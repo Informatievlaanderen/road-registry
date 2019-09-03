@@ -8,13 +8,13 @@ namespace RoadRegistry.BackOffice.Framework
     {
         public CommandHandler(
             Type command,
-            Func<Message, CancellationToken, Task> handler)
+            Func<Command, CancellationToken, Task> handler)
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
             Handler = handler ?? throw new ArgumentNullException(nameof(handler));
         }
 
         public Type Command { get; }
-        public Func<Message, CancellationToken, Task> Handler { get; }
+        public Func<Command, CancellationToken, Task> Handler { get; }
     }
 }

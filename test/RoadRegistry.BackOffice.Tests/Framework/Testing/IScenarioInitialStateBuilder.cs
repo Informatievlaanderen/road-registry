@@ -6,6 +6,6 @@
     {
         IScenarioGivenNoneStateBuilder GivenNone();
         IScenarioGivenStateBuilder Given(IEnumerable<RecordedEvent> events);
-        IScenarioWhenStateBuilder When(Message command);
+        IScenarioWhenStateBuilder When(Command command);
     }
 }

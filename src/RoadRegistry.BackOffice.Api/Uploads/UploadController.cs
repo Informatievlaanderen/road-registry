@@ -71,8 +71,7 @@ namespace RoadRegistry.Api.Uploads
                     HttpContext.RequestAborted
                 );
 
-                var message = new Message(
-                    new Dictionary<string, object>(),
+                var message = new Command(
                     new UploadRoadNetworkChangesArchive
                     {
                         ArchiveId = archiveId.ToString()

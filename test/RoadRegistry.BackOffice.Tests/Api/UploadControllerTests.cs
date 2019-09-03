@@ -29,13 +29,11 @@ namespace RoadRegistry.BackOffice.Api
             var client = new MemoryBlobClient();
             var store = new InMemoryStreamStore();
             var validator = new ZipArchiveValidator(Encoding.UTF8);
-            var translator = new ZipArchiveTranslator(Encoding.UTF8);
             var resolver = Resolve.WhenEqualToMessage(
-                new RoadNetworkChangesArchiveModule(
+                new RoadNetworkChangesArchiveCommandModule(
                     client,
                     store,
                     validator,
-                    translator,
                     SystemClock.Instance
                 )
             );
@@ -62,13 +60,11 @@ namespace RoadRegistry.BackOffice.Api
             var client = new MemoryBlobClient();
             var store = new InMemoryStreamStore();
             var validator = new ZipArchiveValidator(Encoding.UTF8);
-            var translator = new ZipArchiveTranslator(Encoding.UTF8);
             var resolver = Resolve.WhenEqualToMessage(
-                new RoadNetworkChangesArchiveModule(
+                new RoadNetworkChangesArchiveCommandModule(
                     client,
                     store,
                     validator,
-                    translator,
                     SystemClock.Instance
                 )
             );
@@ -129,13 +125,11 @@ namespace RoadRegistry.BackOffice.Api
             var client = new MemoryBlobClient();
             var store = new InMemoryStreamStore();
             var validator = new ZipArchiveValidator(Encoding.UTF8);
-            var translator = new ZipArchiveTranslator(Encoding.UTF8);
             var resolver = Resolve.WhenEqualToMessage(
-                new RoadNetworkChangesArchiveModule(
+                new RoadNetworkChangesArchiveCommandModule(
                     client,
                     store,
                     validator,
-                    translator,
                     SystemClock.Instance
                 )
             );

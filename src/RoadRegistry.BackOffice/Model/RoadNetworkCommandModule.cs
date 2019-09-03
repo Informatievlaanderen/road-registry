@@ -6,9 +6,9 @@ namespace RoadRegistry.BackOffice.Model
     using NodaTime;
     using SqlStreamStore;
 
-    public class RoadNetworkCommandHandlerModule : CommandHandlerModule
+    public class RoadNetworkCommandModule : CommandHandlerModule
     {
-        public RoadNetworkCommandHandlerModule(IStreamStore store, IClock clock)
+        public RoadNetworkCommandModule(IStreamStore store, IClock clock)
         {
             if (store == null) throw new ArgumentNullException(nameof(store));
             if (clock == null) throw new ArgumentNullException(nameof(clock));
