@@ -4,7 +4,6 @@ namespace RoadRegistry.BackOffice.Model
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
-    using Messages;
 
     public class RoadNetworkView
     {
@@ -211,7 +210,7 @@ namespace RoadRegistry.BackOffice.Model
         {
             if (@event == null) throw new ArgumentNullException(nameof(@event));
             var result = this;
-            foreach (var change in @event.Changes.Flatten())
+            foreach (var change in Messages.ChangeExtensions.Flatten(@event.Changes))
             {
                 switch (change)
                 {

@@ -24,7 +24,6 @@ namespace RoadRegistry.LegacyStreamExtraction
 
         private static async Task Main(string[] args)
         {
-
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
@@ -37,6 +36,7 @@ namespace RoadRegistry.LegacyStreamExtraction
             var root = configurationBuilder.Build();
             var output = new FileInfo(root[LEGACY_STREAM_FILE_NAME]);
             var connectionString = root.GetConnectionString("Legacy");
+
             var importedRoadNodes = new List<ImportedRoadNode>();
             var importedRoadSegments = new Dictionary<long, ImportedRoadSegment>();
             var importedGradeSeparatedJunctions = new List<ImportedGradeSeparatedJunction>();

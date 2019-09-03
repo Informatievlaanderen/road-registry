@@ -26,8 +26,6 @@ namespace RoadRegistry.BackOffice.Translation
 
         public DbaseInt16 TYPE { get; }
 
-        public DbaseString EUNUMMER { get; }
-
         public DbaseInt16 TRANSACTID { get; }
 
         public DbaseInt16 RECORDTYPE { get; }
