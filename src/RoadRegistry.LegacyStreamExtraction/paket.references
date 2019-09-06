@@ -3,6 +3,17 @@ Microsoft.Extensions.Configuration.CommandLine
 Microsoft.Extensions.Configuration.Json
 Microsoft.Extensions.Configuration.EnvironmentVariables
 Microsoft.Extensions.Configuration.Binder
+Microsoft.Extensions.Hosting
+
+Microsoft.IO.RecyclableMemoryStream
+
+Serilog
+Serilog.Settings.Configuration
+Serilog.Extensions.Logging
+Serilog.Sinks.Console
+Serilog.Enrichers.Thread
+Serilog.Enrichers.Environment
+Destructurama.JsonNet
 
 System.Data.SqlClient
 System.IO.Compression
@@ -12,5 +23,6 @@ AWSSDK.S3
 AWSSDK.Extensions.NETCore.Setup
 NodaTime
 
+Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.BlobStore

@@ -1,9 +1,9 @@
-namespace RoadRegistry.LegacyStreamExtraction
+namespace RoadRegistry.LegacyStreamExtraction.Readers
 {
     using System;
     using System.Data.SqlClient;
     using System.Threading.Tasks;
-    
+
     internal static class SqlCommandExtensions
     {
         public static async Task ForEachDataRecord(this SqlCommand command, Action<SqlDataReader> handler)

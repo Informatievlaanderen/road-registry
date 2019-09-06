@@ -30,6 +30,8 @@ nuget Microsoft.Extensions.Options.ConfigurationExtensions 2.2.0
 nuget Microsoft.Extensions.Configuration.Binder 2.2.0
 nuget Microsoft.Extensions.Hosting 2.2.0
 
+nuget Microsoft.IO.RecyclableMemoryStream 1.2.2
+
 nuget Autofac 4.8.1
 nuget Autofac.Extensions.DependencyInjection 4.3.1
 
@@ -142,7 +144,7 @@ nuget Be.Vlaanderen.Basisregisters.Utilities.HashCodeCalculator ~> 1.0
 nuget Be.Vlaanderen.Basisregisters.Utilities.HexByteConvertor ~> 1.0
 
 nuget Be.Vlaanderen.Basisregisters.Shaperon ~> 4.0.0
-nuget Be.Vlaanderen.Basisregisters.BlobStore ~> 1.1
+nuget Be.Vlaanderen.Basisregisters.BlobStore ~> 1.3
 
 nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing ~> 1.0
 nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql ~> 1.0

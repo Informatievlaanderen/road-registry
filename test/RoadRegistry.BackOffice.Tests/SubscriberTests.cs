@@ -7,11 +7,9 @@ namespace RoadRegistry.BackOffice
     using System.Threading.Tasks.Dataflow;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.Generators.Guid;
-    using FluentAssertions;
     using Framework;
     using Framework.Reactions;
     using Messages;
-    using Microsoft.AspNetCore.StaticFiles;
     using Newtonsoft.Json;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
