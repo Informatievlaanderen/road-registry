@@ -36,8 +36,9 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             ,ok.[beginorganisatie]
                             ,lo.[label]
                             ,ok.[begintijd]
-                        FROM [wegenregister].[dbo].[ongelijkgrondseKruising] ok
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ok.[beginorganisatie] = lo.[code]", connection
+                        FROM [dbo].[ongelijkgrondseKruising] ok
+                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ok.[beginorganisatie] = lo.[code]
+                        WHERE ok.[bovenWegsegmentID] IS NOT NULL AND ok.[onderWegsegmentID] IS NOT NULL", connection
                 ).ForEachDataRecord(reader =>
                 {
                     var id = reader.GetInt32(0);

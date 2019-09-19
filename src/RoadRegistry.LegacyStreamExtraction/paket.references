@@ -13,7 +13,6 @@ Serilog.Extensions.Logging
 Serilog.Sinks.Console
 Serilog.Enrichers.Thread
 Serilog.Enrichers.Environment
-Destructurama.JsonNet
 
 System.Data.SqlClient
 System.IO.Compression

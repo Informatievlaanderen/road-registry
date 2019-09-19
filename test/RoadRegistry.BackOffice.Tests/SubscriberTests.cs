@@ -15,6 +15,7 @@ namespace RoadRegistry.BackOffice
     using SqlStreamStore.Streams;
     using SqlStreamStore.Subscriptions;
     using Xunit;
+    using RecordedEvent = Framework.Reactions.RecordedEvent;
 
     public class SubscriberTests
     {

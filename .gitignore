@@ -18,6 +18,8 @@ elm-stuff/
 [Tt]est[Rr]esults/
 
 src/RoadRegistry.UI/wwwroot/
+src/RoadRegistry.LegacyStreamExtraction/output/
+src/RoadRegistry.LegacyDatabase/legacydb.bak
 
 *.suo
 *.user
@@ -43,8 +45,6 @@ Thumbs.db
 
 structurizr-*.json
 appsettings.BitTacklr002.json
-import-streams.json
-import-streams.zip
 .local
 run-local.bat
 

@@ -16,7 +16,6 @@ namespace RoadRegistry.LegacyStreamExtraction
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
     using Configuration;
-    using Destructurama;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -43,8 +42,8 @@ namespace RoadRegistry.LegacyStreamExtraction
 
                     builder
                         .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", true, true)
-                        .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
+                        .AddJsonFile("appsettings.json", true, false)
+                        .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
                         .AddEnvironmentVariables()
                         .AddCommandLine(args)
                         .Build();
@@ -59,8 +58,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
                         .Enrich.WithThreadId()
-                        .Enrich.WithEnvironmentUserName()
-                        .Destructure.JsonNetTypes();
+                        .Enrich.WithEnvironmentUserName();
 
                     Log.Logger = loggerConfiguration.CreateLogger();
 
@@ -103,7 +101,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                     }
 
                     var legacyDatabaseOptions = new LegacySqlDatabaseOptions();
-                    hostContext.Configuration.Bind(legacyDatabaseOptions);
+                    hostContext.Configuration.GetSection(nameof(LegacySqlDatabaseOptions)).Bind(legacyDatabaseOptions);
 
                     builder
                         .AddSingleton<WellKnownBinaryReader>()

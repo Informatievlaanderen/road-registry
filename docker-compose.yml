@@ -1,5 +1,27 @@
 version: '3'
 services:
+  legacy-mssql:
+    build: src/RoadRegistry.LegacyDatabase
+    environment:
+      ACCEPT_EULA: 'Y'
+      SA_PASSWORD: 'E@syP@ssw0rd'
+      MSSQL_MEMORY_LIMIT_MB: 1000
+    ports:
+      - "31433:1433"
+    volumes:
+      - legacy-mssql-data:/var/opt/mssql
+      - ./src/RoadRegistry.LegacyDatabase:/var/lib/backup
+  legacystreamextraction:
+    build: dist/RoadRegistry.LegacyStreamExtraction/linux
+    depends_on:
+      - legacy-mssql
+    environment:
+      BLOBCLIENTTYPE: FileBlobClient
+      FILEBLOBCLIENTOPTIONS__OUTPUTDIRECTORY: /var/lib/RoadRegistry.LegacyStreamExtraction/output
+      LEGACYSQLDATABASEOPTIONS__CONNECTIONSTRINGNAME: Legacy
+      CONNECTIONSTRINGS__LEGACY: Data Source=tcp:legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+    volumes:
+      - ./src/RoadRegistry.LegacyStreamExtraction:/var/lib/RoadRegistry.LegacyStreamExtraction
   mssql:
     image: microsoft/mssql-server-linux:2017-latest
     environment:
@@ -15,10 +37,9 @@ services:
     depends_on:
       - mssql
     environment:
+      BLOBCLIENTTYPE: FileBlobClient
+      FILEBLOBCLIENTOPTIONS__INPUTDIRECTORY: /var/lib/RoadRegistry.LegacyStreamExtraction/output
       CONNECTIONSTRINGS__STREAMSTORE: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-      USELOCALFILE: 'True'
-      LEGACYSTREAMFILENAME: import-streams.zip
-      LEGACYSTREAMDIRECTORY: /var/lib/RoadRegistry.LegacyStreamExtraction
     volumes:
       - ./src/RoadRegistry.LegacyStreamExtraction:/var/lib/RoadRegistry.LegacyStreamExtraction
   projections:
@@ -71,3 +92,4 @@ services:
       - "5001:5000"
 volumes:
   mssql-data:
+  legacy-mssql-data:

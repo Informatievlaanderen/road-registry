@@ -47,8 +47,8 @@ Target "Publish_Solution" (fun _ ->
     "RoadRegistry.BackOffice.Projections"
     "RoadRegistry.BackOffice.EventHost"
     "RoadRegistry.BackOffice.CommandHost"
-    "RoadRegistry.LegacyStreamLoader"
     "RoadRegistry.LegacyStreamExtraction"
+    "RoadRegistry.LegacyStreamLoader"
     "RoadRegistry.BackOffice.Api"
     "RoadRegistry.UI"
   ] |> List.iter publish)
@@ -72,6 +72,9 @@ Target "PushContainer_CommandHost" (fun _ -> push "backoffice-commandhost")
 
 Target "Containerize_LegacyStreamLoader" (fun _ -> containerize "RoadRegistry.LegacyStreamLoader" "legacystreamloader")
 Target "PushContainer_LegacyStreamLoader" (fun _ -> push "legacystreamloader")
+
+Target "Containerize_LegacyStreamExtraction" (fun _ -> containerize "RoadRegistry.LegacyStreamExtraction" "legacystreamextraction")
+Target "PushContainer_LegacyStreamExtraction" (fun _ -> push "legacystreamextraction")
 
 // --------------------------------------------------------------------------------
 
@@ -103,6 +106,7 @@ Target "Push" DoNothing
 "Containerize_EventHost"                  ==> "Containerize"
 "Containerize_CommandHost"                ==> "Containerize"
 "Containerize_LegacyStreamLoader"         ==> "Containerize"
+"Containerize_LegacyStreamExtraction"     ==> "Containerize"
 // Possibly add more projects to containerize here
 
 "Containerize"                            ==> "Push"
@@ -113,6 +117,7 @@ Target "Push" DoNothing
 "PushContainer_EventHost"                 ==> "Push"
 "PushContainer_CommandHost"               ==> "Push"
 "PushContainer_LegacyStreamLoader"        ==> "Push"
+"PushContainer_LegacyStreamExtraction"    ==> "Push"
 // Possibly add more projects to push here
 
 // By default we build & test

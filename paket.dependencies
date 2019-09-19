@@ -79,6 +79,7 @@ nuget System.Threading.Tasks.Dataflow
 nuget System.Collections.Immutable
 nuget System.Data.SqlClient
 nuget System.IO.Compression
+nuget System.Security.Claims
 nuget System.Text.Encoding.CodePages
 
 nuget CompareNETObjects

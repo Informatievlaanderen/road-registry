@@ -66,7 +66,8 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                         LEFT OUTER JOIN [dbo].[gemeenteNIS] rg ON ws.[rechtsGemeente] = rg.[gemeenteId]
                         LEFT OUTER JOIN [dbo].[crabsnm] rs ON ws.[rechtsStraatnaamID] = rs.[EXN]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ws.[beginorganisatie] = lo.[code]
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] beheerders ON ws.[beheerder] = beheerders.[code]",
+                        LEFT OUTER JOIN [dbo].[listOrganisatie] beheerders ON ws.[beheerder] = beheerders.[code]
+                        WHERE ws.[eindWegknoopID] IS NOT NULL AND ws.[beginWegknoopID] IS NOT NULL",
                 connection
             ).ForEachDataRecord(reader =>
             {
@@ -317,7 +318,8 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             ,lo.[label]
                             ,gw.[begintijd]
                         FROM [dbo].[genummerdeWeg] gw
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON gw.[beginorganisatie] = lo.[code]", connection
+                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON gw.[beginorganisatie] = lo.[code]
+                        WHERE gw.[wegsegmentID] IS NOT NULL", connection
                 ).ForEachDataRecord(reader =>
                 {
                     var segment = reader.GetInt32(0);
@@ -357,7 +359,8 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             ,lo.[label]
                             ,nw.[begintijd]
                         FROM [dbo].[nationaleWeg] nw
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON nw.[beginorganisatie] = lo.[code]", connection
+                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON nw.[beginorganisatie] = lo.[code]
+                        WHERE nw.[wegsegmentID] IS NOT NULL", connection
                 ).ForEachDataRecord(reader =>
                 {
                     var segment = reader.GetInt32(0);
@@ -394,7 +397,8 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             ,lo.[label]
                             ,ew.[begintijd]
                         FROM [dbo].[EuropeseWeg] ew
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ew.[beginorganisatie] = lo.[code]", connection
+                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ew.[beginorganisatie] = lo.[code]
+                        WHERE ew.[wegsegmentID] IS NOT NULL", connection
             ).ForEachDataRecord(reader =>
             {
                 var segment = reader.GetInt32(0);
