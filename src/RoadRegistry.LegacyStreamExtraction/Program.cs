@@ -1,7 +1,6 @@
 namespace RoadRegistry.LegacyStreamExtraction
 {
     using System;
-    using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.IO;
     using System.Text;
@@ -10,11 +9,9 @@ namespace RoadRegistry.LegacyStreamExtraction
     using Amazon.Runtime;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Amazon.S3;
-    using BackOffice.Framework;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-    using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
     using Configuration;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -127,7 +124,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                 {
                     await connection.OpenAsync();
 
-                    await writer.WriteAsync(await reader.ReadAsync(connection));
+                    await writer.WriteAsync(reader.ReadEvents(connection));
                 }
             }
             catch (Exception exception)

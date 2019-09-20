@@ -44,20 +44,22 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                 ));
         }
 
-        public async Task<IReadOnlyCollection<RecordedEvent>> ReadAsync(SqlConnection connection)
+        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
-            return ImmutableList<RecordedEvent>.Empty
-                .Add(new RecordedEvent(RoadNetworks.Stream, new BeganRoadNetworkImport
-                {
-                    When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
-                }))
-                .AddRange(await _reader.ReadAsync(connection))
-                .Add(new RecordedEvent(RoadNetworks.Stream, new CompletedRoadNetworkImport
-                {
-                    When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
-                }));
+            yield return new RecordedEvent(RoadNetworks.Stream, new BeganRoadNetworkImport
+            {
+                When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
+            });
+
+            foreach(var @event in _reader.ReadEvents(connection))
+                yield return @event;
+
+            yield return new RecordedEvent(RoadNetworks.Stream, new CompletedRoadNetworkImport
+            {
+                When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
+            });
         }
     }
 }

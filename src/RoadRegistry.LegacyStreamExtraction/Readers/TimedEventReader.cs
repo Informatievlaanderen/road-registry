@@ -24,15 +24,14 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                 : inner.GetType().Name;
         }
 
-        public async Task<IReadOnlyCollection<RecordedEvent>> ReadAsync(SqlConnection connection)
+        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
             var watch = Stopwatch.StartNew();
             _logger.LogInformation("Reading of {0} started ...", _name);
-            var events = await _inner.ReadAsync(connection);
+            foreach (var @event in _inner.ReadEvents(connection)) yield return @event;
             _logger.LogInformation("Reading {0} took {1}ms.", _name, watch.ElapsedMilliseconds);
-            return events;
         }
     }
 }

@@ -3,7 +3,6 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
-    using System.Threading.Tasks;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using BackOffice.Model;
@@ -22,13 +21,11 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<IReadOnlyCollection<RecordedEvent>> ReadAsync(SqlConnection connection)
+        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
-            var events = new List<RecordedEvent>();
-            await
-                new SqlCommand(
+            return new SqlCommand(
                     @"SELECT ok.[ongelijkgrondseKruisingID]
                             ,ok.[bovenWegsegmentID]
                             ,ok.[onderWegsegmentID]
@@ -39,11 +36,11 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                         FROM [dbo].[ongelijkgrondseKruising] ok
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ok.[beginorganisatie] = lo.[code]
                         WHERE ok.[bovenWegsegmentID] IS NOT NULL AND ok.[onderWegsegmentID] IS NOT NULL", connection
-                ).ForEachDataRecord(reader =>
+                ).YieldEachDataRecord(reader =>
                 {
                     var id = reader.GetInt32(0);
                     _logger.LogDebug("Reading grade separated junction with id {0}", id);
-                    events.Add(new RecordedEvent(RoadNetworks.Stream, new ImportedGradeSeparatedJunction
+                    return new RecordedEvent(RoadNetworks.Stream, new ImportedGradeSeparatedJunction
                     {
                         Id = id,
                         UpperRoadSegmentId = reader.GetInt32(1),
@@ -56,9 +53,8 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             Since = reader.GetDateTime(6)
                         },
                         When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
-                    }));
+                    });
                 });
-            return events;
         }
     }
 }

@@ -1,10 +1,11 @@
 namespace RoadRegistry.LegacyStreamExtraction.Readers
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Data;
     using System.Data.SqlClient;
     using System.Linq;
-    using System.Threading.Tasks;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using BackOffice.Model;
@@ -27,144 +28,399 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<IReadOnlyCollection<RecordedEvent>> ReadAsync(SqlConnection connection)
+        private class RoadSegmentEnumerator : IEnumerable<ImportedRoadSegment>, IEnumerator<ImportedRoadSegment>
         {
-            if (connection == null) throw new ArgumentNullException(nameof(connection));
-            var events = new List<RecordedEvent>();
-            var lookup = new Dictionary<int, ImportedRoadSegment>();
+            private readonly SqlConnection _connection;
+            private readonly IClock _clock;
+            private readonly WellKnownBinaryReader _reader;
+            private readonly ILogger<ImportedRoadSegmentsReader> _logger;
+            private State _state;
+            private ImportedRoadSegment[] _batch;
+            private int _index;
 
-            await new SqlCommand(
-                @"SELECT
-                            ws.[wegsegmentID], --0
-                            ws.[wegsegmentversie], --1
-                            ws.[beginWegknoopID], --2
-                            ws.[eindWegknoopID], --3
-                            ws.[geometrie].AsBinaryZM(), --4
-                            ws.[geometrieversie], --5
-                            ws.[beheerder], --6
-                            beheerders.[label], --7
-                            ws.[methode], --8
-                            ws.[morfologie], --9
-                            ws.[status], --10
-                            ws.[categorie], --11
-                            ws.[toegangsbeperking], --12
-                            ws.[linksStraatnaamID], --13
-                            ISNULL(ls.[LOS], ''), --14 --streetname is empty string when not found
-                            lg.[NISCode], --15
-                            lg.[naam], --16
-                            ws.[rechtsStraatnaamID], --17
-                            ISNULL(rs.[LOS], ''), --18 -streetname is empty string when not found
-                            rg.[NISCode], --19
-                            rg.[naam], --20
-                            ws.[opnamedatum], --21
-                            ws.[beginorganisatie], --22
-                            lo.[label], --23
-                            ws.[begintijd] --24
-                        FROM [dbo].[wegsegment] ws
-                        LEFT OUTER JOIN [dbo].[gemeenteNIS] lg ON ws.[linksGemeente] = lg.[gemeenteId]
-                        LEFT OUTER JOIN [dbo].[crabsnm] ls ON ws.[linksStraatnaamID] = ls.[EXN]
-                        LEFT OUTER JOIN [dbo].[gemeenteNIS] rg ON ws.[rechtsGemeente] = rg.[gemeenteId]
-                        LEFT OUTER JOIN [dbo].[crabsnm] rs ON ws.[rechtsStraatnaamID] = rs.[EXN]
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ws.[beginorganisatie] = lo.[code]
-                        LEFT OUTER JOIN [dbo].[listOrganisatie] beheerders ON ws.[beheerder] = beheerders.[code]
-                        WHERE ws.[eindWegknoopID] IS NOT NULL AND ws.[beginWegknoopID] IS NOT NULL",
-                connection
-            ).ForEachDataRecord(reader =>
+            private enum State { Initial, Read, Final }
+
+            public RoadSegmentEnumerator(SqlConnection connection, IClock clock, WellKnownBinaryReader reader, ILogger<ImportedRoadSegmentsReader> logger)
             {
-                var id = reader.GetInt32(0);
-                _logger.LogDebug("Reading road segment with id {0}", id);
-                var wellKnownBinary = reader.GetAllBytes(4);
-                var geometry = _reader
-                    .TryReadAs(wellKnownBinary, out NetTopologySuite.Geometries.LineString oneLine)
-                    ? new NetTopologySuite.Geometries.MultiLineString(new ILineString[] {oneLine})
-                    : _reader.ReadAs<NetTopologySuite.Geometries.MultiLineString>(wellKnownBinary);
+                _connection = connection;
+                _clock = clock;
+                _reader = reader;
+                _logger = logger;
 
-                var multiLineString = Array.ConvertAll(
-                    geometry.Geometries.Cast<NetTopologySuite.Geometries.LineString>().ToArray(),
-                    input => new LineString
+                _state = State.Initial;
+                _batch = Array.Empty<ImportedRoadSegment>();
+                _index = -1;
+            }
+
+            private ImportedRoadSegment[] ReadInitialBatch()
+            {
+                var events = new List<ImportedRoadSegment>(1000);
+                new SqlCommand(
+                        @"SELECT TOP 1000
+                        ws.[wegsegmentID], --0
+                        ws.[wegsegmentversie], --1
+                        ws.[beginWegknoopID], --2
+                        ws.[eindWegknoopID], --3
+                        ws.[geometrie].AsBinaryZM(), --4
+                        ws.[geometrieversie], --5
+                        ws.[beheerder], --6
+                        beheerders.[label], --7
+                        ws.[methode], --8
+                        ws.[morfologie], --9
+                        ws.[status], --10
+                        ws.[categorie], --11
+                        ws.[toegangsbeperking], --12
+                        ws.[linksStraatnaamID], --13
+                        ISNULL(ls.[LOS], ''), --14 --streetname is empty string when not found
+                        lg.[NISCode], --15
+                        lg.[naam], --16
+                        ws.[rechtsStraatnaamID], --17
+                        ISNULL(rs.[LOS], ''), --18 -streetname is empty string when not found
+                        rg.[NISCode], --19
+                        rg.[naam], --20
+                        ws.[opnamedatum], --21
+                        ws.[beginorganisatie], --22
+                        lo.[label], --23
+                        ws.[begintijd] --24
+                    FROM [dbo].[wegsegment] ws
+                    LEFT OUTER JOIN [dbo].[gemeenteNIS] lg ON ws.[linksGemeente] = lg.[gemeenteId]
+                    LEFT OUTER JOIN [dbo].[crabsnm] ls ON ws.[linksStraatnaamID] = ls.[EXN]
+                    LEFT OUTER JOIN [dbo].[gemeenteNIS] rg ON ws.[rechtsGemeente] = rg.[gemeenteId]
+                    LEFT OUTER JOIN [dbo].[crabsnm] rs ON ws.[rechtsStraatnaamID] = rs.[EXN]
+                    LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ws.[beginorganisatie] = lo.[code]
+                    LEFT OUTER JOIN [dbo].[listOrganisatie] beheerders ON ws.[beheerder] = beheerders.[code]
+                    WHERE ws.[eindWegknoopID] IS NOT NULL AND ws.[beginWegknoopID] IS NOT NULL
+                    ORDER BY ws.[wegsegmentID]",
+                        _connection
+                    )
+                    .ForEachDataRecord(reader =>
                     {
-                        Points = Array.ConvertAll(
-                            input.Coordinates,
-                            coordinate => new Point
+                        var id = reader.GetInt32(0);
+                        _logger.LogDebug("Reading road segment with id {0}", id);
+                        var wellKnownBinary = reader.GetAllBytes(4);
+                        var geometry = _reader
+                            .TryReadAs(wellKnownBinary, out NetTopologySuite.Geometries.LineString oneLine)
+                            ? new NetTopologySuite.Geometries.MultiLineString(new ILineString[] {oneLine})
+                            : _reader.ReadAs<NetTopologySuite.Geometries.MultiLineString>(wellKnownBinary);
+
+                        var multiLineString = Array.ConvertAll(
+                            geometry.Geometries.Cast<NetTopologySuite.Geometries.LineString>().ToArray(),
+                            input => new LineString
                             {
-                                X = coordinate.X,
-                                Y = coordinate.Y
-                            }),
-                        Measures = geometry.GetOrdinates(Ordinate.M)
+                                Points = Array.ConvertAll(
+                                    input.Coordinates,
+                                    coordinate => new Point
+                                    {
+                                        X = coordinate.X,
+                                        Y = coordinate.Y
+                                    }),
+                                Measures = geometry.GetOrdinates(Ordinate.M)
+                            });
+
+                        events.Add(new ImportedRoadSegment
+                        {
+                            Id = id,
+                            Version = reader.GetInt32(1),
+                            StartNodeId = reader.GetInt32(2),
+                            EndNodeId = reader.GetInt32(3),
+                            Geometry = new RoadSegmentGeometry
+                            {
+                                SpatialReferenceSystemIdentifier =
+                                    SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
+                                MultiLineString = multiLineString
+                            },
+                            GeometryVersion = reader.GetInt32(5),
+                            MaintenanceAuthority = new MaintenanceAuthority
+                            {
+                                Code = reader.GetString(6),
+                                Name = reader.GetString(7)
+                            },
+                            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[reader.GetInt32(8)],
+                            Morphology = RoadSegmentMorphology.ByIdentifier[reader.GetInt32(9)],
+                            Status = RoadSegmentStatus.ByIdentifier[reader.GetInt32(10)],
+                            Category = RoadSegmentCategory.ByIdentifier[reader.GetString(11)],
+                            AccessRestriction = RoadSegmentAccessRestriction.ByIdentifier[reader.GetInt32(12)],
+                            LeftSide = new ImportedRoadSegmentSideAttributes
+                            {
+                                StreetNameId = reader.GetNullableInt32(13),
+                                StreetName = reader.GetNullableString(14),
+                                MunicipalityNISCode = reader.GetNullableString(15),
+                                Municipality = reader.GetNullableString(16)
+                            },
+                            RightSide = new ImportedRoadSegmentSideAttributes
+                            {
+                                StreetNameId = reader.GetNullableInt32(17),
+                                StreetName = reader.GetNullableString(18),
+                                MunicipalityNISCode = reader.GetNullableString(19),
+                                Municipality = reader.GetNullableString(20)
+                            },
+                            RecordingDate = reader.GetDateTime(21),
+                            Origin = new OriginProperties
+                            {
+                                OrganizationId = reader.GetNullableString(22),
+                                Organization = reader.GetNullableString(23),
+                                Since = reader.GetDateTime(24)
+                            },
+                            PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
+                            PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),
+                            PartOfNumberedRoads = Array.Empty<ImportedRoadSegmentNumberedRoadAttributes>(),
+                            Lanes = Array.Empty<ImportedRoadSegmentLaneAttributes>(),
+                            Widths = Array.Empty<ImportedRoadSegmentWidthAttributes>(),
+                            Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttributes>(),
+                            When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
+                        });
                     });
+                return events.ToArray();
+            }
 
-                var @event = new ImportedRoadSegment
+            private ImportedRoadSegment[] ReadNextBatch(int afterSegmentId)
+            {
+                var events = new List<ImportedRoadSegment>(1000);
+                new SqlCommand(
+                        @"SELECT TOP 1000
+                        ws.[wegsegmentID], --0
+                        ws.[wegsegmentversie], --1
+                        ws.[beginWegknoopID], --2
+                        ws.[eindWegknoopID], --3
+                        ws.[geometrie].AsBinaryZM(), --4
+                        ws.[geometrieversie], --5
+                        ws.[beheerder], --6
+                        beheerders.[label], --7
+                        ws.[methode], --8
+                        ws.[morfologie], --9
+                        ws.[status], --10
+                        ws.[categorie], --11
+                        ws.[toegangsbeperking], --12
+                        ws.[linksStraatnaamID], --13
+                        ISNULL(ls.[LOS], ''), --14 --streetname is empty string when not found
+                        lg.[NISCode], --15
+                        lg.[naam], --16
+                        ws.[rechtsStraatnaamID], --17
+                        ISNULL(rs.[LOS], ''), --18 -streetname is empty string when not found
+                        rg.[NISCode], --19
+                        rg.[naam], --20
+                        ws.[opnamedatum], --21
+                        ws.[beginorganisatie], --22
+                        lo.[label], --23
+                        ws.[begintijd] --24
+                    FROM [dbo].[wegsegment] ws
+                    LEFT OUTER JOIN [dbo].[gemeenteNIS] lg ON ws.[linksGemeente] = lg.[gemeenteId]
+                    LEFT OUTER JOIN [dbo].[crabsnm] ls ON ws.[linksStraatnaamID] = ls.[EXN]
+                    LEFT OUTER JOIN [dbo].[gemeenteNIS] rg ON ws.[rechtsGemeente] = rg.[gemeenteId]
+                    LEFT OUTER JOIN [dbo].[crabsnm] rs ON ws.[rechtsStraatnaamID] = rs.[EXN]
+                    LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ws.[beginorganisatie] = lo.[code]
+                    LEFT OUTER JOIN [dbo].[listOrganisatie] beheerders ON ws.[beheerder] = beheerders.[code]
+                    WHERE ws.[eindWegknoopID] IS NOT NULL AND ws.[beginWegknoopID] IS NOT NULL
+                    AND ws.[wegsegmentID] > @P0
+                    ORDER BY ws.[wegsegmentID]",
+                        _connection
+                    )
+                    {
+                        Parameters = { new SqlParameter("@P0", SqlDbType.Int, 4, ParameterDirection.Input, false, 0,0, "", DataRowVersion.Default, afterSegmentId)}
+                    }
+                    .ForEachDataRecord(reader =>
+                    {
+                        var id = reader.GetInt32(0);
+                        _logger.LogDebug("Reading road segment with id {0}", id);
+                        var wellKnownBinary = reader.GetAllBytes(4);
+                        var geometry = _reader
+                            .TryReadAs(wellKnownBinary, out NetTopologySuite.Geometries.LineString oneLine)
+                            ? new NetTopologySuite.Geometries.MultiLineString(new ILineString[] {oneLine})
+                            : _reader.ReadAs<NetTopologySuite.Geometries.MultiLineString>(wellKnownBinary);
+
+                        var multiLineString = Array.ConvertAll(
+                            geometry.Geometries.Cast<NetTopologySuite.Geometries.LineString>().ToArray(),
+                            input => new LineString
+                            {
+                                Points = Array.ConvertAll(
+                                    input.Coordinates,
+                                    coordinate => new Point
+                                    {
+                                        X = coordinate.X,
+                                        Y = coordinate.Y
+                                    }),
+                                Measures = geometry.GetOrdinates(Ordinate.M)
+                            });
+
+                        events.Add(new ImportedRoadSegment
+                        {
+                            Id = id,
+                            Version = reader.GetInt32(1),
+                            StartNodeId = reader.GetInt32(2),
+                            EndNodeId = reader.GetInt32(3),
+                            Geometry = new RoadSegmentGeometry
+                            {
+                                SpatialReferenceSystemIdentifier =
+                                    SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
+                                MultiLineString = multiLineString
+                            },
+                            GeometryVersion = reader.GetInt32(5),
+                            MaintenanceAuthority = new MaintenanceAuthority
+                            {
+                                Code = reader.GetString(6),
+                                Name = reader.GetString(7)
+                            },
+                            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[reader.GetInt32(8)],
+                            Morphology = RoadSegmentMorphology.ByIdentifier[reader.GetInt32(9)],
+                            Status = RoadSegmentStatus.ByIdentifier[reader.GetInt32(10)],
+                            Category = RoadSegmentCategory.ByIdentifier[reader.GetString(11)],
+                            AccessRestriction = RoadSegmentAccessRestriction.ByIdentifier[reader.GetInt32(12)],
+                            LeftSide = new ImportedRoadSegmentSideAttributes
+                            {
+                                StreetNameId = reader.GetNullableInt32(13),
+                                StreetName = reader.GetNullableString(14),
+                                MunicipalityNISCode = reader.GetNullableString(15),
+                                Municipality = reader.GetNullableString(16)
+                            },
+                            RightSide = new ImportedRoadSegmentSideAttributes
+                            {
+                                StreetNameId = reader.GetNullableInt32(17),
+                                StreetName = reader.GetNullableString(18),
+                                MunicipalityNISCode = reader.GetNullableString(19),
+                                Municipality = reader.GetNullableString(20)
+                            },
+                            RecordingDate = reader.GetDateTime(21),
+                            Origin = new OriginProperties
+                            {
+                                OrganizationId = reader.GetNullableString(22),
+                                Organization = reader.GetNullableString(23),
+                                Since = reader.GetDateTime(24)
+                            },
+                            PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
+                            PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),
+                            PartOfNumberedRoads = Array.Empty<ImportedRoadSegmentNumberedRoadAttributes>(),
+                            Lanes = Array.Empty<ImportedRoadSegmentLaneAttributes>(),
+                            Widths = Array.Empty<ImportedRoadSegmentWidthAttributes>(),
+                            Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttributes>(),
+                            When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
+                        });
+                    });
+                return events.ToArray();
+            }
+
+            public bool MoveNext()
+            {
+                if (_state == State.Initial)
                 {
-                    Id = id,
-                    Version = reader.GetInt32(1),
-                    StartNodeId = reader.GetInt32(2),
-                    EndNodeId = reader.GetInt32(3),
-                    Geometry = new RoadSegmentGeometry
-                    {
-                        SpatialReferenceSystemIdentifier =
-                            SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                        MultiLineString = multiLineString
-                    },
-                    GeometryVersion = reader.GetInt32(5),
-                    MaintenanceAuthority = new MaintenanceAuthority
-                    {
-                        Code = reader.GetString(6),
-                        Name = reader.GetString(7)
-                    },
-                    GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[reader.GetInt32(8)],
-                    Morphology = RoadSegmentMorphology.ByIdentifier[reader.GetInt32(9)],
-                    Status = RoadSegmentStatus.ByIdentifier[reader.GetInt32(10)],
-                    Category = RoadSegmentCategory.ByIdentifier[reader.GetString(11)],
-                    AccessRestriction = RoadSegmentAccessRestriction.ByIdentifier[reader.GetInt32(12)],
-                    LeftSide = new ImportedRoadSegmentSideAttributes
-                    {
-                        StreetNameId = reader.GetNullableInt32(13),
-                        StreetName = reader.GetNullableString(14),
-                        MunicipalityNISCode = reader.GetNullableString(15),
-                        Municipality = reader.GetNullableString(16)
-                    },
-                    RightSide = new ImportedRoadSegmentSideAttributes
-                    {
-                        StreetNameId = reader.GetNullableInt32(17),
-                        StreetName = reader.GetNullableString(18),
-                        MunicipalityNISCode = reader.GetNullableString(19),
-                        Municipality = reader.GetNullableString(20)
-                    },
-                    RecordingDate = reader.GetDateTime(21),
-                    Origin = new OriginProperties
-                    {
-                        OrganizationId = reader.GetNullableString(22),
-                        Organization = reader.GetNullableString(23),
-                        Since = reader.GetDateTime(24)
-                    },
-                    PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
-                    PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),
-                    PartOfNumberedRoads = Array.Empty<ImportedRoadSegmentNumberedRoadAttributes>(),
-                    Lanes = Array.Empty<ImportedRoadSegmentLaneAttributes>(),
-                    Widths = Array.Empty<ImportedRoadSegmentWidthAttributes>(),
-                    Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttributes>(),
-                    When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
-                };
-                events.Add(new RecordedEvent(RoadNetworks.Stream, @event));
-                lookup.Add(@event.Id, @event);
-            });
+                    _batch = ReadInitialBatch();
 
-            await EnrichImportedRoadSegmentsWithEuropeanRoadAttributes(connection, lookup);
-            await EnrichImportedRoadSegmentsWithNationalRoadAttributes(connection, lookup);
-            await EnrichImportedRoadSegmentsWithNumberedRoadAttributes(connection, lookup);
+                    if (_batch.Length == 0)
+                    {
+                        _state = State.Final;
+                        return false;
+                    }
 
-            await EnrichImportedRoadSegmentsWithLaneAttributes(connection, lookup);
-            await EnrichImportedRoadSegmentsWithWidthAttributes(connection, lookup);
-            await EnrichImportedRoadSegmentsWithSurfaceAttributes(connection, lookup);
+                    _state = State.Read;
+                    _index = 0;
+                    return true;
+                }
 
-            return events;
+                if (_state == State.Read)
+                {
+                    if (_index + 1 < _batch.Length)
+                    {
+                        _index++;
+                        return true;
+                    }
+
+                    _batch = ReadNextBatch(_batch[_batch.Length - 1].Id);
+
+                    if (_batch.Length == 0)
+                    {
+                        _state = State.Final;
+                        _index = -1;
+                        return false;
+                    }
+
+                    _index = 0;
+                    return true;
+                }
+
+                return false;
+            }
+
+            public void Reset()
+            {
+                _state = State.Initial;
+                _batch = Array.Empty<ImportedRoadSegment>();
+                _index = -1;
+            }
+
+            public ImportedRoadSegment Current
+            {
+                get
+                {
+                    if (_state == State.Initial)
+                    {
+                        throw new InvalidOperationException("Enumeration has not started. Please call MoveNext() first.");
+                    }
+
+                    if (_state == State.Final)
+                    {
+                        throw new InvalidOperationException("Enumeration has ended. Please call Reset() first.");
+                    }
+
+                    return _batch[_index];
+                }
+            }
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose()
+            {
+            }
+
+            public IEnumerator<ImportedRoadSegment> GetEnumerator()
+            {
+                return this;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return this;
+            }
         }
 
-        private async Task EnrichImportedRoadSegmentsWithSurfaceAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
+        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
         {
-            await
-                new SqlCommand(
-                    @"SELECT wv.[wegsegmentID] --0
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
+
+            foreach (var batch in new RoadSegmentEnumerator(connection, _clock, _reader, _logger).Batch(1000))
+            {
+                var lookup = batch.ToDictionary(@event => @event.Id);
+
+                EnrichImportedRoadSegmentsWithEuropeanRoadAttributes(connection, lookup);
+                EnrichImportedRoadSegmentsWithNationalRoadAttributes(connection, lookup);
+                EnrichImportedRoadSegmentsWithNumberedRoadAttributes(connection, lookup);
+
+                EnrichImportedRoadSegmentsWithLaneAttributes(connection, lookup);
+                EnrichImportedRoadSegmentsWithWidthAttributes(connection, lookup);
+                EnrichImportedRoadSegmentsWithSurfaceAttributes(connection, lookup);
+
+                foreach (var @event in batch)
+                {
+                    yield return new RecordedEvent(RoadNetworks.Stream, @event);
+                }
+            }
+        }
+
+        private static SqlParameter[] LookupToParameters(IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
+        {
+            return lookup.Select((item, index) => new SqlParameter("@P" + index, item.Key)).ToArray();
+        }
+
+        private static string LookupToParameterNames(IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
+        {
+            return string.Join(',', Enumerable
+                .Range(0, lookup.Count - 1)
+                .Select(index => "@P" + index)
+            );
+        }
+
+        private void EnrichImportedRoadSegmentsWithSurfaceAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
+        {
+            var command = new SqlCommand(
+                @"SELECT wv.[wegsegmentID] --0
                             ,wv.[wegverhardingID] --1
                             ,wv.[type] --2
                             ,wv.[vanPositie] --3
@@ -176,42 +432,44 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                         FROM [dbo].[wegverharding] wv
                         INNER JOIN [dbo].[wegsegment] ws ON wv.[wegsegmentID] = ws.[wegsegmentID]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wv.[beginorganisatie] = lo.[code]
+                        WHERE ws.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + @")
                         ORDER BY wv.[wegsegmentID], wv.[vanPositie]",
-                    connection
-                ).ForEachDataRecord(reader =>
+                connection
+            );
+            command.Parameters.AddRange(LookupToParameters(lookup));
+            command.ForEachDataRecord(reader =>
+            {
+                var segment = reader.GetInt32(0);
+                _logger.LogDebug("Enriching road segment {0} with surface attributes", segment);
+                if (!lookup.TryGetValue(segment, out var @event))
+                    return;
+
+                var attributes = new ImportedRoadSegmentSurfaceAttributes
                 {
-                    var segment = reader.GetInt32(0);
-                    _logger.LogDebug("Enriching road segment {0} with surface attributes", segment);
-                    if (!lookup.TryGetValue(segment, out var @event))
-                        return;
-
-                    var attributes = new ImportedRoadSegmentSurfaceAttributes
+                    AttributeId = reader.GetInt32(1),
+                    Type = RoadSegmentSurfaceType.ByIdentifier[reader.GetInt32(2)],
+                    FromPosition = reader.GetDecimal(3),
+                    ToPosition = reader.GetDecimal(4),
+                    AsOfGeometryVersion = reader.GetInt32(5),
+                    Origin = new OriginProperties
                     {
-                        AttributeId = reader.GetInt32(1),
-                        Type = RoadSegmentSurfaceType.ByIdentifier[reader.GetInt32(2)],
-                        FromPosition = reader.GetDecimal(3),
-                        ToPosition = reader.GetDecimal(4),
-                        AsOfGeometryVersion = reader.GetInt32(5),
-                        Origin = new OriginProperties
-                        {
-                            OrganizationId = reader.GetNullableString(6),
-                            Organization = reader.GetNullableString(7),
-                            Since = reader.GetDateTime(8)
-                        }
-                    };
+                        OrganizationId = reader.GetNullableString(6),
+                        Organization = reader.GetNullableString(7),
+                        Since = reader.GetDateTime(8)
+                    }
+                };
 
-                    var copy = new ImportedRoadSegmentSurfaceAttributes[@event.Surfaces.Length + 1];
-                    @event.Surfaces.CopyTo(copy, 0);
-                    copy[@event.Surfaces.Length] = attributes;
-                    @event.Surfaces = copy;
-                });
+                var copy = new ImportedRoadSegmentSurfaceAttributes[@event.Surfaces.Length + 1];
+                @event.Surfaces.CopyTo(copy, 0);
+                copy[@event.Surfaces.Length] = attributes;
+                @event.Surfaces = copy;
+            });
         }
 
-        private async Task EnrichImportedRoadSegmentsWithWidthAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
+        private void EnrichImportedRoadSegmentsWithWidthAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
         {
-            await
-                new SqlCommand(
-                    @"SELECT wb.[wegsegmentID] --0
+            var command = new SqlCommand(
+                @"SELECT wb.[wegsegmentID] --0
                             ,wb.[wegbreedteID] --1
                             ,wb.[breedte] --2
                             ,wb.[vanPositie] --3
@@ -223,42 +481,44 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                         FROM [dbo].[wegbreedte] wb
                         INNER JOIN [dbo].[wegsegment] ws ON wb.[wegsegmentID] = ws.[wegsegmentID]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wb.[beginorganisatie] = lo.[code]
+                        WHERE ws.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + @")
                         ORDER BY wb.[wegsegmentID], wb.[vanPositie]",
-                    connection
-                ).ForEachDataRecord(reader =>
+                connection
+            );
+            command.Parameters.AddRange(LookupToParameters(lookup));
+            command.ForEachDataRecord(reader =>
+            {
+                var segment = reader.GetInt32(0);
+                _logger.LogDebug("Enriching road segment {0} with width attributes", segment);
+                if (!lookup.TryGetValue(segment, out var @event))
+                    return;
+
+                var attributes = new ImportedRoadSegmentWidthAttributes
                 {
-                    var segment = reader.GetInt32(0);
-                    _logger.LogDebug("Enriching road segment {0} with width attributes", segment);
-                    if (!lookup.TryGetValue(segment, out var @event))
-                        return;
-
-                    var attributes = new ImportedRoadSegmentWidthAttributes
+                    AttributeId = reader.GetInt32(1),
+                    Width = reader.GetInt32(2),
+                    FromPosition = reader.GetDecimal(3),
+                    ToPosition = reader.GetDecimal(4),
+                    AsOfGeometryVersion = reader.GetInt32(5),
+                    Origin = new OriginProperties
                     {
-                        AttributeId = reader.GetInt32(1),
-                        Width = reader.GetInt32(2),
-                        FromPosition = reader.GetDecimal(3),
-                        ToPosition = reader.GetDecimal(4),
-                        AsOfGeometryVersion = reader.GetInt32(5),
-                        Origin = new OriginProperties
-                        {
-                            OrganizationId = reader.GetNullableString(6),
-                            Organization = reader.GetNullableString(7),
-                            Since = reader.GetDateTime(8)
-                        }
-                    };
+                        OrganizationId = reader.GetNullableString(6),
+                        Organization = reader.GetNullableString(7),
+                        Since = reader.GetDateTime(8)
+                    }
+                };
 
-                    var copy = new ImportedRoadSegmentWidthAttributes[@event.Widths.Length + 1];
-                    @event.Widths.CopyTo(copy, 0);
-                    copy[@event.Widths.Length] = attributes;
-                    @event.Widths = copy;
-                });
+                var copy = new ImportedRoadSegmentWidthAttributes[@event.Widths.Length + 1];
+                @event.Widths.CopyTo(copy, 0);
+                copy[@event.Widths.Length] = attributes;
+                @event.Widths = copy;
+            });
         }
 
-        private async Task EnrichImportedRoadSegmentsWithLaneAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
+        private void EnrichImportedRoadSegmentsWithLaneAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
         {
-            await
-                new SqlCommand(
-                    @"SELECT
+            var command = new SqlCommand(
+                @"SELECT
                             rs.[wegsegmentID] --0
                             ,rs.[rijstrokenID] --1
                             ,rs.[aantal] --2
@@ -272,43 +532,45 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                         FROM [dbo].[rijstroken] rs
                         INNER JOIN [dbo].[wegsegment] ws ON rs.[wegsegmentID] = ws.[wegsegmentID]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON rs.[beginorganisatie] = lo.[code]
+                        WHERE ws.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + @")
                         ORDER BY rs.[wegsegmentID], rs.[vanPositie]",
-                    connection
-                ).ForEachDataRecord(reader =>
+                connection
+            );
+            command.Parameters.AddRange(LookupToParameters(lookup));
+            command.ForEachDataRecord(reader =>
+            {
+                var segment = reader.GetInt32(0);
+                _logger.LogDebug("Enriching road segment {0} with lane attributes", segment);
+                if (!lookup.TryGetValue(segment, out var @event))
+                    return;
+
+                var attributes = new ImportedRoadSegmentLaneAttributes
                 {
-                    var segment = reader.GetInt32(0);
-                    _logger.LogDebug("Enriching road segment {0} with lane attributes", segment);
-                    if (!lookup.TryGetValue(segment, out var @event))
-                        return;
-
-                    var attributes = new ImportedRoadSegmentLaneAttributes
+                    AttributeId = reader.GetInt32(1),
+                    Count = reader.GetInt32(2),
+                    Direction = RoadSegmentLaneDirection.ByIdentifier[reader.GetInt32(3)],
+                    FromPosition = reader.GetDecimal(4),
+                    ToPosition = reader.GetDecimal(5),
+                    AsOfGeometryVersion = reader.GetInt32(6),
+                    Origin = new OriginProperties
                     {
-                        AttributeId = reader.GetInt32(1),
-                        Count = reader.GetInt32(2),
-                        Direction = RoadSegmentLaneDirection.ByIdentifier[reader.GetInt32(3)],
-                        FromPosition = reader.GetDecimal(4),
-                        ToPosition = reader.GetDecimal(5),
-                        AsOfGeometryVersion = reader.GetInt32(6),
-                        Origin = new OriginProperties
-                        {
-                            OrganizationId = reader.GetNullableString(7),
-                            Organization = reader.GetNullableString(8),
-                            Since = reader.GetDateTime(9)
-                        }
-                    };
+                        OrganizationId = reader.GetNullableString(7),
+                        Organization = reader.GetNullableString(8),
+                        Since = reader.GetDateTime(9)
+                    }
+                };
 
-                    var copy = new ImportedRoadSegmentLaneAttributes[@event.Lanes.Length + 1];
-                    @event.Lanes.CopyTo(copy, 0);
-                    copy[@event.Lanes.Length] = attributes;
-                    @event.Lanes = copy;
-                });
+                var copy = new ImportedRoadSegmentLaneAttributes[@event.Lanes.Length + 1];
+                @event.Lanes.CopyTo(copy, 0);
+                copy[@event.Lanes.Length] = attributes;
+                @event.Lanes = copy;
+            });
         }
 
-        private async Task EnrichImportedRoadSegmentsWithNumberedRoadAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
+        private void EnrichImportedRoadSegmentsWithNumberedRoadAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
         {
-            await
-                new SqlCommand(
-                    @"SELECT
+            var command = new SqlCommand(
+                @"SELECT
                             gw.[wegsegmentID]
                             ,gw.[genummerdeWegID]
                             ,gw.[ident8]
@@ -319,40 +581,43 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             ,gw.[begintijd]
                         FROM [dbo].[genummerdeWeg] gw
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON gw.[beginorganisatie] = lo.[code]
-                        WHERE gw.[wegsegmentID] IS NOT NULL", connection
-                ).ForEachDataRecord(reader =>
+                        WHERE gw.[wegsegmentID] IS NOT NULL
+                        AND gw.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + ")",
+                connection
+            );
+            command.Parameters.AddRange(LookupToParameters(lookup));
+            command.ForEachDataRecord(reader =>
+            {
+                var segment = reader.GetInt32(0);
+                _logger.LogDebug("Enriching road segment {0} with numbered road attributes", segment);
+                if (!lookup.TryGetValue(segment, out var @event))
+                    return;
+
+                var attributes = new ImportedRoadSegmentNumberedRoadAttributes
                 {
-                    var segment = reader.GetInt32(0);
-                    _logger.LogDebug("Enriching road segment {0} with numbered road attributes", segment);
-                    if (!lookup.TryGetValue(segment, out var @event))
-                        return;
-
-                    var attributes = new ImportedRoadSegmentNumberedRoadAttributes
+                    AttributeId = reader.GetInt32(1),
+                    Ident8 = reader.GetString(2),
+                    Direction = RoadSegmentNumberedRoadDirection.ByIdentifier[reader.GetInt32(3)],
+                    Ordinal = reader.GetInt32(4),
+                    Origin = new OriginProperties
                     {
-                        AttributeId = reader.GetInt32(1),
-                        Ident8 = reader.GetString(2),
-                        Direction = RoadSegmentNumberedRoadDirection.ByIdentifier[reader.GetInt32(3)],
-                        Ordinal = reader.GetInt32(4),
-                        Origin = new OriginProperties
-                        {
-                            OrganizationId = reader.GetNullableString(5),
-                            Organization = reader.GetNullableString(6),
-                            Since = reader.GetDateTime(7)
-                        }
-                    };
+                        OrganizationId = reader.GetNullableString(5),
+                        Organization = reader.GetNullableString(6),
+                        Since = reader.GetDateTime(7)
+                    }
+                };
 
-                    var copy = new ImportedRoadSegmentNumberedRoadAttributes[@event.PartOfNumberedRoads.Length + 1];
-                    @event.PartOfNumberedRoads.CopyTo(copy, 0);
-                    copy[@event.PartOfNumberedRoads.Length] = attributes;
-                    @event.PartOfNumberedRoads = copy;
-                });
+                var copy = new ImportedRoadSegmentNumberedRoadAttributes[@event.PartOfNumberedRoads.Length + 1];
+                @event.PartOfNumberedRoads.CopyTo(copy, 0);
+                copy[@event.PartOfNumberedRoads.Length] = attributes;
+                @event.PartOfNumberedRoads = copy;
+            });
         }
 
-        private async Task EnrichImportedRoadSegmentsWithNationalRoadAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
+        private void EnrichImportedRoadSegmentsWithNationalRoadAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
         {
-            await
-                new SqlCommand(
-                    @"SELECT nw.[wegsegmentID]
+            var command = new SqlCommand(
+                @"SELECT nw.[wegsegmentID]
                             ,nw.[nationaleWegID]
                             ,nw.[ident2]
                             ,nw.[beginorganisatie]
@@ -360,36 +625,40 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             ,nw.[begintijd]
                         FROM [dbo].[nationaleWeg] nw
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON nw.[beginorganisatie] = lo.[code]
-                        WHERE nw.[wegsegmentID] IS NOT NULL", connection
-                ).ForEachDataRecord(reader =>
+                        WHERE nw.[wegsegmentID] IS NOT NULL
+                        AND nw.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + ")",
+                connection
+            );
+            command.Parameters.AddRange(LookupToParameters(lookup));
+            command.ForEachDataRecord(reader =>
+            {
+                var segment = reader.GetInt32(0);
+                _logger.LogDebug("Enriching road segment {0} with national road attributes", segment);
+                if (!lookup.TryGetValue(segment, out var @event))
+                    return;
+
+                var attributes = new ImportedRoadSegmentNationalRoadAttributes
                 {
-                    var segment = reader.GetInt32(0);
-                    _logger.LogDebug("Enriching road segment {0} with national road attributes", segment);
-                    if (!lookup.TryGetValue(segment, out var @event))
-                        return;
-
-                    var attributes = new ImportedRoadSegmentNationalRoadAttributes
+                    AttributeId = reader.GetInt32(1),
+                    Ident2 = reader.GetString(2),
+                    Origin = new OriginProperties
                     {
-                        AttributeId = reader.GetInt32(1),
-                        Ident2 = reader.GetString(2),
-                        Origin = new OriginProperties
-                        {
-                            OrganizationId = reader.GetNullableString(3),
-                            Organization = reader.GetNullableString(4),
-                            Since = reader.GetDateTime(5)
-                        }
-                    };
+                        OrganizationId = reader.GetNullableString(3),
+                        Organization = reader.GetNullableString(4),
+                        Since = reader.GetDateTime(5)
+                    }
+                };
 
-                    var copy = new ImportedRoadSegmentNationalRoadAttributes[@event.PartOfNationalRoads.Length + 1];
-                    @event.PartOfNationalRoads.CopyTo(copy, 0);
-                    copy[@event.PartOfNationalRoads.Length] = attributes;
-                    @event.PartOfNationalRoads = copy;
-                });
+                var copy = new ImportedRoadSegmentNationalRoadAttributes[@event.PartOfNationalRoads.Length + 1];
+                @event.PartOfNationalRoads.CopyTo(copy, 0);
+                copy[@event.PartOfNationalRoads.Length] = attributes;
+                @event.PartOfNationalRoads = copy;
+            });
         }
 
-        private async Task EnrichImportedRoadSegmentsWithEuropeanRoadAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
+        private void EnrichImportedRoadSegmentsWithEuropeanRoadAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
         {
-            await new SqlCommand(
+            var command = new SqlCommand(
                 @"SELECT ew.[wegsegmentID]
                             ,ew.[EuropeseWegID]
                             ,ew.[euWegnummer]
@@ -398,8 +667,12 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             ,ew.[begintijd]
                         FROM [dbo].[EuropeseWeg] ew
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ew.[beginorganisatie] = lo.[code]
-                        WHERE ew.[wegsegmentID] IS NOT NULL", connection
-            ).ForEachDataRecord(reader =>
+                        WHERE ew.[wegsegmentID] IS NOT NULL
+                        AND ew.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + ")",
+                connection
+            );
+            command.Parameters.AddRange(LookupToParameters(lookup));
+            command.ForEachDataRecord(reader =>
             {
                 var segment = reader.GetInt32(0);
                 _logger.LogDebug("Enriching road segment {0} with european road attributes", segment);

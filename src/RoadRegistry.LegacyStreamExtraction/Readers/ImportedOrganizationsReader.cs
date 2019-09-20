@@ -3,7 +3,6 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
-    using System.Threading.Tasks;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using Microsoft.Extensions.Logging;
@@ -21,30 +20,26 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<IReadOnlyCollection<RecordedEvent>> ReadAsync(SqlConnection connection)
+        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
-            var events = new List<RecordedEvent>();
-
-            await new SqlCommand(
+            return new SqlCommand(
                 @"SELECT
                             org.[Code],
                             org.[Label]
                         FROM [listOrganisatie] org", connection
-            ).ForEachDataRecord(reader =>
+            ).YieldEachDataRecord(reader =>
             {
                 var code = reader.GetString(0);
                 _logger.LogDebug("Reading organization with code {0}", code);
-                events.Add(new RecordedEvent(new StreamName("organization-" + code), new ImportedOrganization
+                return new RecordedEvent(new StreamName("organization-" + code), new ImportedOrganization
                 {
                     Code = code,
                     Name = reader.GetString(1),
                     When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
-                }));
+                });
             });
-
-            return events;
         }
     }
 }

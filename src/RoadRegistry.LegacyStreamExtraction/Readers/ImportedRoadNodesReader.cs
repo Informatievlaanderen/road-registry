@@ -25,12 +25,11 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<IReadOnlyCollection<RecordedEvent>> ReadAsync(SqlConnection connection)
+        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
-            var events = new List<RecordedEvent>();
-            await new SqlCommand(
+            return new SqlCommand(
                 @"SELECT
                             wk.[wegknoopID],
                             wk.[wegknoopversie],
@@ -41,12 +40,12 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             wk.[begintijd]
                         FROM [wegknoop] wk
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wk.[beginorganisatie] = lo.[code]", connection
-            ).ForEachDataRecord(reader =>
+            ).YieldEachDataRecord(reader =>
             {
                 var id = reader.GetInt32(0);
                 _logger.LogDebug("Reading road node with id {0}", id);
                 var geometry = _wkbReader.ReadAs<NetTopologySuite.Geometries.Point>(reader.GetAllBytes(3));
-                events.Add(new RecordedEvent(RoadNetworks.Stream, new ImportedRoadNode
+                return new RecordedEvent(RoadNetworks.Stream, new ImportedRoadNode
                 {
                     Id = id,
                     Version = reader.GetInt32(1),
@@ -68,9 +67,8 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                         Since = reader.GetDateTime(6)
                     },
                     When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
-                }));
+                });
             });
-            return events;
         }
     }
 }

@@ -2,9 +2,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Immutable;
     using System.Data.SqlClient;
-    using System.Threading.Tasks;
     using BackOffice.Framework;
 
     public class CompositeEventReader : IEventReader
@@ -16,17 +14,17 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             _readers = readers ?? throw new ArgumentNullException(nameof(readers));
         }
 
-        public async Task<IReadOnlyCollection<RecordedEvent>> ReadAsync(SqlConnection connection)
+        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
-            var events = ImmutableList<RecordedEvent>.Empty;
             foreach (var reader in _readers)
             {
-                events = events.AddRange(await reader.ReadAsync(connection));
+                foreach (var @event in reader.ReadEvents(connection))
+                {
+                    yield return @event;
+                }
             }
-
-            return events;
         }
     }
 }

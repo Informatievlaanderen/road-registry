@@ -29,7 +29,7 @@ namespace RoadRegistry.LegacyStreamExtraction
             _serializer = JsonSerializer.Create(SerializerSettings);
         }
 
-        public async Task WriteAsync(IReadOnlyCollection<RecordedEvent> events, CancellationToken cancellationToken = default)
+        public async Task WriteAsync(IEnumerable<RecordedEvent> events, CancellationToken cancellationToken = default)
         {
             if (events == null) throw new ArgumentNullException(nameof(events));
 

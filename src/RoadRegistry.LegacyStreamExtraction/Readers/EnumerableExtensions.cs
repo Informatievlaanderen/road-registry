@@ -1,4 +1,4 @@
-namespace RoadRegistry.LegacyStreamLoader
+namespace RoadRegistry.LegacyStreamExtraction.Readers
 {
     using System;
     using System.Collections.Generic;
