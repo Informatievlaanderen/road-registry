@@ -39,7 +39,8 @@ services:
     environment:
       BLOBCLIENTTYPE: FileBlobClient
       FILEBLOBCLIENTOPTIONS__INPUTDIRECTORY: /var/lib/RoadRegistry.LegacyStreamExtraction/output
-      CONNECTIONSTRINGS__STREAMSTORE: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      EVENTSQLDATABASEOPTIONS__CONNECTIONSTRINGNAME: Events
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
       - ./src/RoadRegistry.LegacyStreamExtraction:/var/lib/RoadRegistry.LegacyStreamExtraction
   projections:

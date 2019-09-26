@@ -3,8 +3,6 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
-    using System.Threading.Tasks;
-    using BackOffice.Framework;
     using BackOffice.Messages;
     using BackOffice.Model;
     using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -25,7 +23,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
+        public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
@@ -45,7 +43,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                 var id = reader.GetInt32(0);
                 _logger.LogDebug("Reading road node with id {0}", id);
                 var geometry = _wkbReader.ReadAs<NetTopologySuite.Geometries.Point>(reader.GetAllBytes(3));
-                return new RecordedEvent(RoadNetworks.Stream, new ImportedRoadNode
+                return new StreamEvent(RoadNetworks.Stream, new ImportedRoadNode
                 {
                     Id = id,
                     Version = reader.GetInt32(1),

@@ -3,7 +3,6 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
-    using BackOffice.Framework;
     using BackOffice.Messages;
     using BackOffice.Model;
     using Microsoft.Extensions.Logging;
@@ -21,7 +20,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
+        public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
@@ -40,7 +39,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                 {
                     var id = reader.GetInt32(0);
                     _logger.LogDebug("Reading grade separated junction with id {0}", id);
-                    return new RecordedEvent(RoadNetworks.Stream, new ImportedGradeSeparatedJunction
+                    return new StreamEvent(RoadNetworks.Stream, new ImportedGradeSeparatedJunction
                     {
                         Id = id,
                         UpperRoadSegmentId = reader.GetInt32(1),

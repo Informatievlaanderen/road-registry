@@ -5,28 +5,27 @@ namespace RoadRegistry.LegacyStreamLoader
     using System.IO;
     using Newtonsoft.Json;
     using System.IO.Compression;
+    using BackOffice.Framework;
     using BackOffice.Messages;
 
-    public class LegacyStreamFileReader
+    internal class LegacyStreamArchiveReader
     {
 
-        public LegacyStreamFileReader(JsonSerializerSettings settings)
+        public LegacyStreamArchiveReader(JsonSerializerSettings settings)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
         public JsonSerializerSettings Settings { get; }
 
-        public IEnumerable<StreamEvent> Read(Func<Stream> getZipContentStream)
+        public IEnumerable<StreamEvent> Read(Stream archiveStream)
         {
-            if(null == getZipContentStream)
-                yield break;
+            if (archiveStream == null) throw new ArgumentNullException(nameof(archiveStream));
 
             var serializer = JsonSerializer.Create(Settings);
 
             // Import the legacy stream from a json file
-            using (var zipContent = getZipContentStream())
-            using (var archive = new ZipArchive(zipContent, ZipArchiveMode.Read))
+            using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read))
             {
                 var entry = archive.GetEntry("streams.json");
                 using (var entryStream = entry.Open())
@@ -48,52 +47,38 @@ namespace RoadRegistry.LegacyStreamLoader
                             {
                                 case nameof(ImportedOrganization):
                                     reader.Read(); // StartObject (move to content for deserializer to work)
-                                    yield return new StreamEvent {
-                                        Stream = stream,
-                                        Event = serializer.Deserialize<ImportedOrganization>(reader)
-                                    };
+                                    yield return new StreamEvent(new StreamName(stream),
+                                        serializer.Deserialize<ImportedOrganization>(reader));
                                     break;
 
                                 case nameof(ImportedGradeSeparatedJunction):
                                     reader.Read(); // StartObject (move to content for deserializer to work)
-                                    yield return new StreamEvent {
-                                        Stream = stream,
-                                        Event = serializer.Deserialize<ImportedGradeSeparatedJunction>(reader)
-                                    };
+                                    yield return new StreamEvent(new StreamName(stream),
+                                        serializer.Deserialize<ImportedGradeSeparatedJunction>(reader));
                                     break;
 
                                 case nameof(ImportedRoadNode):
                                     reader.Read(); // StartObject (move to content for deserializer to work)
-                                    yield return new StreamEvent {
-                                        Stream = stream,
-                                        Event = serializer.Deserialize<ImportedRoadNode>(reader)
-                                    };
+                                    yield return new StreamEvent(new StreamName(stream),
+                                        serializer.Deserialize<ImportedRoadNode>(reader));
                                     break;
 
                                 case nameof(ImportedRoadSegment):
                                     reader.Read(); // StartObject (move to content for deserializer to work)
-                                    yield return new StreamEvent {
-                                        Stream = stream,
-                                        Event = serializer.Deserialize<ImportedRoadSegment>(reader)
-                                    };
+                                    yield return new StreamEvent(new StreamName(stream),
+                                        serializer.Deserialize<ImportedRoadSegment>(reader));
                                     break;
 
                                 case nameof(BeganRoadNetworkImport):
                                     reader.Read(); // StartObject (move to content for deserializer to work)
-                                    yield return new StreamEvent
-                                    {
-                                        Stream = stream,
-                                        Event = serializer.Deserialize<BeganRoadNetworkImport>(reader)
-                                    };
+                                    yield return new StreamEvent(new StreamName(stream),
+                                        serializer.Deserialize<BeganRoadNetworkImport>(reader));
                                     break;
 
                                 case nameof(CompletedRoadNetworkImport):
                                     reader.Read(); // StartObject (move to content for deserializer to work)
-                                    yield return new StreamEvent
-                                    {
-                                        Stream = stream,
-                                        Event = serializer.Deserialize<CompletedRoadNetworkImport>(reader)
-                                    };
+                                    yield return new StreamEvent(new StreamName(stream),
+                                        serializer.Deserialize<CompletedRoadNetworkImport>(reader));
                                     break;
                             }
 

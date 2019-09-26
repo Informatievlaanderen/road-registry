@@ -14,232 +14,236 @@ namespace RoadRegistry.LegacyStreamLoader
     using SqlStreamStore.Streams;
     using System.Linq;
     using System.Collections.Concurrent;
+    using System.Text;
     using System.Threading;
+    using Amazon.Runtime;
     using Amazon.S3;
     using Amazon.S3.Model;
     using BackOffice.Messages;
+    using BackOffice.Model;
+    using Be.Vlaanderen.Basisregisters.BlobStore;
+    using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
+    using Be.Vlaanderen.Basisregisters.BlobStore.IO;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
+    using NodaTime;
+    using Serilog;
 
 
     public class Program
     {
-        const string USE_LOCAL_FILE = "UseLocalFile";
-        const string LEGACY_STREAM_FILE_NAME = "LegacyStreamFileName";
-        const string LEGACY_STREAM_FILE_BUCKET = "LegacyStreamFileBucket";
-        const string LEGACY_STREAM_FILE_DIRECTORY = "LegacyStreamDirectory";
-
         private static async Task Main(string[] args)
         {
-            var configurationBuilder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", true, true)
-                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
-                .AddEnvironmentVariables()
-                .AddCommandLine(args);
+            AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
+                Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
 
+            AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
+                Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
 
-            var root = configurationBuilder.Build();
-            var connectionString = root.GetConnectionString("StreamStore");
-
-            var masterConnectionStringBuilder = new SqlConnectionStringBuilder(connectionString)
+            var host = new HostBuilder()
+                .ConfigureAppConfiguration((hostContext, builder) =>
                 {
-                    InitialCatalog = "master",
-                    ConnectRetryCount = 120,
-                    ConnectRetryInterval = 1
-                };
+                    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            await WaitForSqlServer(masterConnectionStringBuilder);
-
-            using(var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString))
-            {
-                await connection.OpenAsync().ConfigureAwait(false);
-
-                using(var command = new SqlCommand(
-@"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'RoadRegistry')
-BEGIN
-    CREATE DATABASE [RoadRegistry]
-END",
-                    connection))
+                    builder
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", true, false)
+                        .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
+                        .AddEnvironmentVariables()
+                        .AddCommandLine(args)
+                        .Build();
+                })
+                .ConfigureLogging((hostContext, builder) =>
                 {
-                    await command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
-            }
+                    Serilog.Debugging.SelfLog.Enable(Console.WriteLine);
 
-            // Attempt to reconnect every 30 seconds, for an hour - could be set in the connection string as well.
-            var connectionStringBuilder =
-                new SqlConnectionStringBuilder(connectionString)
+                    var loggerConfiguration = new LoggerConfiguration()
+                        .ReadFrom.Configuration(hostContext.Configuration)
+                        .WriteTo.Console()
+                        .Enrich.FromLogContext()
+                        .Enrich.WithMachineName()
+                        .Enrich.WithThreadId()
+                        .Enrich.WithEnvironmentUserName();
+
+                    Log.Logger = loggerConfiguration.CreateLogger();
+
+                    builder.AddSerilog(Log.Logger);
+                })
+                .ConfigureServices((hostContext, builder) =>
                 {
-                    ConnectRetryCount = 120,
-                    ConnectRetryInterval = 30
-                };
-            using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(connectionStringBuilder.ConnectionString)
-            {
-                Schema = "RoadRegistry"
-            }))
-            {
-                await streamStore.CreateSchema().ConfigureAwait(false);
+                    var options = new BlobClientOptions();
+                    hostContext.Configuration.Bind(options);
 
-                var page = await streamStore.ReadStreamForwards("roadnetwork", StreamVersion.Start, 1).ConfigureAwait(false);
-                if (page.Status == PageReadStatus.StreamNotFound)
-                    await ImportStreams(root, streamStore);
-                else
-                    Console.WriteLine("Cannot import in an existing RoadNetwork. Aborted import");
-            }
-        }
-
-        private static async Task ImportStreams(IConfiguration root, MsSqlStreamStore streamStore)
-        {
-            var eventSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-            var typeMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
-            var reader = new LegacyStreamFileReader(
-                new JsonSerializerSettings
-                {
-                    Formatting = Formatting.Indented,
-                    DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                    DateTimeZoneHandling = DateTimeZoneHandling.Unspecified,
-                    DateParseHandling = DateParseHandling.DateTime,
-                    DefaultValueHandling = DefaultValueHandling.Ignore
-                }
-            );
-
-            var expectedVersions = new ConcurrentDictionary<StreamId, int>();
-            var innerWatch = Stopwatch.StartNew();
-            var outerWatch = Stopwatch.StartNew();
-
-            var getEventStream = GetLegacyEventStream(root);
-            if (null != getEventStream)
-            {
-                foreach (var batch in reader.Read(getEventStream).Batch(1000))
-                {
-                    foreach (var stream in batch.GroupBy(item => item.Stream, item => item.Event))
+                    switch (options.BlobClientType)
                     {
-                        if (!expectedVersions.TryGetValue(stream.Key, out var expectedVersion))
-                        {
-                            expectedVersion = ExpectedVersion.NoStream;
-                        }
+                        case nameof(S3BlobClient):
+                            var s3Options = new S3BlobClientOptions();
+                            hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
-                        innerWatch.Restart();
+                            builder.AddSingleton(new AmazonS3Client(
+                                new BasicAWSCredentials(
+                                    s3Options.AwsAccessKeyId,
+                                    s3Options.AwsSecretAccessKey)
+                                )
+                            );
+                            builder.AddSingleton<IBlobClient>(sp =>
+                                new S3BlobClient(
+                                    sp.GetService<AmazonS3Client>(),
+                                    s3Options.InputBucket
+                                )
+                            );
+                            break;
+                        case nameof(FileBlobClient):
+                            var fileOptions = new FileBlobClientOptions();
+                            hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
 
-                        var appendResult = await streamStore.AppendToStream(
-                            stream.Key,
-                            expectedVersion,
-                            stream
-                                .Select(@event => new NewStreamMessage(
-                                    Deterministic.Create(Deterministic.Namespaces.Events,$"{stream.Key}-{expectedVersion++}"),
-                                    typeMapping.GetEventName(@event.GetType()),
-                                    JsonConvert.SerializeObject(@event, eventSettings),
-                                    JsonConvert.SerializeObject(new Dictionary<string, string>{ {"$version", "0"} }, eventSettings)
-                                ))
-                                .ToArray()
-                        );
-
-                        Console.WriteLine("Append took {0}ms for stream {1}@{2}",
-                            innerWatch.ElapsedMilliseconds,
-                            stream.Key,
-                            appendResult.CurrentVersion);
-
-                        expectedVersions[stream.Key] = appendResult.CurrentVersion;
+                            builder.AddSingleton<IBlobClient>(sp =>
+                                new FileBlobClient(
+                                    new DirectoryInfo(fileOptions.InputDirectory)
+                                )
+                            );
+                            break;
                     }
-                }
-                Console.WriteLine("Total append took {0}ms", outerWatch.ElapsedMilliseconds);
-            }
-            else
-            {
-                Console.WriteLine("No event stream found");
-            }
-        }
 
-        private static Func<Stream> GetLegacyEventStream(IConfiguration root)
-        {
-            return root.GetValue<bool>(USE_LOCAL_FILE)
-                ? GetLocalLegacyStream(root)
-                : GetS3LegacyStream(root);
-        }
+                    var eventDatabaseOptions = new EventSqlDatabaseOptions();
+                    hostContext.Configuration.GetSection(nameof(EventSqlDatabaseOptions)).Bind(eventDatabaseOptions);
 
-        private static Func<Stream> GetS3LegacyStream(IConfiguration root)
-        {
-            var bucketName = root[LEGACY_STREAM_FILE_BUCKET];
-            var file = root[LEGACY_STREAM_FILE_NAME];
+                    var legacyStreamArchiveReader = new LegacyStreamArchiveReader(
+                        new JsonSerializerSettings
+                        {
+                            Formatting = Formatting.Indented,
+                            DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                            DateTimeZoneHandling = DateTimeZoneHandling.Unspecified,
+                            DateParseHandling = DateParseHandling.DateTime,
+                            DefaultValueHandling = DefaultValueHandling.Ignore
+                        }
+                    );
+
+                    builder
+                        .AddSingleton(legacyStreamArchiveReader)
+                        .AddSingleton(
+                            new SqlConnection(
+                                hostContext.Configuration.GetConnectionString(eventDatabaseOptions.ConnectionStringName)
+                            )
+                        )
+                        .AddSingleton<IStreamStore>(new MsSqlStreamStore(
+                            new MsSqlStreamStoreSettings(
+                                hostContext.Configuration.GetConnectionString(eventDatabaseOptions.ConnectionStringName)
+                            )
+                            {
+                                Schema = "RoadRegistry"
+                            }))
+                        .AddSingleton<LegacyStreamEventsWriter>();
+                })
+                .Build();
+
+            var configuration = host.Services.GetService<IConfiguration>();
+            var logger = host.Services.GetService<ILogger<Program>>();
+            var reader = host.Services.GetService<LegacyStreamArchiveReader>();
+            var writer = host.Services.GetService<LegacyStreamEventsWriter>();
+            var client = host.Services.GetService<IBlobClient>();
+            var streamStore = host.Services.GetService<IStreamStore>();
 
             try
             {
-                var s3Client = root
-                    .GetAWSOptions()
-                    .CreateServiceClient<IAmazonS3>();
+                var eventDatabaseOptions = new EventSqlDatabaseOptions();
+                configuration.GetSection(nameof(EventSqlDatabaseOptions)).Bind(eventDatabaseOptions);
 
-                var s3Files = s3Client
-                    .ListObjectsAsync(
-                        new ListObjectsRequest { BucketName = bucketName },
-                        CancellationToken.None
-                    ).GetAwaiter().GetResult() // ToDo: change to asynchronous if it's worth the ripple in the code
-                    .S3Objects;
-
-                if (s3Files.Any(s3File => s3File.Key == file))
+                var builder = new SqlConnectionStringBuilder(
+                    configuration.GetConnectionString(eventDatabaseOptions.ConnectionStringName))
                 {
-                    return () =>
-                    {
-                        Console.WriteLine($"Start download S3:{bucketName}/{file} ...");
-                        return s3Client.GetObjectStreamAsync(
-                            bucketName,
-                            file,
-                            new Dictionary<string, object>(),
-                            CancellationToken.None
-                        ).GetAwaiter().GetResult(); // ToDo: change to asynchronous if it's worth the ripple in the code
-                    };
+                    InitialCatalog = "master"
+                };
+
+                await WaitForSqlServer(builder, logger).ConfigureAwait(false);
+                await AutoProvisionDatabase(builder, logger).ConfigureAwait(false);
+
+                if (streamStore is MsSqlStreamStore sqlStreamStore)
+                {
+                    await sqlStreamStore.CreateSchema().ConfigureAwait(false);
                 }
 
-                Console.WriteLine($"File S3:{bucketName}/{file} does not exist");
+                var page = await streamStore
+                    .ReadStreamForwards(RoadNetworks.Stream, StreamVersion.Start, 1)
+                    .ConfigureAwait(false);
+                if (page.Status == PageReadStatus.StreamNotFound)
+                {
+                    var blob = await client
+                        .GetBlobAsync(new BlobName("import-streams.zip"), CancellationToken.None)
+                        .ConfigureAwait(false);
+
+                    var watch = Stopwatch.StartNew();
+                    const int requires400Mb = 419_430_400;
+                    using (var stream = new MemoryStream(requires400Mb))
+                    {
+                        using (var blobStream = await blob.OpenAsync().ConfigureAwait(false))
+                        {
+                            await blobStream.CopyToAsync(stream).ConfigureAwait(false);
+                        }
+
+                        stream.Position = 0;
+
+                        await writer
+                            .WriteAsync(reader.Read(stream))
+                            .ConfigureAwait(false);
+                    }
+
+                    logger.LogInformation("Total append took {0}ms", watch.ElapsedMilliseconds);
+                }
+                else
+                {
+                    logger.LogWarning("The road network was previously imported. This can only be performed once.");
+                }
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Error downloading S3:{bucketName}/{file}: {exception}");
+                logger.LogCritical(exception, "Encountered a fatal exception, exiting program.");
+                Log.CloseAndFlush();
+                // Allow some time for flushing before shutdown.
+                Thread.Sleep(1000);
+                throw;
             }
-
-            return null;
         }
 
-        private static Func<Stream> GetLocalLegacyStream(IConfiguration root)
-        {
-            var directory = root[LEGACY_STREAM_FILE_DIRECTORY] ?? string.Empty;
-            var fileName = root[LEGACY_STREAM_FILE_NAME] ?? string.Empty;
-            var filePath = Path.Combine(directory, fileName);
-
-            try
-            {
-                var legacyStreamsArchiveInfo = new FileInfo(filePath);
-                if (legacyStreamsArchiveInfo.Exists)
-                {
-                    return () =>
-                    {
-                        Console.WriteLine($"Open {legacyStreamsArchiveInfo.FullName}");
-                        return legacyStreamsArchiveInfo.OpenRead();
-                    };
-                }
-
-                Console.WriteLine($"Import file '{legacyStreamsArchiveInfo.FullName}' does not exist");
-            }
-            catch
-            {
-                Console.WriteLine($"Import file path '{filePath}' is not valid");
-            }
-
-            return null;
-        }
-
-        private static async Task WaitForSqlServer(SqlConnectionStringBuilder builder, CancellationToken token = default)
+        private static async Task WaitForSqlServer(SqlConnectionStringBuilder builder, ILogger<Program> logger, CancellationToken token = default)
         {
             var exit = false;
             while(!exit)
             {
                 try
                 {
+                    logger.LogInformation("Waiting for sql server to become available");
                     using (var connection = new SqlConnection(builder.ConnectionString))
                     {
                         await connection.OpenAsync(token).ConfigureAwait(false);
                         exit = true;
                     }
                 }
-                catch (Exception)
+                catch
                 {
+                    await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+                }
+            }
+        }
+
+        private static async Task AutoProvisionDatabase(SqlConnectionStringBuilder builder, ILogger<Program> logger, CancellationToken token = default)
+        {
+            logger.LogInformation("Auto provision database");
+            using(var connection = new SqlConnection(builder.ConnectionString))
+            {
+                await connection.OpenAsync(token).ConfigureAwait(false);
+
+                using(var command = new SqlCommand(
+                    @"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'RoadRegistry')
+BEGIN
+    CREATE DATABASE [RoadRegistry]
+END",
+                    connection))
+                {
+                    await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
                 }
             }
         }

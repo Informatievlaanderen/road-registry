@@ -3,7 +3,6 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
-    using BackOffice.Framework;
 
     public class CompositeEventReader : IEventReader
     {
@@ -14,7 +13,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             _readers = readers ?? throw new ArgumentNullException(nameof(readers));
         }
 
-        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
+        public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 

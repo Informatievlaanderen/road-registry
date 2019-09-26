@@ -4,8 +4,6 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Diagnostics;
-    using System.Threading.Tasks;
-    using BackOffice.Framework;
     using Microsoft.Extensions.Logging;
 
     public class TimedEventReader : IEventReader
@@ -24,7 +22,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                 : inner.GetType().Name;
         }
 
-        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
+        public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 

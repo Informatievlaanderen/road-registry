@@ -1,4 +1,4 @@
-namespace RoadRegistry.LegacyStreamLoader
+namespace RoadRegistry.LegacyStreamExtraction
 {
     using System;
     using BackOffice.Framework;

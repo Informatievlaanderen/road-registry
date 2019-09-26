@@ -24,5 +24,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="output" />
+  </ItemGroup>
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

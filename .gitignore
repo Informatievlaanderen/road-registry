@@ -19,6 +19,7 @@ elm-stuff/
 
 src/RoadRegistry.UI/wwwroot/
 src/RoadRegistry.LegacyStreamExtraction/output/
+src/RoadRegistry.LegacyStreamLoader/output/
 src/RoadRegistry.LegacyDatabase/legacydb.bak
 
 *.suo

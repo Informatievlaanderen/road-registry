@@ -6,7 +6,6 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using System.Data;
     using System.Data.SqlClient;
     using System.Linq;
-    using BackOffice.Framework;
     using BackOffice.Messages;
     using BackOffice.Model;
     using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -381,7 +380,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             }
         }
 
-        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
+        public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
@@ -399,7 +398,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
 
                 foreach (var @event in batch)
                 {
-                    yield return new RecordedEvent(RoadNetworks.Stream, @event);
+                    yield return new StreamEvent(RoadNetworks.Stream, @event);
                 }
             }
         }

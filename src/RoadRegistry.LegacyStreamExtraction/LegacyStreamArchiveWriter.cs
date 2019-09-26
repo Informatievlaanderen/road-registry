@@ -29,49 +29,53 @@ namespace RoadRegistry.LegacyStreamExtraction
             _serializer = JsonSerializer.Create(SerializerSettings);
         }
 
-        public async Task WriteAsync(IEnumerable<RecordedEvent> events, CancellationToken cancellationToken = default)
+        public async Task WriteAsync(IEnumerable<StreamEvent> events, CancellationToken cancellationToken = default)
         {
             if (events == null) throw new ArgumentNullException(nameof(events));
 
             const int requires400Mb = 419_430_400;
 
             using (var content = _manager.GetStream(nameof(LegacyStreamArchiveWriter), requires400Mb))
-            using (var archive = new ZipArchive(content, ZipArchiveMode.Create))
             {
-                var entry = archive.CreateEntry("streams.json", CompressionLevel.Optimal);
-                using (var entryStream = entry.Open())
-                using (var writer = new JsonTextWriter(new StreamWriter(entryStream)))
+                using (var archive = new ZipArchive(content, ZipArchiveMode.Create, true))
                 {
-                    await writer.WriteStartArrayAsync(cancellationToken);
-                    using (var enumerator = @events.GetEnumerator())
+                    var entry = archive.CreateEntry("streams.json", CompressionLevel.Optimal);
+                    using (var entryStream = entry.Open())
+                    using (var writer = new JsonTextWriter(new StreamWriter(entryStream)))
                     {
-                        if (enumerator.MoveNext())
+                        await writer.WriteStartArrayAsync(cancellationToken);
+                        using (var enumerator = @events.GetEnumerator())
                         {
-                            var stream = enumerator.Current.Stream;
-
-                            await WriteBeginStream(stream, writer, cancellationToken);
-
-                            await WriteEvent(enumerator.Current.Event, writer, cancellationToken);
-
-                            while (enumerator.MoveNext())
+                            if (enumerator.MoveNext())
                             {
-                                // next
-                                if (stream != enumerator.Current.Stream)
-                                {
-                                    await WriteEndStream(writer);
+                                var stream = enumerator.Current.Stream;
 
-                                    stream = enumerator.Current.Stream;
-
-                                    await WriteBeginStream(stream, writer, cancellationToken);
-                                }
+                                await WriteBeginStream(stream, writer, cancellationToken);
 
                                 await WriteEvent(enumerator.Current.Event, writer, cancellationToken);
-                            }
 
-                            await WriteEndStream(writer);
+                                while (enumerator.MoveNext())
+                                {
+                                    // next
+                                    if (stream != enumerator.Current.Stream)
+                                    {
+                                        await WriteEndStream(writer);
+
+                                        stream = enumerator.Current.Stream;
+
+                                        await WriteBeginStream(stream, writer, cancellationToken);
+                                    }
+
+                                    await WriteEvent(enumerator.Current.Event, writer, cancellationToken);
+                                }
+
+                                await WriteEndStream(writer);
+                            }
                         }
+
+                        await writer.WriteEndArrayAsync(cancellationToken);
+                        await writer.FlushAsync(cancellationToken);
                     }
-                    await writer.WriteEndArrayAsync(cancellationToken);
                 }
 
                 content.Position = 0;

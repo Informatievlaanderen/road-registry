@@ -3,6 +3,7 @@ Microsoft.Extensions.Configuration.CommandLine
 Microsoft.Extensions.Configuration.Json
 Microsoft.Extensions.Configuration.EnvironmentVariables
 Microsoft.Extensions.Configuration.Binder
+Microsoft.Extensions.Hosting
 
 Serilog
 Serilog.Settings.Configuration
@@ -18,5 +19,6 @@ Newtonsoft.Json
 AWSSDK.S3
 AWSSDK.Extensions.NETCore.Setup
 
+Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic

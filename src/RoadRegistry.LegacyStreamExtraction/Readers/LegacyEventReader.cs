@@ -2,10 +2,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Immutable;
     using System.Data.SqlClient;
-    using System.Threading.Tasks;
-    using BackOffice.Framework;
     using BackOffice.Messages;
     using BackOffice.Model;
     using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -44,11 +41,11 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                 ));
         }
 
-        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
+        public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
-            yield return new RecordedEvent(RoadNetworks.Stream, new BeganRoadNetworkImport
+            yield return new StreamEvent(RoadNetworks.Stream, new BeganRoadNetworkImport
             {
                 When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
             });
@@ -56,7 +53,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             foreach(var @event in _reader.ReadEvents(connection))
                 yield return @event;
 
-            yield return new RecordedEvent(RoadNetworks.Stream, new CompletedRoadNetworkImport
+            yield return new StreamEvent(RoadNetworks.Stream, new CompletedRoadNetworkImport
             {
                 When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
             });

@@ -20,7 +20,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public IEnumerable<RecordedEvent> ReadEvents(SqlConnection connection)
+        public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
@@ -33,7 +33,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             {
                 var code = reader.GetString(0);
                 _logger.LogDebug("Reading organization with code {0}", code);
-                return new RecordedEvent(new StreamName("organization-" + code), new ImportedOrganization
+                return new StreamEvent(new StreamName("organization-" + code), new ImportedOrganization
                 {
                     Code = code,
                     Name = reader.GetString(1),
