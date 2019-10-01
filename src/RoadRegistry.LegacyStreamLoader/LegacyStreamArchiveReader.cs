@@ -10,7 +10,6 @@ namespace RoadRegistry.LegacyStreamLoader
 
     internal class LegacyStreamArchiveReader
     {
-
         public LegacyStreamArchiveReader(JsonSerializerSettings settings)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
