@@ -3,7 +3,9 @@ namespace RoadRegistry.BackOffice.Model
     using System;
     using System.Linq;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.Geometries.Implementation;
 
     internal static class LineStringExtensions
     {
@@ -19,11 +21,11 @@ namespace RoadRegistry.BackOffice.Model
                 var toPoint = instance.GetPointN(index);
                 lines[index - 1] =
                     new LineString(
-                        new PointSequence(
+                        new CoordinateArraySequence(
                             new[]
                             {
-                                new PointM(Math.Round(fromPoint.X, 3), Math.Round(fromPoint.Y, 3)),
-                                new PointM(toPoint.X, toPoint.Y)
+                                new Coordinate(Math.Round(fromPoint.X, 3), Math.Round(fromPoint.Y, 3)),
+                                new Coordinate(toPoint.X, toPoint.Y)
                             })
                         , GeometryConfiguration.GeometryFactory);
                 fromPoint = toPoint;

@@ -5,9 +5,9 @@
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Messages;
     using Microsoft.EntityFrameworkCore;
-    using Model;
     using Schema;
 
     public class RoadNetworkInfoProjection : ConnectedProjection<ShapeContext>
@@ -35,7 +35,7 @@
                 info.RoadNodeCount += 1;
                 info.TotalRoadNodeShapeLength +=
                     new PointShapeContent(
-                        GeometryTranslator.TranslateM(envelope.Message.Geometry)
+                        GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(envelope.Message.Geometry))
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32();
@@ -47,7 +47,7 @@
                 info.RoadSegmentCount += 1;
                 info.TotalRoadSegmentShapeLength +=
                     new PolyLineMShapeContent(
-                        GeometryTranslator.Translate(envelope.Message.Geometry)
+                        GeometryTranslator.FromGeometryMultiLineString(Model.GeometryTranslator.Translate(envelope.Message.Geometry))
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32();

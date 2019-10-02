@@ -159,7 +159,6 @@ namespace RoadRegistry.LegacyStreamLoader
                 };
 
                 await WaitForSqlServer(builder, logger).ConfigureAwait(false);
-                await AutoProvisionDatabase(builder, logger).ConfigureAwait(false);
 
                 if (streamStore is MsSqlStreamStore sqlStreamStore)
                 {
@@ -176,18 +175,10 @@ namespace RoadRegistry.LegacyStreamLoader
                         .ConfigureAwait(false);
 
                     var watch = Stopwatch.StartNew();
-                    const int requires400Mb = 419_430_400;
-                    using (var stream = new MemoryStream(requires400Mb))
+                    using (var blobStream = await blob.OpenAsync().ConfigureAwait(false))
                     {
-                        using (var blobStream = await blob.OpenAsync().ConfigureAwait(false))
-                        {
-                            await blobStream.CopyToAsync(stream).ConfigureAwait(false);
-                        }
-
-                        stream.Position = 0;
-
                         await writer
-                            .WriteAsync(reader.Read(stream))
+                            .WriteAsync(reader.Read(blobStream))
                             .ConfigureAwait(false);
                     }
 
@@ -225,25 +216,6 @@ namespace RoadRegistry.LegacyStreamLoader
                 catch
                 {
                     await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-                }
-            }
-        }
-
-        private static async Task AutoProvisionDatabase(SqlConnectionStringBuilder builder, ILogger<Program> logger, CancellationToken token = default)
-        {
-            logger.LogInformation("Auto provision database");
-            using(var connection = new SqlConnection(builder.ConnectionString))
-            {
-                await connection.OpenAsync(token).ConfigureAwait(false);
-
-                using(var command = new SqlCommand(
-                    @"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'RoadRegistry')
-BEGIN
-    CREATE DATABASE [RoadRegistry]
-END",
-                    connection))
-                {
-                    await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
                 }
             }
         }

@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections.Generic;
     using System.IO.Compression;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 
     public class RoadNodeChangeShapeRecordsTranslator : IZipArchiveShapeRecordsTranslator
     {
@@ -21,7 +22,7 @@ namespace RoadRegistry.BackOffice.Translation
                     {
                         if (changes.TryFindAddRoadNode(id, out var change))
                         {
-                            changes = changes.Replace(change, change.WithGeometry(content.Shape));
+                            changes = changes.Replace(change, change.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
                         }
                     }
                 }

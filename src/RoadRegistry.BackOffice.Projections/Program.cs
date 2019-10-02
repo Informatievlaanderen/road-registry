@@ -115,8 +115,7 @@ namespace RoadRegistry.BackOffice.Projections
                 .Enrich.FromLogContext()
                 .Enrich.WithMachineName()
                 .Enrich.WithThreadId()
-                .Enrich.WithEnvironmentUserName()
-                .Destructure.JsonNetTypes();
+                .Enrich.WithEnvironmentUserName();
 
             //var toggles = app.ApplicationServices.GetService<IOptionsSnapshot<TogglesConfiguration>>().Value;
             //if (toggles.LogToElasticSearch)

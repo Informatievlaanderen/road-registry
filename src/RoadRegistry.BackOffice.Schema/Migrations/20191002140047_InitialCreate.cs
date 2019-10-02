@@ -20,7 +20,9 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 columns: table => new
                 {
                     Name = table.Column<string>(nullable: false),
-                    Position = table.Column<long>(nullable: false)
+                    Position = table.Column<long>(nullable: false),
+                    DesiredState = table.Column<string>(nullable: true),
+                    DesiredStateChangedAt = table.Column<DateTimeOffset>(nullable: true)
                 },
                 constraints: table =>
                 {

@@ -5,10 +5,10 @@ namespace RoadRegistry.BackOffice.Simulator
     using System.IO;
     using System.Text;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using GeoAPI.Geometries;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Model;
-    using NetTopologySuite.Geometries;
     using Translation;
+    using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
     class Program
     {
@@ -22,13 +22,13 @@ namespace RoadRegistry.BackOffice.Simulator
             node1Record.TYPE.Value = (short)RoadNodeType.FakeNode.Translation.Identifier;
             node1Record.RECORDTYPE.Value = RecordTypes.Added;
             node1Record.WEGKNOOPID.Value = 1;
-            var node1Shape = new PointShapeContent(new PointM(0.0, 0.0, 0.0, 0.0));
+            var node1Shape = new PointShapeContent(new Point(0.0, 0.0));
 
             var node2Record = new RoadNodeChangeDbaseRecord();
             node2Record.TYPE.Value = (short)RoadNodeType.FakeNode.Translation.Identifier;
             node2Record.RECORDTYPE.Value = RecordTypes.Added;
             node2Record.WEGKNOOPID.Value = 2;
-            var node2Shape = new PointShapeContent(new PointM(0.0, 1.0, 0.0, 0.0));
+            var node2Shape = new PointShapeContent(new Point(0.0, 1.0));
 
             var segment1Record = new RoadSegmentChangeDbaseRecord();
             segment1Record.WS_OIDN.Value = 1;
@@ -43,14 +43,14 @@ namespace RoadRegistry.BackOffice.Simulator
             segment1Record.RSTRNMID.Value = 456;
             segment1Record.BEHEERDER.Value = "71002";
             segment1Record.RECORDTYPE.Value = RecordTypes.Added;
-            var segmentShape = new PolyLineMShapeContent(new MultiLineString(new ILineString[]
+            var segmentShape = new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(new NetTopologySuite.Geometries.MultiLineString(new NetTopologySuite.Geometries.LineString[]
             {
-                new LineString(new PointSequence(new[]
+                new NetTopologySuite.Geometries.LineString(new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(new[]
                 {
-                    new PointM(0.0, 0.0, 0.0, 0.0),
-                    new PointM(0.0, 1.0, 0.0, 0.0)
+                    new NetTopologySuite.Geometries.Coordinate(0.0, 0.0),
+                    new NetTopologySuite.Geometries.Coordinate(0.0, 1.0)
                 }), GeometryConfiguration.GeometryFactory)
-            }));
+            })));
 
             var laneRecord = new RoadSegmentLaneChangeDbaseRecord();
             laneRecord.RS_OIDN.Value = 1;

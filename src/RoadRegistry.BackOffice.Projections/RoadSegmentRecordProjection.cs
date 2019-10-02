@@ -7,16 +7,10 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Messages;
-    using Model;
     using Schema;
-    using Schema.RoadNodes;
     using Schema.RoadSegments;
-    using RoadSegmentAccessRestriction = Model.RoadSegmentAccessRestriction;
-    using RoadSegmentCategory = Model.RoadSegmentCategory;
-    using RoadSegmentGeometryDrawMethod = Model.RoadSegmentGeometryDrawMethod;
-    using RoadSegmentMorphology = Model.RoadSegmentMorphology;
-    using RoadSegmentStatus = Model.RoadSegmentStatus;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<ShapeContext>
     {
@@ -33,13 +27,13 @@ namespace RoadRegistry.BackOffice.Projections
 
         private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
         {
-            var geometry = GeometryTranslator.Translate(@event.Geometry);
+            var geometry = GeometryTranslator.FromGeometryMultiLineString(Model.GeometryTranslator.Translate(@event.Geometry));
             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
-            var statusTranslation = RoadSegmentStatus.Parse(@event.Status).Translation;
-            var morphologyTranslation = RoadSegmentMorphology.Parse(@event.Morphology).Translation;
-            var categoryTranslation = RoadSegmentCategory.Parse(@event.Category).Translation;
-            var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod).Translation;
-            var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(@event.AccessRestriction).Translation;
+            var statusTranslation = Model.RoadSegmentStatus.Parse(@event.Status).Translation;
+            var morphologyTranslation = Model.RoadSegmentMorphology.Parse(@event.Morphology).Translation;
+            var categoryTranslation = Model.RoadSegmentCategory.Parse(@event.Category).Translation;
+            var geometryDrawMethodTranslation = Model.RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod).Translation;
+            var accessRestrictionTranslation = Model.RoadSegmentAccessRestriction.Parse(@event.AccessRestriction).Translation;
             return context.AddAsync(
                 new RoadSegmentRecord
                 {

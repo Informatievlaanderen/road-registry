@@ -2,13 +2,13 @@ namespace RoadRegistry.BackOffice
 {
     using System;
     using System.Linq;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using AutoFixture.Dsl;
-    using GeoAPI.Geometries;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Messages;
     using Model;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.Geometries.Implementation;
 
     internal static class SharedCustomizations
     {
@@ -137,13 +137,11 @@ namespace RoadRegistry.BackOffice
                     }));
         }
 
-        public static void CustomizePointM(this IFixture fixture)
+        public static void CustomizePoint(this IFixture fixture)
         {
-            fixture.Customize<PointM>(customization =>
+            fixture.Customize<NetTopologySuite.Geometries.Point>(customization =>
                 customization.FromFactory(generator =>
-                    new PointM(
-                        fixture.Create<double>(),
-                        fixture.Create<double>(),
+                    new NetTopologySuite.Geometries.Point(
                         fixture.Create<double>(),
                         fixture.Create<double>()
                     )
@@ -153,10 +151,9 @@ namespace RoadRegistry.BackOffice
 
         public static void CustomizePolylineM(this IFixture fixture)
         {
-            fixture.Customize<PointM>(customization =>
+            fixture.Customize<NetTopologySuite.Geometries.CoordinateM>(customization =>
                 customization.FromFactory(generator =>
-                    new PointM(
-                        fixture.Create<double>(),
+                    new NetTopologySuite.Geometries.CoordinateM(
                         fixture.Create<double>(),
                         fixture.Create<double>(),
                         fixture.Create<double>()
@@ -164,10 +161,10 @@ namespace RoadRegistry.BackOffice
                 ).OmitAutoProperties()
             );
 
-            fixture.Customize<ILineString>(customization =>
+            fixture.Customize<NetTopologySuite.Geometries.LineString>(customization =>
                 customization.FromFactory(generator =>
                     new NetTopologySuite.Geometries.LineString(
-                        new PointSequence(fixture.CreateMany<PointM>()),
+                        new CoordinateArraySequence(fixture.CreateMany<CoordinateM>(2).Cast<Coordinate>().ToArray()),
                         GeometryConfiguration.GeometryFactory)
                 ).OmitAutoProperties()
             );
@@ -175,7 +172,7 @@ namespace RoadRegistry.BackOffice
             fixture.Customize<MultiLineString>(customization =>
                 customization.FromFactory(generator =>
                     new MultiLineString(
-                        fixture.CreateMany<ILineString>(1).ToArray(),
+                        fixture.CreateMany<NetTopologySuite.Geometries.LineString>(1).ToArray(),
                         GeometryConfiguration.GeometryFactory)
                 ).OmitAutoProperties()
             );

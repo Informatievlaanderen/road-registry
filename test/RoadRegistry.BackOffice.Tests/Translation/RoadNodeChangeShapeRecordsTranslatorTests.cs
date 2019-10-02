@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Linq;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Xunit;
 
     public class RoadNodeChangeShapeRecordsTranslatorTests : IDisposable
@@ -24,11 +25,9 @@ namespace RoadRegistry.BackOffice.Translation
             _fixture.CustomizeRoadNodeId();
             _fixture.CustomizeRoadNodeType();
 
-            _fixture.Customize<PointM>(customization =>
+            _fixture.Customize<NetTopologySuite.Geometries.Point>(customization =>
                 customization.FromFactory(generator =>
-                    new PointM(
-                        _fixture.Create<double>(),
-                        _fixture.Create<double>(),
+                    new NetTopologySuite.Geometries.Point(
                         _fixture.Create<double>(),
                         _fixture.Create<double>()
                     )
@@ -38,7 +37,7 @@ namespace RoadRegistry.BackOffice.Translation
                 customizer.FromFactory(random => new RecordNumber(random.Next(1, int.MaxValue))));
             _fixture.Customize<ShapeRecord>(customization =>
                 customization.FromFactory(random =>
-                    new PointShapeContent(_fixture.Create<PointM>()).RecordAs(_fixture.Create<RecordNumber>())
+                    new PointShapeContent(GeometryTranslator.FromGeometryPoint(_fixture.Create<NetTopologySuite.Geometries.Point>())).RecordAs(_fixture.Create<RecordNumber>())
                 ).OmitAutoProperties()
             );
 
@@ -94,7 +93,7 @@ namespace RoadRegistry.BackOffice.Translation
 
             var result = _sut.Translate(_entry, enumerator, changes);
 
-            var expected = TranslatedChanges.Empty.Append(node.WithGeometry(((PointShapeContent)record.Content).Shape));
+            var expected = TranslatedChanges.Empty.Append(node.WithGeometry(GeometryTranslator.ToGeometryPoint(((PointShapeContent)record.Content).Shape)));
 
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }

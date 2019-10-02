@@ -6,6 +6,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using BackOffice.Messages;
     using BackOffice.Model;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Microsoft.Extensions.Logging;
     using NodaTime;
     using NodaTime.Text;
@@ -52,7 +53,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                     {
                         SpatialReferenceSystemIdentifier =
                             SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                        Point = new Point
+                        Point = new BackOffice.Messages.Point
                         {
                             X = geometry.X,
                             Y = geometry.Y

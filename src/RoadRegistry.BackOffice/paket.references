@@ -10,6 +10,7 @@ Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic
 Be.Vlaanderen.Basisregisters.Utilities.HexByteConvertor
 Be.Vlaanderen.Basisregisters.Shaperon
+Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 Be.Vlaanderen.Basisregisters.BlobStore
 
 System.Threading.Tasks.Dataflow

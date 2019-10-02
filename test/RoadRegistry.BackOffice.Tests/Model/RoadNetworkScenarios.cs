@@ -7,19 +7,19 @@ namespace RoadRegistry.BackOffice.Model
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Framework.Testing;
-    using GeoAPI.Geometries;
     using Messages;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.Geometries.Implementation;
     using NodaTime.Text;
     using Xunit;
-    using LineString = NetTopologySuite.Geometries.LineString;
 
     public class RoadNetworkScenarios : RoadRegistryFixture
     {
         public RoadNetworkScenarios()
         {
-            Fixture.CustomizePointM();
+            Fixture.CustomizePoint();
             Fixture.CustomizePolylineM();
 
             Fixture.CustomizeAttributeId();
@@ -97,38 +97,38 @@ namespace RoadRegistry.BackOffice.Model
                     instance.Type = Fixture.Create<RoadSegmentSurfaceType>();
                 }).OmitAutoProperties());
 
-            StartPoint1 = new PointM(0.0, 0.0, double.NaN, 0.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            MiddlePoint1 = new PointM(50.0, 50.0, double.NaN, 50.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            EndPoint1 = new PointM(100.0, 100.0, double.NaN, 100.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            StartPoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            MiddlePoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(50.0, 50.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            EndPoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(100.0, 100.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             MultiLineString1 = new MultiLineString(
-                new ILineString[]
+                new []
                 {
-                    new LineString(
-                        new PointSequence(new [] { StartPoint1, MiddlePoint1, EndPoint1 }),
+                    new NetTopologySuite.Geometries.LineString(
+                        new CoordinateArraySequence(new [] { StartPoint1.Coordinate, MiddlePoint1.Coordinate, EndPoint1.Coordinate }),
                         GeometryConfiguration.GeometryFactory
                     )
                 }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
-            StartPoint2 = new PointM(0.0, 200.0, double.NaN, 0.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            MiddlePoint2 = new PointM(50.0, 250.0, double.NaN, 50.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            EndPoint2 = new PointM(100.0, 300.0, double.NaN, 100.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            StartPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 200.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            MiddlePoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(50.0, 250.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            EndPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(100.0, 300.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             MultiLineString2 = new MultiLineString(
-                new ILineString[]
+                new []
                 {
-                    new LineString(
-                        new PointSequence(new [] { StartPoint2, MiddlePoint2, EndPoint2 }),
+                    new NetTopologySuite.Geometries.LineString(
+                        new CoordinateArraySequence(new [] { StartPoint2.Coordinate, MiddlePoint2.Coordinate, EndPoint2.Coordinate }),
                         GeometryConfiguration.GeometryFactory
                     )
                 }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
-            StartPoint3 = new PointM(0.0, 500.0, double.NaN, 0.0) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            MiddlePoint3 = new PointM(50.0, 550.0, double.NaN, 50.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-            EndPoint3 = new PointM(100.0, 600.0, double.NaN, 100.0 * Math.Sqrt(2.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            StartPoint3 = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 500.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            MiddlePoint3 = new NetTopologySuite.Geometries.Point(new CoordinateM(50.0, 550.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            EndPoint3 = new NetTopologySuite.Geometries.Point(new CoordinateM(100.0, 600.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             MultiLineString3 = new MultiLineString(
-                new ILineString[]
+                new []
                 {
-                    new LineString(
-                        new PointSequence(new [] { StartPoint3, MiddlePoint3, EndPoint3 }),
+                    new NetTopologySuite.Geometries.LineString(
+                        new CoordinateArraySequence(new [] { StartPoint3.Coordinate, MiddlePoint3.Coordinate, EndPoint3.Coordinate }),
                         GeometryConfiguration.GeometryFactory
                     )
                 }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
@@ -614,19 +614,19 @@ namespace RoadRegistry.BackOffice.Model
             };
         }
 
-        public PointM StartPoint1 { get; }
-        public PointM MiddlePoint1 { get; }
-        public PointM EndPoint1 { get; }
+        public NetTopologySuite.Geometries.Point StartPoint1 { get; }
+        public NetTopologySuite.Geometries.Point MiddlePoint1 { get; }
+        public NetTopologySuite.Geometries.Point EndPoint1 { get; }
         public MultiLineString MultiLineString1 { get; }
 
-        public PointM StartPoint2 { get; }
-        public PointM MiddlePoint2 { get; }
-        public PointM EndPoint2 { get; }
+        public NetTopologySuite.Geometries.Point StartPoint2 { get; }
+        public NetTopologySuite.Geometries.Point MiddlePoint2 { get; }
+        public NetTopologySuite.Geometries.Point EndPoint2 { get; }
         public MultiLineString MultiLineString2 { get; }
 
-        public PointM StartPoint3 { get; }
-        public PointM MiddlePoint3 { get; }
-        public PointM EndPoint3 { get; }
+        public NetTopologySuite.Geometries.Point StartPoint3 { get; }
+        public NetTopologySuite.Geometries.Point MiddlePoint3 { get; }
+        public NetTopologySuite.Geometries.Point EndPoint3 { get; }
         public MultiLineString MultiLineString3 { get; }
 
         public Messages.AddRoadNode AddStartNode1 { get; }
@@ -843,15 +843,15 @@ namespace RoadRegistry.BackOffice.Model
                 .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
                 .ToString();
 
-            var startPoint = new PointM(10.0, 0.0, double.NaN, 0.0)
+            var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 0.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint1 = new PointM(10.0, 10.0, double.NaN, 10.0)
+            var endPoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 10.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint2 = new PointM(20.0, 0.0, double.NaN, 10.0)
+            var endPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(20.0, 0.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -865,11 +865,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint, endPoint1
+                        startPoint.Coordinate, endPoint1.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -883,11 +883,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint, endPoint2
+                        startPoint.Coordinate, endPoint2.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -956,15 +956,15 @@ namespace RoadRegistry.BackOffice.Model
         [Fact]
         public Task when_adding_a_start_node_connecting_two_segments_as_a_fake_node_but_the_segments_do_not_differ_by_any_attribute()
         {
-            var startPoint = new PointM(10.0, 0.0, double.NaN, 0.0)
+            var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 0.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint1 = new PointM(10.0, 10.0, double.NaN, 10.0)
+            var endPoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 10.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint2 = new PointM(20.0, 0.0, double.NaN, 10.0)
+            var endPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(20.0, 0.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -978,11 +978,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint, endPoint1
+                        startPoint.Coordinate, endPoint1.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -995,11 +995,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint, endPoint2
+                        startPoint.Coordinate, endPoint2.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -1078,15 +1078,15 @@ namespace RoadRegistry.BackOffice.Model
         [Fact]
         public Task when_adding_a_start_node_connecting_two_segments_as_a_fake_node_and_the_segments_differ_by_one_attribute()
         {
-            var startPoint = new PointM(10.0, 0.0, double.NaN, 0.0)
+            var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 0.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint1 = new PointM(10.0, 10.0, double.NaN, 10.0)
+            var endPoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 10.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint2 = new PointM(20.0, 0.0, double.NaN, 10.0)
+            var endPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(20.0, 0.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -1103,11 +1103,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint, endPoint1
+                        startPoint.Coordinate, endPoint1.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -1121,11 +1121,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint, endPoint2
+                        startPoint.Coordinate, endPoint2.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -1258,15 +1258,15 @@ namespace RoadRegistry.BackOffice.Model
                 .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
                 .ToString();
 
-            var endPoint = new PointM(10.0, 0.0, double.NaN, 10.0)
+            var endPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 0.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var startPoint1 = new PointM(10.0, 10.0, double.NaN, 0.0)
+            var startPoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 10.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var startPoint2 = new PointM(20.0, 0.0, double.NaN, 0.0)
+            var startPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(20.0, 0.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -1280,11 +1280,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint1, endPoint
+                        startPoint1.Coordinate, endPoint.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -1298,11 +1298,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint2, endPoint
+                        startPoint2.Coordinate, endPoint.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -1375,19 +1375,19 @@ namespace RoadRegistry.BackOffice.Model
                 .First(type => type != RoadNodeType.RealNode && type != RoadNodeType.MiniRoundabout)
                 .ToString();
 
-            var startPoint = new PointM(10.0, 0.0, double.NaN, 0.0)
+            var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 0.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint1 = new PointM(10.0, 10.0, double.NaN, 10.0)
+            var endPoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 10.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint2 = new PointM(20.0, 0.0, double.NaN, 10.0)
+            var endPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(20.0, 0.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint3 = new PointM(0.0, 0.0, double.NaN, 10.0)
+            var endPoint3 = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 0.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -1402,11 +1402,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint, endPoint1
+                        startPoint.Coordinate, endPoint1.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -1420,11 +1420,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint, endPoint2
+                        startPoint.Coordinate, endPoint2.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -1438,11 +1438,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment3.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment3Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment3.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint, endPoint3
+                        startPoint.Coordinate, endPoint3.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -1523,19 +1523,19 @@ namespace RoadRegistry.BackOffice.Model
                 .First(type => type != RoadNodeType.RealNode && type != RoadNodeType.MiniRoundabout)
                 .ToString();
 
-            var endPoint = new PointM(10.0, 0.0, double.NaN, 10.0)
+            var endPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 0.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var startPoint1 = new PointM(10.0, 10.0, double.NaN, 0.0)
+            var startPoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 10.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var startPoint2 = new PointM(20.0, 0.0, double.NaN, 0.0)
+            var startPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(20.0, 0.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var startPoint3 = new PointM(0.0, 0.0, double.NaN, 0.0)
+            var startPoint3 = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 0.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -1550,11 +1550,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment1.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint1, endPoint
+                        startPoint1.Coordinate, endPoint.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -1568,11 +1568,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint2, endPoint
+                        startPoint2.Coordinate, endPoint.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -1586,11 +1586,11 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment3.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment3Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment3.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(new ILineString[]
+                new MultiLineString(new []
                 {
-                    new LineString(new PointSequence(new []
+                    new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
                     {
-                        startPoint3, endPoint
+                        startPoint3.Coordinate, endPoint.Coordinate
                     }), GeometryConfiguration.GeometryFactory)
                 })
                 {
@@ -1675,14 +1675,14 @@ namespace RoadRegistry.BackOffice.Model
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
-                    new ILineString[]
+                    new []
                     {
-                        new LineString(
-                            new PointSequence(new[]
+                        new NetTopologySuite.Geometries.LineString(
+                            new CoordinateArraySequence(new Coordinate[]
                             {
-                                new PointM(StartPoint1.X, StartPoint1.Y, double.NaN, 0.0),
-                                new PointM(MiddlePoint2.X, MiddlePoint2.Y, double.NaN, StartPoint1.Distance(MiddlePoint2)),
-                                new PointM(EndPoint2.X, EndPoint2.Y, double.NaN,
+                                new CoordinateM(StartPoint1.X, StartPoint1.Y, 0.0),
+                                new CoordinateM(MiddlePoint2.X, MiddlePoint2.Y, StartPoint1.Distance(MiddlePoint2)),
+                                new CoordinateM(EndPoint2.X, EndPoint2.Y,
                                     StartPoint1.Distance(MiddlePoint2) +
                                     MiddlePoint2.Distance(EndPoint2))
                             }),
@@ -1782,14 +1782,14 @@ namespace RoadRegistry.BackOffice.Model
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
-                    new ILineString[]
+                    new []
                     {
-                        new LineString(
-                            new PointSequence(new[]
+                        new NetTopologySuite.Geometries.LineString(
+                            new CoordinateArraySequence(new Coordinate[]
                             {
-                                new PointM(StartPoint2.X, StartPoint2.Y, double.NaN, 0.0),
-                                new PointM(MiddlePoint2.X, MiddlePoint2.Y, double.NaN, 70.7107),
-                                new PointM(EndPoint1.X, EndPoint1.Y, double.NaN, 228.8245)
+                                new CoordinateM(StartPoint2.X, StartPoint2.Y, 0.0),
+                                new CoordinateM(MiddlePoint2.X, MiddlePoint2.Y, 70.7107),
+                                new CoordinateM(EndPoint1.X, EndPoint1.Y, 228.8245)
                             }),
                             GeometryConfiguration.GeometryFactory
                         )
@@ -1950,10 +1950,10 @@ namespace RoadRegistry.BackOffice.Model
         public Task when_adding_a_start_node_that_is_within_two_meters_of_another_segment()
         {
             var random = new Random();
-            var startPoint = new PointM(
+            var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(
                 StartPoint1.X + random.Next(1, 1000) / 1000.0 * VerificationContext.TooCloseDistance,
                 StartPoint1.Y + random.Next(1, 1000) / 1000.0 * VerificationContext.TooCloseDistance
-            ) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()};
+            )) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()};
             AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Widths = new RequestedRoadSegmentWidthAttribute[0];
@@ -1962,18 +1962,15 @@ namespace RoadRegistry.BackOffice.Model
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
-                    new ILineString[]
+                    new []
                     {
-                        new LineString(
-                            new PointSequence(new[]
+                        new NetTopologySuite.Geometries.LineString(
+                            new CoordinateArraySequence(new Coordinate[]
                             {
-                                new PointM(startPoint.X, startPoint.Y, double.NaN, 0.0)
-                                    {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()},
-                                new PointM(MiddlePoint2.X, MiddlePoint2.Y, double.NaN, startPoint.Distance(MiddlePoint2))
-                                    {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()},
-                                new PointM(EndPoint2.X, EndPoint2.Y, double.NaN,
+                                new CoordinateM(startPoint.X, startPoint.Y, 0.0),
+                                new CoordinateM(MiddlePoint2.X, MiddlePoint2.Y, startPoint.Distance(MiddlePoint2)),
+                                new CoordinateM(EndPoint2.X, EndPoint2.Y,
                                     startPoint.Distance(MiddlePoint2) + MiddlePoint2.Distance(EndPoint2))
-                                    {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
                             }),
                             GeometryConfiguration.GeometryFactory
                         )
@@ -2051,18 +2048,18 @@ namespace RoadRegistry.BackOffice.Model
         public Task when_adding_an_end_node_that_is_within_two_meters_of_another_node()
         {
             var random = new Random();
-            var endPoint = new PointM(
+            var endPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(
                 EndPoint1.X + random.NextDouble() / 2.0 * VerificationContext.TooCloseDistance,
                 EndPoint1.Y + random.NextDouble() / 2.0 * VerificationContext.TooCloseDistance
-            );
+            ));
             AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
-                    new ILineString[]
+                    new []
                     {
-                        new LineString(
-                            new PointSequence(new[] {StartPoint2, MiddlePoint2, endPoint}),
+                        new NetTopologySuite.Geometries.LineString(
+                            new CoordinateArraySequence(new[] {StartPoint2.Coordinate, MiddlePoint2.Coordinate, endPoint.Coordinate}),
                             GeometryConfiguration.GeometryFactory
                         )
                     }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
@@ -2255,23 +2252,23 @@ namespace RoadRegistry.BackOffice.Model
         {
             get
             {
-                var startPoint1 = new PointM(0.0, 0.0, double.NaN, 0.0)
+                var startPoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 0.0, 0.0))
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var middlePoint1 = new PointM(10.0, 0.0, double.NaN, 10.0)
+                var middlePoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 0.0, 10.0))
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var endPoint1 = new PointM(5.0, 0.0, double.NaN, 15.0)
+                var endPoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(5.0, 0.0, 15.0))
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
                 var multiLineString1 = new MultiLineString(
-                    new ILineString[]
+                    new []
                     {
-                        new LineString(
-                            new PointSequence(new[] { startPoint1, middlePoint1, endPoint1 }),
+                        new NetTopologySuite.Geometries.LineString(
+                            new CoordinateArraySequence(new[] { startPoint1.Coordinate, middlePoint1.Coordinate, endPoint1.Coordinate }),
                             GeometryConfiguration.GeometryFactory
                         )
                     })
@@ -2282,35 +2279,35 @@ namespace RoadRegistry.BackOffice.Model
                 //covers itself
                 yield return new object[] {startPoint1, endPoint1, multiLineString1};
 
-                var startPoint2 = new PointM(5.0, 0.0, double.NaN, 0.0)
+                var startPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(5.0, 0.0, 0.0))
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var middlePoint2A = new PointM(20.0, 0.0, double.NaN, 15.0)
+                var middlePoint2A = new NetTopologySuite.Geometries.Point(new CoordinateM(20.0, 0.0, 15.0))
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var middlePoint2B = new PointM(20.0, 10.0, double.NaN, 25.0)
+                var middlePoint2B = new NetTopologySuite.Geometries.Point(new CoordinateM(20.0, 10.0, 25.0))
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var middlePoint2C = new PointM(0.0, 10.0, double.NaN, 45.0)
+                var middlePoint2C = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 10.0, 45.0))
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var middlePoint2D = new PointM(0.0, 0.0, double.NaN, 55.0)
+                var middlePoint2D = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 0.0, 55.0))
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
-                var endPoint2 = new PointM(8.0, 0.0, double.NaN, 63.0)
+                var endPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(8.0, 0.0, 63.0))
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                 };
                 var multiLineString2 = new MultiLineString(
-                    new ILineString[]
+                    new []
                     {
-                        new LineString(
-                            new PointSequence(new[] { startPoint2, middlePoint2A, middlePoint2B, middlePoint2C, middlePoint2D, endPoint2 }),
+                        new NetTopologySuite.Geometries.LineString(
+                            new CoordinateArraySequence(new[] { startPoint2.Coordinate, middlePoint2A.Coordinate, middlePoint2B.Coordinate, middlePoint2C.Coordinate, middlePoint2D.Coordinate, endPoint2.Coordinate }),
                             GeometryConfiguration.GeometryFactory
                         )
                     })
@@ -2326,8 +2323,8 @@ namespace RoadRegistry.BackOffice.Model
         [Theory]
         [MemberData(nameof(SelfOverlapsCases))]
         public Task when_adding_a_segment_with_a_geometry_that_self_overlaps(
-            PointM startPoint,
-            PointM endPoint,
+            NetTopologySuite.Geometries.Point startPoint,
+            NetTopologySuite.Geometries.Point endPoint,
             MultiLineString multiLineString)
         {
 
@@ -2451,28 +2448,28 @@ namespace RoadRegistry.BackOffice.Model
         [Fact]
         public Task when_adding_a_segment_with_a_geometry_that_self_intersects()
         {
-            var startPoint = new PointM(0.0, 10.0, double.NaN, 0.0)
+            var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 10.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var middlePoint1 = new PointM(10.0, 10.0, double.NaN, 10.0)
+            var middlePoint1 = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 10.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var middlePoint2 = new PointM(5.0, 20.0, double.NaN, 21.1803)
+            var middlePoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(5.0, 20.0, 21.1803))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint = new PointM(5.0, 0.0, double.NaN, 41.1803)
+            var endPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(5.0, 0.0, 41.1803))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var lineString = new LineString(
-                new PointSequence(new[] { startPoint, middlePoint1, middlePoint2, endPoint }),
+            var lineString = new NetTopologySuite.Geometries.LineString(
+                new CoordinateArraySequence(new[] { startPoint.Coordinate, middlePoint1.Coordinate, middlePoint2.Coordinate, endPoint.Coordinate }),
                 GeometryConfiguration.GeometryFactory
             );
             var multiLineString = new MultiLineString(
-                new ILineString[]
+                new []
                 {
                     lineString
                 })
@@ -2881,7 +2878,7 @@ namespace RoadRegistry.BackOffice.Model
         [Fact]
         public Task when_adding_a_segment_with_a_line_string_with_length_0()
         {
-            var geometry = new MultiLineString(new ILineString[] {new LineString(new Coordinate[0])})
+            var geometry = new MultiLineString(new [] {new NetTopologySuite.Geometries.LineString(new Coordinate[0])})
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -3700,10 +3697,10 @@ namespace RoadRegistry.BackOffice.Model
         [Fact]
         public Task when_adding_a_grade_separated_junction_with_segments_that_intersect()
         {
-            Segment1Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            Segment1Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
             {
-                new LineString(
-                    new PointSequence(new[] {new PointM(0.0, 0.0), new PointM(50.0, 50.0)}),
+                new NetTopologySuite.Geometries.LineString(
+                    new CoordinateArraySequence(new Coordinate[] {new CoordinateM(0.0, 0.0), new CoordinateM(50.0, 50.0)}),
                     GeometryConfiguration.GeometryFactory)
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
@@ -3712,10 +3709,10 @@ namespace RoadRegistry.BackOffice.Model
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment2Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            Segment2Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
             {
-                new LineString(
-                    new PointSequence(new[] {new PointM(0.0, 50.0), new PointM(50.0, 0.0)}),
+                new NetTopologySuite.Geometries.LineString(
+                    new CoordinateArraySequence(new Coordinate[] {new CoordinateM(0.0, 50.0), new CoordinateM(50.0, 0.0)}),
                     GeometryConfiguration.GeometryFactory)
                 {
                     SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
@@ -3979,11 +3976,11 @@ namespace RoadRegistry.BackOffice.Model
         [Fact]
         public Task when_adding_a_segment_where_first_measure_is_not_zero()
         {
-            var startPoint = new PointM(0.0, 0.0, 0.0, 10.0)
+            var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 0.0, 10.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            var endPoint = new PointM(14.0, 14.0, 0.0, Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0)))
+            var endPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(14.0, 14.0, Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0))))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -3992,25 +3989,16 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
             {
-                new LineString(
-                    new PointSequence(new[]
+                new NetTopologySuite.Geometries.LineString(
+                    new CoordinateArraySequence(new []
                     {
-                        startPoint,
-                        new PointM(11.0, 11.0, 0.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0)))
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        new PointM(12.0, 12.0, 0.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0)))
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        new PointM(13.0, 13.0, 0.0, Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0)))
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        endPoint
+                        startPoint.Coordinate,
+                        new CoordinateM(11.0, 11.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0))),
+                        new CoordinateM(12.0, 12.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0))),
+                        new CoordinateM(13.0, 13.0, Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0))),
+                        endPoint.Coordinate
                     }),
                     GeometryConfiguration.GeometryFactory)
                 {
@@ -4075,12 +4063,12 @@ namespace RoadRegistry.BackOffice.Model
         [Fact]
         public Task when_adding_a_segment_where_last_measure_is_not_equal_to_length()
         {
-            var startPoint = new PointM(0.0, 0.0, 0.0, 0.0)
+            var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 0.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
             var length = Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0));
-            var endPoint = new PointM(14.0, 14.0, 0.0, 100.0)
+            var endPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(14.0, 14.0, 100.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -4089,25 +4077,16 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
             {
-                new LineString(
-                    new PointSequence(new[]
+                new NetTopologySuite.Geometries.LineString(
+                    new CoordinateArraySequence(new[]
                     {
-                        startPoint,
-                        new PointM(11.0, 11.0, 0.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0)))
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        new PointM(12.0, 12.0, 0.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0)))
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        new PointM(13.0, 13.0, 0.0, Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0)))
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        endPoint
+                        startPoint.Coordinate,
+                        new CoordinateM(11.0, 11.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0))),
+                        new CoordinateM(12.0, 12.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0))),
+                        new CoordinateM(13.0, 13.0,  Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0))),
+                        endPoint.Coordinate
                     }),
                     GeometryConfiguration.GeometryFactory)
                 {
@@ -4177,12 +4156,12 @@ namespace RoadRegistry.BackOffice.Model
         [Fact]
         public Task when_adding_a_segment_where_measure_is_out_of_range()
         {
-            var startPoint = new PointM(0.0, 0.0, 0.0, 0.0)
+            var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 0.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
             var length = Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0));
-            var endPoint = new PointM(14.0, 14.0, 0.0, length)
+            var endPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(14.0, 14.0, length))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -4191,25 +4170,16 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
             {
-                new LineString(
-                    new PointSequence(new[]
+                new NetTopologySuite.Geometries.LineString(
+                    new CoordinateArraySequence(new[]
                     {
-                        startPoint,
-                        new PointM(11.0, 11.0, 0.0, -1.0)
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        new PointM(12.0, 12.0, 0.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0)))
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        new PointM(13.0, 13.0, 0.0, 100.0)
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        endPoint
+                        startPoint.Coordinate,
+                        new CoordinateM(11.0, 11.0, -1.0),
+                        new CoordinateM(12.0, 12.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0))),
+                        new CoordinateM(13.0, 13.0, 100.0),
+                        endPoint.Coordinate
                     }),
                     GeometryConfiguration.GeometryFactory)
                 {
@@ -4314,12 +4284,12 @@ namespace RoadRegistry.BackOffice.Model
         [Fact]
         public Task when_adding_a_segment_where_measure_is_not_an_increasing_distance_from_start_point()
         {
-            var startPoint = new PointM(0.0, 0.0, 0.0, 0.0)
+            var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 0.0, 0.0))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
             var length = Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0));
-            var endPoint = new PointM(14.0, 14.0, 0.0, length)
+            var endPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(14.0, 14.0, length))
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
@@ -4328,25 +4298,16 @@ namespace RoadRegistry.BackOffice.Model
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new ILineString[]
+            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
             {
-                new LineString(
-                    new PointSequence(new[]
+                new NetTopologySuite.Geometries.LineString(
+                    new CoordinateArraySequence(new[]
                     {
-                        startPoint,
-                        new PointM(11.0, 11.0, 0.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0)))
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        new PointM(12.0, 12.0, 0.0, Math.Sqrt(Math.Pow(10.0, 2.0) + Math.Pow(10.0, 2.0)))
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        new PointM(13.0, 13.0, 0.0, Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0)))
-                        {
-                            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-                        },
-                        endPoint
+                        startPoint.Coordinate,
+                        new CoordinateM(11.0, 11.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0))),
+                        new CoordinateM(12.0, 12.0, Math.Sqrt(Math.Pow(10.0, 2.0) + Math.Pow(10.0, 2.0))),
+                        new CoordinateM(13.0, 13.0, Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0))),
+                        endPoint.Coordinate
                     }),
                     GeometryConfiguration.GeometryFactory)
                 {

@@ -18,11 +18,9 @@ namespace RoadRegistry.BackOffice.Translation
         public ZipArchiveShapeEntryValidatorTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<PointM>(customization =>
+            _fixture.Customize<NetTopologySuite.Geometries.Point>(customization =>
                 customization.FromFactory(generator =>
-                    new PointM(
-                        _fixture.Create<double>(),
-                        _fixture.Create<double>(),
+                    new NetTopologySuite.Geometries.Point(
                         _fixture.Create<double>(),
                         _fixture.Create<double>()
                     )
@@ -32,7 +30,7 @@ namespace RoadRegistry.BackOffice.Translation
                 customizer.FromFactory(random => new RecordNumber(random.Next(1, int.MaxValue))));
             _fixture.Customize<ShapeRecord>(customization =>
                 customization.FromFactory(random =>
-                    new PointShapeContent(_fixture.Create<PointM>()).RecordAs(_fixture.Create<RecordNumber>())
+                    new PointShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(_fixture.Create<NetTopologySuite.Geometries.Point>())).RecordAs(_fixture.Create<RecordNumber>())
                 ).OmitAutoProperties()
             );
         }

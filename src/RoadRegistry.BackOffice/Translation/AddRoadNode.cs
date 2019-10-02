@@ -15,7 +15,7 @@ namespace RoadRegistry.BackOffice.Translation
             Geometry = null;
         }
 
-        private AddRoadNode(RecordNumber recordNumber, RoadNodeId temporaryId, RoadNodeType type, Point geometry)
+        private AddRoadNode(RecordNumber recordNumber, RoadNodeId temporaryId, RoadNodeType type, NetTopologySuite.Geometries.Point geometry)
         {
             RecordNumber = recordNumber;
             TemporaryId = temporaryId;
@@ -26,9 +26,9 @@ namespace RoadRegistry.BackOffice.Translation
         public RecordNumber RecordNumber { get; }
         public RoadNodeId TemporaryId { get; }
         public RoadNodeType Type { get; }
-        public Point Geometry { get; }
+        public NetTopologySuite.Geometries.Point Geometry { get; }
 
-        public AddRoadNode WithGeometry(Point geometry)
+        public AddRoadNode WithGeometry(NetTopologySuite.Geometries.Point geometry)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
             return new AddRoadNode(RecordNumber, TemporaryId, Type, geometry);

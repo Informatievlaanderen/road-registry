@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System.Linq;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using Xunit;
 
@@ -9,15 +8,15 @@ namespace RoadRegistry.BackOffice.Model
     {
         private readonly Fixture _fixture;
         private readonly RoadNodeId _id;
-        private readonly PointM _geometry;
+        private readonly NetTopologySuite.Geometries.Point _geometry;
         private readonly RoadNode _sut;
 
         public FullyDisconnectedRoadNodeTests()
         {
             _fixture = new Fixture();
-            _fixture.CustomizePointM();
+            _fixture.CustomizePoint();
             _id = _fixture.Create<RoadNodeId>();
-            _geometry = _fixture.Create<PointM>();
+            _geometry = _fixture.Create<NetTopologySuite.Geometries.Point>();
             _sut = new RoadNode(_id, _geometry);
         }
 
@@ -67,14 +66,14 @@ namespace RoadRegistry.BackOffice.Model
         private readonly RoadSegmentId _link1;
         private readonly RoadSegmentId _link2;
         private readonly RoadNode _sut;
-        private readonly PointM _geometry;
+        private readonly NetTopologySuite.Geometries.Point _geometry;
 
         public ConnectedRoadNodeTests()
         {
             _fixture = new Fixture();
-            _fixture.CustomizePointM();
+            _fixture.CustomizePoint();
             _id = _fixture.Create<RoadNodeId>();
-            _geometry = _fixture.Create<PointM>();
+            _geometry = _fixture.Create<NetTopologySuite.Geometries.Point>();
             _link1 = _fixture.Create<RoadSegmentId>();
             _link2 = _fixture.Create<RoadSegmentId>();
             _sut = new RoadNode(_id, _geometry).ConnectWith(_link1).ConnectWith(_link2);

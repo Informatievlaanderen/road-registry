@@ -3,3 +3,4 @@ Microsoft.EntityFrameworkCore.InMemory
 Microsoft.EntityFrameworkCore.Design
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
+NetTopologySuite

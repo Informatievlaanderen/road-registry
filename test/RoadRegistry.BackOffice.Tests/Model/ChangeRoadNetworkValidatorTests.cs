@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Model
 {
     using System;
     using System.Linq;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using FluentValidation.TestHelper;
     using Messages;
@@ -14,7 +13,7 @@ namespace RoadRegistry.BackOffice.Model
         public ChangeRoadNetworkValidatorTests()
         {
             Fixture = new Fixture();
-            Fixture.CustomizePointM();
+            Fixture.CustomizePoint();
             Fixture.CustomizePolylineM();
 
             Fixture.CustomizeRoadNodeId();
@@ -93,7 +92,7 @@ namespace RoadRegistry.BackOffice.Model
                         {
                             TemporaryId = Fixture.Create<RoadNodeId>(),
                             Type = Fixture.Create<RoadNodeType>(),
-                            Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>())
+                            Geometry = Fixture.Create<RoadNodeGeometry>()
                         }
                     )
             );

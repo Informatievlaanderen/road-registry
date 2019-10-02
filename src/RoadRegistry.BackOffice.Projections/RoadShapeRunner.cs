@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.Projections
     using System.Text;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Microsoft.Extensions.Logging;
     using Schema;
 

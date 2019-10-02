@@ -3,8 +3,7 @@ namespace RoadRegistry.BackOffice.Model
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using GeoAPI.Geometries;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 
     public static class GeometryTranslator
     {
@@ -13,16 +12,6 @@ namespace RoadRegistry.BackOffice.Model
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
             return new NetTopologySuite.Geometries.Point(geometry.Point.X, geometry.Point.Y)
-            {
-                SRID = geometry.SpatialReferenceSystemIdentifier
-            };
-        }
-
-        public static PointM TranslateM(Messages.RoadNodeGeometry geometry)
-        {
-            if (geometry == null) throw new ArgumentNullException(nameof(geometry));
-
-            return new PointM(geometry.Point.X, geometry.Point.Y)
             {
                 SRID = geometry.SpatialReferenceSystemIdentifier
             };
@@ -47,23 +36,20 @@ namespace RoadRegistry.BackOffice.Model
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
-            var toLineStrings = new List<ILineString>();
+            var toLineStrings = new List<NetTopologySuite.Geometries.LineString>();
             foreach (var fromLineString in geometry.MultiLineString)
             {
-                var toPoints = new List<PointM>();
+                var toPoints = new List<NetTopologySuite.Geometries.Coordinate>();
                 for (var index = 0; index < fromLineString.Points.Length && index < fromLineString.Measures.Length; index++)
                 {
                     var fromPoint = fromLineString.Points[index];
                     var fromMeasure = fromLineString.Measures[index];
-                    toPoints.Add(new PointM(fromPoint.X, fromPoint.Y, double.NaN, fromMeasure)
-                    {
-                        SRID = geometry.SpatialReferenceSystemIdentifier
-                    });
+                    toPoints.Add(new NetTopologySuite.Geometries.CoordinateM(fromPoint.X, fromPoint.Y,fromMeasure));
                 }
 
                 toLineStrings.Add(
                     new NetTopologySuite.Geometries.LineString(
-                        new PointSequence(toPoints.ToArray()),
+                        new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(toPoints .ToArray()),
                         GeometryConfiguration.GeometryFactory)
                     {
                         SRID = geometry.SpatialReferenceSystemIdentifier
@@ -87,15 +73,15 @@ namespace RoadRegistry.BackOffice.Model
                 var toLineString = new Messages.LineString
                 {
                     Points = new Messages.Point[fromLineString.NumPoints],
-                    Measures = fromLineString.GetOrdinates(Ordinate.M)
+                    Measures = fromLineString.GetOrdinates(NetTopologySuite.Geometries.Ordinate.M)
                 };
 
                 for (var pointIndex = 0; pointIndex < fromLineString.NumPoints; pointIndex++)
                 {
                     toLineString.Points[pointIndex] = new Messages.Point
                     {
-                        X = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.X),
-                        Y = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.Y)
+                        X = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, NetTopologySuite.Geometries.Ordinate.X),
+                        Y = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, NetTopologySuite.Geometries.Ordinate.Y)
                     };
                 }
 

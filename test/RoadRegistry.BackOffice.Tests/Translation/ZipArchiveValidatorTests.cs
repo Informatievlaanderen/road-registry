@@ -7,9 +7,9 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Text;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using GeoAPI.Geometries;
     using Model;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.Geometries.Implementation;
     using Xunit;
 
     public class ZipArchiveValidatorTests
@@ -565,11 +565,9 @@ namespace RoadRegistry.BackOffice.Translation
                     })
                     .OmitAutoProperties());
 
-            fixture.Customize<PointM>(customization =>
+            fixture.Customize<NetTopologySuite.Geometries.Point>(customization =>
                 customization.FromFactory(generator =>
-                    new PointM(
-                        fixture.Create<double>(),
-                        fixture.Create<double>(),
+                    new NetTopologySuite.Geometries.Point(
                         fixture.Create<double>(),
                         fixture.Create<double>()
                     )
@@ -581,32 +579,35 @@ namespace RoadRegistry.BackOffice.Translation
 
             fixture.Customize<PointShapeContent>(customization =>
                 customization
-                    .FromFactory(random => new PointShapeContent(fixture.Create<PointM>()))
+                    .FromFactory(random => new PointShapeContent(
+                        Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(fixture.Create<NetTopologySuite.Geometries.Point>())))
                     .OmitAutoProperties()
             );
 
-            fixture.Customize<ILineString>(customization =>
+            fixture.Customize<LineString>(customization =>
                 customization.FromFactory(generator =>
                     new LineString(
-                        new PointSequence(
+                        new CoordinateArraySequence(
                             new[]
                             {
-                                new PointM(0.0, 0.0),
-                                new PointM(1.0, 1.0)
+                                new Coordinate(0.0, 0.0),
+                                new Coordinate(1.0, 1.0)
                             }),
-                        GeometryConfiguration.GeometryFactory
+                        Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory
                     )
                 ).OmitAutoProperties()
             );
 
             fixture.Customize<MultiLineString>(customization =>
                 customization.FromFactory(generator =>
-                    new MultiLineString(new[] {fixture.Create<ILineString>()})
+                    new MultiLineString(new[] {fixture.Create<LineString>()})
                 ).OmitAutoProperties()
             );
             fixture.Customize<PolyLineMShapeContent>(customization =>
                 customization
-                    .FromFactory(random => new PolyLineMShapeContent(fixture.Create<MultiLineString>()))
+                    .FromFactory(random => new PolyLineMShapeContent(
+                        Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(fixture.Create<MultiLineString>()))
+                    )
                     .OmitAutoProperties()
             );
 

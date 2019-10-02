@@ -7,11 +7,11 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Threading;
     using System.Threading.Tasks;
     using Amazon.Runtime;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Amazon.S3;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Configuration;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;

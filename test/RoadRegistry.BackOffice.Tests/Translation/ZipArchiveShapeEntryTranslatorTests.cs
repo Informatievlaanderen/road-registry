@@ -18,11 +18,9 @@ namespace RoadRegistry.BackOffice.Translation
         public ZipArchiveShapeEntryTranslatorTests()
         {
             _fixture = new Fixture();
-            _fixture.Customize<PointM>(customization =>
+            _fixture.Customize<NetTopologySuite.Geometries.Point>(customization =>
                 customization.FromFactory(generator =>
-                    new PointM(
-                        _fixture.Create<double>(),
-                        _fixture.Create<double>(),
+                    new NetTopologySuite.Geometries.Point(
                         _fixture.Create<double>(),
                         _fixture.Create<double>()
                     )
@@ -32,7 +30,7 @@ namespace RoadRegistry.BackOffice.Translation
                 customizer.FromFactory(random => new RecordNumber(random.Next(1, int.MaxValue))));
             _fixture.Customize<ShapeRecord>(customization =>
                 customization.FromFactory(random =>
-                    new PointShapeContent(_fixture.Create<PointM>()).RecordAs(_fixture.Create<RecordNumber>())
+                    new PointShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(_fixture.Create<NetTopologySuite.Geometries.Point>())).RecordAs(_fixture.Create<RecordNumber>())
                 ).OmitAutoProperties()
             );
         }
@@ -64,7 +62,7 @@ namespace RoadRegistry.BackOffice.Translation
 
             Assert.Throws<ArgumentNullException>(() => sut.Translate(null, TranslatedChanges.Empty));
         }
-        
+
         [Fact]
         public void TranslateChangesCanNotBeNull()
         {
@@ -187,7 +185,7 @@ namespace RoadRegistry.BackOffice.Translation
         private class CollectShapeRecordTranslator : IZipArchiveShapeRecordsTranslator
         {
             public ShapeRecord[] Collected { get; private set; }
-            
+
             public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
             {
                 var collected = new List<ShapeRecord>();

@@ -25,7 +25,7 @@
 
     public class Program
     {
-        private static readonly string Schema = "CommandHost";
+        private static readonly string Schema = "RoadRegistryCommandHost";
 
         public static async Task Main(string[] args)
         {

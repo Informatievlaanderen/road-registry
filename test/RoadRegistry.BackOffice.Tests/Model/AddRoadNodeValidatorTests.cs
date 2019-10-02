@@ -50,13 +50,13 @@ namespace RoadRegistry.BackOffice.Model
         [Fact]
         public void VerifyValid()
         {
-            Fixture.CustomizePointM();
+            Fixture.CustomizePoint();
 
             var data = new Messages.AddRoadNode
             {
                 TemporaryId = Fixture.Create<RoadNodeId>(),
                 Type = Fixture.Create<RoadNodeType>(),
-                Geometry = GeometryTranslator.Translate(Fixture.Create<PointM>())
+                Geometry = Fixture.Create<RoadNodeGeometry>()
             };
 
             Validator.ValidateAndThrow(data);

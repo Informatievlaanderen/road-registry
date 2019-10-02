@@ -32,15 +32,15 @@ namespace RoadRegistry.BackOffice.Model
         [Fact]
         public void PointCanNotBeNull()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Point, (Point)null);
+            Validator.ShouldHaveValidationErrorFor(c => c.Point, (Messages.Point)null);
         }
 
         [Fact]
         public void VerifyValid()
         {
-            Fixture.CustomizePointM();
+            Fixture.CustomizePoint();
 
-            var data = GeometryTranslator.Translate(Fixture.Create<PointM>());
+            var data = GeometryTranslator.Translate(Fixture.Create<NetTopologySuite.Geometries.Point>());
             data.SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
 
             Validator.ValidateAndThrow(data);

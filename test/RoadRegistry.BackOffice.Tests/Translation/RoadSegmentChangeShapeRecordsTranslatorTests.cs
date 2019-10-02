@@ -6,8 +6,9 @@ namespace RoadRegistry.BackOffice.Translation
     using System.IO.Compression;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using GeoAPI.Geometries;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.Geometries.Implementation;
     using Xunit;
 
     public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
@@ -31,24 +32,22 @@ namespace RoadRegistry.BackOffice.Translation
             _fixture.CustomizeRoadSegmentCategory();
             _fixture.CustomizeRoadSegmentAccessRestriction();
 
-            _fixture.Customize<PointM>(customization =>
+            _fixture.Customize<NetTopologySuite.Geometries.Point>(customization =>
                 customization.FromFactory(generator =>
-                    new PointM(
-                        _fixture.Create<double>(),
-                        _fixture.Create<double>(),
+                    new NetTopologySuite.Geometries.Point(
                         _fixture.Create<double>(),
                         _fixture.Create<double>()
                     )
                 ).OmitAutoProperties()
             );
-            _fixture.Customize<ILineString>(customization =>
+            _fixture.Customize<NetTopologySuite.Geometries.LineString>(customization =>
                 customization.FromFactory(generator =>
-                    new LineString(
-                        new PointSequence(
+                    new NetTopologySuite.Geometries.LineString(
+                        new CoordinateArraySequence(
                             new []
                             {
-                                new PointM(0.0,0.0),
-                                new PointM(1.0,1.0)
+                                new Coordinate(0.0,0.0),
+                                new Coordinate(1.0,1.0),
                             }),
                         GeometryConfiguration.GeometryFactory
                     )
@@ -56,14 +55,14 @@ namespace RoadRegistry.BackOffice.Translation
             );
             _fixture.Customize<MultiLineString>(customization =>
                 customization.FromFactory(generator =>
-                    new MultiLineString(new[] {_fixture.Create<ILineString>()})
+                    new MultiLineString(new[] {_fixture.Create<NetTopologySuite.Geometries.LineString>()})
                 ).OmitAutoProperties()
             );
             _fixture.Customize<RecordNumber>(customizer =>
                 customizer.FromFactory(random => new RecordNumber(random.Next(1, int.MaxValue))));
             _fixture.Customize<ShapeRecord>(customization =>
                 customization.FromFactory(random =>
-                    new PolyLineMShapeContent(_fixture.Create<MultiLineString>()).RecordAs(_fixture.Create<RecordNumber>())
+                    new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(_fixture.Create<MultiLineString>())).RecordAs(_fixture.Create<RecordNumber>())
                 ).OmitAutoProperties()
             );
 
@@ -119,7 +118,12 @@ namespace RoadRegistry.BackOffice.Translation
 
             var result = _sut.Translate(_entry, enumerator, changes);
 
-            var expected = TranslatedChanges.Empty.Append(segment.WithGeometry(((PolyLineMShapeContent)record.Content).Shape));
+            var expected = TranslatedChanges.Empty.Append(
+                segment.WithGeometry(
+                GeometryTranslator.ToGeometryMultiLineString(
+                    ((PolyLineMShapeContent) record.Content).Shape)
+                )
+            );
 
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }

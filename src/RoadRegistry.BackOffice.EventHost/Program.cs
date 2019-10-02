@@ -21,7 +21,7 @@
 
     public class Program
     {
-        private static readonly string Schema = "EventHost";
+        private static readonly string Schema = "RoadRegistryEventHost";
 
         public static async Task Main(string[] args)
         {

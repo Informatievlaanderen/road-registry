@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using System.Linq;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using BackOffice;
     using Messages;
@@ -36,7 +35,7 @@ namespace RoadRegistry.BackOffice.Projections
                         {
                             Id = fixture.Create<RoadNodeId>(),
                             Type = fixture.Create<RoadNodeType>(),
-                            Geometry = GeometryTranslator.Translate(fixture.Create<PointM>()),
+                            Geometry = GeometryTranslator.Translate(fixture.Create<NetTopologySuite.Geometries.Point>()),
                             Origin = fixture.Create<OriginProperties>()
                         }
                     )

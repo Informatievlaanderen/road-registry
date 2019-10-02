@@ -7,7 +7,6 @@
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.Generators.Guid;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
     using FluentValidation.Results;
     using KellermanSoftware.CompareNetObjects;
     using KellermanSoftware.CompareNetObjects.TypeComparers;
@@ -84,7 +83,7 @@
                 CustomComparers = new List<BaseTypeComparer>
                 {
                     new ValidationFailureComparer(RootComparerFactory.GetRootComparer()),
-                    new PointMComparer(RootComparerFactory.GetRootComparer())
+                    //new PointMComparer(RootComparerFactory.GetRootComparer())
                 }
             };
             var comparer = new CompareLogic(config);
@@ -128,42 +127,42 @@
             }
         }
 
-        private class PointMComparer : BaseTypeComparer
-        {
-            public PointMComparer(RootComparer comparer)
-                :base(comparer)
-            {
-            }
-
-            public override void CompareType(CompareParms parms)
-            {
-                var left = (PointM)parms.Object1;
-                var right = (PointM)parms.Object2;
-                if(!Equals(left.X, right.X)
-                   || !Equals(left.Y, right.Y)
-                   || !Equals(left.Z, right.Z)
-                   || !Equals(left.M, right.M))
-                {
-                    var difference = new Difference
-                    {
-                        Object1 = left,
-                        Object1TypeName = left.GetType().Name,
-                        Object1Value = left.ToString(),
-                        Object2 = right,
-                        Object2TypeName = right.GetType().Name,
-                        Object2Value = right.ToString(),
-                        ParentObject1 = parms.ParentObject1,
-                        ParentObject2 = parms.ParentObject2
-                    };
-                    parms.Result.Differences.Add(difference);
-                }
-            }
-
-            public override bool IsTypeMatch(Type type1, Type type2)
-            {
-                return type1 == typeof(PointM) && type2 == typeof(PointM);
-            }
-        }
+//        private class PointMComparer : BaseTypeComparer
+//        {
+//            public PointMComparer(RootComparer comparer)
+//                :base(comparer)
+//            {
+//            }
+//
+//            public override void CompareType(CompareParms parms)
+//            {
+//                var left = (PointM)parms.Object1;
+//                var right = (PointM)parms.Object2;
+//                if(!Equals(left.X, right.X)
+//                   || !Equals(left.Y, right.Y)
+//                   || !Equals(left.Z, right.Z)
+//                   || !Equals(left.M, right.M))
+//                {
+//                    var difference = new Difference
+//                    {
+//                        Object1 = left,
+//                        Object1TypeName = left.GetType().Name,
+//                        Object1Value = left.ToString(),
+//                        Object2 = right,
+//                        Object2TypeName = right.GetType().Name,
+//                        Object2Value = right.ToString(),
+//                        ParentObject1 = parms.ParentObject1,
+//                        ParentObject2 = parms.ParentObject2
+//                    };
+//                    parms.Result.Differences.Add(difference);
+//                }
+//            }
+//
+//            public override bool IsTypeMatch(Type type1, Type type2)
+//            {
+//                return type1 == typeof(PointM) && type2 == typeof(PointM);
+//            }
+//        }
 
         private async Task<long> WriteGivens(RecordedEvent[] givens)
         {

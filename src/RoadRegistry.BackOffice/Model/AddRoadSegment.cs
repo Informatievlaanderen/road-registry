@@ -3,8 +3,6 @@ namespace RoadRegistry.BackOffice.Model
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using GeoAPI.Geometries;
     using NetTopologySuite.Geometries;
 
     public class AddRoadSegment : IRequestedChange
@@ -127,18 +125,17 @@ namespace RoadRegistry.BackOffice.Model
             if (line.NumPoints > 0)
             {
                 var previousPointMeasure = 0.0;
-                var pointSequence = (PointSequence) line.CoordinateSequence;
-                for (var index = 0; index < pointSequence.Count; index++)
+                for (var index = 0; index < line.CoordinateSequence.Count; index++)
                 {
-                    var measure = pointSequence.GetOrdinate(index, Ordinate.M);
-                    var x = pointSequence.GetX(index);
-                    var y = pointSequence.GetY(index);
+                    var measure = line.CoordinateSequence.GetOrdinate(index, Ordinate.M);
+                    var x = line.CoordinateSequence.GetX(index);
+                    var y = line.CoordinateSequence.GetY(index);
                     if (index == 0 && Math.Abs(measure) > context.Tolerance)
                     {
                         errors =
                             errors.RoadSegmentStartPointMeasureValueNotEqualToZero(x, y, measure);
                     }
-                    else if (index == pointSequence.Count - 1 && Math.Abs(measure - line.Length) > context.Tolerance)
+                    else if (index == line.CoordinateSequence.Count - 1 && Math.Abs(measure - line.Length) > context.Tolerance)
                     {
                         errors =
                             errors.RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length);

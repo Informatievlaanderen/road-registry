@@ -14,6 +14,9 @@ Autofac.Extensions.DependencyInjection
 
 Destructurama.JsonNet
 
+NetTopologySuite
+System.Text.Encoding.CodePages
+
 Serilog
 Serilog.Settings.Configuration
 Serilog.Extensions.Logging
@@ -29,6 +32,3 @@ Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
 Be.Vlaanderen.Basisregisters.Shaperon
-
-NetTopologySuite
-System.Text.Encoding.CodePages

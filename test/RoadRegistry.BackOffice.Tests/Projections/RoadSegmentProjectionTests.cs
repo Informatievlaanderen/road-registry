@@ -7,18 +7,12 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using BackOffice;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Framework.Testing.Projections;
     using Messages;
     using Model;
-    using Schema;
-    using Schema.RoadNodes;
     using Schema.RoadSegments;
     using Xunit;
-    using RoadSegmentAccessRestriction = Model.RoadSegmentAccessRestriction;
-    using RoadSegmentCategory = Model.RoadSegmentCategory;
-    using RoadSegmentGeometryDrawMethod = Model.RoadSegmentGeometryDrawMethod;
-    using RoadSegmentMorphology = Model.RoadSegmentMorphology;
-    using RoadSegmentStatus = Model.RoadSegmentStatus;
 
     public class RoadSegmentProjectionTests
     {
@@ -68,8 +62,8 @@ namespace RoadRegistry.BackOffice.Projections
                 .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
                 .Select(importedRoadSegment =>
                 {
-                    var geometry = GeometryTranslator.Translate(importedRoadSegment.Geometry);
-                    var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
+                    var geometry = Model.GeometryTranslator.Translate(importedRoadSegment.Geometry);
+                    var polyLineMShapeContent = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
 
                     var expected = new RoadSegmentRecord
                     {

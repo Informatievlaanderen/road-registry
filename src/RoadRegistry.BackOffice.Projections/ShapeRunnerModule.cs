@@ -4,9 +4,9 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Messages;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;

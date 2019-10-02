@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.BackOffice.Schema.RoadNodes
 {
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 
     public class RoadNodeBoundingBox
     {
@@ -9,12 +10,12 @@
         public double MinimumY { get; set; }
         public double MaximumY { get; set; }
 
-        public static RoadNodeBoundingBox From(PointM shape) => new RoadNodeBoundingBox
+        public static RoadNodeBoundingBox From(Point shape) => new RoadNodeBoundingBox
         {
-            MinimumX = shape.EnvelopeInternal.MinX,
-            MinimumY = shape.EnvelopeInternal.MinY,
-            MaximumX = shape.EnvelopeInternal.MaxX,
-            MaximumY = shape.EnvelopeInternal.MaxY
+            MinimumX = GeometryTranslator.ToGeometryPoint(shape).EnvelopeInternal.MinX,
+            MinimumY = GeometryTranslator.ToGeometryPoint(shape).EnvelopeInternal.MinY,
+            MaximumX = GeometryTranslator.ToGeometryPoint(shape).EnvelopeInternal.MaxX,
+            MaximumY = GeometryTranslator.ToGeometryPoint(shape).EnvelopeInternal.MaxY
         };
     }
 }

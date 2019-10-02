@@ -7,12 +7,12 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
     using BackOffice;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Framework.Testing.Projections;
     using Messages;
-    using Model;
-    using Schema;
     using Schema.RoadNodes;
     using Xunit;
+    using GeometryTranslator = Model.GeometryTranslator;
     using RoadNodeType = Model.RoadNodeType;
 
     public class RoadNodeProjectionTests
@@ -27,7 +27,7 @@ namespace RoadRegistry.BackOffice.Projections
             _fixture.CustomizeRoadNodeType();
             _fixture.CustomizeMaintenanceAuthorityId();
             _fixture.CustomizeMaintenanceAuthorityName();
-            _fixture.CustomizePointM();
+            _fixture.CustomizePoint();
             _fixture.CustomizeOriginProperties();
             _fixture.CustomizeImportedRoadNode();
         }
@@ -41,7 +41,9 @@ namespace RoadRegistry.BackOffice.Projections
                 {
                     var point = GeometryTranslator.Translate(@event.Geometry);
                     var pointShapeContent = new PointShapeContent(
-                        new PointM(point.X, point.Y)
+                        Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(
+                            new NetTopologySuite.Geometries.Point(point.X, point.Y)
+                        )
                     );
                     var expectedRecord = new RoadNodeRecord
                     {

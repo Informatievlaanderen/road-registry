@@ -7,11 +7,10 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Messages;
-    using Model;
     using Schema;
     using Schema.RoadNodes;
-    using RoadNodeType = Model.RoadNodeType;
 
     public class RoadNodeRecordProjection : ConnectedProjection<ShapeContext>
     {
@@ -32,7 +31,7 @@ namespace RoadRegistry.BackOffice.Projections
             //TODO:
             //- Use pooled memory streams
 
-            var typeTranslation = RoadNodeType.Parse(@event.Type).Translation;
+            var typeTranslation = Model.RoadNodeType.Parse(@event.Type).Translation;
             var dbaseRecord = new RoadNodeDbaseRecord
             {
                 WK_OIDN = {Value = @event.Id},
@@ -44,11 +43,8 @@ namespace RoadRegistry.BackOffice.Projections
                 LBLBGNORG = {Value = @event.Origin.Organization}
             };
 
-            var point = GeometryTranslator.Translate(@event.Geometry);
-            var pointShapeContent = new PointShapeContent(new PointM(point.X, point.Y)
-            {
-                SRID = point.SRID
-            });
+            var point = GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(@event.Geometry));
+            var pointShapeContent = new PointShapeContent(point);
 
             return context.AddAsync(new RoadNodeRecord
             {

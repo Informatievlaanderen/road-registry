@@ -5,5 +5,8 @@
     <NetStandardImplicitPackageVersion>2.0.3</NetStandardImplicitPackageVersion>
     <RootNamespace>RoadRegistry.BackOffice.Schema</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.Shaperon.Geometries" Version="6.0.0" />
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

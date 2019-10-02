@@ -8,9 +8,9 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Text;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using GeoAPI.Geometries;
     using Model;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.Geometries.Implementation;
     using Xunit;
 
     public class ZipArchiveTranslatorTests
@@ -458,28 +458,28 @@ namespace RoadRegistry.BackOffice.Translation
                                 new RecordNumber(1),
                                 new RoadNodeId(roadNodeChangeDbaseRecord1.WEGKNOOPID.Value.GetValueOrDefault()),
                                 RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord1.TYPE.Value.GetValueOrDefault()]
-                            ).WithGeometry(((PointShapeContent)roadNodeShapeChangeRecord1.Content).Shape)
+                            ).WithGeometry(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord1.Content).Shape))
                         )
                         .Append(
                             new AddRoadNode(
                                 new RecordNumber(2),
                                 new RoadNodeId(roadNodeChangeDbaseRecord2.WEGKNOOPID.Value.GetValueOrDefault()),
                                 RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord2.TYPE.Value.GetValueOrDefault()]
-                            ).WithGeometry(((PointShapeContent)roadNodeShapeChangeRecord2.Content).Shape)
+                            ).WithGeometry(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord2.Content).Shape))
                         )
                         .Append(
                             new AddRoadNode(
                                 new RecordNumber(3),
                                 new RoadNodeId(roadNodeChangeDbaseRecord3.WEGKNOOPID.Value.GetValueOrDefault()),
                                 RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord3.TYPE.Value.GetValueOrDefault()]
-                            ).WithGeometry(((PointShapeContent)roadNodeShapeChangeRecord3.Content).Shape)
+                            ).WithGeometry(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord3.Content).Shape))
                         )
                         .Append(
                             new AddRoadNode(
                                 new RecordNumber(4),
                                 new RoadNodeId(roadNodeChangeDbaseRecord4.WEGKNOOPID.Value.GetValueOrDefault()),
                                 RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord4.TYPE.Value.GetValueOrDefault()]
-                            ).WithGeometry(((PointShapeContent)roadNodeShapeChangeRecord4.Content).Shape)
+                            ).WithGeometry(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord4.Content).Shape))
                         )
                         .Append(
                             new AddRoadSegment(
@@ -495,7 +495,7 @@ namespace RoadRegistry.BackOffice.Translation
                                 RoadSegmentAccessRestriction.ByIdentifier[roadSegmentChangeDbaseRecord2.TGBEP.Value.GetValueOrDefault()],
                                 roadSegmentChangeDbaseRecord2.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord2.LSTRNMID.Value.GetValueOrDefault()) : default,
                                 roadSegmentChangeDbaseRecord2.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord2.RSTRNMID.Value.GetValueOrDefault()) : default
-                            ).WithGeometry(((PolyLineMShapeContent)roadSegmentShapeChangeRecord2.Content).Shape)
+                            ).WithGeometry(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord2.Content).Shape))
                         )
                         .Append(
                             new AddRoadSegmentToEuropeanRoad
@@ -538,7 +538,7 @@ namespace RoadRegistry.BackOffice.Translation
                                     roadSegmentChangeDbaseRecord1.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.LSTRNMID.Value.GetValueOrDefault()) : default,
                                     roadSegmentChangeDbaseRecord1.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.RSTRNMID.Value.GetValueOrDefault()) : default
                                 )
-                                .WithGeometry(((PolyLineMShapeContent)roadSegmentShapeChangeRecord1.Content).Shape)
+                                .WithGeometry(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord1.Content).Shape))
                                 .WithLane(
                                     new RoadSegmentLaneAttribute(
                                         new AttributeId(laneChangeDbaseRecord.RS_OIDN.Value.GetValueOrDefault()),
@@ -674,9 +674,9 @@ namespace RoadRegistry.BackOffice.Translation
                     })
                     .OmitAutoProperties());
 
-            fixture.Customize<PointM>(customization =>
+            fixture.Customize<NetTopologySuite.Geometries.Point>(customization =>
                 customization.FromFactory(generator =>
-                    new PointM(
+                    new NetTopologySuite.Geometries.Point(
                         fixture.Create<double>(),
                         fixture.Create<double>()
                     )
@@ -688,32 +688,33 @@ namespace RoadRegistry.BackOffice.Translation
 
             fixture.Customize<PointShapeContent>(customization =>
                 customization
-                    .FromFactory(random => new PointShapeContent(fixture.Create<PointM>()))
+                    .FromFactory(random => new PointShapeContent(
+                        Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(fixture.Create<NetTopologySuite.Geometries.Point>())))
                     .OmitAutoProperties()
             );
 
-            fixture.Customize<ILineString>(customization =>
+            fixture.Customize<NetTopologySuite.Geometries.LineString>(customization =>
                 customization.FromFactory(generator =>
                     new LineString(
-                        new PointSequence(
+                        new CoordinateArraySequence(
                             new[]
                             {
-                                new PointM(0.0, 0.0),
-                                new PointM(1.0, 1.0)
+                                new Coordinate(0.0, 0.0),
+                                new Coordinate(1.0, 1.0),
                             }),
-                        GeometryConfiguration.GeometryFactory
+                        Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory
                     )
                 ).OmitAutoProperties()
             );
 
             fixture.Customize<MultiLineString>(customization =>
                 customization.FromFactory(generator =>
-                    new MultiLineString(new[] {fixture.Create<ILineString>()})
+                    new MultiLineString(new[] {fixture.Create<LineString>()})
                 ).OmitAutoProperties()
             );
             fixture.Customize<PolyLineMShapeContent>(customization =>
                 customization
-                    .FromFactory(random => new PolyLineMShapeContent(fixture.Create<MultiLineString>()))
+                    .FromFactory(random => new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(fixture.Create<MultiLineString>())))
                     .OmitAutoProperties()
             );
 

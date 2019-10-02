@@ -5,7 +5,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.IO.Compression;
     using System.Linq;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Model;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using NetTopologySuite.Geometries;
 
     public class RoadSegmentChangeShapeRecordsValidator : IZipArchiveShapeRecordsValidator
@@ -35,7 +35,8 @@ namespace RoadRegistry.BackOffice.Translation
                         }
                         else if (record.Content is PolyLineMShapeContent content)
                         {
-                            if (!content.Shape.IsValid)
+                            var shape = GeometryTranslator.ToGeometryMultiLineString(content.Shape);
+                            if (!shape.IsValid)
                             {
                                 problems = problems.ShapeRecordGeometryMismatch(
                                     entry.Name,
@@ -43,7 +44,7 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                var lines = content.Shape
+                                var lines = shape
                                     .Geometries
                                     .OfType<LineString>()
                                     .ToArray();
@@ -58,13 +59,13 @@ namespace RoadRegistry.BackOffice.Translation
                                 else
                                 {
                                     var line = lines[0];
-                                    if (line.SelfOverlaps())
+                                    if (Model.LineStringExtensions.SelfOverlaps(line))
                                     {
                                         problems = problems.ShapeRecordGeometrySelfOverlaps(
                                             entry.Name,
                                             record.Header.RecordNumber);
                                     }
-                                    else if (line.SelfIntersects())
+                                    else if (Model.LineStringExtensions.SelfIntersects(line))
                                     {
                                         problems = problems.ShapeRecordGeometrySelfIntersects(
                                             entry.Name,

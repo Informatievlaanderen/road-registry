@@ -23,7 +23,7 @@ services:
     volumes:
       - ./src/RoadRegistry.LegacyStreamExtraction:/var/lib/RoadRegistry.LegacyStreamExtraction
   mssql:
-    image: microsoft/mssql-server-linux:2017-latest
+    build: src/RoadRegistry.Database
     environment:
       ACCEPT_EULA: 'Y'
       SA_PASSWORD: 'E@syP@ssw0rd'

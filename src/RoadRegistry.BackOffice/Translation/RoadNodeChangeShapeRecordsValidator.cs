@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections.Generic;
     using System.IO.Compression;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 
     public class RoadNodeChangeShapeRecordsValidator : IZipArchiveShapeRecordsValidator
     {
@@ -32,7 +33,7 @@ namespace RoadRegistry.BackOffice.Translation
                         }
                         else if (record.Content is PointShapeContent content)
                         {
-                            if (!content.Shape.IsValid)
+                            if (!GeometryTranslator.ToGeometryPoint(content.Shape).IsValid)
                             {
                                 problems = problems.ShapeRecordGeometryMismatch(
                                     entry.Name,

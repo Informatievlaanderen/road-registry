@@ -9,7 +9,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using BackOffice.Messages;
     using BackOffice.Model;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using GeoAPI.Geometries;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Microsoft.Extensions.Logging;
     using NodaTime;
     using NodaTime.Text;
@@ -99,21 +99,21 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                         var wellKnownBinary = reader.GetAllBytes(4);
                         var geometry = _reader
                             .TryReadAs(wellKnownBinary, out NetTopologySuite.Geometries.LineString oneLine)
-                            ? new NetTopologySuite.Geometries.MultiLineString(new ILineString[] {oneLine})
+                            ? new NetTopologySuite.Geometries.MultiLineString(new[] {oneLine})
                             : _reader.ReadAs<NetTopologySuite.Geometries.MultiLineString>(wellKnownBinary);
 
                         var multiLineString = Array.ConvertAll(
                             geometry.Geometries.Cast<NetTopologySuite.Geometries.LineString>().ToArray(),
-                            input => new LineString
+                            input => new BackOffice.Messages.LineString
                             {
                                 Points = Array.ConvertAll(
                                     input.Coordinates,
-                                    coordinate => new Point
+                                    coordinate => new BackOffice.Messages.Point
                                     {
                                         X = coordinate.X,
                                         Y = coordinate.Y
                                     }),
-                                Measures = geometry.GetOrdinates(Ordinate.M)
+                                Measures = geometry.GetOrdinates(NetTopologySuite.Geometries.Ordinate.M)
                             });
 
                         events.Add(new ImportedRoadSegment
@@ -224,7 +224,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                         var wellKnownBinary = reader.GetAllBytes(4);
                         var geometry = _reader
                             .TryReadAs(wellKnownBinary, out NetTopologySuite.Geometries.LineString oneLine)
-                            ? new NetTopologySuite.Geometries.MultiLineString(new ILineString[] {oneLine})
+                            ? new NetTopologySuite.Geometries.MultiLineString(new [] {oneLine})
                             : _reader.ReadAs<NetTopologySuite.Geometries.MultiLineString>(wellKnownBinary);
 
                         var multiLineString = Array.ConvertAll(
@@ -233,12 +233,12 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             {
                                 Points = Array.ConvertAll(
                                     input.Coordinates,
-                                    coordinate => new Point
+                                    coordinate => new BackOffice.Messages.Point
                                     {
                                         X = coordinate.X,
                                         Y = coordinate.Y
                                     }),
-                                Measures = geometry.GetOrdinates(Ordinate.M)
+                                Measures = geometry.GetOrdinates(NetTopologySuite.Geometries.Ordinate.M)
                             });
 
                         events.Add(new ImportedRoadSegment
