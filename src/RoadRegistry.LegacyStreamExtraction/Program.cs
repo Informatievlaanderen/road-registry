@@ -114,12 +114,20 @@ namespace RoadRegistry.LegacyStreamExtraction
                 })
                 .Build();
 
+            var configuration = host.Services.GetService<IConfiguration>();
             var logger = host.Services.GetService<ILogger<Program>>();
             var reader = host.Services.GetService<IEventReader>();
             var writer = host.Services.GetService<LegacyStreamArchiveWriter>();
 
             try
             {
+                var legacyDatabaseOptions = new LegacySqlDatabaseOptions();
+                configuration.GetSection(nameof(LegacySqlDatabaseOptions)).Bind(legacyDatabaseOptions);
+
+                await WaitForSqlServer(
+                    new SqlConnectionStringBuilder(
+                        configuration.GetConnectionString(legacyDatabaseOptions.ConnectionStringName)), logger);
+
                 using (var connection = host.Services.GetService<SqlConnection>())
                 {
                     await connection.OpenAsync();
@@ -134,6 +142,27 @@ namespace RoadRegistry.LegacyStreamExtraction
                 // Allow some time for flushing before shutdown.
                 Thread.Sleep(1000);
                 throw;
+            }
+        }
+
+        private static async Task WaitForSqlServer(SqlConnectionStringBuilder builder, ILogger<Program> logger, CancellationToken token = default)
+        {
+            var exit = false;
+            while(!exit)
+            {
+                try
+                {
+                    logger.LogInformation("Waiting for sql server to become available");
+                    using (var connection = new SqlConnection(builder.ConnectionString))
+                    {
+                        await connection.OpenAsync(token).ConfigureAwait(false);
+                        exit = true;
+                    }
+                }
+                catch
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+                }
             }
         }
     }
