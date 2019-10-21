@@ -13,7 +13,9 @@ namespace RoadRegistry.BackOffice.Translation
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
+            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
+
             try
             {
                 var identifiers = new Dictionary<RoadNodeId, RecordNumber>();
@@ -22,6 +24,7 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     while (moved)
                     {
+                        var recordContext = fileContext.WithDbaseRecord(records.CurrentRecordNumber);
                         var record = records.Current;
                         if (record != null)
                         {
@@ -29,18 +32,17 @@ namespace RoadRegistry.BackOffice.Translation
                             {
                                 if (record.WEGKNOOPID.Value.Value == 0)
                                 {
-                                    problems = problems.IdentifierZero(entry.Name, records.CurrentRecordNumber);
+                                    problems += recordContext.IdentifierZero();
                                 }
                                 else
                                 {
                                     var identifier = new RoadNodeId(record.WEGKNOOPID.Value.Value);
                                     if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
                                     {
-                                        problems = problems.IdentifierNotUnique(
-                                            entry.Name,
+                                        problems += recordContext.IdentifierNotUnique(
                                             identifier,
-                                            records.CurrentRecordNumber,
-                                            takenByRecordNumber);
+                                            takenByRecordNumber
+                                        );
                                     }
                                     else
                                     {
@@ -50,7 +52,16 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                problems = problems.IdentifierMissing(entry.Name, records.CurrentRecordNumber);
+                                problems += recordContext.IdentifierMissing();
+                            }
+
+                            if (!record.TYPE.Value.HasValue)
+                            {
+                                problems += recordContext.FieldValueNull(record.TYPE);
+                            }
+                            else if (!RoadNodeType.ByIdentifier.ContainsKey(record.TYPE.Value.Value))
+                            {
+                                problems += recordContext.RoadNodeTypeMismatch(record.TYPE.Value.Value);
                             }
 
                             moved = records.MoveNext();

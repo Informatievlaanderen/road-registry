@@ -30,7 +30,13 @@ namespace RoadRegistry.BackOffice.Translation
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         public int Count => _problems.Count;
 
-        public ZipArchiveProblems CombineWith(IEnumerable<FileProblem> problems)
+        public ZipArchiveProblems Add(FileProblem problem)
+        {
+            if (problem == null) throw new ArgumentNullException(nameof(problem));
+            return new ZipArchiveProblems(_problems.Add(problem));
+        }
+
+        public ZipArchiveProblems AddRange(IEnumerable<FileProblem> problems)
         {
             if (problems == null) throw new ArgumentNullException(nameof(problems));
             return new ZipArchiveProblems(_problems.AddRange(problems));
@@ -44,6 +50,15 @@ namespace RoadRegistry.BackOffice.Translation
                 new FileError(file.ToUpperInvariant(), nameof(RequiredFileMissing)))
             );
         }
+
+        public static ZipArchiveProblems operator +(ZipArchiveProblems left, FileProblem right)
+            => left.Add(right);
+
+        public static ZipArchiveProblems operator +(ZipArchiveProblems left, IEnumerable<FileProblem> right)
+            => left.AddRange(right);
+
+        public static ZipArchiveProblems operator +(ZipArchiveProblems left, ZipArchiveProblems right)
+            => left.AddRange(right);
 
         public ZipArchiveProblems ShapeHeaderFormatError(string file, Exception exception)
         {
@@ -155,19 +170,6 @@ namespace RoadRegistry.BackOffice.Translation
                     file.ToUpperInvariant(),
                     nameof(ShapeRecordGeometrySelfIntersects),
                     new ProblemParameter("RecordNumber", recordNumber.ToString())))
-            );
-        }
-
-        public ZipArchiveProblems DbaseHeaderFormatError(string file, Exception exception)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-            if (exception == null) throw new ArgumentNullException(nameof(exception));
-
-            return new ZipArchiveProblems(_problems.Add(
-                new FileError(
-                    file.ToUpperInvariant(),
-                    nameof(DbaseHeaderFormatError),
-                    new ProblemParameter("Exception", exception.ToString())))
             );
         }
 
@@ -290,39 +292,6 @@ namespace RoadRegistry.BackOffice.Translation
             ));
         }
 
-        public ZipArchiveProblems DbaseSchemaMismatch(string file, DbaseSchema expectedSchema, DbaseSchema actualSchema)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveProblems(_problems.Add(
-                new FileError(
-                    file.ToUpperInvariant(),
-                    nameof(DbaseSchemaMismatch),
-                    new ProblemParameter("ExpectedSchema", Describe(expectedSchema)),
-                    new ProblemParameter("ActualSchema", Describe(actualSchema))
-                )
-            ));
-        }
 
-        private static string Describe(DbaseSchema schema)
-        {
-            var builder = new StringBuilder();
-            var index = 0;
-            foreach (var field in schema.Fields)
-            {
-                if (index > 0) builder.Append(",");
-                builder.Append(field.Name.ToString());
-                builder.Append("[");
-                builder.Append(field.FieldType.ToString());
-                builder.Append("(");
-                builder.Append(field.Length.ToString());
-                builder.Append(",");
-                builder.Append(field.DecimalCount.ToString());
-                builder.Append(")");
-                builder.Append("]");
-                index++;
-            }
-
-            return builder.ToString();
-        }
     }
 }

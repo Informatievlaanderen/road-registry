@@ -176,7 +176,7 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveProblems.None.CombineWith(problems),
+                        ZipArchiveProblems.None.AddRange(problems),
                         result);
                 }
             }
@@ -238,7 +238,7 @@ namespace RoadRegistry.BackOffice.Translation
 
             public ZipArchiveProblems Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records)
             {
-                return ZipArchiveProblems.None.CombineWith(_problems);
+                return ZipArchiveProblems.None.AddRange(_problems);
             }
         }
 

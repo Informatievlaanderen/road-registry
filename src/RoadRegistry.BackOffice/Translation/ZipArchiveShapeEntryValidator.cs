@@ -40,7 +40,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                 if (header != null)
                 {
-                    problems = problems.CombineWith(_recordValidator.Validate(entry, header.CreateShapeRecordEnumerator(reader)));
+                    problems = problems.AddRange(_recordValidator.Validate(entry, header.CreateShapeRecordEnumerator(reader)));
                 }
             }
 

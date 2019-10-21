@@ -111,15 +111,15 @@ namespace RoadRegistry.BackOffice.Projections
                 switch (problem.Reason)
                 {
                     case nameof(ZipArchiveProblems.RequiredFileMissing):
-                        result = $"Het bestand ontbreekt in het archief.";
+                        result = "Het bestand ontbreekt in het archief.";
                         break;
 
                     case nameof(ZipArchiveProblems.NoDbaseRecords):
-                        result = $"Het bestand bevat geen rijen.";
+                        result = "Het bestand bevat geen rijen.";
                         break;
 
-                    case nameof(ZipArchiveProblems.DbaseHeaderFormatError):
-                        result = $"De hoofding van het bestand is niet correct geformateerd.";
+                    case nameof(DbaseFileProblems.DbaseHeaderFormatError):
+                        result = "De hoofding van het bestand is niet correct geformateerd.";
                         break;
 
                     case nameof(ZipArchiveProblems.DbaseRecordFormatError):
@@ -128,11 +128,11 @@ namespace RoadRegistry.BackOffice.Projections
                         break;
 
                     case nameof(ZipArchiveProblems.NoShapeRecords):
-                        result = $"Het bestand bevat geen enkele geometrie.";
+                        result = "Het bestand bevat geen enkele geometrie.";
                         break;
 
                     case nameof(ZipArchiveProblems.ShapeHeaderFormatError):
-                        result = $"De hoofding van het bestand is niet correct geformateerd.";
+                        result = "De hoofding van het bestand is niet correct geformateerd.";
                         break;
 
                     case nameof(ZipArchiveProblems.ShapeRecordFormatError):
@@ -167,7 +167,7 @@ namespace RoadRegistry.BackOffice.Projections
                             $"De dbase record {problem.Parameters[1].Value} bevat een nummer {problem.Parameters[0].Value} dat geen europees wegnummer is.";
                         break;
 
-                    case nameof(ZipArchiveProblems.DbaseSchemaMismatch):
+                    case nameof(DbaseFileProblems.DbaseSchemaMismatch):
                         result =
                             $"Het verwachte dbase schema {problem.Parameters[0].Value} stemt niet overeen met het eigenlijke dbase schema {problem.Parameters[1].Value}.";
                         break;

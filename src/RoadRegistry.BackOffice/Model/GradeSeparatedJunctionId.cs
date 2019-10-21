@@ -14,6 +14,11 @@ namespace RoadRegistry.BackOffice.Model
             _value = value;
         }
 
+        public static bool Accepts(int value)
+        {
+            return value >= 0;
+        }
+
         public GradeSeparatedJunctionId Next()
         {
             if (_value == int.MaxValue)

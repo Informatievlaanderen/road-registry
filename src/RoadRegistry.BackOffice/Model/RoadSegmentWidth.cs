@@ -6,9 +6,10 @@
     public readonly struct RoadSegmentWidth : IEquatable<RoadSegmentWidth>
     {
         private const int MaximumValue = 45;
-
-        public static readonly RoadSegmentWidth Unknown = new RoadSegmentWidth(-8);
-        public static readonly RoadSegmentWidth NotApplicable = new RoadSegmentWidth(-9);
+        private const int UnknownValue = -8;
+        private const int NotApplicableValue = -9;
+        public static readonly RoadSegmentWidth Unknown = new RoadSegmentWidth(UnknownValue);
+        public static readonly RoadSegmentWidth NotApplicable = new RoadSegmentWidth(NotApplicableValue);
         public static readonly RoadSegmentWidth Maximum = new RoadSegmentWidth(MaximumValue);
 
         private readonly int _value;
@@ -19,6 +20,11 @@
                 throw new ArgumentOutOfRangeException(nameof(value), value, "The road segment width must be greater than or equal to 0 and less than or equal to 45, or -8 (unknown) or -9 (not applicable).");
 
             _value = value;
+        }
+
+        public static bool Accepts(int value)
+        {
+            return value == UnknownValue || value == NotApplicableValue || 0 <= value && value <= MaximumValue;
         }
 
         [Pure]

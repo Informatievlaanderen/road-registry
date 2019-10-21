@@ -14,6 +14,11 @@ namespace RoadRegistry.BackOffice.Model
             _value = value;
         }
 
+        public static bool Accepts(int value)
+        {
+            return value >= 0;
+        }
+
         public RoadNodeId Next()
         {
             if (_value == int.MaxValue)

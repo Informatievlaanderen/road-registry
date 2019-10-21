@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System;
     using System.Collections.Generic;
     using System.IO.Compression;
+    using System.Linq;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
@@ -13,7 +14,9 @@ namespace RoadRegistry.BackOffice.Translation
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
+            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
+
             try
             {
                 var identifiers = new Dictionary<AttributeId, RecordNumber>();
@@ -22,6 +25,7 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     while (moved)
                     {
+                        var recordContext = fileContext.WithDbaseRecord(records.CurrentRecordNumber);
                         var record = records.Current;
                         if (record != null)
                         {
@@ -29,15 +33,17 @@ namespace RoadRegistry.BackOffice.Translation
                             {
                                 if (record.GW_OIDN.Value.Value == 0)
                                 {
-                                    problems = problems.IdentifierZero(entry.Name, records.CurrentRecordNumber);
+                                    problems += recordContext.IdentifierZero();
                                 }
                                 else
                                 {
                                     var identifier = new AttributeId(record.GW_OIDN.Value.Value);
                                     if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
                                     {
-                                        problems = problems.IdentifierNotUnique(entry.Name, identifier, records.CurrentRecordNumber,
-                                            takenByRecordNumber);
+                                        problems += recordContext.IdentifierNotUnique(
+                                            identifier,
+                                            takenByRecordNumber
+                                        );
                                     }
                                     else
                                     {
@@ -47,7 +53,43 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                problems = problems.IdentifierMissing(entry.Name, records.CurrentRecordNumber);
+                                problems += recordContext.IdentifierMissing();
+                            }
+
+                            if (record.IDENT8.Value == null)
+                            {
+                                problems += recordContext.FieldValueNull(record.IDENT8);
+                            }
+                            else if (!NumberedRoadNumber.CanParse(record.IDENT8.Value))
+                            {
+                                problems += recordContext.NotNumberedRoadNumber(record.IDENT8.Value);
+                            }
+
+                            if (!record.RICHTING.Value.HasValue)
+                            {
+                                problems += recordContext.FieldValueNull(record.VOLGNUMMER);
+                            }
+                            else if (!RoadSegmentNumberedRoadDirection.ByIdentifier.ContainsKey(record.RICHTING.Value.Value))
+                            {
+                                problems += recordContext.NumberedRoadDirectionMismatch(record.RICHTING.Value.Value);
+                            }
+
+                            if (!record.VOLGNUMMER.Value.HasValue)
+                            {
+                                problems += recordContext.FieldValueNull(record.VOLGNUMMER);
+                            }
+                            else if (!RoadSegmentNumberedRoadOrdinal.Accepts(record.VOLGNUMMER.Value.Value))
+                            {
+                                problems += recordContext.NumberedRoadOrdinalOutOfRange(record.VOLGNUMMER.Value.Value);
+                            }
+
+                            if (!record.WS_OIDN.Value.HasValue)
+                            {
+                                problems += recordContext.FieldValueNull(record.WS_OIDN);
+                            }
+                            else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value.Value))
+                            {
+                                problems += recordContext.RoadSegmentIdOutOfRange(record.WS_OIDN.Value.Value);
                             }
                         }
                         moved = records.MoveNext();

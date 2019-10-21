@@ -148,7 +148,7 @@ namespace RoadRegistry.BackOffice.Translation
             {
                 if (_validators.TryGetValue(file, out var validator))
                 {
-                    errors = errors.CombineWith(validator.Validate(archive.GetEntry(file)));
+                    errors = errors.AddRange(validator.Validate(archive.GetEntry(file)));
                 }
             }
 

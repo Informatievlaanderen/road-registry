@@ -26,6 +26,11 @@
             _value = value;
         }
 
+        public static bool Accepts(int value)
+        {
+            return value == UnknownValue || value == NotApplicableValue || 0 <= value && value <= MaximumValue;
+        }
+
         [Pure]
         public int ToInt32() => _value;
         public bool Equals(RoadSegmentLaneCount other) => _value == other._value;

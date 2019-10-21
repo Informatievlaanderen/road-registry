@@ -4,7 +4,6 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections.Generic;
     using System.IO.Compression;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Messages;
     using Model;
 
     public class GradeSeparatedJunctionChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<GradeSeparatedJunctionChangeDbaseRecord>
@@ -14,7 +13,9 @@ namespace RoadRegistry.BackOffice.Translation
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
+            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
+
             try
             {
                 var identifiers = new Dictionary<GradeSeparatedJunctionId, RecordNumber>();
@@ -23,6 +24,7 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     while (moved)
                     {
+                        var recordContext = fileContext.WithDbaseRecord(records.CurrentRecordNumber);
                         var record = records.Current;
                         if (record != null)
                         {
@@ -30,18 +32,17 @@ namespace RoadRegistry.BackOffice.Translation
                             {
                                 if (record.OK_OIDN.Value.Value == 0)
                                 {
-                                    problems = problems.IdentifierZero(entry.Name, records.CurrentRecordNumber);
+                                    problems += recordContext.IdentifierZero();
                                 }
                                 else
                                 {
                                     var identifier = new GradeSeparatedJunctionId(record.OK_OIDN.Value.Value);
                                     if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
                                     {
-                                        problems = problems.IdentifierNotUnique(
-                                            entry.Name,
+                                        problems += recordContext.IdentifierNotUnique(
                                             identifier,
-                                            records.CurrentRecordNumber,
-                                            takenByRecordNumber);
+                                            takenByRecordNumber
+                                        );
                                     }
                                     else
                                     {
@@ -51,7 +52,37 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                problems = problems.IdentifierMissing(entry.Name, records.CurrentRecordNumber);
+                                problems += recordContext.IdentifierMissing();
+                            }
+
+                            if (record.TYPE.Value.HasValue)
+                            {
+                                if (!GradeSeparatedJunctionType.ByIdentifier.ContainsKey(record.TYPE.Value.Value))
+                                {
+                                    problems += recordContext.GradeSeparatedJunctionTypeMismatch(record.TYPE.Value.Value);
+                                }
+                            }
+                            else
+                            {
+                                problems += recordContext.FieldValueNull(record.TYPE);
+                            }
+
+                            if (!record.BO_WS_OIDN.Value.HasValue)
+                            {
+                                problems += recordContext.FieldValueNull(record.BO_WS_OIDN);
+                            }
+                            else if (!RoadSegmentId.Accepts(record.BO_WS_OIDN.Value.Value))
+                            {
+                                problems += recordContext.UpperRoadSegmentIdOutOfRange(record.BO_WS_OIDN.Value.Value);
+                            }
+
+                            if (!record.ON_WS_OIDN.Value.HasValue)
+                            {
+                                problems += recordContext.FieldValueNull(record.ON_WS_OIDN);
+                            }
+                            else if (!RoadSegmentId.Accepts(record.ON_WS_OIDN.Value.Value))
+                            {
+                                problems += recordContext.LowerRoadSegmentIdOutOfRange(record.ON_WS_OIDN.Value.Value);
                             }
 
                             moved = records.MoveNext();
@@ -60,12 +91,12 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 else
                 {
-                    problems = problems.NoDbaseRecords(entry.Name);
+                    problems += fileContext.NoDbaseRecords();
                 }
             }
             catch (Exception exception)
             {
-                problems = problems.DbaseRecordFormatError(entry.Name, records.CurrentRecordNumber, exception);
+                problems += fileContext.WithDbaseRecord(records.CurrentRecordNumber).DbaseRecordFormatError(exception);
             }
 
             return problems;

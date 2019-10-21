@@ -1,8 +1,6 @@
 namespace RoadRegistry.BackOffice.Translation
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
     using System.Text;
@@ -25,6 +23,8 @@ namespace RoadRegistry.BackOffice.Translation
         public ZipArchiveProblems Validate(ZipArchiveEntry entry)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
+
+            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
 
             using (var stream = entry.Open())
@@ -37,21 +37,21 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 catch (Exception exception)
                 {
-                    problems = problems.DbaseHeaderFormatError(entry.Name, exception);
+                    problems += fileContext.DbaseHeaderFormatError(exception);
                 }
 
                 if (header != null)
                 {
                     if (!header.Schema.Equals(_schema))
                     {
-                        problems = problems.DbaseSchemaMismatch(entry.Name, _schema, header.Schema);
+                        problems += fileContext.DbaseSchemaMismatch(_schema, header.Schema);
                     }
                     else
                     {
-                        problems = problems.CombineWith(
-                            _recordValidator.Validate(
-                                entry,
-                                header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader)));
+                        using (var records = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader))
+                        {
+                            problems += _recordValidator.Validate(entry, records);
+                        }
                     }
                 }
             }

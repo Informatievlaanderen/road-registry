@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Model
     using System;
     using System.Globalization;
     using System.Linq;
+    using Albedo;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Framework;
@@ -78,6 +79,19 @@ namespace RoadRegistry.BackOffice.Model
             var sut = new AttributeId(int.MaxValue);
 
             Assert.Throws<NotSupportedException>(() => sut.Next());
+        }
+
+        [Theory]
+        [InlineData(int.MinValue, false)]
+        [InlineData(-1, false)]
+        [InlineData(0, true)]
+        [InlineData(1, true)]
+        [InlineData(int.MaxValue, true)]
+        public void AcceptsReturnsExpectedResult(int value, bool expected)
+        {
+            var result = AttributeId.Accepts(value);
+
+            Assert.Equal(expected, result);
         }
 
         [Theory]

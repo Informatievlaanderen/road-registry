@@ -13,7 +13,9 @@ namespace RoadRegistry.BackOffice.Translation
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
+            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
+
             try
             {
                 var identifiers = new Dictionary<AttributeId, RecordNumber>();
@@ -22,6 +24,7 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     while (moved)
                     {
+                        var recordContext = fileContext.WithDbaseRecord(records.CurrentRecordNumber);
                         var record = records.Current;
                         if (record != null)
                         {
@@ -29,18 +32,17 @@ namespace RoadRegistry.BackOffice.Translation
                             {
                                 if (record.NW_OIDN.Value.Value == 0)
                                 {
-                                    problems = problems.IdentifierZero(entry.Name, records.CurrentRecordNumber);
+                                    problems += recordContext.IdentifierZero();
                                 }
                                 else
                                 {
                                     var identifier = new AttributeId(record.NW_OIDN.Value.Value);
                                     if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
                                     {
-                                        problems = problems.IdentifierNotUnique(
-                                            entry.Name,
+                                        problems += recordContext.IdentifierNotUnique(
                                             identifier,
-                                            records.CurrentRecordNumber,
-                                            takenByRecordNumber);
+                                            takenByRecordNumber
+                                        );
                                     }
                                     else
                                     {
@@ -50,7 +52,25 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                problems = problems.IdentifierMissing(entry.Name, records.CurrentRecordNumber);
+                                problems += recordContext.IdentifierMissing();
+                            }
+
+                            if (record.IDENT2.Value == null)
+                            {
+                                problems += recordContext.FieldValueNull(record.IDENT2);
+                            }
+                            else if (!NationalRoadNumber.CanParse(record.IDENT2.Value))
+                            {
+                                problems += recordContext.NotNationalRoadNumber(record.IDENT2.Value);
+                            }
+
+                            if (!record.WS_OIDN.Value.HasValue)
+                            {
+                                problems += recordContext.FieldValueNull(record.WS_OIDN);
+                            }
+                            else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value.Value))
+                            {
+                                problems += recordContext.RoadSegmentIdOutOfRange(record.WS_OIDN.Value.Value);
                             }
 
                             moved = records.MoveNext();
@@ -59,12 +79,12 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 else
                 {
-                    problems = problems.NoDbaseRecords(entry.Name);
+                    problems += fileContext.NoDbaseRecords();
                 }
             }
             catch (Exception exception)
             {
-                problems = problems.DbaseRecordFormatError(entry.Name, records.CurrentRecordNumber, exception);
+                problems += fileContext.WithDbaseRecord(records.CurrentRecordNumber).DbaseRecordFormatError(exception);
             }
 
             return problems;

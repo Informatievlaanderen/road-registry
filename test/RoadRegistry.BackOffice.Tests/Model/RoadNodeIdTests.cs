@@ -80,6 +80,19 @@ namespace RoadRegistry.BackOffice.Model
         }
 
         [Theory]
+        [InlineData(int.MinValue, false)]
+        [InlineData(-1, false)]
+        [InlineData(0, true)]
+        [InlineData(1, true)]
+        [InlineData(int.MaxValue, true)]
+        public void AcceptsReturnsExpectedResult(int value, bool expected)
+        {
+            var result = RoadNodeId.Accepts(value);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
         [InlineData(1, 2, 2)]
         [InlineData(2, 1, 2)]
         [InlineData(2, 2, 2)]

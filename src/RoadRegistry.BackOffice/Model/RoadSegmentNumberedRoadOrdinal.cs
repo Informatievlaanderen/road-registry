@@ -14,6 +14,11 @@ namespace RoadRegistry.BackOffice.Model
             _value = value;
         }
 
+        public static bool Accepts(int value)
+        {
+            return value >= 0;
+        }
+
         public int ToInt32() => _value;
         public bool Equals(RoadSegmentNumberedRoadOrdinal other) => _value == other._value;
         public override bool Equals(object other) => other is RoadSegmentNumberedRoadOrdinal revision && Equals(revision);

@@ -23,6 +23,16 @@
             return new RoadSegmentPosition(Convert.ToDecimal(value));
         }
 
+        public static bool Accepts(double value)
+        {
+            return value >= 0.0;
+        }
+
+        public static bool Accepts(decimal value)
+        {
+            return value >= 0.0m;
+        }
+
         [Pure]
         public decimal ToDecimal() => _value;
         [Pure]
