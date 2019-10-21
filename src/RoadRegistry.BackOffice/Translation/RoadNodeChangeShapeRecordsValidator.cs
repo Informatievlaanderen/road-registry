@@ -13,47 +13,47 @@ namespace RoadRegistry.BackOffice.Translation
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
+            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
             var recordNumber = RecordNumber.Initial;
             try
             {
-                var count = 0;
-                while (records.MoveNext())
+                var moved = records.MoveNext();
+                if (moved)
                 {
-                    var record = records.Current;
-                    if (record != null)
+                    while (moved)
                     {
-                        if (record.Content.ShapeType != ShapeType.Point)
+                        var record = records.Current;
+                        if (record != null)
                         {
-                            problems = problems.ShapeRecordShapeTypeMismatch(
-                                entry.Name,
-                                record.Header.RecordNumber,
-                                ShapeType.Point,
-                                record.Content.ShapeType);
-                        }
-                        else if (record.Content is PointShapeContent content)
-                        {
-                            if (!GeometryTranslator.ToGeometryPoint(content.Shape).IsValid)
+                            var recordContext = fileContext.WithShapeRecord(record.Header.RecordNumber);
+                            if (record.Content.ShapeType != ShapeType.Point)
                             {
-                                problems = problems.ShapeRecordGeometryMismatch(
-                                    entry.Name,
-                                    record.Header.RecordNumber);
+                                problems += recordContext.ShapeRecordShapeTypeMismatch(
+                                    ShapeType.Point,
+                                    record.Content.ShapeType);
                             }
+                            else if (record.Content is PointShapeContent content)
+                            {
+                                if (!GeometryTranslator.ToGeometryPoint(content.Shape).IsValid)
+                                {
+                                    problems += recordContext.ShapeRecordGeometryMismatch();
+                                }
+                            }
+                            recordNumber = record.Header.RecordNumber;
                         }
+
+                        moved = records.MoveNext();
                     }
-
-                    count++;
-                    recordNumber = recordNumber.Next();
                 }
-
-                if (count == 0)
+                else
                 {
-                    problems = problems.NoShapeRecords(entry.Name);
+                    problems += fileContext.NoShapeRecords();
                 }
             }
             catch (Exception exception)
             {
-                problems = problems.ShapeRecordFormatError(entry.Name, recordNumber, exception);
+                problems += fileContext.WithShapeRecord(recordNumber).ShapeRecordFormatError(exception);
             }
 
             return problems;

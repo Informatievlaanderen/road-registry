@@ -122,9 +122,8 @@ namespace RoadRegistry.BackOffice.Translation
                             {
                                 problems += recordContext.FieldValueNull(record.E_WK_OIDN);
                             }
-
-                            moved = records.MoveNext();
                         }
+                        moved = records.MoveNext();
                     }
 
                 }

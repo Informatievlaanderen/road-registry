@@ -127,25 +127,25 @@ namespace RoadRegistry.BackOffice.Projections
                             $"De dbase record na record {problem.Parameters[0].Value} is niet correct geformateerd.";
                         break;
 
-                    case nameof(ZipArchiveProblems.NoShapeRecords):
+                    case nameof(ShapeFileProblems.NoShapeRecords):
                         result = "Het bestand bevat geen enkele geometrie.";
                         break;
 
-                    case nameof(ZipArchiveProblems.ShapeHeaderFormatError):
+                    case nameof(ShapeFileProblems.ShapeHeaderFormatError):
                         result = "De hoofding van het bestand is niet correct geformateerd.";
                         break;
 
-                    case nameof(ZipArchiveProblems.ShapeRecordFormatError):
+                    case nameof(ShapeRecordProblems.ShapeRecordFormatError):
                         result =
                             $"De shape record na record {problem.Parameters[0].Value} is niet correct geformateerd.";
                         break;
 
-                    case nameof(ZipArchiveProblems.ShapeRecordShapeTypeMismatch):
+                    case nameof(ShapeRecordProblems.ShapeRecordShapeTypeMismatch):
                         result =
                             $"De shape record {problem.Parameters[0].Value} bevat geen {problem.Parameters[1].Value} maar een {problem.Parameters[2].Value}.";
                         break;
 
-                    case nameof(ZipArchiveProblems.ShapeRecordGeometryMismatch):
+                    case nameof(ShapeRecordProblems.ShapeRecordGeometryMismatch):
                         result = $"De shape record {problem.Parameters[0].Value} geometrie is ongeldig.";
                         break;
 

@@ -90,9 +90,8 @@ namespace RoadRegistry.BackOffice.Translation
                             {
                                 problems += recordContext.RoadSegmentIdOutOfRange(record.WS_OIDN.Value.Value);
                             }
-
-                            moved = records.MoveNext();
                         }
+                        moved = records.MoveNext();
                     }
                 }
                 else

@@ -23,6 +23,7 @@ namespace RoadRegistry.BackOffice.Translation
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
 
+            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
 
             using (var stream = entry.Open())
@@ -35,12 +36,15 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 catch (Exception exception)
                 {
-                    problems = problems.ShapeHeaderFormatError(entry.Name, exception);
+                    problems += fileContext.ShapeHeaderFormatError(exception);
                 }
 
                 if (header != null)
                 {
-                    problems = problems.AddRange(_recordValidator.Validate(entry, header.CreateShapeRecordEnumerator(reader)));
+                    using (var records = header.CreateShapeRecordEnumerator(reader))
+                    {
+                        problems += _recordValidator.Validate(entry, records);
+                    }
                 }
             }
 

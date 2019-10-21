@@ -15,79 +15,73 @@ namespace RoadRegistry.BackOffice.Translation
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
+            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
             var recordNumber = RecordNumber.Initial;
             try
             {
-                var count = 0;
-                while (records.MoveNext())
+                var moved = records.MoveNext();
+                if (moved)
                 {
-                    var record = records.Current;
-                    if (record != null)
+                    while (moved)
                     {
-                        if (record.Content.ShapeType != ShapeType.PolyLineM)
+                        var record = records.Current;
+                        if (record != null)
                         {
-                            problems = problems.ShapeRecordShapeTypeMismatch(
-                                entry.Name,
-                                record.Header.RecordNumber,
-                                ShapeType.PolyLineM,
-                                record.Content.ShapeType);
-                        }
-                        else if (record.Content is PolyLineMShapeContent content)
-                        {
-                            var shape = GeometryTranslator.ToGeometryMultiLineString(content.Shape);
-                            if (!shape.IsValid)
+                            var recordContext = fileContext.WithShapeRecord(record.Header.RecordNumber);
+                            if (record.Content.ShapeType != ShapeType.PolyLineM)
                             {
-                                problems = problems.ShapeRecordGeometryMismatch(
-                                    entry.Name,
-                                    record.Header.RecordNumber);
+                                problems += recordContext.ShapeRecordShapeTypeMismatch(
+                                    ShapeType.PolyLineM,
+                                    record.Content.ShapeType);
                             }
-                            else
+                            else if (record.Content is PolyLineMShapeContent content)
                             {
-                                var lines = shape
-                                    .Geometries
-                                    .OfType<LineString>()
-                                    .ToArray();
-                                if (lines.Length != 1)
+                                var shape = GeometryTranslator.ToGeometryMultiLineString(content.Shape);
+                                if (!shape.IsValid)
                                 {
-                                    problems = problems.ShapeRecordGeometryLineCountMismatch(
-                                        entry.Name,
-                                        record.Header.RecordNumber,
-                                        1,
-                                        lines.Length);
+                                    problems += recordContext.ShapeRecordGeometryMismatch();
                                 }
                                 else
                                 {
-                                    var line = lines[0];
-                                    if (Model.LineStringExtensions.SelfOverlaps(line))
+                                    var lines = shape
+                                        .Geometries
+                                        .OfType<LineString>()
+                                        .ToArray();
+                                    if (lines.Length != 1)
                                     {
-                                        problems = problems.ShapeRecordGeometrySelfOverlaps(
-                                            entry.Name,
-                                            record.Header.RecordNumber);
+                                        problems += recordContext.ShapeRecordGeometryLineCountMismatch(
+                                            1,
+                                            lines.Length);
                                     }
-                                    else if (Model.LineStringExtensions.SelfIntersects(line))
+                                    else
                                     {
-                                        problems = problems.ShapeRecordGeometrySelfIntersects(
-                                            entry.Name,
-                                            record.Header.RecordNumber);
+                                        var line = lines[0];
+                                        if (Model.LineStringExtensions.SelfOverlaps(line))
+                                        {
+                                            problems += recordContext.ShapeRecordGeometrySelfOverlaps();
+                                        }
+                                        else if (Model.LineStringExtensions.SelfIntersects(line))
+                                        {
+                                            problems += recordContext.ShapeRecordGeometrySelfIntersects();
+                                        }
                                     }
                                 }
                             }
+                            recordNumber = record.Header.RecordNumber;
                         }
+
+                        moved = records.MoveNext();
                     }
-
-                    count++;
-                    recordNumber = recordNumber.Next();
                 }
-
-                if (count == 0)
+                else
                 {
-                    problems = problems.NoShapeRecords(entry.Name);
+                    problems += fileContext.NoShapeRecords();
                 }
             }
             catch (Exception exception)
             {
-                problems = problems.ShapeRecordFormatError(entry.Name, recordNumber, exception);
+                problems += fileContext.WithShapeRecord(recordNumber).ShapeRecordFormatError(exception);
             }
 
             return problems;
