@@ -15,7 +15,6 @@ namespace RoadRegistry.BackOffice.Translation
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
-            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
             var recordNumber = RecordNumber.Initial;
             try
@@ -28,7 +27,7 @@ namespace RoadRegistry.BackOffice.Translation
                         var record = records.Current;
                         if (record != null)
                         {
-                            var recordContext = fileContext.WithShapeRecord(record.Header.RecordNumber);
+                            var recordContext = entry.AtShapeRecord(record.Header.RecordNumber);
                             if (record.Content.ShapeType != ShapeType.PolyLineM)
                             {
                                 problems += recordContext.ShapeRecordShapeTypeMismatch(
@@ -76,12 +75,12 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 else
                 {
-                    problems += fileContext.NoShapeRecords();
+                    problems += entry.HasNoShapeRecords();
                 }
             }
             catch (Exception exception)
             {
-                problems += fileContext.WithShapeRecord(recordNumber).ShapeRecordFormatError(exception);
+                problems += entry.AtShapeRecord(recordNumber).HasShapeRecordFormatError(exception);
             }
 
             return problems;

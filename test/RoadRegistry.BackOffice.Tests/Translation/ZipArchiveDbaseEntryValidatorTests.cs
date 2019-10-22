@@ -5,7 +5,6 @@ namespace RoadRegistry.BackOffice.Translation
     using System.IO;
     using System.IO.Compression;
     using System.Text;
-    using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
     using Xunit;
@@ -77,9 +76,9 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveProblems.None.DbaseHeaderFormatError(
-                            entry.Name,
-                            new EndOfStreamException("Unable to read beyond the end of the stream.")),
+                        ZipArchiveProblems.Single(entry.HasDbaseHeaderFormatError(
+                            new EndOfStreamException("Unable to read beyond the end of the stream."))
+                        ),
                         result,
                         new FileProblemComparer());
                 }
@@ -115,9 +114,9 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveProblems.None.DbaseHeaderFormatError(
-                            entry.Name,
-                            new DbaseFileHeaderException("The database file type must be 3 (dBase III).")),
+                        ZipArchiveProblems.Single(entry.HasDbaseHeaderFormatError(
+                            new DbaseFileHeaderException("The database file type must be 3 (dBase III)."))
+                        ),
                         result,
                         new FileProblemComparer());
                 }
@@ -160,10 +159,10 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveProblems.None.DbaseSchemaMismatch(
-                            entry.Name,
+                        ZipArchiveProblems.Single(entry.HasDbaseSchemaMismatch(
                             new FakeDbaseSchema(),
-                            new AnonymousDbaseSchema(new DbaseField[0])),
+                            new AnonymousDbaseSchema(new DbaseField[0]))
+                        ),
                         result);
                 }
             }

@@ -1,8 +1,6 @@
 namespace RoadRegistry.BackOffice.Translation
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
     using System.Text;
@@ -23,7 +21,6 @@ namespace RoadRegistry.BackOffice.Translation
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
 
-            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
 
             using (var stream = entry.Open())
@@ -36,7 +33,7 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 catch (Exception exception)
                 {
-                    problems += fileContext.ShapeHeaderFormatError(exception);
+                    problems += entry.HasShapeHeaderFormatError(exception);
                 }
 
                 if (header != null)

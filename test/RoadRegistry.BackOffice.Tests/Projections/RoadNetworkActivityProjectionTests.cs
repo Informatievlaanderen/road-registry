@@ -96,7 +96,7 @@ namespace RoadRegistry.BackOffice.Projections
                         {
                             File = file,
                             Severity = FileProblemSeverity.Error,
-                            Reason = nameof(ZipArchiveProblems.ShapeRecordGeometryMismatch),
+                            Reason = nameof(ShapeFileProblems.ShapeRecordGeometryMismatch),
                             Parameters = new[]
                             {
                                 new ProblemParameter
@@ -166,7 +166,7 @@ namespace RoadRegistry.BackOffice.Projections
                         {
                             File = file,
                             Severity = FileProblemSeverity.Error,
-                            Reason = nameof(ZipArchiveProblems.ShapeRecordGeometryMismatch),
+                            Reason = nameof(ShapeFileProblems.ShapeRecordGeometryMismatch),
                             Parameters = new[]
                             {
                                 new ProblemParameter

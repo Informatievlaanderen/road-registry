@@ -88,7 +88,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, _enumerator);
 
             Assert.Equal(
-                ZipArchiveProblems.None.NoShapeRecords(_entry.Name),
+                ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
                 result);
         }
 
@@ -130,11 +130,11 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveProblems.None.ShapeRecordShapeTypeMismatch(
-                    _entry.Name,
-                    RecordNumber.Initial,
-                    ShapeType.PolyLineM,
-                    ShapeType.NullShape),
+                ZipArchiveProblems.Single(
+                    _entry.AtShapeRecord(RecordNumber.Initial).ShapeRecordShapeTypeMismatch(
+                        ShapeType.PolyLineM,
+                        ShapeType.NullShape)
+                ),
                 result);
         }
 
@@ -161,9 +161,10 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveProblems.None
-                    .ShapeRecordGeometryMismatch(_entry.Name, new RecordNumber(1))
-                    .ShapeRecordGeometryMismatch(_entry.Name, new RecordNumber(2)),
+                ZipArchiveProblems.Many(
+                    _entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryMismatch(),
+                    _entry.AtShapeRecord(new RecordNumber(2)).ShapeRecordGeometryMismatch()
+                ),
                 result);
         }
 
@@ -206,9 +207,10 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveProblems.None
-                    .ShapeRecordGeometryLineCountMismatch(_entry.Name, new RecordNumber(1), 1, 0)
-                    .ShapeRecordGeometryLineCountMismatch(_entry.Name, new RecordNumber(2), 1, 2),
+                ZipArchiveProblems.Many(
+                    _entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryLineCountMismatch(1, 0),
+                    _entry.AtShapeRecord(new RecordNumber(2)).ShapeRecordGeometryLineCountMismatch(1, 2)
+                ),
                 result);
         }
 
@@ -247,7 +249,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveProblems.None.ShapeRecordGeometrySelfOverlaps(_entry.Name, new RecordNumber(1)),
+                ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometrySelfOverlaps()),
                 result);
         }
 
@@ -291,7 +293,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveProblems.None.ShapeRecordGeometrySelfIntersects(_entry.Name, new RecordNumber(1)),
+                ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometrySelfIntersects()),
                 result);
         }
 
@@ -308,9 +310,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, enumerator);
 
             Assert.Equal(
-                ZipArchiveProblems
-                    .None
-                    .ShapeRecordFormatError(_entry.Name, new RecordNumber(2), exception),
+                ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(2)).HasShapeRecordFormatError(exception)),
                 result,
                 new FileProblemComparer());
         }

@@ -60,18 +60,19 @@ namespace RoadRegistry.BackOffice.Translation
                 var result = sut.Validate(archive);
 
                 Assert.Equal(
-                    ZipArchiveProblems.None
-                        .NoShapeRecords("WEGSEGMENT_ALL.SHP")
-                        .NoDbaseRecords("WEGSEGMENT_ALL.DBF")
-                        .NoShapeRecords("WEGKNOOP_ALL.SHP")
-                        .NoDbaseRecords("WEGKNOOP_ALL.DBF")
-                        .NoDbaseRecords("ATTEUROPWEG_ALL.DBF")
-                        .NoDbaseRecords("ATTGENUMWEG_ALL.DBF")
-                        .NoDbaseRecords("ATTNATIONWEG_ALL.DBF")
-                        .NoDbaseRecords("ATTRIJSTROKEN_ALL.DBF")
-                        .NoDbaseRecords("ATTWEGBREEDTE_ALL.DBF")
-                        .NoDbaseRecords("ATTWEGVERHARDING_ALL.DBF")
-                        .NoDbaseRecords("RLTOGKRUISING_ALL.DBF"),
+                    ZipArchiveProblems.Many(
+                            ZipArchiveEntryProblems.InFile("WEGSEGMENT_ALL.SHP").HasNoShapeRecords(),
+                            ZipArchiveEntryProblems.InFile("WEGSEGMENT_ALL.DBF").HasNoDbaseRecords(),
+                            ZipArchiveEntryProblems.InFile("WEGKNOOP_ALL.SHP").HasNoShapeRecords(),
+                            ZipArchiveEntryProblems.InFile("WEGKNOOP_ALL.DBF").HasNoDbaseRecords(),
+                            ZipArchiveEntryProblems.InFile("ATTEUROPWEG_ALL.DBF").HasNoShapeRecords(),
+                            ZipArchiveEntryProblems.InFile("ATTGENUMWEG_ALL.DBF").HasNoShapeRecords(),
+                            ZipArchiveEntryProblems.InFile("ATTNATIONWEG_ALL.DBF").HasNoShapeRecords(),
+                            ZipArchiveEntryProblems.InFile("ATTRIJSTROKEN_ALL.DBF").HasNoShapeRecords(),
+                            ZipArchiveEntryProblems.InFile("ATTWEGBREEDTE_ALL.DBF").HasNoShapeRecords(),
+                            ZipArchiveEntryProblems.InFile("ATTWEGVERHARDING_ALL.DBF").HasNoShapeRecords(),
+                            ZipArchiveEntryProblems.InFile("RLTOGKRUISING_ALL.DBF").HasNoShapeRecords()
+                    ),
                     result);
             }
         }

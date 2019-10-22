@@ -24,7 +24,6 @@ namespace RoadRegistry.BackOffice.Translation
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
 
-            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
 
             using (var stream = entry.Open())
@@ -37,14 +36,14 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 catch (Exception exception)
                 {
-                    problems += fileContext.DbaseHeaderFormatError(exception);
+                    problems += entry.HasDbaseHeaderFormatError(exception);
                 }
 
                 if (header != null)
                 {
                     if (!header.Schema.Equals(_schema))
                     {
-                        problems += fileContext.DbaseSchemaMismatch(_schema, header.Schema);
+                        problems += entry.HasDbaseSchemaMismatch(_schema, header.Schema);
                     }
                     else
                     {

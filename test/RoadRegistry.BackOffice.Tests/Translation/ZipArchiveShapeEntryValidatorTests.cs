@@ -87,9 +87,9 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveProblems.None.ShapeHeaderFormatError(
-                            entry.Name,
-                            new EndOfStreamException("Unable to read beyond the end of the stream.")),
+                        ZipArchiveProblems.Single(entry.HasShapeHeaderFormatError(
+                            new EndOfStreamException("Unable to read beyond the end of the stream."))
+                        ),
                         result,
                         new FileProblemComparer());
                 }
@@ -128,9 +128,9 @@ namespace RoadRegistry.BackOffice.Translation
                     var result = sut.Validate(entry);
 
                     Assert.Equal(
-                        ZipArchiveProblems.None.ShapeHeaderFormatError(
-                            entry.Name,
-                            new ShapeFileHeaderException("The File Code field does not match 9994.")),
+                        ZipArchiveProblems.Single(entry.HasShapeHeaderFormatError(
+                            new ShapeFileHeaderException("The File Code field does not match 9994."))
+                        ),
                         result,
                         new FileProblemComparer());
                 }

@@ -5,7 +5,6 @@ namespace RoadRegistry.BackOffice.Translation
     using System.IO.Compression;
     using System.Text;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using NetTopologySuite.Algorithm;
 
     public class ZipArchiveDbaseEntryTranslator<TRecord> : IZipArchiveEntryTranslator
         where TRecord : DbaseRecord, new()

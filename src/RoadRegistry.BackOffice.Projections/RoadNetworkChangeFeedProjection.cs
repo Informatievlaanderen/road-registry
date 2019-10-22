@@ -114,20 +114,20 @@ namespace RoadRegistry.BackOffice.Projections
                         result = "Het bestand ontbreekt in het archief.";
                         break;
 
-                    case nameof(ZipArchiveProblems.NoDbaseRecords):
+                    case nameof(DbaseFileProblems.HasNoDbaseRecords):
                         result = "Het bestand bevat geen rijen.";
                         break;
 
-                    case nameof(DbaseFileProblems.DbaseHeaderFormatError):
+                    case nameof(DbaseFileProblems.HasDbaseHeaderFormatError):
                         result = "De hoofding van het bestand is niet correct geformateerd.";
                         break;
 
-                    case nameof(ZipArchiveProblems.DbaseRecordFormatError):
+                    case nameof(DbaseFileProblems.HasDbaseRecordFormatError):
                         result =
                             $"De dbase record na record {problem.Parameters[0].Value} is niet correct geformateerd.";
                         break;
 
-                    case nameof(ShapeFileProblems.NoShapeRecords):
+                    case nameof(ShapeFileProblems.HasNoShapeRecords):
                         result = "Het bestand bevat geen enkele geometrie.";
                         break;
 
@@ -135,39 +135,39 @@ namespace RoadRegistry.BackOffice.Projections
                         result = "De hoofding van het bestand is niet correct geformateerd.";
                         break;
 
-                    case nameof(ShapeRecordProblems.ShapeRecordFormatError):
+                    case nameof(ShapeFileProblems.HasShapeRecordFormatError):
                         result =
                             $"De shape record na record {problem.Parameters[0].Value} is niet correct geformateerd.";
                         break;
 
-                    case nameof(ShapeRecordProblems.ShapeRecordShapeTypeMismatch):
+                    case nameof(ShapeFileProblems.ShapeRecordShapeTypeMismatch):
                         result =
                             $"De shape record {problem.Parameters[0].Value} bevat geen {problem.Parameters[1].Value} maar een {problem.Parameters[2].Value}.";
                         break;
 
-                    case nameof(ShapeRecordProblems.ShapeRecordGeometryMismatch):
+                    case nameof(ShapeFileProblems.ShapeRecordGeometryMismatch):
                         result = $"De shape record {problem.Parameters[0].Value} geometrie is ongeldig.";
                         break;
 
-                    case nameof(ZipArchiveProblems.IdentifierZero):
+                    case nameof(DbaseFileProblems.IdentifierZero):
                         result = $"De dbase record {problem.Parameters[0].Value} bevat een identificator die 0 is.";
                         break;
 
-                    case nameof(ZipArchiveProblems.IdentifierMissing):
+                    case nameof(DbaseFileProblems.IdentifierMissing):
                         result = $"De dbase record {problem.Parameters[0].Value} ontbreekt een identificator.";
                         break;
 
-                    case nameof(ZipArchiveProblems.IdentifierNotUnique):
+                    case nameof(DbaseFileProblems.IdentifierNotUnique):
                         result =
                             $"De dbase record {problem.Parameters[1].Value} bevat dezelfde identifier {problem.Parameters[0].Value} als dbase record {problem.Parameters[2].Value}.";
                         break;
 
-                    case nameof(ZipArchiveProblems.NotEuropeanRoadNumber):
+                    case nameof(DbaseFileProblems.NotEuropeanRoadNumber):
                         result =
                             $"De dbase record {problem.Parameters[1].Value} bevat een nummer {problem.Parameters[0].Value} dat geen europees wegnummer is.";
                         break;
 
-                    case nameof(DbaseFileProblems.DbaseSchemaMismatch):
+                    case nameof(DbaseFileProblems.HasDbaseSchemaMismatch):
                         result =
                             $"Het verwachte dbase schema {problem.Parameters[0].Value} stemt niet overeen met het eigenlijke dbase schema {problem.Parameters[1].Value}.";
                         break;

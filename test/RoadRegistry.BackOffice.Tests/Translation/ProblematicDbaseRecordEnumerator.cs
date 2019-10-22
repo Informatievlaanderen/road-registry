@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Translation
 {
     using System;
     using System.Collections;
-    using System.Collections.Generic;
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class ProblematicDbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>

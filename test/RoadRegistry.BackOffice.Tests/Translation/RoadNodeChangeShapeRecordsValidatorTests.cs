@@ -8,8 +8,6 @@ namespace RoadRegistry.BackOffice.Translation
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using NetTopologySuite.Geometries;
-    using NetTopologySuite.Geometries.Implementation;
     using Xunit;
 
     public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
@@ -70,7 +68,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, _enumerator);
 
             Assert.Equal(
-                ZipArchiveProblems.None.NoShapeRecords(_entry.Name),
+                ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
                 result);
         }
 
@@ -102,11 +100,13 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveProblems.None.ShapeRecordShapeTypeMismatch(
-                    _entry.Name,
-                    RecordNumber.Initial,
-                    ShapeType.Point,
-                    ShapeType.NullShape),
+                ZipArchiveProblems.Single(
+                    _entry
+                        .AtShapeRecord(RecordNumber.Initial)
+                        .ShapeRecordShapeTypeMismatch(
+                            ShapeType.Point,
+                            ShapeType.NullShape)
+                ),
                 result);
         }
 
@@ -122,9 +122,10 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveProblems.None
-                    .ShapeRecordGeometryMismatch(_entry.Name, new RecordNumber(1))
-                    .ShapeRecordGeometryMismatch(_entry.Name, new RecordNumber(2)),
+                ZipArchiveProblems.Many(
+                    _entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryMismatch(),
+                    _entry.AtShapeRecord(new RecordNumber(2)).ShapeRecordGeometryMismatch()
+                ),
                 result);
         }
 
@@ -141,9 +142,9 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, enumerator);
 
             Assert.Equal(
-                ZipArchiveProblems
-                    .None
-                    .ShapeRecordFormatError(_entry.Name, new RecordNumber(2), exception),
+                ZipArchiveProblems.Single(
+                    _entry.AtShapeRecord(new RecordNumber(2)).HasShapeRecordFormatError(exception)
+                ),
                 result,
                 new FileProblemComparer());
         }

@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Translation
 {
     using System;
-    using System.Collections.Generic;
     using System.IO.Compression;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;

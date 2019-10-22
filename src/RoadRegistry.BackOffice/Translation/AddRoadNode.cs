@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Translation
     using System;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
-    using NetTopologySuite.Geometries;
 
     public class AddRoadNode : ITranslatedChange
     {

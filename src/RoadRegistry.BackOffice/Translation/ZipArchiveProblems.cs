@@ -6,9 +6,6 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections.Immutable;
     using System.Diagnostics;
     using System.Linq;
-    using System.Text;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Model;
 
     [DebuggerDisplay("Problems = {" + nameof(_problems) + "}")]
     public class ZipArchiveProblems : IReadOnlyCollection<FileProblem>
@@ -16,6 +13,27 @@ namespace RoadRegistry.BackOffice.Translation
         private readonly ImmutableList<FileProblem> _problems;
 
         public static readonly ZipArchiveProblems None = new ZipArchiveProblems(ImmutableList<FileProblem>.Empty);
+
+        public static ZipArchiveProblems Single(FileProblem problem)
+        {
+            if (problem == null) throw new ArgumentNullException(nameof(problem));
+
+            return None.Add(problem);
+        }
+
+        public static ZipArchiveProblems Many(params FileProblem[] problems)
+        {
+            if (problems == null) throw new ArgumentNullException(nameof(problems));
+
+            return None.AddRange(problems);
+        }
+
+        public static ZipArchiveProblems Many(IEnumerable<FileProblem> problems)
+        {
+            if (problems == null) throw new ArgumentNullException(nameof(problems));
+
+            return None.AddRange(problems);
+        }
 
         private ZipArchiveProblems(ImmutableList<FileProblem> problems)
         {
@@ -42,15 +60,6 @@ namespace RoadRegistry.BackOffice.Translation
             return new ZipArchiveProblems(_problems.AddRange(problems));
         }
 
-        public ZipArchiveProblems RequiredFileMissing(string file)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-
-            return new ZipArchiveProblems(_problems.Add(
-                new FileError(file.ToUpperInvariant(), nameof(RequiredFileMissing)))
-            );
-        }
-
         public static ZipArchiveProblems operator +(ZipArchiveProblems left, FileProblem right)
             => left.Add(right);
 
@@ -60,126 +69,133 @@ namespace RoadRegistry.BackOffice.Translation
         public static ZipArchiveProblems operator +(ZipArchiveProblems left, ZipArchiveProblems right)
             => left.AddRange(right);
 
-
-
-        public ZipArchiveProblems NoDbaseRecords(string file)
+        public ZipArchiveProblems RequiredFileMissing(string file)
         {
             if (file == null) throw new ArgumentNullException(nameof(file));
 
             return new ZipArchiveProblems(_problems.Add(
-                new FileError(
-                    file.ToUpperInvariant(),
-                    nameof(NoDbaseRecords)))
+                new FileError(file.ToUpperInvariant(), nameof(RequiredFileMissing)))
             );
         }
 
-        public ZipArchiveProblems DbaseRecordFormatError(string file, RecordNumber recordNumber, Exception exception)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-            if (exception == null) throw new ArgumentNullException(nameof(exception));
-
-            return new ZipArchiveProblems(_problems.Add(
-                new FileError(
-                    file.ToUpperInvariant(),
-                    nameof(DbaseRecordFormatError),
-                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
-                    new ProblemParameter("Exception", exception.ToString())))
-            );
-        }
-
-        public ZipArchiveProblems IdentifierZero(string file, RecordNumber recordNumber)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveProblems(_problems.Add(
-                new FileError(
-                    file.ToUpperInvariant(),
-                    nameof(IdentifierZero),
-                    new ProblemParameter("RecordNumber", recordNumber.ToString())))
-            );
-        }
-
-        public ZipArchiveProblems IdentifierMissing(string file, RecordNumber recordNumber)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveProblems(_problems.Add(
-                new FileError(
-                    file.ToUpperInvariant(),
-                    nameof(IdentifierMissing),
-                    new ProblemParameter("RecordNumber", recordNumber.ToString())))
-            );
-        }
-
-        public ZipArchiveProblems NotEuropeanRoadNumber(string file, string number, RecordNumber recordNumber)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveProblems(_problems.Add(
-                new FileError(
-                    file.ToUpperInvariant(),
-                    nameof(NotEuropeanRoadNumber),
-                    new ProblemParameter("Number", number?.ToUpperInvariant() ?? "<null>"),
-                    new ProblemParameter("RecordNumber", recordNumber.ToString())))
-            );
-        }
-
-        public ZipArchiveProblems IdentifierNotUnique(string file, AttributeId identifier, RecordNumber recordNumber,
-            RecordNumber takenByRecordNumber)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveProblems(_problems.Add(
-                new FileError(
-                    file.ToUpperInvariant(),
-                    nameof(IdentifierNotUnique),
-                    new ProblemParameter("Identifier", identifier.ToString()),
-                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
-                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
-                )
-            ));
-        }
-
-        public ZipArchiveProblems IdentifierNotUnique(string file, GradeSeparatedJunctionId identifier,
-            RecordNumber recordNumber, RecordNumber takenByRecordNumber)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveProblems(_problems.Add(
-                new FileError(
-                    file.ToUpperInvariant(),
-                    nameof(IdentifierNotUnique),
-                    new ProblemParameter("Identifier", identifier.ToString()),
-                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
-                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
-                )
-            ));
-        }
-
-        public ZipArchiveProblems IdentifierNotUnique(string file, RoadNodeId identifier, RecordNumber recordNumber,
-            RecordNumber takenByRecordNumber)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveProblems(_problems.Add(
-                new FileError(
-                    file.ToUpperInvariant(),
-                    nameof(IdentifierNotUnique),
-                    new ProblemParameter("Identifier", identifier.ToString()),
-                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
-                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
-                )
-            ));
-        }
-
-        public ZipArchiveProblems IdentifierNotUnique(string file, RoadSegmentId identifier, RecordNumber recordNumber,
-            RecordNumber takenByRecordNumber)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-            return new ZipArchiveProblems(_problems.Add(
-                new FileError(
-                    file.ToUpperInvariant(),
-                    nameof(IdentifierNotUnique),
-                    new ProblemParameter("Identifier", identifier.ToString()),
-                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
-                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
-                )
-            ));
-        }
+//        public ZipArchiveProblems NoDbaseRecords(string file)
+//        {
+//            if (file == null) throw new ArgumentNullException(nameof(file));
+//
+//            return new ZipArchiveProblems(_problems.Add(
+//                new FileError(
+//                    file.ToUpperInvariant(),
+//                    nameof(NoDbaseRecords)))
+//            );
+//        }
+//
+//        public ZipArchiveProblems DbaseRecordFormatError(string file, RecordNumber recordNumber, Exception exception)
+//        {
+//            if (file == null) throw new ArgumentNullException(nameof(file));
+//            if (exception == null) throw new ArgumentNullException(nameof(exception));
+//
+//            return new ZipArchiveProblems(_problems.Add(
+//                new FileError(
+//                    file.ToUpperInvariant(),
+//                    nameof(DbaseRecordFormatError),
+//                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
+//                    new ProblemParameter("Exception", exception.ToString())))
+//            );
+//        }
+//
+//        public ZipArchiveProblems IdentifierZero(string file, RecordNumber recordNumber)
+//        {
+//            if (file == null) throw new ArgumentNullException(nameof(file));
+//            return new ZipArchiveProblems(_problems.Add(
+//                new FileError(
+//                    file.ToUpperInvariant(),
+//                    nameof(IdentifierZero),
+//                    new ProblemParameter("RecordNumber", recordNumber.ToString())))
+//            );
+//        }
+//
+//        public ZipArchiveProblems IdentifierMissing(string file, RecordNumber recordNumber)
+//        {
+//            if (file == null) throw new ArgumentNullException(nameof(file));
+//            return new ZipArchiveProblems(_problems.Add(
+//                new FileError(
+//                    file.ToUpperInvariant(),
+//                    nameof(IdentifierMissing),
+//                    new ProblemParameter("RecordNumber", recordNumber.ToString())))
+//            );
+//        }
+//
+//        public ZipArchiveProblems NotEuropeanRoadNumber(string file, string number, RecordNumber recordNumber)
+//        {
+//            if (file == null) throw new ArgumentNullException(nameof(file));
+//            return new ZipArchiveProblems(_problems.Add(
+//                new FileError(
+//                    file.ToUpperInvariant(),
+//                    nameof(NotEuropeanRoadNumber),
+//                    new ProblemParameter("Number", number?.ToUpperInvariant() ?? "<null>"),
+//                    new ProblemParameter("RecordNumber", recordNumber.ToString())))
+//            );
+//        }
+//
+//        public ZipArchiveProblems IdentifierNotUnique(string file, AttributeId identifier, RecordNumber recordNumber,
+//            RecordNumber takenByRecordNumber)
+//        {
+//            if (file == null) throw new ArgumentNullException(nameof(file));
+//            return new ZipArchiveProblems(_problems.Add(
+//                new FileError(
+//                    file.ToUpperInvariant(),
+//                    nameof(IdentifierNotUnique),
+//                    new ProblemParameter("Identifier", identifier.ToString()),
+//                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
+//                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
+//                )
+//            ));
+//        }
+//
+//        public ZipArchiveProblems IdentifierNotUnique(string file, GradeSeparatedJunctionId identifier,
+//            RecordNumber recordNumber, RecordNumber takenByRecordNumber)
+//        {
+//            if (file == null) throw new ArgumentNullException(nameof(file));
+//            return new ZipArchiveProblems(_problems.Add(
+//                new FileError(
+//                    file.ToUpperInvariant(),
+//                    nameof(IdentifierNotUnique),
+//                    new ProblemParameter("Identifier", identifier.ToString()),
+//                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
+//                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
+//                )
+//            ));
+//        }
+//
+//        public ZipArchiveProblems IdentifierNotUnique(string file, RoadNodeId identifier, RecordNumber recordNumber,
+//            RecordNumber takenByRecordNumber)
+//        {
+//            if (file == null) throw new ArgumentNullException(nameof(file));
+//            return new ZipArchiveProblems(_problems.Add(
+//                new FileError(
+//                    file.ToUpperInvariant(),
+//                    nameof(IdentifierNotUnique),
+//                    new ProblemParameter("Identifier", identifier.ToString()),
+//                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
+//                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
+//                )
+//            ));
+//        }
+//
+//        public ZipArchiveProblems IdentifierNotUnique(string file, RoadSegmentId identifier, RecordNumber recordNumber,
+//            RecordNumber takenByRecordNumber)
+//        {
+//            if (file == null) throw new ArgumentNullException(nameof(file));
+//            return new ZipArchiveProblems(_problems.Add(
+//                new FileError(
+//                    file.ToUpperInvariant(),
+//                    nameof(IdentifierNotUnique),
+//                    new ProblemParameter("Identifier", identifier.ToString()),
+//                    new ProblemParameter("RecordNumber", recordNumber.ToString()),
+//                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
+//                )
+//            ));
+//        }
 
 
     }

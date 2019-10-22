@@ -13,7 +13,6 @@ namespace RoadRegistry.BackOffice.Translation
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
 
-            var fileContext = Problems.InFile(entry.Name);
             var problems = ZipArchiveProblems.None;
 
             try
@@ -24,7 +23,7 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     while (moved)
                     {
-                        var recordContext = fileContext.WithDbaseRecord(records.CurrentRecordNumber);
+                        var recordContext = entry.AtDbaseRecord(records.CurrentRecordNumber);
                         var record = records.Current;
                         if (record != null)
                         {
@@ -70,12 +69,12 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 else
                 {
-                    problems = problems.NoDbaseRecords(entry.Name);
+                    problems += entry.HasNoDbaseRecords();
                 }
             }
             catch (Exception exception)
             {
-                problems = problems.DbaseRecordFormatError(entry.Name, records.CurrentRecordNumber, exception);
+                problems += entry.AtDbaseRecord(records.CurrentRecordNumber).HasDbaseRecordFormatError(exception);
             }
 
             return problems;

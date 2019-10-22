@@ -2,18 +2,47 @@ namespace RoadRegistry.BackOffice.Translation
 {
     using System;
     using System.Collections.Immutable;
+    using System.IO.Compression;
     using System.Linq;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
 
-    public static class Problems
+    public static class ZipArchiveEntryProblems
     {
         public static IFileProblemBuilder InFile(string file)
         {
+            if (file == null) throw new ArgumentNullException(nameof(file));
+
             return new FileProblemBuilder(file);
         }
 
-        private class FileProblemBuilder : IFileProblemBuilder, IFileDbaseRecordProblemBuilder, IFileShapeRecordProblemBuilder
+        // builder
+
+        public static IDbaseFileRecordProblemBuilder AtDbaseRecord(this ZipArchiveEntry entry, RecordNumber number)
+        {
+            return new FileProblemBuilder(entry.Name).AtDbaseRecord(number);
+        }
+
+        public static IShapeFileRecordProblemBuilder AtShapeRecord(this ZipArchiveEntry entry, RecordNumber number)
+        {
+            return new FileProblemBuilder(entry.Name).AtShapeRecord(number);
+        }
+
+        public static IFileErrorBuilder Error(this ZipArchiveEntry entry, string reason)
+        {
+            if (reason == null) throw new ArgumentNullException(nameof(reason));
+
+            return new FileProblemBuilder(entry.Name).Error(reason);
+        }
+
+        public static IFileWarningBuilder Warning(this ZipArchiveEntry entry, string reason)
+        {
+            if (reason == null) throw new ArgumentNullException(nameof(reason));
+
+            return new FileProblemBuilder(entry.Name).Warning(reason);
+        }
+
+        private class FileProblemBuilder : IFileProblemBuilder, IDbaseFileRecordProblemBuilder, IShapeFileRecordProblemBuilder
         {
             private readonly string _file;
             private readonly ImmutableList<ProblemParameter> _parameters;
@@ -30,12 +59,12 @@ namespace RoadRegistry.BackOffice.Translation
                 _parameters = parameters;
             }
 
-            public IFileDbaseRecordProblemBuilder WithDbaseRecord(RecordNumber number)
+            public IDbaseFileRecordProblemBuilder AtDbaseRecord(RecordNumber number)
             {
                 return new FileProblemBuilder(_file, _parameters.Add(new ProblemParameter("DbaseRecordNumber", number.ToString())));
             }
 
-            public IFileShapeRecordProblemBuilder WithShapeRecord(RecordNumber number)
+            public IShapeFileRecordProblemBuilder AtShapeRecord(RecordNumber number)
             {
                 return new FileProblemBuilder(_file, _parameters.Add(new ProblemParameter("ShapeRecordNumber", number.ToString())));
             }
@@ -125,6 +154,35 @@ namespace RoadRegistry.BackOffice.Translation
                     return new FileWarning(_file.ToUpperInvariant(), _reason, _parameters.ToArray());
                 }
             }
+        }
+
+        // dbase
+
+        public static FileError HasNoDbaseRecords(this ZipArchiveEntry entry)
+        {
+            return new FileProblemBuilder(entry.Name).HasNoDbaseRecords();
+        }
+
+        public static FileError HasDbaseHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
+        {
+            return new FileProblemBuilder(entry.Name).HasDbaseHeaderFormatError(exception);
+        }
+
+        public static FileError HasDbaseSchemaMismatch(this ZipArchiveEntry entry, DbaseSchema expectedSchema, DbaseSchema actualSchema)
+        {
+            return new FileProblemBuilder(entry.Name).HasDbaseSchemaMismatch(expectedSchema, actualSchema);
+        }
+
+        // shape
+
+        public static FileError HasNoShapeRecords(this ZipArchiveEntry entry)
+        {
+            return new FileProblemBuilder(entry.Name).HasNoShapeRecords();
+        }
+
+        public static FileError HasShapeHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
+        {
+            return new FileProblemBuilder(entry.Name).HasShapeRecordFormatError(exception);
         }
     }
 }

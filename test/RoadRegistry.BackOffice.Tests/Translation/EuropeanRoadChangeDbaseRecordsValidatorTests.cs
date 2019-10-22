@@ -68,7 +68,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, _enumerator);
 
             Assert.Equal(
-                ZipArchiveProblems.None.NoDbaseRecords(_entry.Name),
+                ZipArchiveProblems.Single(_entry.HasNoDbaseRecords()),
                 result);
         }
 
@@ -106,13 +106,11 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveProblems
-                    .None
-                    .IdentifierNotUnique(
-                        _entry.Name,
-                        new AttributeId(1),
-                        new RecordNumber(2),
-                        new RecordNumber(1)),
+                ZipArchiveProblems.Single(
+                    _entry
+                        .AtDbaseRecord(new RecordNumber(2))
+                        .IdentifierNotUnique(new AttributeId(1), new RecordNumber(1))
+                ),
                 result);
         }
 
@@ -131,10 +129,10 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveProblems
-                    .None
-                    .IdentifierZero(_entry.Name, new RecordNumber(1))
-                    .IdentifierZero(_entry.Name, new RecordNumber(2)),
+                ZipArchiveProblems.Many(
+                    _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierZero(),
+                    _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierZero()
+                ),
                 result);
         }
 
@@ -153,10 +151,9 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveProblems
-                    .None
-                    .IdentifierMissing(_entry.Name, new RecordNumber(1))
-                    .IdentifierMissing(_entry.Name, new RecordNumber(2)),
+                ZipArchiveProblems.Many(
+                    _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierMissing(),
+                    _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierMissing()),
                 result);
         }
 
@@ -179,10 +176,10 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, records);
 
             Assert.Equal(
-                ZipArchiveProblems
-                    .None
-                    .NotEuropeanRoadNumber(_entry.Name, number, new RecordNumber(1))
-                    .NotEuropeanRoadNumber(_entry.Name, number, new RecordNumber(2)),
+                ZipArchiveProblems.Many(
+                        _entry.AtDbaseRecord(new RecordNumber(1)).NotEuropeanRoadNumber(number),
+                        _entry.AtDbaseRecord(new RecordNumber(2)).NotEuropeanRoadNumber(number)
+                ),
                 result);
         }
 
@@ -198,9 +195,9 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, enumerator);
 
             Assert.Equal(
-                ZipArchiveProblems
-                    .None
-                    .DbaseRecordFormatError(_entry.Name, new RecordNumber(2), exception),
+                ZipArchiveProblems.Single(
+                    _entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)
+                ),
                 result,
                 new FileProblemComparer());
         }

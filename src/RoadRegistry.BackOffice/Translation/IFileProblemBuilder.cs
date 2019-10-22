@@ -7,7 +7,7 @@ namespace RoadRegistry.BackOffice.Translation
         IFileErrorBuilder Error(string reason);
         IFileWarningBuilder Warning(string reason);
 
-        IFileDbaseRecordProblemBuilder WithDbaseRecord(RecordNumber number);
-        IFileShapeRecordProblemBuilder WithShapeRecord(RecordNumber number);
+        IDbaseFileRecordProblemBuilder AtDbaseRecord(RecordNumber number);
+        IShapeFileRecordProblemBuilder AtShapeRecord(RecordNumber number);
     }
 }
