@@ -22,7 +22,6 @@ namespace RoadRegistry.BackOffice.Model
         public void VerifyBehavior()
         {
             new CompositeIdiomaticAssertion(
-                new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation()),
                 new ImplicitConversionOperatorAssertion<int>(_fixture),
                 new ExplicitConversionMethodAssertion<int>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
@@ -39,6 +38,9 @@ namespace RoadRegistry.BackOffice.Model
                 new GetHashCodeSuccessiveAssertion(_fixture),
                 new ComparableCompareToSelfAssertion(_fixture)
             ).Verify(typeof(AttributeId));
+
+            new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation())
+                .Verify(Constructors.Select(() => new AttributeId(0)));
         }
 
         [Fact]

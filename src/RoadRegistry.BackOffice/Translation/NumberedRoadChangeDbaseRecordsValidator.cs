@@ -56,7 +56,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (record.IDENT8.Value == null)
                             {
-                                problems += recordContext.FieldValueNull(record.IDENT8);
+                                problems += recordContext.FieldHasValueNull(record.IDENT8.Field);
                             }
                             else if (!NumberedRoadNumber.CanParse(record.IDENT8.Value))
                             {
@@ -65,7 +65,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.RICHTING.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.VOLGNUMMER);
+                                problems += recordContext.FieldHasValueNull(record.VOLGNUMMER.Field);
                             }
                             else if (!RoadSegmentNumberedRoadDirection.ByIdentifier.ContainsKey(record.RICHTING.Value.Value))
                             {
@@ -74,7 +74,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.VOLGNUMMER.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.VOLGNUMMER);
+                                problems += recordContext.FieldHasValueNull(record.VOLGNUMMER.Field);
                             }
                             else if (!RoadSegmentNumberedRoadOrdinal.Accepts(record.VOLGNUMMER.Value.Value))
                             {
@@ -83,7 +83,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.WS_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.WS_OIDN);
+                                problems += recordContext.FieldHasValueNull(record.WS_OIDN.Field);
                             }
                             else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value.Value))
                             {

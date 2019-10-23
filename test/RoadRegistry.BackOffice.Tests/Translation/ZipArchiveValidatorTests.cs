@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Translation
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
+    using System.Linq;
     using System.Text;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -61,17 +62,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                 Assert.Equal(
                     ZipArchiveProblems.Many(
-                            ZipArchiveEntryProblems.InFile("WEGSEGMENT_ALL.SHP").HasNoShapeRecords(),
-                            ZipArchiveEntryProblems.InFile("WEGSEGMENT_ALL.DBF").HasNoDbaseRecords(),
-                            ZipArchiveEntryProblems.InFile("WEGKNOOP_ALL.SHP").HasNoShapeRecords(),
-                            ZipArchiveEntryProblems.InFile("WEGKNOOP_ALL.DBF").HasNoDbaseRecords(),
-                            ZipArchiveEntryProblems.InFile("ATTEUROPWEG_ALL.DBF").HasNoShapeRecords(),
-                            ZipArchiveEntryProblems.InFile("ATTGENUMWEG_ALL.DBF").HasNoShapeRecords(),
-                            ZipArchiveEntryProblems.InFile("ATTNATIONWEG_ALL.DBF").HasNoShapeRecords(),
-                            ZipArchiveEntryProblems.InFile("ATTRIJSTROKEN_ALL.DBF").HasNoShapeRecords(),
-                            ZipArchiveEntryProblems.InFile("ATTWEGBREEDTE_ALL.DBF").HasNoShapeRecords(),
-                            ZipArchiveEntryProblems.InFile("ATTWEGVERHARDING_ALL.DBF").HasNoShapeRecords(),
-                            ZipArchiveEntryProblems.InFile("RLTOGKRUISING_ALL.DBF").HasNoShapeRecords()
+                        archive.Entries.Select(entry => entry.Name.EndsWith(".SHP") ? entry.HasNoShapeRecords() : entry.HasNoDbaseRecords())
                     ),
                     result);
             }

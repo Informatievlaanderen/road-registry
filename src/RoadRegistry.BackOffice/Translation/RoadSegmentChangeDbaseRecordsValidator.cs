@@ -56,7 +56,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.TGBEP.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.TGBEP);
+                                problems += recordContext.FieldHasValueNull(record.TGBEP.Field);
                             }
                             else if (!RoadSegmentAccessRestriction.ByIdentifier.ContainsKey(record.TGBEP.Value.Value))
                             {
@@ -65,7 +65,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.STATUS.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.STATUS);
+                                problems += recordContext.FieldHasValueNull(record.STATUS.Field);
                             }
                             else if (!RoadSegmentStatus.ByIdentifier.ContainsKey(record.STATUS.Value.Value))
                             {
@@ -74,7 +74,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (record.WEGCAT.Value == null)
                             {
-                                problems += recordContext.FieldValueNull(record.WEGCAT);
+                                problems += recordContext.FieldHasValueNull(record.WEGCAT.Field);
                             }
                             else if (!RoadSegmentCategory.ByIdentifier.ContainsKey(record.WEGCAT.Value))
                             {
@@ -83,7 +83,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.METHODE.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.METHODE);
+                                problems += recordContext.FieldHasValueNull(record.METHODE.Field);
                             }
                             else if (!RoadSegmentGeometryDrawMethod.ByIdentifier.ContainsKey(record.METHODE.Value.Value))
                             {
@@ -92,7 +92,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.MORFOLOGIE.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.MORFOLOGIE);
+                                problems += recordContext.FieldHasValueNull(record.MORFOLOGIE.Field);
                             }
                             else if (!RoadSegmentMorphology.ByIdentifier.ContainsKey(record.MORFOLOGIE.Value.Value))
                             {
@@ -101,7 +101,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.B_WK_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.B_WK_OIDN);
+                                problems += recordContext.FieldHasValueNull(record.B_WK_OIDN.Field);
                             }
                             else if (!RoadNodeId.Accepts(record.B_WK_OIDN.Value.Value))
                             {
@@ -110,7 +110,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.E_WK_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.E_WK_OIDN);
+                                problems += recordContext.FieldHasValueNull(record.E_WK_OIDN.Field);
                             }
                             else if (!RoadNodeId.Accepts(record.E_WK_OIDN.Value.Value))
                             {
@@ -119,7 +119,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (record.BEHEERDER.Value == null)
                             {
-                                problems += recordContext.FieldValueNull(record.E_WK_OIDN);
+                                problems += recordContext.FieldHasValueNull(record.E_WK_OIDN.Field);
                             }
                         }
                         moved = records.MoveNext();

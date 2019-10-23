@@ -53,7 +53,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (record.EUNUMMER.Value == null)
                             {
-                                problems += recordContext.FieldValueNull(record.EUNUMMER);
+                                problems += recordContext.FieldHasValueNull(record.EUNUMMER.Field);
                             }
                             else if (!EuropeanRoadNumber.CanParse(record.EUNUMMER.Value))
                             {
@@ -62,7 +62,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.WS_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.WS_OIDN);
+                                problems += recordContext.FieldHasValueNull(record.WS_OIDN.Field);
                             }
                             else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value.Value))
                             {

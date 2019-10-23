@@ -67,7 +67,11 @@ namespace RoadRegistry.BackOffice.Translation
                                     }
                                 }
                             }
-                            recordNumber = record.Header.RecordNumber;
+                            recordNumber = record.Header.RecordNumber.Next();
+                        }
+                        else
+                        {
+                            recordNumber = recordNumber.Next();
                         }
 
                         moved = records.MoveNext();

@@ -159,7 +159,6 @@ namespace RoadRegistry.BackOffice.Translation
 
         [Theory]
         [InlineData("")]
-        [InlineData(null)]
         [InlineData("X40")]
         public void ValidateWithRecordsThatDoNotHaveEuropeanRoadNumbersReturnsExpectedResult(string number)
         {
@@ -179,6 +178,29 @@ namespace RoadRegistry.BackOffice.Translation
                 ZipArchiveProblems.Many(
                         _entry.AtDbaseRecord(new RecordNumber(1)).NotEuropeanRoadNumber(number),
                         _entry.AtDbaseRecord(new RecordNumber(2)).NotEuropeanRoadNumber(number)
+                ),
+                result);
+        }
+
+        [Fact]
+        public void ValidateWithRecordsThatHaveNullAsEuropeanRoadNumbersReturnsExpectedResult()
+        {
+            var records = _fixture
+                .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
+                .Select((record, index) =>
+                {
+                    record.EU_OIDN.Value = index + 1;
+                    record.EUNUMMER.Value = null;
+                    return record;
+                })
+                .ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Many(
+                    _entry.AtDbaseRecord(new RecordNumber(1)).FieldHasValueNull(EuropeanRoadChangeDbaseRecord.Schema.EUNUMMER),
+                    _entry.AtDbaseRecord(new RecordNumber(2)).FieldHasValueNull(EuropeanRoadChangeDbaseRecord.Schema.EUNUMMER)
                 ),
                 result);
         }

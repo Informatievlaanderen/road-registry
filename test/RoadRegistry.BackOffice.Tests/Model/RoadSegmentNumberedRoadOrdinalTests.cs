@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Model
 {
+    using Albedo;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Framework;
@@ -18,7 +19,6 @@ namespace RoadRegistry.BackOffice.Model
         public void VerifyBehavior()
         {
             new CompositeIdiomaticAssertion(
-                new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation()),
                 new ImplicitConversionOperatorAssertion<int>(_fixture),
                 new ExplicitConversionMethodAssertion<int>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
@@ -34,6 +34,22 @@ namespace RoadRegistry.BackOffice.Model
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
             ).Verify(typeof(RoadSegmentNumberedRoadOrdinal));
+
+            new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation())
+                .Verify(Constructors.Select(() => new RoadSegmentNumberedRoadOrdinal(0)));
+        }
+
+        [Theory]
+        [InlineData(int.MinValue, false)]
+        [InlineData(-1, false)]
+        [InlineData(0, true)]
+        [InlineData(1, true)]
+        [InlineData(int.MaxValue, true)]
+        public void AcceptsReturnsExpectedResult(int value, bool expected)
+        {
+            var result = RoadSegmentNumberedRoadOrdinal.Accepts(value);
+
+            Assert.Equal(expected, result);
         }
 
         [Fact]

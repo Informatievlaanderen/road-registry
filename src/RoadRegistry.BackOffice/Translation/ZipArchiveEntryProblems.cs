@@ -9,13 +9,6 @@ namespace RoadRegistry.BackOffice.Translation
 
     public static class ZipArchiveEntryProblems
     {
-        public static IFileProblemBuilder InFile(string file)
-        {
-            if (file == null) throw new ArgumentNullException(nameof(file));
-
-            return new FileProblemBuilder(file);
-        }
-
         // builder
 
         public static IDbaseFileRecordProblemBuilder AtDbaseRecord(this ZipArchiveEntry entry, RecordNumber number)

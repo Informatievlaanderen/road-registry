@@ -1,6 +1,8 @@
 ﻿namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using System.Collections.Generic;
+    using Albedo;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Framework;
@@ -19,7 +21,6 @@
         public void VerifyBehavior()
         {
             new CompositeIdiomaticAssertion(
-                new GuardClauseAssertion(_fixture, new NegativeDoubleBehaviorExpectation()),
                 new ImplicitConversionOperatorAssertion<decimal>(_fixture),
                 new ExplicitConversionMethodAssertion<decimal>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
@@ -40,6 +41,46 @@
                 new GreaterThanOperatorCompareToSelfAssertion(_fixture),
                 new GreaterThanOrEqualOperatorCompareToSelfAssertion(_fixture)
             ).Verify(typeof(RoadSegmentPosition));
+
+            new GuardClauseAssertion(_fixture, new NegativeDecimalBehaviorExpectation())
+                .Verify(Constructors.Select(() => new RoadSegmentPosition(0.0m)));
+
+            new GuardClauseAssertion(_fixture, new NegativeDoubleBehaviorExpectation())
+                .Verify(Methods.Select(() => RoadSegmentPosition.FromDouble(0.0)));
+        }
+
+        [Theory]
+        [InlineData(double.MinValue, false)]
+        [InlineData(-1.0, false)]
+        [InlineData(0.0, true)]
+        [InlineData(1.0, true)]
+        [InlineData(double.MaxValue, true)]
+        public void AcceptsDoubleReturnsExpectedResult(double value, bool expected)
+        {
+            var result = RoadSegmentPosition.Accepts(value);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(AcceptsDecimalCases))]
+        public void AcceptsDecimalReturnsExpectedResult(decimal value, bool expected)
+        {
+            var result = RoadSegmentPosition.Accepts(value);
+
+            Assert.Equal(expected, result);
+        }
+
+        public static IEnumerable<object[]> AcceptsDecimalCases
+        {
+            get
+            {
+                yield return new object[] { decimal.MinValue, false };
+                yield return new object[] { -1.0m, false };
+                yield return new object[] { 0.0m, true };
+                yield return new object[] { 1.0m, true };
+                yield return new object[] { decimal.MaxValue, true };
+            }
         }
 
         [Fact]

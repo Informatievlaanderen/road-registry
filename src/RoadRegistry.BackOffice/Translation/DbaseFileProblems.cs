@@ -84,13 +84,13 @@ namespace RoadRegistry.BackOffice.Translation
             return builder.Error(nameof(IdentifierZero)).Build();
         }
 
-        public static FileError FieldValueNull(this IDbaseFileRecordProblemBuilder builder, DbaseFieldValue value)
+        public static FileError FieldHasValueNull(this IDbaseFileRecordProblemBuilder builder, DbaseField field)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-
+            if (field == null) throw new ArgumentNullException(nameof(field));
+            
             return builder
-                .Error(nameof(FieldValueNull))
-                .WithParameter(new ProblemParameter("Field", value.Field.Name.ToString()))
+                .Error(nameof(FieldHasValueNull))
+                .WithParameter(new ProblemParameter("Field", field.Name.ToString()))
                 .Build();
         }
 

@@ -56,7 +56,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.BREEDTE.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.BREEDTE);
+                                problems += recordContext.FieldHasValueNull(record.BREEDTE.Field);
                             }
                             else if (!RoadSegmentWidth.Accepts(record.BREEDTE.Value.Value))
                             {
@@ -65,7 +65,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.VANPOSITIE.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.VANPOSITIE);
+                                problems += recordContext.FieldHasValueNull(record.VANPOSITIE.Field);
                             }
                             else if (!RoadSegmentPosition.Accepts(record.VANPOSITIE.Value.Value))
                             {
@@ -74,7 +74,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.TOTPOSITIE.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.TOTPOSITIE);
+                                problems += recordContext.FieldHasValueNull(record.TOTPOSITIE.Field);
                             }
                             else if (!RoadSegmentPosition.Accepts(record.TOTPOSITIE.Value.Value))
                             {
@@ -83,7 +83,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.WS_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.WS_OIDN);
+                                problems += recordContext.FieldHasValueNull(record.WS_OIDN.Field);
                             }
                             else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value.Value))
                             {

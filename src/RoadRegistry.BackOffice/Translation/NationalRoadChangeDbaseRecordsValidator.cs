@@ -56,7 +56,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (record.IDENT2.Value == null)
                             {
-                                problems += recordContext.FieldValueNull(record.IDENT2);
+                                problems += recordContext.FieldHasValueNull(record.IDENT2.Field);
                             }
                             else if (!NationalRoadNumber.CanParse(record.IDENT2.Value))
                             {
@@ -65,7 +65,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.WS_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.WS_OIDN);
+                                problems += recordContext.FieldHasValueNull(record.WS_OIDN.Field);
                             }
                             else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value.Value))
                             {

@@ -39,7 +39,11 @@ namespace RoadRegistry.BackOffice.Translation
                                     problems += recordContext.ShapeRecordGeometryMismatch();
                                 }
                             }
-                            recordNumber = record.Header.RecordNumber;
+                            recordNumber = record.Header.RecordNumber.Next();
+                        }
+                        else
+                        {
+                            recordNumber = recordNumber.Next();
                         }
 
                         moved = records.MoveNext();

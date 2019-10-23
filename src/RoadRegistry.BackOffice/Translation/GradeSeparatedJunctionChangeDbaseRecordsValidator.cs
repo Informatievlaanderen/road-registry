@@ -63,12 +63,12 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                problems += recordContext.FieldValueNull(record.TYPE);
+                                problems += recordContext.FieldHasValueNull(record.TYPE.Field);
                             }
 
                             if (!record.BO_WS_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.BO_WS_OIDN);
+                                problems += recordContext.FieldHasValueNull(record.BO_WS_OIDN.Field);
                             }
                             else if (!RoadSegmentId.Accepts(record.BO_WS_OIDN.Value.Value))
                             {
@@ -77,7 +77,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.ON_WS_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.ON_WS_OIDN);
+                                problems += recordContext.FieldHasValueNull(record.ON_WS_OIDN.Field);
                             }
                             else if (!RoadSegmentId.Accepts(record.ON_WS_OIDN.Value.Value))
                             {

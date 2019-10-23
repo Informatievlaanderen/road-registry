@@ -56,7 +56,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.AANTAL.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.AANTAL);
+                                problems += recordContext.FieldHasValueNull(record.AANTAL.Field);
                             }
                             else if (!RoadSegmentLaneCount.Accepts(record.AANTAL.Value.Value))
                             {
@@ -65,7 +65,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.RICHTING.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.AANTAL);
+                                problems += recordContext.FieldHasValueNull(record.RICHTING.Field);
                             }
                             else if (!RoadSegmentLaneDirection.ByIdentifier.ContainsKey(record.RICHTING.Value.Value))
                             {
@@ -74,7 +74,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.VANPOSITIE.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.VANPOSITIE);
+                                problems += recordContext.FieldHasValueNull(record.VANPOSITIE.Field);
                             }
                             else if (!RoadSegmentPosition.Accepts(record.VANPOSITIE.Value.Value))
                             {
@@ -83,7 +83,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.TOTPOSITIE.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.TOTPOSITIE);
+                                problems += recordContext.FieldHasValueNull(record.TOTPOSITIE.Field);
                             }
                             else if (!RoadSegmentPosition.Accepts(record.TOTPOSITIE.Value.Value))
                             {
@@ -92,7 +92,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.WS_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.WS_OIDN);
+                                problems += recordContext.FieldHasValueNull(record.WS_OIDN.Field);
                             }
                             else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value.Value))
                             {

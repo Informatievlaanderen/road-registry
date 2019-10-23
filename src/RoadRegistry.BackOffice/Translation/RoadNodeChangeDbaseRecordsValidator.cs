@@ -56,7 +56,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.TYPE.Value.HasValue)
                             {
-                                problems += recordContext.FieldValueNull(record.TYPE);
+                                problems += recordContext.FieldHasValueNull(record.TYPE.Field);
                             }
                             else if (!RoadNodeType.ByIdentifier.ContainsKey(record.TYPE.Value.Value))
                             {
