@@ -80,7 +80,7 @@ namespace RoadRegistry.BackOffice.Api
                 var content = Assert.IsType<RoadNetworkChangesArchiveUploadedEntry>(item.Content);
                 Assert.Equal(archiveId.ToString(), content.ArchiveId);
                 Assert.Equal("01", item.Day);
-                Assert.Equal("[T]jan.", "[T]" + new DateTime(2019, 1, 1).ToString("MMM", new CultureInfo("nl-BE")));
+                Assert.Equal("mrt.", new DateTime(2019, 3, 1).ToString("MMM", new CultureInfo("nl-BE")));
                 Assert.Equal("jan.", item.Month);
                 Assert.Equal("01:00", item.TimeOfDay);
             }
