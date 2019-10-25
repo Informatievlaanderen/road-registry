@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api
 {
     using System;
-    using System.Globalization;
     using System.Threading.Tasks;
     using Framework.Containers;
     using Messages;
@@ -80,8 +79,8 @@ namespace RoadRegistry.BackOffice.Api
                 var content = Assert.IsType<RoadNetworkChangesArchiveUploadedEntry>(item.Content);
                 Assert.Equal(archiveId.ToString(), content.ArchiveId);
                 Assert.Equal("01", item.Day);
-                Assert.Equal("jan.,feb.,mrt.,apr.,mei,jun.,jul.,aug.,sep.,okt.,nov.,dec.,", String.Join(",", new CultureInfo("nl-BE").DateTimeFormat.AbbreviatedMonthNames));
-                Assert.Equal("jan.", item.Month);
+                // YR: Different versions of libicu use different casing
+                Assert.Equal("jan.", item.Month.ToLowerInvariant());
                 Assert.Equal("01:00", item.TimeOfDay);
             }
         }

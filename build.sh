@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-locale-gen nl_BE.UTF-8
 PAKET_EXE=.paket/paket.exe
 FAKE_EXE=packages/FAKE/tools/FAKE.exe
 
