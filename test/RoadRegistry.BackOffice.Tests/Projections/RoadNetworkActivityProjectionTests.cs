@@ -137,9 +137,13 @@ namespace RoadRegistry.BackOffice.Projections
                             new RoadNetworkChangesArchiveFile
                             {
                                 File = file,
-                                Problems = new[]
+                                Problems = new []
                                 {
-                                    "De shape record 1 geometrie is ongeldig."
+                                    new RoadNetworkChangesArchiveFileProblem
+                                    {
+                                        Severity = "Error",
+                                        Translation = "De shape record 1 geometrie is ongeldig."
+                                    }
                                 }
                             }
                         }
@@ -209,7 +213,11 @@ namespace RoadRegistry.BackOffice.Projections
                                 File = file,
                                 Problems = new[]
                                 {
-                                    "De shape record 1 geometrie is ongeldig."
+                                    new RoadNetworkChangesArchiveFileProblem
+                                    {
+                                        Severity = "Error",
+                                        Translation = "De shape record 1 geometrie is ongeldig."
+                                    }
                                 }
                             }
                         }

@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Projections
 {
     using System.Text;
+    using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
@@ -9,7 +10,7 @@ namespace RoadRegistry.BackOffice.Projections
 
     public class RoadShapeRunner : Runner<ShapeContext>
     {
-        public RoadShapeRunner(EnvelopeFactory envelopeFactory, ILoggerFactory loggerFactory, WellKnownBinaryReader reader) :
+        public RoadShapeRunner(EnvelopeFactory envelopeFactory, ILoggerFactory loggerFactory, WellKnownBinaryReader reader, IBlobClient client) :
             base(
                 "RoadShapeRunner",
                 envelopeFactory,
@@ -25,7 +26,7 @@ namespace RoadRegistry.BackOffice.Projections
                 new OrganizationRecordProjection(Encoding.GetEncoding(1252)),
                 new GradeSeparatedJunctionRecordProjection(Encoding.GetEncoding(1252)),
                 new RoadNetworkInfoProjection(reader),
-                new RoadNetworkChangeFeedProjection())
+                new RoadNetworkChangeFeedProjection(client))
             { }
     }
 }

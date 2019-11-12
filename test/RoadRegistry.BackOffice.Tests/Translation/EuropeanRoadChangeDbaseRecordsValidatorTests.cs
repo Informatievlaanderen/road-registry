@@ -68,7 +68,7 @@ namespace RoadRegistry.BackOffice.Translation
             var result = _sut.Validate(_entry, _enumerator);
 
             Assert.Equal(
-                ZipArchiveProblems.Single(_entry.HasNoDbaseRecords()),
+                ZipArchiveProblems.Single(_entry.HasNoDbaseRecords(true)),
                 result);
         }
 

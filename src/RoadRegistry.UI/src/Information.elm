@@ -12,6 +12,7 @@ import Html.Events exposing (onClick)
 import Http
 import HttpBytes
 import Json.Decode as D
+import Time exposing (Posix, every)
 
 
 main =
@@ -79,12 +80,21 @@ type Msg
     = DownloadInformation
     | GotInformation (Result Http.Error RoadNetworkInfo)
     | GotAlertMsg AlertMsg
+    | Tick Posix
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         DownloadInformation ->
+            ( model
+            , Http.get
+                { url = model.information.url
+                , expect = Http.expectJson GotInformation informationDecoder
+                }
+            )
+
+        Tick time ->
             ( model
             , Http.get
                 { url = model.information.url
@@ -100,11 +110,12 @@ update msg model =
                             model.information
 
                         newInformation =
-                            { oldInformation 
-                            | organizationCount = String.fromInt info.organizationCount
-                            , roadNodeCount = String.fromInt info.roadNodeCount
-                            , roadSegmentCount = String.fromInt info.roadSegmentCount
-                            , gradeSeparatedJunctionCount = String.fromInt info.gradeSeparatedJunctionCount }
+                            { oldInformation
+                                | organizationCount = String.fromInt info.organizationCount
+                                , roadNodeCount = String.fromInt info.roadNodeCount
+                                , roadSegmentCount = String.fromInt info.roadSegmentCount
+                                , gradeSeparatedJunctionCount = String.fromInt info.gradeSeparatedJunctionCount
+                            }
                     in
                     ( { model | information = newInformation, alert = hideAlert model.alert }
                     , Cmd.none
@@ -146,71 +157,74 @@ update msg model =
                     , Cmd.none
                     )
 
+
 viewInformationTitle : RoadNetworkInfo -> Html Msg
 viewInformationTitle model =
-        section [ class "region" ]
-            [ div
-                [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
-                [ div []
-                    [ h1 [ class "h2 cta-title__title" ]
-                        [ text "Informatie" ]
-                    ]
+    section [ class "region" ]
+        [ div
+            [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
+            [ div []
+                [ h1 [ class "h2 cta-title__title" ]
+                    [ text "Informatie" ]
                 ]
             ]
+        ]
+
 
 viewInformation : InformationModel -> Html Msg
 viewInformation model =
-        section [ class "region" ]
-            [ div
-                [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
-                [ div [ class "u-table-overflow" ]
-                    [ table [ class "data-table data-table--lined" ]
-                        [ thead []
-                            [ tr []
-                                [ th []
-                                    [ text "Gegeven" ]
-                                , th []
-                                    [ text "Waarde" ]
-                                ]
+    section [ class "region" ]
+        [ div
+            [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
+            [ div [ class "u-table-overflow" ]
+                [ table [ class "data-table data-table--lined" ]
+                    [ thead []
+                        [ tr []
+                            [ th []
+                                [ text "Gegeven" ]
+                            , th []
+                                [ text "Waarde" ]
                             ]
-                        , tbody []
-                            [ tr []
-                                [ td []
-                                    [ text "# organisaties" ]
-                                , td []
-                                    [ text model.organizationCount ]
-                                ]
-                            , tr []
-                                [ td []
-                                    [ text "# wegknopen" ]
-                                , td []
-                                    [ text model.roadNodeCount ]
-                                ]
-                            , tr []
-                                [ td []
-                                    [ text "# wegsegmenten" ]
-                                , td []
-                                    [ text model.roadSegmentCount ]
-                                ]
-                            , tr []
-                                [ td []
-                                    [ text "# ongelijkgrondse kruisingen" ]
-                                , td []
-                                    [ text model.gradeSeparatedJunctionCount ]
-                                ]
+                        ]
+                    , tbody []
+                        [ tr []
+                            [ td []
+                                [ text "# organisaties" ]
+                            , td []
+                                [ text model.organizationCount ]
+                            ]
+                        , tr []
+                            [ td []
+                                [ text "# wegknopen" ]
+                            , td []
+                                [ text model.roadNodeCount ]
+                            ]
+                        , tr []
+                            [ td []
+                                [ text "# wegsegmenten" ]
+                            , td []
+                                [ text model.roadSegmentCount ]
+                            ]
+                        , tr []
+                            [ td []
+                                [ text "# ongelijkgrondse kruisingen" ]
+                            , td []
+                                [ text model.gradeSeparatedJunctionCount ]
                             ]
                         ]
                     ]
                 ]
             ]
+        ]
+
 
 viewMain : Model -> Html Msg
 viewMain model =
     main_ [ id "main" ]
-        [ 
-          viewAlert model.alert |> Html.map GotAlertMsg
+        [ viewAlert model.alert |> Html.map GotAlertMsg
         , viewInformation model.information
         ]
+
 
 view : Model -> Html Msg
 view model =
@@ -224,4 +238,4 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    every 5000 Tick

@@ -151,9 +151,9 @@ namespace RoadRegistry.BackOffice.Translation
 
         // dbase
 
-        public static FileError HasNoDbaseRecords(this ZipArchiveEntry entry)
+        public static FileProblem HasNoDbaseRecords(this ZipArchiveEntry entry, bool treatAsWarning)
         {
-            return new FileProblemBuilder(entry.Name).HasNoDbaseRecords();
+            return new FileProblemBuilder(entry.Name).HasNoDbaseRecords(treatAsWarning);
         }
 
         public static FileError HasDbaseHeaderFormatError(this ZipArchiveEntry entry, Exception exception)

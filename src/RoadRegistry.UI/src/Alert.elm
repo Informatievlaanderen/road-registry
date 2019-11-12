@@ -48,73 +48,71 @@ viewAlert model =
         section [ class "region" ]
             [ div
                 [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
-                [
-                    div
-                        [ classList
-                            [ ( "alert", True )
-                            , ( "alert--error"
-                            , if model.kind == Error then
-                                    True
+                [ div
+                    [ classList
+                        [ ( "alert", True )
+                        , ( "alert--error"
+                          , if model.kind == Error then
+                                True
 
-                                else
-                                    False
-                            )
-                            , ( "alert--warning"
-                            , if model.kind == Warning then
-                                    True
+                            else
+                                False
+                          )
+                        , ( "alert--warning"
+                          , if model.kind == Warning then
+                                True
 
-                                else
-                                    False
-                            )
-                            , ( "alert--success"
-                            , if model.kind == Success then
-                                    True
+                            else
+                                False
+                          )
+                        , ( "alert--success"
+                          , if model.kind == Success then
+                                True
 
-                                else
-                                    False
-                            )
-                            , ( "alert--cta"
-                            , if model.kind == CallToAction then
-                                    True
+                            else
+                                False
+                          )
+                        , ( "alert--cta"
+                          , if model.kind == CallToAction then
+                                True
 
-                                else
-                                    False
-                            )
-                            , ( "alert--closable", model.closeable )
-                            ]
+                            else
+                                False
+                          )
+                        , ( "alert--closable", model.closeable )
                         ]
-                        [ if model.closeable then
-                            a
-                                [ href ""
-                                , classList [ ( "alert__close", True ), ( "link--icon--close", True ), ( "u-float-right", True ) ]
-                                , onClickNoBubble CloseAlert
-                                ]
-                                [ span [ class "u-visually-hidden" ] [ text "Sluiten" ] ]
+                    ]
+                    [ if model.closeable then
+                        a
+                            [ href ""
+                            , classList [ ( "alert__close", True ), ( "link--icon--close", True ), ( "u-float-right", True ) ]
+                            , onClickNoBubble CloseAlert
+                            ]
+                            [ span [ class "u-visually-hidden" ] [ text "Sluiten" ] ]
 
-                        else
-                            text ""
-                        , if model.hasIcon then
-                            div [ class "alert__icon", ariaHidden True ]
-                                []
+                      else
+                        text ""
+                    , if model.hasIcon then
+                        div [ class "alert__icon", ariaHidden True ]
+                            []
 
-                        else
-                            text ""
+                      else
+                        text ""
+                    , div
+                        [ class "alert__content" ]
+                        [ div
+                            [ class "alert__title" ]
+                            [ text model.title ]
                         , div
-                            [ class "alert__content" ]
+                            [ class "alert__message" ]
                             [ div
-                                [ class "alert__title" ]
-                                [ text model.title ]
-                            , div
-                                [ class "alert__message" ]
-                                [ div
-                                    [ class "typography" ]
-                                    []
-                                ]
+                                [ class "typography" ]
+                                []
                             ]
                         ]
+                    ]
                 ]
             ]
-        
 
     else
         text ""

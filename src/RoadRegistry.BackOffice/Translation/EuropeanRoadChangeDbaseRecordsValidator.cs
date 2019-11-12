@@ -75,7 +75,7 @@ namespace RoadRegistry.BackOffice.Translation
                 }
                 else
                 {
-                    problems += entry.HasNoDbaseRecords();
+                    problems += entry.HasNoDbaseRecords(true);
                 }
             }
             catch (Exception exception)

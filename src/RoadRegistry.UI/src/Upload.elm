@@ -196,12 +196,12 @@ viewUpload model =
                                             []
                                         ]
 
-                                        else
+                                     else
                                         [ div [ class "loader" ] []
                                         ]
                                     )
 
-                                else
+                              else
                                 text ""
                             ]
                         ]
@@ -209,15 +209,15 @@ viewUpload model =
                 ]
             ]
         ]
-    
+
 
 viewMain : Model -> Html Msg
 viewMain model =
     main_ [ id "main" ]
-        [ 
-            viewAlert model.alert |> Html.map GotAlertMsg,
-            viewUpload model.upload
+        [ viewAlert model.alert |> Html.map GotAlertMsg
+        , viewUpload model.upload
         ]
+
 
 view : Model -> Html Msg
 view model =

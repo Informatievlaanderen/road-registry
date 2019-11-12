@@ -15,7 +15,7 @@ viewFooter () =
                 [ xmlSpace "http://www.w3.org/2000/svg" ]
                 [ symbol
                     [ id "vlaanderen-logo", viewBox 0 0 19.61 31.05 ]
-                    [ title
+                    [ TypedSvg.title
                         []
                         [ text "vlaanderen-logo" ]
                     , path

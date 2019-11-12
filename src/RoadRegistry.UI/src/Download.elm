@@ -157,13 +157,14 @@ update msg model =
                             , Cmd.none
                             )
 
+
 viewMain : Model -> Html Msg
 viewMain model =
     main_ [ id "main" ]
-        [ 
-            viewAlert model.alert |> Html.map GotAlertMsg,
-            viewDownload model.download
+        [ viewAlert model.alert |> Html.map GotAlertMsg
+        , viewDownload model.download
         ]
+
 
 viewDownload : DownloadModel -> Html Msg
 viewDownload model =
@@ -193,12 +194,12 @@ viewDownload model =
                                             []
                                         ]
 
-                                        else
+                                     else
                                         [ div [ class "loader" ] []
                                         ]
                                     )
 
-                                else
+                              else
                                 text ""
                             ]
                         ]
@@ -206,7 +207,6 @@ viewDownload model =
                 ]
             ]
         ]
-        
 
 
 view : Model -> Html Msg

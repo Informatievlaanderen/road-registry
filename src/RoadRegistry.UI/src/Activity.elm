@@ -1,7 +1,8 @@
 module Activity exposing (Msg(..), init, main, subscriptions, update, view)
 
-import Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showError, viewAlert)
+import Alert as Alert
 import Browser
+import FontAwesome as FA
 import Footer
 import Header exposing (HeaderAction, HeaderModel, TabAction)
 import Html exposing (Html, a, br, div, h1, h2, h3, i, li, main_, section, span, text, ul)
@@ -12,15 +13,23 @@ import Http
 import Json.Decode as Decode
 import Json.Decode.Extra exposing (when)
 import Time exposing (Posix, every)
-import Iso8601
 
 
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
+type FileProblemSeverity
+    = Warning
+    | Error
+
+
+type alias FileProblemTranslation =
+    { translation : String, severity : FileProblemSeverity }
+
+
 type alias FileProblems =
-    { file : String, problems : List String }
+    { file : String, problems : List FileProblemTranslation }
 
 
 type ChangeFeedEntryContent
@@ -32,7 +41,7 @@ type ChangeFeedEntryContent
 
 
 type alias ChangeFeedEntry =
-    { id : String, title : String, day : String, month: String, timeOfDay: String, content : ChangeFeedEntryContent }
+    { id : String, title : String, day : String, month : String, timeOfDay : String, content : ChangeFeedEntryContent }
 
 
 type alias ActivityModel =
@@ -40,7 +49,7 @@ type alias ActivityModel =
 
 
 type alias Model =
-    { header : HeaderModel, activity : ActivityModel, alert : AlertModel }
+    { header : HeaderModel, activity : ActivityModel, alert : Alert.AlertModel }
 
 
 decodeEntryContentType : Decode.Decoder String
@@ -53,11 +62,31 @@ is a b =
     a == b
 
 
+decodeFileProblemTranslation : Decode.Decoder FileProblemTranslation
+decodeFileProblemTranslation =
+    Decode.map2 FileProblemTranslation
+        (Decode.field "translation" Decode.string)
+        (Decode.field "severity" Decode.string
+            |> Decode.andThen
+                (\value ->
+                    case value of
+                        "Warning" ->
+                            Decode.succeed Warning
+
+                        "Error" ->
+                            Decode.succeed Error
+
+                        other ->
+                            Decode.fail <| "Unknown severity: " ++ other
+                )
+        )
+
+
 decodeFileProblem : Decode.Decoder FileProblems
 decodeFileProblem =
     Decode.map2 FileProblems
         (Decode.field "file" Decode.string)
-        (Decode.field "problems" (Decode.list Decode.string))
+        (Decode.field "problems" (Decode.list decodeFileProblemTranslation))
 
 
 decodeRoadNetworkChangesArchiveUploaded : Decode.Decoder ChangeFeedEntryContent
@@ -121,7 +150,7 @@ init url =
             }
       , alert =
             { title = ""
-            , kind = Error
+            , kind = Alert.Error
             , visible = False
             , closeable = True
             , hasIcon = True
@@ -136,7 +165,7 @@ init url =
 
 type Msg
     = ToggleExpandEntry String
-    | GotAlertMsg AlertMsg
+    | GotAlertMsg Alert.AlertMsg
     | Tick Posix
     | GotActivity (Result Http.Error (List ChangeFeedEntry))
 
@@ -149,8 +178,8 @@ update msg model =
 
         GotAlertMsg alertMsg ->
             case alertMsg of
-                CloseAlert ->
-                    ( { model | alert = hideAlert model.alert }
+                Alert.CloseAlert ->
+                    ( { model | alert = Alert.hideAlert model.alert }
                     , Cmd.none
                     )
 
@@ -177,34 +206,34 @@ update msg model =
                 Err error ->
                     case error of
                         Http.BadUrl _ ->
-                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteiten - de url blijkt foutief te zijn." }
+                            ( { model | alert = Alert.showError model.alert "Er was een probleem bij het opvragen van de activiteiten - de url blijkt foutief te zijn." }
                             , Cmd.none
                             )
 
                         Http.Timeout ->
-                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteiten - de operatie nam teveel tijd in beslag." }
+                            ( { model | alert = Alert.showError model.alert "Er was een probleem bij het opvragen van de activiteiten - de operatie nam teveel tijd in beslag." }
                             , Cmd.none
                             )
 
                         Http.NetworkError ->
-                            ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteiten - een netwerk fout ligt aan de basis." }
+                            ( { model | alert = Alert.showError model.alert "Er was een probleem bij het opvragen van de activiteiten - een netwerk fout ligt aan de basis." }
                             , Cmd.none
                             )
 
                         Http.BadStatus statusCode ->
                             case statusCode of
                                 503 ->
-                                    ( { model | alert = showError model.alert "Activiteiten opvragen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
+                                    ( { model | alert = Alert.showError model.alert "Activiteiten opvragen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
                                     , Cmd.none
                                     )
 
                                 _ ->
-                                    ( { model | alert = showError model.alert "Er was een probleem bij het opvragen van de activiteiten - dit kan duiden op een probleem met de website." }
+                                    ( { model | alert = Alert.showError model.alert "Er was een probleem bij het opvragen van de activiteiten - dit kan duiden op een probleem met de website." }
                                     , Cmd.none
                                     )
 
-                        Http.BadBody _ ->
-                            ( { model | alert = showError model.alert "Er was een probleem bij het interpreteren van de activiteiten - dit kan duiden op een probleem met de website." }
+                        Http.BadBody bodyProblem ->
+                            ( { model | alert = Alert.showError model.alert ("Er was een probleem bij het interpreteren van de activiteiten - dit kan duiden op een probleem met de website." ++ bodyProblem) }
                             , Cmd.none
                             )
 
@@ -219,23 +248,11 @@ viewActivityEntryContent content =
     case content of
         BeganRoadNetworkImport ->
             div [ class "step__content" ]
-                [ text "Archief: "
-                , a [ href "", class "link--icon link--icon--inline" ]
-                    [ i [ class "vi vi-paperclip", ariaHidden True ]
-                        []
-                    , text "archief.zip"
-                    ]
-                ]
+                []
 
         CompletedRoadNetworkImport ->
             div [ class "step__content" ]
-                [ text "Archief: "
-                , a [ href "", class "link--icon link--icon--inline" ]
-                    [ i [ class "vi vi-paperclip", ariaHidden True ]
-                        []
-                    , text "archief.zip"
-                    ]
-                ]
+                []
 
         RoadNetworkChangesArchiveUploaded _ ->
             div [ class "step__content" ]
@@ -249,14 +266,45 @@ viewActivityEntryContent content =
 
         RoadNetworkChangesArchiveRejected rejected ->
             div [ class "step__content" ]
-                [ ul []
-                    (List.map (\problem -> li [] [ text problem.file ]) rejected.problems)
+                [ ul
+                    []
+                    (List.map
+                        (\fileProblems ->
+                            li
+                                [ style "padding-top" "5px" ]
+                                [ span [ style "font-weight" "bold" ] [ text fileProblems.file ]
+                                , ul
+                                    []
+                                    (List.map
+                                        (\problem ->
+                                            case problem.severity of
+                                                Warning ->
+                                                    li
+                                                        []
+                                                        [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
+                                                        , text "\u{00A0}"
+                                                        , text problem.translation
+                                                        ]
+                                                Error ->
+                                                    li
+                                                        []
+                                                        [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
+                                                        , text "\u{00A0}"
+                                                        , text problem.translation
+                                                        ]
+                                        )
+                                        fileProblems.problems
+                                    )
+                                ]
+                        )
+                        rejected.problems
+                    )
                 , br [] []
                 , text "Archief: "
                 , a [ href "", class "link--icon link--icon--inline" ]
                     [ i [ class "vi vi-paperclip", ariaHidden True ]
                         []
-                    , text "archief.zip"
+                    , text rejected.archive
                     ]
                 ]
 
@@ -269,31 +317,58 @@ viewActivityEntryContent content =
 
 viewActivityEntry : ChangeFeedEntry -> Html Msg
 viewActivityEntry entry =
-      li
-          [ classList [ ( "step", True ), ( "js-accordion", True ) ] ]
-          [ div [ class "step__icon" ]
-              [ text entry.day
-              , span [ class "step__icon__sub" ] [ text entry.month ]
-              ]
-          , div [ class "step__wrapper" ]
-              [ a [ href "#", class "step__header js-accordion__toggle" ]
-                  [ div [ class "step__header__titles" ]
-                      [ h3 [ class "step__title" ]
-                          [ text entry.title ]
-                      ]
-                  , div [ class "step__header__info" ]
-                      [ i [ class "vi vi-paperclip vi-u-s" ]
-                          []
-                      , i [ class "step__accordion-toggle" ]
-                          []
-                      ]
-                  ]
-              , div
-                  [ class "step__content-wrapper" ]
-                  [ viewActivityEntryContent entry.content
-                  ]
-              ]
-          ]
+    li
+        [ classList [ ( "step", True ), ( "js-accordion", True ) ] ]
+        [ div [ class "step__icon" ]
+            [ text entry.day
+            , span [ class "step__icon__sub" ] [ text entry.month ]
+            , span [ class "step__icon__sub" ] [ text entry.timeOfDay ]
+            ]
+        , div [ class "step__wrapper" ]
+            [ a [ href "#", class "step__header js-accordion__toggle" ]
+                [ div [ class "step__header__titles" ]
+                    [ h3 [ class "step__title" ]
+                        [ text entry.title ]
+                    ]
+                , case entry.content of
+                    BeganRoadNetworkImport ->
+                        div [ class "step__header__info" ]
+                            []
+
+                    CompletedRoadNetworkImport ->
+                        div [ class "step__header__info" ]
+                            []
+
+                    RoadNetworkChangesArchiveAccepted record ->
+                        div [ class "step__header__info" ]
+                            [ i [ class "vi vi-paperclip vi-u-s" ]
+                                []
+                            , i [ class "step__accordion-toggle" ]
+                                []
+                            ]
+
+                    RoadNetworkChangesArchiveRejected record ->
+                        div [ class "step__header__info" ]
+                            [ i [ class "vi vi-paperclip vi-u-s" ]
+                                []
+                            , i [ class "step__accordion-toggle" ]
+                                []
+                            ]
+
+                    RoadNetworkChangesArchiveUploaded record ->
+                        div [ class "step__header__info" ]
+                            [ i [ class "vi vi-paperclip vi-u-s" ]
+                                []
+                            , i [ class "step__accordion-toggle" ]
+                                []
+                            ]
+                ]
+            , div
+                [ class "step__content-wrapper" ]
+                [ viewActivityEntryContent entry.content
+                ]
+            ]
+        ]
 
 
 viewActivityTitle : ActivityModel -> Html Msg
@@ -324,7 +399,7 @@ viewActivity model =
 viewMain : Model -> Html Msg
 viewMain model =
     main_ [ id "main" ]
-        [ viewAlert model.alert |> Html.map GotAlertMsg
+        [ Alert.viewAlert model.alert |> Html.map GotAlertMsg
         , viewActivityTitle model.activity
         , viewActivity model.activity
         ]

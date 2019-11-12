@@ -62,7 +62,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                 Assert.Equal(
                     ZipArchiveProblems.Many(
-                        archive.Entries.Select(entry => entry.Name.EndsWith(".SHP") ? entry.HasNoShapeRecords() : entry.HasNoDbaseRecords())
+                        archive.Entries.Select(entry => entry.Name.EndsWith(".SHP") ? entry.HasNoShapeRecords() : entry.HasNoDbaseRecords(false))
                     ),
                     result);
             }

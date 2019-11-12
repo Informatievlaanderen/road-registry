@@ -11,8 +11,10 @@ namespace RoadRegistry.BackOffice.Translation
     {
         // file
 
-        public static FileError HasNoDbaseRecords(this IFileProblemBuilder builder)
+        public static FileProblem HasNoDbaseRecords(this IFileProblemBuilder builder, bool treatAsWarning)
         {
+            if (treatAsWarning)
+                return builder.Warning(nameof(HasNoDbaseRecords)).Build();
             return builder.Error(nameof(HasNoDbaseRecords)).Build();
         }
 
@@ -87,7 +89,7 @@ namespace RoadRegistry.BackOffice.Translation
         public static FileError FieldHasValueNull(this IDbaseFileRecordProblemBuilder builder, DbaseField field)
         {
             if (field == null) throw new ArgumentNullException(nameof(field));
-            
+
             return builder
                 .Error(nameof(FieldHasValueNull))
                 .WithParameter(new ProblemParameter("Field", field.Name.ToString()))

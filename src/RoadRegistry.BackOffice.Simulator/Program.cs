@@ -41,7 +41,7 @@ namespace RoadRegistry.BackOffice.Simulator
             segment1Record.MORFOLOGIE.Value = (short)RoadSegmentMorphology.Motorway.Translation.Identifier;
             segment1Record.LSTRNMID.Value = 123;
             segment1Record.RSTRNMID.Value = 456;
-            segment1Record.BEHEERDER.Value = "71002";
+            segment1Record.BEHEERDER.Value = "-8";
             segment1Record.RECORDTYPE.Value = RecordTypes.Added;
             var segmentShape = new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(new NetTopologySuite.Geometries.MultiLineString(new NetTopologySuite.Geometries.LineString[]
             {

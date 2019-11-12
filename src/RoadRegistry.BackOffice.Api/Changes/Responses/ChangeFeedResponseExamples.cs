@@ -20,7 +20,7 @@ namespace RoadRegistry.Api.Changes.Responses
                         Type = nameof(RoadNetworkChangesArchiveUploaded),
                         Content = new RoadNetworkChangesArchiveUploadedEntry
                         {
-                            ArchiveId = Guid.NewGuid().ToString("N")
+                            Archive = new RoadNetworkChangesArchiveInfo { Id = Guid.NewGuid().ToString("N") }
                         }
                     },
                     new ChangeFeedEntry
@@ -30,7 +30,7 @@ namespace RoadRegistry.Api.Changes.Responses
                         Type = nameof(RoadNetworkChangesArchiveAccepted),
                         Content = new RoadNetworkChangesArchiveAcceptedEntry
                         {
-                            ArchiveId = Guid.NewGuid().ToString("N"),
+                            Archive = new RoadNetworkChangesArchiveInfo { Id = Guid.NewGuid().ToString("N") },
                             Files = new RoadNetworkChangesArchiveFile[0]
                         }
                     }

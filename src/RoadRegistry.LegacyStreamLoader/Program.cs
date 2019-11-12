@@ -1,35 +1,26 @@
 namespace RoadRegistry.LegacyStreamLoader
 {
     using System;
-    using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Diagnostics;
     using System.IO;
     using System.Threading.Tasks;
-    using Be.Vlaanderen.Basisregisters.EventHandling;
-    using Be.Vlaanderen.Basisregisters.Generators.Guid;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
-    using System.Linq;
-    using System.Collections.Concurrent;
     using System.Text;
     using System.Threading;
     using Amazon.Runtime;
     using Amazon.S3;
-    using Amazon.S3.Model;
-    using BackOffice.Messages;
     using BackOffice.Model;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using NodaTime;
     using Serilog;
 
 
