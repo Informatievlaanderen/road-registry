@@ -20,6 +20,7 @@ Target "Restore_Solution" (fun _ -> restore "RoadRegistry")
 
 Target "Build_Solution" (fun _ ->
   CleanDir ("src" @@ "RoadRegistry.UI" @@ "wwwroot")
+  CleanDir ("src" @@ "RoadRegistry.UI" @@ "elm-stuff")
 
   Npm (fun p ->
     { p with
