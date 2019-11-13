@@ -1,7 +1,11 @@
 namespace RoadRegistry.BackOffice.Projections
 {
+    using System.Collections.Generic;
+    using System.IO;
     using System.Threading.Tasks;
     using AutoFixture;
+    using Be.Vlaanderen.Basisregisters.BlobStore;
+    using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
     using Framework.Testing.Projections;
     using Messages;
     using Newtonsoft.Json;
@@ -12,16 +16,18 @@ namespace RoadRegistry.BackOffice.Projections
     public class RoadNetworkActivityProjectionTests
     {
         private readonly Fixture _fixture;
+        private readonly MemoryBlobClient _client;
 
         public RoadNetworkActivityProjectionTests()
         {
             _fixture = new Fixture();
+            _client = new MemoryBlobClient();
         }
 
         [Fact]
         public Task When_import_began()
         {
-            return new RoadNetworkChangeFeedProjection()
+            return new RoadNetworkChangeFeedProjection(_client)
                 .Scenario()
                 .Given(new BeganRoadNetworkImport())
                 .Expect(new RoadNetworkChange
@@ -36,7 +42,7 @@ namespace RoadRegistry.BackOffice.Projections
         [Fact]
         public Task When_import_completed()
         {
-            return new RoadNetworkChangeFeedProjection()
+            return new RoadNetworkChangeFeedProjection(_client)
                 .Scenario()
                 .Given(new BeganRoadNetworkImport(), new CompletedRoadNetworkImport())
                 .Expect(new RoadNetworkChange
@@ -56,10 +62,15 @@ namespace RoadRegistry.BackOffice.Projections
         }
 
         [Fact]
-        public Task When_uploading_an_archive()
+        public async Task When_uploading_an_archive()
         {
             var archiveId = _fixture.Create<ArchiveId>();
-            return new RoadNetworkChangeFeedProjection()
+            var filename = _fixture.Create<string>();
+            await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
+                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+                ContentType.Parse("application/zip"), Stream.Null);
+
+            await new RoadNetworkChangeFeedProjection(_client)
                 .Scenario()
                 .Given(new RoadNetworkChangesArchiveUploaded
                 {
@@ -72,17 +83,22 @@ namespace RoadRegistry.BackOffice.Projections
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
-                        ArchiveId = archiveId
+                        Archive = new RoadNetworkChangesArchiveInfo { Id = archiveId, Available = true, Filename = filename }
                     })
                 });
         }
 
         [Fact]
-        public Task When_an_archive_is_accepted()
+        public async Task When_an_archive_is_accepted()
         {
             var file = _fixture.Create<string>();
             var archiveId = _fixture.Create<ArchiveId>();
-            return new RoadNetworkChangeFeedProjection()
+            var filename = _fixture.Create<string>();
+            await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
+                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+                ContentType.Parse("application/zip"), Stream.Null);
+
+            await new RoadNetworkChangeFeedProjection(_client)
                 .Scenario()
                 .Given(new RoadNetworkChangesArchiveUploaded
                 {
@@ -122,7 +138,7 @@ namespace RoadRegistry.BackOffice.Projections
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
-                        ArchiveId = archiveId
+                        Archive = new RoadNetworkChangesArchiveInfo { Id = archiveId, Available = true, Filename = filename }
                     })
                 }, new RoadNetworkChange
                 {
@@ -131,7 +147,7 @@ namespace RoadRegistry.BackOffice.Projections
                     Type = nameof(RoadNetworkChangesArchiveAccepted),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
                     {
-                        ArchiveId = archiveId,
+                        Archive = new RoadNetworkChangesArchiveInfo { Id = archiveId, Available = true, Filename = filename },
                         Files = new[]
                         {
                             new RoadNetworkChangesArchiveFile
@@ -152,11 +168,15 @@ namespace RoadRegistry.BackOffice.Projections
         }
 
         [Fact]
-        public Task When_an_archive_is_rejected()
+        public async Task When_an_archive_is_rejected()
         {
             var file = _fixture.Create<string>();
             var archiveId = _fixture.Create<ArchiveId>();
-            return new RoadNetworkChangeFeedProjection()
+            var filename = _fixture.Create<string>();
+            await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
+                Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+                ContentType.Parse("application/zip"), Stream.Null);
+            await new RoadNetworkChangeFeedProjection(_client)
                 .Scenario()
                 .Given(new RoadNetworkChangesArchiveUploaded
                 {
@@ -196,7 +216,7 @@ namespace RoadRegistry.BackOffice.Projections
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
-                        ArchiveId = archiveId
+                        Archive = new RoadNetworkChangesArchiveInfo { Id = archiveId, Available = true, Filename = filename }
                     })
                 }, new RoadNetworkChange
                 {
@@ -205,7 +225,7 @@ namespace RoadRegistry.BackOffice.Projections
                     Type = nameof(RoadNetworkChangesArchiveRejected),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveRejectedEntry
                     {
-                        ArchiveId = archiveId,
+                        Archive = new RoadNetworkChangesArchiveInfo { Id = archiveId, Available = true, Filename = filename },
                         Files = new[]
                         {
                             new RoadNetworkChangesArchiveFile

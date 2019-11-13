@@ -241,6 +241,22 @@ namespace RoadRegistry.BackOffice.Translation
                 .Build();
         }
 
+        // record type
+
+        public static FileError HasRecordTypeOutOfRange(this IDbaseFileRecordProblemBuilder builder, int actual)
+        {
+            return builder
+                .Error(nameof(HasRecordTypeOutOfRange))
+                .WithParameter(
+                    new ProblemParameter(
+                        "ExpectedOneOf",
+                        string.Join(",", RecordType.ByIdentifier.Keys.Select(key => key.ToString()))
+                    )
+                )
+                .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+                .Build();
+        }
+
         // road node
 
         public static FileError IdentifierNotUnique(this IDbaseFileRecordProblemBuilder builder,

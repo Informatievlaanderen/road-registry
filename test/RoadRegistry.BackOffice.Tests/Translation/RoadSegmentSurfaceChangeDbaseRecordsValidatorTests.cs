@@ -95,6 +95,33 @@ namespace RoadRegistry.BackOffice.Translation
         }
 
         [Fact]
+        public void ValidateWithRecordsThatHaveTheirRecordTypeOutOfRangeReturnsExpectedResult()
+        {
+            var records = _fixture
+                .CreateMany<RoadSegmentSurfaceChangeDbaseRecord>(2)
+                .Select((record, index) =>
+                {
+                    record.WV_OIDN.Value = index + 1;
+                    record.RECORDTYPE.Value = -1;
+                    return record;
+                })
+                .ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Many(
+                    _entry
+                        .AtDbaseRecord(new RecordNumber(1))
+                        .HasRecordTypeOutOfRange(-1),
+                    _entry
+                        .AtDbaseRecord(new RecordNumber(2))
+                        .HasRecordTypeOutOfRange(-1)
+                ),
+                result);
+        }
+
+        [Fact]
         public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierReturnsExpectedResult()
         {
             var records = _fixture

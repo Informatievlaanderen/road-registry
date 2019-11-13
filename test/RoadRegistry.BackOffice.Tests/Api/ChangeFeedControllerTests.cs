@@ -57,7 +57,7 @@ namespace RoadRegistry.BackOffice.Api
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
-                        ArchiveId = archiveId
+                        Archive = new RoadNetworkChangesArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" }
                     }),
                     When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                 });
@@ -77,7 +77,9 @@ namespace RoadRegistry.BackOffice.Api
                 Assert.Equal("De oplading werd ontvangen.", item.Title);
                 Assert.Equal(nameof(RoadNetworkChangesArchiveUploaded), item.Type);
                 var content = Assert.IsType<RoadNetworkChangesArchiveUploadedEntry>(item.Content);
-                Assert.Equal(archiveId.ToString(), content.ArchiveId);
+                Assert.Equal(archiveId.ToString(), content.Archive.Id);
+                Assert.Equal(true, content.Archive.Available);
+                Assert.Equal("file.zip", content.Archive.Filename);
                 Assert.Equal("01", item.Day);
                 // YR: Different versions of libicu use different casing
                 Assert.Equal("jan.", item.Month.ToLowerInvariant());

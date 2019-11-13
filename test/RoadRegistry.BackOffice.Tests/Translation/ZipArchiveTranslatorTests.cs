@@ -9,8 +9,6 @@ namespace RoadRegistry.BackOffice.Translation
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Model;
-    using NetTopologySuite.Geometries;
-    using NetTopologySuite.Geometries.Implementation;
     using Xunit;
 
     public class ZipArchiveTranslatorTests
@@ -76,9 +74,9 @@ namespace RoadRegistry.BackOffice.Translation
                 var fixture = CreateFixture();
 
                 var roadSegmentChangeDbaseRecord1 = fixture.Create<RoadSegmentChangeDbaseRecord>();
-                roadSegmentChangeDbaseRecord1.RECORDTYPE.Value = RecordTypes.Added;
+                roadSegmentChangeDbaseRecord1.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var roadSegmentChangeDbaseRecord2 = fixture.Create<RoadSegmentChangeDbaseRecord>();
-                roadSegmentChangeDbaseRecord2.RECORDTYPE.Value = RecordTypes.Added;
+                roadSegmentChangeDbaseRecord2.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var roadSegmentShapeChangeStream = new MemoryStream();
                 var polyLineMShapeContent1 = fixture.Create<PolyLineMShapeContent>();
                 var roadSegmentShapeChangeRecord1 =
@@ -121,7 +119,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                 var europeanRoadChangeDbaseRecord = fixture.Create<EuropeanRoadChangeDbaseRecord>();
                 europeanRoadChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
-                europeanRoadChangeDbaseRecord.RECORDTYPE.Value = RecordTypes.Added;
+                europeanRoadChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var europeanRoadChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
                     new DbaseFileHeader(
@@ -139,7 +137,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                 var nationalRoadChangeDbaseRecord = fixture.Create<NationalRoadChangeDbaseRecord>();
                 nationalRoadChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
-                nationalRoadChangeDbaseRecord.RECORDTYPE.Value = RecordTypes.Added;
+                nationalRoadChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var nationalRoadChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
                     new DbaseFileHeader(
@@ -157,7 +155,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                 var numberedRoadChangeDbaseRecord = fixture.Create<NumberedRoadChangeDbaseRecord>();
                 numberedRoadChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
-                numberedRoadChangeDbaseRecord.RECORDTYPE.Value = RecordTypes.Added;
+                numberedRoadChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var numberedRoadChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
                     new DbaseFileHeader(
@@ -175,7 +173,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                 var laneChangeDbaseRecord = fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
                 laneChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
-                laneChangeDbaseRecord.RECORDTYPE.Value = RecordTypes.Added;
+                laneChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 laneChangeDbaseRecord.TOTPOSITIE.Value = laneChangeDbaseRecord.VANPOSITIE.Value + 1.0;
                 var laneChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
@@ -194,7 +192,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                 var widthChangeDbaseRecord = fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
                 widthChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
-                widthChangeDbaseRecord.RECORDTYPE.Value = RecordTypes.Added;
+                widthChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 widthChangeDbaseRecord.TOTPOSITIE.Value = widthChangeDbaseRecord.VANPOSITIE.Value + 1.0;
                 var widthChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
@@ -213,7 +211,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                 var surfaceChangeDbaseRecord = fixture.Create<RoadSegmentSurfaceChangeDbaseRecord>();
                 surfaceChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
-                surfaceChangeDbaseRecord.RECORDTYPE.Value = RecordTypes.Added;
+                surfaceChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 surfaceChangeDbaseRecord.TOTPOSITIE.Value = surfaceChangeDbaseRecord.VANPOSITIE.Value + 1.0;
                 var surfaceChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
@@ -232,16 +230,16 @@ namespace RoadRegistry.BackOffice.Translation
 
                 var roadNodeChangeDbaseRecord1 = fixture.Create<RoadNodeChangeDbaseRecord>();
                 roadNodeChangeDbaseRecord1.WEGKNOOPID.Value = roadSegmentChangeDbaseRecord1.B_WK_OIDN.Value;
-                roadNodeChangeDbaseRecord1.RECORDTYPE.Value = RecordTypes.Added;
+                roadNodeChangeDbaseRecord1.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var roadNodeChangeDbaseRecord2 = fixture.Create<RoadNodeChangeDbaseRecord>();
                 roadNodeChangeDbaseRecord2.WEGKNOOPID.Value = roadSegmentChangeDbaseRecord1.E_WK_OIDN.Value;
-                roadNodeChangeDbaseRecord2.RECORDTYPE.Value = RecordTypes.Added;
+                roadNodeChangeDbaseRecord2.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var roadNodeChangeDbaseRecord3 = fixture.Create<RoadNodeChangeDbaseRecord>();
                 roadNodeChangeDbaseRecord3.WEGKNOOPID.Value = roadSegmentChangeDbaseRecord2.B_WK_OIDN.Value;
-                roadNodeChangeDbaseRecord3.RECORDTYPE.Value = RecordTypes.Added;
+                roadNodeChangeDbaseRecord3.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var roadNodeChangeDbaseRecord4 = fixture.Create<RoadNodeChangeDbaseRecord>();
                 roadNodeChangeDbaseRecord4.WEGKNOOPID.Value = roadSegmentChangeDbaseRecord2.E_WK_OIDN.Value;
-                roadNodeChangeDbaseRecord4.RECORDTYPE.Value = RecordTypes.Added;
+                roadNodeChangeDbaseRecord4.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
 
                 var roadNodeShapeChangeStream = new MemoryStream();
                 var pointShapeContent1 = fixture.Create<PointShapeContent>();
@@ -301,7 +299,7 @@ namespace RoadRegistry.BackOffice.Translation
                 var gradeSeparatedJunctionChangeDbaseRecord = fixture.Create<GradeSeparatedJunctionChangeDbaseRecord>();
                 gradeSeparatedJunctionChangeDbaseRecord.BO_WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
                 gradeSeparatedJunctionChangeDbaseRecord.ON_WS_OIDN.Value = roadSegmentChangeDbaseRecord2.WS_OIDN.Value;
-                gradeSeparatedJunctionChangeDbaseRecord.RECORDTYPE.Value = RecordTypes.Added;
+                gradeSeparatedJunctionChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var gradeSeparatedJunctionChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
                     new DbaseFileHeader(
@@ -695,26 +693,26 @@ namespace RoadRegistry.BackOffice.Translation
 
             fixture.Customize<NetTopologySuite.Geometries.LineString>(customization =>
                 customization.FromFactory(generator =>
-                    new LineString(
-                        new CoordinateArraySequence(
+                    new NetTopologySuite.Geometries.LineString(
+                        new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(
                             new[]
                             {
-                                new Coordinate(0.0, 0.0),
-                                new Coordinate(1.0, 1.0),
+                                new NetTopologySuite.Geometries.Coordinate(0.0, 0.0),
+                                new NetTopologySuite.Geometries.Coordinate(1.0, 1.0)
                             }),
                         Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory
                     )
                 ).OmitAutoProperties()
             );
 
-            fixture.Customize<MultiLineString>(customization =>
+            fixture.Customize<NetTopologySuite.Geometries.MultiLineString>(customization =>
                 customization.FromFactory(generator =>
-                    new MultiLineString(new[] {fixture.Create<LineString>()})
+                    new NetTopologySuite.Geometries.MultiLineString(new[] {fixture.Create<NetTopologySuite.Geometries.LineString>()})
                 ).OmitAutoProperties()
             );
             fixture.Customize<PolyLineMShapeContent>(customization =>
                 customization
-                    .FromFactory(random => new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(fixture.Create<MultiLineString>())))
+                    .FromFactory(random => new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(fixture.Create<NetTopologySuite.Geometries.MultiLineString>())))
                     .OmitAutoProperties()
             );
 

@@ -20,7 +20,7 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     switch (record.RECORDTYPE.Value)
                     {
-                        case RecordTypes.Added:
+                        case RecordType.AddedIdentifier:
                             changes = changes.Append(
                                 new AddRoadSegmentToEuropeanRoad(
                                     new AttributeId(record.EU_OIDN.Value.GetValueOrDefault()),

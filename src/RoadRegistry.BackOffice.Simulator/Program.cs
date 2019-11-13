@@ -20,13 +20,13 @@ namespace RoadRegistry.BackOffice.Simulator
 
             var node1Record = new RoadNodeChangeDbaseRecord();
             node1Record.TYPE.Value = (short)RoadNodeType.FakeNode.Translation.Identifier;
-            node1Record.RECORDTYPE.Value = RecordTypes.Added;
+            node1Record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
             node1Record.WEGKNOOPID.Value = 1;
             var node1Shape = new PointShapeContent(new Point(0.0, 0.0));
 
             var node2Record = new RoadNodeChangeDbaseRecord();
             node2Record.TYPE.Value = (short)RoadNodeType.FakeNode.Translation.Identifier;
-            node2Record.RECORDTYPE.Value = RecordTypes.Added;
+            node2Record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
             node2Record.WEGKNOOPID.Value = 2;
             var node2Shape = new PointShapeContent(new Point(0.0, 1.0));
 
@@ -42,7 +42,7 @@ namespace RoadRegistry.BackOffice.Simulator
             segment1Record.LSTRNMID.Value = 123;
             segment1Record.RSTRNMID.Value = 456;
             segment1Record.BEHEERDER.Value = "-8";
-            segment1Record.RECORDTYPE.Value = RecordTypes.Added;
+            segment1Record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
             var segmentShape = new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(new NetTopologySuite.Geometries.MultiLineString(new NetTopologySuite.Geometries.LineString[]
             {
                 new NetTopologySuite.Geometries.LineString(new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(new[]
@@ -59,7 +59,7 @@ namespace RoadRegistry.BackOffice.Simulator
             laneRecord.AANTAL.Value = 2;
             laneRecord.VANPOSITIE.Value = 0.0;
             laneRecord.TOTPOSITIE.Value = 1.0;
-            laneRecord.RECORDTYPE.Value = RecordTypes.Added;
+            laneRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
 
             var surfaceRecord = new RoadSegmentSurfaceChangeDbaseRecord();
             surfaceRecord.WV_OIDN.Value = 1;
@@ -67,7 +67,7 @@ namespace RoadRegistry.BackOffice.Simulator
             surfaceRecord.TYPE.Value = (short) RoadSegmentSurfaceType.SolidSurface.Translation.Identifier;
             surfaceRecord.VANPOSITIE.Value = 0.0;
             surfaceRecord.TOTPOSITIE.Value = 1.0;
-            surfaceRecord.RECORDTYPE.Value = RecordTypes.Added;
+            surfaceRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
 
             var widthRecord = new RoadSegmentWidthChangeDbaseRecord();
             widthRecord.WB_OIDN.Value = 1;
@@ -75,7 +75,7 @@ namespace RoadRegistry.BackOffice.Simulator
             widthRecord.BREEDTE.Value = 1;
             widthRecord.VANPOSITIE.Value = 0.0;
             widthRecord.TOTPOSITIE.Value = 1.0;
-            widthRecord.RECORDTYPE.Value = RecordTypes.Added;
+            widthRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
 
             var nodeDbaseHeader = new DbaseFileHeader(
                 DateTime.Now,
@@ -195,7 +195,7 @@ namespace RoadRegistry.BackOffice.Simulator
             europeanRoadRecord.EU_OIDN.Value = 1;
             europeanRoadRecord.WS_OIDN.Value = 1;
             europeanRoadRecord.EUNUMMER.Value = EuropeanRoadNumber.E40.ToString();
-            europeanRoadRecord.RECORDTYPE.Value = RecordTypes.Added;
+            europeanRoadRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
 
             var europeanDbaseHeader = new DbaseFileHeader(
                 DateTime.Now,
@@ -214,7 +214,7 @@ namespace RoadRegistry.BackOffice.Simulator
             nationalRoadRecord.NW_OIDN.Value = 1;
             nationalRoadRecord.WS_OIDN.Value = 1;
             nationalRoadRecord.IDENT2.Value = NationalRoadNumber.All[5].ToString();
-            nationalRoadRecord.RECORDTYPE.Value = RecordTypes.Added;
+            nationalRoadRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
 
             var nationalDbaseHeader = new DbaseFileHeader(
                 DateTime.Now,
@@ -235,7 +235,7 @@ namespace RoadRegistry.BackOffice.Simulator
             numberedRoadRecord.IDENT8.Value = NumberedRoadNumber.All[5].ToString();
             numberedRoadRecord.RICHTING.Value = (short) RoadSegmentNumberedRoadDirection.Backward.Translation.Identifier;
             numberedRoadRecord.VOLGNUMMER.Value = 1;
-            numberedRoadRecord.RECORDTYPE.Value = RecordTypes.Added;
+            numberedRoadRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
 
             var numberedDbaseHeader = new DbaseFileHeader(
                 DateTime.Now,
@@ -255,7 +255,7 @@ namespace RoadRegistry.BackOffice.Simulator
             gradeSeparatedJunctionRecord.BO_WS_OIDN.Value = 1;
             gradeSeparatedJunctionRecord.ON_WS_OIDN.Value = 1;
             gradeSeparatedJunctionRecord.TYPE.Value = (short) GradeSeparatedJunctionType.Unknown.Translation.Identifier;
-            gradeSeparatedJunctionRecord.RECORDTYPE.Value = RecordTypes.Added;
+            gradeSeparatedJunctionRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
 
             var gradeSeparatedJunctionDbaseHeader = new DbaseFileHeader(
                 DateTime.Now,

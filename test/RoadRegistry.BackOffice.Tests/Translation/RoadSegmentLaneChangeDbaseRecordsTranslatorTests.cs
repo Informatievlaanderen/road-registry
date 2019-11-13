@@ -22,6 +22,7 @@ namespace RoadRegistry.BackOffice.Translation
         public RoadSegmentLaneChangeDbaseRecordsTranslatorTests()
         {
             _fixture = new Fixture();
+            _fixture.CustomizeRecordType();
             _fixture.CustomizeRoadNodeId();
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeRoadSegmentGeometryDrawMethod();
@@ -38,7 +39,7 @@ namespace RoadRegistry.BackOffice.Translation
                 composer => composer
                     .FromFactory(random => new RoadSegmentLaneChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short)random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)_fixture.Create<RecordType>().Translation.Identifier},
                         TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         RS_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
@@ -112,7 +113,7 @@ namespace RoadRegistry.BackOffice.Translation
             var expected =
                 TranslatedChanges.Empty.Append(
                     records
-                        .Where(record => record.RECORDTYPE.Value != RecordTypes.Removed)
+                        .Where(record => record.RECORDTYPE.Value != (short)RecordType.Removed.Translation.Identifier)
                         .Aggregate(
                             segment,
                             (current, record) => current.WithLane(

@@ -20,12 +20,12 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     switch (record.RECORDTYPE.Value)
                     {
-                        case RecordTypes.Added:
+                        case RecordType.AddedIdentifier:
                             changes = changes.Append(
                                 new AddGradeSeparatedJunction(
                                     new GradeSeparatedJunctionId(record.OK_OIDN.Value.GetValueOrDefault()),
                                     GradeSeparatedJunctionType.ByIdentifier[record.TYPE.Value.GetValueOrDefault()],
-                                    new RoadSegmentId(record.BO_WS_OIDN.Value.GetValueOrDefault()), 
+                                    new RoadSegmentId(record.BO_WS_OIDN.Value.GetValueOrDefault()),
                                     new RoadSegmentId(record.ON_WS_OIDN.Value.GetValueOrDefault())
                                 )
                             );

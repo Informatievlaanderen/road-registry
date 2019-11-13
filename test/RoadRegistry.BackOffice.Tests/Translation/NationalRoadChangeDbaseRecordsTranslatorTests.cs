@@ -22,6 +22,7 @@ namespace RoadRegistry.BackOffice.Translation
         public NationalRoadChangeDbaseRecordsTranslatorTests()
         {
             _fixture = new Fixture();
+            _fixture.CustomizeRecordType();
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeNationalRoadNumber();
@@ -29,7 +30,7 @@ namespace RoadRegistry.BackOffice.Translation
                 composer => composer
                     .FromFactory(random => new NationalRoadChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short)random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)_fixture.Create<RecordType>().Translation.Identifier},
                         TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         NW_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
@@ -86,7 +87,7 @@ namespace RoadRegistry.BackOffice.Translation
                 .Select((record, index) =>
                 {
                     record.NW_OIDN.Value = index + 1;
-                    record.RECORDTYPE.Value = RecordTypes.Added;
+                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                     return record;
                 })
                 .ToArray();

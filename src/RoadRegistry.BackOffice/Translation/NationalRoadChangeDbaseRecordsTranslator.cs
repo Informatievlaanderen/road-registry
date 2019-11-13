@@ -20,7 +20,7 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     switch (record.RECORDTYPE.Value)
                     {
-                        case RecordTypes.Added:
+                        case RecordType.AddedIdentifier:
                             changes = changes.Append(
                                 new AddRoadSegmentToNationalRoad(
                                     new AttributeId(record.NW_OIDN.Value.GetValueOrDefault()),

@@ -27,6 +27,16 @@ namespace RoadRegistry.BackOffice.Translation
                         var record = records.Current;
                         if (record != null)
                         {
+                            if (record.RECORDTYPE.Value == null)
+                            {
+                                problems += recordContext.FieldHasValueNull(record.RECORDTYPE.Field);
+                            } else
+                            {
+                                if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value.Value))
+                                {
+                                    problems += recordContext.HasRecordTypeOutOfRange(record.RECORDTYPE.Value.Value);
+                                }
+                            }
                             if (record.WB_OIDN.Value.HasValue)
                             {
                                 if (record.WB_OIDN.Value.Value == 0)

@@ -54,12 +54,12 @@ namespace RoadRegistry.BackOffice.Translation
 
             public IDbaseFileRecordProblemBuilder AtDbaseRecord(RecordNumber number)
             {
-                return new FileProblemBuilder(_file, _parameters.Add(new ProblemParameter("DbaseRecordNumber", number.ToString())));
+                return new FileProblemBuilder(_file, _parameters.Add(new ProblemParameter("RecordNumber", number.ToString())));
             }
 
             public IShapeFileRecordProblemBuilder AtShapeRecord(RecordNumber number)
             {
-                return new FileProblemBuilder(_file, _parameters.Add(new ProblemParameter("ShapeRecordNumber", number.ToString())));
+                return new FileProblemBuilder(_file, _parameters.Add(new ProblemParameter("RecordNumber", number.ToString())));
             }
 
             public IFileErrorBuilder Error(string reason)

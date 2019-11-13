@@ -22,6 +22,7 @@ namespace RoadRegistry.BackOffice.Translation
         public GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests()
         {
             _fixture = new Fixture();
+            _fixture.CustomizeRecordType();
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeGradeSeparatedJunctionId();
             _fixture.CustomizeGradeSeparatedJunctionType();
@@ -29,7 +30,7 @@ namespace RoadRegistry.BackOffice.Translation
                 composer => composer
                     .FromFactory(random => new GradeSeparatedJunctionChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short)random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)_fixture.Create<RecordType>().Translation.Identifier},
                         TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         OK_OIDN = {Value = new GradeSeparatedJunctionId(random.Next(1, int.MaxValue))},
                         TYPE = { Value = (short)_fixture.Create<GradeSeparatedJunctionType>().Translation.Identifier },
@@ -87,7 +88,7 @@ namespace RoadRegistry.BackOffice.Translation
                 .Select((record, index) =>
                 {
                     record.OK_OIDN.Value = index + 1;
-                    record.RECORDTYPE.Value = RecordTypes.Added;
+                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                     return record;
                 })
                 .ToArray();

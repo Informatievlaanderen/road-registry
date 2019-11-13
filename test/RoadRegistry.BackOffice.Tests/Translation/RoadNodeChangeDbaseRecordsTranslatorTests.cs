@@ -22,13 +22,14 @@ namespace RoadRegistry.BackOffice.Translation
         public RoadNodeChangeDbaseRecordsTranslatorTests()
         {
             _fixture = new Fixture();
+            _fixture.CustomizeRecordType();
             _fixture.CustomizeRoadNodeId();
             _fixture.CustomizeRoadNodeType();
             _fixture.Customize<RoadNodeChangeDbaseRecord>(
                 composer => composer
                     .FromFactory(random => new RoadNodeChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short)random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)_fixture.Create<RecordType>().Translation.Identifier},
                         TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         WEGKNOOPID = { Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         TYPE = { Value = (short)_fixture.Create<RoadNodeType>().Translation.Identifier }
@@ -84,7 +85,7 @@ namespace RoadRegistry.BackOffice.Translation
                 .Select((record, index) =>
                 {
                     record.WEGKNOOPID.Value = index + 1;
-                    record.RECORDTYPE.Value = RecordTypes.Added;
+                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                     return record;
                 })
                 .ToArray();

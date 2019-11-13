@@ -20,9 +20,9 @@ namespace RoadRegistry.BackOffice.Translation
                 {
                     switch (record.RECORDTYPE.Value)
                     {
-                        case RecordTypes.Equal:
-                        case RecordTypes.Modified:
-                        case RecordTypes.Added:
+                        case RecordType.EqualIdentifier:
+                        case RecordType.AddedIdentifier:
+                        case RecordType.ModifiedIdentifier:
                             var segmentId = new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault());
                             if (changes.TryFindAddRoadSegment(segmentId, out var change))
                             {

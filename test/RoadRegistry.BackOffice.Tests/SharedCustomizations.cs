@@ -79,6 +79,12 @@ namespace RoadRegistry.BackOffice
                 composer.FromFactory<int>(value => RoadNodeType.All[value % RoadNodeType.All.Length]));
         }
 
+        public static void CustomizeRecordType(this IFixture fixture)
+        {
+            fixture.Customize<Translation.RecordType>(composer =>
+                composer.FromFactory<int>(value => Translation.RecordType.All[value % Translation.RecordType.All.Length]));
+        }
+
         public static void CustomizeEuropeanRoadNumber(this IFixture fixture)
         {
             fixture.Customize<EuropeanRoadNumber>(composer =>
