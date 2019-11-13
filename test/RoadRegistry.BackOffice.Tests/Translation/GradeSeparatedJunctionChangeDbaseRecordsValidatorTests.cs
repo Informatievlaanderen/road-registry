@@ -93,7 +93,7 @@ namespace RoadRegistry.BackOffice.Translation
         }
 
         [Fact]
-        public void ValidateWithRecordsThatHaveTheirRecordTypeOutOfRangeReturnsExpectedResult()
+        public void ValidateWithRecordsThatHaveTheirRecordTypeMismatchReturnsExpectedResult()
         {
             var records = _fixture
                 .CreateMany<GradeSeparatedJunctionChangeDbaseRecord>(2)
@@ -111,10 +111,10 @@ namespace RoadRegistry.BackOffice.Translation
                 ZipArchiveProblems.Many(
                     _entry
                         .AtDbaseRecord(new RecordNumber(1))
-                        .HasRecordTypeOutOfRange(-1),
+                        .RecordTypeMismatch(-1),
                     _entry
                         .AtDbaseRecord(new RecordNumber(2))
-                        .HasRecordTypeOutOfRange(-1)
+                        .RecordTypeMismatch(-1)
                 ),
                 result);
         }

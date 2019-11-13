@@ -243,10 +243,10 @@ namespace RoadRegistry.BackOffice.Translation
 
         // record type
 
-        public static FileError HasRecordTypeOutOfRange(this IDbaseFileRecordProblemBuilder builder, int actual)
+        public static FileError RecordTypeMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
         {
             return builder
-                .Error(nameof(HasRecordTypeOutOfRange))
+                .Error(nameof(RecordTypeMismatch))
                 .WithParameter(
                     new ProblemParameter(
                         "ExpectedOneOf",

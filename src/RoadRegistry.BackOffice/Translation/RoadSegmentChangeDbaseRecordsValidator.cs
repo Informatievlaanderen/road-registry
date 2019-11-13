@@ -34,7 +34,7 @@ namespace RoadRegistry.BackOffice.Translation
                             {
                                 if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value.Value))
                                 {
-                                    problems += recordContext.HasRecordTypeOutOfRange(record.RECORDTYPE.Value.Value);
+                                    problems += recordContext.RecordTypeMismatch(record.RECORDTYPE.Value.Value);
                                 }
                             }
                             if (record.WS_OIDN.Value.HasValue)

@@ -313,6 +313,11 @@ namespace RoadRegistry.BackOffice.Projections
                             $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige wegbreedte in veld {nameof(RoadSegmentWidthChangeDbaseRecord.Schema.BREEDTE)}: {problem.Parameters[2].Value}.";
                         break;
 
+                    case nameof(DbaseFileProblems.RecordTypeMismatch):
+                        translation =
+                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig record type in veld RECORD_TYPE: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}.";
+                        break;
+
                     case nameof(ShapeFileProblems.HasNoShapeRecords):
                         translation = "Het bestand bevat geen enkele geometrie.";
                         break;
