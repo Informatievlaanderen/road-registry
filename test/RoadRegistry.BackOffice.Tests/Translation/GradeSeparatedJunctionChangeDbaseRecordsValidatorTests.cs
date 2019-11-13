@@ -165,26 +165,54 @@ namespace RoadRegistry.BackOffice.Translation
                 result);
         }
 
-        [Fact]
-        public void ValidateWithRecordsThatAreMissingAnGradeSeparatedJunctionIdentifierReturnsExpectedResult()
+        [Theory]
+        [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+        public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+            Action<GradeSeparatedJunctionChangeDbaseRecord> modifier, DbaseField field)
         {
-            var records = _fixture
-                .CreateMany<GradeSeparatedJunctionChangeDbaseRecord>(2)
-                .Select(record =>
-                {
-                    record.OK_OIDN.Value = null;
-                    return record;
-                })
-                .ToDbaseRecordEnumerator();
+            var record = _fixture.Create<GradeSeparatedJunctionChangeDbaseRecord>();
+            modifier(record);
+            var records = new[] {record}.ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
-            Assert.Equal(
-                ZipArchiveProblems.Many(
-                    _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierMissing(),
-                    _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierMissing()
-                ),
-                result);
+            Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
+        }
+
+        public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+        {
+            get
+            {
+                yield return new object[]
+                {
+                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.OK_OIDN.Value = null),
+                    GradeSeparatedJunctionChangeDbaseRecord.Schema.OK_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    GradeSeparatedJunctionChangeDbaseRecord.Schema.RECORDTYPE
+                };
+
+                yield return new object[]
+                {
+                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.BO_WS_OIDN.Value = null),
+                    GradeSeparatedJunctionChangeDbaseRecord.Schema.BO_WS_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.TYPE.Value = null),
+                    GradeSeparatedJunctionChangeDbaseRecord.Schema.TYPE
+                };
+
+                yield return new object[]
+                {
+                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.ON_WS_OIDN.Value = null),
+                    GradeSeparatedJunctionChangeDbaseRecord.Schema.ON_WS_OIDN
+                };
+            }
         }
 
         [Fact]

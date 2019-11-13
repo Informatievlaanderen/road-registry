@@ -166,26 +166,60 @@ namespace RoadRegistry.BackOffice.Translation
                 result);
         }
 
-        [Fact]
-        public void ValidateWithRecordsThatAreMissingAnAttributeIdentifierReturnsExpectedResult()
+        [Theory]
+        [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+        public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+            Action<RoadSegmentSurfaceChangeDbaseRecord> modifier, DbaseField field)
         {
-            var records = _fixture
-                .CreateMany<RoadSegmentSurfaceChangeDbaseRecord>(2)
-                .Select(record =>
-                {
-                    record.WV_OIDN.Value = null;
-                    return record;
-                })
-                .ToDbaseRecordEnumerator();
+            var record = _fixture.Create<RoadSegmentSurfaceChangeDbaseRecord>();
+            modifier(record);
+            var records = new[] {record}.ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
-            Assert.Equal(
-                ZipArchiveProblems.Many(
-                    _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierMissing(),
-                    _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierMissing()
-                ),
-                result);
+            Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
+        }
+
+        public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+        {
+            get
+            {
+                yield return new object[]
+                {
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.WS_OIDN.Value = null),
+                    RoadSegmentSurfaceChangeDbaseRecord.Schema.WS_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    RoadSegmentSurfaceChangeDbaseRecord.Schema.RECORDTYPE
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.WV_OIDN.Value = null),
+                    RoadSegmentSurfaceChangeDbaseRecord.Schema.WV_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.TYPE.Value = null),
+                    RoadSegmentSurfaceChangeDbaseRecord.Schema.TYPE
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.VANPOSITIE.Value = null),
+                    RoadSegmentSurfaceChangeDbaseRecord.Schema.VANPOSITIE
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.TOTPOSITIE.Value = null),
+                    RoadSegmentSurfaceChangeDbaseRecord.Schema.TOTPOSITIE
+                };
+            }
         }
 
         [Fact]

@@ -166,26 +166,60 @@ namespace RoadRegistry.BackOffice.Translation
                 result);
         }
 
-        [Fact]
-        public void ValidateWithRecordsThatAreMissingAnAttributeIdentifierReturnsExpectedResult()
+        [Theory]
+        [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+        public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+            Action<RoadSegmentWidthChangeDbaseRecord> modifier, DbaseField field)
         {
-            var records = _fixture
-                .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
-                .Select(record =>
-                {
-                    record.WB_OIDN.Value = null;
-                    return record;
-                })
-                .ToDbaseRecordEnumerator();
+            var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
+            modifier(record);
+            var records = new[] {record}.ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
-            Assert.Equal(
-                ZipArchiveProblems.Many(
-                    _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierMissing(),
-                    _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierMissing()
-                ),
-                result);
+            Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
+        }
+
+        public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+        {
+            get
+            {
+                yield return new object[]
+                {
+                    new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.WS_OIDN.Value = null),
+                    RoadSegmentWidthChangeDbaseRecord.Schema.WS_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    RoadSegmentWidthChangeDbaseRecord.Schema.RECORDTYPE
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.WB_OIDN.Value = null),
+                    RoadSegmentWidthChangeDbaseRecord.Schema.WB_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.BREEDTE.Value = null),
+                    RoadSegmentWidthChangeDbaseRecord.Schema.BREEDTE
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.VANPOSITIE.Value = null),
+                    RoadSegmentWidthChangeDbaseRecord.Schema.VANPOSITIE
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.TOTPOSITIE.Value = null),
+                    RoadSegmentWidthChangeDbaseRecord.Schema.TOTPOSITIE
+                };
+            }
         }
 
         [Fact]

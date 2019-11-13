@@ -167,26 +167,60 @@ namespace RoadRegistry.BackOffice.Translation
                 result);
         }
 
-        [Fact]
-        public void ValidateWithRecordsThatAreMissingAnAttributeIdentifierReturnsExpectedResult()
+        [Theory]
+        [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+        public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+            Action<NumberedRoadChangeDbaseRecord> modifier, DbaseField field)
         {
-            var records = _fixture
-                .CreateMany<NumberedRoadChangeDbaseRecord>(2)
-                .Select(record =>
-                {
-                    record.GW_OIDN.Value = null;
-                    return record;
-                })
-                .ToDbaseRecordEnumerator();
+            var record = _fixture.Create<NumberedRoadChangeDbaseRecord>();
+            modifier(record);
+            var records = new[] {record}.ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
-            Assert.Equal(
-                ZipArchiveProblems.Many(
-                    _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierMissing(),
-                    _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierMissing()
-                ),
-                result);
+            Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
+        }
+
+        public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+        {
+            get
+            {
+                yield return new object[]
+                {
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.GW_OIDN.Value = null),
+                    NumberedRoadChangeDbaseRecord.Schema.GW_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    NumberedRoadChangeDbaseRecord.Schema.RECORDTYPE
+                };
+
+                yield return new object[]
+                {
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.WS_OIDN.Value = null),
+                    NumberedRoadChangeDbaseRecord.Schema.WS_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.IDENT8.Value = null),
+                    NumberedRoadChangeDbaseRecord.Schema.IDENT8
+                };
+
+                yield return new object[]
+                {
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.RICHTING.Value = null),
+                    NumberedRoadChangeDbaseRecord.Schema.RICHTING
+                };
+
+                yield return new object[]
+                {
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.VOLGNUMMER.Value = null),
+                    NumberedRoadChangeDbaseRecord.Schema.VOLGNUMMER
+                };
+            }
         }
 
         [Fact]

@@ -76,22 +76,17 @@ namespace RoadRegistry.BackOffice.Translation
                 .Build();
         }
 
-        public static FileError IdentifierMissing(this IDbaseFileRecordProblemBuilder builder)
-        {
-            return builder.Error(nameof(IdentifierMissing)).Build();
-        }
-
         public static FileError IdentifierZero(this IDbaseFileRecordProblemBuilder builder)
         {
             return builder.Error(nameof(IdentifierZero)).Build();
         }
 
-        public static FileError FieldHasValueNull(this IDbaseFileRecordProblemBuilder builder, DbaseField field)
+        public static FileError RequiredFieldIsNull(this IDbaseFileRecordProblemBuilder builder, DbaseField field)
         {
             if (field == null) throw new ArgumentNullException(nameof(field));
 
             return builder
-                .Error(nameof(FieldHasValueNull))
+                .Error(nameof(RequiredFieldIsNull))
                 .WithParameter(new ProblemParameter("Field", field.Name.ToString()))
                 .Build();
         }

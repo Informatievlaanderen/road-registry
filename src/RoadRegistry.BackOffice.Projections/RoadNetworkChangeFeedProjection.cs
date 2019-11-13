@@ -191,11 +191,7 @@ namespace RoadRegistry.BackOffice.Projections
                         translation = $"De dbase record {problem.Parameters[0].Value} bevat een identificator die 0 is.";
                         break;
 
-                    case nameof(DbaseFileProblems.IdentifierMissing):
-                        translation = $"De dbase record {problem.Parameters[0].Value} ontbreekt een identificator.";
-                        break;
-
-                    case nameof(DbaseFileProblems.FieldHasValueNull):
+                    case nameof(DbaseFileProblems.RequiredFieldIsNull):
                         translation = $"De dbase record {problem.Parameters[0].Value} heeft geen waarde voor veld {problem.Parameters[1].Value}.";
                         break;
 
@@ -315,7 +311,7 @@ namespace RoadRegistry.BackOffice.Projections
 
                     case nameof(DbaseFileProblems.RecordTypeMismatch):
                         translation =
-                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig record type in veld RECORD_TYPE: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}.";
+                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig record type in veld RECORDTYPE: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}.";
                         break;
 
                     case nameof(ShapeFileProblems.HasNoShapeRecords):

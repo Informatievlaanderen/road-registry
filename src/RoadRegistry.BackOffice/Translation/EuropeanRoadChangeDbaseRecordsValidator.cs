@@ -29,7 +29,7 @@ namespace RoadRegistry.BackOffice.Translation
                         {
                             if (record.RECORDTYPE.Value == null)
                             {
-                                problems += recordContext.FieldHasValueNull(record.RECORDTYPE.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.RECORDTYPE.Field);
                             } else
                             {
                                 if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value.Value))
@@ -58,12 +58,12 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                problems += recordContext.IdentifierMissing();
+                                problems += recordContext.RequiredFieldIsNull(record.EU_OIDN.Field);
                             }
 
                             if (record.EUNUMMER.Value == null)
                             {
-                                problems += recordContext.FieldHasValueNull(record.EUNUMMER.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.EUNUMMER.Field);
                             }
                             else if (!EuropeanRoadNumber.CanParse(record.EUNUMMER.Value))
                             {
@@ -72,7 +72,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.WS_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.WS_OIDN.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.WS_OIDN.Field);
                             }
                             else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value.Value))
                             {

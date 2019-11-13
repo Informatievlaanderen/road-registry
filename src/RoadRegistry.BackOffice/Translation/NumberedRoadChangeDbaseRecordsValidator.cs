@@ -29,7 +29,7 @@ namespace RoadRegistry.BackOffice.Translation
                         {
                             if (record.RECORDTYPE.Value == null)
                             {
-                                problems += recordContext.FieldHasValueNull(record.RECORDTYPE.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.RECORDTYPE.Field);
                             } else
                             {
                                 if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value.Value))
@@ -61,12 +61,12 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                problems += recordContext.IdentifierMissing();
+                                problems += recordContext.RequiredFieldIsNull(record.GW_OIDN.Field);
                             }
 
                             if (record.IDENT8.Value == null)
                             {
-                                problems += recordContext.FieldHasValueNull(record.IDENT8.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.IDENT8.Field);
                             }
                             else if (!NumberedRoadNumber.CanParse(record.IDENT8.Value))
                             {
@@ -75,7 +75,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.RICHTING.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.VOLGNUMMER.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.RICHTING.Field);
                             }
                             else if (!RoadSegmentNumberedRoadDirection.ByIdentifier.ContainsKey(record.RICHTING.Value.Value))
                             {
@@ -84,7 +84,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.VOLGNUMMER.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.VOLGNUMMER.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.VOLGNUMMER.Field);
                             }
                             else if (!RoadSegmentNumberedRoadOrdinal.Accepts(record.VOLGNUMMER.Value.Value))
                             {
@@ -93,7 +93,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.WS_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.WS_OIDN.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.WS_OIDN.Field);
                             }
                             else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value.Value))
                             {

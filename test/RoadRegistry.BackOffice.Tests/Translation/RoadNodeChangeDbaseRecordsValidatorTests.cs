@@ -161,26 +161,42 @@ namespace RoadRegistry.BackOffice.Translation
                 result);
         }
 
-        [Fact]
-        public void ValidateWithRecordsThatAreMissingAnRoadNodeIdentifierReturnsExpectedResult()
+        [Theory]
+        [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+        public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+            Action<RoadNodeChangeDbaseRecord> modifier, DbaseField field)
         {
-            var records = _fixture
-                .CreateMany<RoadNodeChangeDbaseRecord>(2)
-                .Select(record =>
-                {
-                    record.WEGKNOOPID.Value = null;
-                    return record;
-                })
-                .ToDbaseRecordEnumerator();
+            var record = _fixture.Create<RoadNodeChangeDbaseRecord>();
+            modifier(record);
+            var records = new[] {record}.ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
-            Assert.Equal(
-                ZipArchiveProblems.Many(
-                    _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierMissing(),
-                    _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierMissing()
-                ),
-                result);
+            Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
+        }
+
+        public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+        {
+            get
+            {
+                yield return new object[]
+                {
+                    new Action<RoadNodeChangeDbaseRecord>(r => r.WEGKNOOPID.Value = null),
+                    RoadNodeChangeDbaseRecord.Schema.WEGKNOOPID
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadNodeChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    RoadNodeChangeDbaseRecord.Schema.RECORDTYPE
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadNodeChangeDbaseRecord>(r => r.TYPE.Value = null),
+                    RoadNodeChangeDbaseRecord.Schema.TYPE
+                };
+            }
         }
 
         [Fact]

@@ -114,6 +114,50 @@ namespace RoadRegistry.BackOffice.Translation
                 result);
         }
 
+        [Theory]
+        [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+        public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+            Action<EuropeanRoadChangeDbaseRecord> modifier, DbaseField field)
+        {
+            var record = _fixture.Create<EuropeanRoadChangeDbaseRecord>();
+            modifier(record);
+            var records = new[] {record}.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
+        }
+
+        public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+        {
+            get
+            {
+                yield return new object[]
+                {
+                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.EU_OIDN.Value = null),
+                    EuropeanRoadChangeDbaseRecord.Schema.EU_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    EuropeanRoadChangeDbaseRecord.Schema.RECORDTYPE
+                };
+
+                yield return new object[]
+                {
+                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.EUNUMMER.Value = null),
+                    EuropeanRoadChangeDbaseRecord.Schema.EUNUMMER
+                };
+
+                yield return new object[]
+                {
+                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.WS_OIDN.Value = null),
+                    EuropeanRoadChangeDbaseRecord.Schema.WS_OIDN
+                };
+            }
+        }
+
         [Fact]
         public void ValidateWithRecordsThatHaveTheirRecordTypeMismatchReturnsExpectedResult()
         {
@@ -163,27 +207,6 @@ namespace RoadRegistry.BackOffice.Translation
                 result);
         }
 
-        [Fact]
-        public void ValidateWithRecordsThatAreMissingAnAttributeIdentifierReturnsExpectedResult()
-        {
-            var records = _fixture
-                .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
-                .Select(record =>
-                {
-                    record.EU_OIDN.Value = null;
-                    return record;
-                })
-                .ToDbaseRecordEnumerator();
-
-            var result = _sut.Validate(_entry, records);
-
-            Assert.Equal(
-                ZipArchiveProblems.Many(
-                    _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierMissing(),
-                    _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierMissing()),
-                result);
-        }
-
         [Theory]
         [InlineData("")]
         [InlineData("X40")]
@@ -226,8 +249,8 @@ namespace RoadRegistry.BackOffice.Translation
 
             Assert.Equal(
                 ZipArchiveProblems.Many(
-                    _entry.AtDbaseRecord(new RecordNumber(1)).FieldHasValueNull(EuropeanRoadChangeDbaseRecord.Schema.EUNUMMER),
-                    _entry.AtDbaseRecord(new RecordNumber(2)).FieldHasValueNull(EuropeanRoadChangeDbaseRecord.Schema.EUNUMMER)
+                    _entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(EuropeanRoadChangeDbaseRecord.Schema.EUNUMMER),
+                    _entry.AtDbaseRecord(new RecordNumber(2)).RequiredFieldIsNull(EuropeanRoadChangeDbaseRecord.Schema.EUNUMMER)
                 ),
                 result);
         }

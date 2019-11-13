@@ -29,7 +29,7 @@ namespace RoadRegistry.BackOffice.Translation
                         {
                             if (record.RECORDTYPE.Value == null)
                             {
-                                problems += recordContext.FieldHasValueNull(record.RECORDTYPE.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.RECORDTYPE.Field);
                             } else
                             {
                                 if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value.Value))
@@ -61,12 +61,12 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                problems += recordContext.IdentifierMissing();
+                                problems += recordContext.RequiredFieldIsNull(record.WEGKNOOPID.Field);
                             }
 
                             if (!record.TYPE.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.TYPE.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.TYPE.Field);
                             }
                             else if (!RoadNodeType.ByIdentifier.ContainsKey(record.TYPE.Value.Value))
                             {

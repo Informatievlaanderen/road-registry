@@ -29,7 +29,7 @@ namespace RoadRegistry.BackOffice.Translation
                         {
                             if (record.RECORDTYPE.Value == null)
                             {
-                                problems += recordContext.FieldHasValueNull(record.RECORDTYPE.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.RECORDTYPE.Field);
                             } else
                             {
                                 if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value.Value))
@@ -61,7 +61,7 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                problems += recordContext.IdentifierMissing();
+                                problems += recordContext.RequiredFieldIsNull(record.OK_OIDN.Field);
                             }
 
                             if (record.TYPE.Value.HasValue)
@@ -73,12 +73,12 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                problems += recordContext.FieldHasValueNull(record.TYPE.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.TYPE.Field);
                             }
 
                             if (!record.BO_WS_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.BO_WS_OIDN.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.BO_WS_OIDN.Field);
                             }
                             else if (!RoadSegmentId.Accepts(record.BO_WS_OIDN.Value.Value))
                             {
@@ -87,7 +87,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.ON_WS_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.ON_WS_OIDN.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.ON_WS_OIDN.Field);
                             }
                             else if (!RoadSegmentId.Accepts(record.ON_WS_OIDN.Value.Value))
                             {

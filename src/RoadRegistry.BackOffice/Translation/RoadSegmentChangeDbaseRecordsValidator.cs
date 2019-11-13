@@ -29,7 +29,7 @@ namespace RoadRegistry.BackOffice.Translation
                         {
                             if (record.RECORDTYPE.Value == null)
                             {
-                                problems += recordContext.FieldHasValueNull(record.RECORDTYPE.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.RECORDTYPE.Field);
                             } else
                             {
                                 if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value.Value))
@@ -61,12 +61,12 @@ namespace RoadRegistry.BackOffice.Translation
                             }
                             else
                             {
-                                problems += recordContext.IdentifierMissing();
+                                problems += recordContext.RequiredFieldIsNull(record.WS_OIDN.Field);
                             }
 
                             if (!record.TGBEP.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.TGBEP.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.TGBEP.Field);
                             }
                             else if (!RoadSegmentAccessRestriction.ByIdentifier.ContainsKey(record.TGBEP.Value.Value))
                             {
@@ -75,7 +75,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.STATUS.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.STATUS.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.STATUS.Field);
                             }
                             else if (!RoadSegmentStatus.ByIdentifier.ContainsKey(record.STATUS.Value.Value))
                             {
@@ -84,7 +84,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (record.WEGCAT.Value == null)
                             {
-                                problems += recordContext.FieldHasValueNull(record.WEGCAT.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.WEGCAT.Field);
                             }
                             else if (!RoadSegmentCategory.ByIdentifier.ContainsKey(record.WEGCAT.Value))
                             {
@@ -93,7 +93,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.METHODE.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.METHODE.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.METHODE.Field);
                             }
                             else if (!RoadSegmentGeometryDrawMethod.ByIdentifier.ContainsKey(record.METHODE.Value.Value))
                             {
@@ -102,7 +102,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.MORFOLOGIE.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.MORFOLOGIE.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.MORFOLOGIE.Field);
                             }
                             else if (!RoadSegmentMorphology.ByIdentifier.ContainsKey(record.MORFOLOGIE.Value.Value))
                             {
@@ -111,7 +111,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.B_WK_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.B_WK_OIDN.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.B_WK_OIDN.Field);
                             }
                             else if (!RoadNodeId.Accepts(record.B_WK_OIDN.Value.Value))
                             {
@@ -120,7 +120,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (!record.E_WK_OIDN.Value.HasValue)
                             {
-                                problems += recordContext.FieldHasValueNull(record.E_WK_OIDN.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.E_WK_OIDN.Field);
                             }
                             else if (!RoadNodeId.Accepts(record.E_WK_OIDN.Value.Value))
                             {
@@ -129,7 +129,7 @@ namespace RoadRegistry.BackOffice.Translation
 
                             if (record.BEHEERDER.Value == null)
                             {
-                                problems += recordContext.FieldHasValueNull(record.E_WK_OIDN.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.BEHEERDER.Field);
                             }
                         }
                         moved = records.MoveNext();

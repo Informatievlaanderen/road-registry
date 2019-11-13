@@ -177,26 +177,84 @@ namespace RoadRegistry.BackOffice.Translation
                 result);
         }
 
-        [Fact]
-        public void ValidateWithRecordsThatAreMissingAnRoadSegmentIdentifierReturnsExpectedResult()
+        [Theory]
+        [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+        public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+            Action<RoadSegmentChangeDbaseRecord> modifier, DbaseField field)
         {
-            var records = _fixture
-                .CreateMany<RoadSegmentChangeDbaseRecord>(2)
-                .Select(record =>
-                {
-                    record.WS_OIDN.Value = null;
-                    return record;
-                })
-                .ToDbaseRecordEnumerator();
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            modifier(record);
+            var records = new[] {record}.ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);
 
-            Assert.Equal(
-                ZipArchiveProblems.Many(
-                    _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierMissing(),
-                    _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierMissing()
-                ),
-                result);
+            Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
+        }
+
+        public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+        {
+            get
+            {
+                yield return new object[]
+                {
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.WS_OIDN.Value = null),
+                    RoadSegmentChangeDbaseRecord.Schema.WS_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    RoadSegmentChangeDbaseRecord.Schema.RECORDTYPE
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.B_WK_OIDN.Value = null),
+                    RoadSegmentChangeDbaseRecord.Schema.B_WK_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.E_WK_OIDN.Value = null),
+                    RoadSegmentChangeDbaseRecord.Schema.E_WK_OIDN
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.TGBEP.Value = null),
+                    RoadSegmentChangeDbaseRecord.Schema.TGBEP
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.STATUS.Value = null),
+                    RoadSegmentChangeDbaseRecord.Schema.STATUS
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.WEGCAT.Value = null),
+                    RoadSegmentChangeDbaseRecord.Schema.WEGCAT
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.MORFOLOGIE.Value = null),
+                    RoadSegmentChangeDbaseRecord.Schema.MORFOLOGIE
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.METHODE.Value = null),
+                    RoadSegmentChangeDbaseRecord.Schema.METHODE
+                };
+
+                yield return new object[]
+                {
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.BEHEERDER.Value = null),
+                    RoadSegmentChangeDbaseRecord.Schema.BEHEERDER
+                };
+            }
         }
 
         [Fact]
