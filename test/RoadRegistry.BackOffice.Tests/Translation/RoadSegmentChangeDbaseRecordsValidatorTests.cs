@@ -275,6 +275,104 @@ namespace RoadRegistry.BackOffice.Translation
                 new FileProblemComparer());
         }
 
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidBeginRoadNodeIdReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            record.B_WK_OIDN.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).BeginRoadNodeIdOutOfRange(-1)),
+                result);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidEndRoadNodeIdReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            record.E_WK_OIDN.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).EndRoadNodeIdOutOfRange(-1)),
+                result);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidAccessRestrictionReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            record.TGBEP.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentAccessRestrictionMismatch(-1)),
+                result);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidStatusReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            record.STATUS.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentStatusMismatch(-1)),
+                result);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidGeometryDrawMethodReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            record.METHODE.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentGeometryDrawMethodMismatch(-1)),
+                result);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidMorphologyReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            record.MORFOLOGIE.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentMorphologyMismatch(-1)),
+                result);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidCategoryReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            record.WEGCAT.Value = "-1";
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentCategoryMismatch("-1")),
+                result);
+        }
+
         public void Dispose()
         {
             _archive?.Dispose();

@@ -239,6 +239,34 @@ namespace RoadRegistry.BackOffice.Translation
                 new FileProblemComparer());
         }
 
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidWidthReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
+            record.BREEDTE.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).WidthOutOfRange(-1)),
+                result);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidRoadSegmentIdReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
+            record.WS_OIDN.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentIdOutOfRange(-1)),
+                result);
+        }
+
         public void Dispose()
         {
             _archive?.Dispose();

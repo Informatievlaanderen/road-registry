@@ -216,6 +216,20 @@ namespace RoadRegistry.BackOffice.Translation
                 new FileProblemComparer());
         }
 
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidRoadNodeTypeReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadNodeChangeDbaseRecord>();
+            record.TYPE.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadNodeTypeMismatch(-1)),
+                result);
+        }
+
         public void Dispose()
         {
             _archive?.Dispose();

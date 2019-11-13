@@ -249,6 +249,49 @@ namespace RoadRegistry.BackOffice.Translation
                 new FileProblemComparer());
         }
 
+
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidCountReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
+            record.AANTAL.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).LaneCountOutOfRange(-1)),
+                result);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidDirectionReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
+            record.RICHTING.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).LaneDirectionMismatch(-1)),
+                result);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidRoadSegmentIdReturnsExpectedResult()
+        {
+            var record = _fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
+            record.WS_OIDN.Value = -1;
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentIdOutOfRange(-1)),
+                result);
+        }
+
         public void Dispose()
         {
             _archive?.Dispose();
