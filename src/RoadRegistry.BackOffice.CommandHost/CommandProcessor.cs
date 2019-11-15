@@ -106,6 +106,12 @@ namespace RoadRegistry.BackOffice.CommandHost
 
                                     // how are we going to recover from this? do we even need to recover from this?
                                     // prediction: it's going to be a serialization error, a data quality error, or a bug
+//                                    if (process.Message.StreamVersion == 0)
+//                                    {
+//                                        await positionStore.WriteVersion(RoadNetworkCommandQueue,
+//                                            process.Message.StreamVersion,
+//                                            _messagePumpCancellation.Token);
+//                                    }
 
                                     process.Fault(exception);
                                 }

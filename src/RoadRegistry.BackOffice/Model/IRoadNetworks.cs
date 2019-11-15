@@ -6,5 +6,6 @@ namespace RoadRegistry.BackOffice.Model
     public interface IRoadNetworks
     {
         Task<RoadNetwork> Get(CancellationToken ct = default);
+        Task<(RoadNetwork, int)> GetWithVersion(CancellationToken ct = default);
     }
 }

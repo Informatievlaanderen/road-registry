@@ -6,6 +6,7 @@ Microsoft.Extensions.Configuration
 Microsoft.Extensions.Configuration.CommandLine
 Microsoft.Extensions.Configuration.Json
 Microsoft.Extensions.Configuration.EnvironmentVariables
+Microsoft.Extensions.Hosting
 Microsoft.Extensions.Options.ConfigurationExtensions
 
 SqlStreamStore.MsSql

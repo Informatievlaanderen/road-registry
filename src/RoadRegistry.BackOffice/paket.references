@@ -1,5 +1,12 @@
+System.Collections.Immutable
+System.Threading.Tasks.Dataflow
+
 Autofac
+FluentValidation
+MessagePack
+Microsoft.IO.RecyclableMemoryStream
 Newtonsoft.Json
+NetTopologySuite
 SqlStreamStore.MsSql
 
 Be.Vlaanderen.Basisregisters.AggregateSource
@@ -12,9 +19,3 @@ Be.Vlaanderen.Basisregisters.Utilities.HexByteConvertor
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 Be.Vlaanderen.Basisregisters.BlobStore
-
-System.Threading.Tasks.Dataflow
-System.Collections.Immutable
-FluentValidation
-
-NetTopologySuite

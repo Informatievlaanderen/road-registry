@@ -13,6 +13,8 @@ SqlStreamStore.MsSql
 
 Autofac.Extensions.DependencyInjection
 
+Microsoft.IO.RecyclableMemoryStream
+
 Destructurama.JsonNet
 
 Serilog

@@ -20,6 +20,8 @@ Autofac.Extensions.DependencyInjection
 
 AspNetCore.AsyncInitialization
 
+Microsoft.IO.RecyclableMemoryStream
+
 Destructurama.JsonNet
 
 Serilog

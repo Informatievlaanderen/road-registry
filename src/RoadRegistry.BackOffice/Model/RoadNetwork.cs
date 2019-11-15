@@ -148,10 +148,10 @@ namespace RoadRegistry.BackOffice.Model
             var provider = new NextAttributeIdProvider(_view.MaximumLaneAttributeId);
             return id =>
             {
-                if (_view.SegmentLaneAttributeIdentifiers.TryGetValue(id, out var recycledAttributeIdentifiers)
-                    && recycledAttributeIdentifiers.Count != 0)
+                if (_view.SegmentReusableLaneAttributeIdentifiers.TryGetValue(id, out var reusableAttributeIdentifiers)
+                    && reusableAttributeIdentifiers.Count != 0)
                 {
-                    return new NextRecycledAttributeIdProvider(provider, recycledAttributeIdentifiers).Next;
+                    return new NextReusableAttributeIdProvider(provider, reusableAttributeIdentifiers).Next;
                 }
                 return provider.Next;
             };
@@ -162,10 +162,10 @@ namespace RoadRegistry.BackOffice.Model
             var provider = new NextAttributeIdProvider(_view.MaximumWidthAttributeId);
             return id =>
             {
-                if (_view.SegmentWidthAttributeIdentifiers.TryGetValue(id, out var recycledAttributeIdentifiers)
-                    && recycledAttributeIdentifiers.Count != 0)
+                if (_view.SegmentReusableWidthAttributeIdentifiers.TryGetValue(id, out var reusableAttributeIdentifiers)
+                    && reusableAttributeIdentifiers.Count != 0)
                 {
-                    return new NextRecycledAttributeIdProvider(provider, recycledAttributeIdentifiers).Next;
+                    return new NextReusableAttributeIdProvider(provider, reusableAttributeIdentifiers).Next;
                 }
 
                 return provider.Next;
@@ -177,33 +177,45 @@ namespace RoadRegistry.BackOffice.Model
             var provider = new NextAttributeIdProvider(_view.MaximumSurfaceAttributeId);
             return id =>
             {
-                if (_view.SegmentSurfaceAttributeIdentifiers.TryGetValue(id, out var recycledAttributeIdentifiers)
-                    && recycledAttributeIdentifiers.Count != 0)
+                if (_view.SegmentReusableSurfaceAttributeIdentifiers.TryGetValue(id, out var reusableAttributeIdentifiers)
+                    && reusableAttributeIdentifiers.Count != 0)
                 {
-                    return new NextRecycledAttributeIdProvider(provider, recycledAttributeIdentifiers).Next;
+                    return new NextReusableAttributeIdProvider(provider, reusableAttributeIdentifiers).Next;
                 }
 
                 return provider.Next;
             };
         }
 
-        private class NextRecycledAttributeIdProvider
+        private class NextReusableAttributeIdProvider
         {
             private int _index;
             private readonly NextAttributeIdProvider _provider;
-            private readonly IReadOnlyList<AttributeId> _recycledAttributeIdentifiers;
+            private readonly IReadOnlyList<AttributeId> _reusableAttributeIdentifiers;
 
-            public NextRecycledAttributeIdProvider(NextAttributeIdProvider provider, IReadOnlyList<AttributeId> recycledAttributeIdentifiers)
+            public NextReusableAttributeIdProvider(NextAttributeIdProvider provider, IReadOnlyList<AttributeId> reusableAttributeIdentifiers)
             {
                 _provider = provider;
                 _index = 0;
-                _recycledAttributeIdentifiers = recycledAttributeIdentifiers;
+                _reusableAttributeIdentifiers = reusableAttributeIdentifiers;
             }
 
             public AttributeId Next()
             {
-                return _index < _recycledAttributeIdentifiers.Count ? _recycledAttributeIdentifiers[_index++] : _provider.Next();
+                return _index < _reusableAttributeIdentifiers.Count ? _reusableAttributeIdentifiers[_index++] : _provider.Next();
             }
+        }
+
+        public void RestoreFromSnapshot(RoadNetworkSnapshot snapshot)
+        {
+            if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
+
+            _view = RoadNetworkView.Empty.RestoreFromSnapshot(snapshot);
+        }
+
+        public RoadNetworkSnapshot TakeSnapshot()
+        {
+            return _view.TakeSnapshot();
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.EventHost
+namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using System.Threading;
@@ -18,7 +18,6 @@ namespace RoadRegistry.BackOffice.EventHost
                     {
                         await store.ReadHeadPosition(cancellationToken);
                         exit = true;
-
                     }
                     catch (Exception)
                     {

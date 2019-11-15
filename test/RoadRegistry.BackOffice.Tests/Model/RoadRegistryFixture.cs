@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using AutoFixture;
@@ -11,6 +12,7 @@ namespace RoadRegistry.BackOffice.Model
     using NodaTime;
     using NodaTime.Testing;
     using SqlStreamStore;
+    using SqlStreamStore.Streams;
 
     public abstract class RoadRegistryFixture : IDisposable
     {
@@ -25,6 +27,14 @@ namespace RoadRegistry.BackOffice.Model
         protected IStreamStore Store { get; }
         protected FakeClock Clock { get; }
 
+        private class FakeRoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
+        {
+            public Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken)
+            {
+                return Task.FromResult<(RoadNetworkSnapshot snapshot, int version)>((null, ExpectedVersion.NoStream));
+            }
+        }
+
         protected RoadRegistryFixture()
         {
             Fixture = new Fixture();
@@ -32,7 +42,7 @@ namespace RoadRegistry.BackOffice.Model
             Clock = new FakeClock(NodaConstants.UnixEpoch);
 
             _runner = new ScenarioRunner(
-                Resolve.WhenEqualToMessage(new RoadNetworkCommandModule(Store, Clock)),
+                Resolve.WhenEqualToMessage(new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), Clock)),
                 Store,
                 Settings,
                 Mapping,

@@ -14,6 +14,8 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.IO;
+    using Model;
     using NodaTime;
     using Serilog;
     using SqlStreamStore;
@@ -25,7 +27,7 @@
 
         public static async Task Main(string[] args)
         {
-            Console.WriteLine("Starting RoadRegistry.BackOffice.CommandHost");
+            Console.WriteLine("Starting RoadRegistry.BackOffice.EventHost");
 
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
                 Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
@@ -64,7 +66,6 @@
                 })
                 .ConfigureServices((hostContext, builder) =>
                 {
-
                     builder
                         .AddSingleton<Scheduler>()
                         .AddHostedService<EventProcessor>()
@@ -83,6 +84,10 @@
                                 new SqlConnectionStringBuilder(sp.GetService<IConfiguration>()
                                     .GetConnectionString("Blobs")), "RoadRegistryBlobs"))
                         .AddSingleton<IClock>(SystemClock.Instance)
+                        .AddSingleton(new RecyclableMemoryStreamManager())
+                        .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(sp.GetService<IBlobClient>(), sp.GetService<RecyclableMemoryStreamManager>()))
+                        .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
+                        .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                         .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                             new EventHandlerModule[]
                             {
@@ -90,7 +95,12 @@
                                     sp.GetService<IBlobClient>(),
                                     new ZipArchiveTranslator(Encoding.UTF8),
                                     sp.GetService<IStreamStore>()
-                                )
+                                ),
+                                new RoadNetworkEventModule(
+                                    sp.GetService<IStreamStore>(),
+                                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                                    sp.GetService<IRoadNetworkSnapshotWriter>(),
+                                    sp.GetService<IClock>())
                             })));
                 })
                 .Build();

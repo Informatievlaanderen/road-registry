@@ -48,6 +48,7 @@ services:
     depends_on:
       - mssql
     environment:
+      CONNECTIONSTRINGS__BLOBS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__SHAPEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__SHAPEPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;

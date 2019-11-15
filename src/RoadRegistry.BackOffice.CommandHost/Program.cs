@@ -17,6 +17,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.IO;
     using Model;
     using NodaTime;
     using Serilog;
@@ -86,17 +87,23 @@
                                 new SqlConnectionStringBuilder(sp.GetService<IConfiguration>()
                                     .GetConnectionString("Blobs")), "RoadRegistryBlobs"))
                         .AddSingleton<IClock>(SystemClock.Instance)
+                        .AddSingleton(new RecyclableMemoryStreamManager())
+                        .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(sp.GetService<IBlobClient>(), sp.GetService<RecyclableMemoryStreamManager>()))
+                        .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
+                        .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                         .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                             new CommandHandlerModule[]
                             {
                                 new RoadNetworkChangesArchiveCommandModule(
                                     sp.GetService<IBlobClient>(),
                                     sp.GetService<IStreamStore>(),
+                                    sp.GetService<IRoadNetworkSnapshotReader>(),
                                     new ZipArchiveValidator(Encoding.UTF8),
                                     sp.GetService<IClock>()
                                 ),
                                 new RoadNetworkCommandModule(
                                     sp.GetService<IStreamStore>(),
+                                    sp.GetService<IRoadNetworkSnapshotReader>(),
                                     sp.GetService<IClock>()
                                 )
                             })));

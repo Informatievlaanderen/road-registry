@@ -47,8 +47,8 @@ namespace RoadRegistry.BackOffice.Simulator
             {
                 new NetTopologySuite.Geometries.LineString(new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(new[]
                 {
-                    new NetTopologySuite.Geometries.Coordinate(0.0, 0.0),
-                    new NetTopologySuite.Geometries.Coordinate(0.0, 1.0)
+                    new NetTopologySuite.Geometries.CoordinateM(0.0, 0.0, 0.0),
+                    new NetTopologySuite.Geometries.CoordinateM(0.0, 1.0, 0.0)
                 }), GeometryConfiguration.GeometryFactory)
             })));
 

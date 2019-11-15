@@ -13,6 +13,7 @@ namespace RoadRegistry.BackOffice.Translation
         public RoadNetworkChangesArchiveCommandModule(
             IBlobClient client,
             IStreamStore store,
+            IRoadNetworkSnapshotReader snapshotReader,
             IZipArchiveValidator validator,
             IClock clock)
         {
@@ -22,7 +23,7 @@ namespace RoadRegistry.BackOffice.Translation
             if (clock == null) throw new ArgumentNullException(nameof(clock));
 
             For<Messages.UploadRoadNetworkChangesArchive>()
-                .UseRoadRegistryContext(store, EnrichEvent.WithTime(clock))
+                .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
                 .Handle(async (context, message, ct) =>
                 {
                     var archiveId = new ArchiveId(message.Body.ArchiveId);

@@ -9,6 +9,8 @@ namespace RoadRegistry.BackOffice.Framework
     {
         public static readonly HashCode Initial = new HashCode(HashCodeInitializer);
 
+        public static HashCode FromHashCode(int value) => new HashCode(value);
+
         private const int HashCodeMultiplier = 37;
         private const int HashCodeInitializer = 17;
 

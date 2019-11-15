@@ -9,72 +9,143 @@ namespace RoadRegistry.BackOffice.Projections
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using Autofac.Features.OwnedInstances;
+    using Be.Vlaanderen.Basisregisters.BlobStore;
+    using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Destructurama;
+    using Framework;
+    using Messages;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Microsoft.IO;
+    using Model;
+    using Newtonsoft.Json;
+    using NodaTime;
     using Schema;
     using Serilog;
     using SqlStreamStore;
 
     public class Program
     {
-        private static readonly AutoResetEvent Closing = new AutoResetEvent(false);
-        private static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
+        private static readonly JsonSerializerSettings SerializerSettings =
+            EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+        private static readonly EventMapping EventMapping =
+            new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
         public static async Task Main(string[] args)
         {
-            Console.WriteLine("Starting RoadRegistry.BackOffice.Projections.Shape");
-            var cancellationToken = CancellationTokenSource.Token;
-            cancellationToken.Register(() => Closing.Set());
-            Console.CancelKeyPress += (sender, eventArgs) => CancellationTokenSource.Cancel();
-
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Console.WriteLine("Starting RoadRegistry.BackOffice.Projections");
 
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
-                Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
+                Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.",
+                    AppDomain.CurrentDomain.FriendlyName);
 
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
-                Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
+                Log.Fatal((Exception) eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
 
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", true, true)
-                //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
-                .AddEnvironmentVariables()
-                .AddCommandLine(args)
+            var host = new HostBuilder()
+                .ConfigureAppConfiguration((hostContext, builder) =>
+                {
+                    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+                    builder
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", true, true)
+                        .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
+                        .AddEnvironmentVariables()
+                        .AddCommandLine(args);
+                })
+                .ConfigureLogging((hostContext, builder) =>
+                {
+                    Serilog.Debugging.SelfLog.Enable(Console.WriteLine);
+
+                    var loggerConfiguration = new LoggerConfiguration()
+                        .ReadFrom.Configuration(hostContext.Configuration)
+                        .WriteTo.Console()
+                        .Enrich.FromLogContext()
+                        .Enrich.WithMachineName()
+                        .Enrich.WithThreadId()
+                        .Enrich.WithEnvironmentUserName()
+                        .Destructure.JsonNetTypes();
+
+                    Log.Logger = loggerConfiguration.CreateLogger();
+
+                    builder.AddSerilog(Log.Logger);
+                })
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+                .ConfigureServices((hostContext, builder) =>
+                {
+                    builder
+                        .AddSingleton(new WellKnownBinaryReader())
+                        .AddSingleton(new EventDeserializer((data, type) =>
+                            JsonConvert.DeserializeObject(data, type, SerializerSettings)))
+                        .AddSingleton(sp =>
+                            new MsSqlStreamStore(
+                                new MsSqlStreamStoreSettings(sp.GetService<IConfiguration>()
+                                    .GetConnectionString("Events")) {Schema = "RoadRegistry"}))
+                        .AddSingleton<IStreamStore>(sp => sp.GetRequiredService<MsSqlStreamStore>())
+                        .AddSingleton<IReadonlyStreamStore>(sp => sp.GetRequiredService<MsSqlStreamStore>())
+                        .AddSingleton<IBlobClient>(sp =>
+                            new SqlBlobClient(
+                                new SqlConnectionStringBuilder(sp.GetService<IConfiguration>()
+                                    .GetConnectionString("Blobs")), "RoadRegistryBlobs"))
+                        .AddSingleton<IClock>(SystemClock.Instance)
+                        .AddSingleton(sp => new RoadShapeRunner(
+                            new EnvelopeFactory(EventMapping, sp.GetService<EventDeserializer>()),
+                            sp.GetService<ILoggerFactory>(),
+                            sp.GetService<WellKnownBinaryReader>(),
+                            sp.GetService<IBlobClient>()))
+                        .AddDbContext<ShapeContext>((sp, options) => options
+                            .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                            .UseSqlServer(sp.GetService<IConfiguration>().GetConnectionString("ShapeProjections"),
+                                sqlServerOptions =>
+                                {
+                                    sqlServerOptions.EnableRetryOnFailure();
+                                    sqlServerOptions.MigrationsHistoryTable(MigrationTables.Shape,
+                                        Schema.ProjectionMetaData);
+                                }));
+
+//                    logger.LogInformation(
+//                        "Added {Context} to services:" + Environment.NewLine +
+//                        "\tSchema: {Schema}" + Environment.NewLine +
+//                        "\tMigrationTable: {ProjectionMetaData}.{TableName}",
+//                        nameof(ShapeContext),
+//                        Schema.Shape,
+//                        Schema.ProjectionMetaData, MigrationTables.Shape);
+                })
                 .Build();
 
-            var connectionStringBuilder =
-                new SqlConnectionStringBuilder(configuration.GetConnectionString("Events"))
-                {
-                    ConnectRetryCount = 120,
-                    ConnectRetryInterval = 30
-                };
-
-            await WaitForStreamStore(connectionStringBuilder);
-
-            var services = new ServiceCollection();
-            var app = ConfigureServices(services, configuration);
-            var logger = app.GetService<ILogger<Program>>();
-
-            MigrationsHelper.Run(
-                configuration.GetConnectionString("ShapeProjectionsAdmin"),
-                app.GetService<ILoggerFactory>());
+            var configuration = host.Services.GetService<IConfiguration>();
+            var streamStore = host.Services.GetService<IStreamStore>();
+            var logger = host.Services.GetService<ILogger<Program>>();
+            var runner = host.Services.GetService<RoadShapeRunner>();
 
             try
             {
-                using (var runner = app.GetService<RoadShapeRunner>())
-                {
-                    runner.CatchupPageSize = 5000;
-                    await runner.StartAsync(
-                        app.GetService<IStreamStore>(),
-                        app.GetService<Func<Owned<ShapeContext>>>(),
-                        cancellationToken);
+                await streamStore.WaitUntilAvailable();
 
-                    Console.WriteLine("Running... Press CTRL + C to exit.");
-                    Closing.WaitOne();
+                MigrationsHelper.Run(
+                    configuration.GetConnectionString("ShapeProjectionsAdmin"),
+                    host.Services.GetService<ILoggerFactory>());
+
+                using (var source = new CancellationTokenSource())
+                {
+                    try
+                    {
+                        runner.CatchupPageSize = 200_000;
+
+                        await runner.StartAsync(streamStore, host.Services.GetService<Func<Owned<ShapeContext>>>(), source.Token);
+                        await host.RunAsync();
+                    }
+                    finally
+                    {
+                        source.Cancel();
+                    }
                 }
             }
             catch (Exception e)
@@ -87,64 +158,13 @@ namespace RoadRegistry.BackOffice.Projections
             }
 
             Console.WriteLine("\nStopping...");
-            Closing.Close();
         }
 
-        private static IServiceProvider ConfigureServices(
-            IServiceCollection services,
-            IConfiguration configuration)
+        private class Disposable : IDisposable
         {
-            var app = services
-                .AddLogging(s => ConfigureLogging(configuration, s))
-                .BuildServiceProvider();
-
-            var builder = new ContainerBuilder();
-            builder.RegisterModule(new ShapeRunnerModule(configuration, services, app.GetService<ILoggerFactory>()));
-            return new AutofacServiceProvider(builder.Build());
-        }
-
-        private static void ConfigureLogging(
-            IConfiguration configuration,
-            ILoggingBuilder logging)
-        {
-            Serilog.Debugging.SelfLog.Enable(Console.WriteLine);
-
-            var loggerConfiguration = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .WriteTo.Console()
-                .Enrich.FromLogContext()
-                .Enrich.WithMachineName()
-                .Enrich.WithThreadId()
-                .Enrich.WithEnvironmentUserName();
-
-            //var toggles = app.ApplicationServices.GetService<IOptionsSnapshot<TogglesConfiguration>>().Value;
-            //if (toggles.LogToElasticSearch)
-            //    loggerConfiguration = loggerConfiguration.WriteTo.Elasticsearch(app.ApplicationServices.GetService<WegwijsElasticSearchSinkOptions>());
-
-            var logger = Log.Logger = loggerConfiguration.CreateLogger();
-
-            logging.AddSerilog(logger);
-        }
-
-        private static async Task WaitForStreamStore(SqlConnectionStringBuilder builder, CancellationToken token = default)
-        {
-            var exit = false;
-            while(!exit)
+            public static readonly IDisposable Disposed = new Disposable();
+            public void Dispose()
             {
-                try
-                {
-                    using (var streamStore = new MsSqlStreamStore(new MsSqlStreamStoreSettings(builder.ConnectionString)
-                    {
-                        Schema = "RoadRegistry"
-                    }))
-                    {
-                        await streamStore.ReadHeadPosition(token);
-                        exit = true;
-                    }
-                }
-                catch (Exception)
-                {
-                }
             }
         }
     }

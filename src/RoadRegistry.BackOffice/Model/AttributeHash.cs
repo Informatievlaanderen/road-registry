@@ -8,6 +8,8 @@ namespace RoadRegistry.BackOffice.Model
     {
         public static readonly AttributeHash None = new AttributeHash(HashCode.Initial);
 
+        public static AttributeHash FromHashCode(int value) => new AttributeHash(HashCode.FromHashCode(value));
+
         private readonly HashCode _hashCode;
 
         private AttributeHash(HashCode hashCode)

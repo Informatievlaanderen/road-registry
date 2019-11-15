@@ -11,7 +11,7 @@ namespace RoadRegistry.BackOffice
     using SqlStreamStore;
     using SqlStreamStore.Streams;
 
-    internal static class CommandHandlerModulePipelines
+    internal static class ModulePipelines
     {
         private static readonly JsonSerializerSettings SerializerSettings =
             EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
@@ -29,14 +29,53 @@ namespace RoadRegistry.BackOffice
         }
 
         public static ICommandHandlerBuilder<IRoadRegistryContext, TCommand> UseRoadRegistryContext<TCommand>(
-            this ICommandHandlerBuilder<TCommand> builder, IStreamStore store, EventEnricher enricher)
+            this ICommandHandlerBuilder<TCommand> builder, IStreamStore store, IRoadNetworkSnapshotReader snapshotReader,  EventEnricher enricher)
+        {
+            if (store == null) throw new ArgumentNullException(nameof(store));
+            if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
+            if (enricher == null) throw new ArgumentNullException(nameof(enricher));
+            return builder.Pipe<IRoadRegistryContext>(next => async (message, ct) =>
+                {
+                    var map = new EventSourcedEntityMap();
+                    var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping);
+
+                    await next(context, message, ct);
+
+                    foreach (var entry in map.Entries)
+                    {
+                        var events = entry.Entity.TakeEvents();
+                        if (events.Length != 0)
+                        {
+
+                            var messageId = message.MessageId.ToString("N");
+                            var version = entry.ExpectedVersion;
+                            Array.ForEach(events, @event => enricher(@event));
+                            var messages = Array.ConvertAll(
+                                events,
+                                @event =>
+                                    new NewStreamMessage(
+                                        Deterministic.Create(Deterministic.Namespaces.Events,
+                                            $"{messageId}-{version++}"),
+                                        EventMapping.GetEventName(@event.GetType()),
+                                        JsonConvert.SerializeObject(@event, SerializerSettings)
+                                    ));
+                            await store.AppendToStream(entry.Stream, entry.ExpectedVersion, messages, ct);
+                        }
+                    }
+
+                }
+            );
+        }
+
+        public static IEventHandlerBuilder<IRoadRegistryContext, TCommand> UseRoadRegistryContext<TCommand>(
+            this IEventHandlerBuilder<TCommand> builder, IStreamStore store, IRoadNetworkSnapshotReader snapshotReader, EventEnricher enricher)
         {
             if (store == null) throw new ArgumentNullException(nameof(store));
             if (enricher == null) throw new ArgumentNullException(nameof(enricher));
             return builder.Pipe<IRoadRegistryContext>(next => async (message, ct) =>
                 {
                     var map = new EventSourcedEntityMap();
-                    var context = new RoadRegistryContext(map, store, SerializerSettings, EventMapping);
+                    var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping);
 
                     await next(context, message, ct);
 

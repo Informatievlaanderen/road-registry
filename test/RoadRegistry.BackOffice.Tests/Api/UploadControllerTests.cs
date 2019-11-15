@@ -4,14 +4,17 @@ namespace RoadRegistry.BackOffice.Api
     using System.IO;
     using System.IO.Compression;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
     using Framework;
+    using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Primitives;
+    using Model;
     using Newtonsoft.Json;
     using NodaTime;
     using RoadRegistry.Api.Uploads;
@@ -22,6 +25,14 @@ namespace RoadRegistry.BackOffice.Api
 
     public class UploadControllerTests
     {
+        private class FakeRoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
+        {
+            public Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken)
+            {
+                return Task.FromResult<(RoadNetworkSnapshot snapshot, int version)>((null, ExpectedVersion.NoStream));
+            }
+        }
+
         [Fact]
         public async Task When_uploading_a_file_that_is_not_a_zip()
         {
@@ -33,6 +44,7 @@ namespace RoadRegistry.BackOffice.Api
                 new RoadNetworkChangesArchiveCommandModule(
                     client,
                     store,
+                    new FakeRoadNetworkSnapshotReader(),
                     validator,
                     SystemClock.Instance
                 )
@@ -64,6 +76,7 @@ namespace RoadRegistry.BackOffice.Api
                 new RoadNetworkChangesArchiveCommandModule(
                     client,
                     store,
+                    new FakeRoadNetworkSnapshotReader(),
                     validator,
                     SystemClock.Instance
                 )
@@ -129,6 +142,7 @@ namespace RoadRegistry.BackOffice.Api
                 new RoadNetworkChangesArchiveCommandModule(
                     client,
                     store,
+                    new FakeRoadNetworkSnapshotReader(),
                     validator,
                     SystemClock.Instance
                 )

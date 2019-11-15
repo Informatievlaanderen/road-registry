@@ -33,6 +33,7 @@ namespace RoadRegistry.Api
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using Microsoft.IO;
     using Microsoft.Net.Http.Headers;
     using Modules;
     using NodaTime;
@@ -124,16 +125,22 @@ namespace RoadRegistry.Api
                 .AddSingleton<IStreamStore>(sp => new MsSqlStreamStore(new MsSqlStreamStoreSettings(sp.GetService<IConfiguration>().GetConnectionString("Events")) { Schema = "RoadRegistry" }))
                 .AddSingleton<IBlobClient>(sp => new SqlBlobClient(new SqlConnectionStringBuilder(sp.GetService<IConfiguration>().GetConnectionString("Blobs")), "RoadRegistryBlobs"))
                 .AddSingleton<IClock>(SystemClock.Instance)
+                .AddSingleton(new RecyclableMemoryStreamManager())
+                .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(sp.GetService<IBlobClient>(), sp.GetService<RecyclableMemoryStreamManager>()))
+                .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
+                .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                 .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                     new CommandHandlerModule[] {
                         new RoadNetworkChangesArchiveCommandModule(
                             sp.GetService<IBlobClient>(),
                             sp.GetService<IStreamStore>(),
+                            sp.GetService<IRoadNetworkSnapshotReader>(),
                             new ZipArchiveValidator(Encoding.UTF8),
                             sp.GetService<IClock>()
                         ),
                         new RoadNetworkCommandModule(
                             sp.GetService<IStreamStore>(),
+                            sp.GetService<IRoadNetworkSnapshotReader>(),
                             sp.GetService<IClock>()
                         )
                     })))

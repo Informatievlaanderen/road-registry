@@ -9,9 +9,10 @@ namespace RoadRegistry.BackOffice
 
     public class RoadRegistryContext : IRoadRegistryContext
     {
-        public RoadRegistryContext(EventSourcedEntityMap map, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
+        public RoadRegistryContext(EventSourcedEntityMap map, IStreamStore store,
+            IRoadNetworkSnapshotReader snapshotReader, JsonSerializerSettings settings, EventMapping mapping)
         {
-            RoadNetworks = new RoadNetworks(map, store, settings, mapping);
+            RoadNetworks = new RoadNetworks(map, store, snapshotReader, settings, mapping);
             RoadNetworkChangesArchives = new RoadNetworkChangesArchives(map, store, settings, mapping);
         }
 
