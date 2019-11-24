@@ -158,7 +158,7 @@ namespace RoadRegistry.BackOffice.Projections
                                     new RoadNetworkChangesArchiveFileProblem
                                     {
                                         Severity = "Error",
-                                        Translation = "De shape record 1 geometrie is ongeldig."
+                                        Text = "De shape record 1 geometrie is ongeldig."
                                     }
                                 }
                             }
@@ -236,7 +236,7 @@ namespace RoadRegistry.BackOffice.Projections
                                     new RoadNetworkChangesArchiveFileProblem
                                     {
                                         Severity = "Error",
-                                        Translation = "De shape record 1 geometrie is ongeldig."
+                                        Text = "De shape record 1 geometrie is ongeldig."
                                     }
                                 }
                             }

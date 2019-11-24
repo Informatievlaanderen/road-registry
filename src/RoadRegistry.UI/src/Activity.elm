@@ -4,17 +4,16 @@ import Alert as Alert
 import Browser
 import FontAwesome as FA
 import Footer
-import Header exposing (HeaderAction, HeaderModel, TabAction)
-import Html exposing (Html, a, br, div, h1, h2, h3, i, li, main_, section, span, text, ul)
+import Header exposing (HeaderModel)
+import Html exposing (Html, a, br, div, h1, h3, i, li, main_, section, span, text, ul)
 import Html.Attributes exposing (class, classList, href, id, style)
 import Html.Attributes.Aria exposing (ariaHidden)
-import Html.Events
 import Http
 import Json.Decode as Decode
 import Json.Decode.Extra exposing (when)
 import Time exposing (Posix, every)
 
-
+main: Program String Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -24,32 +23,52 @@ type FileProblemSeverity
     | Error
 
 
-type alias FileProblemTranslation =
-    { translation : String, severity : FileProblemSeverity }
+type alias FileProblem =
+    { problem : String
+    , severity : FileProblemSeverity
+    }
 
 
 type alias FileProblems =
-    { file : String, problems : List FileProblemTranslation }
+    { file : String
+    , problems : List FileProblem
+    }
 
+type alias Archive =
+    { id : String
+    , available : Bool
+    , filename : String
+    }
 
 type ChangeFeedEntryContent
     = BeganRoadNetworkImport
     | CompletedRoadNetworkImport
-    | RoadNetworkChangesArchiveAccepted { archive : String, problems : List FileProblems }
-    | RoadNetworkChangesArchiveRejected { archive : String, problems : List FileProblems }
-    | RoadNetworkChangesArchiveUploaded { archive : String }
+    | RoadNetworkChangesArchiveAccepted { archive : Archive, problems : List FileProblems }
+    | RoadNetworkChangesArchiveRejected { archive : Archive, problems : List FileProblems }
+    | RoadNetworkChangesArchiveUploaded { archive : Archive }
 
 
 type alias ChangeFeedEntry =
-    { id : String, title : String, day : String, month : String, timeOfDay : String, content : ChangeFeedEntryContent }
+    { id : String
+    , title : String
+    , day : String
+    , month : String
+    , timeOfDay : String
+    , content : ChangeFeedEntryContent
+    }
 
 
 type alias ActivityModel =
-    { url : String, entries : List ChangeFeedEntry }
+    { url : String
+    , entries : List ChangeFeedEntry
+    }
 
 
 type alias Model =
-    { header : HeaderModel, activity : ActivityModel, alert : Alert.AlertModel }
+    { header : HeaderModel
+    , activity : ActivityModel
+    , alert : Alert.AlertModel
+    }
 
 
 decodeEntryContentType : Decode.Decoder String
@@ -62,10 +81,10 @@ is a b =
     a == b
 
 
-decodeFileProblemTranslation : Decode.Decoder FileProblemTranslation
-decodeFileProblemTranslation =
-    Decode.map2 FileProblemTranslation
-        (Decode.field "translation" Decode.string)
+decodeFileProblem : Decode.Decoder FileProblem
+decodeFileProblem =
+    Decode.map2 FileProblem
+        (Decode.field "text" Decode.string)
         (Decode.field "severity" Decode.string
             |> Decode.andThen
                 (\value ->
@@ -82,19 +101,25 @@ decodeFileProblemTranslation =
         )
 
 
-decodeFileProblem : Decode.Decoder FileProblems
-decodeFileProblem =
+decodeFileProblems : Decode.Decoder FileProblems
+decodeFileProblems =
     Decode.map2 FileProblems
         (Decode.field "file" Decode.string)
-        (Decode.field "problems" (Decode.list decodeFileProblemTranslation))
+        (Decode.field "problems" (Decode.list decodeFileProblem))
 
 
+decodeArchive : Decode.Decoder Archive
+decodeArchive =
+    Decode.map3 Archive
+        (Decode.field "id" Decode.string)
+        (Decode.field "available" Decode.bool)
+        (Decode.field "filename" Decode.string)
 decodeRoadNetworkChangesArchiveUploaded : Decode.Decoder ChangeFeedEntryContent
 decodeRoadNetworkChangesArchiveUploaded =
     Decode.field "content"
         (Decode.map
             (\archive -> RoadNetworkChangesArchiveUploaded { archive = archive })
-            (Decode.field "archiveId" Decode.string)
+            (Decode.field "archive" decodeArchive)
         )
 
 
@@ -103,8 +128,8 @@ decodeRoadNetworkChangesArchiveAccepted =
     Decode.field "content"
         (Decode.map2
             (\archive problems -> RoadNetworkChangesArchiveAccepted { archive = archive, problems = problems })
-            (Decode.field "archiveId" Decode.string)
-            (Decode.field "files" (Decode.list decodeFileProblem))
+            (Decode.field "archive" decodeArchive)
+            (Decode.field "files" (Decode.list decodeFileProblems))
         )
 
 
@@ -113,8 +138,8 @@ decodeRoadNetworkChangesArchiveRejected =
     Decode.field "content"
         (Decode.map2
             (\archive problems -> RoadNetworkChangesArchiveRejected { archive = archive, problems = problems })
-            (Decode.field "archiveId" Decode.string)
-            (Decode.field "files" (Decode.list decodeFileProblem))
+            (Decode.field "archive" decodeArchive)
+            (Decode.field "files" (Decode.list decodeFileProblems))
         )
 
 
@@ -173,7 +198,7 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ToggleExpandEntry toggleMsg ->
+        ToggleExpandEntry _ ->
             ( model, Cmd.none )
 
         GotAlertMsg alertMsg ->
@@ -183,7 +208,7 @@ update msg model =
                     , Cmd.none
                     )
 
-        Tick time ->
+        Tick _ ->
             ( model
             , Http.get
                 { url = model.activity.url
@@ -237,12 +262,6 @@ update msg model =
                             , Cmd.none
                             )
 
-
-onClickNoBubble : msg -> Html.Attribute msg
-onClickNoBubble message =
-    Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = True, preventDefault = True })
-
-
 viewActivityEntryContent : ChangeFeedEntryContent -> Html Msg
 viewActivityEntryContent content =
     case content of
@@ -254,13 +273,13 @@ viewActivityEntryContent content =
             div [ class "step__content" ]
                 []
 
-        RoadNetworkChangesArchiveUploaded _ ->
+        RoadNetworkChangesArchiveUploaded uploaded ->
             div [ class "step__content" ]
                 [ text "Archief: "
                 , a [ href "", class "link--icon link--icon--inline" ]
                     [ i [ class "vi vi-paperclip", ariaHidden True ]
                         []
-                    , text "archief.zip"
+                    , text uploaded.archive.filename
                     ]
                 ]
 
@@ -283,14 +302,15 @@ viewActivityEntryContent content =
                                                         []
                                                         [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
                                                         , text "\u{00A0}"
-                                                        , text problem.translation
+                                                        , text problem.problem
                                                         ]
+
                                                 Error ->
                                                     li
                                                         []
                                                         [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
                                                         , text "\u{00A0}"
-                                                        , text problem.translation
+                                                        , text problem.problem
                                                         ]
                                         )
                                         fileProblems.problems
@@ -304,7 +324,7 @@ viewActivityEntryContent content =
                 , a [ href "", class "link--icon link--icon--inline" ]
                     [ i [ class "vi vi-paperclip", ariaHidden True ]
                         []
-                    , text rejected.archive
+                    , text rejected.archive.filename
                     ]
                 ]
 
@@ -339,7 +359,7 @@ viewActivityEntry entry =
                         div [ class "step__header__info" ]
                             []
 
-                    RoadNetworkChangesArchiveAccepted record ->
+                    RoadNetworkChangesArchiveAccepted _ ->
                         div [ class "step__header__info" ]
                             [ i [ class "vi vi-paperclip vi-u-s" ]
                                 []
@@ -347,7 +367,7 @@ viewActivityEntry entry =
                                 []
                             ]
 
-                    RoadNetworkChangesArchiveRejected record ->
+                    RoadNetworkChangesArchiveRejected _ ->
                         div [ class "step__header__info" ]
                             [ i [ class "vi vi-paperclip vi-u-s" ]
                                 []
@@ -355,7 +375,7 @@ viewActivityEntry entry =
                                 []
                             ]
 
-                    RoadNetworkChangesArchiveUploaded record ->
+                    RoadNetworkChangesArchiveUploaded _ ->
                         div [ class "step__header__info" ]
                             [ i [ class "vi vi-paperclip vi-u-s" ]
                                 []
@@ -372,7 +392,7 @@ viewActivityEntry entry =
 
 
 viewActivityTitle : ActivityModel -> Html Msg
-viewActivityTitle model =
+viewActivityTitle _ =
     section [ class "region" ]
         [ div
             [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]

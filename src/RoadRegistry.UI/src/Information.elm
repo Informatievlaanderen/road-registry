@@ -2,19 +2,15 @@ module Information exposing (Msg(..), init, main, subscriptions, update, view)
 
 import Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showError, viewAlert)
 import Browser
-import Bytes exposing (Bytes)
 import Footer
-import Header exposing (HeaderAction, HeaderModel, TabAction)
-import Html exposing (Html, a, br, div, h1, h2, h3, i, input, label, li, main_, mark, section, span, table, tbody, td, text, th, thead, tr, ul)
-import Html.Attributes exposing (attribute, checked, class, classList, colspan, for, href, id, name, style, title, type_, value)
-import Html.Attributes.Aria exposing (ariaHidden, ariaLabel)
-import Html.Events exposing (onClick)
+import Header exposing (HeaderModel)
+import Html exposing (Html, div, main_, section, table, tbody, td, text, th, thead, tr)
+import Html.Attributes exposing (class, classList, id)
 import Http
-import HttpBytes
 import Json.Decode as D
 import Time exposing (Posix, every)
 
-
+main: Program String Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -47,7 +43,10 @@ type alias InformationModel =
 
 
 type alias Model =
-    { header : HeaderModel, information : InformationModel, alert : AlertModel }
+    { header : HeaderModel
+    , information : InformationModel
+    , alert : AlertModel
+    }
 
 
 init : String -> ( Model, Cmd Msg )
@@ -94,7 +93,7 @@ update msg model =
                 }
             )
 
-        Tick time ->
+        Tick _ ->
             ( model
             , Http.get
                 { url = model.information.url
@@ -156,20 +155,6 @@ update msg model =
                     ( { model | alert = hideAlert model.alert }
                     , Cmd.none
                     )
-
-
-viewInformationTitle : RoadNetworkInfo -> Html Msg
-viewInformationTitle model =
-    section [ class "region" ]
-        [ div
-            [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
-            [ div []
-                [ h1 [ class "h2 cta-title__title" ]
-                    [ text "Informatie" ]
-                ]
-            ]
-        ]
-
 
 viewInformation : InformationModel -> Html Msg
 viewInformation model =

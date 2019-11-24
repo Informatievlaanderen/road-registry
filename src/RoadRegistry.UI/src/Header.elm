@@ -5,15 +5,22 @@ import Html.Attributes exposing (attribute, class, classList, href, id, target)
 
 
 type alias TabAction =
-    { title : String, link : String, active : Bool }
+    { title : String
+    , link : String
+    , active : Bool
+    }
 
 
 type alias HeaderAction =
-    { title : String, link : Maybe String }
+    { title : String
+    , link : Maybe String
+    }
 
 
 type alias HeaderModel =
-    { headerActions : List HeaderAction, tabActions : List TabAction }
+    { headerActions : List HeaderAction
+    , tabActions : List TabAction
+    }
 
 
 init : HeaderModel

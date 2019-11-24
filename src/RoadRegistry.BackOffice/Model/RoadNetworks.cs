@@ -2,10 +2,8 @@ namespace RoadRegistry.BackOffice.Model
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
-    using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Framework;
     using Newtonsoft.Json;

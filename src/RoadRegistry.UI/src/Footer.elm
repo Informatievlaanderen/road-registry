@@ -1,7 +1,7 @@
 module Footer exposing (viewFooter)
 
 import Html exposing (Html, a, div, footer, span, text)
-import Html.Attributes exposing (attribute, class, href, id, itemprop, style, target, title)
+import Html.Attributes exposing (attribute, href, id, itemprop, style, target, title)
 import TypedSvg exposing (path, svg, symbol, title, use)
 import TypedSvg.Attributes exposing (d, viewBox, xlinkHref, xmlSpace)
 

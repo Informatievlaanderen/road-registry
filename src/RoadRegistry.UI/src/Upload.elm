@@ -6,23 +6,31 @@ import File exposing (File)
 import File.Select as Select
 import Filesize
 import Footer
-import Header exposing (HeaderAction, HeaderModel, TabAction)
-import Html exposing (Html, a, button, div, h1, h2, header, i, input, label, li, main_, nav, section, small, span, text, ul)
-import Html.Attributes exposing (accept, attribute, class, classList, for, href, id, name, style, target, type_)
+import Header exposing (HeaderModel)
+import Html exposing (Html, a, div, h1, h2, li, main_, section, span, text, ul)
+import Html.Attributes exposing (class, classList, id, style)
 import Html.Events exposing (onClick)
 import Http
 
-
+main: Program String Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
 type alias UploadModel =
-    { title : String, url : String, uploading : Bool, progressing : Bool, progress : String }
+    { title : String
+    , url : String
+    , uploading : Bool
+    , progressing : Bool
+    , progress : String
+    }
 
 
 type alias Model =
-    { header : HeaderModel, upload : UploadModel, alert : AlertModel }
+    { header : HeaderModel
+    , upload : UploadModel
+    , alert : AlertModel
+    }
 
 
 init : String -> ( Model, Cmd Msg )

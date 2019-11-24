@@ -1,25 +1,21 @@
 module Main exposing (init, main, subscriptions, update, view)
 
 import Browser
-import File.Download as Download
 import Footer
-import Header exposing (HeaderAction, HeaderModel, TabAction)
-import Html exposing (Html, a, button, div, h1, h2, header, li, main_, nav, section, span, text, ul)
-import Html.Attributes exposing (attribute, class, classList, href, id, style, target)
-import Html.Events exposing (onClick)
+import Header exposing (HeaderModel)
+import Html exposing (Html, div, main_, section)
+import Html.Attributes exposing (class, classList, id)
 
-
+main: Program () Model ()
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
-type alias Model =
-    { header : HeaderModel }
-
+type alias Model = HeaderModel
 
 init : () -> ( Model, Cmd () )
 init () =
-    ( { header = Header.init |> Header.homeBecameActive }
+    ( Header.init |> Header.homeBecameActive
     , Cmd.none
     )
 
@@ -46,12 +42,12 @@ view : Model -> Html ()
 view model =
     div [ class "page" ]
         [ Header.viewBanner ()
-        , Header.viewHeader model.header
+        , Header.viewHeader model
         , viewEmpty ()
         , Footer.viewFooter ()
         ]
 
 
 subscriptions : Model -> Sub ()
-subscriptions model =
+subscriptions _ =
     Sub.none

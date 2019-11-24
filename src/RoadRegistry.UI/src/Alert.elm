@@ -1,9 +1,9 @@
 module Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showError, showSuccess, viewAlert)
 
 import Html exposing (Html, a, div, section, span, text)
-import Html.Attributes exposing (class, classList, href, name)
+import Html.Attributes exposing (class, classList, href)
 import Html.Attributes.Aria exposing (ariaHidden)
-import Html.Events exposing (on, onClick)
+import Html.Events
 import Json.Decode as Decode
 
 
@@ -15,7 +15,12 @@ type AlertKind
 
 
 type alias AlertModel =
-    { title : String, kind : AlertKind, hasIcon : Bool, closeable : Bool, visible : Bool }
+    { title : String
+    , kind : AlertKind
+    , hasIcon : Bool
+    , closeable : Bool
+    , visible : Bool
+    }
 
 
 type AlertMsg

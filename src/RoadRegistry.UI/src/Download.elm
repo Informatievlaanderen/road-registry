@@ -6,24 +6,32 @@ import Bytes exposing (Bytes)
 import File.Download
 import Filesize
 import Footer
-import Header exposing (HeaderAction, HeaderModel, TabAction)
+import Header exposing (HeaderModel)
 import Html exposing (Html, a, div, h1, h2, li, main_, section, span, text, ul)
 import Html.Attributes exposing (class, classList, id, style)
 import Html.Events exposing (onClick)
 import Http
 import HttpBytes
 
-
+main: Program String Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
 type alias DownloadModel =
-    { title : String, url : String, downloading : Bool, progressing : Bool, progress : String }
+    { title : String
+    , url : String
+    , downloading : Bool
+    , progressing : Bool
+    , progress : String
+    }
 
 
 type alias Model =
-    { header : HeaderModel, download : DownloadModel, alert : AlertModel }
+    { header : HeaderModel
+    , download : DownloadModel
+    , alert : AlertModel
+    }
 
 
 init : String -> ( Model, Cmd Msg )

@@ -82,7 +82,7 @@ namespace RoadRegistry.BackOffice.Projections
                                 .Select(problem => new RoadNetworkChangesArchiveFileProblem
                                 {
                                     Severity = problem.Severity.ToString(),
-                                    Translation = ProblemWithZipArchiveTranslator(problem)
+                                    Text = ProblemWithZipArchiveTranslator(problem)
                                 })
                                 .ToArray()
                         })
@@ -127,7 +127,7 @@ namespace RoadRegistry.BackOffice.Projections
                                 .Select(problem => new RoadNetworkChangesArchiveFileProblem
                                 {
                                     Severity = problem.Severity.ToString(),
-                                    Translation = ProblemWithZipArchiveTranslator(problem)
+                                    Text = ProblemWithZipArchiveTranslator(problem)
                                 })
                                 .ToArray()
                         })
