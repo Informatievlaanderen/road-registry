@@ -4,6 +4,8 @@ namespace RoadRegistry.BackOffice.Translation
 
     public readonly struct ArchiveId : IEquatable<ArchiveId>
     {
+        public const int MaxLength = 32;
+
         private readonly string _value;
 
         public ArchiveId(string value)
@@ -11,7 +13,16 @@ namespace RoadRegistry.BackOffice.Translation
             if (string.IsNullOrEmpty(value))
                 throw new ArgumentNullException(nameof(value), "The archive identifier must not be null or empty.");
 
+            if (value.Length > MaxLength)
+                throw new ArgumentOutOfRangeException(nameof(value),
+                    $"The archive identifier must be {MaxLength} characters or less.");
+
             _value = value;
+        }
+
+        public static bool Accepts(string value)
+        {
+            return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
         }
 
         public bool Equals(ArchiveId other) => _value == other._value;

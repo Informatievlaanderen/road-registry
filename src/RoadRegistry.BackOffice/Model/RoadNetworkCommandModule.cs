@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Model
     using Messages;
     using NodaTime;
     using SqlStreamStore;
+    using Translation;
 
     public class RoadNetworkCommandModule : CommandHandlerModule
     {
@@ -14,11 +15,12 @@ namespace RoadRegistry.BackOffice.Model
             if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
             if (clock == null) throw new ArgumentNullException(nameof(clock));
 
-            For<ChangeRoadNetwork>()
-                .UseValidator(new ChangeRoadNetworkValidator())
+            For<ChangeRoadNetworkBasedOnArchive>()
+                .UseValidator(new ChangeRoadNetworkBasedOnArchiveValidator())
                 .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
                 .Handle(async (context, message, ct) =>
                 {
+                    var archive = new ArchiveId(message.Body.ArchiveId);
                     var network = await context.RoadNetworks.Get(ct);
                     var translator = new RequestedChangeTranslator(
                         network.ProvidesNextRoadNodeId(),
@@ -32,7 +34,7 @@ namespace RoadRegistry.BackOffice.Model
                         network.ProvidesNextRoadSegmentSurfaceAttributeId()
                     );
                     var requestedChanges = translator.Translate(message.Body.Changes);
-                    network.Change(requestedChanges);
+                    network.ChangeBaseOnArchive(archive, requestedChanges);
                 });
         }
     }

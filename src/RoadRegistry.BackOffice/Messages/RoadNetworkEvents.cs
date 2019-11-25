@@ -15,7 +15,9 @@ namespace RoadRegistry.BackOffice.Messages
             typeof(RoadNetworkChangesRejected),
             typeof(RoadNetworkChangesArchiveAccepted),
             typeof(RoadNetworkChangesArchiveRejected),
-            typeof(RoadNetworkChangesArchiveUploaded)
+            typeof(RoadNetworkChangesArchiveUploaded),
+            typeof(RoadNetworkChangesBasedOnArchiveAccepted),
+            typeof(RoadNetworkChangesBasedOnArchiveRejected)
         };
     }
 }

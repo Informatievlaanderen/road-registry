@@ -9,6 +9,10 @@ namespace RoadRegistry.BackOffice
     using Model;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.Geometries.Implementation;
+    using Translation;
+    using RoadSegmentLaneAttribute = Model.RoadSegmentLaneAttribute;
+    using RoadSegmentSurfaceAttribute = Model.RoadSegmentSurfaceAttribute;
+    using RoadSegmentWidthAttribute = Model.RoadSegmentWidthAttribute;
 
     internal static class SharedCustomizations
     {
@@ -46,6 +50,16 @@ namespace RoadRegistry.BackOffice
                     new MaintenanceAuthorityId(new string(
                         (char)generator.Next(97, 123), // a-z
                         generator.Next(1, MaintenanceAuthorityId.MaxLength + 1))))
+            );
+        }
+
+        public static void CustomizeArchiveId(this IFixture fixture)
+        {
+            fixture.Customize<ArchiveId>(composer =>
+                composer.FromFactory(generator =>
+                    new ArchiveId(new string(
+                        (char)generator.Next(97, 123), // a-z
+                        generator.Next(1, ArchiveId.MaxLength + 1))))
             );
         }
 

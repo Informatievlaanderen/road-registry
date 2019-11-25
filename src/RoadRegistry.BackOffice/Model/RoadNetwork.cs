@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Model
     using System.Collections.Generic;
     using Framework;
     using Messages;
+    using Translation;
 
     public class RoadNetwork : EventSourcedEntity
     {
@@ -30,7 +31,7 @@ namespace RoadRegistry.BackOffice.Model
                 _view = _view.Given(e);
             });
 
-            On<RoadNetworkChangesAccepted>(e =>
+            On<RoadNetworkChangesBasedOnArchiveAccepted>(e =>
             {
                 _view = _view.Given(e);
             });
@@ -43,6 +44,15 @@ namespace RoadRegistry.BackOffice.Model
             requestedChanges
                 .VerifyWith(_view.With(requestedChanges))
                 .RecordUsing(Apply);
+        }
+
+        public void ChangeBaseOnArchive(ArchiveId archiveId, RequestedChanges requestedChanges)
+        {
+            //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
+
+            requestedChanges
+                .VerifyWith(_view.With(requestedChanges))
+                .RecordUsing(archiveId, Apply);
         }
 
         public Func<RoadNodeId> ProvidesNextRoadNodeId()

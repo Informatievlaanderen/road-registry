@@ -21,6 +21,7 @@ namespace RoadRegistry.BackOffice.Projections
         public RoadNetworkActivityProjectionTests()
         {
             _fixture = new Fixture();
+            _fixture.CustomizeArchiveId();
             _client = new MemoryBlobClient();
         }
 

@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Model
     using System;
     using System.Collections.Immutable;
     using System.Linq;
+    using Translation;
 
     public class VerifiedChanges
     {
@@ -44,6 +45,36 @@ namespace RoadRegistry.BackOffice.Model
             {
                 applier(new Messages.RoadNetworkChangesAccepted
                 {
+                    Changes = _changes
+                        .OfType<AcceptedChange>()
+                        .Select(change => change.Translate())
+                        .ToArray()
+                });
+            }
+        }
+
+        public void RecordUsing(ArchiveId archiveId, Action<object> applier)
+        {
+            if (applier == null) throw new ArgumentNullException(nameof(applier));
+
+            if (_changes.Count == 0) return;
+
+            if (_changes.OfType<RejectedChange>().Any())
+            {
+                applier(new Messages.RoadNetworkChangesBasedOnArchiveRejected
+                {
+                    ArchiveId = archiveId,
+                    Changes = _changes
+                        .OfType<RejectedChange>()
+                        .Select(change => change.Translate())
+                        .ToArray()
+                });
+            }
+            else
+            {
+                applier(new Messages.RoadNetworkChangesBasedOnArchiveAccepted
+                {
+                    ArchiveId = archiveId,
                     Changes = _changes
                         .OfType<AcceptedChange>()
                         .Select(change => change.Translate())

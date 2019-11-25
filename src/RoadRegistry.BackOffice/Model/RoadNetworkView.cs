@@ -238,6 +238,38 @@ namespace RoadRegistry.BackOffice.Model
             return result;
         }
 
+        public RoadNetworkView Given(Messages.RoadNetworkChangesBasedOnArchiveAccepted @event)
+        {
+            if (@event == null) throw new ArgumentNullException(nameof(@event));
+            var result = this;
+            foreach (var change in Messages.ChangeExtensions.Flatten(@event.Changes))
+            {
+                switch (change)
+                {
+                    case Messages.RoadNodeAdded roadNodeAdded:
+                        result = result.Given(roadNodeAdded);
+                        break;
+                    case Messages.RoadSegmentAdded roadSegmentAdded:
+                        result = result.Given(roadSegmentAdded);
+                        break;
+                    case Messages.RoadSegmentAddedToEuropeanRoad roadSegmentAddedToEuropeanRoad:
+                        result = result.Given(roadSegmentAddedToEuropeanRoad);
+                        break;
+                    case Messages.RoadSegmentAddedToNationalRoad roadSegmentAddedToNationalRoad:
+                        result = result.Given(roadSegmentAddedToNationalRoad);
+                        break;
+                    case Messages.RoadSegmentAddedToNumberedRoad roadSegmentAddedToNumberedRoad:
+                        result = result.Given(roadSegmentAddedToNumberedRoad);
+                        break;
+                    case Messages.GradeSeparatedJunctionAdded gradeSeparatedJunctionAdded:
+                        result = result.Given(gradeSeparatedJunctionAdded);
+                        break;
+                }
+            }
+
+            return result;
+        }
+
         private RoadNetworkView Given(Messages.RoadNodeAdded @event)
         {
             var id = new RoadNodeId(@event.Id);

@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.Model
 {
-    using System.Collections.Generic;
     using Framework;
     using Messages;
+    using Translation;
 
     public static class TheOperator
     {
@@ -10,6 +10,15 @@ namespace RoadRegistry.BackOffice.Model
         {
             return new Command(new ChangeRoadNetwork
             {
+                Changes = changes
+            });
+        }
+
+        public static Command ChangesTheRoadNetworkBasedOnAnArchive(ArchiveId archive, params RequestedChange[] changes)
+        {
+            return new Command(new ChangeRoadNetworkBasedOnArchive
+            {
+                ArchiveId = archive,
                 Changes = changes
             });
         }

@@ -12,38 +12,44 @@ namespace RoadRegistry.BackOffice.Model
             {
                 switch (@event)
                 {
-                    case Messages.BeganRoadNetworkImport began:
-                        began.When = pattern.Format(clock.GetCurrentInstant());
+                    case Messages.BeganRoadNetworkImport m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.CompletedRoadNetworkImport completed:
-                        completed.When = pattern.Format(clock.GetCurrentInstant());
+                    case Messages.CompletedRoadNetworkImport m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.ImportedOrganization organization:
-                        organization.When = pattern.Format(clock.GetCurrentInstant());
+                    case Messages.ImportedOrganization m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.ImportedRoadNode roadNode:
-                        roadNode.When = pattern.Format(clock.GetCurrentInstant());
+                    case Messages.ImportedRoadNode m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.ImportedRoadSegment roadSegment:
-                        roadSegment.When = pattern.Format(clock.GetCurrentInstant());
+                    case Messages.ImportedRoadSegment m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.ImportedGradeSeparatedJunction gradeSeparatedJunction:
-                        gradeSeparatedJunction.When = pattern.Format(clock.GetCurrentInstant());
+                    case Messages.ImportedGradeSeparatedJunction m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.RoadNetworkChangesArchiveUploaded uploaded:
-                        uploaded.When = pattern.Format(clock.GetCurrentInstant());
+                    case Messages.RoadNetworkChangesArchiveUploaded m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.RoadNetworkChangesArchiveAccepted archiveAccepted:
-                        archiveAccepted.When = pattern.Format(clock.GetCurrentInstant());
+                    case Messages.RoadNetworkChangesArchiveAccepted m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.RoadNetworkChangesArchiveRejected archiveRejected:
-                        archiveRejected.When = pattern.Format(clock.GetCurrentInstant());
+                    case Messages.RoadNetworkChangesArchiveRejected m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.RoadNetworkChangesAccepted changesAccepted:
-                        changesAccepted.When = pattern.Format(clock.GetCurrentInstant());
+                    case Messages.RoadNetworkChangesAccepted m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.RoadNetworkChangesRejected changesRejected:
-                        changesRejected.When = pattern.Format(clock.GetCurrentInstant());
+                    case Messages.RoadNetworkChangesRejected m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
+                        break;
+                    case Messages.RoadNetworkChangesBasedOnArchiveAccepted m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
+                        break;
+                    case Messages.RoadNetworkChangesBasedOnArchiveRejected m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
                 }
             };
