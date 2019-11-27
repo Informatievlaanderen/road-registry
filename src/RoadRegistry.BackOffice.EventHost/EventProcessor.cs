@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.EventHost
 {
     using System;
+    using System.Data.SqlClient;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Dataflow;
@@ -80,6 +81,7 @@ namespace RoadRegistry.BackOffice.EventHost
                                             _messagePumpInbox.Post(new SubscriptionDropped(reason, exception));
                                         }
                                     },
+                                    prefetchJsonData: false,
                                     name: "RoadRegistry.BackOffice.EventProcessor");
                                 break;
                             case ProcessStreamMessage process:
@@ -125,6 +127,19 @@ namespace RoadRegistry.BackOffice.EventHost
                                 else if(dropped.Reason == SubscriptionDroppedReason.SubscriberError)
                                 {
                                     logger.LogError(dropped.Exception, "Subscription was dropped because of a subscriber error.");
+
+                                    if (dropped.Exception != null
+                                        && dropped.Exception is SqlException sqlException
+                                        && sqlException.Number == -2 /* timeout */)
+                                    {
+                                        scheduler.Schedule(() =>
+                                        {
+                                            if (!_messagePumpCancellation.IsCancellationRequested)
+                                            {
+                                                _messagePumpInbox.Post(new Subscribe());
+                                            }
+                                        }, ResubscribeAfter);
+                                    }
                                 }
 
                                 break;
