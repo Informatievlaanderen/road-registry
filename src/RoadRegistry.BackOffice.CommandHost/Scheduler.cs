@@ -113,7 +113,7 @@ namespace RoadRegistry.BackOffice.CommandHost
                                         _logger.Log(LogLevel.Debug, "Timer activate because new scheduled actions.");
                                     }
 
-                                    _timer.Change(_frequency, Timeout.InfiniteTimeSpan);
+                                    _timer.Change(_frequency, _frequency);
                                 }
 
                                 if (_logger.IsEnabled(LogLevel.Debug))
@@ -128,15 +128,23 @@ namespace RoadRegistry.BackOffice.CommandHost
                     }
                     catch (TaskCanceledException)
                     {
+                        if (_logger.IsEnabled(LogLevel.Information))
+                        {
+                            _logger.Log(LogLevel.Information, "Scheduler message pump is exiting due to cancellation.");
+                        }
                     }
                     catch (OperationCanceledException)
                     {
-                    }
-                    finally
-                    {
                         if (_logger.IsEnabled(LogLevel.Information))
                         {
-                            _logger.Log(LogLevel.Information, "Scheduler message pump is exiting (either due to cancellation or a bug).");
+                            _logger.Log(LogLevel.Information, "Scheduler message pump is exiting due to cancellation.");
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        if (_logger.IsEnabled(LogLevel.Error))
+                        {
+                            _logger.Log(LogLevel.Error, exception, "Scheduler message pump is exiting due to a bug.");
                         }
                     }
                 }
