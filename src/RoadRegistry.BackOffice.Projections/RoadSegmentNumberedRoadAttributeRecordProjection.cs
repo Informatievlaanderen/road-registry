@@ -3,54 +3,53 @@ namespace RoadRegistry.BackOffice.Projections
     using System;
     using System.Linq;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Messages;
+    using Microsoft.IO;
     using Model;
     using Schema;
     using Schema.RoadSegmentNumberedRoadAttributes;
 
     public class RoadSegmentNumberedRoadAttributeRecordProjection : ConnectedProjection<ShapeContext>
     {
-        private readonly Encoding _encoding;
-
-        public RoadSegmentNumberedRoadAttributeRecordProjection(Encoding encoding)
+        public RoadSegmentNumberedRoadAttributeRecordProjection(RecyclableMemoryStreamManager manager,
+            Encoding encoding)
         {
-            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-            When<Envelope<ImportedRoadSegment>>((context, message, token) => HandleImportedRoadSegment(context, message.Message, token));
-        }
+            if (manager == null) throw new ArgumentNullException(nameof(manager));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+            When<Envelope<ImportedRoadSegment>>((context, envelope, token) =>
+            {
+                if (envelope.Message.PartOfNumberedRoads.Length == 0)
+                    return Task.CompletedTask;
 
-        private Task HandleImportedRoadSegment(ShapeContext context, ImportedRoadSegment @event, CancellationToken token)
-        {
-            if(@event.PartOfNumberedRoads.Length == 0)
-                return Task.CompletedTask;
-
-            var numberedRoadAttributes = @event
-                .PartOfNumberedRoads
-                .Select(numberedRoad =>
-                {
-                    var directionTranslation = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
-                    return new RoadSegmentNumberedRoadAttributeRecord
+                var numberedRoadAttributes = envelope.Message
+                    .PartOfNumberedRoads
+                    .Select(numberedRoad =>
                     {
-                        Id = numberedRoad.AttributeId,
-                        RoadSegmentId = @event.Id,
-                        DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
+                        var directionTranslation =
+                            RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
+                        return new RoadSegmentNumberedRoadAttributeRecord
                         {
-                            GW_OIDN = {Value = numberedRoad.AttributeId},
-                            WS_OIDN = {Value = @event.Id},
-                            IDENT8 = {Value = numberedRoad.Ident8},
-                            RICHTING = {Value = directionTranslation.Identifier},
-                            LBLRICHT = {Value = directionTranslation.Name},
-                            VOLGNUMMER = {Value = numberedRoad.Ordinal},
-                            BEGINTIJD = {Value = numberedRoad.Origin.Since},
-                            BEGINORG = {Value = numberedRoad.Origin.OrganizationId},
-                            LBLBGNORG = {Value = numberedRoad.Origin.Organization},
-                        }.ToBytes(_encoding)
-                    };
-                });
-            return context.AddRangeAsync(numberedRoadAttributes, token);
+                            Id = numberedRoad.AttributeId,
+                            RoadSegmentId = envelope.Message.Id,
+                            DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
+                            {
+                                GW_OIDN = {Value = numberedRoad.AttributeId},
+                                WS_OIDN = {Value = envelope.Message.Id},
+                                IDENT8 = {Value = numberedRoad.Ident8},
+                                RICHTING = {Value = directionTranslation.Identifier},
+                                LBLRICHT = {Value = directionTranslation.Name},
+                                VOLGNUMMER = {Value = numberedRoad.Ordinal},
+                                BEGINTIJD = {Value = numberedRoad.Origin.Since},
+                                BEGINORG = {Value = numberedRoad.Origin.OrganizationId},
+                                LBLBGNORG = {Value = numberedRoad.Origin.Organization},
+                            }.ToBytes(manager, encoding)
+                        };
+                    });
+                return context.AddRangeAsync(numberedRoadAttributes, token);
+            });
         }
     }
 }

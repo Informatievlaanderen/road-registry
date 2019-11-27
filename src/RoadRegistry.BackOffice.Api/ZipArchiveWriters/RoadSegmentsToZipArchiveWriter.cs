@@ -11,13 +11,16 @@ namespace RoadRegistry.Api.ZipArchiveWriters
     using BackOffice.Schema.RoadSegments;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.IO;
 
     public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter
     {
+        private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
-        public RoadSegmentsToZipArchiveWriter(Encoding encoding)
+        public RoadSegmentsToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
+            _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
@@ -43,7 +46,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
                 var dbfRecord = new RoadSegmentDbaseRecord();
                 foreach (var data in context.RoadSegments.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
-                    dbfRecord.FromBytes(data, _encoding);
+                    dbfRecord.FromBytes(data, _manager, _encoding);
                     dbfWriter.Write(dbfRecord);
                 }
                 dbfWriter.Writer.Flush();
@@ -75,8 +78,8 @@ namespace RoadRegistry.Api.ZipArchiveWriters
                 foreach (var data in context.RoadSegments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
                 {
                     shpWriter.Write(
-                        ShapeContent
-                            .FromBytes(data, _encoding)
+                        ShapeContentFactory
+                            .FromBytes(data, _manager, _encoding)
                             .RecordAs(number)
                     );
                     number = number.Next();
@@ -97,8 +100,8 @@ namespace RoadRegistry.Api.ZipArchiveWriters
                 var number = RecordNumber.Initial;
                 foreach (var data in context.RoadSegments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
                 {
-                    var shpRecord = ShapeContent
-                        .FromBytes(data, _encoding)
+                    var shpRecord = ShapeContentFactory
+                        .FromBytes(data, _manager, _encoding)
                         .RecordAs(number);
                     shxWriter.Write(shpRecord.IndexAt(offset));
                     number = number.Next();

@@ -3,38 +3,35 @@ namespace RoadRegistry.BackOffice.Projections
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Messages;
+    using Microsoft.IO;
     using Schema;
     using Schema.Organizations;
 
     public class OrganizationRecordProjection : ConnectedProjection<ShapeContext>
     {
-        private readonly Encoding _encoding;
-
-        public OrganizationRecordProjection(Encoding encoding)
+        public OrganizationRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
-            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-            When<Envelope<ImportedOrganization>>((content, message, token) => HandleImportedOrganization(content, message.Message, token));
-        }
+            if (manager == null) throw new ArgumentNullException(nameof(manager));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
-        private Task HandleImportedOrganization(ShapeContext content, ImportedOrganization @event, CancellationToken token)
-        {
-            var organization = new OrganizationRecord
+            When<Envelope<ImportedOrganization>>((content, envelope, token) =>
             {
-                Code = @event.Code,
-                SortableCode = GetSortableCodeFor(@event.Code),
-                DbaseRecord = new OrganizationDbaseRecord
+                var organization = new OrganizationRecord
                 {
-                    ORG = { Value = @event.Code },
-                    LBLORG = { Value = @event.Name },
-                }.ToBytes(_encoding)
-            };
+                    Code = envelope.Message.Code,
+                    SortableCode = GetSortableCodeFor(envelope.Message.Code),
+                    DbaseRecord = new OrganizationDbaseRecord
+                    {
+                        ORG = {Value = envelope.Message.Code},
+                        LBLORG = {Value = envelope.Message.Name},
+                    }.ToBytes(manager, encoding)
+                };
 
-            return content.AddAsync(organization, token);
+                return content.AddAsync(organization, token);
+            });
         }
 
         private static readonly IDictionary<string, string> SortableCodeAnomalies =

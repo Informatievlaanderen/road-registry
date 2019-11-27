@@ -7,28 +7,30 @@ namespace RoadRegistry.Api.ZipArchiveWriters
     using System.Threading.Tasks;
     using BackOffice.Schema;
     using BackOffice.Schema.ReferenceData;
+    using Microsoft.IO;
 
     public class RoadNetworkForShapeEditingZipArchiveWriter : IZipArchiveWriter
     {
         private readonly IZipArchiveWriter _writer;
 
-        public RoadNetworkForShapeEditingZipArchiveWriter(Encoding encoding)
+        public RoadNetworkForShapeEditingZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
+            if (manager == null) throw new ArgumentNullException(nameof(manager));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             _writer = new CompositeZipArchiveWriter(
                 new ReadCommittedZipArchiveWriter(
                     new CompositeZipArchiveWriter(
-                        new OrganizationsToZipArchiveWriter(encoding),
-                        new RoadNodesToZipArchiveWriter(encoding),
-                        new RoadSegmentsToZipArchiveWriter(encoding),
-                        new RoadSegmentLaneAttributesToZipArchiveWriter(encoding),
-                        new RoadSegmentWidthAttributesToZipArchiveWriter(encoding),
-                        new RoadSegmentSurfaceAttributesToZipArchiveWriter(encoding),
-                        new RoadSegmentNationalRoadAttributesToZipArchiveWriter(encoding),
-                        new RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(encoding),
-                        new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(encoding),
-                        new GradeSeperatedJunctionArchiveWriter(encoding)
+                        new OrganizationsToZipArchiveWriter(manager, encoding),
+                        new RoadNodesToZipArchiveWriter(manager, encoding),
+                        new RoadSegmentsToZipArchiveWriter(manager, encoding),
+                        new RoadSegmentLaneAttributesToZipArchiveWriter(manager, encoding),
+                        new RoadSegmentWidthAttributesToZipArchiveWriter(manager, encoding),
+                        new RoadSegmentSurfaceAttributesToZipArchiveWriter(manager, encoding),
+                        new RoadSegmentNationalRoadAttributesToZipArchiveWriter(manager, encoding),
+                        new RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(manager, encoding),
+                        new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(manager, encoding),
+                        new GradeSeparatedJunctionArchiveWriter(manager, encoding)
                     )
                 ),
                 new DbaseFileArchiveWriter("WegknoopLktType.dbf", RoadNodeTypeDbaseRecord.Schema, Lists.AllRoadNodeTypeDbaseRecords, encoding),

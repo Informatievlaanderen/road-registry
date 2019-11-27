@@ -1,5 +1,6 @@
 namespace RoadRegistry.Api.Downloads
 {
+    using System;
     using System.IO.Compression;
     using System.Text;
     using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace RoadRegistry.Api.Downloads
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.IO;
     using Microsoft.Net.Http.Headers;
     using Newtonsoft.Json.Converters;
     using Responses;
@@ -22,6 +24,13 @@ namespace RoadRegistry.Api.Downloads
     [ApiExplorerSettings(GroupName = "Downloads")]
     public class DownloadController : ControllerBase
     {
+        private readonly RecyclableMemoryStreamManager _manager;
+
+        public DownloadController(RecyclableMemoryStreamManager manager)
+        {
+            _manager = manager ?? throw new ArgumentNullException(nameof(manager));
+        }
+
         /// <summary>
         /// Request an archive of the entire road registry for shape editing purposes.
         /// </summary>
@@ -48,7 +57,7 @@ namespace RoadRegistry.Api.Downloads
                 async (stream, actionContext) =>
                 {
                     var encoding = Encoding.ASCII; // TODO: Inject
-                    var writer = new RoadNetworkForShapeEditingZipArchiveWriter(encoding);
+                    var writer = new RoadNetworkForShapeEditingZipArchiveWriter(_manager, encoding);
                     using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
                     {
                         await writer.WriteAsync(archive, context, HttpContext.RequestAborted);

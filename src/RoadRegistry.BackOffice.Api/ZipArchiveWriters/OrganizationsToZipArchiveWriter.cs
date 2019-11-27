@@ -11,13 +11,16 @@ namespace RoadRegistry.Api.ZipArchiveWriters
     using BackOffice.Schema.Organizations;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.IO;
 
     public class OrganizationsToZipArchiveWriter : IZipArchiveWriter
     {
+        private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
-        public OrganizationsToZipArchiveWriter(Encoding encoding)
+        public OrganizationsToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
+            _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
@@ -42,7 +45,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
                 var dbfRecord = new OrganizationDbaseRecord();
                 foreach (var data in context.Organizations.OrderBy(_ => _.SortableCode).Select(_ => _.DbaseRecord))
                 {
-                    dbfRecord.FromBytes(data, _encoding);
+                    dbfRecord.FromBytes(data, _manager, _encoding);
                     dbfWriter.Write(dbfRecord);
                 }
                 dbfWriter.Writer.Flush();

@@ -13,19 +13,20 @@ import Json.Decode as Decode
 import Json.Decode.Extra exposing (when)
 import Time exposing (Posix, every)
 
-main: Program String Model Msg
+
+main : Program String Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
-type FileProblemSeverity
+type ProblemSeverity
     = Warning
     | Error
 
 
 type alias FileProblem =
     { problem : String
-    , severity : FileProblemSeverity
+    , severity : ProblemSeverity
     }
 
 
@@ -34,11 +35,25 @@ type alias FileProblems =
     , problems : List FileProblem
     }
 
+
+type alias ChangeProblem =
+    { problem : String
+    , severity : ProblemSeverity
+    }
+
+
+type alias ChangeProblems =
+    { change : String
+    , problems : List ChangeProblem
+    }
+
+
 type alias Archive =
     { id : String
     , available : Bool
     , filename : String
     }
+
 
 type ChangeFeedEntryContent
     = BeganRoadNetworkImport
@@ -46,6 +61,7 @@ type ChangeFeedEntryContent
     | RoadNetworkChangesArchiveAccepted { archive : Archive, problems : List FileProblems }
     | RoadNetworkChangesArchiveRejected { archive : Archive, problems : List FileProblems }
     | RoadNetworkChangesArchiveUploaded { archive : Archive }
+    | RoadNetworkChangesBasedOnArchiveRejected { archive : Archive, problems : List ChangeProblems }
 
 
 type alias ChangeFeedEntry =
@@ -101,11 +117,38 @@ decodeFileProblem =
         )
 
 
+decodeChangeProblem : Decode.Decoder ChangeProblem
+decodeChangeProblem =
+    Decode.map2 ChangeProblem
+        (Decode.field "text" Decode.string)
+        (Decode.field "severity" Decode.string
+            |> Decode.andThen
+                (\value ->
+                    case value of
+                        "Warning" ->
+                            Decode.succeed Warning
+
+                        "Error" ->
+                            Decode.succeed Error
+
+                        other ->
+                            Decode.fail <| "Unknown severity: " ++ other
+                )
+        )
+
+
 decodeFileProblems : Decode.Decoder FileProblems
 decodeFileProblems =
     Decode.map2 FileProblems
         (Decode.field "file" Decode.string)
         (Decode.field "problems" (Decode.list decodeFileProblem))
+
+
+decodeChangeProblems : Decode.Decoder ChangeProblems
+decodeChangeProblems =
+    Decode.map2 ChangeProblems
+        (Decode.field "change" Decode.string)
+        (Decode.field "problems" (Decode.list decodeChangeProblem))
 
 
 decodeArchive : Decode.Decoder Archive
@@ -114,6 +157,8 @@ decodeArchive =
         (Decode.field "id" Decode.string)
         (Decode.field "available" Decode.bool)
         (Decode.field "filename" Decode.string)
+
+
 decodeRoadNetworkChangesArchiveUploaded : Decode.Decoder ChangeFeedEntryContent
 decodeRoadNetworkChangesArchiveUploaded =
     Decode.field "content"
@@ -143,6 +188,16 @@ decodeRoadNetworkChangesArchiveRejected =
         )
 
 
+decodeRoadNetworkChangesBasedOnArchiveRejected : Decode.Decoder ChangeFeedEntryContent
+decodeRoadNetworkChangesBasedOnArchiveRejected =
+    Decode.field "content"
+        (Decode.map2
+            (\archive problems -> RoadNetworkChangesBasedOnArchiveRejected { archive = archive, problems = problems })
+            (Decode.field "archive" decodeArchive)
+            (Decode.field "changes" (Decode.list decodeChangeProblems))
+        )
+
+
 decodeEntry : Decode.Decoder ChangeFeedEntry
 decodeEntry =
     Decode.map6 ChangeFeedEntry
@@ -157,6 +212,7 @@ decodeEntry =
             , when decodeEntryContentType (is "RoadNetworkChangesArchiveAccepted") decodeRoadNetworkChangesArchiveAccepted
             , when decodeEntryContentType (is "RoadNetworkChangesArchiveRejected") decodeRoadNetworkChangesArchiveRejected
             , when decodeEntryContentType (is "RoadNetworkChangesArchiveUploaded") decodeRoadNetworkChangesArchiveUploaded
+            , when decodeEntryContentType (is "RoadNetworkChangesBasedOnArchiveRejected") decodeRoadNetworkChangesBasedOnArchiveRejected
             ]
         )
 
@@ -262,6 +318,7 @@ update msg model =
                             , Cmd.none
                             )
 
+
 viewActivityEntryContent : ChangeFeedEntryContent -> Html Msg
 viewActivityEntryContent content =
     case content of
@@ -332,6 +389,51 @@ viewActivityEntryContent content =
             div [ class "step__content" ]
                 [ ul []
                     (List.map (\problem -> li [] [ text problem.file ]) accepted.problems)
+                ]
+
+        RoadNetworkChangesBasedOnArchiveRejected rejected ->
+            div [ class "step__content" ]
+                [ ul
+                    []
+                    (List.map
+                        (\changeProblems ->
+                            li
+                                [ style "padding-top" "5px" ]
+                                [ span [ style "font-weight" "bold" ] [ text changeProblems.change ]
+                                , ul
+                                    []
+                                    (List.map
+                                        (\problem ->
+                                            case problem.severity of
+                                                Warning ->
+                                                    li
+                                                        []
+                                                        [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
+                                                        , text "\u{00A0}"
+                                                        , text problem.problem
+                                                        ]
+
+                                                Error ->
+                                                    li
+                                                        []
+                                                        [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
+                                                        , text "\u{00A0}"
+                                                        , text problem.problem
+                                                        ]
+                                        )
+                                        changeProblems.problems
+                                    )
+                                ]
+                        )
+                        rejected.problems
+                    )
+                , br [] []
+                , text "Archief: "
+                , a [ href "", class "link--icon link--icon--inline" ]
+                    [ i [ class "vi vi-paperclip", ariaHidden True ]
+                        []
+                    , text rejected.archive.filename
+                    ]
                 ]
 
 

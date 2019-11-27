@@ -81,7 +81,6 @@ namespace RoadRegistry.BackOffice.Projections
                 .ConfigureServices((hostContext, builder) =>
                 {
                     builder
-                        .AddSingleton(new WellKnownBinaryReader())
                         .AddSingleton(new EventDeserializer((data, type) =>
                             JsonConvert.DeserializeObject(data, type, SerializerSettings)))
                         .AddSingleton(sp =>
@@ -95,11 +94,12 @@ namespace RoadRegistry.BackOffice.Projections
                                 new SqlConnectionStringBuilder(sp.GetService<IConfiguration>()
                                     .GetConnectionString("Blobs")), "RoadRegistryBlobs"))
                         .AddSingleton<IClock>(SystemClock.Instance)
+                        .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(sp => new RoadShapeRunner(
                             new EnvelopeFactory(EventMapping, sp.GetService<EventDeserializer>()),
                             sp.GetService<ILoggerFactory>(),
-                            sp.GetService<WellKnownBinaryReader>(),
-                            sp.GetService<IBlobClient>()))
+                            sp.GetService<IBlobClient>(),
+                            sp.GetService<RecyclableMemoryStreamManager>()))
                         .AddDbContext<ShapeContext>((sp, options) => options
                             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                             .UseSqlServer(sp.GetService<IConfiguration>().GetConnectionString("ShapeProjections"),

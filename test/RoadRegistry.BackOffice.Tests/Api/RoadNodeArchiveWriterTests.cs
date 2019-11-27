@@ -6,7 +6,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using Framework.Containers;
-    using RoadRegistry.Api.Downloads;
+    using Microsoft.IO;
     using RoadRegistry.Api.ZipArchiveWriters;
     using Schema;
     using Xunit;
@@ -24,7 +24,7 @@
         [Fact]
         public Task ArchiveCanNotBeNull()
         {
-            var sut = new RoadNodesToZipArchiveWriter(Encoding.UTF8);
+            var sut = new RoadNodesToZipArchiveWriter(new RecyclableMemoryStreamManager(),  Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
                 () => sut.WriteAsync(null, new ShapeContext(), default));
         }
@@ -32,7 +32,7 @@
         [Fact]
         public Task ContextCanNotBeNull()
         {
-            var sut = new RoadNodesToZipArchiveWriter(Encoding.UTF8);
+            var sut = new RoadNodesToZipArchiveWriter(new RecyclableMemoryStreamManager(), Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
                 () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
         }

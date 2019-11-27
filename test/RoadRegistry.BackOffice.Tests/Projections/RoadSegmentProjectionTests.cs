@@ -10,6 +10,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Framework.Testing.Projections;
     using Messages;
+    using Microsoft.IO;
     using Model;
     using Schema.RoadSegments;
     using Xunit;
@@ -104,7 +105,7 @@ namespace RoadRegistry.BackOffice.Projections
                 }).ToList();
 
             return new RoadSegmentRecordProjection(
-                    new WellKnownBinaryReader(),
+                    new RecyclableMemoryStreamManager(),
                     Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))

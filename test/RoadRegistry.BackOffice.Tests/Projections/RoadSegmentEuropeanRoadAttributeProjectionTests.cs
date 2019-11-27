@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.Projections
     using AutoFixture;
     using Framework.Testing.Projections;
     using Messages;
+    using Microsoft.IO;
     using Schema.RoadSegmentEuropeanRoadAttributes;
     using Xunit;
 
@@ -87,7 +88,7 @@ namespace RoadRegistry.BackOffice.Projections
 
                 }).ToList();
 
-            return new RoadSegmentEuropeanRoadAttributeRecordProjection(Encoding.UTF8)
+            return new RoadSegmentEuropeanRoadAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -103,7 +104,7 @@ namespace RoadRegistry.BackOffice.Projections
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.PartOfEuropeanRoads = new ImportedRoadSegmentEuropeanRoadAttributes[0];
 
-            return new RoadSegmentEuropeanRoadAttributeRecordProjection(Encoding.UTF8)
+            return new RoadSegmentEuropeanRoadAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new object[0]);

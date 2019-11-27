@@ -34,5 +34,20 @@ namespace RoadRegistry.BackOffice.Messages
                     change.GradeSeparatedJunctionAdded
                 }
                 .Single(_ => !ReferenceEquals(_, null));
+
+        public static IEnumerable<object> Flatten(this IEnumerable<Messages.RejectedChange> changes) =>
+            changes.Select(change => change.Flatten());
+
+        public static object Flatten(this Messages.RejectedChange change) =>
+            new object[]
+                {
+                    change.AddRoadNode,
+                    change.AddRoadSegment,
+                    change.AddRoadSegmentToEuropeanRoad,
+                    change.AddRoadSegmentToNationalRoad,
+                    change.AddRoadSegmentToNumberedRoad,
+                    change.AddGradeSeparatedJunction
+                }
+                .Single(_ => !ReferenceEquals(_, null));
     }
 }

@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.Projections
     using BackOffice;
     using Framework.Testing.Projections;
     using Messages;
+    using Microsoft.IO;
     using Model;
     using Schema.GradeSeparatedJunctions;
     using Xunit;
@@ -57,7 +58,7 @@ namespace RoadRegistry.BackOffice.Projections
                     };
                 }).ToList();
 
-            return new GradeSeparatedJunctionRecordProjection(Encoding.UTF8)
+            return new GradeSeparatedJunctionRecordProjection(new RecyclableMemoryStreamManager(),  Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.junction))
                 .Expect(data.Select(d => d.expected));

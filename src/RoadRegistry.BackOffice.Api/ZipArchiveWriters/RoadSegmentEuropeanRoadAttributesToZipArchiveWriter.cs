@@ -11,13 +11,17 @@ namespace RoadRegistry.Api.ZipArchiveWriters
     using BackOffice.Schema.RoadSegmentEuropeanRoadAttributes;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.IO;
 
     public class RoadSegmentEuropeanRoadAttributesToZipArchiveWriter : IZipArchiveWriter
     {
+        private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
-        public RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(Encoding encoding)
+        public RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(RecyclableMemoryStreamManager manager,
+            Encoding encoding)
         {
+            _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
@@ -43,7 +47,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
                 var dbfRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord();
                 foreach (var data in context.RoadSegmentEuropeanRoadAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
-                    dbfRecord.FromBytes(data, _encoding);
+                    dbfRecord.FromBytes(data, _manager, _encoding);
                     dbfWriter.Write(dbfRecord);
                 }
 

@@ -17,6 +17,7 @@ Destructurama.JsonNet
 
 NetTopologySuite
 System.Text.Encoding.CodePages
+Microsoft.IO.RecyclableMemoryStream
 
 Serilog
 Serilog.Settings.Configuration

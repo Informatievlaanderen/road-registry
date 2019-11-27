@@ -11,13 +11,16 @@ namespace RoadRegistry.Api.ZipArchiveWriters
     using BackOffice.Schema.RoadSegmentLaneAttributes;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.IO;
 
     public class RoadSegmentLaneAttributesToZipArchiveWriter : IZipArchiveWriter
     {
+        private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
-        public RoadSegmentLaneAttributesToZipArchiveWriter(Encoding encoding)
+        public RoadSegmentLaneAttributesToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
+            _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
@@ -43,7 +46,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
                 var dbfRecord = new RoadSegmentLaneAttributeDbaseRecord();
                 foreach (var data in context.RoadSegmentLaneAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
-                    dbfRecord.FromBytes(data, _encoding);
+                    dbfRecord.FromBytes(data, _manager, _encoding);
                     dbfWriter.Write(dbfRecord);
                 }
 

@@ -10,6 +10,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Framework.Testing.Projections;
     using Messages;
+    using Microsoft.IO;
     using Schema.RoadNodes;
     using Xunit;
     using GeometryTranslator = Model.GeometryTranslator;
@@ -73,9 +74,7 @@ namespace RoadRegistry.BackOffice.Projections
                     };
                 }).ToList();
 
-            return new RoadNodeRecordProjection(
-                    new WellKnownBinaryReader(),
-                    Encoding.UTF8)
+            return new RoadNodeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.ImportedRoadNode))
                 .Expect(data.Select(d => d.ExpectedRecord));

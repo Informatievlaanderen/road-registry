@@ -78,7 +78,7 @@ namespace RoadRegistry.BackOffice.Api
                 Assert.Equal(nameof(RoadNetworkChangesArchiveUploaded), item.Type);
                 var content = Assert.IsType<RoadNetworkChangesArchiveUploadedEntry>(item.Content);
                 Assert.Equal(archiveId.ToString(), content.Archive.Id);
-                Assert.Equal(true, content.Archive.Available);
+                Assert.True(content.Archive.Available);
                 Assert.Equal("file.zip", content.Archive.Filename);
                 Assert.Equal("01", item.Day);
                 // YR: Different versions of libicu use different casing

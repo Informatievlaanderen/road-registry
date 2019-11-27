@@ -4,28 +4,30 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Microsoft.Extensions.Logging;
+    using Microsoft.IO;
     using Schema;
 
     public class RoadShapeRunner : Runner<ShapeContext>
     {
-        public RoadShapeRunner(EnvelopeFactory envelopeFactory, ILoggerFactory loggerFactory, WellKnownBinaryReader reader, IBlobClient client) :
+        private static readonly Encoding WindowsAnsiEncoding = Encoding.GetEncoding(1252);
+
+        public RoadShapeRunner(EnvelopeFactory envelopeFactory, ILoggerFactory loggerFactory, IBlobClient client, RecyclableMemoryStreamManager manager) :
             base(
                 "RoadShapeRunner",
                 envelopeFactory,
                 loggerFactory.CreateLogger("RoadShapeRunner"),
-                new RoadNodeRecordProjection(reader,Encoding.GetEncoding(1252)),
-                new RoadSegmentRecordProjection(reader,Encoding.GetEncoding(1252)),
-                new RoadSegmentSurfaceAttributeRecordProjection(Encoding.GetEncoding(1252)),
-                new RoadSegmentLaneAttributeRecordProjection(Encoding.GetEncoding(1252)),
-                new RoadSegmentWidthAttributeRecordProjection(Encoding.GetEncoding(1252)),
-                new RoadSegmentEuropeanRoadAttributeRecordProjection(Encoding.GetEncoding(1252)),
-                new RoadSegmentNationalRoadAttributeRecordProjection(Encoding.GetEncoding(1252)),
-                new RoadSegmentNumberedRoadAttributeRecordProjection(Encoding.GetEncoding(1252)),
-                new OrganizationRecordProjection(Encoding.GetEncoding(1252)),
-                new GradeSeparatedJunctionRecordProjection(Encoding.GetEncoding(1252)),
-                new RoadNetworkInfoProjection(reader),
+                new RoadNodeRecordProjection(manager,WindowsAnsiEncoding),
+                new RoadSegmentRecordProjection(manager,WindowsAnsiEncoding),
+                new RoadSegmentSurfaceAttributeRecordProjection(manager, WindowsAnsiEncoding),
+                new RoadSegmentLaneAttributeRecordProjection(manager, WindowsAnsiEncoding),
+                new RoadSegmentWidthAttributeRecordProjection(manager, WindowsAnsiEncoding),
+                new RoadSegmentEuropeanRoadAttributeRecordProjection(manager, WindowsAnsiEncoding),
+                new RoadSegmentNationalRoadAttributeRecordProjection(manager, WindowsAnsiEncoding),
+                new RoadSegmentNumberedRoadAttributeRecordProjection(manager, WindowsAnsiEncoding),
+                new OrganizationRecordProjection(manager, WindowsAnsiEncoding),
+                new GradeSeparatedJunctionRecordProjection(manager, WindowsAnsiEncoding),
+                new RoadNetworkInfoProjection(),
                 new RoadNetworkChangeFeedProjection(client))
             { }
     }

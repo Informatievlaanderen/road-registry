@@ -12,13 +12,8 @@
 
     public class RoadNetworkInfoProjection : ConnectedProjection<ShapeContext>
     {
-        public RoadNetworkInfoProjection(WellKnownBinaryReader reader)
+        public RoadNetworkInfoProjection()
         {
-            if (reader == null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
-
             When<Envelope<BeganRoadNetworkImport>>((context, envelope, token) =>
                 context.AddAsync(new RoadNetworkInfo(), token)
             );

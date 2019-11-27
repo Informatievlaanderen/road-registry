@@ -9,51 +9,43 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Messages;
+    using Microsoft.IO;
     using Schema;
     using Schema.RoadNodes;
 
     public class RoadNodeRecordProjection : ConnectedProjection<ShapeContext>
     {
-        private readonly WellKnownBinaryReader _wkbReader;
-        private readonly Encoding _encoding;
-
-        public RoadNodeRecordProjection(
-            WellKnownBinaryReader wkbReader,
-            Encoding encoding)
+        public RoadNodeRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
-            _wkbReader = wkbReader ?? throw new ArgumentNullException(nameof(wkbReader));
-            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-            When<Envelope<ImportedRoadNode>>((context, message, token) => HandleImportedRoadNode(context, message.Message, token));
-        }
+            if (manager == null) throw new ArgumentNullException(nameof(manager));
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
-        private Task HandleImportedRoadNode(ShapeContext context, ImportedRoadNode @event, CancellationToken token)
-        {
-            //TODO:
-            //- Use pooled memory streams
-
-            var typeTranslation = Model.RoadNodeType.Parse(@event.Type).Translation;
-            var dbaseRecord = new RoadNodeDbaseRecord
+            When<Envelope<ImportedRoadNode>>((context, envelope, token) =>
             {
-                WK_OIDN = {Value = @event.Id},
-                WK_UIDN = {Value = @event.Id + "_" + @event.Version},
-                TYPE = {Value = typeTranslation.Identifier},
-                LBLTYPE = {Value = typeTranslation.Name},
-                BEGINTIJD = {Value = @event.Origin.Since},
-                BEGINORG = {Value = @event.Origin.OrganizationId},
-                LBLBGNORG = {Value = @event.Origin.Organization}
-            };
+                var typeTranslation = Model.RoadNodeType.Parse(envelope.Message.Type).Translation;
+                var dbaseRecord = new RoadNodeDbaseRecord
+                {
+                    WK_OIDN = {Value = envelope.Message.Id},
+                    WK_UIDN = {Value = envelope.Message.Id + "_" + envelope.Message.Version},
+                    TYPE = {Value = typeTranslation.Identifier},
+                    LBLTYPE = {Value = typeTranslation.Name},
+                    BEGINTIJD = {Value = envelope.Message.Origin.Since},
+                    BEGINORG = {Value = envelope.Message.Origin.OrganizationId},
+                    LBLBGNORG = {Value = envelope.Message.Origin.Organization}
+                };
 
-            var point = GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(@event.Geometry));
-            var pointShapeContent = new PointShapeContent(point);
+                var point = GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(envelope.Message.Geometry));
+                var pointShapeContent = new PointShapeContent(point);
 
-            return context.AddAsync(new RoadNodeRecord
-            {
-                Id = @event.Id,
-                ShapeRecordContent = pointShapeContent.ToBytes(),
-                ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                DbaseRecord = dbaseRecord.ToBytes(_encoding),
-                BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
-            }, token);
+                return context.AddAsync(new RoadNodeRecord
+                {
+                    Id = envelope.Message.Id,
+                    ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding),
+                    ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
+                    DbaseRecord = dbaseRecord.ToBytes(manager, encoding),
+                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
+                }, token);
+            });
         }
     }
 }

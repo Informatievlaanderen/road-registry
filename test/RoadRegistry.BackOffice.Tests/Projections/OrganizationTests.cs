@@ -8,6 +8,7 @@ namespace RoadRegistry.BackOffice.Projections
     using BackOffice;
     using Framework.Testing.Projections;
     using Messages;
+    using Microsoft.IO;
     using Model;
     using Schema.Organizations;
     using Xunit;
@@ -58,7 +59,7 @@ namespace RoadRegistry.BackOffice.Projections
                     };
                 }).ToList();
 
-            return new OrganizationRecordProjection(Encoding.UTF8)
+            return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.ImportedOrganization))
                 .Expect(data.Select(d => d.Expected));

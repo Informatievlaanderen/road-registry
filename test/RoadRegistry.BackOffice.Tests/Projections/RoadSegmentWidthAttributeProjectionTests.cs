@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.Projections
     using AutoFixture;
     using Framework.Testing.Projections;
     using Messages;
+    using Microsoft.IO;
     using Schema.RoadSegmentWidthAttributes;
     using Xunit;
 
@@ -90,7 +91,7 @@ namespace RoadRegistry.BackOffice.Projections
 
                 }).ToList();
 
-            return new RoadSegmentWidthAttributeRecordProjection(Encoding.UTF8)
+            return new RoadSegmentWidthAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -106,7 +107,7 @@ namespace RoadRegistry.BackOffice.Projections
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.Widths = new ImportedRoadSegmentWidthAttributes[0];
 
-            return new RoadSegmentWidthAttributeRecordProjection(Encoding.UTF8)
+            return new RoadSegmentWidthAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .ExpectNone();

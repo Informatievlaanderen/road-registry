@@ -6,6 +6,7 @@
     using Framework.Containers;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.IO;
     using RoadRegistry.Api.Downloads;
     using RoadRegistry.Api.Infrastructure;
     using Schema;
@@ -24,7 +25,7 @@
         [Fact]
         public async Task When_downloading_before_an_import()
         {
-            var controller = new DownloadController
+            var controller = new DownloadController(new RecyclableMemoryStreamManager())
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -40,7 +41,7 @@
         [Fact]
         public async Task When_downloading_during_an_import()
         {
-            var controller = new DownloadController
+            var controller = new DownloadController(new RecyclableMemoryStreamManager())
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -67,7 +68,7 @@
         [Fact]
         public async Task When_downloading_after_an_import()
         {
-            var controller = new DownloadController
+            var controller = new DownloadController(new RecyclableMemoryStreamManager())
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };

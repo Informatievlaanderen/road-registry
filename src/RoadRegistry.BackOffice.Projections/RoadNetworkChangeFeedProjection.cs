@@ -2,10 +2,13 @@ namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Messages;
+    using Model;
     using Newtonsoft.Json;
     using Schema;
     using Translation;
@@ -45,18 +48,7 @@ namespace RoadRegistry.BackOffice.Projections
                     Archive = new RoadNetworkChangesArchiveInfo { Id = envelope.Message.ArchiveId }
                 };
 
-                var blobName = new BlobName(envelope.Message.ArchiveId);
-                if(await client.BlobExistsAsync(blobName, ct))
-                {
-                    var blob = await client.GetBlobAsync(blobName, ct);
-                    content.Archive.Available = true;
-                    content.Archive.Filename = blob.Metadata.Single(pair => pair.Key == new MetadataKey("filename")).Value;
-                }
-                else
-                {
-                    content.Archive.Available = false;
-                    content.Archive.Filename = "";
-                }
+                await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
 
                 await context.RoadNetworkChanges.AddAsync(new RoadNetworkChange
                 {
@@ -89,18 +81,7 @@ namespace RoadRegistry.BackOffice.Projections
                         .ToArray()
                 };
 
-                var blobName = new BlobName(envelope.Message.ArchiveId);
-                if(await client.BlobExistsAsync(blobName, ct))
-                {
-                    var blob = await client.GetBlobAsync(blobName, ct);
-                    content.Archive.Available = true;
-                    content.Archive.Filename = blob.Metadata.Single(pair => pair.Key == new MetadataKey("filename")).Value;
-                }
-                else
-                {
-                    content.Archive.Available = false;
-                    content.Archive.Filename = "";
-                }
+                await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
 
                 await context.RoadNetworkChanges.AddAsync(
                     new RoadNetworkChange
@@ -134,18 +115,7 @@ namespace RoadRegistry.BackOffice.Projections
                         .ToArray()
                 };
 
-                var blobName = new BlobName(envelope.Message.ArchiveId);
-                if(await client.BlobExistsAsync(blobName, ct))
-                {
-                    var blob = await client.GetBlobAsync(blobName, ct);
-                    content.Archive.Available = true;
-                    content.Archive.Filename = blob.Metadata.Single(pair => pair.Key == new MetadataKey("filename")).Value;
-                }
-                else
-                {
-                    content.Archive.Available = false;
-                    content.Archive.Filename = "";
-                }
+                await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
 
                 await context.RoadNetworkChanges.AddAsync(
                     new RoadNetworkChange
@@ -157,7 +127,90 @@ namespace RoadRegistry.BackOffice.Projections
                         When = envelope.Message.When
                     }, ct);
             });
+
+            When<Envelope<RoadNetworkChangesBasedOnArchiveRejected>>(async (context, envelope, ct) =>
+            {
+                var content = new RoadNetworkChangesBasedOnArchiveRejectedEntry
+                {
+                    Archive = new RoadNetworkChangesArchiveInfo { Id = envelope.Message.ArchiveId },
+                    Changes = envelope.Message.Changes
+                        .Select(change => new RoadNetworkRejectedChange
+                        {
+                            Change = RejectedChangeTranslator(change),
+                            Problems = change.Errors
+                                .Select(problem => new RoadNetworkRejectedChangeProblem
+                                {
+                                    Severity = "Error",
+                                    Text = problem.Reason
+                                })
+                                .ToArray()
+                        })
+                        .ToArray()
+                };
+
+                await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
+
+                await context.RoadNetworkChanges.AddAsync(
+                    new RoadNetworkChange
+                    {
+                        Id = envelope.Position,
+                        Title = "Wijziging op basis van oplading werd geweigerd",
+                        Type = nameof(RoadNetworkChangesBasedOnArchiveRejected),
+                        Content = JsonConvert.SerializeObject(content),
+                        When = envelope.Message.When
+                    }, ct);
+            });
         }
+
+        private static async Task EnrichWithArchiveInformation(string archiveId,
+            RoadNetworkChangesArchiveInfo archiveInfo, IBlobClient client, CancellationToken ct)
+        {
+            var blobName = new BlobName(archiveId);
+            if (await client.BlobExistsAsync(blobName, ct))
+            {
+                var blob = await client.GetBlobAsync(blobName, ct);
+                archiveInfo.Available = true;
+                archiveInfo.Filename = blob.Metadata.Single(pair => pair.Key == new MetadataKey("filename")).Value;
+            }
+            else
+            {
+                archiveInfo.Available = false;
+                archiveInfo.Filename = "";
+            }
+        }
+
+        private static readonly Converter<Messages.RejectedChange, string> RejectedChangeTranslator =
+            change =>
+            {
+                string translation;
+                switch (change.Flatten())
+                {
+                    case Messages.AddRoadNode m:
+                        translation = $"Voeg wegknoop {m.TemporaryId} toe.";
+                        break;
+                    case Messages.AddRoadSegment m:
+                        translation = $"Voeg wegsegment {m.TemporaryId} toe.";
+                        break;
+                    case Messages.AddRoadSegmentToEuropeanRoad m:
+                        translation = $"Voeg wegsegment {m.SegmentId} toe aan europese weg {m.Number}.";
+                        break;
+                    case Messages.AddRoadSegmentToNationalRoad m:
+                        translation = $"Voeg wegsegment {m.SegmentId} toe aan nationale weg {m.Ident2}.";
+                        break;
+                    case Messages.AddRoadSegmentToNumberedRoad m:
+                        translation = $"Voeg wegsegment {m.SegmentId} toe aan nationale weg {m.Ident8}.";
+                        break;
+                    case Messages.AddGradeSeparatedJunction m:
+                        translation = $"Voeg ongelijkgrondse kruising {m.TemporaryId} toe.";
+                        break;
+
+                    default:
+                        translation = $"'{change.Flatten().GetType().Name}' has no translation. Please fix it.";
+                        break;
+                }
+
+                return translation;
+            };
 
         private static readonly Converter<Messages.FileProblem, string> ProblemWithZipArchiveTranslator =
             problem =>
