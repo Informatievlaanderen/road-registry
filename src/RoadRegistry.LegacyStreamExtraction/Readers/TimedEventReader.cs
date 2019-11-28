@@ -8,13 +8,19 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
 
     public class TimedEventReader : IEventReader
     {
+        public static readonly int DefaultThreshold = 1000;
+
         private readonly IEventReader _inner;
         private readonly ILogger<TimedEventReader> _logger;
         private readonly string _name;
+        private readonly int _threshold;
 
-        public TimedEventReader(IEventReader inner, ILogger<TimedEventReader> logger)
+        public TimedEventReader(IEventReader inner, int threshold, ILogger<TimedEventReader> logger)
         {
+            if (threshold <= 0) throw new ArgumentOutOfRangeException(nameof(threshold), "The threshold needs to be greater than or equal to 1.");
+
             _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+            _threshold = threshold;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             _name = inner.GetType().Name.EndsWith("Reader")
@@ -28,8 +34,17 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
 
             var watch = Stopwatch.StartNew();
             _logger.LogInformation("Reading of {0} started ...", _name);
-            foreach (var @event in _inner.ReadEvents(connection)) yield return @event;
-            _logger.LogInformation("Reading {0} took {1}ms.", _name, watch.ElapsedMilliseconds);
+            var readCount = 0;
+            foreach (var @event in _inner.ReadEvents(connection))
+            {
+                readCount++;
+                if (readCount % _threshold == 0)
+                {
+                    _logger.LogInformation("Read {0} {1} within {2}ms so far ...", readCount, _name, watch.ElapsedMilliseconds);
+                }
+                yield return @event;
+            }
+            _logger.LogInformation("Reading {0} {1} took {2}ms.", readCount, _name, watch.ElapsedMilliseconds);
         }
     }
 }

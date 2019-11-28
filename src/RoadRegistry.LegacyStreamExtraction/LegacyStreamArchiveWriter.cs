@@ -44,7 +44,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                     using (var writer = new JsonTextWriter(new StreamWriter(entryStream)))
                     {
                         await writer.WriteStartArrayAsync(cancellationToken);
-                        using (var enumerator = @events.GetEnumerator())
+                        using (var enumerator = events.GetEnumerator())
                         {
                             if (enumerator.MoveNext())
                             {

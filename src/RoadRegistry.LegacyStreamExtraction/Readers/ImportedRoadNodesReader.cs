@@ -37,7 +37,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             wk.[beginorganisatie],
                             lo.[label],
                             wk.[begintijd]
-                        FROM [wegknoop] wk
+                        FROM [dbo].[wegknoop] wk
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wk.[beginorganisatie] = lo.[code]", connection
             ).YieldEachDataRecord(reader =>
             {

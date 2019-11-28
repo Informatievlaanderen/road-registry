@@ -5,6 +5,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using System.Collections.Generic;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Diagnostics;
     using System.Linq;
     using BackOffice.Messages;
     using BackOffice.Model;
@@ -383,24 +384,42 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
         public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
-
+            var watch = Stopwatch.StartNew();
             foreach (var batch in new RoadSegmentEnumerator(connection, _clock, _reader, _logger).Batch(1000))
             {
+                _logger.LogDebug("Reading a road segment batch took {0}ms", watch.ElapsedMilliseconds);
+
                 var lookup = batch.ToDictionary(@event => @event.Id);
 
+                watch.Restart();
                 EnrichImportedRoadSegmentsWithEuropeanRoadAttributes(connection, lookup);
+                _logger.LogDebug("Reading a road segment batch with european road attributes took {0}ms", watch.ElapsedMilliseconds);
+                watch.Restart();
                 EnrichImportedRoadSegmentsWithNationalRoadAttributes(connection, lookup);
+                _logger.LogDebug("Reading a road segment batch with national road attributes took {0}ms", watch.ElapsedMilliseconds);
+                watch.Restart();
                 EnrichImportedRoadSegmentsWithNumberedRoadAttributes(connection, lookup);
+                _logger.LogDebug("Reading a road segment batch with numbered road attributes took {0}ms", watch.ElapsedMilliseconds);
 
+                watch.Restart();
                 EnrichImportedRoadSegmentsWithLaneAttributes(connection, lookup);
+                _logger.LogDebug("Reading a road segment batch with lane attributes took {0}ms", watch.ElapsedMilliseconds);
+                watch.Restart();
                 EnrichImportedRoadSegmentsWithWidthAttributes(connection, lookup);
+                _logger.LogDebug("Reading a road segment batch with width attributes took {0}ms", watch.ElapsedMilliseconds);
+                watch.Restart();
                 EnrichImportedRoadSegmentsWithSurfaceAttributes(connection, lookup);
+                _logger.LogDebug("Reading a road segment batch with surface attributes took {0}ms", watch.ElapsedMilliseconds);
 
+                watch.Restart();
                 foreach (var @event in batch)
                 {
                     yield return new StreamEvent(RoadNetworks.Stream, @event);
                 }
+                _logger.LogDebug("Yielding a road segment batch took {0}ms", watch.ElapsedMilliseconds);
+                watch.Restart();
             }
+            watch.Stop();
         }
 
         private static SqlParameter[] LookupToParameters(IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
@@ -429,9 +448,8 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             ,lo.[label] --7
                             ,wv.[begintijd] --8
                         FROM [dbo].[wegverharding] wv
-                        INNER JOIN [dbo].[wegsegment] ws ON wv.[wegsegmentID] = ws.[wegsegmentID]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wv.[beginorganisatie] = lo.[code]
-                        WHERE ws.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + @")
+                        WHERE wv.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + @")
                         ORDER BY wv.[wegsegmentID], wv.[vanPositie]",
                 connection
             );
@@ -478,9 +496,8 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             ,lo.[label] --7
                             ,wb.[begintijd] --8
                         FROM [dbo].[wegbreedte] wb
-                        INNER JOIN [dbo].[wegsegment] ws ON wb.[wegsegmentID] = ws.[wegsegmentID]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wb.[beginorganisatie] = lo.[code]
-                        WHERE ws.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + @")
+                        WHERE wb.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + @")
                         ORDER BY wb.[wegsegmentID], wb.[vanPositie]",
                 connection
             );
@@ -529,9 +546,8 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             ,lo.[label] --8
                             ,rs.[begintijd] --9
                         FROM [dbo].[rijstroken] rs
-                        INNER JOIN [dbo].[wegsegment] ws ON rs.[wegsegmentID] = ws.[wegsegmentID]
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON rs.[beginorganisatie] = lo.[code]
-                        WHERE ws.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + @")
+                        WHERE rs.[wegsegmentID] IN (" + LookupToParameterNames(lookup) + @")
                         ORDER BY rs.[wegsegmentID], rs.[vanPositie]",
                 connection
             );

@@ -66,6 +66,7 @@ namespace RoadRegistry.BackOffice.EventHost
                             case Subscribe _:
                                 subscription?.Dispose();
                                 var position = await positionStore.ReadPosition(RoadNetworkArchiveEventQueue, _messagePumpCancellation.Token);
+                                //if position + threshold < head position then catchup
                                 subscription = streamStore.SubscribeToAll(
                                     position,
                                     (_, message, token) =>

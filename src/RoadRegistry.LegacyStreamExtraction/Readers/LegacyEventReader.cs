@@ -25,18 +25,25 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
             _reader = new CompositeEventReader(
                 new TimedEventReader(
                     new ImportedOrganizationsReader(clock, loggerFactory.CreateLogger<ImportedOrganizationsReader>()),
+                    100,
                     loggerFactory.CreateLogger<TimedEventReader>()
                 ),
                 new TimedEventReader(
-                    new ImportedRoadNodesReader(clock, wkbReader, loggerFactory.CreateLogger<ImportedRoadNodesReader>()),
+                    new ImportedRoadNodesReader(clock, wkbReader,
+                        loggerFactory.CreateLogger<ImportedRoadNodesReader>()),
+                    TimedEventReader.DefaultThreshold,
                     loggerFactory.CreateLogger<TimedEventReader>()
                 ),
                 new TimedEventReader(
-                    new ImportedRoadSegmentsReader(clock, wkbReader, loggerFactory.CreateLogger<ImportedRoadSegmentsReader>()),
+                    new ImportedRoadSegmentsReader(clock, wkbReader,
+                        loggerFactory.CreateLogger<ImportedRoadSegmentsReader>()),
+                    TimedEventReader.DefaultThreshold,
                     loggerFactory.CreateLogger<TimedEventReader>()
                 ),
                 new TimedEventReader(
-                    new ImportedGradeSeparatedJunctionsReader(clock, loggerFactory.CreateLogger<ImportedGradeSeparatedJunctionsReader>()),
+                    new ImportedGradeSeparatedJunctionsReader(clock,
+                        loggerFactory.CreateLogger<ImportedGradeSeparatedJunctionsReader>()),
+                    100,
                     loggerFactory.CreateLogger<TimedEventReader>()
                 ));
         }

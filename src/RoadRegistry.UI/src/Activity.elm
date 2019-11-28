@@ -484,6 +484,14 @@ viewActivityEntry entry =
                             , i [ class "step__accordion-toggle" ]
                                 []
                             ]
+
+                    RoadNetworkChangesBasedOnArchiveRejected _ ->
+                        div [ class "step__header__info" ]
+                            [ i [ class "vi vi-paperclip vi-u-s" ]
+                                []
+                            , i [ class "step__accordion-toggle" ]
+                                []
+                            ]
                 ]
             , div
                 [ class "step__content-wrapper" ]

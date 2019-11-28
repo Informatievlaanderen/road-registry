@@ -43,7 +43,7 @@ services:
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
       - ./src/RoadRegistry.LegacyStreamExtraction:/var/lib/RoadRegistry.LegacyStreamExtraction
-  projections:
+  projectionhost:
     build: dist/RoadRegistry.BackOffice.Projections/linux
     depends_on:
       - mssql
@@ -74,7 +74,7 @@ services:
     build: dist/RoadRegistry.BackOffice.Api/linux
     depends_on:
       - mssql
-      - projections
+      - projectionhost
     environment:
       CONNECTIONSTRINGS__BLOBS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__BLOBSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;

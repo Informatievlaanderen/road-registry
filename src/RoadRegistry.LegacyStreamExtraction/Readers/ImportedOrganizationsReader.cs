@@ -28,7 +28,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                 @"SELECT
                             org.[Code],
                             org.[Label]
-                        FROM [listOrganisatie] org", connection
+                        FROM [dbo].[listOrganisatie] org", connection
             ).YieldEachDataRecord(reader =>
             {
                 var code = reader.GetString(0);

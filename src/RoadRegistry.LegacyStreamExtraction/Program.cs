@@ -1,6 +1,7 @@
 namespace RoadRegistry.LegacyStreamExtraction
 {
     using System;
+    using System.Data;
     using System.Data.SqlClient;
     using System.IO;
     using System.Text;
@@ -94,6 +95,11 @@ namespace RoadRegistry.LegacyStreamExtraction
                                     new DirectoryInfo(fileOptions.OutputDirectory)
                                 )
                             );
+
+                            if (!Directory.Exists(fileOptions.OutputDirectory))
+                            {
+                                Directory.CreateDirectory(fileOptions.OutputDirectory);
+                            }
                             break;
                     }
 
@@ -128,6 +134,10 @@ namespace RoadRegistry.LegacyStreamExtraction
                     new SqlConnectionStringBuilder(
                         configuration.GetConnectionString(legacyDatabaseOptions.ConnectionStringName)), logger);
 
+                await OptimizeDatabasePerformance(
+                    new SqlConnectionStringBuilder(
+                        configuration.GetConnectionString(legacyDatabaseOptions.ConnectionStringName)), logger);
+
                 using (var connection = host.Services.GetService<SqlConnection>())
                 {
                     await connection.OpenAsync();
@@ -152,16 +162,62 @@ namespace RoadRegistry.LegacyStreamExtraction
             {
                 try
                 {
-                    logger.LogInformation("Waiting for sql server to become available");
+                    logger.LogInformation("Waiting for sql server to become available ...");
                     using (var connection = new SqlConnection(builder.ConnectionString))
                     {
                         await connection.OpenAsync(token).ConfigureAwait(false);
-                        exit = true;
+                        using (var command = new SqlCommand(@"SELECT 
+    (SELECT COUNT(*) FROM [dbo].[wegknoop]) AS RoadNodeCount,
+    (SELECT COUNT(*) FROM [dbo].[wegsegment]) AS RoadSegmentCount,
+    (SELECT COUNT(*) FROM [dbo].[listOrganisatie]) AS OrganizationCount,
+    (SELECT COUNT(*) FROM [dbo].[crabsnm]) AS StreetNameCount,
+    (SELECT COUNT(*) FROM [dbo].[gemeenteNIS]) AS MunicipalityCount,
+    (SELECT COUNT(*) FROM [dbo].[EuropeseWeg]) AS EuropeanRoadAttributeCount,
+    (SELECT COUNT(*) FROM [dbo].[nationaleWeg]) AS NationalRoadAttributeCount,
+    (SELECT COUNT(*) FROM [dbo].[genummerdeWeg]) AS NumberedRoadAttributeCount,
+    (SELECT COUNT(*) FROM [dbo].[rijstroken]) AS LaneAttributeCount,
+    (SELECT COUNT(*) FROM [dbo].[wegbreedte]) AS WidthAttributeCount,
+    (SELECT COUNT(*) FROM [dbo].[wegverharding]) AS SurfaceAttributeCount,
+    (SELECT COUNT(*) FROM [dbo].[ongelijkgrondseKruising]) AS GradeSeparatedJunctionCount", connection))
+                        {
+                            command.CommandType = CommandType.Text;
+                            using (var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false))
+                            {
+                                if (!reader.IsClosed && reader.HasRows)
+                                {
+                                    exit = true;
+                                }
+                            }
+                        }
                     }
                 }
-                catch
+                catch(Exception exception)
                 {
+                    if (logger.IsEnabled(LogLevel.Debug))
+                    {
+                        logger.LogDebug(exception, "Sql server still not available because: {0}", exception.Message);
+                    }
                     await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+                }
+            }
+
+            logger.LogInformation("Sql server became available.");
+        }
+
+        private static async Task OptimizeDatabasePerformance(SqlConnectionStringBuilder builder,
+            ILogger<Program> logger, CancellationToken token = default)
+        {
+            logger.LogInformation("Optimizing database for performance ...");
+            using (var connection = new SqlConnection(builder.ConnectionString))
+            {
+                await connection.OpenAsync(token).ConfigureAwait(false);
+                using (var command = new SqlCommand(@"
+IF NOT EXISTS(SELECT * FROM [sys].[indexes] WHERE name='IX_WB_WS' AND object_id = OBJECT_ID('dbo.wegbreedte')) BEGIN CREATE INDEX [IX_WB_WS] ON [dbo].[wegbreedte] ([wegsegmentID]) END
+IF NOT EXISTS(SELECT * FROM [sys].[indexes] WHERE name='IX_RS_WS' AND object_id = OBJECT_ID('dbo.rijstroken')) BEGIN CREATE INDEX [IX_RS_WS] ON [dbo].[rijstroken] ([wegsegmentID]) END
+IF NOT EXISTS(SELECT * FROM [sys].[indexes] WHERE name='IX_WV_WS' AND object_id = OBJECT_ID('dbo.wegverharding')) BEGIN CREATE INDEX [IX_WV_WS] ON [dbo].[wegverharding] ([wegsegmentID]) END", connection))
+                {
+                    command.CommandType = CommandType.Text;
+                    await command.ExecuteNonQueryAsync(token);
                 }
             }
         }
