@@ -88,20 +88,21 @@
                         .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(sp.GetService<IBlobClient>(), sp.GetService<RecyclableMemoryStreamManager>()))
                         .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                         .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
-                        .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
-                            new EventHandlerModule[]
-                            {
-                                new RoadNetworkChangesArchiveEventModule(
-                                    sp.GetService<IBlobClient>(),
-                                    new ZipArchiveTranslator(Encoding.UTF8),
-                                    sp.GetService<IStreamStore>()
-                                ),
-                                new RoadNetworkEventModule(
-                                    sp.GetService<IStreamStore>(),
-                                    sp.GetService<IRoadNetworkSnapshotReader>(),
-                                    sp.GetService<IRoadNetworkSnapshotWriter>(),
-                                    sp.GetService<IClock>())
-                            })));
+                        .AddSingleton(sp => new EventHandlerModule[]
+                        {
+                            new RoadNetworkChangesArchiveEventModule(
+                                sp.GetService<IBlobClient>(),
+                                new ZipArchiveTranslator(Encoding.UTF8),
+                                sp.GetService<IStreamStore>()
+                            ),
+                            new RoadNetworkEventModule(
+                                sp.GetService<IStreamStore>(),
+                                sp.GetService<IRoadNetworkSnapshotReader>(),
+                                sp.GetService<IRoadNetworkSnapshotWriter>(),
+                                sp.GetService<IClock>())
+                        })
+                        .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
+                        .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
                 })
                 .Build();
 

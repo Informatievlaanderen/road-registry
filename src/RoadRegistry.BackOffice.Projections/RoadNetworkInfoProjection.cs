@@ -65,6 +65,57 @@
                            await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
                 info.OrganizationCount += 1;
             });
+
+            When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
+            {
+                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
+                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
+                foreach (var change in envelope.Message.Changes.Flatten())
+                {
+                    switch (change)
+                    {
+                        case RoadNodeAdded m:
+                            info.RoadNodeCount++;
+                            info.TotalRoadNodeShapeLength +=
+                                new PointShapeContent(
+                                        GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(m.Geometry))
+                                    )
+                                    .ContentLength.Plus(ShapeRecord.HeaderLength)
+                                    .ToInt32();
+                            break;
+
+                        case RoadSegmentAdded m:
+                            info.RoadSegmentCount += 1;
+                            info.TotalRoadSegmentShapeLength +=
+                                new PolyLineMShapeContent(
+                                        GeometryTranslator.FromGeometryMultiLineString(Model.GeometryTranslator.Translate(m.Geometry))
+                                    )
+                                    .ContentLength.Plus(ShapeRecord.HeaderLength)
+                                    .ToInt32();
+                            //Note that in order to support deletion and modification we'll need to track it per segment
+                            info.RoadSegmentSurfaceAttributeCount += m.Surfaces.Length;
+                            info.RoadSegmentLaneAttributeCount += m.Lanes.Length;
+                            info.RoadSegmentWidthAttributeCount += m.Widths.Length;
+                            break;
+
+                        case RoadSegmentAddedToEuropeanRoad _:
+                            info.RoadSegmentEuropeanRoadAttributeCount += 1;
+                            break;
+                        case RoadSegmentAddedToNationalRoad _:
+                            info.RoadSegmentNationalRoadAttributeCount += 1;
+                            break;
+                        case RoadSegmentAddedToNumberedRoad _:
+                            info.RoadSegmentNumberedRoadAttributeCount += 1;
+                            break;
+                        case GradeSeparatedJunctionAdded _:
+                            info.GradeSeparatedJunctionCount += 1;
+                            break;
+                    }
+                }
+
+
+                info.OrganizationCount += 1;
+            });
         }
     }
 }

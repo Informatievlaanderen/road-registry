@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Messages;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
     using Schema;
     using Schema.RoadSegmentWidthAttributes;
@@ -45,6 +46,66 @@ namespace RoadRegistry.BackOffice.Projections
                     });
 
                 return context.AddRangeAsync(widths, token);
+            });
+
+            When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
+            {
+                foreach (var change in envelope.Message.Changes.Flatten())
+                {
+                    switch (change)
+                    {
+                        case RoadSegmentAdded segment:
+                            if (segment.Widths.Length == 0)
+                            {
+                                context.RoadSegmentWidthAttributes.RemoveRange(
+                                    context
+                                        .RoadSegmentWidthAttributes
+                                        .Local.Where(a => a.RoadSegmentId == segment.Id)
+                                        .Concat(await context
+                                            .RoadSegmentWidthAttributes
+                                            .Where(a => a.RoadSegmentId == segment.Id)
+                                            .ToArrayAsync(token)
+                                        ));
+                            }
+                            else
+                            {
+                                var currentSet = context
+                                    .RoadSegmentWidthAttributes
+                                    .Local.Where(a => a.RoadSegmentId == segment.Id)
+                                    .Concat(await context
+                                        .RoadSegmentWidthAttributes
+                                        .Where(a => a.RoadSegmentId == segment.Id)
+                                        .ToArrayAsync(token)
+                                    ).ToDictionary(a => a.Id);
+                                var nextSet = segment
+                                    .Widths
+                                    .Select(width => new RoadSegmentWidthAttributeRecord
+                                    {
+                                        Id = width.AttributeId,
+                                        RoadSegmentId = segment.Id,
+                                        DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
+                                        {
+                                            WB_OIDN = {Value = width.AttributeId},
+                                            WS_OIDN = {Value = segment.Id},
+                                            WS_GIDN = {Value = $"{segment.Id}_{width.AsOfGeometryVersion}"},
+                                            BREEDTE = {Value = width.Width},
+                                            VANPOS = {Value = (double) width.FromPosition},
+                                            TOTPOS = {Value = (double) width.ToPosition},
+                                            // TODO: This should come from the event
+                                            BEGINTIJD = {Value = null},
+                                            BEGINORG = {Value = null},
+                                            LBLBGNORG = {Value = null}
+                                        }.ToBytes(manager, encoding)
+                                    })
+                                    .ToDictionary(a => a.Id);
+                                context.RoadSegmentWidthAttributes.Synchronize(currentSet, nextSet, (current, next) =>
+                                    {
+                                        current.DbaseRecord = next.DbaseRecord;
+                                    });
+                            }
+                            break;
+                    }
+                }
             });
         }
     }

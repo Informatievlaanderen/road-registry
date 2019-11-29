@@ -50,6 +50,40 @@ namespace RoadRegistry.BackOffice.Projections
                     });
                 return context.AddRangeAsync(numberedRoadAttributes, token);
             });
+
+            When<Envelope<RoadNetworkChangesAccepted>>((context, envelope, token) =>
+            {
+                foreach (var change in envelope.Message.Changes.Flatten())
+                {
+                    switch (change)
+                    {
+                        case RoadSegmentAddedToNumberedRoad numberedRoad:
+                            var directionTranslation =
+                                RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
+                            context.RoadSegmentNumberedRoadAttributes.Add(new RoadSegmentNumberedRoadAttributeRecord
+                            {
+                                Id = numberedRoad.AttributeId,
+                                RoadSegmentId = numberedRoad.SegmentId,
+                                DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
+                                {
+                                    GW_OIDN = {Value = numberedRoad.AttributeId},
+                                    WS_OIDN = {Value = numberedRoad.SegmentId},
+                                    IDENT8 = {Value = numberedRoad.Ident8},
+                                    RICHTING = {Value = directionTranslation.Identifier},
+                                    LBLRICHT = {Value = directionTranslation.Name},
+                                    VOLGNUMMER = {Value = numberedRoad.Ordinal},
+                                    // TODO: Needs to come from the event
+                                    BEGINTIJD = {Value = null},
+                                    BEGINORG = {Value = null},
+                                    LBLBGNORG = {Value = null},
+                                }.ToBytes(manager, encoding)
+                            });
+                            break;
+                    }
+                }
+
+                return Task.CompletedTask;
+            });
         }
     }
 }

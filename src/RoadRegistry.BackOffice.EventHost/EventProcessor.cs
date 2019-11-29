@@ -21,7 +21,7 @@ namespace RoadRegistry.BackOffice.EventHost
 
         private static readonly JsonSerializerSettings SerializerSettings =
             EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        private static readonly EventMapping EventMapping =
+        public static readonly EventMapping EventMapping =
             new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
         private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
@@ -35,12 +35,14 @@ namespace RoadRegistry.BackOffice.EventHost
         public EventProcessor(
             IStreamStore streamStore,
             IEventProcessorPositionStore positionStore,
+            AcceptStreamMessageFilter filter,
             EventHandlerDispatcher dispatcher,
             Scheduler scheduler,
             ILogger<EventProcessor> logger)
         {
             if (streamStore == null) throw new ArgumentNullException(nameof(streamStore));
             if (positionStore == null) throw new ArgumentNullException(nameof(positionStore));
+            if (filter == null) throw new ArgumentNullException(nameof(filter));
             if (dispatcher == null) throw new ArgumentNullException(nameof(dispatcher));
             if (logger == null) throw new ArgumentNullException(nameof(logger));
 
@@ -66,14 +68,17 @@ namespace RoadRegistry.BackOffice.EventHost
                             case Subscribe _:
                                 subscription?.Dispose();
                                 var position = await positionStore.ReadPosition(RoadNetworkArchiveEventQueue, _messagePumpCancellation.Token);
-                                //if position + threshold < head position then catchup
                                 subscription = streamStore.SubscribeToAll(
                                     position,
                                     (_, message, token) =>
                                     {
-                                        var command = new ProcessStreamMessage(message);
-                                        _messagePumpInbox.Post(command);
-                                        return command.Completion;
+                                        if (filter(message))
+                                        {
+                                            var command = new ProcessStreamMessage(message);
+                                            _messagePumpInbox.Post(command);
+                                            return command.Completion;
+                                        }
+                                        return Task.CompletedTask;
                                     },
                                     (_, reason, exception) =>
                                     {

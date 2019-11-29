@@ -44,6 +44,35 @@ namespace RoadRegistry.BackOffice.Projections
 
                 return context.AddRangeAsync(nationalRoadAttributes, token);
             });
+
+            When<Envelope<RoadNetworkChangesAccepted>>((context, envelope, token) =>
+            {
+                foreach (var change in envelope.Message.Changes.Flatten())
+                {
+                    switch (change)
+                    {
+                        case RoadSegmentAddedToNationalRoad nationalRoad:
+                            context.RoadSegmentNationalRoadAttributes.Add(new RoadSegmentNationalRoadAttributeRecord
+                            {
+                                Id = nationalRoad.AttributeId,
+                                RoadSegmentId = nationalRoad.SegmentId,
+                                DbaseRecord = new RoadSegmentNationalRoadAttributeDbaseRecord
+                                {
+                                    NW_OIDN = {Value = nationalRoad.AttributeId},
+                                    WS_OIDN = {Value = nationalRoad.SegmentId},
+                                    IDENT2 = {Value = nationalRoad.Ident2},
+                                    // TODO: Needs to come from the event
+                                    BEGINTIJD = {Value = null},
+                                    BEGINORG = {Value = null},
+                                    LBLBGNORG = {Value = null},
+                                }.ToBytes(manager, encoding)
+                            });
+                            break;
+                    }
+                }
+
+                return Task.CompletedTask;
+            });
         }
     }
 }

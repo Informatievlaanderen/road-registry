@@ -43,6 +43,35 @@ namespace RoadRegistry.BackOffice.Projections
 
                 return context.AddRangeAsync(europeanRoadAttributes, token);
             });
+
+            When<Envelope<RoadNetworkChangesAccepted>>((context, envelope, token) =>
+            {
+                foreach (var change in envelope.Message.Changes.Flatten())
+                {
+                    switch (change)
+                    {
+                        case RoadSegmentAddedToEuropeanRoad europeanRoad:
+                            context.RoadSegmentEuropeanRoadAttributes.Add(new RoadSegmentEuropeanRoadAttributeRecord
+                            {
+                                Id = europeanRoad.AttributeId,
+                                RoadSegmentId = europeanRoad.SegmentId,
+                                DbaseRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord
+                                {
+                                    EU_OIDN = {Value = europeanRoad.AttributeId},
+                                    WS_OIDN = {Value = europeanRoad.SegmentId},
+                                    EUNUMMER = {Value = europeanRoad.Number},
+                                    // TODO: Needs to come from the event
+                                    BEGINTIJD = {Value = null},
+                                    BEGINORG = {Value = null},
+                                    LBLBGNORG = {Value = null},
+                                }.ToBytes(manager, encoding)
+                            });
+                            break;
+                    }
+                }
+
+                return Task.CompletedTask;
+            });
         }
     }
 }
