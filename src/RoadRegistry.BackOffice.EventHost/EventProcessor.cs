@@ -32,6 +32,8 @@ namespace RoadRegistry.BackOffice.EventHost
 
         private readonly Scheduler _scheduler;
 
+        private const int RecordPositionThreshold = 1000;
+
         public EventProcessor(
             IStreamStore streamStore,
             IEventProcessorPositionStore positionStore,
@@ -78,6 +80,12 @@ namespace RoadRegistry.BackOffice.EventHost
                                             _messagePumpInbox.Post(command);
                                             return command.Completion;
                                         }
+
+                                        if (message.Position % RecordPositionThreshold == 0 && !_messagePumpCancellation.IsCancellationRequested)
+                                        {
+                                            _messagePumpInbox.Post(new RecordPosition(message));
+                                        }
+
                                         return Task.CompletedTask;
                                     },
                                     (_, reason, exception) =>
@@ -89,6 +97,19 @@ namespace RoadRegistry.BackOffice.EventHost
                                     },
                                     prefetchJsonData: false,
                                     name: "RoadRegistry.BackOffice.EventProcessor");
+                                break;
+                            case RecordPosition record:
+                                try
+                                {
+                                    logger.LogDebug("Recording position of stream message {MessageType} at position {Position} as processed.",
+                                        record.Message.Type, record.Message.Position);
+                                    await positionStore.WritePosition(RoadNetworkArchiveEventQueue, record.Message.Position,
+                                        _messagePumpCancellation.Token);
+                                }
+                                catch (Exception exception)
+                                {
+                                    logger.LogError(exception, exception.Message);
+                                }
                                 break;
                             case ProcessStreamMessage process:
                                 try
@@ -200,6 +221,16 @@ namespace RoadRegistry.BackOffice.EventHost
 
             public void Complete() => _source.TrySetResult(null);
             public void Fault(Exception exception) => _source.TrySetException(exception);
+        }
+
+        private class RecordPosition
+        {
+            public StreamMessage Message { get; }
+
+            public RecordPosition(StreamMessage message)
+            {
+                Message = message;
+            }
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

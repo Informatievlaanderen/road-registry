@@ -687,17 +687,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -724,15 +724,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "RoadNodeNotConnectedToAnySegment",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -772,7 +771,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -786,8 +785,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -827,7 +825,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddEndNode1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -841,8 +839,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -941,7 +938,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -960,8 +957,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1065,7 +1061,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -1084,8 +1080,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1244,27 +1239,27 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode2Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment2Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1362,7 +1357,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddEndNode1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -1381,8 +1376,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1512,7 +1506,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -1531,8 +1525,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1662,7 +1655,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddEndNode1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -1681,8 +1674,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1727,17 +1719,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1765,7 +1757,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode2,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -1791,8 +1783,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1835,17 +1826,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1873,7 +1864,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddEndNode2,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -1899,8 +1890,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1948,32 +1938,32 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode2Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode2Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment2Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2020,17 +2010,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2058,7 +2048,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddStartNode2,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -2072,8 +2062,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2111,17 +2100,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2149,7 +2138,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadNode = AddEndNode2,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -2163,8 +2152,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2207,17 +2195,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2241,17 +2229,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2271,7 +2259,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment2,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -2285,8 +2273,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2477,15 +2464,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "RoadSegmentGeometrySelfOverlaps",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2629,15 +2615,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "RoadSegmentGeometrySelfIntersects",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2668,15 +2653,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "RoadSegmentStartNodeMissing",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2707,15 +2691,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "RoadSegmentEndNodeMissing",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2752,15 +2735,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "RoadSegmentStartPointDoesNotMatchNodeGeometry",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2781,17 +2763,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2815,15 +2797,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment2,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "RoadSegmentStartPointDoesNotMatchNodeGeometry",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2860,15 +2841,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "RoadSegmentEndPointDoesNotMatchNodeGeometry",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2889,17 +2869,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2923,15 +2903,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment2,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "RoadSegmentEndPointDoesNotMatchNodeGeometry",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2978,15 +2957,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "RoadSegmentGeometryLengthIsZero",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3133,8 +3111,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[] { problem },
-                            Warnings = new Messages.Problem[0]
+                            Problems = new[] { problem }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3276,8 +3253,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[] { problem },
-                            Warnings = new Messages.Problem[0]
+                            Problems = new[] { problem }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3419,8 +3395,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[] { problem },
-                            Warnings = new Messages.Problem[0]
+                            Problems = new[] { problem }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3466,17 +3441,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
@@ -3487,7 +3462,7 @@ namespace RoadRegistry.BackOffice.Model
                                 Number = addRoadSegmentToEuropeanRoad.Number,
                                 SegmentId = Segment1Added.Id
                             },
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3521,7 +3496,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegmentToEuropeanRoad = addRoadSegmentToEuropeanRoad,
-                            Errors = new []
+                            Problems = new []
                             {
                                 new Messages.Problem
                                 {
@@ -3535,8 +3510,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3581,17 +3555,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
@@ -3602,7 +3576,7 @@ namespace RoadRegistry.BackOffice.Model
                                 Ident2 = addRoadSegmentToNationalRoad.Ident2,
                                 SegmentId = Segment1Added.Id
                             },
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3635,7 +3609,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegmentToNationalRoad = addRoadSegmentToNationalRoad,
-                            Errors = new []
+                            Problems = new []
                             {
                                 new Messages.Problem
                                 {
@@ -3649,8 +3623,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3697,17 +3670,17 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = StartNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadNodeAdded = EndNode1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         },
                         new Messages.AcceptedChange
                         {
@@ -3720,7 +3693,7 @@ namespace RoadRegistry.BackOffice.Model
                                 Ordinal = addRoadSegmentToNumberedRoad.Ordinal,
                                 SegmentId = Segment1Added.Id
                             },
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3755,7 +3728,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegmentToNumberedRoad = addRoadSegmentToNumberedRoad,
-                            Errors = new []
+                            Problems = new []
                             {
                                 new Messages.Problem
                                 {
@@ -3769,8 +3742,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3866,7 +3838,7 @@ namespace RoadRegistry.BackOffice.Model
                                 LowerSegmentId = Segment2Added.Id,
                                 Type = addGradeSeparatedJunction.Type
                             },
-                            Warnings = new Messages.Problem[0]
+                            Problems = new Messages.Problem[0]
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3919,15 +3891,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddGradeSeparatedJunction = addGradeSeparatedJunction,
-                            Errors = new []
+                            Problems = new []
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "UpperRoadSegmentMissing",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -3980,15 +3951,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddGradeSeparatedJunction = addGradeSeparatedJunction,
-                            Errors = new []
+                            Problems = new []
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "LowerRoadSegmentMissing",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -4053,15 +4023,14 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddGradeSeparatedJunction = addGradeSeparatedJunction,
-                            Errors = new []
+                            Problems = new []
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "UpperAndLowerRoadSegmentDoNotIntersect",
                                     Parameters = new Messages.ProblemParameter[0]
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -4128,7 +4097,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new []
+                            Problems = new []
                             {
                                 new Messages.Problem
                                 {
@@ -4149,8 +4118,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -4218,7 +4186,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -4244,8 +4212,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -4313,7 +4280,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -4373,8 +4340,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -4443,7 +4409,7 @@ namespace RoadRegistry.BackOffice.Model
                         new Messages.RejectedChange
                         {
                             AddRoadSegment = AddSegment1,
-                            Errors = new[]
+                            Problems = new[]
                             {
                                 new Messages.Problem
                                 {
@@ -4470,8 +4436,7 @@ namespace RoadRegistry.BackOffice.Model
                                         }
                                     }
                                 }
-                            },
-                            Warnings = new Messages.Problem[0]
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())

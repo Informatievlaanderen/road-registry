@@ -20,6 +20,7 @@ namespace RoadRegistry.BackOffice.Projections
         {
             if (manager == null) throw new ArgumentNullException(nameof(manager));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+
             When<Envelope<ImportedRoadSegment>>((context, envelope, token) =>
             {
                 var geometry =
@@ -32,7 +33,7 @@ namespace RoadRegistry.BackOffice.Projections
                     Model.RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod).Translation;
                 var accessRestrictionTranslation =
                     Model.RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction).Translation;
-                return context.AddAsync(
+                return context.RoadSegments.AddAsync(
                     new RoadSegmentRecord
                     {
                         Id = envelope.Message.Id,
@@ -69,6 +70,69 @@ namespace RoadRegistry.BackOffice.Projections
                         }.ToBytes(manager, encoding)
                     },
                     token);
+            });
+
+            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
+            {
+                foreach (var message in envelope.Message.Changes.Flatten())
+                {
+                    switch (message)
+                    {
+                        case RoadSegmentAdded segment:
+                            var geometry =
+                                GeometryTranslator.FromGeometryMultiLineString(Model.GeometryTranslator.Translate(segment.Geometry));
+                            var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
+                            var statusTranslation = Model.RoadSegmentStatus.Parse(segment.Status).Translation;
+                            var morphologyTranslation = Model.RoadSegmentMorphology.Parse(segment.Morphology).Translation;
+                            var categoryTranslation = Model.RoadSegmentCategory.Parse(segment.Category).Translation;
+                            var geometryDrawMethodTranslation =
+                                Model.RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation;
+                            var accessRestrictionTranslation =
+                                Model.RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation;
+                            await context.RoadSegments.AddAsync(
+                                new RoadSegmentRecord
+                                {
+                                    Id = segment.Id,
+                                    ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding),
+                                    ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
+                                    BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
+                                    DbaseRecord = new RoadSegmentDbaseRecord
+                                    {
+                                        WS_OIDN = {Value = segment.Id},
+                                        WS_UIDN = {Value = $"{segment.Id}_{segment.Version}"},
+                                        WS_GIDN = {Value = $"{segment.Id}_{segment.GeometryVersion}"},
+                                        B_WK_OIDN = {Value = segment.StartNodeId},
+                                        E_WK_OIDN = {Value = segment.EndNodeId},
+                                        STATUS = {Value = statusTranslation.Identifier},
+                                        LBLSTATUS = {Value = statusTranslation.Name},
+                                        MORF = {Value = morphologyTranslation.Identifier},
+                                        LBLMORF = {Value = morphologyTranslation.Name},
+                                        WEGCAT = {Value = categoryTranslation.Identifier},
+                                        LBLWEGCAT = {Value = categoryTranslation.Name},
+                                        LSTRNMID = {Value = segment.LeftSide.StreetNameId},
+                                        // TODO: Where does this come from?
+                                        LSTRNM = {Value = null},
+                                        RSTRNMID = {Value = segment.RightSide.StreetNameId},
+                                        // TODO: Where does this come from?
+                                        RSTRNM = {Value = null},
+                                        BEHEER = {Value = segment.MaintenanceAuthority.Code},
+                                        LBLBEHEER = {Value = segment.MaintenanceAuthority.Name},
+                                        METHODE = {Value = geometryDrawMethodTranslation.Identifier},
+                                        LBLMETHOD = {Value = geometryDrawMethodTranslation.Name},
+                                        // TODO: Needs to come from the event
+                                        OPNDATUM = {Value = null},
+                                        BEGINTIJD = {Value = null},
+                                        BEGINORG = {Value = null},
+                                        LBLBGNORG = {Value = null},
+                                        TGBEP = {Value = accessRestrictionTranslation.Identifier},
+                                        LBLTGBEP = {Value = accessRestrictionTranslation.Name}
+                                    }.ToBytes(manager, encoding)
+                                },
+                                token);
+                            break;
+                    }
+                }
+
             });
         }
     }

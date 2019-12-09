@@ -12,10 +12,10 @@ namespace RoadRegistry.BackOffice.Projections
     {
         public static void CustomizeOriginProperties(this IFixture fixture)
         {
-            fixture.Customize<OriginProperties>(customization =>
+            fixture.Customize<ImportedOriginProperties>(customization =>
                 customization
                     .FromFactory(generator =>
-                        new OriginProperties
+                        new ImportedOriginProperties
                         {
                             Organization = fixture.Create<MaintenanceAuthorityName>(),
                             OrganizationId = fixture.Create<MaintenanceAuthorityId>(),
@@ -36,7 +36,7 @@ namespace RoadRegistry.BackOffice.Projections
                             Id = fixture.Create<RoadNodeId>(),
                             Type = fixture.Create<RoadNodeType>(),
                             Geometry = GeometryTranslator.Translate(fixture.Create<NetTopologySuite.Geometries.Point>()),
-                            Origin = fixture.Create<OriginProperties>()
+                            Origin = fixture.Create<ImportedOriginProperties>()
                         }
                     )
                     .OmitAutoProperties()
@@ -54,7 +54,7 @@ namespace RoadRegistry.BackOffice.Projections
                             Type = fixture.Create<GradeSeparatedJunctionType>(),
                             LowerRoadSegmentId = fixture.Create<RoadSegmentId>(),
                             UpperRoadSegmentId = fixture.Create<RoadSegmentId>(),
-                            Origin = fixture.Create<OriginProperties>()
+                            Origin = fixture.Create<ImportedOriginProperties>()
                         }
                     )
                     .OmitAutoProperties()
@@ -74,7 +74,7 @@ namespace RoadRegistry.BackOffice.Projections
                             FromPosition = fixture.Create<RoadSegmentPosition>(),
                             ToPosition = fixture.Create<RoadSegmentPosition>(),
                             AsOfGeometryVersion = fixture.Create<int>(),
-                            Origin = fixture.Create<OriginProperties>()
+                            Origin = fixture.Create<ImportedOriginProperties>()
                         }
                     )
                     .OmitAutoProperties()
@@ -93,7 +93,7 @@ namespace RoadRegistry.BackOffice.Projections
                             FromPosition = fixture.Create<RoadSegmentPosition>(),
                             ToPosition = fixture.Create<RoadSegmentPosition>(),
                             AsOfGeometryVersion = fixture.Create<int>(),
-                            Origin = fixture.Create<OriginProperties>()
+                            Origin = fixture.Create<ImportedOriginProperties>()
                         }
                     )
                     .OmitAutoProperties()
@@ -112,7 +112,7 @@ namespace RoadRegistry.BackOffice.Projections
                             FromPosition = fixture.Create<RoadSegmentPosition>(),
                             ToPosition = fixture.Create<RoadSegmentPosition>(),
                             AsOfGeometryVersion = fixture.Create<int>(),
-                            Origin = fixture.Create<OriginProperties>()
+                            Origin = fixture.Create<ImportedOriginProperties>()
                         }
                     )
                     .OmitAutoProperties()
@@ -128,7 +128,7 @@ namespace RoadRegistry.BackOffice.Projections
                         {
                             AttributeId = fixture.Create<int>(),
                             Number = fixture.Create<EuropeanRoadNumber>(),
-                            Origin = fixture.Create<OriginProperties>()
+                            Origin = fixture.Create<ImportedOriginProperties>()
                         }
                     )
                     .OmitAutoProperties()
@@ -144,7 +144,7 @@ namespace RoadRegistry.BackOffice.Projections
                         {
                             AttributeId = fixture.Create<int>(),
                             Ident2 = fixture.Create<NationalRoadNumber>(),
-                            Origin = fixture.Create<OriginProperties>()
+                            Origin = fixture.Create<ImportedOriginProperties>()
                         }
                     )
                     .OmitAutoProperties()
@@ -162,7 +162,7 @@ namespace RoadRegistry.BackOffice.Projections
                             Ident8 = fixture.Create<NumberedRoadNumber>(),
                             Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
                             Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
-                            Origin = fixture.Create<OriginProperties>()
+                            Origin = fixture.Create<ImportedOriginProperties>()
                         }
                     )
                     .OmitAutoProperties()
@@ -218,7 +218,7 @@ namespace RoadRegistry.BackOffice.Projections
                             PartOfNationalRoads = fixture.CreateMany<ImportedRoadSegmentNationalRoadAttributes>(generator.Next(0, 10)).ToArray(),
                             PartOfNumberedRoads = fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttributes>(generator.Next(0, 10)).ToArray(),
                             RecordingDate = fixture.Create<DateTime>(),
-                            Origin = fixture.Create<OriginProperties>()
+                            Origin = fixture.Create<ImportedOriginProperties>()
                         }
                     )
                     .OmitAutoProperties()

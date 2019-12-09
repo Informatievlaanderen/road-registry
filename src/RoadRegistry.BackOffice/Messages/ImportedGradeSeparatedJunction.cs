@@ -10,7 +10,7 @@
         public string Type { get; set; }
         public int UpperRoadSegmentId { get; set; }
         public int LowerRoadSegmentId { get; set; }
-        public OriginProperties Origin { get; set; }
+        public ImportedOriginProperties Origin { get; set; }
         public string When { get; set; }
     }
 }

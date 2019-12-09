@@ -23,44 +23,44 @@ namespace RoadRegistry.BackOffice.Model
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var errors = Errors.None;
+            var problems = Problems.None;
             var byOtherNode =
                 context.View.Nodes.Values.FirstOrDefault(n =>
                     n.Id != Id &&
                     n.Geometry.EqualsExact(Geometry));
             if (byOtherNode != null)
             {
-                errors = errors.RoadNodeGeometryTaken(
+                problems = problems.RoadNodeGeometryTaken(
                     context.Translator.TranslateToTemporaryOrId(byOtherNode.Id)
                 );
             }
 
             var node = context.View.Nodes[Id];
 
-            errors = context.View.Segments.Values
+            problems = context.View.Segments.Values
                 .Where(s =>
                     !node.Segments.Contains(s.Id) &&
                     s.Geometry.IsWithinDistance(Geometry, VerificationContext.TooCloseDistance)
                 )
                 .Aggregate(
-                    errors,
+                    problems,
                     (current, segment) =>
                         current.RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id)));
 
             var connectedSegmentCount = node.Segments.Count;
             if (connectedSegmentCount == 0)
             {
-                errors = errors.RoadNodeNotConnectedToAnySegment();
+                problems = problems.RoadNodeNotConnectedToAnySegment();
             }
             else if (connectedSegmentCount == 1 && Type != RoadNodeType.EndNode)
             {
-                errors = errors.RoadNodeTypeMismatch(RoadNodeType.EndNode);
+                problems = problems.RoadNodeTypeMismatch(RoadNodeType.EndNode);
             }
             else if (connectedSegmentCount == 2)
             {
                 if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
                 {
-                    errors = errors.RoadNodeTypeMismatch(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode);
+                    problems = problems.RoadNodeTypeMismatch(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode);
                 }
                 else if (Type == RoadNodeType.FakeNode)
                 {
@@ -70,7 +70,7 @@ namespace RoadRegistry.BackOffice.Model
                     var segment2 = segments[1];
                     if (segment1.AttributeHash.Equals(segment2.AttributeHash))
                     {
-                        errors = errors.FakeRoadNodeConnectedSegmentsDoNotDiffer(
+                        problems = problems.FakeRoadNodeConnectedSegmentsDoNotDiffer(
                             context.Translator.TranslateToTemporaryOrId(segment1.Id),
                             context.Translator.TranslateToTemporaryOrId(segment2.Id)
                         );
@@ -79,14 +79,14 @@ namespace RoadRegistry.BackOffice.Model
             }
             else if (connectedSegmentCount > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
             {
-                errors = errors.RoadNodeTypeMismatch(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout);
+                problems = problems.RoadNodeTypeMismatch(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout);
             }
 
-            if (errors.Count > 0)
+            if (problems.OfType<Error>().Any())
             {
-                return new RejectedChange(this, errors, Warnings.None);
+                return new RejectedChange(this, problems);
             }
-            return new AcceptedChange(this, Warnings.None);
+            return new AcceptedChange(this, problems);
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using System.Linq;
 
     public class AddRoadSegmentToNumberedRoad : IRequestedChange
     {
@@ -33,18 +34,18 @@ namespace RoadRegistry.BackOffice.Model
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var errors = Errors.None;
+            var problems = Problems.None;
 
             if (!context.View.Segments.ContainsKey(SegmentId))
             {
-                errors = errors.RoadSegmentMissing(TemporarySegmentId ?? SegmentId);
+                problems = problems.RoadSegmentMissing(TemporarySegmentId ?? SegmentId);
             }
 
-            if (errors.Count > 0)
+            if (problems.OfType<Error>().Any())
             {
-                return new RejectedChange(this, errors, Warnings.None);
+                return new RejectedChange(this, problems);
             }
-            return new AcceptedChange(this, Warnings.None);
+            return new AcceptedChange(this, problems);
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

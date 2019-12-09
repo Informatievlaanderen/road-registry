@@ -42,17 +42,17 @@ namespace RoadRegistry.BackOffice.Projections
                         }.ToBytes(manager, encoding)
                     });
 
-                return context.AddRangeAsync(nationalRoadAttributes, token);
+                return context.RoadSegmentNationalRoadAttributes.AddRangeAsync(nationalRoadAttributes, token);
             });
 
-            When<Envelope<RoadNetworkChangesAccepted>>((context, envelope, token) =>
+            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
                 {
                     switch (change)
                     {
                         case RoadSegmentAddedToNationalRoad nationalRoad:
-                            context.RoadSegmentNationalRoadAttributes.Add(new RoadSegmentNationalRoadAttributeRecord
+                            await context.RoadSegmentNationalRoadAttributes.AddAsync(new RoadSegmentNationalRoadAttributeRecord
                             {
                                 Id = nationalRoad.AttributeId,
                                 RoadSegmentId = nationalRoad.SegmentId,
@@ -64,14 +64,12 @@ namespace RoadRegistry.BackOffice.Projections
                                     // TODO: Needs to come from the event
                                     BEGINTIJD = {Value = null},
                                     BEGINORG = {Value = null},
-                                    LBLBGNORG = {Value = null},
+                                    LBLBGNORG = {Value = null}
                                 }.ToBytes(manager, encoding)
                             });
                             break;
                     }
                 }
-
-                return Task.CompletedTask;
             });
         }
     }

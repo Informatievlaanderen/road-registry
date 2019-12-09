@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using System.Linq;
 
     public class AddGradeSeparatedJunction : IRequestedChange
     {
@@ -34,30 +35,30 @@ namespace RoadRegistry.BackOffice.Model
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var errors = Errors.None;
+            var problems = Problems.None;
             if (!context.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
             {
-                errors = errors.UpperRoadSegmentMissing();
+                problems = problems.UpperRoadSegmentMissing();
             }
 
             if (!context.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
             {
-                errors = errors.LowerRoadSegmentMissing();
+                problems = problems.LowerRoadSegmentMissing();
             }
 
             if (upperSegment != null && lowerSegment != null)
             {
                 if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))
                 {
-                    errors = errors.UpperAndLowerRoadSegmentDoNotIntersect();
+                    problems = problems.UpperAndLowerRoadSegmentDoNotIntersect();
                 }
             }
 
-            if (errors.Count > 0)
+            if (problems.OfType<Error>().Any())
             {
-                return new RejectedChange(this, errors, Warnings.None);
+                return new RejectedChange(this, problems);
             }
-            return new AcceptedChange(this, Warnings.None);
+            return new AcceptedChange(this, problems);
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

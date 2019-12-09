@@ -211,7 +211,7 @@ namespace RoadRegistry.BackOffice.Projections
                         Type = _fixture.Create<GradeSeparatedJunctionType>(),
                         LowerRoadSegmentId = _fixture.Create<RoadSegmentId>(),
                         UpperRoadSegmentId = _fixture.Create<RoadSegmentId>(),
-                        Origin = _fixture.Create<OriginProperties>()
+                        Origin = _fixture.Create<ImportedOriginProperties>()
                     }
                 )
                 .Expect(
@@ -245,7 +245,7 @@ namespace RoadRegistry.BackOffice.Projections
                     Type = _fixture.Create<GradeSeparatedJunctionType>(),
                     LowerRoadSegmentId = _fixture.Create<RoadSegmentId>(),
                     UpperRoadSegmentId = _fixture.Create<RoadSegmentId>(),
-                    Origin = _fixture.Create<OriginProperties>()
+                    Origin = _fixture.Create<ImportedOriginProperties>()
                 })
                 .Cast<object>()
                 .ToArray();
@@ -288,7 +288,7 @@ namespace RoadRegistry.BackOffice.Projections
                         Id = _fixture.Create<int>(),
                         Type = _fixture.Create<RoadNodeType>(),
                         Geometry = GeometryTranslator.Translate(geometry),
-                        Origin = _fixture.Create<OriginProperties>()
+                        Origin = _fixture.Create<ImportedOriginProperties>()
                     }
                 )
                 .Expect(
@@ -323,7 +323,7 @@ namespace RoadRegistry.BackOffice.Projections
                     Id = _fixture.Create<int>(),
                     Type = _fixture.Create<RoadNodeType>(),
                     Geometry = GeometryTranslator.Translate(_fixture.Create<NetTopologySuite.Geometries.Point>()),
-                    Origin = _fixture.Create<OriginProperties>()
+                    Origin = _fixture.Create<ImportedOriginProperties>()
                 })
                 .ToArray();
             var givens = Array.ConvertAll(imported_nodes, imported => (object) imported);
@@ -400,7 +400,7 @@ namespace RoadRegistry.BackOffice.Projections
                         Surfaces = hardenings,
                         Version = _fixture.Create<int>(),
                         RecordingDate = _fixture.Create<DateTime>(),
-                        Origin = _fixture.Create<OriginProperties>()
+                        Origin = _fixture.Create<ImportedOriginProperties>()
                     }
                 )
                 .Expect(
@@ -452,7 +452,7 @@ namespace RoadRegistry.BackOffice.Projections
                     Surfaces = _fixture.CreateMany<ImportedRoadSegmentSurfaceAttributes>().ToArray(),
                     Version = _fixture.Create<int>(),
                     RecordingDate = _fixture.Create<DateTime>(),
-                    Origin = _fixture.Create<OriginProperties>()
+                    Origin = _fixture.Create<ImportedOriginProperties>()
                 })
                 .ToArray();
             var givens = Array.ConvertAll(imported_segments, imported => (object) imported);

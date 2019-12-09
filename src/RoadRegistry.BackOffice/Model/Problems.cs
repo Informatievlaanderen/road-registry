@@ -6,28 +6,28 @@ namespace RoadRegistry.BackOffice.Model
     using System.Collections.Immutable;
     using System.Globalization;
 
-    public class Errors : IReadOnlyCollection<Error>
+    public class Problems : IReadOnlyCollection<Problem>
     {
-        private readonly ImmutableList<Error> _errors;
+        private readonly ImmutableList<Problem> _problems;
 
-        public static readonly Errors None = new Errors(ImmutableList<Error>.Empty);
+        public static readonly Problems None = new Problems(ImmutableList<Problem>.Empty);
 
-        private Errors(ImmutableList<Error> errors)
+        private Problems(ImmutableList<Problem> problems)
         {
-            _errors = errors;
+            _problems = problems;
         }
 
-        public IEnumerator<Error> GetEnumerator() => _errors.GetEnumerator();
+        public IEnumerator<Problem> GetEnumerator() => _problems.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        public int Count => _errors.Count;
+        public int Count => _problems.Count;
 
         // Road Node Errors
 
         //public Errors RoadNodeIdTaken() => new Errors(_errors.Add(new Error(nameof(RoadNodeIdTaken))));
 
-        public Errors RoadNodeGeometryTaken(RoadNodeId byOtherNode)
+        public Problems RoadNodeGeometryTaken(RoadNodeId byOtherNode)
         {
-            return new Errors(_errors.Add(
+            return new Problems(_problems.Add(
                 new Error(
                     nameof(RoadNodeGeometryTaken),
                     new ProblemParameter(
@@ -36,9 +36,9 @@ namespace RoadRegistry.BackOffice.Model
             );
         }
 
-        public Errors RoadNodeTooClose(RoadSegmentId toOtherSegment)
+        public Problems RoadNodeTooClose(RoadSegmentId toOtherSegment)
         {
-            return new Errors(_errors.Add(
+            return new Problems(_problems.Add(
                     new Error(
                         nameof(RoadNodeTooClose),
                         new ProblemParameter(
@@ -47,25 +47,25 @@ namespace RoadRegistry.BackOffice.Model
             );
         }
 
-        public Errors RoadNodeNotConnectedToAnySegment() => new Errors(_errors.Add(new Error(nameof(RoadNodeNotConnectedToAnySegment))));
+        public Problems RoadNodeNotConnectedToAnySegment() => new Problems(_problems.Add(new Error(nameof(RoadNodeNotConnectedToAnySegment))));
 
-        public Errors RoadNodeTypeMismatch(params RoadNodeType[] types)
+        public Problems RoadNodeTypeMismatch(params RoadNodeType[] types)
         {
             if (types == null)
                 throw new ArgumentNullException(nameof(types));
             if (types.Length == 0)
                 throw new ArgumentException("The expected road node types must contain at least one.", nameof(types));
-            return new Errors(_errors.Add(
+            return new Problems(_problems.Add(
                 new Error(
                     nameof(RoadNodeTypeMismatch),
                     Array.ConvertAll(types, type => new ProblemParameter("Expected", type.ToString()))))
             );
         }
 
-        public Errors FakeRoadNodeConnectedSegmentsDoNotDiffer(RoadSegmentId segment1, RoadSegmentId segment2)
+        public Problems FakeRoadNodeConnectedSegmentsDoNotDiffer(RoadSegmentId segment1, RoadSegmentId segment2)
         {
-            return new Errors(
-                _errors.Add(
+            return new Problems(
+                _problems.Add(
                     new Error(nameof(FakeRoadNodeConnectedSegmentsDoNotDiffer),
                         new ProblemParameter(
                             "SegmentId",
@@ -80,9 +80,9 @@ namespace RoadRegistry.BackOffice.Model
 
         //public Errors RoadSegmentIdTaken() => new Errors(_errors.Add(new Error(nameof(RoadSegmentIdTaken))));
 
-        public Errors RoadSegmentGeometryTaken(RoadSegmentId byOtherSegment)
+        public Problems RoadSegmentGeometryTaken(RoadSegmentId byOtherSegment)
         {
-            return new Errors(_errors.Add(
+            return new Problems(_problems.Add(
                     new Error(
                         nameof(RoadSegmentGeometryTaken),
                         new ProblemParameter(
@@ -90,115 +90,115 @@ namespace RoadRegistry.BackOffice.Model
                             byOtherSegment.ToInt32().ToString()))));
         }
 
-        public Errors RoadSegmentStartNodeMissing() =>
-            new Errors(_errors.Add(new Error(nameof(RoadSegmentStartNodeMissing))));
+        public Problems RoadSegmentStartNodeMissing() =>
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentStartNodeMissing))));
 
-        public Errors RoadSegmentEndNodeMissing() =>
-            new Errors(_errors.Add(new Error(nameof(RoadSegmentEndNodeMissing))));
+        public Problems RoadSegmentEndNodeMissing() =>
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentEndNodeMissing))));
 
-        public Errors RoadSegmentGeometryLengthIsZero() =>
-            new Errors(_errors.Add(new Error(nameof(RoadSegmentGeometryLengthIsZero))));
+        public Problems RoadSegmentGeometryLengthIsZero() =>
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentGeometryLengthIsZero))));
 
-        public Errors RoadSegmentStartPointDoesNotMatchNodeGeometry() =>
-            new Errors(_errors.Add(new Error(nameof(RoadSegmentStartPointDoesNotMatchNodeGeometry))));
+        public Problems RoadSegmentStartPointDoesNotMatchNodeGeometry() =>
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentStartPointDoesNotMatchNodeGeometry))));
 
-        public Errors RoadSegmentEndPointDoesNotMatchNodeGeometry() =>
-            new Errors(_errors.Add(new Error(nameof(RoadSegmentEndPointDoesNotMatchNodeGeometry))));
+        public Problems RoadSegmentEndPointDoesNotMatchNodeGeometry() =>
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentEndPointDoesNotMatchNodeGeometry))));
 
-        public Errors RoadSegmentGeometrySelfOverlaps() =>
-            new Errors(_errors.Add(new Error(nameof(RoadSegmentGeometrySelfOverlaps))));
+        public Problems RoadSegmentGeometrySelfOverlaps() =>
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentGeometrySelfOverlaps))));
 
-        public Errors RoadSegmentGeometrySelfIntersects() =>
-            new Errors(_errors.Add(new Error(nameof(RoadSegmentGeometrySelfIntersects))));
+        public Problems RoadSegmentGeometrySelfIntersects() =>
+            new Problems(_problems.Add(new Error(nameof(RoadSegmentGeometrySelfIntersects))));
 
-        public Errors RoadSegmentMissing(RoadSegmentId segmentId)
+        public Problems RoadSegmentMissing(RoadSegmentId segmentId)
         {
-            return new Errors(
-                _errors.Add(
+            return new Problems(
+                _problems.Add(
                     new Error(nameof(RoadSegmentMissing),
                         new ProblemParameter("SegmentId", segmentId.ToInt32().ToString())))
             );
         }
 
-        public Errors RoadSegmentLaneAttributeFromPositionNotEqualToZero(AttributeId attributeId)
+        public Problems RoadSegmentLaneAttributeFromPositionNotEqualToZero(AttributeId attributeId)
         {
-            return new Errors(
-                _errors.Add(
+            return new Problems(
+                _problems.Add(
                     new Error(nameof(RoadSegmentLaneAttributeFromPositionNotEqualToZero),
                         new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
         }
 
-        public Errors RoadSegmentLaneAttributesNotAdjacent(AttributeId attributeId1, AttributeId attributeId2)
+        public Problems RoadSegmentLaneAttributesNotAdjacent(AttributeId attributeId1, AttributeId attributeId2)
         {
-            return new Errors(
-                _errors.Add(
+            return new Problems(
+                _problems.Add(
                     new Error(nameof(RoadSegmentLaneAttributesNotAdjacent),
                         new ProblemParameter("AttributeId", attributeId1.ToInt32().ToString()),
                         new ProblemParameter("AttributeId", attributeId2.ToInt32().ToString()))));
         }
 
-        public Errors RoadSegmentLaneAttributeToPositionNotEqualToLength(AttributeId attributeId)
+        public Problems RoadSegmentLaneAttributeToPositionNotEqualToLength(AttributeId attributeId)
         {
-            return new Errors(
-                _errors.Add(
+            return new Problems(
+                _problems.Add(
                     new Error(nameof(RoadSegmentLaneAttributeToPositionNotEqualToLength),
                         new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
         }
 
-        public Errors RoadSegmentWidthAttributeFromPositionNotEqualToZero(AttributeId attributeId)
+        public Problems RoadSegmentWidthAttributeFromPositionNotEqualToZero(AttributeId attributeId)
         {
-            return new Errors(
-                _errors.Add(
+            return new Problems(
+                _problems.Add(
                     new Error(nameof(RoadSegmentWidthAttributeFromPositionNotEqualToZero),
                         new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
         }
 
-        public Errors RoadSegmentWidthAttributesNotAdjacent(AttributeId attributeId1, AttributeId attributeId2)
+        public Problems RoadSegmentWidthAttributesNotAdjacent(AttributeId attributeId1, AttributeId attributeId2)
         {
-            return new Errors(
-                _errors.Add(
+            return new Problems(
+                _problems.Add(
                     new Error(nameof(RoadSegmentWidthAttributesNotAdjacent),
                         new ProblemParameter("AttributeId", attributeId1.ToInt32().ToString()),
                         new ProblemParameter("AttributeId", attributeId2.ToInt32().ToString()))));
         }
 
-        public Errors RoadSegmentWidthAttributeToPositionNotEqualToLength(AttributeId attributeId)
+        public Problems RoadSegmentWidthAttributeToPositionNotEqualToLength(AttributeId attributeId)
         {
-            return new Errors(
-                _errors.Add(
+            return new Problems(
+                _problems.Add(
                     new Error(nameof(RoadSegmentWidthAttributeToPositionNotEqualToLength),
                         new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
         }
 
-        public Errors RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(AttributeId attributeId)
+        public Problems RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(AttributeId attributeId)
         {
-            return new Errors(
-                _errors.Add(
+            return new Problems(
+                _problems.Add(
                     new Error(nameof(RoadSegmentSurfaceAttributeFromPositionNotEqualToZero),
                         new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
         }
 
-        public Errors RoadSegmentSurfaceAttributesNotAdjacent(AttributeId attributeId1, AttributeId attributeId2)
+        public Problems RoadSegmentSurfaceAttributesNotAdjacent(AttributeId attributeId1, AttributeId attributeId2)
         {
-            return new Errors(
-                _errors.Add(
+            return new Problems(
+                _problems.Add(
                     new Error(nameof(RoadSegmentSurfaceAttributesNotAdjacent),
                         new ProblemParameter("AttributeId", attributeId1.ToInt32().ToString()),
                         new ProblemParameter("AttributeId", attributeId2.ToInt32().ToString()))));
         }
 
-        public Errors RoadSegmentSurfaceAttributeToPositionNotEqualToLength(AttributeId attributeId)
+        public Problems RoadSegmentSurfaceAttributeToPositionNotEqualToLength(AttributeId attributeId)
         {
-            return new Errors(
-                _errors.Add(
+            return new Problems(
+                _problems.Add(
                     new Error(nameof(RoadSegmentSurfaceAttributeToPositionNotEqualToLength),
                         new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
         }
 
-        public Errors RoadSegmentPointMeasureValueOutOfRange(double pointX, double pointY, double measure, double measureLowerBoundary, double measureUpperBoundary)
+        public Problems RoadSegmentPointMeasureValueOutOfRange(double pointX, double pointY, double measure, double measureLowerBoundary, double measureUpperBoundary)
         {
-            return new Errors(
-                _errors.Add(new Error(nameof(RoadSegmentPointMeasureValueOutOfRange),
+            return new Problems(
+                _problems.Add(new Error(nameof(RoadSegmentPointMeasureValueOutOfRange),
                     new ProblemParameter("PointX", pointX.ToString(CultureInfo.InvariantCulture)),
                     new ProblemParameter("PointY", pointY.ToString(CultureInfo.InvariantCulture)),
                     new ProblemParameter("Measure", measure.ToString(CultureInfo.InvariantCulture)),
@@ -206,29 +206,29 @@ namespace RoadRegistry.BackOffice.Model
                     new ProblemParameter("MeasureUpperBoundary", measureUpperBoundary.ToString(CultureInfo.InvariantCulture)))));
         }
 
-        public Errors RoadSegmentStartPointMeasureValueNotEqualToZero(double pointX, double pointY, double measure)
+        public Problems RoadSegmentStartPointMeasureValueNotEqualToZero(double pointX, double pointY, double measure)
         {
-            return new Errors(
-                _errors.Add(new Error(nameof(RoadSegmentStartPointMeasureValueNotEqualToZero),
+            return new Problems(
+                _problems.Add(new Error(nameof(RoadSegmentStartPointMeasureValueNotEqualToZero),
                     new ProblemParameter("PointX", pointX.ToString(CultureInfo.InvariantCulture)),
                     new ProblemParameter("PointY", pointY.ToString(CultureInfo.InvariantCulture)),
                     new ProblemParameter("Measure", measure.ToString(CultureInfo.InvariantCulture)))));
         }
 
-        public Errors RoadSegmentEndPointMeasureValueNotEqualToLength(double pointX, double pointY, double measure, double length)
+        public Problems RoadSegmentEndPointMeasureValueNotEqualToLength(double pointX, double pointY, double measure, double length)
         {
-            return new Errors(
-                _errors.Add(new Error(nameof(RoadSegmentEndPointMeasureValueNotEqualToLength),
+            return new Problems(
+                _problems.Add(new Error(nameof(RoadSegmentEndPointMeasureValueNotEqualToLength),
                     new ProblemParameter("PointX", pointX.ToString(CultureInfo.InvariantCulture)),
                     new ProblemParameter("PointY", pointY.ToString(CultureInfo.InvariantCulture)),
                     new ProblemParameter("Measure", measure.ToString(CultureInfo.InvariantCulture)),
                     new ProblemParameter("Length", length.ToString(CultureInfo.InvariantCulture)))));
         }
 
-        public Errors RoadSegmentPointMeasureValueDoesNotIncrease(double pointX, double pointY, double measure, double previousMeasure)
+        public Problems RoadSegmentPointMeasureValueDoesNotIncrease(double pointX, double pointY, double measure, double previousMeasure)
         {
-            return new Errors(
-                _errors.Add(new Error(nameof(RoadSegmentPointMeasureValueDoesNotIncrease),
+            return new Problems(
+                _problems.Add(new Error(nameof(RoadSegmentPointMeasureValueDoesNotIncrease),
                     new ProblemParameter("PointX", pointX.ToString(CultureInfo.InvariantCulture)),
                     new ProblemParameter("PointY", pointY.ToString(CultureInfo.InvariantCulture)),
                     new ProblemParameter("Measure", measure.ToString(CultureInfo.InvariantCulture)),
@@ -236,8 +236,8 @@ namespace RoadRegistry.BackOffice.Model
         }
 
         // Grade Separated Junction Errors
-        public Errors UpperRoadSegmentMissing() => new Errors(_errors.Add(new Error(nameof(UpperRoadSegmentMissing))));
-        public Errors LowerRoadSegmentMissing() => new Errors(_errors.Add(new Error(nameof(LowerRoadSegmentMissing))));
-        public Errors UpperAndLowerRoadSegmentDoNotIntersect() => new Errors(_errors.Add(new Error(nameof(UpperAndLowerRoadSegmentDoNotIntersect))));
+        public Problems UpperRoadSegmentMissing() => new Problems(_problems.Add(new Error(nameof(UpperRoadSegmentMissing))));
+        public Problems LowerRoadSegmentMissing() => new Problems(_problems.Add(new Error(nameof(LowerRoadSegmentMissing))));
+        public Problems UpperAndLowerRoadSegmentDoNotIntersect() => new Problems(_problems.Add(new Error(nameof(UpperAndLowerRoadSegmentDoNotIntersect))));
     }
 }

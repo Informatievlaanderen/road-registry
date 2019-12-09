@@ -19,6 +19,7 @@ namespace RoadRegistry.BackOffice.Projections
         {
             if (manager == null) throw new ArgumentNullException(nameof(manager));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+
             When<Envelope<ImportedRoadSegment>>((context, envelope, token) =>
             {
                 if (envelope.Message.PartOfNumberedRoads.Length == 0)
@@ -48,10 +49,10 @@ namespace RoadRegistry.BackOffice.Projections
                             }.ToBytes(manager, encoding)
                         };
                     });
-                return context.AddRangeAsync(numberedRoadAttributes, token);
+                return context.RoadSegmentNumberedRoadAttributes.AddRangeAsync(numberedRoadAttributes, token);
             });
 
-            When<Envelope<RoadNetworkChangesAccepted>>((context, envelope, token) =>
+            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
                 {
@@ -60,7 +61,7 @@ namespace RoadRegistry.BackOffice.Projections
                         case RoadSegmentAddedToNumberedRoad numberedRoad:
                             var directionTranslation =
                                 RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
-                            context.RoadSegmentNumberedRoadAttributes.Add(new RoadSegmentNumberedRoadAttributeRecord
+                            await context.RoadSegmentNumberedRoadAttributes.AddAsync(new RoadSegmentNumberedRoadAttributeRecord
                             {
                                 Id = numberedRoad.AttributeId,
                                 RoadSegmentId = numberedRoad.SegmentId,
@@ -81,8 +82,6 @@ namespace RoadRegistry.BackOffice.Projections
                             break;
                     }
                 }
-
-                return Task.CompletedTask;
             });
         }
     }

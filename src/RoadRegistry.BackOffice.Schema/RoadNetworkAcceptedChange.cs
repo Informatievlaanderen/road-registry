@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Schema
 {
-    public class RoadNetworkRejectedChange
+    public class RoadNetworkAcceptedChange
     {
         public string Change { get; set; }
 

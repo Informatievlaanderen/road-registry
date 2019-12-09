@@ -59,7 +59,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                             Y = geometry.Y
                         }
                     },
-                    Origin = new OriginProperties
+                    Origin = new ImportedOriginProperties
                     {
                         OrganizationId = reader.GetNullableString(4),
                         Organization = reader.GetNullableString(5),

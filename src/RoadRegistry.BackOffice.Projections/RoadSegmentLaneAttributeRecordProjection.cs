@@ -52,43 +52,24 @@ namespace RoadRegistry.BackOffice.Projections
                         };
                     });
 
-                return context.AddRangeAsync(laneRecords, token);
+                return context.RoadSegmentLaneAttributes.AddRangeAsync(laneRecords, token);
             });
 
-            When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
+            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
                 {
                     switch (change)
                     {
                         case RoadSegmentAdded segment:
-                            if (segment.Lanes.Length == 0)
+                            if (segment.Lanes.Length != 0)
                             {
-                                context.RoadSegmentLaneAttributes.RemoveRange(
-                                    context
-                                        .RoadSegmentLaneAttributes
-                                        .Local.Where(a => a.RoadSegmentId == segment.Id)
-                                        .Concat(await context
-                                            .RoadSegmentLaneAttributes
-                                            .Where(a => a.RoadSegmentId == segment.Id)
-                                            .ToArrayAsync(token)
-                                        ));
-                            }
-                            else
-                            {
-                                var currentSet = context
-                                    .RoadSegmentLaneAttributes
-                                    .Local.Where(a => a.RoadSegmentId == segment.Id)
-                                    .Concat(await context
-                                        .RoadSegmentLaneAttributes
-                                        .Where(a => a.RoadSegmentId == segment.Id)
-                                        .ToArrayAsync(token)
-                                    ).ToDictionary(a => a.Id);
-                                var nextSet = segment
+                                var lanes = segment
                                     .Lanes
                                     .Select(lane =>
                                     {
-                                        var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(lane.Direction).Translation;
+                                        var laneDirectionTranslation =
+                                            RoadSegmentLaneDirection.Parse(lane.Direction).Translation;
                                         return new RoadSegmentLaneAttributeRecord
                                         {
                                             Id = lane.AttributeId,
@@ -109,13 +90,65 @@ namespace RoadRegistry.BackOffice.Projections
                                                 LBLBGNORG = {Value = null}
                                             }.ToBytes(manager, encoding)
                                         };
-                                    })
-                                    .ToDictionary(a => a.Id);
-                                context.RoadSegmentLaneAttributes.Synchronize(currentSet, nextSet, (current, next) =>
-                                    {
-                                        current.DbaseRecord = next.DbaseRecord;
                                     });
+
+                                await context.RoadSegmentLaneAttributes.AddRangeAsync(lanes);
                             }
+//                        case RoadSegmentModified segment:
+//                            if (segment.Lanes.Length == 0)
+//                            {
+//                                context.RoadSegmentLaneAttributes.RemoveRange(
+//                                    context
+//                                        .RoadSegmentLaneAttributes
+//                                        .Local.Where(a => a.RoadSegmentId == segment.Id)
+//                                        .Concat(await context
+//                                            .RoadSegmentLaneAttributes
+//                                            .Where(a => a.RoadSegmentId == segment.Id)
+//                                            .ToArrayAsync(token)
+//                                        ));
+//                            }
+//                            else
+//                            {
+//                                var currentSet = context
+//                                    .RoadSegmentLaneAttributes
+//                                    .Local.Where(a => a.RoadSegmentId == segment.Id)
+//                                    .Concat(await context
+//                                        .RoadSegmentLaneAttributes
+//                                        .Where(a => a.RoadSegmentId == segment.Id)
+//                                        .ToArrayAsync(token)
+//                                    ).ToDictionary(a => a.Id);
+//                                var nextSet = segment
+//                                    .Lanes
+//                                    .Select(lane =>
+//                                    {
+//                                        var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(lane.Direction).Translation;
+//                                        return new RoadSegmentLaneAttributeRecord
+//                                        {
+//                                            Id = lane.AttributeId,
+//                                            RoadSegmentId = segment.Id,
+//                                            DbaseRecord = new RoadSegmentLaneAttributeDbaseRecord
+//                                            {
+//                                                RS_OIDN = {Value = lane.AttributeId},
+//                                                WS_OIDN = {Value = segment.Id},
+//                                                WS_GIDN = {Value = $"{segment.Id}_{lane.AsOfGeometryVersion}"},
+//                                                AANTAL = {Value = lane.Count},
+//                                                RICHTING = {Value = laneDirectionTranslation.Identifier},
+//                                                LBLRICHT = {Value = laneDirectionTranslation.Name},
+//                                                VANPOS = {Value = (double) lane.FromPosition},
+//                                                TOTPOS = {Value = (double) lane.ToPosition},
+//                                                // TODO: This should come from the event
+//                                                BEGINTIJD = {Value = null},
+//                                                BEGINORG = {Value = null},
+//                                                LBLBGNORG = {Value = null}
+//                                            }.ToBytes(manager, encoding)
+//                                        };
+//                                    })
+//                                    .ToDictionary(a => a.Id);
+//                                context.RoadSegmentLaneAttributes.Synchronize(currentSet, nextSet, (current, next) =>
+//                                    {
+//                                        current.DbaseRecord = next.DbaseRecord;
+//                                    });
+//                            }
                             break;
                     }
                 }

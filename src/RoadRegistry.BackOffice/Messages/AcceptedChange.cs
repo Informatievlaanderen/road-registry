@@ -8,6 +8,6 @@
         public RoadSegmentAddedToNationalRoad RoadSegmentAddedToNationalRoad { get; set; }
         public RoadSegmentAddedToNumberedRoad RoadSegmentAddedToNumberedRoad { get; set; }
         public GradeSeparatedJunctionAdded GradeSeparatedJunctionAdded { get; set; }
-        public Problem[] Warnings { get; set; }
+        public Problem[] Problems { get; set; }
     }
 }

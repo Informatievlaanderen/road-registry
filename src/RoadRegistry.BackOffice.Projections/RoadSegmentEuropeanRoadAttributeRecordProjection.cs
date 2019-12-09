@@ -44,14 +44,14 @@ namespace RoadRegistry.BackOffice.Projections
                 return context.AddRangeAsync(europeanRoadAttributes, token);
             });
 
-            When<Envelope<RoadNetworkChangesAccepted>>((context, envelope, token) =>
+            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
                 {
                     switch (change)
                     {
                         case RoadSegmentAddedToEuropeanRoad europeanRoad:
-                            context.RoadSegmentEuropeanRoadAttributes.Add(new RoadSegmentEuropeanRoadAttributeRecord
+                            await context.RoadSegmentEuropeanRoadAttributes.AddAsync(new RoadSegmentEuropeanRoadAttributeRecord
                             {
                                 Id = europeanRoad.AttributeId,
                                 RoadSegmentId = europeanRoad.SegmentId,
@@ -69,8 +69,6 @@ namespace RoadRegistry.BackOffice.Projections
                             break;
                     }
                 }
-
-                return Task.CompletedTask;
             });
         }
     }

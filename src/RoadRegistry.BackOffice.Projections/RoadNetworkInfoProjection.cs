@@ -15,7 +15,7 @@
         public RoadNetworkInfoProjection()
         {
             When<Envelope<BeganRoadNetworkImport>>((context, envelope, token) =>
-                context.AddAsync(new RoadNetworkInfo(), token)
+                context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo(), token)
             );
             When<Envelope<CompletedRoadNetworkImport>>(async (context, envelope, token) =>
             {
@@ -66,7 +66,7 @@
                 info.OrganizationCount += 1;
             });
 
-            When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
+            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
             {
                 var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
                            await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);

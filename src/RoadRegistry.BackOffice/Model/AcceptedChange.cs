@@ -7,19 +7,19 @@ namespace RoadRegistry.BackOffice.Model
     public class AcceptedChange : IVerifiedChange
     {
         private readonly IRequestedChange _change;
-        private readonly IReadOnlyCollection<Warning> _warnings;
+        private readonly IReadOnlyCollection<Problem> _problems;
 
-        public AcceptedChange(IRequestedChange change, IReadOnlyCollection<Warning> warnings)
+        public AcceptedChange(IRequestedChange change, IReadOnlyCollection<Problem> problems)
         {
             _change = change ?? throw new ArgumentNullException(nameof(change));
-            _warnings = warnings ?? throw new ArgumentNullException(nameof(warnings));
+            _problems = problems ?? throw new ArgumentNullException(nameof(problems));
         }
 
         public Messages.AcceptedChange Translate()
         {
             var message = new Messages.AcceptedChange
             {
-                Warnings = _warnings.Select(warning => warning.Translate()).ToArray()
+                Problems = _problems.Select(warning => warning.Translate()).ToArray()
             };
             _change.TranslateTo(message);
             return message;

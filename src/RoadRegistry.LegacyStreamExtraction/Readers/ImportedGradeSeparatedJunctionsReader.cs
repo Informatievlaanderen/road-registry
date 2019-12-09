@@ -45,7 +45,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                         UpperRoadSegmentId = reader.GetInt32(1),
                         LowerRoadSegmentId = reader.GetInt32(2),
                         Type = GradeSeparatedJunctionType.ByIdentifier[reader.GetInt32(3)],
-                        Origin = new OriginProperties
+                        Origin = new ImportedOriginProperties
                         {
                             OrganizationId = reader.GetNullableString(4),
                             Organization = reader.GetNullableString(5),

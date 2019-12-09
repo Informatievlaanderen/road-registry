@@ -24,11 +24,6 @@ namespace RoadRegistry.BackOffice.Model
             Reason.GetHashCode(),
             (current, parameter) => current ^ parameter.GetHashCode());
 
-        public Messages.Problem Translate() =>
-            new Messages.Problem
-            {
-                Reason = Reason,
-                Parameters = Parameters.Select(parameter => parameter.Translate()).ToArray()
-            };
+        public abstract Messages.Problem Translate();
     }
 }

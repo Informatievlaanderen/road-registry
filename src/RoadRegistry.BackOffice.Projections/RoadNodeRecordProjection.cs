@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Projections
                 var point = GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(envelope.Message.Geometry));
                 var pointShapeContent = new PointShapeContent(point);
 
-                return context.AddAsync(new RoadNodeRecord
+                return context.RoadNodes.AddAsync(new RoadNodeRecord
                 {
                     Id = envelope.Message.Id,
                     ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding),
@@ -45,6 +45,43 @@ namespace RoadRegistry.BackOffice.Projections
                     DbaseRecord = dbaseRecord.ToBytes(manager, encoding),
                     BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
                 }, token);
+            });
+
+            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
+            {
+                foreach (var message in envelope.Message.Changes.Flatten())
+                {
+                    switch (message)
+                    {
+                        case RoadNodeAdded node:
+                            var typeTranslation = Model.RoadNodeType.Parse(node.Type).Translation;
+                            var dbaseRecord = new RoadNodeDbaseRecord
+                            {
+                                WK_OIDN = {Value = node.Id},
+                                WK_UIDN = {Value = node.Id + "_0" }, // 1?
+                                TYPE = {Value = typeTranslation.Identifier},
+                                LBLTYPE = {Value = typeTranslation.Name},
+                                // TODO: Needs to come from the event
+                                BEGINTIJD = {Value = null},
+                                BEGINORG = {Value = null},
+                                LBLBGNORG = {Value = null}
+                            };
+
+                            var point = GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(node.Geometry));
+                            var pointShapeContent = new PointShapeContent(point);
+
+                            await context.RoadNodes.AddAsync(new RoadNodeRecord
+                            {
+                                Id = node.Id,
+                                ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding),
+                                ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
+                                DbaseRecord = dbaseRecord.ToBytes(manager, encoding),
+                                BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
+                            }, token);
+                            break;
+                    }
+                }
+
             });
         }
     }

@@ -128,6 +128,39 @@ namespace RoadRegistry.BackOffice.Projections
                     }, ct);
             });
 
+            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, ct) =>
+            {
+                var content = new RoadNetworkChangesBasedOnArchiveAcceptedEntry
+                {
+                    Archive = new RoadNetworkChangesArchiveInfo { Id = envelope.Message.ArchiveId },
+                    Changes = envelope.Message.Changes
+                        .Select(change => new RoadNetworkAcceptedChange
+                        {
+                            Change = AcceptedChangeTranslator(change),
+                            Problems = change.Problems
+                                .Select(problem => new RoadNetworkChangeProblem
+                                {
+                                    Severity = "Error",
+                                    Text = problem.Reason
+                                })
+                                .ToArray()
+                        })
+                        .ToArray()
+                    };
+
+                await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
+
+                await context.RoadNetworkChanges.AddAsync(
+                    new RoadNetworkChange
+                    {
+                        Id = envelope.Position,
+                        Title = "Oplading werd aanvaard",
+                        Type = nameof(RoadNetworkChangesBasedOnArchiveAccepted),
+                        Content = JsonConvert.SerializeObject(content),
+                        When = envelope.Message.When
+                    }, ct);
+            });
+
             When<Envelope<RoadNetworkChangesBasedOnArchiveRejected>>(async (context, envelope, ct) =>
             {
                 var content = new RoadNetworkChangesBasedOnArchiveRejectedEntry
@@ -137,8 +170,8 @@ namespace RoadRegistry.BackOffice.Projections
                         .Select(change => new RoadNetworkRejectedChange
                         {
                             Change = RejectedChangeTranslator(change),
-                            Problems = change.Errors
-                                .Select(problem => new RoadNetworkRejectedChangeProblem
+                            Problems = change.Problems
+                                .Select(problem => new RoadNetworkChangeProblem
                                 {
                                     Severity = "Error",
                                     Text = problem.Reason
@@ -202,6 +235,39 @@ namespace RoadRegistry.BackOffice.Projections
                         break;
                     case Messages.AddGradeSeparatedJunction m:
                         translation = $"Voeg ongelijkgrondse kruising {m.TemporaryId} toe.";
+                        break;
+
+                    default:
+                        translation = $"'{change.Flatten().GetType().Name}' has no translation. Please fix it.";
+                        break;
+                }
+
+                return translation;
+            };
+
+        private static readonly Converter<Messages.AcceptedChange, string> AcceptedChangeTranslator =
+            change =>
+            {
+                string translation;
+                switch (change.Flatten())
+                {
+                    case Messages.RoadNodeAdded m:
+                        translation = $"Wegknoop {m.TemporaryId} toegevoegd.";
+                        break;
+                    case Messages.RoadSegmentAdded m:
+                        translation = $"Wegsegment {m.TemporaryId} toegevoegd.";
+                        break;
+                    case Messages.RoadSegmentAddedToEuropeanRoad m:
+                        translation = $"Wegsegment {m.SegmentId} toegevoegd aan europese weg {m.Number}.";
+                        break;
+                    case Messages.RoadSegmentAddedToNationalRoad m:
+                        translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Ident2}.";
+                        break;
+                    case Messages.RoadSegmentAddedToNumberedRoad m:
+                        translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Ident8}.";
+                        break;
+                    case Messages.GradeSeparatedJunctionAdded m:
+                        translation = $"Ongelijkgrondse kruising {m.TemporaryId} toegevoegd.";
                         break;
 
                     default:

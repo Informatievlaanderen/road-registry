@@ -14,7 +14,7 @@ namespace RoadRegistry.BackOffice.Translation
             new Messages.FileProblem
             {
                 File = File,
-                Severity = Messages.FileProblemSeverity.Warning,
+                Severity = Messages.ProblemSeverity.Warning,
                 Reason = Reason,
                 Parameters = Parameters.Select(parameter => parameter.Translate()).ToArray()
             };

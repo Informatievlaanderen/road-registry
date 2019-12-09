@@ -155,7 +155,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                                 Municipality = reader.GetNullableString(20)
                             },
                             RecordingDate = reader.GetDateTime(21),
-                            Origin = new OriginProperties
+                            Origin = new ImportedOriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(22),
                                 Organization = reader.GetNullableString(23),
@@ -280,7 +280,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                                 Municipality = reader.GetNullableString(20)
                             },
                             RecordingDate = reader.GetDateTime(21),
-                            Origin = new OriginProperties
+                            Origin = new ImportedOriginProperties
                             {
                                 OrganizationId = reader.GetNullableString(22),
                                 Organization = reader.GetNullableString(23),
@@ -468,7 +468,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                     FromPosition = reader.GetDecimal(3),
                     ToPosition = reader.GetDecimal(4),
                     AsOfGeometryVersion = reader.GetInt32(5),
-                    Origin = new OriginProperties
+                    Origin = new ImportedOriginProperties
                     {
                         OrganizationId = reader.GetNullableString(6),
                         Organization = reader.GetNullableString(7),
@@ -516,7 +516,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                     FromPosition = reader.GetDecimal(3),
                     ToPosition = reader.GetDecimal(4),
                     AsOfGeometryVersion = reader.GetInt32(5),
-                    Origin = new OriginProperties
+                    Origin = new ImportedOriginProperties
                     {
                         OrganizationId = reader.GetNullableString(6),
                         Organization = reader.GetNullableString(7),
@@ -567,7 +567,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                     FromPosition = reader.GetDecimal(4),
                     ToPosition = reader.GetDecimal(5),
                     AsOfGeometryVersion = reader.GetInt32(6),
-                    Origin = new OriginProperties
+                    Origin = new ImportedOriginProperties
                     {
                         OrganizationId = reader.GetNullableString(7),
                         Organization = reader.GetNullableString(8),
@@ -614,7 +614,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                     Ident8 = reader.GetString(2),
                     Direction = RoadSegmentNumberedRoadDirection.ByIdentifier[reader.GetInt32(3)],
                     Ordinal = reader.GetInt32(4),
-                    Origin = new OriginProperties
+                    Origin = new ImportedOriginProperties
                     {
                         OrganizationId = reader.GetNullableString(5),
                         Organization = reader.GetNullableString(6),
@@ -656,7 +656,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                 {
                     AttributeId = reader.GetInt32(1),
                     Ident2 = reader.GetString(2),
-                    Origin = new OriginProperties
+                    Origin = new ImportedOriginProperties
                     {
                         OrganizationId = reader.GetNullableString(3),
                         Organization = reader.GetNullableString(4),
@@ -698,7 +698,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                 {
                     AttributeId = reader.GetInt32(1),
                     Number = reader.GetString(2),
-                    Origin = new OriginProperties
+                    Origin = new ImportedOriginProperties
                     {
                         OrganizationId = reader.GetNullableString(3),
                         Organization = reader.GetNullableString(4),

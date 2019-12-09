@@ -384,10 +384,10 @@ namespace RoadRegistry.BackOffice
 
         public static void CustomizeOriginProperties(this IFixture fixture)
         {
-            fixture.Customize<OriginProperties>(customization =>
+            fixture.Customize<ImportedOriginProperties>(customization =>
                 customization
                     .FromFactory(generator =>
-                        new OriginProperties
+                        new ImportedOriginProperties
                         {
                             Organization = fixture.Create<MaintenanceAuthorityName>(),
                             OrganizationId = fixture.Create<MaintenanceAuthorityId>(),
