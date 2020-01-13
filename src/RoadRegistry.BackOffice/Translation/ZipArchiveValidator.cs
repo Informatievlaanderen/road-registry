@@ -103,6 +103,13 @@ namespace RoadRegistry.BackOffice.Translation
                             GradeSeparatedJunctionChangeDbaseRecord.Schema,
                             new GradeSeparatedJunctionChangeDbaseRecordsValidator()
                         )
+                    },
+                    {
+                        "TRANSACTIEZONE.DBF",
+                        new ZipArchiveDbaseEntryValidator<TransactionZoneDbaseRecord>(
+                            encoding,
+                            TransactionZoneDbaseRecord.Schema,
+                            new TransactionZoneDbaseRecordsValidator())
                     }
                 };
         }

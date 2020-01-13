@@ -8,5 +8,7 @@ namespace RoadRegistry.BackOffice
         IRoadNetworks RoadNetworks { get; }
 
         IRoadNetworkChangesArchives RoadNetworkChangesArchives { get; }
+
+        IOrganizations Organizations { get; }
     }
 }

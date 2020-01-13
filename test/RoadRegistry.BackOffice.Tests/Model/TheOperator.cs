@@ -14,11 +14,15 @@ namespace RoadRegistry.BackOffice.Model
             });
         }
 
-        public static Command ChangesTheRoadNetworkBasedOnAnArchive(ArchiveId archive, params RequestedChange[] changes)
+        public static Command ChangesTheRoadNetworkBasedOnAnArchive(ArchiveId archive, Reason reason,
+            OperatorName @operator, OrganizationId organization, params RequestedChange[] changes)
         {
             return new Command(new ChangeRoadNetworkBasedOnArchive
             {
                 ArchiveId = archive,
+                Reason = reason,
+                Operator = @operator,
+                OrganizationId = organization,
                 Changes = changes
             });
         }

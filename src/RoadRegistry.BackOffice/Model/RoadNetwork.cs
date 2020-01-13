@@ -46,13 +46,14 @@ namespace RoadRegistry.BackOffice.Model
                 .RecordUsing(Apply);
         }
 
-        public void ChangeBaseOnArchive(ArchiveId archiveId, RequestedChanges requestedChanges)
+        public void ChangeBaseOnArchive(ArchiveId archiveId, Reason reason, OperatorName @operator,
+            OrganizationId organizationId, RequestedChanges requestedChanges)
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
             requestedChanges
                 .VerifyWith(_view.With(requestedChanges))
-                .RecordUsing(archiveId, Apply);
+                .RecordUsing(archiveId, reason, @operator, organizationId, Apply);
         }
 
         public Func<RoadNodeId> ProvidesNextRoadNodeId()

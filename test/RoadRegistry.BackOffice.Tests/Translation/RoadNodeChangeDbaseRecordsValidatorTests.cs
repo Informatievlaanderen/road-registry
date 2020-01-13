@@ -10,7 +10,7 @@ namespace RoadRegistry.BackOffice.Translation
     using Model;
     using Xunit;
 
-    public class RoadNodeDbaseChangeRecordsValidatorTests : IDisposable
+    public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
     {
         private readonly RoadNodeChangeDbaseRecordsValidator _sut;
         private readonly ZipArchive _archive;
@@ -19,7 +19,7 @@ namespace RoadRegistry.BackOffice.Translation
         private readonly Fixture _fixture;
         private readonly IDbaseRecordEnumerator<RoadNodeChangeDbaseRecord> _enumerator;
 
-        public RoadNodeDbaseChangeRecordsValidatorTests()
+        public RoadNodeChangeDbaseRecordsValidatorTests()
         {
             _fixture = new Fixture();
             _fixture.CustomizeRoadNodeId();

@@ -28,7 +28,8 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
                 @"SELECT
                             org.[Code],
                             org.[Label]
-                        FROM [dbo].[listOrganisatie] org", connection
+                        FROM [dbo].[listOrganisatie] org
+                        WHERE org.[Code] NOT IN ('-7', '-8')", connection
             ).YieldEachDataRecord(reader =>
             {
                 var code = reader.GetString(0);

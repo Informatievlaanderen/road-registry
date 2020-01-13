@@ -53,7 +53,8 @@ namespace RoadRegistry.BackOffice.Model
             }
         }
 
-        public void RecordUsing(ArchiveId archiveId, Action<object> applier)
+        public void RecordUsing(ArchiveId archiveId, Reason reason, OperatorName @operator,
+            OrganizationId organizationId, Action<object> applier)
         {
             if (applier == null) throw new ArgumentNullException(nameof(applier));
 
@@ -64,6 +65,9 @@ namespace RoadRegistry.BackOffice.Model
                 applier(new Messages.RoadNetworkChangesBasedOnArchiveRejected
                 {
                     ArchiveId = archiveId,
+                    Reason = reason,
+                    Operator = @operator,
+                    Organization = organizationId,
                     Changes = _changes
                         .OfType<RejectedChange>()
                         .Select(change => change.Translate())
@@ -75,6 +79,9 @@ namespace RoadRegistry.BackOffice.Model
                 applier(new Messages.RoadNetworkChangesBasedOnArchiveAccepted
                 {
                     ArchiveId = archiveId,
+                    Reason = reason,
+                    Operator = @operator,
+                    Organization = organizationId,
                     Changes = _changes
                         .OfType<AcceptedChange>()
                         .Select(change => change.Translate())

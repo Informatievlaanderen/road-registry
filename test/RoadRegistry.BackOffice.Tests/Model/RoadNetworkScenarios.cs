@@ -47,6 +47,9 @@ namespace RoadRegistry.BackOffice.Model
             Fixture.CustomizeGradeSeparatedJunctionId();
             Fixture.CustomizeGradeSeparatedJunctionType();
             Fixture.CustomizeArchiveId();
+            Fixture.CustomizeReason();
+            Fixture.CustomizeOperatorName();
+            Fixture.CustomizeOrganizationId();
 
             Fixture.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
                 composer.Do(instance =>
@@ -616,9 +619,15 @@ namespace RoadRegistry.BackOffice.Model
             };
 
             ArchiveId = Fixture.Create<ArchiveId>();
+            Reason = Fixture.Create<Reason>();
+            Operator = Fixture.Create<OperatorName>();
+            Organization = Fixture.Create<OrganizationId>();
         }
 
         public ArchiveId ArchiveId { get; }
+        public Reason Reason { get; }
+        public OperatorName Operator { get; }
+        public OrganizationId Organization { get; }
 
         public NetTopologySuite.Geometries.Point StartPoint1 { get; }
         public NetTopologySuite.Geometries.Point MiddlePoint1 { get; }
@@ -665,7 +674,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -681,7 +690,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -710,7 +719,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -718,7 +727,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -749,7 +758,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -765,7 +774,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -803,7 +812,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -819,7 +828,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -908,7 +917,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -932,7 +941,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1031,7 +1040,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -1055,7 +1064,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1209,7 +1218,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -1233,7 +1242,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -1327,7 +1336,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -1351,7 +1360,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1468,7 +1477,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -1500,7 +1509,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1617,7 +1626,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -1649,7 +1658,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1713,7 +1722,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -1735,7 +1744,7 @@ namespace RoadRegistry.BackOffice.Model
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode2
@@ -1751,7 +1760,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1820,7 +1829,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -1842,7 +1851,7 @@ namespace RoadRegistry.BackOffice.Model
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode2
@@ -1858,7 +1867,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1904,7 +1913,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -1932,7 +1941,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2004,7 +2013,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2026,7 +2035,7 @@ namespace RoadRegistry.BackOffice.Model
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode2
@@ -2042,7 +2051,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -2094,7 +2103,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2116,7 +2125,7 @@ namespace RoadRegistry.BackOffice.Model
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode2
@@ -2132,7 +2141,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -2173,7 +2182,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadSegment = AddSegment1
@@ -2189,7 +2198,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2223,7 +2232,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2245,7 +2254,7 @@ namespace RoadRegistry.BackOffice.Model
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadSegment = AddSegment2
@@ -2253,7 +2262,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2442,7 +2451,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -2458,7 +2467,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2593,7 +2602,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -2609,7 +2618,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2635,7 +2644,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddEndNode1
@@ -2647,7 +2656,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2673,7 +2682,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -2685,7 +2694,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2713,7 +2722,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -2729,7 +2738,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2757,7 +2766,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -2779,7 +2788,7 @@ namespace RoadRegistry.BackOffice.Model
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddEndNode2
@@ -2791,7 +2800,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2819,7 +2828,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -2835,7 +2844,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2863,7 +2872,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -2885,7 +2894,7 @@ namespace RoadRegistry.BackOffice.Model
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode2
@@ -2897,7 +2906,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2935,7 +2944,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -2951,7 +2960,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3089,7 +3098,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3105,7 +3114,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3231,7 +3240,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3247,7 +3256,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3373,7 +3382,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3389,7 +3398,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3415,7 +3424,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3435,7 +3444,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -3482,7 +3491,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadSegmentToEuropeanRoad = addRoadSegmentToEuropeanRoad
@@ -3490,7 +3499,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -3529,7 +3538,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3549,7 +3558,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -3595,7 +3604,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadSegmentToNationalRoad = addRoadSegmentToNationalRoad
@@ -3603,7 +3612,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -3644,7 +3653,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3664,7 +3673,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -3714,7 +3723,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadSegmentToNumberedRoad = addRoadSegmentToNumberedRoad
@@ -3722,7 +3731,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -3786,7 +3795,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -3817,7 +3826,7 @@ namespace RoadRegistry.BackOffice.Model
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddGradeSeparatedJunction = addGradeSeparatedJunction
@@ -3825,7 +3834,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -3858,7 +3867,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -3877,7 +3886,7 @@ namespace RoadRegistry.BackOffice.Model
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddGradeSeparatedJunction = addGradeSeparatedJunction
@@ -3885,7 +3894,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -3918,7 +3927,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -3937,7 +3946,7 @@ namespace RoadRegistry.BackOffice.Model
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddGradeSeparatedJunction = addGradeSeparatedJunction
@@ -3945,7 +3954,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -3978,7 +3987,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -4009,7 +4018,7 @@ namespace RoadRegistry.BackOffice.Model
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddGradeSeparatedJunction = addGradeSeparatedJunction
@@ -4017,7 +4026,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4075,7 +4084,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -4091,7 +4100,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4164,7 +4173,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -4180,7 +4189,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4258,7 +4267,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -4274,7 +4283,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4387,7 +4396,7 @@ namespace RoadRegistry.BackOffice.Model
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId,
+                    ArchiveId, Reason, Operator, Organization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -4403,7 +4412,7 @@ namespace RoadRegistry.BackOffice.Model
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
                 {
-                    ArchiveId = ArchiveId,
+                    ArchiveId = ArchiveId, Reason = Reason, Operator = Operator, Organization = Organization,
                     Changes = new[]
                     {
                         new Messages.RejectedChange

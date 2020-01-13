@@ -14,9 +14,11 @@ namespace RoadRegistry.BackOffice
         {
             RoadNetworks = new RoadNetworks(map, store, snapshotReader, settings, mapping);
             RoadNetworkChangesArchives = new RoadNetworkChangesArchives(map, store, settings, mapping);
+            Organizations = new Organizations(map, store);
         }
 
         public IRoadNetworks RoadNetworks { get; }
         public IRoadNetworkChangesArchives RoadNetworkChangesArchives { get; }
+        public IOrganizations Organizations { get; }
     }
 }

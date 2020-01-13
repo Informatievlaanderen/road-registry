@@ -18,6 +18,16 @@ namespace RoadRegistry.BackOffice.Translation
             return builder.Error(nameof(HasNoDbaseRecords)).Build();
         }
 
+        public static FileProblem HasTooManyDbaseRecords(this IFileProblemBuilder builder, int expectedCount, int actualCount)
+        {
+            return builder
+                .Error(nameof(HasNoDbaseRecords))
+                .WithParameters(
+                    new ProblemParameter("ExpectedCount",expectedCount.ToString()),
+                    new ProblemParameter("ActualCount",actualCount.ToString()))
+                .Build();
+        }
+
         public static FileError HasDbaseHeaderFormatError(this IFileProblemBuilder builder, Exception exception)
         {
             if (exception == null) throw new ArgumentNullException(nameof(exception));
@@ -88,6 +98,14 @@ namespace RoadRegistry.BackOffice.Translation
             return builder
                 .Error(nameof(RequiredFieldIsNull))
                 .WithParameter(new ProblemParameter("Field", field.Name.ToString()))
+                .Build();
+        }
+
+        public static FileError OrganizationIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, string value)
+        {
+            return builder
+                .Error(nameof(OrganizationIdOutOfRange))
+                .WithParameter(new ProblemParameter("Actual", value))
                 .Build();
         }
 

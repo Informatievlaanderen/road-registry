@@ -53,6 +53,16 @@ namespace RoadRegistry.BackOffice
             );
         }
 
+        public static void CustomizeOrganizationId(this IFixture fixture)
+        {
+            fixture.Customize<OrganizationId>(composer =>
+                composer.FromFactory(generator =>
+                    new OrganizationId(new string(
+                        (char)generator.Next(97, 123), // a-z
+                        generator.Next(1, OrganizationId.MaxLength + 1))))
+            );
+        }
+
         public static void CustomizeArchiveId(this IFixture fixture)
         {
             fixture.Customize<ArchiveId>(composer =>
@@ -70,6 +80,36 @@ namespace RoadRegistry.BackOffice
                     new MaintenanceAuthorityName(new string(
                         (char)generator.Next(97, 123), // a-z
                         generator.Next(1, MaintenanceAuthorityName.MaxLength + 1))))
+            );
+        }
+
+        public static void CustomizeOrganizationName(this IFixture fixture)
+        {
+            fixture.Customize<OrganizationName>(composer =>
+                composer.FromFactory(generator =>
+                    new OrganizationName(new string(
+                        (char)generator.Next(97, 123), // a-z
+                        generator.Next(1, OrganizationName.MaxLength + 1))))
+            );
+        }
+
+        public static void CustomizeOperatorName(this IFixture fixture)
+        {
+            fixture.Customize<OperatorName>(composer =>
+                composer.FromFactory(generator =>
+                    new OperatorName(new string(
+                        (char)generator.Next(97, 123), // a-z
+                        generator.Next(1, OperatorName.MaxLength + 1))))
+            );
+        }
+
+        public static void CustomizeReason(this IFixture fixture)
+        {
+            fixture.Customize<Reason>(composer =>
+                composer.FromFactory(generator =>
+                    new Reason(new string(
+                        (char)generator.Next(97, 123), // a-z
+                        generator.Next(1, Reason.MaxLength + 1))))
             );
         }
 

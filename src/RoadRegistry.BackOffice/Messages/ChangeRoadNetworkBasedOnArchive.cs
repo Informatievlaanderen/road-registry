@@ -1,10 +1,11 @@
 namespace RoadRegistry.BackOffice.Messages
 {
-    using System;
-
     public class ChangeRoadNetworkBasedOnArchive
     {
-        public String ArchiveId { get; set; }
+        public string ArchiveId { get; set; }
+        public string Reason { get; set; }
+        public string Operator { get; set; }
+        public string OrganizationId { get; set; }
         public RequestedChange[] Changes { get; set; }
     }
 }

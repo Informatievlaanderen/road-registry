@@ -7,6 +7,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice.Model;
     using BackOffice.Schema;
     using BackOffice.Schema.Organizations;
     using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -33,7 +34,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
-                new DbaseRecordCount(await context.Organizations.CountAsync(cancellationToken)),
+                new DbaseRecordCount(await context.Organizations.CountAsync(cancellationToken) + PredefinedOrganizations.All.Length),
                 OrganizationDbaseRecord.Schema
             );
             using (var dbfEntryStream = dbfEntry.Open())
@@ -43,6 +44,13 @@ namespace RoadRegistry.Api.ZipArchiveWriters
                     new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
                 var dbfRecord = new OrganizationDbaseRecord();
+                foreach (var predefinedOrganization in PredefinedOrganizations.All)
+                {
+                    dbfRecord.ORG.Value = predefinedOrganization.Identifier;
+                    dbfRecord.LBLORG.Value = predefinedOrganization.Name;
+                    dbfWriter.Write(dbfRecord);
+                }
+
                 foreach (var data in context.Organizations.OrderBy(_ => _.SortableCode).Select(_ => _.DbaseRecord))
                 {
                     dbfRecord.FromBytes(data, _manager, _encoding);

@@ -243,6 +243,21 @@ namespace RoadRegistry.BackOffice.Translation
                     writer.Write(fixture.Create<GradeSeparatedJunctionChangeDbaseRecord>());
                 }
 
+                var transactionZoneStream = new MemoryStream();
+                using (var writer = new DbaseBinaryWriter(
+                    new DbaseFileHeader(
+                        fixture.Create<DateTime>(),
+                        DbaseCodePage.Western_European_ANSI,
+                        new DbaseRecordCount(1),
+                        TransactionZoneDbaseRecord.Schema),
+                    new BinaryWriter(
+                        transactionZoneStream,
+                        Encoding.UTF8,
+                        true)))
+                {
+                    writer.Write(fixture.Create<TransactionZoneDbaseRecord>());
+                }
+
                 var requiredFiles = new[]
                 {
                     "WEGSEGMENT_ALL.SHP",
@@ -255,7 +270,8 @@ namespace RoadRegistry.BackOffice.Translation
                     "ATTRIJSTROKEN_ALL.DBF",
                     "ATTWEGBREEDTE_ALL.DBF",
                     "ATTWEGVERHARDING_ALL.DBF",
-                    "RLTOGKRUISING_ALL.DBF"
+                    "RLTOGKRUISING_ALL.DBF",
+                    "TRANSACTIEZONE.DBF"
                 };
 
                 for (var index = 0; index < requiredFiles.Length; index++)
@@ -271,6 +287,7 @@ namespace RoadRegistry.BackOffice.Translation
                     roadNodeShapeChangeStream.Position = 0;
                     roadNodeDbaseChangeStream.Position = 0;
                     gradeSeparatedJunctionChangeStream.Position = 0;
+                    transactionZoneStream.Position = 0;
 
                     var errors = ZipArchiveProblems.None;
                     var archiveStream = new MemoryStream();
@@ -446,6 +463,21 @@ namespace RoadRegistry.BackOffice.Translation
                                     }
 
                                     break;
+                                case "TRANSACTIEZONE.DBF":
+                                    if (requiredFiles[index] == "TRANSACTIEZONE.DBF")
+                                    {
+                                        errors = errors.RequiredFileMissing("TRANSACTIEZONE.DBF");
+                                    }
+                                    else
+                                    {
+                                        using (var entryStream =
+                                            createArchive.CreateEntry("TRANSACTIEZONE.DBF").Open())
+                                        {
+                                            transactionZoneStream.CopyTo(entryStream);
+                                        }
+                                    }
+
+                                    break;
                             }
                         }
                     }
@@ -489,6 +521,9 @@ namespace RoadRegistry.BackOffice.Translation
             fixture.CustomizeRoadSegmentPosition();
             fixture.CustomizeRoadSegmentWidth();
             fixture.CustomizeRoadSegmentPosition();
+            fixture.CustomizeOrganizationId();
+            fixture.CustomizeOperatorName();
+            fixture.CustomizeReason();
 
             fixture.Customize<EuropeanRoadChangeDbaseRecord>(
                 composer => composer
@@ -675,6 +710,24 @@ namespace RoadRegistry.BackOffice.Translation
                         BREEDTE = {Value = (short) fixture.Create<RoadSegmentWidth>().ToInt32()}
                     })
                     .OmitAutoProperties());
+
+            fixture.Customize<TransactionZoneDbaseRecord>(
+                composer => composer
+                    .FromFactory(random => new TransactionZoneDbaseRecord
+                    {
+                        SOURCE_ID = {Value = random.Next(1, 5)},
+                        TYPE = {Value = random.Next(1, 9999)},
+                        BESCHRIJV = {Value = fixture.Create<Reason>().ToString()},
+                        OPERATOR = {Value = fixture.Create<OperatorName>().ToString()},
+                        ORG = {Value = fixture.Create<OrganizationId>().ToString()},
+                        APPLICATIE =
+                        {
+                            Value = new string(fixture
+                                .CreateMany<char>(TransactionZoneDbaseRecord.Schema.APPLICATIE.Length.ToInt32())
+                                .ToArray())
+                        }
+                    })
+                    .OmitAutoProperties());
             return fixture;
         }
 
@@ -845,6 +898,21 @@ namespace RoadRegistry.BackOffice.Translation
                 writer.Write(new GradeSeparatedJunctionChangeDbaseRecord[0]);
             }
 
+            var transactionZoneStream = new MemoryStream();
+            using (var writer = new DbaseBinaryWriter(
+                new DbaseFileHeader(
+                    fixture.Create<DateTime>(),
+                    DbaseCodePage.Western_European_ANSI,
+                    new DbaseRecordCount(0),
+                    TransactionZoneDbaseRecord.Schema),
+                new BinaryWriter(
+                    transactionZoneStream,
+                    Encoding.UTF8,
+                    true)))
+            {
+                writer.Write(new TransactionZoneDbaseRecord[0]);
+            }
+
             roadSegmentShapeChangeStream.Position = 0;
             roadSegmentDbaseChangeStream.Position = 0;
             europeanRoadChangeStream.Position = 0;
@@ -856,6 +924,7 @@ namespace RoadRegistry.BackOffice.Translation
             roadNodeShapeChangeStream.Position = 0;
             roadNodeDbaseChangeStream.Position = 0;
             gradeSeparatedJunctionChangeStream.Position = 0;
+            transactionZoneStream.Position = 0;
 
             var errors = ZipArchiveProblems.None;
             var archiveStream = new MemoryStream();
@@ -926,6 +995,12 @@ namespace RoadRegistry.BackOffice.Translation
                     createArchive.CreateEntry("RLTOGKRUISING_ALL.DBF").Open())
                 {
                     gradeSeparatedJunctionChangeStream.CopyTo(entryStream);
+                }
+
+                using (var entryStream =
+                    createArchive.CreateEntry("TRANSACTIEZONE.DBF").Open())
+                {
+                    transactionZoneStream.CopyTo(entryStream);
                 }
             }
 

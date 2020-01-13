@@ -28,16 +28,21 @@ namespace RoadRegistry.BackOffice.Translation
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
                         var requestedChanges = new List<Messages.RequestedChange>();
-                        foreach (var change in translator.Translate(archive))
+                        var translatedChanges = translator.Translate(archive);
+                        foreach (var change in translatedChanges)
                         {
                             var requestedChange = new Messages.RequestedChange();
                             change.TranslateTo(requestedChange);
                             requestedChanges.Add(requestedChange);
                         }
 
-                        var command = new Command(new Messages.ChangeRoadNetwork
+                        var command = new Command(new Messages.ChangeRoadNetworkBasedOnArchive
                             {
-                                Changes = requestedChanges.ToArray()
+                                ArchiveId = archiveId,
+                                Changes = requestedChanges.ToArray(),
+                                Reason = translatedChanges.Reason,
+                                Operator = translatedChanges.Operator,
+                                OrganizationId = translatedChanges.Organization
                             })
                             .WithMessageId(message.MessageId);
 

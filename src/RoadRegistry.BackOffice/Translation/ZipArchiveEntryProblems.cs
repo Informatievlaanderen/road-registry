@@ -156,6 +156,12 @@ namespace RoadRegistry.BackOffice.Translation
             return new FileProblemBuilder(entry.Name).HasNoDbaseRecords(treatAsWarning);
         }
 
+        public static FileProblem HasTooManyDbaseRecords(this ZipArchiveEntry entry, int expectedCount, int actualCount)
+        {
+            return new FileProblemBuilder(entry.Name).HasTooManyDbaseRecords(expectedCount, actualCount);
+        }
+
+
         public static FileError HasDbaseHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
         {
             return new FileProblemBuilder(entry.Name).HasDbaseHeaderFormatError(exception);

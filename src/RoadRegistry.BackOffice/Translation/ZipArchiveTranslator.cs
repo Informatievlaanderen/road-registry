@@ -8,10 +8,12 @@ namespace RoadRegistry.BackOffice.Translation
 
     public class ZipArchiveTranslator : IZipArchiveTranslator
     {
-        private Dictionary<string, IZipArchiveEntryTranslator> _translators;
+        private readonly Dictionary<string, IZipArchiveEntryTranslator> _translators;
 
         public ZipArchiveTranslator(Encoding encoding)
         {
+            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+
             _translators =
                 new Dictionary<string, IZipArchiveEntryTranslator>(StringComparer.InvariantCultureIgnoreCase)
                 {
@@ -91,11 +93,19 @@ namespace RoadRegistry.BackOffice.Translation
                             encoding,
                             new GradeSeparatedJunctionChangeDbaseRecordsTranslator()
                         )
+                    },
+                    {
+                        "TRANSACTIEZONE.DBF",
+                        new ZipArchiveDbaseEntryTranslator<TransactionZoneDbaseRecord>(
+                            encoding,
+                            new TransactionZoneDbaseRecordsTranslator()
+                        )
                     }
                 };
         }
 
         private static readonly string[] TranslationOrder = {
+            "TRANSACTIEZONE.DBF",
             "WEGKNOOP_ALL.DBF",
             "WEGKNOOP_ALL.SHP",
             "WEGSEGMENT_ALL.DBF",

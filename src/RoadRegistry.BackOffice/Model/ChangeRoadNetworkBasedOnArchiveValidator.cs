@@ -13,7 +13,22 @@ namespace RoadRegistry.BackOffice.Model
                 .NotNull()
                 .NotEmpty()
                 .MaximumLength(ArchiveId.MaxLength);
-            
+
+            RuleFor(c => c.Reason)
+                .NotNull()
+                .NotEmpty()
+                .MaximumLength(Reason.MaxLength);
+
+            RuleFor(c => c.Operator)
+                .NotNull()
+                .NotEmpty()
+                .MaximumLength(OperatorName.MaxLength);
+
+            RuleFor(c => c.OrganizationId)
+                .NotNull()
+                .NotEmpty()
+                .MaximumLength(OrganizationId.MaxLength);
+
             RuleFor(c => c.Changes)
                 .NotNull()
                 .Must(OnlyHaveUniqueRoadNodeIdentifiers)
