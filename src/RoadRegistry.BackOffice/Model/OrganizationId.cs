@@ -4,10 +4,10 @@ namespace RoadRegistry.BackOffice.Model
 
     public readonly struct OrganizationId : IEquatable<OrganizationId>
     {
+        public const int MaxLength = 18;
+
         public static readonly OrganizationId Unknown = new OrganizationId("-8");
         public static readonly OrganizationId Other = new OrganizationId("-7");
-
-        public const int MaxLength = 18;
 
         private readonly string _value;
 

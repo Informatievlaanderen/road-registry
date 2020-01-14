@@ -509,7 +509,7 @@ namespace RoadRegistry.BackOffice.Translation
             fixture.CustomizeRoadNodeId();
             fixture.CustomizeRoadNodeType();
             fixture.CustomizeRoadSegmentGeometryDrawMethod();
-            fixture.CustomizeMaintenanceAuthorityId();
+            fixture.CustomizeOrganizationId();
             fixture.CustomizeRoadSegmentMorphology();
             fixture.CustomizeRoadSegmentStatus();
             fixture.CustomizeRoadSegmentCategory();
@@ -649,7 +649,7 @@ namespace RoadRegistry.BackOffice.Translation
                         {
                             Value = (short) fixture.Create<RoadSegmentGeometryDrawMethod>().Translation.Identifier
                         },
-                        BEHEERDER = {Value = fixture.Create<MaintenanceAuthorityId>()},
+                        BEHEERDER = {Value = fixture.Create<OrganizationId>()},
                         MORFOLOGIE =
                             {Value = (short) fixture.Create<RoadSegmentMorphology>().Translation.Identifier},
                         STATUS = {Value = fixture.Create<RoadSegmentStatus>().Translation.Identifier},

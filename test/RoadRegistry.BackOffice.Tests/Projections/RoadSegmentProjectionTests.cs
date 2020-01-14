@@ -25,8 +25,8 @@ namespace RoadRegistry.BackOffice.Projections
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeRoadNodeId();
-            _fixture.CustomizeMaintenanceAuthorityId();
-            _fixture.CustomizeMaintenanceAuthorityName();
+            _fixture.CustomizeOrganizationId();
+            _fixture.CustomizeOrganizationName();
             _fixture.CustomizePolylineM();
             _fixture.CustomizeEuropeanRoadNumber();
             _fixture.CustomizeNationalRoadNumber();

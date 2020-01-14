@@ -485,7 +485,7 @@ namespace RoadRegistry.BackOffice.Translation
                                 new RoadSegmentId(roadSegmentChangeDbaseRecord2.WS_OIDN.Value.GetValueOrDefault()),
                                 new RoadNodeId(roadSegmentChangeDbaseRecord2.B_WK_OIDN.Value.GetValueOrDefault()),
                                 new RoadNodeId(roadSegmentChangeDbaseRecord2.E_WK_OIDN.Value.GetValueOrDefault()),
-                                new MaintenanceAuthorityId(roadSegmentChangeDbaseRecord2.BEHEERDER.Value),
+                                new OrganizationId(roadSegmentChangeDbaseRecord2.BEHEERDER.Value),
                                 RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentChangeDbaseRecord2.METHODE.Value.GetValueOrDefault()],
                                 RoadSegmentMorphology.ByIdentifier[roadSegmentChangeDbaseRecord2.MORFOLOGIE.Value.GetValueOrDefault()],
                                 RoadSegmentStatus.ByIdentifier[roadSegmentChangeDbaseRecord2.STATUS.Value.GetValueOrDefault()],
@@ -527,7 +527,7 @@ namespace RoadRegistry.BackOffice.Translation
                                     new RoadSegmentId(roadSegmentChangeDbaseRecord1.WS_OIDN.Value.GetValueOrDefault()),
                                     new RoadNodeId(roadSegmentChangeDbaseRecord1.B_WK_OIDN.Value.GetValueOrDefault()),
                                     new RoadNodeId(roadSegmentChangeDbaseRecord1.E_WK_OIDN.Value.GetValueOrDefault()),
-                                    new MaintenanceAuthorityId(roadSegmentChangeDbaseRecord1.BEHEERDER.Value),
+                                    new OrganizationId(roadSegmentChangeDbaseRecord1.BEHEERDER.Value),
                                     RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentChangeDbaseRecord1.METHODE.Value.GetValueOrDefault()],
                                     RoadSegmentMorphology.ByIdentifier[roadSegmentChangeDbaseRecord1.MORFOLOGIE.Value.GetValueOrDefault()],
                                     RoadSegmentStatus.ByIdentifier[roadSegmentChangeDbaseRecord1.STATUS.Value.GetValueOrDefault()],
@@ -592,7 +592,7 @@ namespace RoadRegistry.BackOffice.Translation
             fixture.CustomizeRoadNodeId();
             fixture.CustomizeRoadNodeType();
             fixture.CustomizeRoadSegmentGeometryDrawMethod();
-            fixture.CustomizeMaintenanceAuthorityId();
+            fixture.CustomizeOrganizationId();
             fixture.CustomizeRoadSegmentMorphology();
             fixture.CustomizeRoadSegmentStatus();
             fixture.CustomizeRoadSegmentCategory();
@@ -727,7 +727,7 @@ namespace RoadRegistry.BackOffice.Translation
                         {
                             Value = (short) fixture.Create<RoadSegmentGeometryDrawMethod>().Translation.Identifier
                         },
-                        BEHEERDER = {Value = fixture.Create<MaintenanceAuthorityId>()},
+                        BEHEERDER = {Value = fixture.Create<OrganizationId>()},
                         MORFOLOGIE =
                             {Value = (short) fixture.Create<RoadSegmentMorphology>().Translation.Identifier},
                         STATUS = {Value = fixture.Create<RoadSegmentStatus>().Translation.Identifier},

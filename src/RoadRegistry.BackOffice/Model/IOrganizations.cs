@@ -5,6 +5,6 @@ namespace RoadRegistry.BackOffice.Model
 
     public interface IOrganizations
     {
-        Task<bool> Exists(OrganizationId id, CancellationToken ct = default);
+        Task<Organization> TryGet(OrganizationId id, CancellationToken ct = default);
     }
 }

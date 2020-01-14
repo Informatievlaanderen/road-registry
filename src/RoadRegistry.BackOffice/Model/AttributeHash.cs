@@ -54,7 +54,7 @@ namespace RoadRegistry.BackOffice.Model
         }
 
         [Pure]
-        public AttributeHash With(MaintenanceAuthorityId value)
+        public AttributeHash With(OrganizationId value)
         {
             return new AttributeHash(_hashCode.Hash(value));
         }

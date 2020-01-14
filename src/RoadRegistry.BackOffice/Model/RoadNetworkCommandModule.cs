@@ -24,10 +24,8 @@ namespace RoadRegistry.BackOffice.Model
                     var @operator = new OperatorName(message.Body.Operator);
                     var reason = new Reason(message.Body.Reason);
                     var organizationId = new OrganizationId(message.Body.OrganizationId);
-                    if (!await context.Organizations.Exists(organizationId))
-                    {
-                        organizationId = OrganizationId.Unknown;
-                    }
+                    var organization = await context.Organizations.TryGet(organizationId, ct);
+                    var translation = organization == null ? Organization.PredefinedTranslations.Unknown : organization.Translation;
 
                     var network = await context.RoadNetworks.Get(ct);
                     var translator = new RequestedChangeTranslator(
@@ -42,7 +40,7 @@ namespace RoadRegistry.BackOffice.Model
                         network.ProvidesNextRoadSegmentSurfaceAttributeId()
                     );
                     var requestedChanges = translator.Translate(message.Body.Changes);
-                    network.ChangeBaseOnArchive(archive, reason, @operator, organizationId, requestedChanges);
+                    network.ChangeBaseOnArchive(archive, reason, @operator, translation, requestedChanges);
                 });
         }
     }

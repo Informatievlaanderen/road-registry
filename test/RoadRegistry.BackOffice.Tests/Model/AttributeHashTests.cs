@@ -16,7 +16,7 @@ namespace RoadRegistry.BackOffice.Model
             _fixture.CustomizeRoadSegmentMorphology();
             _fixture.CustomizeRoadSegmentStatus();
             _fixture.CustomizeRoadSegmentAccessRestriction();
-            _fixture.CustomizeMaintenanceAuthorityId();
+            _fixture.CustomizeOrganizationId();
             _fixture.CustomizeAttributeHash();
         }
 

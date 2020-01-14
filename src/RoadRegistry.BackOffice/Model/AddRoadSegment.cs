@@ -14,7 +14,7 @@ namespace RoadRegistry.BackOffice.Model
             RoadNodeId endNodeId,
             RoadNodeId? temporaryEndNodeId,
             MultiLineString geometry,
-            MaintenanceAuthorityId maintenanceAuthority,
+            OrganizationId maintenanceAuthority,
             RoadSegmentGeometryDrawMethod geometryDrawMethod,
             RoadSegmentMorphology morphology,
             RoadSegmentStatus status,
@@ -53,7 +53,7 @@ namespace RoadRegistry.BackOffice.Model
         public RoadNodeId EndNodeId { get; }
         public RoadNodeId? TemporaryEndNodeId { get; }
         public MultiLineString Geometry { get; }
-        public MaintenanceAuthorityId MaintenanceAuthority { get; }
+        public OrganizationId MaintenanceAuthority { get; }
         public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
         public RoadSegmentMorphology Morphology { get; }
         public RoadSegmentStatus Status { get; }

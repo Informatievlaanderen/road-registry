@@ -25,7 +25,7 @@ namespace RoadRegistry.BackOffice.Translation
             _fixture.CustomizeRoadNodeId();
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeRoadSegmentGeometryDrawMethod();
-            _fixture.CustomizeMaintenanceAuthorityId();
+            _fixture.CustomizeOrganizationId();
             _fixture.CustomizeRoadSegmentMorphology();
             _fixture.CustomizeRoadSegmentStatus();
             _fixture.CustomizeRoadSegmentCategory();
@@ -38,7 +38,7 @@ namespace RoadRegistry.BackOffice.Translation
                         TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         WS_OIDN = { Value = new RoadSegmentId(random.Next(1, int.MaxValue))},
                         METHODE = { Value = (short)_fixture.Create<RoadSegmentGeometryDrawMethod>().Translation.Identifier },
-                        BEHEERDER = { Value = _fixture.Create<MaintenanceAuthorityId>() },
+                        BEHEERDER = { Value = _fixture.Create<OrganizationId>() },
                         MORFOLOGIE = { Value = (short)_fixture.Create<RoadSegmentMorphology>().Translation.Identifier },
                         STATUS = { Value = _fixture.Create<RoadSegmentStatus>().Translation.Identifier },
                         WEGCAT = { Value = _fixture.Create<RoadSegmentCategory>().Translation.Identifier },

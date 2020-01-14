@@ -20,15 +20,15 @@ namespace RoadRegistry.BackOffice.Projections
         public OrganizationTests()
         {
             _fixture = new Fixture();
-            _fixture.CustomizeMaintenanceAuthorityId();
-            _fixture.CustomizeMaintenanceAuthorityName();
+            _fixture.CustomizeOrganizationId();
+            _fixture.CustomizeOrganizationName();
             _fixture.Customize<ImportedOrganization>(
                 customization =>
                     customization.FromFactory(_ =>
                         new ImportedOrganization
                         {
-                            Code = _fixture.Create<MaintenanceAuthorityId>(),
-                            Name = _fixture.Create<MaintenanceAuthorityName>()
+                            Code = _fixture.Create<OrganizationId>(),
+                            Name = _fixture.Create<OrganizationName>()
                         }
                     ).OmitAutoProperties()
             );

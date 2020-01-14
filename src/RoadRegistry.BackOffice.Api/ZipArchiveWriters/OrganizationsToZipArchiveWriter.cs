@@ -34,7 +34,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
-                new DbaseRecordCount(await context.Organizations.CountAsync(cancellationToken) + PredefinedOrganizations.All.Length),
+                new DbaseRecordCount(await context.Organizations.CountAsync(cancellationToken) + Organization.PredefinedTranslations.All.Length),
                 OrganizationDbaseRecord.Schema
             );
             using (var dbfEntryStream = dbfEntry.Open())
@@ -44,10 +44,10 @@ namespace RoadRegistry.Api.ZipArchiveWriters
                     new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
                 var dbfRecord = new OrganizationDbaseRecord();
-                foreach (var predefinedOrganization in PredefinedOrganizations.All)
+                foreach (var predefined in Organization.PredefinedTranslations.All)
                 {
-                    dbfRecord.ORG.Value = predefinedOrganization.Identifier;
-                    dbfRecord.LBLORG.Value = predefinedOrganization.Name;
+                    dbfRecord.ORG.Value = predefined.Identifier;
+                    dbfRecord.LBLORG.Value = predefined.Name;
                     dbfWriter.Write(dbfRecord);
                 }
 

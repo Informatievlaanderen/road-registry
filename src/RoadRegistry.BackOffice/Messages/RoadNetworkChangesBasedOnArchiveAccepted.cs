@@ -9,6 +9,7 @@ namespace RoadRegistry.BackOffice.Messages
         public string ArchiveId { get; set; }
         public string Reason { get; set; }
         public string Operator { get; set; }
+        public string OrganizationId { get; set; }
         public string Organization { get; set; }
         public AcceptedChange[] Changes { get; set; }
         public string When { get; set; }

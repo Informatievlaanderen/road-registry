@@ -27,7 +27,7 @@ namespace RoadRegistry.BackOffice.Translation
                                     new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault()),
                                     new RoadNodeId(record.B_WK_OIDN.Value.GetValueOrDefault()),
                                     new RoadNodeId(record.E_WK_OIDN.Value.GetValueOrDefault()),
-                                    new MaintenanceAuthorityId(record.BEHEERDER.Value),
+                                    new OrganizationId(record.BEHEERDER.Value),
                                     RoadSegmentGeometryDrawMethod.ByIdentifier[record.METHODE.Value.GetValueOrDefault()],
                                     RoadSegmentMorphology.ByIdentifier[record.MORFOLOGIE.Value.GetValueOrDefault()],
                                     RoadSegmentStatus.ByIdentifier[record.STATUS.Value.GetValueOrDefault()],

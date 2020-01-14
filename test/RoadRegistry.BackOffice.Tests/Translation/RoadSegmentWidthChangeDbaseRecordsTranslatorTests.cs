@@ -26,7 +26,7 @@ namespace RoadRegistry.BackOffice.Translation
             _fixture.CustomizeRoadNodeId();
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeRoadSegmentGeometryDrawMethod();
-            _fixture.CustomizeMaintenanceAuthorityId();
+            _fixture.CustomizeOrganizationId();
             _fixture.CustomizeRoadSegmentMorphology();
             _fixture.CustomizeRoadSegmentStatus();
             _fixture.CustomizeRoadSegmentCategory();

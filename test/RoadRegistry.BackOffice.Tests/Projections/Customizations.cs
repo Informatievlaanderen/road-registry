@@ -17,8 +17,8 @@ namespace RoadRegistry.BackOffice.Projections
                     .FromFactory(generator =>
                         new ImportedOriginProperties
                         {
-                            Organization = fixture.Create<MaintenanceAuthorityName>(),
-                            OrganizationId = fixture.Create<MaintenanceAuthorityId>(),
+                            Organization = fixture.Create<OrganizationName>(),
+                            OrganizationId = fixture.Create<OrganizationId>(),
                             Since = fixture.Create<DateTime>()
                         }
                     )
@@ -201,8 +201,8 @@ namespace RoadRegistry.BackOffice.Projections
                             GeometryVersion = fixture.Create<GeometryVersion>(),
                             MaintenanceAuthority = new MaintenanceAuthority
                             {
-                                Code = fixture.Create<MaintenanceAuthorityId>(),
-                                Name = fixture.Create<MaintenanceAuthorityName>()
+                                Code = fixture.Create<OrganizationId>(),
+                                Name = fixture.Create<OrganizationName>()
                             },
                             AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
                             Morphology = fixture.Create<RoadSegmentMorphology>(),

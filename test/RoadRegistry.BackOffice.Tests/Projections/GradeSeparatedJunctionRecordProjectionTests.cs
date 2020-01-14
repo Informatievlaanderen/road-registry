@@ -22,8 +22,8 @@ namespace RoadRegistry.BackOffice.Projections
             _fixture.CustomizeGradeSeparatedJunctionType();
             _fixture.CustomizeGradeSeparatedJunctionId();
             _fixture.CustomizeRoadSegmentId();
-            _fixture.CustomizeMaintenanceAuthorityId();
-            _fixture.CustomizeMaintenanceAuthorityName();
+            _fixture.CustomizeOrganizationId();
+            _fixture.CustomizeOrganizationName();
             _fixture.CustomizeOriginProperties();
             _fixture.CustomizeImportedGradeSeparatedJunction();
         }

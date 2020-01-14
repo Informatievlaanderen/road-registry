@@ -53,9 +53,14 @@ namespace RoadRegistry.BackOffice.Model
             }
         }
 
-        public void RecordUsing(ArchiveId archiveId, Reason reason, OperatorName @operator,
-            OrganizationId organizationId, Action<object> applier)
+        public void RecordUsing(
+            ArchiveId archiveId,
+            Reason reason,
+            OperatorName @operator,
+            Organization.DutchTranslation organization,
+            Action<object> applier)
         {
+            if (organization == null) throw new ArgumentNullException(nameof(organization));
             if (applier == null) throw new ArgumentNullException(nameof(applier));
 
             if (_changes.Count == 0) return;
@@ -67,7 +72,8 @@ namespace RoadRegistry.BackOffice.Model
                     ArchiveId = archiveId,
                     Reason = reason,
                     Operator = @operator,
-                    Organization = organizationId,
+                    OrganizationId = organization.Identifier,
+                    Organization = organization.Name,
                     Changes = _changes
                         .OfType<RejectedChange>()
                         .Select(change => change.Translate())
@@ -81,7 +87,8 @@ namespace RoadRegistry.BackOffice.Model
                     ArchiveId = archiveId,
                     Reason = reason,
                     Operator = @operator,
-                    Organization = organizationId,
+                    OrganizationId = organization.Identifier,
+                    Organization = organization.Name,
                     Changes = _changes
                         .OfType<AcceptedChange>()
                         .Select(change => change.Translate())

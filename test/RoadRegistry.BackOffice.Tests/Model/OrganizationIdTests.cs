@@ -56,27 +56,6 @@ namespace RoadRegistry.BackOffice.Model
         }
 
         [Fact]
-        public void ToStringReturnsExpectedResult()
-        {
-            var value = new string(
-                (char) new Random().Next(97, 123), // a-z
-                new Random().Next(1, OrganizationId.MaxLength + 1)
-            );
-            var sut = new OrganizationId(value);
-
-            Assert.Equal(value, sut.ToString());
-        }
-
-        [Fact]
-        public void ValueCanNotBeLongerThan18Chars()
-        {
-            const int length = OrganizationId.MaxLength + 1;
-
-            var value = new string((char) new Random().Next(97, 123), length);
-            Assert.Throws<ArgumentOutOfRangeException>(() => new OrganizationId(value));
-        }
-
-        [Fact]
         public void AcceptsValueReturnsExpectedResultWhenValueLongerThan18Chars()
         {
             const int length = OrganizationId.MaxLength + 1;
@@ -116,6 +95,27 @@ namespace RoadRegistry.BackOffice.Model
             var sut = OrganizationId.Other;
 
             Assert.Equal("-7", sut.ToString());
+        }
+
+        [Fact]
+        public void ToStringReturnsExpectedResult()
+        {
+            var value = new string(
+                (char) new Random().Next(97, 123), // a-z
+                new Random().Next(1, OrganizationId.MaxLength + 1)
+            );
+            var sut = new OrganizationId(value);
+
+            Assert.Equal(value, sut.ToString());
+        }
+
+        [Fact]
+        public void ValueCanNotBeLongerThan18Chars()
+        {
+            const int length = OrganizationId.MaxLength + 1;
+
+            var value = new string((char) new Random().Next(97, 123), length);
+            Assert.Throws<ArgumentOutOfRangeException>(() => new OrganizationId(value));
         }
     }
 }

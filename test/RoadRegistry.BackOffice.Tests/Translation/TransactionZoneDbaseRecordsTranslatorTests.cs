@@ -96,7 +96,7 @@ namespace RoadRegistry.BackOffice.Translation
 
             var expected = records.Aggregate(
                 TranslatedChanges.Empty,
-                (changes, current) => 
+                (changes, current) =>
                     changes
                         .WithReason(new Reason(current.BESCHRIJV.Value))
                         .WithOperatorName(new OperatorName(current.OPERATOR.Value))

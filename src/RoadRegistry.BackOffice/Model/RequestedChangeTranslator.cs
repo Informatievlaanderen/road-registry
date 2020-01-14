@@ -129,7 +129,7 @@
             }
 
             var geometry = GeometryTranslator.Translate(command.Geometry);
-            var maintainer = new MaintenanceAuthorityId(command.MaintenanceAuthority);
+            var maintainer = new OrganizationId(command.MaintenanceAuthority);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
             var morphology = RoadSegmentMorphology.Parse(command.Morphology);
             var status = RoadSegmentStatus.Parse(command.Status);

@@ -25,7 +25,7 @@ namespace RoadRegistry.BackOffice.Model
             fixture.CustomizeRoadSegmentMorphology();
             fixture.CustomizeRoadSegmentStatus();
             fixture.CustomizeRoadSegmentAccessRestriction();
-            fixture.CustomizeMaintenanceAuthorityId();
+            fixture.CustomizeOrganizationId();
             fixture.CustomizeAttributeHash();
             _id = fixture.Create<RoadSegmentId>();
             _start = fixture.Create<RoadNodeId>();

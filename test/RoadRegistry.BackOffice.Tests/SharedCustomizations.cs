@@ -43,16 +43,6 @@ namespace RoadRegistry.BackOffice
             );
         }
 
-        public static void CustomizeMaintenanceAuthorityId(this IFixture fixture)
-        {
-            fixture.Customize<MaintenanceAuthorityId>(composer =>
-                composer.FromFactory(generator =>
-                    new MaintenanceAuthorityId(new string(
-                        (char)generator.Next(97, 123), // a-z
-                        generator.Next(1, MaintenanceAuthorityId.MaxLength + 1))))
-            );
-        }
-
         public static void CustomizeOrganizationId(this IFixture fixture)
         {
             fixture.Customize<OrganizationId>(composer =>
@@ -70,16 +60,6 @@ namespace RoadRegistry.BackOffice
                     new ArchiveId(new string(
                         (char)generator.Next(97, 123), // a-z
                         generator.Next(1, ArchiveId.MaxLength + 1))))
-            );
-        }
-
-        public static void CustomizeMaintenanceAuthorityName(this IFixture fixture)
-        {
-            fixture.Customize<MaintenanceAuthorityName>(composer =>
-                composer.FromFactory(generator =>
-                    new MaintenanceAuthorityName(new string(
-                        (char)generator.Next(97, 123), // a-z
-                        generator.Next(1, MaintenanceAuthorityName.MaxLength + 1))))
             );
         }
 
@@ -188,7 +168,7 @@ namespace RoadRegistry.BackOffice
                                     result = result.WithRightSide(fixture.Create<CrabStreetnameId?>());
                                     break;
                                 case 6:
-                                    result = result.With(fixture.Create<MaintenanceAuthorityId>());
+                                    result = result.With(fixture.Create<OrganizationId>());
                                     break;
                             }
                         }
@@ -429,8 +409,8 @@ namespace RoadRegistry.BackOffice
                     .FromFactory(generator =>
                         new ImportedOriginProperties
                         {
-                            Organization = fixture.Create<MaintenanceAuthorityName>(),
-                            OrganizationId = fixture.Create<MaintenanceAuthorityId>(),
+                            Organization = fixture.Create<OrganizationName>(),
+                            OrganizationId = fixture.Create<OrganizationId>(),
                             Since = fixture.Create<DateTime>()
                         }
                     )

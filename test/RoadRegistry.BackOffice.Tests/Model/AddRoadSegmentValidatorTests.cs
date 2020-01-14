@@ -30,8 +30,8 @@ namespace RoadRegistry.BackOffice.Model
             Fixture.CustomizeEuropeanRoadNumber();
             Fixture.CustomizeNationalRoadNumber();
             Fixture.CustomizeNumberedRoadNumber();
-            Fixture.CustomizeMaintenanceAuthorityId();
-            Fixture.CustomizeMaintenanceAuthorityName();
+            Fixture.CustomizeOrganizationId();
+            Fixture.CustomizeOrganizationName();
 
             Fixture.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
                 composer.Do(instance =>
@@ -308,7 +308,7 @@ namespace RoadRegistry.BackOffice.Model
                 StartNodeId = Fixture.Create<RoadNodeId>(),
                 EndNodeId = Fixture.Create<RoadNodeId>(),
                 Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
-                MaintenanceAuthority = Fixture.Create<MaintenanceAuthorityId>(),
+                MaintenanceAuthority = Fixture.Create<OrganizationId>(),
                 GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                 Morphology = Fixture.Create<RoadSegmentMorphology>(),
                 Status = Fixture.Create<RoadSegmentStatus>(),

@@ -133,7 +133,7 @@ namespace RoadRegistry.BackOffice.Model
                 .WithRightSide(@event.RightSide.StreetNameId.HasValue
                     ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
                     : new CrabStreetnameId?())
-                .With(new MaintenanceAuthorityId(@event.MaintenanceAuthority.Code));
+                .With(new OrganizationId(@event.MaintenanceAuthority.Code));
 
             var segment = new RoadSegment(
                 id,
@@ -308,7 +308,7 @@ namespace RoadRegistry.BackOffice.Model
                 .WithRightSide(@event.RightSide.StreetNameId.HasValue
                     ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
                     : new CrabStreetnameId?())
-                .With(new MaintenanceAuthorityId(@event.MaintenanceAuthority.Code));
+                .With(new OrganizationId(@event.MaintenanceAuthority.Code));
 
             var segment = new RoadSegment(
                 id,

@@ -24,6 +24,11 @@ namespace RoadRegistry.BackOffice.Model
             _value = value;
         }
 
+        public static bool AcceptsValue(string value)
+        {
+            return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
+        }
+
         public bool Equals(OrganizationName other) => _value == other._value;
         public override bool Equals(object other) => other is OrganizationName id && Equals(id);
         public override int GetHashCode() => _value.GetHashCode();

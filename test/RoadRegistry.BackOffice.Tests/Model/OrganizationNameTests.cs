@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Model
 {
     using System;
+    using Albedo;
     using AutoFixture;
     using AutoFixture.Idioms;
     using AutoFixture.Kernel;
@@ -29,13 +30,6 @@ namespace RoadRegistry.BackOffice.Model
                     )
                 ));
             new CompositeIdiomaticAssertion(
-                new GuardClauseAssertion(
-                    _fixture,
-                    new CompositeBehaviorExpectation(
-                        new NullReferenceBehaviorExpectation(),
-                        new EmptyStringBehaviorExpectation()
-                    )
-                ),
                 new ImplicitConversionOperatorAssertion<string>(
                     new CompositeSpecimenBuilder(customizedString, _fixture)),
                 new EquatableEqualsSelfAssertion(_fixture),
@@ -51,6 +45,40 @@ namespace RoadRegistry.BackOffice.Model
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
             ).Verify(typeof(OrganizationName));
+
+            new GuardClauseAssertion(
+                _fixture,
+                new CompositeBehaviorExpectation(
+                    new NullReferenceBehaviorExpectation(),
+                    new EmptyStringBehaviorExpectation()
+                )
+            ).Verify(Constructors.Select(() => new OrganizationName(null)));
+        }
+
+        [Fact]
+        public void AcceptsValueReturnsExpectedResultWhenValueLongerThan64Chars()
+        {
+            const int length = OrganizationName.MaxLength + 1;
+
+            var value = new string((char) new Random().Next(97, 123), length);
+
+            Assert.False(OrganizationName.AcceptsValue(value));
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmpty(string value)
+        {
+            Assert.False(OrganizationName.AcceptsValue(value));
+        }
+
+        [Fact]
+        public void AcceptsValueReturnsExpectedResult()
+        {
+            var value = _fixture.Create<OrganizationName>().ToString();
+
+            Assert.True(OrganizationName.AcceptsValue(value));
         }
 
         [Fact]
@@ -66,7 +94,7 @@ namespace RoadRegistry.BackOffice.Model
         }
 
         [Fact]
-        public void ValueCanNotBeLongerThan18Chars()
+        public void ValueCanNotBeLongerThan64Chars()
         {
             const int length = OrganizationName.MaxLength + 1;
 

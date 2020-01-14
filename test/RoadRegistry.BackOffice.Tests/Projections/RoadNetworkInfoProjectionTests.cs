@@ -30,8 +30,8 @@ namespace RoadRegistry.BackOffice.Projections
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeRoadNodeId();
             _fixture.CustomizeAttributeId();
-            _fixture.CustomizeMaintenanceAuthorityId();
-            _fixture.CustomizeMaintenanceAuthorityName();
+            _fixture.CustomizeOrganizationId();
+            _fixture.CustomizeOrganizationName();
             _fixture.CustomizePolylineM();
             _fixture.CustomizeEuropeanRoadNumber();
             _fixture.CustomizeNationalRoadNumber();
@@ -136,8 +136,8 @@ namespace RoadRegistry.BackOffice.Projections
                     new BeganRoadNetworkImport(),
                     new ImportedOrganization
                     {
-                        Code = _fixture.Create<MaintenanceAuthorityId>(),
-                        Name = _fixture.Create<MaintenanceAuthorityName>()
+                        Code = _fixture.Create<OrganizationId>(),
+                        Name = _fixture.Create<OrganizationName>()
                     }
                 )
                 .Expect(
@@ -167,8 +167,8 @@ namespace RoadRegistry.BackOffice.Projections
                 .Range(0, new Random().Next(10))
                 .Select(index => new ImportedOrganization
                 {
-                    Code = _fixture.Create<MaintenanceAuthorityId>(),
-                    Name = _fixture.Create<MaintenanceAuthorityName>()
+                    Code = _fixture.Create<OrganizationId>(),
+                    Name = _fixture.Create<OrganizationName>()
                 })
                 .Cast<object>()
                 .ToArray();

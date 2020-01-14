@@ -51,9 +51,9 @@ namespace RoadRegistry.BackOffice.Model
             var page = await _store.ReadStreamForwards(Stream, version, 200_000, ct);
             if (page.Status == PageReadStatus.StreamNotFound)
             {
-                var network = RoadNetwork.Factory();
-                _map.Attach(new EventSourcedEntityMapEntry(network, Stream, ExpectedVersion.NoStream));
-                return network;
+                var initial = RoadNetwork.Factory();
+                _map.Attach(new EventSourcedEntityMapEntry(initial, Stream, ExpectedVersion.NoStream));
+                return initial;
             }
             IEventSourcedEntity entity = roadNetwork;
             var messages = new List<object>(page.Messages.Length);
@@ -72,9 +72,9 @@ namespace RoadRegistry.BackOffice.Model
                 page = await page.ReadNext(ct);
                 if (page.Status == PageReadStatus.StreamNotFound)
                 {
-                    var network = RoadNetwork.Factory();
-                    _map.Attach(new EventSourcedEntityMapEntry(network, Stream, ExpectedVersion.NoStream));
-                    return network;
+                    var initial = RoadNetwork.Factory();
+                    _map.Attach(new EventSourcedEntityMapEntry(initial, Stream, ExpectedVersion.NoStream));
+                    return initial;
                 }
                 foreach (var message in page.Messages)
                 {
