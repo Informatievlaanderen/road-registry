@@ -61,10 +61,9 @@ namespace RoadRegistry.BackOffice.Projections
                                     NW_OIDN = {Value = nationalRoad.AttributeId},
                                     WS_OIDN = {Value = nationalRoad.SegmentId},
                                     IDENT2 = {Value = nationalRoad.Ident2},
-                                    // TODO: Needs to come from the event
-                                    BEGINTIJD = {Value = null},
-                                    BEGINORG = {Value = null},
-                                    LBLBGNORG = {Value = null}
+                                    BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                    BEGINORG = {Value = envelope.Message.OrganizationId},
+                                    LBLBGNORG = {Value = envelope.Message.Organization}
                                 }.ToBytes(manager, encoding)
                             });
                             break;

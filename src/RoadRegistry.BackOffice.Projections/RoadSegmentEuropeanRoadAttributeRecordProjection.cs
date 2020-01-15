@@ -60,10 +60,9 @@ namespace RoadRegistry.BackOffice.Projections
                                     EU_OIDN = {Value = europeanRoad.AttributeId},
                                     WS_OIDN = {Value = europeanRoad.SegmentId},
                                     EUNUMMER = {Value = europeanRoad.Number},
-                                    // TODO: Needs to come from the event
-                                    BEGINTIJD = {Value = null},
-                                    BEGINORG = {Value = null},
-                                    LBLBGNORG = {Value = null},
+                                    BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                    BEGINORG = {Value = envelope.Message.OrganizationId},
+                                    LBLBGNORG = {Value = envelope.Message.Organization}
                                 }.ToBytes(manager, encoding)
                             });
                             break;

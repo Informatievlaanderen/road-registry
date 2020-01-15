@@ -119,11 +119,10 @@ namespace RoadRegistry.BackOffice.Projections
                                         LBLBEHEER = {Value = segment.MaintenanceAuthority.Name},
                                         METHODE = {Value = geometryDrawMethodTranslation.Identifier},
                                         LBLMETHOD = {Value = geometryDrawMethodTranslation.Name},
-                                        // TODO: Needs to come from the event
-                                        OPNDATUM = {Value = null},
-                                        BEGINTIJD = {Value = null},
-                                        BEGINORG = {Value = null},
-                                        LBLBGNORG = {Value = null},
+                                        OPNDATUM = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                        BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                        BEGINORG = {Value = envelope.Message.OrganizationId},
+                                        LBLBGNORG = {Value = envelope.Message.Organization},
                                         TGBEP = {Value = accessRestrictionTranslation.Identifier},
                                         LBLTGBEP = {Value = accessRestrictionTranslation.Name}
                                     }.ToBytes(manager, encoding)

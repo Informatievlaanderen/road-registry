@@ -61,10 +61,9 @@ namespace RoadRegistry.BackOffice.Projections
                                 WK_UIDN = {Value = node.Id + "_0" }, // 1?
                                 TYPE = {Value = typeTranslation.Identifier},
                                 LBLTYPE = {Value = typeTranslation.Name},
-                                // TODO: Needs to come from the event
-                                BEGINTIJD = {Value = null},
-                                BEGINORG = {Value = null},
-                                LBLBGNORG = {Value = null}
+                                BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                BEGINORG = {Value = envelope.Message.OrganizationId},
+                                LBLBGNORG = {Value = envelope.Message.Organization}
                             };
 
                             var point = GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(node.Geometry));

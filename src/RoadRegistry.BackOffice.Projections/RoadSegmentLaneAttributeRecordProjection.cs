@@ -84,10 +84,9 @@ namespace RoadRegistry.BackOffice.Projections
                                                 LBLRICHT = {Value = laneDirectionTranslation.Name},
                                                 VANPOS = {Value = (double) lane.FromPosition},
                                                 TOTPOS = {Value = (double) lane.ToPosition},
-                                                // TODO: This should come from the event
-                                                BEGINTIJD = {Value = null},
-                                                BEGINORG = {Value = null},
-                                                LBLBGNORG = {Value = null}
+                                                BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                                BEGINORG = {Value = envelope.Message.OrganizationId},
+                                                LBLBGNORG = {Value = envelope.Message.Organization}
                                             }.ToBytes(manager, encoding)
                                         };
                                     });

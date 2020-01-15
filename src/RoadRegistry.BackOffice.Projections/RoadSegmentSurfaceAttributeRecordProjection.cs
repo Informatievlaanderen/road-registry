@@ -80,9 +80,9 @@ namespace RoadRegistry.BackOffice.Projections
                                                 LBLTYPE = {Value = typeTranslation.Name},
                                                 VANPOS = {Value = (double) surface.FromPosition},
                                                 TOTPOS = {Value = (double) surface.ToPosition},
-                                                BEGINTIJD = {Value = null},
-                                                BEGINORG = {Value = null},
-                                                LBLBGNORG = {Value = null}
+                                                BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                                BEGINORG = {Value = envelope.Message.OrganizationId},
+                                                LBLBGNORG = {Value = envelope.Message.Organization}
                                             }.ToBytes(manager, encoding)
                                         };
                                     });

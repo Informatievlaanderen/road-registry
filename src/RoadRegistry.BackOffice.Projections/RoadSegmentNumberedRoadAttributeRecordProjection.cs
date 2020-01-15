@@ -73,10 +73,9 @@ namespace RoadRegistry.BackOffice.Projections
                                     RICHTING = {Value = directionTranslation.Identifier},
                                     LBLRICHT = {Value = directionTranslation.Name},
                                     VOLGNUMMER = {Value = numberedRoad.Ordinal},
-                                    // TODO: Needs to come from the event
-                                    BEGINTIJD = {Value = null},
-                                    BEGINORG = {Value = null},
-                                    LBLBGNORG = {Value = null},
+                                    BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                    BEGINORG = {Value = envelope.Message.OrganizationId},
+                                    LBLBGNORG = {Value = envelope.Message.Organization}
                                 }.ToBytes(manager, encoding)
                             });
                             break;
