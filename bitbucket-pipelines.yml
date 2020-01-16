@@ -1,0 +1,40 @@
+image:
+  name: basisregisters/build-agent:latest
+
+pipelines:
+  branches:
+    master:
+      - step:
+          script:
+            - echo 'export SA_PASSWORD=E@syP@ssw0rd' >> ~/.bashrc
+            - source ~/.bashrc
+            - ./build.sh Push
+          services:
+            - docker
+            - mssql
+          caches:
+            - dotnetcore
+            - paket
+            - docker
+
+    '**':
+      - step:
+          script:
+            - echo 'export SA_PASSWORD=E@syP@ssw0rd' >> ~/.bashrc
+            - source ~/.bashrc
+            - ./build.sh Pack
+          services:
+            - mssql
+          caches:
+            - dotnetcore
+            - paket
+
+definitions:
+  caches:
+    paket: packages
+  services:
+    mssql:
+      image: microsoft/mssql-server-linux:2017-latest
+      environment:
+        ACCEPT_EULA: 'Y'
+        SA_PASSWORD: 'E@syP@ssw0rd'
