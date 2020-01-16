@@ -4,9 +4,9 @@ namespace RoadRegistry.BackOffice.Projections
     using NodaTime;
     using NodaTime.Text;
 
-    internal static class LocalDateTimeTranslator
+    public static class LocalDateTimeTranslator
     {
-        private static readonly DateTimeZone LocalTimeZone = 
+        private static readonly DateTimeZone LocalTimeZone =
             DateTimeZoneProviders.Tzdb["Europe/Brussels"];
 
         public static DateTime TranslateFromWhen(string value)

@@ -25,7 +25,7 @@
         [Fact]
         public async Task When_downloading_before_an_import()
         {
-            var controller = new DownloadController(new RecyclableMemoryStreamManager())
+            var controller = new DownloadController(_fixture.MemoryStreamManager)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -41,7 +41,7 @@
         [Fact]
         public async Task When_downloading_during_an_import()
         {
-            var controller = new DownloadController(new RecyclableMemoryStreamManager())
+            var controller = new DownloadController(_fixture.MemoryStreamManager)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -68,7 +68,7 @@
         [Fact]
         public async Task When_downloading_after_an_import()
         {
-            var controller = new DownloadController(new RecyclableMemoryStreamManager())
+            var controller = new DownloadController(_fixture.MemoryStreamManager)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };

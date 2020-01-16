@@ -15,12 +15,15 @@ namespace RoadRegistry.BackOffice.Projections
     using Schema.RoadSegments;
     using Xunit;
 
-    public class RoadSegmentProjectionTests
+    public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {
+        private readonly ProjectionTestServices _services;
         private readonly Fixture _fixture;
 
-        public RoadSegmentProjectionTests()
+        public RoadSegmentRecordProjectionTests(ProjectionTestServices services)
         {
+            _services = services ?? throw new ArgumentNullException(nameof(services));
+
             _fixture = new Fixture();
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
@@ -104,9 +107,7 @@ namespace RoadRegistry.BackOffice.Projections
                     return new { importedRoadSegment, expected};
                 }).ToList();
 
-            return new RoadSegmentRecordProjection(
-                    new RecyclableMemoryStreamManager(),
-                    Encoding.UTF8)
+            return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data.Select(d => d.expected));

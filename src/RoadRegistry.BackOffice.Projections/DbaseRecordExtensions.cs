@@ -5,7 +5,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.IO;
 
-    internal static class DbaseRecordExtensions
+    public static class DbaseRecordExtensions
     {
         public static byte[] ToBytes(this DbaseRecord record, RecyclableMemoryStreamManager manager, Encoding encoding)
         {

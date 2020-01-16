@@ -8,15 +8,18 @@ namespace RoadRegistry.BackOffice.Projections
     using Framework.Testing.Projections;
     using Messages;
     using Microsoft.IO;
-    using Schema.RoadSegmentWidthAttributes;
+    using Schema.RoadSegmentNationalRoadAttributes;
     using Xunit;
 
-    public class RoadSegmentWidthAttributeProjectionTests
+    public class RoadSegmentNationalRoadAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {
+        private readonly ProjectionTestServices _services;
         private readonly Fixture _fixture;
 
-        public RoadSegmentWidthAttributeProjectionTests()
+        public RoadSegmentNationalRoadAttributeRecordProjectionTests(ProjectionTestServices services)
         {
+            _services = services ?? throw new ArgumentNullException(nameof(services));
+
             _fixture = new Fixture();
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
@@ -59,27 +62,24 @@ namespace RoadRegistry.BackOffice.Projections
                 .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
                 .Select(segment =>
                 {
-                    segment.Widths = _fixture
-                        .CreateMany<ImportedRoadSegmentWidthAttributes>(random.Next(1, 10))
+                    segment.PartOfNationalRoads = _fixture
+                        .CreateMany<ImportedRoadSegmentNationalRoadAttributes>(random.Next(1, 10))
                         .ToArray();
 
                     var expected = segment
-                        .Widths
-                        .Select(width => new RoadSegmentWidthAttributeRecord
+                        .PartOfNationalRoads
+                        .Select(nationalRoad => new RoadSegmentNationalRoadAttributeRecord
                         {
-                            Id = width.AttributeId,
+                            Id = nationalRoad.AttributeId,
                             RoadSegmentId = segment.Id,
-                            DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
+                            DbaseRecord = new RoadSegmentNationalRoadAttributeDbaseRecord
                             {
-                                WB_OIDN = { Value = width.AttributeId },
+                                NW_OIDN = { Value = nationalRoad.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
-                                WS_GIDN = { Value = segment.Id + "_" + width.AsOfGeometryVersion },
-                                BREEDTE =  { Value = width.Width },
-                                VANPOS = { Value = (double)width.FromPosition },
-                                TOTPOS = { Value = (double)width.ToPosition },
-                                BEGINTIJD = { Value = width.Origin.Since },
-                                BEGINORG = { Value = width.Origin.OrganizationId },
-                                LBLBGNORG = { Value = width.Origin.Organization }
+                                IDENT2 = { Value = nationalRoad.Ident2 },
+                                BEGINTIJD = { Value = nationalRoad.Origin.Since },
+                                BEGINORG = { Value = nationalRoad.Origin.OrganizationId },
+                                LBLBGNORG = { Value = nationalRoad.Origin.Organization }
                             }.ToBytes(Encoding.UTF8)
                         });
 
@@ -91,7 +91,7 @@ namespace RoadRegistry.BackOffice.Projections
 
                 }).ToList();
 
-            return new RoadSegmentWidthAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            return new RoadSegmentNationalRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -102,15 +102,15 @@ namespace RoadRegistry.BackOffice.Projections
         }
 
         [Fact]
-        public Task When_importing_a_road_node_without_widths()
+        public Task When_importing_a_road_node_without_national_road_links()
         {
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-            importedRoadSegment.Widths = new ImportedRoadSegmentWidthAttributes[0];
+            importedRoadSegment.PartOfNationalRoads = new ImportedRoadSegmentNationalRoadAttributes[0];
 
-            return new RoadSegmentWidthAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            return new RoadSegmentNationalRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
-                .ExpectNone();
+                .Expect(new object[0]);
         }
     }
 }

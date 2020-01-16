@@ -5,19 +5,17 @@ namespace RoadRegistry.BackOffice.Projections
     using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
-    using BackOffice;
     using Framework.Testing.Projections;
     using Messages;
     using Microsoft.IO;
-    using Model;
-    using Schema.RoadSegmentNumberedRoadAttributes;
+    using Schema.RoadSegmentEuropeanRoadAttributes;
     using Xunit;
 
-    public class RoadSegmentNumberedRoadAttributeProjectionTests
+    public class RoadSegmentEuropeanRoadAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {
         private readonly Fixture _fixture;
 
-        public RoadSegmentNumberedRoadAttributeProjectionTests()
+        public RoadSegmentEuropeanRoadAttributeRecordProjectionTests()
         {
             _fixture = new Fixture();
             _fixture.CustomizeAttributeId();
@@ -61,27 +59,24 @@ namespace RoadRegistry.BackOffice.Projections
                 .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
                 .Select(segment =>
                 {
-                    segment.PartOfNumberedRoads = _fixture
-                        .CreateMany<ImportedRoadSegmentNumberedRoadAttributes>(random.Next(1, 10))
+                    segment.PartOfEuropeanRoads = _fixture
+                        .CreateMany<ImportedRoadSegmentEuropeanRoadAttributes>(random.Next(1, 10))
                         .ToArray();
 
                     var expected = segment
-                        .PartOfNumberedRoads
-                        .Select(numberedRoad => new RoadSegmentNumberedRoadAttributeRecord
+                        .PartOfEuropeanRoads
+                        .Select(europeanRoad => new RoadSegmentEuropeanRoadAttributeRecord
                         {
-                            Id = numberedRoad.AttributeId,
+                            Id = europeanRoad.AttributeId,
                             RoadSegmentId = segment.Id,
-                            DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
+                            DbaseRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord
                             {
-                                GW_OIDN = { Value = numberedRoad.AttributeId },
+                                EU_OIDN = { Value = europeanRoad.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
-                                IDENT8 = { Value = numberedRoad.Ident8 },
-                                RICHTING = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Identifier },
-                                LBLRICHT = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Name },
-                                VOLGNUMMER = { Value = numberedRoad.Ordinal },
-                                BEGINTIJD = { Value = numberedRoad.Origin.Since },
-                                BEGINORG = { Value = numberedRoad.Origin.OrganizationId },
-                                LBLBGNORG = { Value = numberedRoad.Origin.Organization }
+                                EUNUMMER = { Value = europeanRoad.Number },
+                                BEGINTIJD = { Value = europeanRoad.Origin.Since },
+                                BEGINORG = { Value = europeanRoad.Origin.OrganizationId },
+                                LBLBGNORG = { Value = europeanRoad.Origin.Organization }
                             }.ToBytes(Encoding.UTF8)
                         });
 
@@ -93,7 +88,7 @@ namespace RoadRegistry.BackOffice.Projections
 
                 }).ToList();
 
-            return new RoadSegmentNumberedRoadAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            return new RoadSegmentEuropeanRoadAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -104,12 +99,12 @@ namespace RoadRegistry.BackOffice.Projections
         }
 
         [Fact]
-        public Task When_importing_a_road_node_without_numbered_road_links()
+        public Task When_importing_a_road_node_without_european_road_links()
         {
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-            importedRoadSegment.PartOfNumberedRoads = new ImportedRoadSegmentNumberedRoadAttributes[0];
+            importedRoadSegment.PartOfEuropeanRoads = new ImportedRoadSegmentEuropeanRoadAttributes[0];
 
-            return new RoadSegmentNumberedRoadAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            return new RoadSegmentEuropeanRoadAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new object[0]);

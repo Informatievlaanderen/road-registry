@@ -4104,8 +4104,8 @@ namespace RoadRegistry.BackOffice.Model
                             {
                                 Id = 1,
                                 TemporaryId = addGradeSeparatedJunction.TemporaryId,
-                                UpperSegmentId = Segment1Added.Id,
-                                LowerSegmentId = Segment2Added.Id,
+                                UpperRoadSegmentId = Segment1Added.Id,
+                                LowerRoadSegmentId = Segment2Added.Id,
                                 Type = addGradeSeparatedJunction.Type
                             },
                             Problems = new Messages.Problem[0]

@@ -38,6 +38,39 @@ namespace RoadRegistry.BackOffice.Projections
 
                 return context.AddAsync(junctionRecord, token);
             });
+
+            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
+            {
+                foreach (var change in envelope.Message.Changes.Flatten())
+                {
+                    switch (change)
+                    {
+                        case GradeSeparatedJunctionAdded junction:
+                            var translation = GradeSeparatedJunctionType.Parse(junction.Type).Translation;
+                            var junctionRecord = new GradeSeparatedJunctionRecord
+                            {
+                                Id = junction.Id,
+                                DbaseRecord = new GradeSeparatedJunctionDbaseRecord
+                                {
+                                    OK_OIDN = {Value = junction.Id},
+                                    TYPE = {Value = translation.Identifier},
+                                    LBLTYPE = {Value = translation.Name},
+                                    BO_WS_OIDN = {Value = junction.UpperRoadSegmentId},
+                                    ON_WS_OIDN = {Value = junction.LowerRoadSegmentId},
+                                    BEGINTIJD =
+                                    {
+                                        Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
+                                    },
+                                    BEGINORG = {Value = envelope.Message.OrganizationId},
+                                    LBLBGNORG = {Value = envelope.Message.Organization},
+                                }.ToBytes(manager, encoding)
+                            };
+
+                            await context.AddAsync(junctionRecord, token);
+                            break;
+                    }
+                }
+            });
         }
     }
 }

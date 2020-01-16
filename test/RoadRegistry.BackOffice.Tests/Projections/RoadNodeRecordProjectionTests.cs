@@ -16,11 +16,11 @@ namespace RoadRegistry.BackOffice.Projections
     using GeometryTranslator = Model.GeometryTranslator;
     using RoadNodeType = Model.RoadNodeType;
 
-    public class RoadNodeProjectionTests
+    public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {
         private readonly Fixture _fixture;
 
-        public RoadNodeProjectionTests()
+        public RoadNodeRecordProjectionTests()
         {
             _fixture = new Fixture();
 

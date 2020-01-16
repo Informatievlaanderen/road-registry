@@ -13,12 +13,12 @@ namespace RoadRegistry.BackOffice.Projections
     using Translation;
     using Xunit;
 
-    public class RoadNetworkActivityProjectionTests
+    public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTestServices>
     {
         private readonly Fixture _fixture;
         private readonly MemoryBlobClient _client;
 
-        public RoadNetworkActivityProjectionTests()
+        public RoadNetworkChangeFeedProjectionTests()
         {
             _fixture = new Fixture();
             _fixture.CustomizeArchiveId();

@@ -70,8 +70,8 @@ namespace RoadRegistry.BackOffice.Model
                 Id = Id,
                 TemporaryId = TemporaryId,
                 Type = Type.ToString(),
-                UpperSegmentId = UpperSegmentId,
-                LowerSegmentId = LowerSegmentId
+                UpperRoadSegmentId = UpperSegmentId,
+                LowerRoadSegmentId = LowerSegmentId
             };
         }
 

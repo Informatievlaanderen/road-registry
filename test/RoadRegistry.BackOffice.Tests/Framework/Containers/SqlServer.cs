@@ -2,8 +2,10 @@ namespace RoadRegistry.BackOffice.Framework.Containers
 {
     using System;
     using System.Data.SqlClient;
+    using System.IO;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.IO;
     using Schema;
 
     public class SqlServer : ISqlServerDatabase
@@ -20,7 +22,10 @@ namespace RoadRegistry.BackOffice.Framework.Containers
             {
                 _inner = new SqlServerComposedContainer();
             }
+            MemoryStreamManager = new RecyclableMemoryStreamManager();
         }
+
+        public RecyclableMemoryStreamManager MemoryStreamManager { get; }
 
         public Task InitializeAsync()
         {

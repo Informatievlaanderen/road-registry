@@ -13,11 +13,11 @@ namespace RoadRegistry.BackOffice.Projections
     using Schema.Organizations;
     using Xunit;
 
-    public class OrganizationTests
+    public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {
         private readonly Fixture _fixture;
 
-        public OrganizationTests()
+        public OrganizationRecordProjectionTests()
         {
             _fixture = new Fixture();
             _fixture.CustomizeOrganizationId();

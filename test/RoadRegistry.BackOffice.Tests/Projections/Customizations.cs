@@ -7,6 +7,9 @@ namespace RoadRegistry.BackOffice.Projections
     using Messages;
     using Model;
     using NetTopologySuite.Geometries;
+    using NodaTime;
+    using NodaTime.Text;
+    using Translation;
 
     internal static class Customizations
     {
@@ -219,6 +222,43 @@ namespace RoadRegistry.BackOffice.Projections
                             PartOfNumberedRoads = fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttributes>(generator.Next(0, 10)).ToArray(),
                             RecordingDate = fixture.Create<DateTime>(),
                             Origin = fixture.Create<ImportedOriginProperties>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeGradeSeparatedJunctionAdded(this IFixture fixture)
+        {
+            fixture.Customize<Messages.AcceptedChange>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new Messages.AcceptedChange
+                        {
+                            GradeSeparatedJunctionAdded = new GradeSeparatedJunctionAdded
+                            {
+                                Id = fixture.Create<GradeSeparatedJunctionId>(),
+                                TemporaryId = fixture.Create<GradeSeparatedJunctionId>(),
+                                Type = fixture.Create<GradeSeparatedJunctionType>(),
+                                LowerRoadSegmentId = fixture.Create<RoadSegmentId>(),
+                                UpperRoadSegmentId = fixture.Create<RoadSegmentId>()
+                            }
+                        }
+                    )
+                    .OmitAutoProperties()
+                );
+            fixture.Customize<RoadNetworkChangesBasedOnArchiveAccepted>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadNetworkChangesBasedOnArchiveAccepted
+                        {
+                            ArchiveId = fixture.Create<ArchiveId>(),
+                            Reason = fixture.Create<Reason>(),
+                            Operator = fixture.Create<OperatorName>(),
+                            OrganizationId = fixture.Create<OrganizationId>(),
+                            Organization = fixture.Create<OrganizationName>(),
+                            Changes = fixture.CreateMany<Messages.AcceptedChange>(generator.Next(1,5)).ToArray(),
+                            When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
                         }
                     )
                     .OmitAutoProperties()

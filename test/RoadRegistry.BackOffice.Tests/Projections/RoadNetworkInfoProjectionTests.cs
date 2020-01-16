@@ -15,7 +15,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Xunit;
     using GeometryTranslator = Model.GeometryTranslator;
 
-    public class RoadNetworkInfoProjectionTests
+    public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServices>
     {
         private readonly Fixture _fixture;
 

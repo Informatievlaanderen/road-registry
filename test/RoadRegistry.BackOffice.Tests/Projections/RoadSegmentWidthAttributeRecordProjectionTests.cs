@@ -5,20 +5,21 @@ namespace RoadRegistry.BackOffice.Projections
     using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
-    using BackOffice;
     using Framework.Testing.Projections;
     using Messages;
     using Microsoft.IO;
-    using Model;
-    using Schema.RoadSegmentLaneAttributes;
+    using Schema.RoadSegmentWidthAttributes;
     using Xunit;
 
-    public class RoadSegmentLaneAttributeProjectionTests
+    public class RoadSegmentWidthAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {
+        private readonly ProjectionTestServices _services;
         private readonly Fixture _fixture;
 
-        public RoadSegmentLaneAttributeProjectionTests()
+        public RoadSegmentWidthAttributeRecordProjectionTests(ProjectionTestServices services)
         {
+            _services = services ?? throw new ArgumentNullException(nameof(services));
+
             _fixture = new Fixture();
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
@@ -61,29 +62,27 @@ namespace RoadRegistry.BackOffice.Projections
                 .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
                 .Select(segment =>
                 {
-                    segment.Lanes = _fixture
-                        .CreateMany<ImportedRoadSegmentLaneAttributes>(random.Next(1, 10))
+                    segment.Widths = _fixture
+                        .CreateMany<ImportedRoadSegmentWidthAttributes>(random.Next(1, 10))
                         .ToArray();
 
                     var expected = segment
-                        .Lanes
-                        .Select(lane => new RoadSegmentLaneAttributeRecord
+                        .Widths
+                        .Select(width => new RoadSegmentWidthAttributeRecord
                         {
-                            Id = lane.AttributeId,
+                            Id = width.AttributeId,
                             RoadSegmentId = segment.Id,
-                            DbaseRecord = new RoadSegmentLaneAttributeDbaseRecord
+                            DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
                             {
-                                RS_OIDN = { Value = lane.AttributeId },
+                                WB_OIDN = { Value = width.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
-                                WS_GIDN = { Value = segment.Id + "_" + lane.AsOfGeometryVersion },
-                                AANTAL =  { Value = lane.Count },
-                                RICHTING = { Value = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier },
-                                LBLRICHT = { Value = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name },
-                                VANPOS = { Value = (double)lane.FromPosition },
-                                TOTPOS = { Value = (double)lane.ToPosition },
-                                BEGINTIJD = { Value = lane.Origin.Since },
-                                BEGINORG = { Value = lane.Origin.OrganizationId },
-                                LBLBGNORG = { Value = lane.Origin.Organization }
+                                WS_GIDN = { Value = segment.Id + "_" + width.AsOfGeometryVersion },
+                                BREEDTE =  { Value = width.Width },
+                                VANPOS = { Value = (double)width.FromPosition },
+                                TOTPOS = { Value = (double)width.ToPosition },
+                                BEGINTIJD = { Value = width.Origin.Since },
+                                BEGINORG = { Value = width.Origin.OrganizationId },
+                                LBLBGNORG = { Value = width.Origin.Organization }
                             }.ToBytes(Encoding.UTF8)
                         });
 
@@ -95,7 +94,7 @@ namespace RoadRegistry.BackOffice.Projections
 
                 }).ToList();
 
-            return new RoadSegmentLaneAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -106,15 +105,15 @@ namespace RoadRegistry.BackOffice.Projections
         }
 
         [Fact]
-        public Task When_importing_a_road_node_without_lanes()
+        public Task When_importing_a_road_node_without_widths()
         {
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-            importedRoadSegment.Lanes = new ImportedRoadSegmentLaneAttributes[0];
+            importedRoadSegment.Widths = new ImportedRoadSegmentWidthAttributes[0];
 
-            return new RoadSegmentLaneAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
-                .Expect(new object[0]);
+                .ExpectNone();
         }
     }
 }

@@ -5,7 +5,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.IO;
 
-    internal static class ShapeContentExtensions
+    public static class ShapeContentExtensions
     {
         public static byte[] ToBytes(this ShapeContent content, RecyclableMemoryStreamManager manager, Encoding encoding)
         {
