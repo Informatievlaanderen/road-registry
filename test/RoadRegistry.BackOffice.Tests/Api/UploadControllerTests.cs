@@ -8,19 +8,19 @@ namespace RoadRegistry.BackOffice.Api
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
+    using Core;
     using Framework;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Primitives;
-    using Model;
     using Newtonsoft.Json;
     using NodaTime;
     using RoadRegistry.Api.Uploads;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
-    using Translation;
+    using Uploads;
     using Xunit;
 
     public class UploadControllerTests

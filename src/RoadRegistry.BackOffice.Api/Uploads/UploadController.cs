@@ -8,10 +8,10 @@ namespace RoadRegistry.Api.Uploads
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using BackOffice.Schema;
-    using BackOffice.Translation;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using Be.Vlaanderen.Basisregisters.BlobStore;

@@ -110,7 +110,7 @@ namespace RoadRegistry.BackOffice.CommandHost
                                 {
                                     if (_logger.IsEnabled(LogLevel.Debug))
                                     {
-                                        _logger.Log(LogLevel.Debug, "Timer activate because new scheduled actions.");
+                                        _logger.Log(LogLevel.Debug, "Timer activated because new scheduled actions.");
                                     }
 
                                     _timer.Change(_frequency, _frequency);

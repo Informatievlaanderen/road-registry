@@ -8,7 +8,6 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Messages;
     using Microsoft.IO;
-    using Model;
     using Schema;
     using Schema.RoadSegmentNumberedRoadAttributes;
 

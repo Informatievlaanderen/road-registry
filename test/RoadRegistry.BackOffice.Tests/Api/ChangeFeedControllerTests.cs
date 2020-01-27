@@ -13,7 +13,6 @@ namespace RoadRegistry.BackOffice.Api
     using RoadRegistry.Api.Activities;
     using RoadRegistry.Api.Changes.Responses;
     using Schema;
-    using Translation;
     using Xunit;
 
     [Collection(nameof(SqlServerCollection))]

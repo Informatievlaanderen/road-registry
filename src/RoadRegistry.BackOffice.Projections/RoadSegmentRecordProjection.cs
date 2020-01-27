@@ -24,15 +24,15 @@ namespace RoadRegistry.BackOffice.Projections
             When<Envelope<ImportedRoadSegment>>((context, envelope, token) =>
             {
                 var geometry =
-                    GeometryTranslator.FromGeometryMultiLineString(Model.GeometryTranslator.Translate(envelope.Message.Geometry));
+                    GeometryTranslator.FromGeometryMultiLineString(Core.GeometryTranslator.Translate(envelope.Message.Geometry));
                 var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
-                var statusTranslation = Model.RoadSegmentStatus.Parse(envelope.Message.Status).Translation;
-                var morphologyTranslation = Model.RoadSegmentMorphology.Parse(envelope.Message.Morphology).Translation;
-                var categoryTranslation = Model.RoadSegmentCategory.Parse(envelope.Message.Category).Translation;
+                var statusTranslation = RoadSegmentStatus.Parse(envelope.Message.Status).Translation;
+                var morphologyTranslation = RoadSegmentMorphology.Parse(envelope.Message.Morphology).Translation;
+                var categoryTranslation = RoadSegmentCategory.Parse(envelope.Message.Category).Translation;
                 var geometryDrawMethodTranslation =
-                    Model.RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod).Translation;
+                    RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod).Translation;
                 var accessRestrictionTranslation =
-                    Model.RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction).Translation;
+                    RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction).Translation;
                 return context.RoadSegments.AddAsync(
                     new RoadSegmentRecord
                     {
@@ -80,15 +80,15 @@ namespace RoadRegistry.BackOffice.Projections
                     {
                         case RoadSegmentAdded segment:
                             var geometry =
-                                GeometryTranslator.FromGeometryMultiLineString(Model.GeometryTranslator.Translate(segment.Geometry));
+                                GeometryTranslator.FromGeometryMultiLineString(Core.GeometryTranslator.Translate(segment.Geometry));
                             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
-                            var statusTranslation = Model.RoadSegmentStatus.Parse(segment.Status).Translation;
-                            var morphologyTranslation = Model.RoadSegmentMorphology.Parse(segment.Morphology).Translation;
-                            var categoryTranslation = Model.RoadSegmentCategory.Parse(segment.Category).Translation;
+                            var statusTranslation = RoadSegmentStatus.Parse(segment.Status).Translation;
+                            var morphologyTranslation = RoadSegmentMorphology.Parse(segment.Morphology).Translation;
+                            var categoryTranslation = RoadSegmentCategory.Parse(segment.Category).Translation;
                             var geometryDrawMethodTranslation =
-                                Model.RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation;
+                                RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation;
                             var accessRestrictionTranslation =
-                                Model.RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation;
+                                RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation;
                             await context.RoadSegments.AddAsync(
                                 new RoadSegmentRecord
                                 {

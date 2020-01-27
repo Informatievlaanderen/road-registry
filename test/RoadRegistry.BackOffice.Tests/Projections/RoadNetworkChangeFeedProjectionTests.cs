@@ -10,7 +10,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Messages;
     using Newtonsoft.Json;
     using Schema;
-    using Translation;
+    using Uploads;
     using Xunit;
 
     public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTestServices>

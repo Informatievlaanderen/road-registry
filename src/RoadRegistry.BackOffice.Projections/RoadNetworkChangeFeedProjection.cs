@@ -8,10 +8,10 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Messages;
-    using Model;
     using Newtonsoft.Json;
     using Schema;
-    using Translation;
+    using Uploads;
+    using Uploads.Schema;
 
     public class RoadNetworkChangeFeedProjection : ConnectedProjection<ShapeContext>
     {

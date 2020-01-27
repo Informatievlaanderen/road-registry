@@ -22,7 +22,7 @@ namespace RoadRegistry.BackOffice.Projections
 
             When<Envelope<ImportedRoadNode>>((context, envelope, token) =>
             {
-                var typeTranslation = Model.RoadNodeType.Parse(envelope.Message.Type).Translation;
+                var typeTranslation = RoadNodeType.Parse(envelope.Message.Type).Translation;
                 var dbaseRecord = new RoadNodeDbaseRecord
                 {
                     WK_OIDN = {Value = envelope.Message.Id},
@@ -34,7 +34,7 @@ namespace RoadRegistry.BackOffice.Projections
                     LBLBGNORG = {Value = envelope.Message.Origin.Organization}
                 };
 
-                var point = GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(envelope.Message.Geometry));
+                var point = GeometryTranslator.FromGeometryPoint(Core.GeometryTranslator.Translate(envelope.Message.Geometry));
                 var pointShapeContent = new PointShapeContent(point);
 
                 return context.RoadNodes.AddAsync(new RoadNodeRecord
@@ -54,7 +54,7 @@ namespace RoadRegistry.BackOffice.Projections
                     switch (message)
                     {
                         case RoadNodeAdded node:
-                            var typeTranslation = Model.RoadNodeType.Parse(node.Type).Translation;
+                            var typeTranslation = RoadNodeType.Parse(node.Type).Translation;
                             var dbaseRecord = new RoadNodeDbaseRecord
                             {
                                 WK_OIDN = {Value = node.Id},
@@ -66,7 +66,7 @@ namespace RoadRegistry.BackOffice.Projections
                                 LBLBGNORG = {Value = envelope.Message.Organization}
                             };
 
-                            var point = GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(node.Geometry));
+                            var point = GeometryTranslator.FromGeometryPoint(Core.GeometryTranslator.Translate(node.Geometry));
                             var pointShapeContent = new PointShapeContent(point);
 
                             await context.RoadNodes.AddAsync(new RoadNodeRecord

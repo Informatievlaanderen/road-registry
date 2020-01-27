@@ -3,8 +3,9 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
+    using BackOffice;
+    using BackOffice.Core;
     using BackOffice.Messages;
-    using BackOffice.Model;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Microsoft.Extensions.Logging;

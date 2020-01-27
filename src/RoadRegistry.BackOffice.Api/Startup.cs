@@ -18,8 +18,8 @@ namespace RoadRegistry.Api
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
-    using BackOffice.Model;
-    using BackOffice.Translation;
+    using BackOffice.Core;
+    using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;

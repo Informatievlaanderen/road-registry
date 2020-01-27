@@ -11,9 +11,9 @@ namespace RoadRegistry.BackOffice.Projections
     using Framework.Testing.Projections;
     using Messages;
     using Microsoft.IO;
-    using Model;
     using Schema.RoadSegments;
     using Xunit;
+    using GeometryTranslator = Core.GeometryTranslator;
 
     public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {
@@ -66,7 +66,7 @@ namespace RoadRegistry.BackOffice.Projections
                 .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
                 .Select(importedRoadSegment =>
                 {
-                    var geometry = Model.GeometryTranslator.Translate(importedRoadSegment.Geometry);
+                    var geometry = GeometryTranslator.Translate(importedRoadSegment.Geometry);
                     var polyLineMShapeContent = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
 
                     var expected = new RoadSegmentRecord

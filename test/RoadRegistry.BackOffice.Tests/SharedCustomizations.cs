@@ -5,14 +5,14 @@ namespace RoadRegistry.BackOffice
     using AutoFixture;
     using AutoFixture.Dsl;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+    using Core;
     using Messages;
-    using Model;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.Geometries.Implementation;
-    using Translation;
-    using RoadSegmentLaneAttribute = Model.RoadSegmentLaneAttribute;
-    using RoadSegmentSurfaceAttribute = Model.RoadSegmentSurfaceAttribute;
-    using RoadSegmentWidthAttribute = Model.RoadSegmentWidthAttribute;
+    using Uploads;
+    using RoadSegmentLaneAttribute = Core.RoadSegmentLaneAttribute;
+    using RoadSegmentSurfaceAttribute = Core.RoadSegmentSurfaceAttribute;
+    using RoadSegmentWidthAttribute = Core.RoadSegmentWidthAttribute;
 
     internal static class SharedCustomizations
     {
@@ -110,31 +110,31 @@ namespace RoadRegistry.BackOffice
         public static void CustomizeRoadNodeType(this IFixture fixture)
         {
             fixture.Customize<RoadNodeType>(composer =>
-                composer.FromFactory<int>(value => RoadNodeType.All[value % RoadNodeType.All.Length]));
+                composer.FromFactory<int>(value => RoadNodeType.All[Math.Abs(value) % RoadNodeType.All.Length]));
         }
 
         public static void CustomizeRecordType(this IFixture fixture)
         {
-            fixture.Customize<Translation.RecordType>(composer =>
-                composer.FromFactory<int>(value => Translation.RecordType.All[value % Translation.RecordType.All.Length]));
+            fixture.Customize<RecordType>(composer =>
+                composer.FromFactory<int>(value => RecordType.All[Math.Abs(value) % RecordType.All.Length]));
         }
 
         public static void CustomizeEuropeanRoadNumber(this IFixture fixture)
         {
             fixture.Customize<EuropeanRoadNumber>(composer =>
-                composer.FromFactory<int>(value => EuropeanRoadNumber.All[value % EuropeanRoadNumber.All.Length]));
+                composer.FromFactory<int>(value => EuropeanRoadNumber.All[Math.Abs(value) % EuropeanRoadNumber.All.Length]));
         }
 
         public static void CustomizeNationalRoadNumber(this IFixture fixture)
         {
             fixture.Customize<NationalRoadNumber>(composer =>
-                composer.FromFactory<int>(value => NationalRoadNumber.All[value % NationalRoadNumber.All.Length]));
+                composer.FromFactory<int>(value => NationalRoadNumber.All[Math.Abs(value) % NationalRoadNumber.All.Length]));
         }
 
         public static void CustomizeNumberedRoadNumber(this IFixture fixture)
         {
             fixture.Customize<NumberedRoadNumber>(composer =>
-                composer.FromFactory<int>(value => NumberedRoadNumber.All[value % NumberedRoadNumber.All.Length]));
+                composer.FromFactory<int>(value => NumberedRoadNumber.All[Math.Abs(value) % NumberedRoadNumber.All.Length]));
         }
 
         public static void CustomizeAttributeHash(this IFixture fixture)

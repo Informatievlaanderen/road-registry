@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Projections
 {
     using System;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
@@ -9,18 +10,21 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Framework.Testing.Projections;
     using Messages;
-    using Model;
     using NetTopologySuite.Geometries;
     using Schema;
+    using Schema.GradeSeparatedJunctions;
     using Xunit;
-    using GeometryTranslator = Model.GeometryTranslator;
+    using GeometryTranslator = Core.GeometryTranslator;
 
     public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServices>
     {
+        private readonly ProjectionTestServices _services;
         private readonly Fixture _fixture;
 
-        public RoadNetworkInfoProjectionTests()
+        public RoadNetworkInfoProjectionTests(ProjectionTestServices services)
         {
+            _services = services ?? throw new ArgumentNullException(nameof(services));
+
             _fixture = new Fixture();
 
             _fixture.CustomizeRoadNodeType();
@@ -32,6 +36,9 @@ namespace RoadRegistry.BackOffice.Projections
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeOrganizationId();
             _fixture.CustomizeOrganizationName();
+            _fixture.CustomizeOperatorName();
+            _fixture.CustomizeReason();
+            _fixture.CustomizeArchiveId();
             _fixture.CustomizePolylineM();
             _fixture.CustomizeEuropeanRoadNumber();
             _fixture.CustomizeNationalRoadNumber();
@@ -48,6 +55,7 @@ namespace RoadRegistry.BackOffice.Projections
             _fixture.CustomizeRoadSegmentCategory();
             _fixture.CustomizeRoadSegmentAccessRestriction();
             _fixture.CustomizeRoadSegmentGeometryVersion();
+
             _fixture.CustomizeImportedRoadSegment();
             _fixture.CustomizeImportedRoadSegmentEuropeanRoadAttributes();
             _fixture.CustomizeImportedRoadSegmentNationalRoadAttributes();
@@ -426,7 +434,6 @@ namespace RoadRegistry.BackOffice.Projections
         [Fact]
         public Task When_road_segments_were_imported()
         {
-            var writer = new WellKnownBinaryWriter();
             var imported_segments = Enumerable
                 .Range(0, new Random().Next(10))
                 .Select(index => new ImportedRoadSegment
@@ -501,5 +508,39 @@ namespace RoadRegistry.BackOffice.Projections
                     }
                 );
         }
+
+        // [Fact]
+        // public Task When_grade_separated_junctions_were_added()
+        // {
+        //     _fixture.CustomizeGradeSeparatedJunctionAdded();
+        //
+        //     var roadNetworkChangesBasedOnArchiveAccepted = _fixture.Create<RoadNetworkChangesBasedOnArchiveAccepted>();
+        //     var expectedRecords = roadNetworkChangesBasedOnArchiveAccepted.Changes.Select(change =>
+        //     {
+        //         var junction = change.GradeSeparatedJunctionAdded;
+        //         return (object)new GradeSeparatedJunctionRecord
+        //         {
+        //             Id = junction.Id,
+        //             DbaseRecord = new GradeSeparatedJunctionDbaseRecord
+        //             {
+        //                 OK_OIDN = {Value = junction.Id},
+        //                 TYPE = {Value = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Identifier},
+        //                 LBLTYPE = {Value = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name},
+        //                 BO_WS_OIDN = {Value = junction.UpperRoadSegmentId},
+        //                 ON_WS_OIDN = {Value = junction.LowerRoadSegmentId},
+        //                 BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(roadNetworkChangesBasedOnArchiveAccepted.When)},
+        //                 BEGINORG = {Value = roadNetworkChangesBasedOnArchiveAccepted.OrganizationId},
+        //                 LBLBGNORG = {Value = roadNetworkChangesBasedOnArchiveAccepted.Organization}
+        //             }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+        //         };
+        //     }).ToArray();
+        //
+        //     return new RoadNetworkInfoProjection()
+        //         .Scenario()
+        //         .Given(
+        //             new BeganRoadNetworkImport(),
+        //             roadNetworkChangesBasedOnArchiveAccepted)
+        //         .Expect(expectedRecords);
+        //}
     }
 }

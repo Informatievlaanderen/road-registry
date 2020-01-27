@@ -10,6 +10,7 @@
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
     using Be.Vlaanderen.Basisregisters.EventHandling;
+    using Core;
     using Destructurama;
     using Framework;
     using Messages;
@@ -18,11 +19,10 @@
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Hosting;
     using Microsoft.IO;
-    using Model;
     using NodaTime;
     using Serilog;
     using SqlStreamStore;
-    using Translation;
+    using Uploads;
 
     public class Program
     {

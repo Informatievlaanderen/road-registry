@@ -9,7 +9,6 @@ namespace RoadRegistry.BackOffice.Projections
     using Framework.Testing.Projections;
     using Messages;
     using Microsoft.IO;
-    using Model;
     using Schema.RoadSegmentNumberedRoadAttributes;
     using Xunit;
 

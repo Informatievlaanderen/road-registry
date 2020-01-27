@@ -3,10 +3,10 @@ namespace RoadRegistry.BackOffice
     using System;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.Generators.Guid;
+    using Core;
     using FluentValidation;
     using Framework;
     using Messages;
-    using Model;
     using Newtonsoft.Json;
     using SqlStreamStore;
     using SqlStreamStore.Streams;

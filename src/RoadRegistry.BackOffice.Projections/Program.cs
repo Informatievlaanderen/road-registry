@@ -23,7 +23,6 @@ namespace RoadRegistry.BackOffice.Projections
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.IO;
-    using Model;
     using Newtonsoft.Json;
     using NodaTime;
     using Schema;

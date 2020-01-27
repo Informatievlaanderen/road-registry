@@ -3,8 +3,9 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
+    using BackOffice;
+    using BackOffice.Core;
     using BackOffice.Messages;
-    using BackOffice.Model;
     using Microsoft.Extensions.Logging;
     using NodaTime;
     using NodaTime.Text;

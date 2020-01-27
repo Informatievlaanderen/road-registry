@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice
 {
-    using Model;
-    using Translation;
+    using Core;
+    using Uploads;
 
     public interface IRoadRegistryContext
     {

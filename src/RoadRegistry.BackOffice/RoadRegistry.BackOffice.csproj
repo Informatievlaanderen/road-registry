@@ -6,8 +6,8 @@
     <RootNamespace>RoadRegistry.BackOffice</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Model\ident2.txt" />
-    <EmbeddedResource Include="Model\ident8.txt" />
+    <EmbeddedResource Include="ident2.txt" />
+    <EmbeddedResource Include="ident8.txt" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

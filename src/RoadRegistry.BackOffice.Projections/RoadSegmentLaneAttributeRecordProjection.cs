@@ -9,7 +9,6 @@ namespace RoadRegistry.BackOffice.Projections
     using Messages;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
-    using Model;
     using Schema;
     using Schema.RoadSegmentLaneAttributes;
 

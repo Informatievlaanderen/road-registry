@@ -30,7 +30,7 @@
                 info.RoadNodeCount += 1;
                 info.TotalRoadNodeShapeLength +=
                     new PointShapeContent(
-                        GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(envelope.Message.Geometry))
+                        GeometryTranslator.FromGeometryPoint(Core.GeometryTranslator.Translate(envelope.Message.Geometry))
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32();
@@ -42,7 +42,7 @@
                 info.RoadSegmentCount += 1;
                 info.TotalRoadSegmentShapeLength +=
                     new PolyLineMShapeContent(
-                        GeometryTranslator.FromGeometryMultiLineString(Model.GeometryTranslator.Translate(envelope.Message.Geometry))
+                        GeometryTranslator.FromGeometryMultiLineString(Core.GeometryTranslator.Translate(envelope.Message.Geometry))
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32();
@@ -78,7 +78,7 @@
                             info.RoadNodeCount++;
                             info.TotalRoadNodeShapeLength +=
                                 new PointShapeContent(
-                                        GeometryTranslator.FromGeometryPoint(Model.GeometryTranslator.Translate(m.Geometry))
+                                        GeometryTranslator.FromGeometryPoint(Core.GeometryTranslator.Translate(m.Geometry))
                                     )
                                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                                     .ToInt32();
@@ -88,7 +88,7 @@
                             info.RoadSegmentCount += 1;
                             info.TotalRoadSegmentShapeLength +=
                                 new PolyLineMShapeContent(
-                                        GeometryTranslator.FromGeometryMultiLineString(Model.GeometryTranslator.Translate(m.Geometry))
+                                        GeometryTranslator.FromGeometryMultiLineString(Core.GeometryTranslator.Translate(m.Geometry))
                                     )
                                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                                     .ToInt32();

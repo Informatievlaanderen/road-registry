@@ -7,7 +7,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using BackOffice.Model;
+    using BackOffice.Core;
     using BackOffice.Schema;
     using BackOffice.Schema.Organizations;
     using Be.Vlaanderen.Basisregisters.Shaperon;

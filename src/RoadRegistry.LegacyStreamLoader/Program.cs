@@ -13,7 +13,7 @@ namespace RoadRegistry.LegacyStreamLoader
     using System.Threading;
     using Amazon.Runtime;
     using Amazon.S3;
-    using BackOffice.Model;
+    using BackOffice.Core;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;

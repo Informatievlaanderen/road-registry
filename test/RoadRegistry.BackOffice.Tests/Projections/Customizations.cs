@@ -4,12 +4,11 @@ namespace RoadRegistry.BackOffice.Projections
     using System.Linq;
     using AutoFixture;
     using BackOffice;
+    using Core;
     using Messages;
-    using Model;
     using NetTopologySuite.Geometries;
     using NodaTime;
     using NodaTime.Text;
-    using Translation;
 
     internal static class Customizations
     {

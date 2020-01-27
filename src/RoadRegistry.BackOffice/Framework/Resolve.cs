@@ -25,7 +25,7 @@ namespace RoadRegistry.BackOffice.Framework
                 if(message == null)
                     throw new ArgumentNullException(nameof(message));
 
-                if(!cache.TryGetValue(message.Body.GetType(), out CommandHandler handler))
+                if(!cache.TryGetValue(message.Body.GetType(), out var handler))
                 {
                     throw new InvalidOperationException($"The command handler for {message.Body.GetType()} could not be found.");
                 }
@@ -53,7 +53,7 @@ namespace RoadRegistry.BackOffice.Framework
                 if(message == null)
                     throw new ArgumentNullException(nameof(message));
 
-                if(!cache.TryGetValue(message.Body.GetType(), out EventHandler[] resolved))
+                if(!cache.TryGetValue(message.Body.GetType(), out var resolved))
                 {
                     return Array.Empty<Func<Event, CancellationToken, Task>>();
                 }
