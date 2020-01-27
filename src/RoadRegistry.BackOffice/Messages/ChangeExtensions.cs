@@ -6,7 +6,7 @@ namespace RoadRegistry.BackOffice.Messages
     public static class ChangeExtensions
     {
         public static IEnumerable<object> Flatten(this IEnumerable<RequestedChange> changes) =>
-            changes.Select(change => Flatten((RequestedChange) change));
+            changes.Select(Flatten);
 
         public static object Flatten(this RequestedChange change) =>
             new object[]
@@ -20,10 +20,10 @@ namespace RoadRegistry.BackOffice.Messages
                 }
                 .Single(_ => !ReferenceEquals(_, null));
 
-        public static IEnumerable<object> Flatten(this IEnumerable<Messages.AcceptedChange> changes) =>
-            changes.Select(change => change.Flatten());
+        public static IEnumerable<object> Flatten(this IEnumerable<AcceptedChange> changes) =>
+            changes.Select(Flatten);
 
-        public static object Flatten(this Messages.AcceptedChange change) =>
+        public static object Flatten(this AcceptedChange change) =>
             new object[]
                 {
                     change.RoadNodeAdded,
@@ -35,10 +35,10 @@ namespace RoadRegistry.BackOffice.Messages
                 }
                 .Single(_ => !ReferenceEquals(_, null));
 
-        public static IEnumerable<object> Flatten(this IEnumerable<Messages.RejectedChange> changes) =>
-            changes.Select(change => change.Flatten());
+        public static IEnumerable<object> Flatten(this IEnumerable<RejectedChange> changes) =>
+            changes.Select(Flatten);
 
-        public static object Flatten(this Messages.RejectedChange change) =>
+        public static object Flatten(this RejectedChange change) =>
             new object[]
                 {
                     change.AddRoadNode,

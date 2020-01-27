@@ -54,13 +54,13 @@ namespace RoadRegistry.BackOffice.Core
             }
             else if (connectedSegmentCount == 1 && Type != RoadNodeType.EndNode)
             {
-                problems = problems.RoadNodeTypeMismatch(RoadNodeType.EndNode);
+                problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type, new []{RoadNodeType.EndNode});
             }
             else if (connectedSegmentCount == 2)
             {
                 if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
                 {
-                    problems = problems.RoadNodeTypeMismatch(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode);
+                    problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type, new []{RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode});
                 }
                 else if (Type == RoadNodeType.FakeNode)
                 {
@@ -79,7 +79,7 @@ namespace RoadRegistry.BackOffice.Core
             }
             else if (connectedSegmentCount > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
             {
-                problems = problems.RoadNodeTypeMismatch(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout);
+                problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type, new []{RoadNodeType.RealNode, RoadNodeType.MiniRoundabout});
             }
 
             if (problems.OfType<Error>().Any())

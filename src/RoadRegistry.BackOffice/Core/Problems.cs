@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Core
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Globalization;
+    using System.Linq;
 
     public class Problems : IReadOnlyCollection<Problem>
     {
@@ -49,17 +50,22 @@ namespace RoadRegistry.BackOffice.Core
 
         public Problems RoadNodeNotConnectedToAnySegment() => new Problems(_problems.Add(new Error(nameof(RoadNodeNotConnectedToAnySegment))));
 
-        public Problems RoadNodeTypeMismatch(params RoadNodeType[] types)
+        public Problems RoadNodeTypeMismatch(int connectedSegmentCount, RoadNodeType actualType, RoadNodeType[] expectedTypes)
         {
-            if (types == null)
-                throw new ArgumentNullException(nameof(types));
-            if (types.Length == 0)
-                throw new ArgumentException("The expected road node types must contain at least one.", nameof(types));
-            return new Problems(_problems.Add(
-                new Error(
-                    nameof(RoadNodeTypeMismatch),
-                    Array.ConvertAll(types, type => new ProblemParameter("Expected", type.ToString()))))
-            );
+            if (expectedTypes == null)
+                throw new ArgumentNullException(nameof(expectedTypes));
+            if (expectedTypes.Length == 0)
+                throw new ArgumentException("The expected road node types must contain at least one.", nameof(expectedTypes));
+
+            var parameters = new List<ProblemParameter>
+            {
+                new ProblemParameter("ConnectedSegmentCount",
+                    connectedSegmentCount.ToString(CultureInfo.InvariantCulture)),
+                new ProblemParameter("Actual", actualType.ToString())
+            };
+            parameters.AddRange(expectedTypes.Select(type => new ProblemParameter("Expected", type.ToString())));
+
+            return new Problems(_problems.Add(new Error(nameof(RoadNodeTypeMismatch), parameters.ToArray())));
         }
 
         public Problems FakeRoadNodeConnectedSegmentsDoNotDiffer(RoadSegmentId segment1, RoadSegmentId segment2)
