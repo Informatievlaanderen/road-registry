@@ -68,6 +68,15 @@ jobs:
             fi
 
       - run:
+          name: Create workspace (non-master)
+          command: |
+            if [ "$CIRCLE_BRANCH" != "master" ];
+            then
+              mkdir -p workspace;
+              touch workspace/semver;
+            fi
+
+      - run:
           name: Run Build (non-master)
           command: |
             if [ "$CIRCLE_BRANCH" != "master" ];
