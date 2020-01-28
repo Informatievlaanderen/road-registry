@@ -1,4 +1,4 @@
-import { Elm } from './src/Download.elm'
+import { Elm } from './output/download.js'
 
 Elm.Download.init({
 	node: document.getElementById('app'),

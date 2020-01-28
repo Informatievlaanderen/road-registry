@@ -20,7 +20,7 @@ namespace RoadRegistry.BackOffice.Framework.Containers
             _builder =
                 new SqlConnectionStringBuilder
                 {
-                    DataSource = $"tcp:localhost,1433",
+                    DataSource = "tcp:localhost,1433",
                     InitialCatalog = "master",
                     UserID = "sa",
                     Password = Environment.GetEnvironmentVariable("SA_PASSWORD"),

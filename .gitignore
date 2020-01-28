@@ -17,6 +17,7 @@ elm-stuff/
 [Dd]ist/
 [Tt]est[Rr]esults/
 
+src/RoadRegistry.UI/output/
 src/RoadRegistry.UI/wwwroot/
 src/RoadRegistry.LegacyStreamExtraction/output/
 src/RoadRegistry.LegacyStreamLoader/output/

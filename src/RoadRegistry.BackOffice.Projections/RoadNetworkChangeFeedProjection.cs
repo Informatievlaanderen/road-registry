@@ -140,7 +140,7 @@ namespace RoadRegistry.BackOffice.Projections
                             Problems = change.Problems
                                 .Select(problem => new RoadNetworkChangeProblem
                                 {
-                                    Severity = "Error",
+                                    Severity = problem.Severity.ToString(),
                                     Text = problem.Reason
                                 })
                                 .ToArray()
@@ -173,7 +173,7 @@ namespace RoadRegistry.BackOffice.Projections
                             Problems = change.Problems
                                 .Select(problem => new RoadNetworkChangeProblem
                                 {
-                                    Severity = "Error",
+                                    Severity = problem.Severity.ToString(),
                                     Text = problem.Reason
                                 })
                                 .ToArray()
