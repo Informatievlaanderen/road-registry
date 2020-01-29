@@ -3261,6 +3261,11 @@ namespace RoadRegistry.BackOffice.Core
                             {
                                 Name = "AttributeId",
                                 Value = attributeId.ToInt32().ToString()
+                            },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "FromPosition",
+                                Value = "2.0"
                             }
                         }
                     }
@@ -3301,8 +3306,18 @@ namespace RoadRegistry.BackOffice.Core
                             },
                             new Messages.ProblemParameter
                             {
+                                Name = "ToPosition",
+                                Value =  "50.0"
+                            },
+                            new Messages.ProblemParameter
+                            {
                                 Name = "AttributeId",
                                 Value = attributeId2.ToInt32().ToString()
+                            },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "FromPosition",
+                                Value =  "55.0"
                             }
                         }
                     }
@@ -3332,6 +3347,16 @@ namespace RoadRegistry.BackOffice.Core
                                 Name = "AttributeId",
                                 Value = attributeId3.ToInt32().ToString()
                             },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "ToPosition",
+                                Value = "50.0"
+                            },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "Length",
+                                Value = "141.42135623731"
+                            }
                         }
                     }
                 };
@@ -3413,6 +3438,11 @@ namespace RoadRegistry.BackOffice.Core
                             {
                                 Name = "AttributeId",
                                 Value = attributeId.ToInt32().ToString()
+                            },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "FromPosition",
+                                Value = "2.0"
                             }
                         }
                     }
@@ -3451,8 +3481,18 @@ namespace RoadRegistry.BackOffice.Core
                             },
                             new Messages.ProblemParameter
                             {
+                                Name = "ToPosition",
+                                Value = "50.0"
+                            },
+                            new Messages.ProblemParameter
+                            {
                                 Name = "AttributeId",
                                 Value = attributeId2.ToInt32().ToString()
+                            },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "FromPosition",
+                                Value = "55.0"
                             }
                         }
                     }
@@ -3481,6 +3521,16 @@ namespace RoadRegistry.BackOffice.Core
                                 Name = "AttributeId",
                                 Value = attributeId3.ToInt32().ToString()
                             },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "ToPosition",
+                                Value = "50.0"
+                            },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "Length",
+                                Value = "141.42135623731"
+                            }
                         }
                     }
                 };
@@ -3562,6 +3612,11 @@ namespace RoadRegistry.BackOffice.Core
                             {
                                 Name = "AttributeId",
                                 Value = attributeId.ToInt32().ToString()
+                            },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "FromPosition",
+                                Value = "2.0"
                             }
                         }
                     }
@@ -3600,8 +3655,18 @@ namespace RoadRegistry.BackOffice.Core
                             },
                             new Messages.ProblemParameter
                             {
+                                Name = "ToPosition",
+                                Value = "50.0"
+                            },
+                            new Messages.ProblemParameter
+                            {
                                 Name = "AttributeId",
                                 Value = attributeId2.ToInt32().ToString()
+                            },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "FromPosition",
+                                Value = "55.0"
                             }
                         }
                     }
@@ -3630,6 +3695,16 @@ namespace RoadRegistry.BackOffice.Core
                                 Name = "AttributeId",
                                 Value = attributeId3.ToInt32().ToString()
                             },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "ToPosition",
+                                Value = "50.0"
+                            },
+                            new Messages.ProblemParameter
+                            {
+                                Name = "Length",
+                                Value = "141.42135623731"
+                            }
                         }
                     }
                 };

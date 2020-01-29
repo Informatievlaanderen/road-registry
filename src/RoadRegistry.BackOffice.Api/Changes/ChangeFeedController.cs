@@ -89,6 +89,14 @@ namespace RoadRegistry.Api.Activities
                             item.Content = JsonConvert.DeserializeObject(change.Content,
                                 typeof(RoadNetworkChangesArchiveRejectedEntry));
                             break;
+                        case nameof(RoadNetworkChangesBasedOnArchiveAccepted):
+                            item.Content = JsonConvert.DeserializeObject(change.Content,
+                                typeof(RoadNetworkChangesBasedOnArchiveAcceptedEntry));
+                            break;
+                        case nameof(RoadNetworkChangesBasedOnArchiveRejected):
+                            item.Content = JsonConvert.DeserializeObject(change.Content,
+                                typeof(RoadNetworkChangesBasedOnArchiveRejectedEntry));
+                            break;
                     }
 
                     entries.Add(item);

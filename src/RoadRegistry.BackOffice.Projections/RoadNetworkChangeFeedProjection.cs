@@ -7,11 +7,22 @@ namespace RoadRegistry.BackOffice.Projections
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Core;
     using Messages;
     using Newtonsoft.Json;
     using Schema;
     using Uploads;
     using Uploads.Schema;
+    using AcceptedChange = Messages.AcceptedChange;
+    using AddGradeSeparatedJunction = Messages.AddGradeSeparatedJunction;
+    using AddRoadNode = Messages.AddRoadNode;
+    using AddRoadSegment = Messages.AddRoadSegment;
+    using AddRoadSegmentToEuropeanRoad = Messages.AddRoadSegmentToEuropeanRoad;
+    using AddRoadSegmentToNationalRoad = Messages.AddRoadSegmentToNationalRoad;
+    using AddRoadSegmentToNumberedRoad = Messages.AddRoadSegmentToNumberedRoad;
+    using FileProblem = Messages.FileProblem;
+    using Problem = Messages.Problem;
+    using RejectedChange = Messages.RejectedChange;
 
     public class RoadNetworkChangeFeedProjection : ConnectedProjection<ShapeContext>
     {
@@ -141,7 +152,7 @@ namespace RoadRegistry.BackOffice.Projections
                                 .Select(problem => new RoadNetworkChangeProblem
                                 {
                                     Severity = problem.Severity.ToString(),
-                                    Text = problem.Reason
+                                    Text = ProblemWithChangeTranslator(problem)
                                 })
                                 .ToArray()
                         })
@@ -174,7 +185,7 @@ namespace RoadRegistry.BackOffice.Projections
                                 .Select(problem => new RoadNetworkChangeProblem
                                 {
                                     Severity = problem.Severity.ToString(),
-                                    Text = problem.Reason
+                                    Text = ProblemWithChangeTranslator(problem)
                                 })
                                 .ToArray()
                         })
@@ -212,28 +223,28 @@ namespace RoadRegistry.BackOffice.Projections
             }
         }
 
-        private static readonly Converter<Messages.RejectedChange, string> RejectedChangeTranslator =
+        private static readonly Converter<RejectedChange, string> RejectedChangeTranslator =
             change =>
             {
                 string translation;
                 switch (change.Flatten())
                 {
-                    case Messages.AddRoadNode m:
+                    case AddRoadNode m:
                         translation = $"Voeg wegknoop {m.TemporaryId} toe.";
                         break;
-                    case Messages.AddRoadSegment m:
+                    case AddRoadSegment m:
                         translation = $"Voeg wegsegment {m.TemporaryId} toe.";
                         break;
-                    case Messages.AddRoadSegmentToEuropeanRoad m:
+                    case AddRoadSegmentToEuropeanRoad m:
                         translation = $"Voeg wegsegment {m.SegmentId} toe aan europese weg {m.Number}.";
                         break;
-                    case Messages.AddRoadSegmentToNationalRoad m:
+                    case AddRoadSegmentToNationalRoad m:
                         translation = $"Voeg wegsegment {m.SegmentId} toe aan nationale weg {m.Ident2}.";
                         break;
-                    case Messages.AddRoadSegmentToNumberedRoad m:
+                    case AddRoadSegmentToNumberedRoad m:
                         translation = $"Voeg wegsegment {m.SegmentId} toe aan nationale weg {m.Ident8}.";
                         break;
-                    case Messages.AddGradeSeparatedJunction m:
+                    case AddGradeSeparatedJunction m:
                         translation = $"Voeg ongelijkgrondse kruising {m.TemporaryId} toe.";
                         break;
 
@@ -245,28 +256,28 @@ namespace RoadRegistry.BackOffice.Projections
                 return translation;
             };
 
-        private static readonly Converter<Messages.AcceptedChange, string> AcceptedChangeTranslator =
+        private static readonly Converter<AcceptedChange, string> AcceptedChangeTranslator =
             change =>
             {
                 string translation;
                 switch (change.Flatten())
                 {
-                    case Messages.RoadNodeAdded m:
+                    case RoadNodeAdded m:
                         translation = $"Wegknoop {m.TemporaryId} toegevoegd.";
                         break;
-                    case Messages.RoadSegmentAdded m:
+                    case RoadSegmentAdded m:
                         translation = $"Wegsegment {m.TemporaryId} toegevoegd.";
                         break;
-                    case Messages.RoadSegmentAddedToEuropeanRoad m:
+                    case RoadSegmentAddedToEuropeanRoad m:
                         translation = $"Wegsegment {m.SegmentId} toegevoegd aan europese weg {m.Number}.";
                         break;
-                    case Messages.RoadSegmentAddedToNationalRoad m:
+                    case RoadSegmentAddedToNationalRoad m:
                         translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Ident2}.";
                         break;
-                    case Messages.RoadSegmentAddedToNumberedRoad m:
+                    case RoadSegmentAddedToNumberedRoad m:
                         translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Ident8}.";
                         break;
-                    case Messages.GradeSeparatedJunctionAdded m:
+                    case GradeSeparatedJunctionAdded m:
                         translation = $"Ongelijkgrondse kruising {m.TemporaryId} toegevoegd.";
                         break;
 
@@ -278,7 +289,112 @@ namespace RoadRegistry.BackOffice.Projections
                 return translation;
             };
 
-        private static readonly Converter<Messages.FileProblem, string> ProblemWithZipArchiveTranslator =
+        private static readonly Converter<Problem, string> ProblemWithChangeTranslator =
+            problem =>
+            {
+                string translation;
+                switch (problem.Reason)
+                {
+                    case nameof(Problems.RoadNodeGeometryTaken):
+                        translation = $"De geometrie werd reeds ingenomen door een andere wegknoop met id {problem.Parameters[0].Value}.";
+                        break;
+                    case nameof(Problems.RoadNodeTooClose):
+                        translation = $"De geometrie ligt te dicht bij wegsegment met id {problem.Parameters[0].Value}.";
+                        break;
+                    case nameof(Problems.RoadNodeNotConnectedToAnySegment):
+                        translation = "De wegknoop is met geen enkel wegsegment verbonden.";
+                        break;
+                    case nameof(Problems.RoadNodeTypeMismatch):
+                        translation = $"Het opgegeven wegknoop type {RoadNodeType.Parse(problem.Parameters[1].Value).Translation.Name} komt niet overeen met een van de verwachte wegknoop types:{string.Join(',', problem.Parameters.Skip(2).Select(parameter => RoadNodeType.Parse(parameter.Value).Translation.Name))}. De wegknoop is verbonden met {problem.Parameters[0].Value} wegsegment(-en).";
+                        break;
+                    case nameof(Problems.FakeRoadNodeConnectedSegmentsDoNotDiffer):
+                        // todo : translate road node types back to dutch
+                        translation = $"De attributen van de verbonden wegsegmenten ({problem.Parameters[0].Value} en {problem.Parameters[1].Value}) verschillen onvoldoende voor deze schijnknoop.";
+                        break;
+                    case nameof(Problems.RoadSegmentGeometryTaken):
+                        translation = $"De geometrie werd reeds ingenomen door een ander wegsegment met id {problem.Parameters[0].Value}.";
+                        break;
+                    case nameof(Problems.RoadSegmentStartNodeMissing):
+                        translation = "De start wegknoop van het wegsegment ontbreekt.";
+                        break;
+                    case nameof(Problems.RoadSegmentEndNodeMissing):
+                        translation = "De eind wegknoop van het wegsegment ontbreekt.";
+                        break;
+                    case nameof(Problems.RoadSegmentGeometryLengthIsZero):
+                        translation = "De lengte van het wegsegment is 0.";
+                        break;
+                    case nameof(Problems.RoadSegmentStartPointDoesNotMatchNodeGeometry):
+                        translation = "De positie van het start punt van het wegsegment stemt niet overeen met de geometrie van de start wegknoop.";
+                        break;
+                    case nameof(Problems.RoadSegmentEndPointDoesNotMatchNodeGeometry):
+                        translation = "De positie van het eind punt van het wegsegment stemt niet overeen met de geometrie van de eind wegknoop.";
+                        break;
+                    case nameof(Problems.RoadSegmentGeometrySelfOverlaps):
+                        translation = "De geometrie van het wegsegment overlapt zichzelf.";
+                        break;
+                    case nameof(Problems.RoadSegmentGeometrySelfIntersects):
+                        translation = "De geometrie van het wegsegment kruist zichzelf.";
+                        break;
+                    case nameof(Problems.RoadSegmentMissing):
+                        translation = $"Het wegsegment met id {problem.Parameters[0].Value} ontbreekt.";
+                        break;
+                    case nameof(Problems.RoadSegmentLaneAttributeFromPositionNotEqualToZero):
+                        translation = $"De van positie ({problem.Parameters[2].Value}) van het eerste rijstroken attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
+                        break;
+                    case nameof(Problems.RoadSegmentLaneAttributesNotAdjacent):
+                        translation = $"De tot positie ({problem.Parameters[1].Value}) van het rijstroken attribuut met id {problem.Parameters[0].Value} sluit niet aan op de van positie ({problem.Parameters[3].Value}) van het rijstroken attribuut met id {problem.Parameters[2].Value}.";
+                        break;
+                    case nameof(Problems.RoadSegmentLaneAttributeToPositionNotEqualToLength):
+                        translation = $"De tot positie ({problem.Parameters[1].Value}) van het laatste rijstroken attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).";
+                        break;
+                    case nameof(Problems.RoadSegmentWidthAttributeFromPositionNotEqualToZero):
+                        translation = $"De van positie ({problem.Parameters[2].Value}) van het eerste wegbreedte attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
+                        break;
+                    case nameof(Problems.RoadSegmentWidthAttributesNotAdjacent):
+                        translation = $"De tot positie ({problem.Parameters[1].Value}) van het wegbreedte attribuut met id {problem.Parameters[0].Value} sluit niet aan op de van positie ({problem.Parameters[3].Value}) van het rijstroken attribuut met id {problem.Parameters[2].Value}.";
+                        break;
+                    case nameof(Problems.RoadSegmentWidthAttributeToPositionNotEqualToLength):
+                        translation = $"De tot positie ({problem.Parameters[1].Value}) van het laatste wegbreedte attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).";
+                        break;
+                    case nameof(Problems.RoadSegmentSurfaceAttributeFromPositionNotEqualToZero):
+                        translation = $"De van positie ({problem.Parameters[2].Value}) van het eerste wegverharding attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
+                        break;
+                    case nameof(Problems.RoadSegmentSurfaceAttributesNotAdjacent):
+                        translation = $"De tot positie ({problem.Parameters[1].Value}) van het wegverharding attribuut met id {problem.Parameters[0].Value} sluit niet aan op de van positie ({problem.Parameters[3].Value}) van het rijstroken attribuut met id {problem.Parameters[2].Value}.";
+                        break;
+                    case nameof(Problems.RoadSegmentSurfaceAttributeToPositionNotEqualToLength):
+                        translation = $"De tot positie ({problem.Parameters[1].Value}) van het laatste wegverharding attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).";
+                        break;
+                    case nameof(Problems.RoadSegmentPointMeasureValueOutOfRange):
+                        translation = $"De meting ({problem.Parameters[2].Value}) op het punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] ligt niet binnen de verwachte grenzen [{problem.Parameters[2].Value}-{problem.Parameters[2].Value}].";
+                        break;
+                    case nameof(Problems.RoadSegmentStartPointMeasureValueNotEqualToZero):
+                        translation = $"De meting ({problem.Parameters[2].Value}) op het start punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet 0.0.";
+                        break;
+                    case nameof(Problems.RoadSegmentEndPointMeasureValueNotEqualToLength):
+                        translation = $"De meting ({problem.Parameters[2].Value}) op het eind punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet gelijk aan de lengte ({problem.Parameters[3].Value}).";
+                        break;
+                    case nameof(Problems.RoadSegmentPointMeasureValueDoesNotIncrease):
+                        translation = $"De meting ({problem.Parameters[2].Value}) op het punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet groter dan de meting ({problem.Parameters[3].Value}) op het vorige punt.";
+                        break;
+                    case nameof(Problems.UpperRoadSegmentMissing):
+                        translation = "Het bovenste wegsegment ontbreekt.";
+                        break;
+                    case nameof(Problems.LowerRoadSegmentMissing):
+                        translation = "Het onderste wegsegment ontbreekt.";
+                        break;
+                    case nameof(Problems.UpperAndLowerRoadSegmentDoNotIntersect):
+                        translation = "Het bovenste en onderste wegsegment kruisen elkaar niet.";
+                        break;
+                    default:
+                        translation = $"'{problem.Reason}' has no translation. Please fix it.";
+                        break;
+                }
+
+                return translation;
+            };
+
+        private static readonly Converter<FileProblem, string> ProblemWithZipArchiveTranslator =
             problem =>
             {
                 string translation;

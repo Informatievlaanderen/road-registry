@@ -50,6 +50,9 @@ appsettings.BitTacklr002.json
 .local
 run-local.bat
 
+docker_personal.sh
+appsettings.personal.json
+
 # don't check the dev certificates in
 *.cer
 *.pfx

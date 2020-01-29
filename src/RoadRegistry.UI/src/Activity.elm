@@ -61,6 +61,7 @@ type ChangeFeedEntryContent
     | RoadNetworkChangesArchiveAccepted { archive : Archive, problems : List FileProblems }
     | RoadNetworkChangesArchiveRejected { archive : Archive, problems : List FileProblems }
     | RoadNetworkChangesArchiveUploaded { archive : Archive }
+    | RoadNetworkChangesBasedOnArchiveAccepted { archive : Archive, problems : List ChangeProblems }
     | RoadNetworkChangesBasedOnArchiveRejected { archive : Archive, problems : List ChangeProblems }
 
 
@@ -187,6 +188,14 @@ decodeRoadNetworkChangesArchiveRejected =
             (Decode.field "files" (Decode.list decodeFileProblems))
         )
 
+decodeRoadNetworkChangesBasedOnArchiveAccepted : Decode.Decoder ChangeFeedEntryContent
+decodeRoadNetworkChangesBasedOnArchiveAccepted =
+    Decode.field "content"
+        (Decode.map2
+            (\archive problems -> RoadNetworkChangesBasedOnArchiveAccepted { archive = archive, problems = problems })
+            (Decode.field "archive" decodeArchive)
+            (Decode.field "changes" (Decode.list decodeChangeProblems))
+        )
 
 decodeRoadNetworkChangesBasedOnArchiveRejected : Decode.Decoder ChangeFeedEntryContent
 decodeRoadNetworkChangesBasedOnArchiveRejected =
@@ -212,6 +221,7 @@ decodeEntry =
             , when decodeEntryContentType (is "RoadNetworkChangesArchiveAccepted") decodeRoadNetworkChangesArchiveAccepted
             , when decodeEntryContentType (is "RoadNetworkChangesArchiveRejected") decodeRoadNetworkChangesArchiveRejected
             , when decodeEntryContentType (is "RoadNetworkChangesArchiveUploaded") decodeRoadNetworkChangesArchiveUploaded
+            , when decodeEntryContentType (is "RoadNetworkChangesBasedOnArchiveAccepted") decodeRoadNetworkChangesBasedOnArchiveAccepted
             , when decodeEntryContentType (is "RoadNetworkChangesBasedOnArchiveRejected") decodeRoadNetworkChangesBasedOnArchiveRejected
             ]
         )
@@ -391,6 +401,51 @@ viewActivityEntryContent content =
                     (List.map (\problem -> li [] [ text problem.file ]) accepted.problems)
                 ]
 
+        RoadNetworkChangesBasedOnArchiveAccepted accepted ->
+                    div [ class "step__content" ]
+                        [ ul
+                            []
+                            (List.map
+                                (\changeProblems ->
+                                    li
+                                        [ style "padding-top" "5px" ]
+                                        [ span [ style "font-weight" "bold" ] [ text changeProblems.change ]
+                                        , ul
+                                            []
+                                            (List.map
+                                                (\problem ->
+                                                    case problem.severity of
+                                                        Warning ->
+                                                            li
+                                                                []
+                                                                [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
+                                                                , text "\u{00A0}"
+                                                                , text problem.problem
+                                                                ]
+
+                                                        Error ->
+                                                            li
+                                                                []
+                                                                [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
+                                                                , text "\u{00A0}"
+                                                                , text problem.problem
+                                                                ]
+                                                )
+                                                changeProblems.problems
+                                            )
+                                        ]
+                                )
+                                accepted.problems
+                            )
+                        , br [] []
+                        , text "Archief: "
+                        , a [ href "", class "link--icon link--icon--inline" ]
+                            [ i [ class "vi vi-paperclip", ariaHidden True ]
+                                []
+                            , text accepted.archive.filename
+                            ]
+                        ]
+
         RoadNetworkChangesBasedOnArchiveRejected rejected ->
             div [ class "step__content" ]
                 [ ul
@@ -436,7 +491,6 @@ viewActivityEntryContent content =
                     ]
                 ]
 
-
 viewActivityEntry : ChangeFeedEntry -> Html Msg
 viewActivityEntry entry =
     li
@@ -478,6 +532,14 @@ viewActivityEntry entry =
                             ]
 
                     RoadNetworkChangesArchiveUploaded _ ->
+                        div [ class "step__header__info" ]
+                            [ i [ class "vi vi-paperclip vi-u-s" ]
+                                []
+                            , i [ class "step__accordion-toggle" ]
+                                []
+                            ]
+
+                    RoadNetworkChangesBasedOnArchiveAccepted _ ->
                         div [ class "step__header__info" ]
                             [ i [ class "vi vi-paperclip vi-u-s" ]
                                 []

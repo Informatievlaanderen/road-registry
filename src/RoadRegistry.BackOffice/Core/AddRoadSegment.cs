@@ -169,7 +169,9 @@ namespace RoadRegistry.BackOffice.Core
                     if (lane.From != RoadSegmentPosition.Zero)
                     {
                         problems =
-                            problems.RoadSegmentLaneAttributeFromPositionNotEqualToZero(lane.TemporaryId);
+                            problems.RoadSegmentLaneAttributeFromPositionNotEqualToZero(
+                                lane.TemporaryId,
+                                lane.From);
                     }
                 }
                 else
@@ -179,7 +181,9 @@ namespace RoadRegistry.BackOffice.Core
                         problems =
                             problems.RoadSegmentLaneAttributesNotAdjacent(
                                 previousLane.TemporaryId,
-                                lane.TemporaryId);
+                                previousLane.To,
+                                lane.TemporaryId,
+                                lane.From);
                     }
                 }
 
@@ -190,7 +194,10 @@ namespace RoadRegistry.BackOffice.Core
             {
                 if (Math.Abs(previousLane.To.ToDouble() - line.Length) > context.Tolerance)
                 {
-                    problems = problems.RoadSegmentLaneAttributeToPositionNotEqualToLength(previousLane.TemporaryId);
+                    problems = problems.RoadSegmentLaneAttributeToPositionNotEqualToLength(
+                        previousLane.TemporaryId,
+                        previousLane.To,
+                        line.Length);
                 }
             }
 
@@ -202,7 +209,9 @@ namespace RoadRegistry.BackOffice.Core
                     if (width.From != RoadSegmentPosition.Zero)
                     {
                         problems =
-                            problems.RoadSegmentWidthAttributeFromPositionNotEqualToZero(width.TemporaryId);
+                            problems.RoadSegmentWidthAttributeFromPositionNotEqualToZero(
+                                width.TemporaryId,
+                                width.From);
                     }
                 }
                 else
@@ -212,7 +221,9 @@ namespace RoadRegistry.BackOffice.Core
                         problems =
                             problems.RoadSegmentWidthAttributesNotAdjacent(
                                 previousWidth.TemporaryId,
-                                width.TemporaryId);
+                                previousWidth.To,
+                                width.TemporaryId,
+                                width.From);
                     }
                 }
 
@@ -223,7 +234,10 @@ namespace RoadRegistry.BackOffice.Core
             {
                 if (Math.Abs(previousWidth.To.ToDouble() - line.Length) > context.Tolerance)
                 {
-                    problems = problems.RoadSegmentWidthAttributeToPositionNotEqualToLength(previousWidth.TemporaryId);
+                    problems = problems.RoadSegmentWidthAttributeToPositionNotEqualToLength(
+                        previousWidth.TemporaryId,
+                        previousWidth.To,
+                        line.Length);
                 }
             }
 
@@ -236,7 +250,8 @@ namespace RoadRegistry.BackOffice.Core
                     {
                         problems =
                             problems.RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(
-                                surface.TemporaryId);
+                                surface.TemporaryId,
+                                surface.From);
                     }
                 }
                 else
@@ -246,7 +261,9 @@ namespace RoadRegistry.BackOffice.Core
                         problems =
                             problems.RoadSegmentSurfaceAttributesNotAdjacent(
                                 previousSurface.TemporaryId,
-                                surface.TemporaryId);
+                                previousSurface.To,
+                                surface.TemporaryId,
+                                surface.From);
                     }
                 }
 
@@ -257,7 +274,7 @@ namespace RoadRegistry.BackOffice.Core
             {
                 if (Math.Abs(previousSurface.To.ToDouble() - line.Length) > context.Tolerance)
                 {
-                    problems = problems.RoadSegmentSurfaceAttributeToPositionNotEqualToLength(previousSurface.TemporaryId);
+                    problems = problems.RoadSegmentSurfaceAttributeToPositionNotEqualToLength(previousSurface.TemporaryId, previousSurface.To, line.Length);
                 }
             }
 

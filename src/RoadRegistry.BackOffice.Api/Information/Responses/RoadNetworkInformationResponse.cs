@@ -31,7 +31,8 @@ namespace RoadRegistry.Api.Information.Responses
                 RoadSegmentNumberedRoadAttributeCount = info.RoadSegmentNumberedRoadAttributeCount,
                 RoadSegmentLaneAttributeCount = info.RoadSegmentLaneAttributeCount,
                 RoadSegmentSurfaceAttributeCount = info.RoadSegmentSurfaceAttributeCount,
-                RoadSegmentWidthAttributeCount = info.RoadSegmentWidthAttributeCount
+                RoadSegmentWidthAttributeCount = info.RoadSegmentWidthAttributeCount,
+                GradeSeparatedJunctionCount = info.GradeSeparatedJunctionCount
             };
         }
     }

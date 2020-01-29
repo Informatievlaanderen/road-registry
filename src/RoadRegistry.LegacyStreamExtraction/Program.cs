@@ -38,9 +38,12 @@ namespace RoadRegistry.LegacyStreamExtraction
                 {
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
+                    Console.WriteLine(hostContext.HostingEnvironment.EnvironmentName);
+
                     builder
                         .SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json", true, false)
+                        .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName}.json", true, false)
                         .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
                         .AddEnvironmentVariables()
                         .AddCommandLine(args)
@@ -73,10 +76,18 @@ namespace RoadRegistry.LegacyStreamExtraction
                             var s3Options = new S3BlobClientOptions();
                             hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
+                            if (Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") == null)
+                            {
+                                throw new Exception("The AWS_ACCESS_KEY_ID environment variable was not set.");
+                            }
+                            if (Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") == null)
+                            {
+                                throw new Exception("The AWS_SECRET_ACCESS_KEY environment variable was not set.");
+                            }
                             builder.AddSingleton(new AmazonS3Client(
                                 new BasicAWSCredentials(
-                                    s3Options.AwsAccessKeyId,
-                                    s3Options.AwsSecretAccessKey)
+                                    Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
+                                    Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"))
                                 )
                             );
                             builder.AddSingleton<IBlobClient>(sp =>
@@ -166,7 +177,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                     using (var connection = new SqlConnection(builder.ConnectionString))
                     {
                         await connection.OpenAsync(token).ConfigureAwait(false);
-                        using (var command = new SqlCommand(@"SELECT 
+                        using (var command = new SqlCommand(@"SELECT
     (SELECT COUNT(*) FROM [dbo].[wegknoop]) AS RoadNodeCount,
     (SELECT COUNT(*) FROM [dbo].[wegsegment]) AS RoadSegmentCount,
     (SELECT COUNT(*) FROM [dbo].[listOrganisatie]) AS OrganizationCount,

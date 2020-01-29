@@ -126,79 +126,96 @@ namespace RoadRegistry.BackOffice.Core
             );
         }
 
-        public Problems RoadSegmentLaneAttributeFromPositionNotEqualToZero(AttributeId attributeId)
+        public Problems RoadSegmentLaneAttributeFromPositionNotEqualToZero(AttributeId attributeId,
+            RoadSegmentPosition fromPosition)
         {
             return new Problems(
                 _problems.Add(
                     new Error(nameof(RoadSegmentLaneAttributeFromPositionNotEqualToZero),
-                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
+                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()),
+                        new ProblemParameter("FromPosition", fromPosition.ToString()))));
         }
 
-        public Problems RoadSegmentLaneAttributesNotAdjacent(AttributeId attributeId1, AttributeId attributeId2)
+        public Problems RoadSegmentLaneAttributesNotAdjacent(AttributeId attributeId1, RoadSegmentPosition toPosition, AttributeId attributeId2, RoadSegmentPosition fromPosition)
         {
             return new Problems(
                 _problems.Add(
                     new Error(nameof(RoadSegmentLaneAttributesNotAdjacent),
                         new ProblemParameter("AttributeId", attributeId1.ToInt32().ToString()),
-                        new ProblemParameter("AttributeId", attributeId2.ToInt32().ToString()))));
+                        new ProblemParameter("ToPosition", toPosition.ToString()),
+                        new ProblemParameter("AttributeId", attributeId2.ToInt32().ToString()),
+                        new ProblemParameter("FromPosition", fromPosition.ToString()))));
         }
 
-        public Problems RoadSegmentLaneAttributeToPositionNotEqualToLength(AttributeId attributeId)
+        public Problems RoadSegmentLaneAttributeToPositionNotEqualToLength(AttributeId attributeId,
+            RoadSegmentPosition toPosition, double length)
         {
             return new Problems(
                 _problems.Add(
                     new Error(nameof(RoadSegmentLaneAttributeToPositionNotEqualToLength),
-                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
+                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()),
+                        new ProblemParameter("ToPosition", toPosition.ToString()),
+                        new ProblemParameter("Length", length.ToString(CultureInfo.InvariantCulture)))));
         }
 
-        public Problems RoadSegmentWidthAttributeFromPositionNotEqualToZero(AttributeId attributeId)
+        public Problems RoadSegmentWidthAttributeFromPositionNotEqualToZero(AttributeId attributeId, RoadSegmentPosition fromPosition)
         {
             return new Problems(
                 _problems.Add(
                     new Error(nameof(RoadSegmentWidthAttributeFromPositionNotEqualToZero),
-                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
+                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()),
+                        new ProblemParameter("FromPosition", fromPosition.ToString()))));
         }
 
-        public Problems RoadSegmentWidthAttributesNotAdjacent(AttributeId attributeId1, AttributeId attributeId2)
+        public Problems RoadSegmentWidthAttributesNotAdjacent(AttributeId attributeId1, RoadSegmentPosition toPosition, AttributeId attributeId2, RoadSegmentPosition fromPosition)
         {
             return new Problems(
                 _problems.Add(
                     new Error(nameof(RoadSegmentWidthAttributesNotAdjacent),
                         new ProblemParameter("AttributeId", attributeId1.ToInt32().ToString()),
-                        new ProblemParameter("AttributeId", attributeId2.ToInt32().ToString()))));
+                        new ProblemParameter("ToPosition", toPosition.ToString()),
+                        new ProblemParameter("AttributeId", attributeId2.ToInt32().ToString()),
+                        new ProblemParameter("FromPosition", fromPosition.ToString()))));
         }
 
-        public Problems RoadSegmentWidthAttributeToPositionNotEqualToLength(AttributeId attributeId)
+        public Problems RoadSegmentWidthAttributeToPositionNotEqualToLength(AttributeId attributeId, RoadSegmentPosition toPosition, double length)
         {
             return new Problems(
                 _problems.Add(
                     new Error(nameof(RoadSegmentWidthAttributeToPositionNotEqualToLength),
-                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
+                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()),
+                        new ProblemParameter("ToPosition", toPosition.ToString()),
+                        new ProblemParameter("Length", length.ToString(CultureInfo.InvariantCulture)))));
         }
 
-        public Problems RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(AttributeId attributeId)
+        public Problems RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(AttributeId attributeId, RoadSegmentPosition fromPosition)
         {
             return new Problems(
                 _problems.Add(
                     new Error(nameof(RoadSegmentSurfaceAttributeFromPositionNotEqualToZero),
-                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
+                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()),
+                        new ProblemParameter("FromPosition", fromPosition.ToString()))));
         }
 
-        public Problems RoadSegmentSurfaceAttributesNotAdjacent(AttributeId attributeId1, AttributeId attributeId2)
+        public Problems RoadSegmentSurfaceAttributesNotAdjacent(AttributeId attributeId1, RoadSegmentPosition toPosition, AttributeId attributeId2, RoadSegmentPosition fromPosition)
         {
             return new Problems(
                 _problems.Add(
                     new Error(nameof(RoadSegmentSurfaceAttributesNotAdjacent),
                         new ProblemParameter("AttributeId", attributeId1.ToInt32().ToString()),
-                        new ProblemParameter("AttributeId", attributeId2.ToInt32().ToString()))));
+                        new ProblemParameter("ToPosition", toPosition.ToString()),
+                        new ProblemParameter("AttributeId", attributeId2.ToInt32().ToString()),
+                        new ProblemParameter("FromPosition", fromPosition.ToString()))));
         }
 
-        public Problems RoadSegmentSurfaceAttributeToPositionNotEqualToLength(AttributeId attributeId)
+        public Problems RoadSegmentSurfaceAttributeToPositionNotEqualToLength(AttributeId attributeId, RoadSegmentPosition toPosition, double length)
         {
             return new Problems(
                 _problems.Add(
                     new Error(nameof(RoadSegmentSurfaceAttributeToPositionNotEqualToLength),
-                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()))));
+                        new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()),
+                        new ProblemParameter("ToPosition", toPosition.ToString()),
+                        new ProblemParameter("Length", length.ToString(CultureInfo.InvariantCulture)))));
         }
 
         public Problems RoadSegmentPointMeasureValueOutOfRange(double pointX, double pointY, double measure, double measureLowerBoundary, double measureUpperBoundary)

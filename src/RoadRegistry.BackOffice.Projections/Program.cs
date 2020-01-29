@@ -136,7 +136,7 @@ namespace RoadRegistry.BackOffice.Projections
                 {
                     try
                     {
-                        runner.CatchupPageSize = 200_000;
+                        runner.CatchupPageSize = 10_000;
 
                         await runner.StartAsync(streamStore, host.Services.GetService<Func<Owned<ShapeContext>>>(), source.Token);
                         await host.RunAsync();
