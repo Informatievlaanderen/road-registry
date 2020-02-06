@@ -49,9 +49,7 @@ structurizr-*.json
 appsettings.BitTacklr002.json
 .local
 run-local.bat
-
-docker_personal.sh
-appsettings.personal.json
+docker_local.sh
 
 # don't check the dev certificates in
 *.cer

@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.aocws977.json">
+    <None Update="appsettings.seabeast.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.json">
@@ -22,10 +22,6 @@
     <None Update="Dockerfile">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="output" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

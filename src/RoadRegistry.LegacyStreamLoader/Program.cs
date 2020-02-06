@@ -35,12 +35,21 @@ namespace RoadRegistry.LegacyStreamLoader
                 Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
 
             var host = new HostBuilder()
+                .ConfigureHostConfiguration(builder => {
+                    builder
+                        .AddEnvironmentVariables("DOTNET_");
+                })
                 .ConfigureAppConfiguration((hostContext, builder) =>
                 {
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
+                    if(hostContext.HostingEnvironment.IsProduction())
+                    {
+                        builder
+                            .SetBasePath(Directory.GetCurrentDirectory());
+                    }
+
                     builder
-                        .SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json", true, false)
                         .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
                         .AddEnvironmentVariables()
@@ -201,11 +210,18 @@ namespace RoadRegistry.LegacyStreamLoader
                     using (var connection = new SqlConnection(builder.ConnectionString))
                     {
                         await connection.OpenAsync(token).ConfigureAwait(false);
+                        const string text = "SELECT COUNT(*) FROM [SYS].[DATABASES] WHERE [Name] = N'RoadRegistry'";
+                        using(var command = new SqlCommand(text, connection))
+                        {
+                            var value = await command.ExecuteScalarAsync(token);
+                            exit = (int) value == 1;
+                        }
                         exit = true;
                     }
                 }
-                catch
+                catch(Exception exception)
                 {
+                    logger.LogWarning(exception, "Encountered an exception while waiting for sql server to become available");
                     await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
                 }
             }

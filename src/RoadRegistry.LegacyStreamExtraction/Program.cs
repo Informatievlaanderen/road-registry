@@ -34,16 +34,22 @@ namespace RoadRegistry.LegacyStreamExtraction
                 Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
 
             var host = new HostBuilder()
+                .ConfigureHostConfiguration(builder => {
+                    builder
+                        .AddEnvironmentVariables("DOTNET_");
+                })
                 .ConfigureAppConfiguration((hostContext, builder) =>
                 {
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-                    Console.WriteLine(hostContext.HostingEnvironment.EnvironmentName);
+                    if(hostContext.HostingEnvironment.IsProduction())
+                    {
+                        builder
+                            .SetBasePath(Directory.GetCurrentDirectory());
+                    }
 
                     builder
-                        .SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json", true, false)
-                        .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName}.json", true, false)
                         .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
                         .AddEnvironmentVariables()
                         .AddCommandLine(args)
