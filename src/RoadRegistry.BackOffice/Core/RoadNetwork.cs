@@ -45,7 +45,7 @@ namespace RoadRegistry.BackOffice.Core
                 .RecordUsing(Apply);
         }
 
-        public void ChangeBaseOnArchive(ArchiveId archiveId, Reason reason, OperatorName @operator,
+        public void ChangeBasedOnArchive(ArchiveId archiveId, Reason reason, OperatorName @operator,
             Organization.DutchTranslation organization, RequestedChanges requestedChanges)
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
