@@ -76,7 +76,8 @@ type alias ChangeFeedEntry =
 
 
 type alias ActivityModel =
-    { url : String
+    { feedUrl : String
+    , archiveUrl : String
     , entries : List ChangeFeedEntry
     }
 
@@ -236,7 +237,8 @@ init : String -> ( Model, Cmd Msg )
 init url =
     ( { header = Header.init |> Header.activityBecameActive
       , activity =
-            { url = String.concat [ url, "/v1/changefeed" ]
+            { feedUrl = String.concat [ url, "/v1/changefeed" ]
+            , archiveUrl = String.concat [ url, "/v1/upload/"]
             , entries = []
             }
       , alert =
@@ -277,7 +279,7 @@ update msg model =
         Tick _ ->
             ( model
             , Http.get
-                { url = model.activity.url
+                { url = model.activity.feedUrl
                 , expect = Http.expectJson GotActivity decodeResponse
                 }
             )
@@ -329,8 +331,21 @@ update msg model =
                             )
 
 
-viewActivityEntryContent : ChangeFeedEntryContent -> Html Msg
-viewActivityEntryContent content =
+viewArchiveLinkContent: String -> Archive -> Html Msg
+viewArchiveLinkContent url archive =
+    if not archive.available then
+      text archive.filename
+    else
+      a [ href (String.concat [ url, archive.id ]), class "link--icon link--icon--inline" ]
+      [ i [ class "vi vi-paperclip", ariaHidden True ]
+          []
+      , text archive.filename
+      ]
+
+
+
+viewActivityEntryContent : String -> ChangeFeedEntryContent -> Html Msg
+viewActivityEntryContent url content =
     case content of
         BeganRoadNetworkImport ->
             div [ class "step__content" ]
@@ -343,11 +358,7 @@ viewActivityEntryContent content =
         RoadNetworkChangesArchiveUploaded uploaded ->
             div [ class "step__content" ]
                 [ text "Archief: "
-                , a [ href "", class "link--icon link--icon--inline" ]
-                    [ i [ class "vi vi-paperclip", ariaHidden True ]
-                        []
-                    , text uploaded.archive.filename
-                    ]
+                , viewArchiveLinkContent url uploaded.archive
                 ]
 
         RoadNetworkChangesArchiveRejected rejected ->
@@ -388,11 +399,7 @@ viewActivityEntryContent content =
                     )
                 , br [] []
                 , text "Archief: "
-                , a [ href "", class "link--icon link--icon--inline" ]
-                    [ i [ class "vi vi-paperclip", ariaHidden True ]
-                        []
-                    , text rejected.archive.filename
-                    ]
+                , viewArchiveLinkContent url rejected.archive
                 ]
 
         RoadNetworkChangesArchiveAccepted accepted ->
@@ -439,11 +446,7 @@ viewActivityEntryContent content =
                             )
                         , br [] []
                         , text "Archief: "
-                        , a [ href "", class "link--icon link--icon--inline" ]
-                            [ i [ class "vi vi-paperclip", ariaHidden True ]
-                                []
-                            , text accepted.archive.filename
-                            ]
+                        , viewArchiveLinkContent url accepted.archive
                         ]
 
         RoadNetworkChangesBasedOnArchiveRejected rejected ->
@@ -484,15 +487,11 @@ viewActivityEntryContent content =
                     )
                 , br [] []
                 , text "Archief: "
-                , a [ href "", class "link--icon link--icon--inline" ]
-                    [ i [ class "vi vi-paperclip", ariaHidden True ]
-                        []
-                    , text rejected.archive.filename
-                    ]
+                , viewArchiveLinkContent url rejected.archive
                 ]
 
-viewActivityEntry : ChangeFeedEntry -> Html Msg
-viewActivityEntry entry =
+viewActivityEntry : String -> ChangeFeedEntry -> Html Msg
+viewActivityEntry url entry =
     li
         [ classList [ ( "step", True ), ( "js-accordion", True ) ] ]
         [ div [ class "step__icon" ]
@@ -557,7 +556,7 @@ viewActivityEntry entry =
                 ]
             , div
                 [ class "step__content-wrapper" ]
-                [ viewActivityEntryContent entry.content
+                [ viewActivityEntryContent url entry.content
                 ]
             ]
         ]
@@ -583,7 +582,7 @@ viewActivity model =
             [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
             [ ul
                 [ class "steps steps--timeline" ]
-                (List.map viewActivityEntry model.entries)
+                (List.map (viewActivityEntry model.archiveUrl) model.entries)
             ]
         ]
 

@@ -94,10 +94,12 @@ namespace RoadRegistry.Api.Uploads
 
         [HttpGet("{identifier}")]
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BasicApiProblem), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Get([FromServices] IBlobClient client, string identifier)
         {
-            if (identifier == null)
+            if (!ArchiveId.Accepts(identifier))
             {
                 return BadRequest();
             }

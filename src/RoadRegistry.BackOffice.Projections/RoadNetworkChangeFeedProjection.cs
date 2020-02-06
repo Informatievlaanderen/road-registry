@@ -165,7 +165,7 @@ namespace RoadRegistry.BackOffice.Projections
                     new RoadNetworkChange
                     {
                         Id = envelope.Position,
-                        Title = "Oplading werd aanvaard",
+                        Title = $"Wijziging via oplading \"{envelope.Message.Reason}\" door {envelope.Message.Operator}({envelope.Message.Organization}) werd aanvaard",
                         Type = nameof(RoadNetworkChangesBasedOnArchiveAccepted),
                         Content = JsonConvert.SerializeObject(content),
                         When = envelope.Message.When
@@ -198,7 +198,7 @@ namespace RoadRegistry.BackOffice.Projections
                     new RoadNetworkChange
                     {
                         Id = envelope.Position,
-                        Title = "Wijziging op basis van oplading werd geweigerd",
+                        Title = $"Wijziging via oplading \"{envelope.Message.Reason}\" door {envelope.Message.Operator}({envelope.Message.Organization}) werd geweigerd",
                         Type = nameof(RoadNetworkChangesBasedOnArchiveRejected),
                         Content = JsonConvert.SerializeObject(content),
                         When = envelope.Message.When
