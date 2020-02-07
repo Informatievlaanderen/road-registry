@@ -62,8 +62,8 @@ Target "PushContainer_Api" (fun _ -> push "backoffice-api")
 Target "Containerize_UI" (fun _ -> containerize "RoadRegistry.UI" "backoffice-ui")
 Target "PushContainer_UI" (fun _ -> push "backoffice-ui")
 
-Target "Containerize_Projections" (fun _ -> containerize "RoadRegistry.BackOffice.Projections" "backoffice-projections")
-Target "PushContainer_Projections" (fun _ -> push "backoffice-projections")
+Target "Containerize_Projections" (fun _ -> containerize "RoadRegistry.BackOffice.Projections" "backoffice-projectionhost")
+Target "PushContainer_Projections" (fun _ -> push "backoffice-projectionhost")
 
 Target "Containerize_EventHost" (fun _ -> containerize "RoadRegistry.BackOffice.EventHost" "backoffice-eventhost")
 Target "PushContainer_EventHost" (fun _ -> push "backoffice-eventhost")
@@ -71,11 +71,11 @@ Target "PushContainer_EventHost" (fun _ -> push "backoffice-eventhost")
 Target "Containerize_CommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
 Target "PushContainer_CommandHost" (fun _ -> push "backoffice-commandhost")
 
-Target "Containerize_LegacyStreamLoader" (fun _ -> containerize "RoadRegistry.LegacyStreamLoader" "legacystreamloader")
-Target "PushContainer_LegacyStreamLoader" (fun _ -> push "legacystreamloader")
+Target "Containerize_LegacyStreamLoader" (fun _ -> containerize "RoadRegistry.LegacyStreamLoader" "legacy-stream-loader")
+Target "PushContainer_LegacyStreamLoader" (fun _ -> push "legacy-stream-loader")
 
-Target "Containerize_LegacyStreamExtraction" (fun _ -> containerize "RoadRegistry.LegacyStreamExtraction" "legacystreamextraction")
-Target "PushContainer_LegacyStreamExtraction" (fun _ -> push "legacystreamextraction")
+Target "Containerize_LegacyStreamExtraction" (fun _ -> containerize "RoadRegistry.LegacyStreamExtraction" "legacy-stream-extraction")
+Target "PushContainer_LegacyStreamExtraction" (fun _ -> push "legacy-stream-extraction")
 
 // --------------------------------------------------------------------------------
 
