@@ -43,17 +43,17 @@ namespace RoadRegistry.UI
                 }
             });
 
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
-
-            app.Run(async context =>
+            app.UseWhen(IsConfigPath, builder =>
             {
-                if (IsConfigPath(context))
+                builder.Run(async context =>
                 {
                     context.Response.ContentType = "application/javascript";
                     await context.Response.WriteAsync(BuildConfigJavascript(env));
-                }
+                });
             });
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
         }
 
         public IConfiguration Configuration { get; }
@@ -88,7 +88,10 @@ namespace RoadRegistry.UI
         private static bool IsConfigPath(HttpContext context)
         {
             return context.Request.Path.HasValue &&
-                   string.Equals(context.Request.Path.Value.ToLowerInvariant(), "/config.js", StringComparison.OrdinalIgnoreCase);
+                (
+                   string.Equals(context.Request.Path.Value.ToLowerInvariant(), "/config.js", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(context.Request.Path.Value.ToLowerInvariant(), "/config.f84e1103.js", StringComparison.OrdinalIgnoreCase)
+                );
         }
 
         private string BuildConfigJavascript(IHostingEnvironment env)
