@@ -3,6 +3,7 @@
 namespace RoadRegistry.BackOffice.Simulator
 {
     using System.IO;
+    using System.IO.Compression;
     using System.Text;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
@@ -19,13 +20,13 @@ namespace RoadRegistry.BackOffice.Simulator
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             var node1Record = new RoadNodeChangeDbaseRecord();
-            node1Record.TYPE.Value = (short)RoadNodeType.FakeNode.Translation.Identifier;
+            node1Record.TYPE.Value = (short)RoadNodeType.EndNode.Translation.Identifier;
             node1Record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
             node1Record.WEGKNOOPID.Value = 1;
             var node1Shape = new PointShapeContent(new Point(0.0, 0.0));
 
             var node2Record = new RoadNodeChangeDbaseRecord();
-            node2Record.TYPE.Value = (short)RoadNodeType.FakeNode.Translation.Identifier;
+            node2Record.TYPE.Value = (short)RoadNodeType.EndNode.Translation.Identifier;
             node2Record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
             node2Record.WEGKNOOPID.Value = 2;
             var node2Shape = new PointShapeContent(new Point(0.0, 1.0));
@@ -48,7 +49,7 @@ namespace RoadRegistry.BackOffice.Simulator
                 new NetTopologySuite.Geometries.LineString(new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(new[]
                 {
                     new NetTopologySuite.Geometries.CoordinateM(0.0, 0.0, 0.0),
-                    new NetTopologySuite.Geometries.CoordinateM(0.0, 1.0, 0.0)
+                    new NetTopologySuite.Geometries.CoordinateM(0.0, 1.0, 1.0)
                 }), GeometryConfiguration.GeometryFactory)
             })));
 
@@ -267,6 +268,50 @@ namespace RoadRegistry.BackOffice.Simulator
             using (var gradeSeparatedJunctionDbaseWriter = new DbaseBinaryWriter(gradeSeparatedJunctionDbaseHeader, gradeSeparatedJunctionDbaseFile))
             {
                 gradeSeparatedJunctionDbaseWriter.Write(gradeSeparatedJunctionRecord);
+            }
+
+
+            // transaction zone
+            var transactionZoneRecord = new TransactionZoneDbaseRecord();
+            transactionZoneRecord.ORG.Value = "11053";
+            transactionZoneRecord.OPERATOR.Value = "Yves Reynhout";
+            transactionZoneRecord.TYPE.Value = 1;
+            transactionZoneRecord.SOURCE_ID.Value = 1;
+            transactionZoneRecord.BESCHRIJV.Value = "Nieuwe wijk";
+            transactionZoneRecord.APPLICATIE.Value = "Wegenregister BLL";
+
+            var transactionZoneDbaseHeader = new DbaseFileHeader(
+                DateTime.Now,
+                DbaseCodePage.Western_European_ANSI,
+                new DbaseRecordCount(1),
+                TransactionZoneDbaseRecord.Schema);
+
+            using (var transactionZoneDbaseFile = new BinaryWriter(File.OpenWrite("output/TRANSACTIEZONE.DBF")))
+            using (var transactionZoneDbaseWriter = new DbaseBinaryWriter(transactionZoneDbaseHeader, transactionZoneDbaseFile))
+            {
+                transactionZoneDbaseWriter.Write(transactionZoneRecord);
+            }
+
+            var suffix =
+                DateTimeOffset.UtcNow.ToString("yyyyMMdd") + "-" +
+                Convert.ToInt32(DateTimeOffset.UtcNow.TimeOfDay.TotalSeconds);
+            using (var archiveStream = File.OpenWrite($"output/oplading-{suffix}.zip"))
+            using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create))
+            {
+                foreach (var file in Directory.EnumerateFiles("output"))
+                {
+                    if (file.ToLowerInvariant().EndsWith(".dbf")
+                        || file.ToLowerInvariant().EndsWith(".shp")
+                        || file.ToLowerInvariant().EndsWith(".shx"))
+                    {
+                        var entry = archive.CreateEntry(Path.GetFileName(file));
+                        using (var fileStream = File.OpenRead(file))
+                        using (var entryStream = entry.Open())
+                        {
+                            fileStream.CopyTo(entryStream);
+                        }
+                    }
+                }
             }
         }
     }
