@@ -116,15 +116,12 @@ namespace RoadRegistry.BackOffice.EventHost
                                 {
                                     logger.LogDebug("Processing stream message {MessageType} at position {Position}", process.Message.Type, process.Message.Position);
 
-                                    if (EventMapping.HasEventType(process.Message.Type))
-                                    {
-                                        var body = JsonConvert.DeserializeObject(
-                                            await process.Message.GetJsonData(_messagePumpCancellation.Token),
-                                            EventMapping.GetEventType(process.Message.Type),
-                                            SerializerSettings);
-                                        var @event = new Event(body).WithMessageId(process.Message.MessageId);
-                                        await dispatcher(@event, _messagePumpCancellation.Token);
-                                    }
+                                    var body = JsonConvert.DeserializeObject(
+                                        await process.Message.GetJsonData(_messagePumpCancellation.Token),
+                                        EventMapping.GetEventType(process.Message.Type),
+                                        SerializerSettings);
+                                    var @event = new Event(body).WithMessageId(process.Message.MessageId);
+                                    await dispatcher(@event, _messagePumpCancellation.Token);
 
                                     await positionStore.WritePosition(RoadNetworkArchiveEventQueue, process.Message.Position,
                                         _messagePumpCancellation.Token);

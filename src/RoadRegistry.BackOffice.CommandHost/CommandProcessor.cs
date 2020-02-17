@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.CommandHost
 {
     using System;
+    using System.Data.SqlClient;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -89,6 +90,8 @@ namespace RoadRegistry.BackOffice.CommandHost
                             case ProcessStreamMessage process:
                                 try
                                 {
+                                    logger.LogDebug("Processing stream message {MessageType} at position {Position}", process.Message.Type, process.Message.Position);
+
                                     var body = JsonConvert.DeserializeObject(
                                         await process.Message.GetJsonData(_messagePumpCancellation.Token),
                                         CommandMapping.GetEventType(process.Message.Type),
@@ -132,6 +135,19 @@ namespace RoadRegistry.BackOffice.CommandHost
                                 {
                                     _logger.LogError(dropped.Exception,
                                         "Subscription was dropped because of a subscriber error.");
+
+                                    if (dropped.Exception != null
+                                        && dropped.Exception is SqlException sqlException
+                                        && sqlException.Number == -2 /* timeout */)
+                                    {
+                                        scheduler.Schedule(() =>
+                                        {
+                                            if (!_messagePumpCancellation.IsCancellationRequested)
+                                            {
+                                                _messagePumpInbox.Post(new Subscribe());
+                                            }
+                                        }, ResubscribeAfter);
+                                    }
                                 }
 
                                 break;
