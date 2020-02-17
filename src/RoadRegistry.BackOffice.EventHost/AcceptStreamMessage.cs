@@ -17,7 +17,7 @@ namespace RoadRegistry.BackOffice.EventHost
                     .Where(mapping.HasEventName)
                     .Select(mapping.GetEventName)
             );
-            return message => mapping.HasEventType(message.Type) && acceptableEventNames.Contains(message.ToString());
+            return message => mapping.HasEventType(message.Type) && acceptableEventNames.Contains(message.Type);
         }
     }
 }
