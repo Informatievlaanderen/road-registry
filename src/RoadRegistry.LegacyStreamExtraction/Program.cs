@@ -42,7 +42,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                 {
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-                    if(hostContext.HostingEnvironment.IsProduction())
+                    if (hostContext.HostingEnvironment.IsProduction())
                     {
                         builder
                             .SetBasePath(Directory.GetCurrentDirectory());
@@ -52,8 +52,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         .AddJsonFile("appsettings.json", true, false)
                         .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
                         .AddEnvironmentVariables()
-                        .AddCommandLine(args)
-                        .Build();
+                        .AddCommandLine(args);
                 })
                 .ConfigureLogging((hostContext, builder) =>
                 {
@@ -76,6 +75,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                     var options = new BlobClientOptions();
                     hostContext.Configuration.Bind(options);
 
+                    Console.WriteLine($"Using {options.BlobClientType}");
                     switch (options.BlobClientType)
                     {
                         case nameof(S3BlobClient):
@@ -165,10 +165,10 @@ namespace RoadRegistry.LegacyStreamExtraction
             catch (Exception exception)
             {
                 logger.LogCritical(exception, "Encountered a fatal exception, exiting program.");
+            }
+            finally
+            {
                 Log.CloseAndFlush();
-                // Allow some time for flushing before shutdown.
-                Thread.Sleep(1000);
-                throw;
             }
         }
 

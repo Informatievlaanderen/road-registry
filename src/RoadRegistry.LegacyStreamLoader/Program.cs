@@ -43,7 +43,7 @@ namespace RoadRegistry.LegacyStreamLoader
                 {
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-                    if(hostContext.HostingEnvironment.IsProduction())
+                    if (hostContext.HostingEnvironment.IsProduction())
                     {
                         builder
                             .SetBasePath(Directory.GetCurrentDirectory());
@@ -83,10 +83,19 @@ namespace RoadRegistry.LegacyStreamLoader
                             var s3Options = new S3BlobClientOptions();
                             hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
+                            if (Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") == null)
+                            {
+                                throw new Exception("The AWS_ACCESS_KEY_ID environment variable was not set.");
+                            }
+                            if (Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") == null)
+                            {
+                                throw new Exception("The AWS_SECRET_ACCESS_KEY environment variable was not set.");
+                            }
+
                             builder.AddSingleton(new AmazonS3Client(
-                                new BasicAWSCredentials(
-                                    s3Options.AwsAccessKeyId,
-                                    s3Options.AwsSecretAccessKey)
+                                    new BasicAWSCredentials(
+                                        Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
+                                        Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"))
                                 )
                             );
                             builder.AddSingleton<IBlobClient>(sp =>
@@ -159,6 +168,7 @@ namespace RoadRegistry.LegacyStreamLoader
                 };
 
                 await WaitForSqlServer(builder, logger).ConfigureAwait(false);
+                await CreateDatabase(builder).ConfigureAwait(false);
 
                 if (streamStore is MsSqlStreamStore sqlStreamStore)
                 {
@@ -192,10 +202,10 @@ namespace RoadRegistry.LegacyStreamLoader
             catch (Exception exception)
             {
                 logger.LogCritical(exception, "Encountered a fatal exception, exiting program.");
+            }
+            finally
+            {
                 Log.CloseAndFlush();
-                // Allow some time for flushing before shutdown.
-                Thread.Sleep(1000);
-                throw;
             }
         }
 
@@ -223,6 +233,19 @@ namespace RoadRegistry.LegacyStreamLoader
                 {
                     logger.LogWarning(exception, "Encountered an exception while waiting for sql server to become available");
                     await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+                }
+            }
+        }
+
+        private static async Task CreateDatabase(SqlConnectionStringBuilder builder, CancellationToken token = default)
+        {
+            using (var connection = new SqlConnection(builder.ConnectionString))
+            {
+                await connection.OpenAsync(token).ConfigureAwait(false);
+                const string text = @"IF NOT EXISTS (SELECT * FROM [SYS].[DATABASES] WHERE [Name] = N'RoadRegistry') BEGIN CREATE DATABASE [RoadRegistry] END;";
+                using (var command = new SqlCommand(text, connection))
+                {
+                    await command.ExecuteNonQueryAsync(token);
                 }
             }
         }

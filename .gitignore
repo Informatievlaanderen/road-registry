@@ -52,6 +52,7 @@ appsettings.BitTacklr002.json
 .local
 run-local.bat
 docker_local.sh
+appsettings.seawolf.json
 
 # don't check the dev certificates in
 *.cer
