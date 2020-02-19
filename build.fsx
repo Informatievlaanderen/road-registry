@@ -56,26 +56,26 @@ Target "Publish_Solution" (fun _ ->
 
 Target "Pack_Solution" DoNothing
 
-Target "Containerize_Api" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
-Target "PushContainer_Api" (fun _ -> push "backoffice-api")
+Target "Containerize_BackOfficeApi" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
+Target "PushContainer_BackOfficeApi" (fun _ -> push "backoffice-api")
 
-Target "Containerize_UI" (fun _ -> containerize "RoadRegistry.UI" "backoffice-ui")
-Target "PushContainer_UI" (fun _ -> push "backoffice-ui")
+Target "Containerize_BackOfficeUI" (fun _ -> containerize "RoadRegistry.UI" "backoffice-ui")
+Target "PushContainer_BackOfficeUI" (fun _ -> push "backoffice-ui")
 
-Target "Containerize_Projections" (fun _ -> containerize "RoadRegistry.BackOffice.Projections" "backoffice-projectionhost")
+Target "Containerize_BackOfficeProjectionHost" (fun _ -> containerize "RoadRegistry.BackOffice.Projections" "backoffice-projectionhost")
 Target "PushContainer_Projections" (fun _ -> push "backoffice-projectionhost")
 
-Target "Containerize_EventHost" (fun _ -> containerize "RoadRegistry.BackOffice.EventHost" "backoffice-eventhost")
+Target "Containerize_BackOfficeEventHost" (fun _ -> containerize "RoadRegistry.BackOffice.EventHost" "backoffice-eventhost")
 Target "PushContainer_EventHost" (fun _ -> push "backoffice-eventhost")
 
-Target "Containerize_CommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
+Target "Containerize_BackOfficeCommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
 Target "PushContainer_CommandHost" (fun _ -> push "backoffice-commandhost")
 
-Target "Containerize_LegacyStreamLoader" (fun _ -> containerize "RoadRegistry.LegacyStreamLoader" "legacy-stream-loader")
-Target "PushContainer_LegacyStreamLoader" (fun _ -> push "legacy-stream-loader")
+Target "Containerize_ImportLegacy" (fun _ -> containerize "RoadRegistry.LegacyStreamLoader" "import-legacy")
+Target "PushContainer_ImportLegacy" (fun _ -> push "import-legacy")
 
-Target "Containerize_LegacyStreamExtraction" (fun _ -> containerize "RoadRegistry.LegacyStreamExtraction" "legacy-stream-extraction")
-Target "PushContainer_LegacyStreamExtraction" (fun _ -> push "legacy-stream-extraction")
+Target "Containerize_ExtractLegacy" (fun _ -> containerize "RoadRegistry.LegacyStreamExtraction" "extract-legacy")
+Target "PushContainer_ExtractLegacy" (fun _ -> push "extract-legacy")
 
 // --------------------------------------------------------------------------------
 
@@ -100,25 +100,25 @@ Target "Push" DoNothing
 "Publish"            ==> "Pack"
 "Pack_Solution"      ==> "Pack"
 
-"Pack"                                    ==> "Containerize"
-"Containerize_Api"                        ==> "Containerize"
-"Containerize_UI"                         ==> "Containerize"
-"Containerize_Projections"                ==> "Containerize"
-"Containerize_EventHost"                  ==> "Containerize"
-"Containerize_CommandHost"                ==> "Containerize"
-"Containerize_LegacyStreamLoader"         ==> "Containerize"
-"Containerize_LegacyStreamExtraction"     ==> "Containerize"
+"Pack"                                  ==> "Containerize"
+"Containerize_BackOfficeApi"            ==> "Containerize"
+"Containerize_BackOfficeUI"             ==> "Containerize"
+"Containerize_BackOfficeProjectionHost" ==> "Containerize"
+"Containerize_BackOfficeEventHost"      ==> "Containerize"
+"Containerize_BackOfficeCommandHost"    ==> "Containerize"
+"Containerize_ImportLegacy"             ==> "Containerize"
+"Containerize_ExtractLegacy"            ==> "Containerize"
 // Possibly add more projects to containerize here
 
-"Containerize"                            ==> "Push"
-"DockerLogin"                             ==> "Push"
-"PushContainer_Api"                       ==> "Push"
-"PushContainer_UI"                        ==> "Push"
-"PushContainer_Projections"               ==> "Push"
-"PushContainer_EventHost"                 ==> "Push"
-"PushContainer_CommandHost"               ==> "Push"
-"PushContainer_LegacyStreamLoader"        ==> "Push"
-"PushContainer_LegacyStreamExtraction"    ==> "Push"
+"Containerize"                ==> "Push"
+"DockerLogin"                 ==> "Push"
+"PushContainer_BackOfficeApi" ==> "Push"
+"PushContainer_BackOfficeUI"  ==> "Push"
+"PushContainer_Projections"   ==> "Push"
+"PushContainer_EventHost"     ==> "Push"
+"PushContainer_CommandHost"   ==> "Push"
+"PushContainer_ImportLegacy"  ==> "Push"
+"PushContainer_ExtractLegacy" ==> "Push"
 // Possibly add more projects to push here
 
 // By default we build & test
