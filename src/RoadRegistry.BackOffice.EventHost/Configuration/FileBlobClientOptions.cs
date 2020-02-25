@@ -1,4 +1,4 @@
-namespace RoadRegistry.LegacyStreamLoader.Configuration
+namespace RoadRegistry.BackOffice.EventHost.Configuration
 {
     public class FileBlobClientOptions
     {

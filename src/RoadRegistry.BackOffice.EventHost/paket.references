@@ -27,5 +27,7 @@ Serilog.Enrichers.Environment
 
 System.Text.Encoding.CodePages
 
+AWSSDK.S3
+
 Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac

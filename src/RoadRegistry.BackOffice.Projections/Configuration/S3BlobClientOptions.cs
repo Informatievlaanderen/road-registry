@@ -1,4 +1,4 @@
-namespace RoadRegistry.LegacyStreamLoader.Configuration
+namespace RoadRegistry.BackOffice.Projections.Configuration
 {
     public class S3BlobClientOptions
     {

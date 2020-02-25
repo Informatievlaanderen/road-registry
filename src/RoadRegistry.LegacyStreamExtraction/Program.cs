@@ -4,11 +4,14 @@ namespace RoadRegistry.LegacyStreamExtraction
     using System.Data;
     using System.Data.SqlClient;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Amazon;
     using Amazon.Runtime;
     using Amazon.S3;
+    using Amazon.S3.Model;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
@@ -72,34 +75,63 @@ namespace RoadRegistry.LegacyStreamExtraction
                 })
                 .ConfigureServices((hostContext, builder) =>
                 {
-                    var options = new BlobClientOptions();
-                    hostContext.Configuration.Bind(options);
+                    var blobOptions = new BlobClientOptions();
+                    hostContext.Configuration.Bind(blobOptions);
 
-                    Console.WriteLine($"Using {options.BlobClientType}");
-                    switch (options.BlobClientType)
+                    switch (blobOptions.BlobClientType)
                     {
                         case nameof(S3BlobClient):
                             var s3Options = new S3BlobClientOptions();
                             hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
-                            if (Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") == null)
+                            // Use MINIO
+                            if (Environment.GetEnvironmentVariable("MINIO_SERVER") != null)
                             {
-                                throw new Exception("The AWS_ACCESS_KEY_ID environment variable was not set.");
+                                if (Environment.GetEnvironmentVariable("MINIO_ACCESS_KEY") == null)
+                                {
+                                    throw new Exception("The MINIO_ACCESS_KEY environment variable was not set.");
+                                }
+                                if (Environment.GetEnvironmentVariable("MINIO_SECRET_KEY") == null)
+                                {
+                                    throw new Exception("The MINIO_SECRET_KEY environment variable was not set.");
+                                }
+
+                                builder.AddSingleton(new AmazonS3Client(
+                                        new BasicAWSCredentials(
+                                            Environment.GetEnvironmentVariable("MINIO_ACCESS_KEY"),
+                                            Environment.GetEnvironmentVariable("MINIO_SECRET_KEY")),
+                                        new AmazonS3Config
+                                        {
+                                            RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
+                                            ServiceURL = Environment.GetEnvironmentVariable("MINIO_SERVER"),
+                                            ForcePathStyle = true
+                                        }
+                                    )
+                                );
+
                             }
-                            if (Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") == null)
+                            else // Use AWS
                             {
-                                throw new Exception("The AWS_SECRET_ACCESS_KEY environment variable was not set.");
+                                if (Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") == null)
+                                {
+                                    throw new Exception("The AWS_ACCESS_KEY_ID environment variable was not set.");
+                                }
+                                if (Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") == null)
+                                {
+                                    throw new Exception("The AWS_SECRET_ACCESS_KEY environment variable was not set.");
+                                }
+                                builder.AddSingleton(new AmazonS3Client(
+                                        new BasicAWSCredentials(
+                                            Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
+                                            Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"))
+                                    )
+                                );
                             }
-                            builder.AddSingleton(new AmazonS3Client(
-                                new BasicAWSCredentials(
-                                    Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
-                                    Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"))
-                                )
-                            );
+
                             builder.AddSingleton<IBlobClient>(sp =>
                                 new S3BlobClient(
                                     sp.GetService<AmazonS3Client>(),
-                                    s3Options.OutputBucket
+                                    s3Options.BucketPrefix + WellknownBuckets.ImportLegacyBucket
                                 )
                             );
                             break;
@@ -109,14 +141,10 @@ namespace RoadRegistry.LegacyStreamExtraction
 
                             builder.AddSingleton<IBlobClient>(sp =>
                                 new FileBlobClient(
-                                    new DirectoryInfo(fileOptions.OutputDirectory)
+                                    new DirectoryInfo(fileOptions.Directory)
                                 )
                             );
 
-                            if (!Directory.Exists(fileOptions.OutputDirectory))
-                            {
-                                Directory.CreateDirectory(fileOptions.OutputDirectory);
-                            }
                             break;
                     }
 
@@ -137,6 +165,8 @@ namespace RoadRegistry.LegacyStreamExtraction
                 })
                 .Build();
 
+
+            var blobClient = host.Services.GetService<IBlobClient>();
             var configuration = host.Services.GetService<IConfiguration>();
             var logger = host.Services.GetService<ILogger<Program>>();
             var reader = host.Services.GetService<IEventReader>();
@@ -154,6 +184,8 @@ namespace RoadRegistry.LegacyStreamExtraction
                 await OptimizeDatabasePerformance(
                     new SqlConnectionStringBuilder(
                         configuration.GetConnectionString(legacyDatabaseOptions.ConnectionStringName)), logger);
+
+                await blobClient.ProvisionResources(host);
 
                 using (var connection = host.Services.GetService<SqlConnection>())
                 {

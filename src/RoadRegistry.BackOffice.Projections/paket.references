@@ -34,3 +34,6 @@ Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
 Be.Vlaanderen.Basisregisters.Shaperon
+
+AWSSDK.S3
+Be.Vlaanderen.Basisregisters.BlobStore
