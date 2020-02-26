@@ -58,8 +58,13 @@ namespace RoadRegistry.BackOffice.Projections
                 {
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
+                    if (hostContext.HostingEnvironment.IsProduction())
+                    {
+                        builder
+                            .SetBasePath(Directory.GetCurrentDirectory());
+                    }
+
                     builder
-                        .SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json", true, true)
                         .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
                         .AddEnvironmentVariables()
@@ -166,8 +171,13 @@ namespace RoadRegistry.BackOffice.Projections
                             JsonConvert.DeserializeObject(data, type, SerializerSettings)))
                         .AddSingleton(sp =>
                             new MsSqlStreamStore(
-                                new MsSqlStreamStoreSettings(sp.GetService<IConfiguration>()
-                                    .GetConnectionString("Events")) {Schema = "RoadRegistry"}))
+                                new MsSqlStreamStoreSettings(
+                                    sp
+                                        .GetService<IConfiguration>()
+                                        .GetConnectionString(WellknownConnectionNames.Events))
+                                {
+                                    Schema = WellknownSchemas.EventSchema
+                                }))
                         .AddSingleton<IStreamStore>(sp => sp.GetRequiredService<MsSqlStreamStore>())
                         .AddSingleton<IReadonlyStreamStore>(sp => sp.GetRequiredService<MsSqlStreamStore>())
                         .AddSingleton<IClock>(SystemClock.Instance)
@@ -179,7 +189,7 @@ namespace RoadRegistry.BackOffice.Projections
                             sp.GetService<RecyclableMemoryStreamManager>()))
                         .AddDbContext<ShapeContext>((sp, options) => options
                             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                            .UseSqlServer(sp.GetService<IConfiguration>().GetConnectionString("ShapeProjections"),
+                            .UseSqlServer(sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ShapeProjections),
                                 sqlServerOptions =>
                                 {
                                     sqlServerOptions.EnableRetryOnFailure();
@@ -207,7 +217,7 @@ namespace RoadRegistry.BackOffice.Projections
                 await streamStore.WaitUntilAvailable();
 
                 MigrationsHelper.Run(
-                    configuration.GetConnectionString("ShapeProjectionsAdmin"),
+                    configuration.GetConnectionString(WellknownConnectionNames.ShapeProjectionsAdmin),
                     host.Services.GetService<ILoggerFactory>());
 
                 using (var source = new CancellationTokenSource())

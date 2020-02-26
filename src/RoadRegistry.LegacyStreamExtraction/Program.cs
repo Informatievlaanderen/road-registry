@@ -148,9 +148,6 @@ namespace RoadRegistry.LegacyStreamExtraction
                             break;
                     }
 
-                    var legacyDatabaseOptions = new LegacySqlDatabaseOptions();
-                    hostContext.Configuration.GetSection(nameof(LegacySqlDatabaseOptions)).Bind(legacyDatabaseOptions);
-
                     builder
                         .AddSingleton<WellKnownBinaryReader>()
                         .AddSingleton<RecyclableMemoryStreamManager>()
@@ -159,7 +156,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         .AddSingleton<LegacyStreamArchiveWriter>()
                         .AddSingleton(
                             new SqlConnection(
-                                hostContext.Configuration.GetConnectionString(legacyDatabaseOptions.ConnectionStringName)
+                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Legacy)
                             )
                         );
                 })
@@ -174,16 +171,13 @@ namespace RoadRegistry.LegacyStreamExtraction
 
             try
             {
-                var legacyDatabaseOptions = new LegacySqlDatabaseOptions();
-                configuration.GetSection(nameof(LegacySqlDatabaseOptions)).Bind(legacyDatabaseOptions);
-
                 await WaitForSqlServer(
                     new SqlConnectionStringBuilder(
-                        configuration.GetConnectionString(legacyDatabaseOptions.ConnectionStringName)), logger);
+                        configuration.GetConnectionString(WellknownConnectionNames.Legacy)), logger);
 
                 await OptimizeDatabasePerformance(
                     new SqlConnectionStringBuilder(
-                        configuration.GetConnectionString(legacyDatabaseOptions.ConnectionStringName)), logger);
+                        configuration.GetConnectionString(WellknownConnectionNames.Legacy)), logger);
 
                 await blobClient.ProvisionResources(host);
 

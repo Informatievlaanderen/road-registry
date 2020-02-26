@@ -21,7 +21,7 @@ namespace RoadRegistry.LegacyStreamExtraction
 
             switch (client)
             {
-                case S3BlobClient s3BlobClient:
+                case S3BlobClient _:
                     if (Environment.GetEnvironmentVariable("MINIO_SERVER") != null)
                     {
                         var s3Client = host.Services.GetService<AmazonS3Client>();
@@ -35,7 +35,7 @@ namespace RoadRegistry.LegacyStreamExtraction
                         }
                     }
                     break;
-                case FileBlobClient fileBlobClient:
+                case FileBlobClient _:
                     var fileOptions = new FileBlobClientOptions();
                     configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
 

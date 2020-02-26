@@ -147,9 +147,6 @@ namespace RoadRegistry.LegacyStreamLoader
                             break;
                     }
 
-                    var eventDatabaseOptions = new EventSqlDatabaseOptions();
-                    hostContext.Configuration.GetSection(nameof(EventSqlDatabaseOptions)).Bind(eventDatabaseOptions);
-
                     var legacyStreamArchiveReader = new LegacyStreamArchiveReader(
                         new JsonSerializerSettings
                         {
@@ -165,15 +162,15 @@ namespace RoadRegistry.LegacyStreamLoader
                         .AddSingleton(legacyStreamArchiveReader)
                         .AddSingleton(
                             new SqlConnection(
-                                hostContext.Configuration.GetConnectionString(eventDatabaseOptions.ConnectionStringName)
+                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events)
                             )
                         )
                         .AddSingleton<IStreamStore>(new MsSqlStreamStore(
                             new MsSqlStreamStoreSettings(
-                                hostContext.Configuration.GetConnectionString(eventDatabaseOptions.ConnectionStringName)
+                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events)
                             )
                             {
-                                Schema = "RoadRegistry"
+                                Schema = WellknownSchemas.EventSchema
                             }))
                         .AddSingleton<LegacyStreamEventsWriter>();
                 })
@@ -188,11 +185,8 @@ namespace RoadRegistry.LegacyStreamLoader
 
             try
             {
-                var eventDatabaseOptions = new EventSqlDatabaseOptions();
-                configuration.GetSection(nameof(EventSqlDatabaseOptions)).Bind(eventDatabaseOptions);
-
                 var builder = new SqlConnectionStringBuilder(
-                    configuration.GetConnectionString(eventDatabaseOptions.ConnectionStringName))
+                    configuration.GetConnectionString(WellknownConnectionNames.Events))
                 {
                     InitialCatalog = "master"
                 };

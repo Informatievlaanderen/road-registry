@@ -29,8 +29,6 @@
 
     public class Program
     {
-        private static readonly string Schema = "RoadRegistryEventHost";
-
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.BackOffice.EventHost");
@@ -46,8 +44,13 @@
                 {
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
+                    if (hostContext.HostingEnvironment.IsProduction())
+                    {
+                        builder
+                            .SetBasePath(Directory.GetCurrentDirectory());
+                    }
+
                     builder
-                        .SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json", true, true)
                         .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
                         .AddEnvironmentVariables()
@@ -154,13 +157,16 @@
                         .AddSingleton<IEventProcessorPositionStore>(sp =>
                             new SqlEventProcessorPositionStore(
                                 new SqlConnectionStringBuilder(
-                                    sp.GetService<IConfiguration>().GetConnectionString("EventHost")
+                                    sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EventHost)
                                 ),
-                                Schema))
+                                WellknownSchemas.EventHostSchema))
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStore(
-                                new MsSqlStreamStoreSettings(sp.GetService<IConfiguration>()
-                                    .GetConnectionString("Events")) {Schema = "RoadRegistry"}))
+                                new MsSqlStreamStoreSettings(
+                                    sp
+                                        .GetService<IConfiguration>()
+                                        .GetConnectionString(WellknownConnectionNames.Events)
+                                ) { Schema = WellknownSchemas.EventSchema }))
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
@@ -168,8 +174,8 @@
                                 new SqlConnectionStringBuilder(
                                     sp
                                         .GetService<IConfiguration>()
-                                        .GetConnectionString("Blobs")
-                                ), "RoadRegistryBlobs"),
+                                        .GetConnectionString(WellknownConnectionNames.Snapshots)
+                                ), WellknownSchemas.SnapshotSchema),
                             sp.GetService<RecyclableMemoryStreamManager>()))
                         .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                         .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
@@ -199,9 +205,13 @@
             {
                 await streamStore.WaitUntilAvailable();
                 await
+                    new SqlBlobSchema(
+                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
+                    ).CreateSchemaIfNotExists(WellknownSchemas.SnapshotSchema);
+                await
                     new SqlEventProcessorPositionStoreSchema(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString("EventHostAdmin"))
-                    ).CreateSchemaIfNotExists(Schema);
+                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
+                    ).CreateSchemaIfNotExists(WellknownSchemas.EventHostSchema);
                 await host.RunAsync();
             }
             catch (Exception e)

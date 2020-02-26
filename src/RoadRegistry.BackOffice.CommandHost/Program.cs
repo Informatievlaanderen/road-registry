@@ -7,9 +7,15 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Amazon;
+    using Amazon.Runtime;
+    using Amazon.S3;
     using Be.Vlaanderen.Basisregisters.BlobStore;
+    using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
+    using Be.Vlaanderen.Basisregisters.BlobStore.IO;
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
     using Be.Vlaanderen.Basisregisters.EventHandling;
+    using Configuration;
     using Core;
     using Destructurama;
     using Framework;
@@ -26,8 +32,6 @@
 
     public class Program
     {
-        private static readonly string Schema = "RoadRegistryCommandHost";
-
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.BackOffice.CommandHost");
@@ -43,8 +47,13 @@
                 {
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
+                    if (hostContext.HostingEnvironment.IsProduction())
+                    {
+                        builder
+                            .SetBasePath(Directory.GetCurrentDirectory());
+                    }
+
                     builder
-                        .SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json", true, true)
                         .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
                         .AddEnvironmentVariables()
@@ -69,26 +78,110 @@
                 })
                 .ConfigureServices((hostContext, builder) =>
                 {
+                var blobOptions = new BlobClientOptions();
+                    hostContext.Configuration.Bind(blobOptions);
+
+                    switch (blobOptions.BlobClientType)
+                    {
+                        case nameof(S3BlobClient):
+                            var s3Options = new S3BlobClientOptions();
+                            hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
+
+                            // Use MINIO
+                            if (Environment.GetEnvironmentVariable("MINIO_SERVER") != null)
+                            {
+                                if (Environment.GetEnvironmentVariable("MINIO_ACCESS_KEY") == null)
+                                {
+                                    throw new Exception("The MINIO_ACCESS_KEY environment variable was not set.");
+                                }
+
+                                if (Environment.GetEnvironmentVariable("MINIO_SECRET_KEY") == null)
+                                {
+                                    throw new Exception("The MINIO_SECRET_KEY environment variable was not set.");
+                                }
+
+                                builder.AddSingleton(new AmazonS3Client(
+                                        new BasicAWSCredentials(
+                                            Environment.GetEnvironmentVariable("MINIO_ACCESS_KEY"),
+                                            Environment.GetEnvironmentVariable("MINIO_SECRET_KEY")),
+                                        new AmazonS3Config
+                                        {
+                                            RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
+                                            ServiceURL = Environment.GetEnvironmentVariable("MINIO_SERVER"),
+                                            ForcePathStyle = true
+                                        }
+                                    )
+                                );
+
+                            }
+                            else // Use AWS
+                            {
+                                if (Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") == null)
+                                {
+                                    throw new Exception("The AWS_ACCESS_KEY_ID environment variable was not set.");
+                                }
+
+                                if (Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") == null)
+                                {
+                                    throw new Exception("The AWS_SECRET_ACCESS_KEY environment variable was not set.");
+                                }
+
+                                builder.AddSingleton(new AmazonS3Client(
+                                        new BasicAWSCredentials(
+                                            Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
+                                            Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"))
+                                    )
+                                );
+                            }
+                            builder.AddSingleton<IBlobClient>(sp =>
+                                new S3BlobClient(
+                                    sp.GetService<AmazonS3Client>(),
+                                    s3Options.BucketPrefix + WellknownBuckets.UploadsBucket
+                                )
+                            );
+
+                            break;
+
+                        case nameof(FileBlobClient):
+                            var fileOptions = new FileBlobClientOptions();
+                            hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
+
+                            builder.AddSingleton<IBlobClient>(sp =>
+                                new FileBlobClient(
+                                    new DirectoryInfo(fileOptions.Directory)
+                                )
+                            );
+                            break;
+                    }
+
                     builder
                         .AddSingleton<Scheduler>()
                         .AddHostedService<CommandProcessor>()
                         .AddSingleton<ICommandProcessorPositionStore>(sp =>
                             new SqlCommandProcessorPositionStore(
                                 new SqlConnectionStringBuilder(
-                                    sp.GetService<IConfiguration>().GetConnectionString("CommandHost")
+                                    sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.CommandHost)
                                 ),
-                                Schema))
+                                WellknownSchemas.CommandHostSchema))
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStore(
-                                new MsSqlStreamStoreSettings(sp.GetService<IConfiguration>()
-                                    .GetConnectionString("Events")) {Schema = "RoadRegistry"}))
-                        .AddSingleton<IBlobClient>(sp =>
-                            new SqlBlobClient(
-                                new SqlConnectionStringBuilder(sp.GetService<IConfiguration>()
-                                    .GetConnectionString("Blobs")), "RoadRegistryBlobs"))
+                                new MsSqlStreamStoreSettings(
+                                    sp
+                                        .GetService<IConfiguration>()
+                                        .GetConnectionString(WellknownConnectionNames.Events))
+                                {
+                                    Schema = WellknownSchemas.EventSchema
+                                }))
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton(new RecyclableMemoryStreamManager())
-                        .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(sp.GetService<IBlobClient>(), sp.GetService<RecyclableMemoryStreamManager>()))
+                        .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
+                            new SqlBlobClient(
+                                new SqlConnectionStringBuilder(
+                                    sp
+                                        .GetService<IConfiguration>()
+                                        .GetConnectionString(WellknownConnectionNames.Snapshots)),
+                                WellknownSchemas.SnapshotSchema),
+                            sp.GetService<RecyclableMemoryStreamManager>()))
                         .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                         .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                         .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
@@ -119,20 +212,19 @@
                 await streamStore.WaitUntilAvailable();
                 await
                     new SqlCommandProcessorPositionStoreSchema(
-                            new SqlConnectionStringBuilder(configuration.GetConnectionString("CommandHostAdmin"))
-                    ).CreateSchemaIfNotExists(Schema);
+                        new SqlConnectionStringBuilder(
+                            configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
+                    ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema);
                 await host.RunAsync();
             }
             catch (Exception e)
             {
                 logger.LogCritical(e, "Encountered a fatal exception, exiting program.");
-                Log.CloseAndFlush();
-                // Allow some time for flushing before shutdown.
-                Thread.Sleep(1000);
-                throw;
             }
-
-            Console.WriteLine("\nStopping...");
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
     }
 }

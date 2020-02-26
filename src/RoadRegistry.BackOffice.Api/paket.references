@@ -9,6 +9,12 @@ Microsoft.AspNetCore.Mvc.Versioning
 Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer
 Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore
 
+Microsoft.Extensions.Configuration
+Microsoft.Extensions.Configuration.CommandLine
+Microsoft.Extensions.Configuration.Json
+Microsoft.Extensions.Configuration.EnvironmentVariables
+Microsoft.Extensions.Options.ConfigurationExtensions
+
 Microsoft.EntityFrameworkCore.SqlServer
 Microsoft.EntityFrameworkCore.InMemory
 Microsoft.EntityFrameworkCore.Design
@@ -34,6 +40,8 @@ Serilog.Enrichers.Environment
 Swashbuckle.AspNetCore
 Swashbuckle.AspNetCore.Filters
 
+AWSSDK.S3
+
 Be.Vlaanderen.Basisregisters.AggregateSource
 Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting
 Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore
@@ -52,6 +60,7 @@ Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware.EnableRequestRewind
 Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.ModelBinding.GuidHeader
 Be.Vlaanderen.Basisregisters.AspNetCore.Swagger
 Be.Vlaanderen.Basisregisters.AspNetCore.Swagger.ReDoc
+Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.CommandHandling
 Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency
 Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore
