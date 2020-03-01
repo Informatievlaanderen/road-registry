@@ -8,29 +8,32 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(EU_OIDN)),
-                    new DbaseFieldLength(10)),
+                    new DbaseFieldLength(10),
+                    new DbaseDecimalCount(0)),
+
+                DbaseField.CreateNumberField(
+                    new DbaseFieldName(nameof(WS_OIDN)),
+                    new DbaseFieldLength(10),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
-                        new DbaseFieldName(nameof(WS_OIDN)),
-                        new DbaseFieldLength(10)),
-
-                DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(EUNUMMER)),
                         new DbaseFieldLength(4)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(TRANSACTID)),
-                        new DbaseFieldLength(4)),
+                        new DbaseFieldLength(4),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(RECORDTYPE)),
-                        new DbaseFieldLength(4))
+                        new DbaseFieldLength(4),
+                        new DbaseDecimalCount(0))
             };
         }
 

@@ -8,22 +8,22 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentWidthAttributes
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(WB_OIDN)),
                     new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(WS_OIDN)),
                         new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(WS_GIDN)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(BREEDTE)),
                         new DbaseFieldLength(2)),
 
@@ -44,12 +44,12 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentWidthAttributes
                         new DbaseFieldName(nameof(BEGINTIJD))),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(BEGINORG)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLBGNORG)),
                         new DbaseFieldLength(64))
             };

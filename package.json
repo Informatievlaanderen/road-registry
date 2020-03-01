@@ -1,7 +1,7 @@
 {
   "name": "road-registry",
-  "version": "2.0.0",
-  "description": "Reference road registry.",
+  "version": "1.0.0",
+  "description": "Authentic base registry containing all road nodes and segments of Flanders.",
   "author": "Basisregisters Vlaanderen",
   "license": "EUPL-1.2",
   "repository": {
@@ -26,8 +26,7 @@
     "husky": "3.0.4",
     "merge": "1.2.1",
     "semantic-release": "15.13.23",
-    "lodash": "4.17.15",
-    "newman": "4.5.4"
+    "lodash": "4.17.15"
   },
   "scripts": {
     "commit": "git-cz",

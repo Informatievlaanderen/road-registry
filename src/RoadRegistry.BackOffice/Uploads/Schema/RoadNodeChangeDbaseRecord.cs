@@ -8,10 +8,10 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public RoadNodeChangeDbaseRecord()
         {
-            WEGKNOOPID = new DbaseInt32(Schema.WEGKNOOPID);
-            TYPE = new DbaseInt16(Schema.TYPE);
-            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
-            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
+            WEGKNOOPID = new DbaseNumber(Schema.WEGKNOOPID);
+            TYPE = new DbaseNumber(Schema.TYPE);
+            TRANSACTID = new DbaseNumber(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseNumber(Schema.RECORDTYPE);
 
             Values = new DbaseFieldValue[]
             {
@@ -22,12 +22,12 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             };
         }
 
-        public DbaseInt32 WEGKNOOPID { get; }
+        public DbaseNumber WEGKNOOPID { get; }
 
-        public DbaseInt16 TYPE { get; }
+        public DbaseNumber TYPE { get; }
 
-        public DbaseInt16 TRANSACTID { get; }
+        public DbaseNumber TRANSACTID { get; }
 
-        public DbaseInt16 RECORDTYPE { get; }
+        public DbaseNumber RECORDTYPE { get; }
     }
 }

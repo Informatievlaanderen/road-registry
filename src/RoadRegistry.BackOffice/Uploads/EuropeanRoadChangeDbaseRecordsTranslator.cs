@@ -23,8 +23,8 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.AddedIdentifier:
                             changes = changes.Append(
                                 new AddRoadSegmentToEuropeanRoad(
-                                    new AttributeId(record.EU_OIDN.Value.GetValueOrDefault()),
-                                    new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault()),
+                                    new AttributeId(record.EU_OIDN.ValueAsInt32.GetValueOrDefault()),
+                                    new RoadSegmentId(record.WS_OIDN.ValueAsInt32.GetValueOrDefault()),
                                     EuropeanRoadNumber.Parse(record.EUNUMMER.Value)
                                 )
                             );

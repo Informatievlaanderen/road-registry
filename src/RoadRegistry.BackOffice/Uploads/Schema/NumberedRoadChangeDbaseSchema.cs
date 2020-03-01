@@ -8,39 +8,45 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(GW_OIDN)),
-                    new DbaseFieldLength(10)),
+                    new DbaseFieldLength(10),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(WS_OIDN)),
-                        new DbaseFieldLength(10)),
+                        new DbaseFieldLength(10),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(IDENT8)),
                         new DbaseFieldLength(8)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(RICHTING)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(VOLGNUMMER)),
-                        new DbaseFieldLength(5)),
+                        new DbaseFieldLength(5),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(TRANSACTID)),
-                        new DbaseFieldLength(4)),
+                        new DbaseFieldLength(4),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(RECORDTYPE)),
-                        new DbaseFieldLength(4))
+                        new DbaseFieldLength(4),
+                        new DbaseDecimalCount(0))
             };
         }
 

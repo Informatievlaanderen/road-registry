@@ -8,97 +8,97 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(WS_OIDN)),
                     new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(WS_UIDN)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(WS_GIDN)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(B_WK_OIDN)),
                         new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(E_WK_OIDN)),
                         new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(STATUS)),
                         new DbaseFieldLength(2)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLSTATUS)),
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(MORF)),
                         new DbaseFieldLength(3)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLMORF)),
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(WEGCAT)),
                         new DbaseFieldLength(5)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLWEGCAT)),
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(LSTRNMID)),
                         new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LSTRNM)),
                         new DbaseFieldLength(80)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(RSTRNMID)),
                         new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(RSTRNM)),
                         new DbaseFieldLength(80)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(BEHEER)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLBEHEER)),
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(METHODE)),
                         new DbaseFieldLength(2)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLMETHOD)),
                         new DbaseFieldLength(64)),
 
@@ -109,22 +109,22 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
                     .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(BEGINORG)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLBGNORG)),
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(TGBEP)),
                         new DbaseFieldLength(2)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLTGBEP)),
                         new DbaseFieldLength(64))
             };

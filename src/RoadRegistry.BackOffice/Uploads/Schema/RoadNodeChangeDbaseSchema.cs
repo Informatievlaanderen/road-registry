@@ -8,24 +8,28 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(WEGKNOOPID)),
-                    new DbaseFieldLength(10)),
+                    new DbaseFieldLength(10),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(TYPE)),
-                        new DbaseFieldLength(3)),
+                        new DbaseFieldLength(3),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(TRANSACTID)),
-                        new DbaseFieldLength(4)),
+                        new DbaseFieldLength(4),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(RECORDTYPE)),
-                        new DbaseFieldLength(4))
+                        new DbaseFieldLength(4),
+                        new DbaseDecimalCount(0))
             };
         }
 

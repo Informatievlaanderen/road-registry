@@ -8,17 +8,17 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
         {
             Fields = new[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(STATUS)),
                     new DbaseFieldLength(2)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLSTATUS)),
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(DEFSTATUS)),
                         new DbaseFieldLength(254))
             };

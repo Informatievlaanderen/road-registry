@@ -8,9 +8,9 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
         public RoadNodeTypeDbaseRecord()
         {
-            TYPE = new DbaseInt32(Schema.TYPE);
-            LBLTYPE = new DbaseString(Schema.LBLTYPE);
-            DEFTYPE = new DbaseString(Schema.DEFTYPE);
+            TYPE = new DbaseNumber(Schema.TYPE);
+            LBLTYPE = new DbaseCharacter(Schema.LBLTYPE);
+            DEFTYPE = new DbaseCharacter(Schema.DEFTYPE);
 
             Values = new DbaseFieldValue[]
             {
@@ -18,8 +18,8 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
             };
         }
 
-        public DbaseInt32 TYPE { get; }
-        public DbaseString LBLTYPE { get; }
-        public DbaseString DEFTYPE { get; }
+        public DbaseNumber TYPE { get; }
+        public DbaseCharacter LBLTYPE { get; }
+        public DbaseCharacter DEFTYPE { get; }
     }
 }

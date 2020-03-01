@@ -8,14 +8,14 @@ namespace RoadRegistry.BackOffice.Schema.GradeSeparatedJunctions
 
         public GradeSeparatedJunctionDbaseRecord()
         {
-            OK_OIDN = new DbaseInt32(Schema.OK_OIDN);
-            TYPE = new DbaseInt32(Schema.TYPE);
-            LBLTYPE = new DbaseString(Schema.LBLTYPE);
-            BO_WS_OIDN = new DbaseInt32(Schema.BO_WS_OIDN);
-            ON_WS_OIDN = new DbaseInt32(Schema.ON_WS_OIDN);
+            OK_OIDN = new DbaseNumber(Schema.OK_OIDN);
+            TYPE = new DbaseNumber(Schema.TYPE);
+            LBLTYPE = new DbaseCharacter(Schema.LBLTYPE);
+            BO_WS_OIDN = new DbaseNumber(Schema.BO_WS_OIDN);
+            ON_WS_OIDN = new DbaseNumber(Schema.ON_WS_OIDN);
             BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-            BEGINORG = new DbaseString(Schema.BEGINORG);
-            LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
+            BEGINORG = new DbaseCharacter(Schema.BEGINORG);
+            LBLBGNORG = new DbaseCharacter(Schema.LBLBGNORG);
 
             Values = new DbaseFieldValue[]
             {
@@ -30,13 +30,13 @@ namespace RoadRegistry.BackOffice.Schema.GradeSeparatedJunctions
             };
         }
 
-        public DbaseInt32 OK_OIDN { get; }
-        public DbaseInt32 TYPE { get; }
-        public DbaseString LBLTYPE { get; }
-        public DbaseInt32 BO_WS_OIDN { get; }
-        public DbaseInt32 ON_WS_OIDN { get; }
+        public DbaseNumber OK_OIDN { get; }
+        public DbaseNumber TYPE { get; }
+        public DbaseCharacter LBLTYPE { get; }
+        public DbaseNumber BO_WS_OIDN { get; }
+        public DbaseNumber ON_WS_OIDN { get; }
         public DbaseDateTime BEGINTIJD { get; }
-        public DbaseString BEGINORG { get; }
-        public DbaseString LBLBGNORG { get; }
+        public DbaseCharacter BEGINORG { get; }
+        public DbaseCharacter LBLBGNORG { get; }
     }
 }

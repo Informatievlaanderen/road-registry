@@ -8,74 +8,86 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(WS_OIDN)),
-                    new DbaseFieldLength(10)),
+                    new DbaseFieldLength(10),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(METHODE)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(BEHEERDER)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(MORFOLOGIE)),
-                        new DbaseFieldLength(3)),
+                        new DbaseFieldLength(3),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(STATUS)),
-                        new DbaseFieldLength(10)),
+                        new DbaseFieldLength(10),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(WEGCAT)),
                         new DbaseFieldLength(10)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(B_WK_OIDN)),
-                        new DbaseFieldLength(10)),
+                        new DbaseFieldLength(10),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(E_WK_OIDN)),
-                        new DbaseFieldLength(10)),
+                        new DbaseFieldLength(10),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(LSTRNMID)),
-                        new DbaseFieldLength(10)),
+                        new DbaseFieldLength(10),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(RSTRNMID)),
-                        new DbaseFieldLength(10)),
+                        new DbaseFieldLength(10),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(TGBEP)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(TRANSACTID)),
-                        new DbaseFieldLength(4)),
+                        new DbaseFieldLength(4),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt16Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(RECORDTYPE)),
-                        new DbaseFieldLength(4)),
+                        new DbaseFieldLength(4),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(EVENTIDN)),
-                        new DbaseFieldLength(10))
+                        new DbaseFieldLength(10),
+                        new DbaseDecimalCount(0))
             };
         }
 

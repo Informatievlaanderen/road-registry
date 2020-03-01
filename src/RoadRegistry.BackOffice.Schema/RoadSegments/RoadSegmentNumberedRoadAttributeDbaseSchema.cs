@@ -8,32 +8,32 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttributes
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(GW_OIDN)),
                     new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(WS_OIDN)),
                         new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(IDENT8)),
                         new DbaseFieldLength(8)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(RICHTING)),
                         new DbaseFieldLength(2)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLRICHT)),
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(VOLGNUMMER)),
                         new DbaseFieldLength(5)),
 
@@ -41,12 +41,12 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttributes
                     .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(BEGINORG)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLBGNORG)),
                         new DbaseFieldLength(64))
             };

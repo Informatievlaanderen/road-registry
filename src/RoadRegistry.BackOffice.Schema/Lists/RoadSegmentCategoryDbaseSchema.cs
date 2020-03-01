@@ -8,17 +8,17 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
         {
             Fields = new[]
             {
-                DbaseField.CreateStringField(
+                DbaseField.CreateCharacterField(
                     new DbaseFieldName(nameof(WEGCAT)),
                     new DbaseFieldLength(5)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLWEGCAT)),
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(DEFWEGCAT)),
                         new DbaseFieldLength(254))
             };

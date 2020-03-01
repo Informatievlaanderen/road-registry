@@ -156,11 +156,11 @@ namespace RoadRegistry.BackOffice.Uploads
 
             public FakeDbaseRecord()
             {
-                Field = new DbaseInt32(Schema.Field);
+                Field = new DbaseNumber(Schema.Field);
                 Values = new DbaseFieldValue[] { Field };
             }
 
-            public DbaseInt32 Field { get; }
+            public DbaseNumber Field { get; }
 
             public bool Equals(FakeDbaseRecord other) => other != null && Field.Field.Equals(other.Field.Field) &&
                                                          Field.Value.Equals(other.Field.Value);
@@ -174,7 +174,7 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 Fields = new []
                 {
-                    DbaseField.CreateInt32Field(
+                    DbaseField.CreateNumberField(
                         new DbaseFieldName(nameof(Field)),
                         new DbaseFieldLength(10))
                 };

@@ -8,12 +8,12 @@ namespace RoadRegistry.BackOffice.Schema.Organizations
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateStringField(
+                DbaseField.CreateCharacterField(
                     new DbaseFieldName(nameof(ORG)),
                     new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLORG)),
                         new DbaseFieldLength(64))
             };

@@ -8,12 +8,12 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public TransactionZoneDbaseRecord()
         {
-            SOURCE_ID = new DbaseInt32(Schema.SOURCE_ID);
-            TYPE = new DbaseInt32(Schema.TYPE);
-            BESCHRIJV = new DbaseString(Schema.BESCHRIJV);
-            OPERATOR = new DbaseString(Schema.OPERATOR);
-            ORG = new DbaseString(Schema.ORG);
-            APPLICATIE = new DbaseString(Schema.APPLICATIE);
+            SOURCE_ID = new DbaseNumber(Schema.SOURCE_ID);
+            TYPE = new DbaseNumber(Schema.TYPE);
+            BESCHRIJV = new DbaseCharacter(Schema.BESCHRIJV);
+            OPERATOR = new DbaseCharacter(Schema.OPERATOR);
+            ORG = new DbaseCharacter(Schema.ORG);
+            APPLICATIE = new DbaseCharacter(Schema.APPLICATIE);
 
             Values = new DbaseFieldValue[]
             {
@@ -21,11 +21,11 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             };
         }
 
-        public DbaseInt32 SOURCE_ID { get; }
-        public DbaseInt32 TYPE { get; }
-        public DbaseString BESCHRIJV { get; }
-        public DbaseString OPERATOR { get; }
-        public DbaseString ORG { get; }
-        public DbaseString APPLICATIE { get; }
+        public DbaseNumber SOURCE_ID { get; }
+        public DbaseNumber TYPE { get; }
+        public DbaseCharacter BESCHRIJV { get; }
+        public DbaseCharacter OPERATOR { get; }
+        public DbaseCharacter ORG { get; }
+        public DbaseCharacter APPLICATIE { get; }
     }
 }
