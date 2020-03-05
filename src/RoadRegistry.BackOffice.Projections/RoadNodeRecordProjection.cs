@@ -20,7 +20,7 @@ namespace RoadRegistry.BackOffice.Projections
             if (manager == null) throw new ArgumentNullException(nameof(manager));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
-            When<Envelope<ImportedRoadNode>>((context, envelope, token) =>
+            When<Envelope<ImportedRoadNode>>(async (context, envelope, token) =>
             {
                 var typeTranslation = RoadNodeType.Parse(envelope.Message.Type).Translation;
                 var dbaseRecord = new RoadNodeDbaseRecord
@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Projections
                 var point = GeometryTranslator.FromGeometryPoint(Core.GeometryTranslator.Translate(envelope.Message.Geometry));
                 var pointShapeContent = new PointShapeContent(point);
 
-                return context.RoadNodes.AddAsync(new RoadNodeRecord
+                await context.RoadNodes.AddAsync(new RoadNodeRecord
                 {
                     Id = envelope.Message.Id,
                     ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding),

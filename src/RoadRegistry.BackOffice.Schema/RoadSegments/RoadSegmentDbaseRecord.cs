@@ -8,31 +8,31 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
 
         public RoadSegmentDbaseRecord()
         {
-            WS_OIDN = new DbaseNumber(Schema.WS_OIDN);
-            WS_UIDN = new DbaseCharacter(Schema.WS_UIDN);
-            WS_GIDN = new DbaseCharacter(Schema.WS_GIDN);
-            B_WK_OIDN = new DbaseNumber(Schema.B_WK_OIDN);
-            E_WK_OIDN = new DbaseNumber(Schema.E_WK_OIDN);
-            STATUS = new DbaseNumber(Schema.STATUS);
-            LBLSTATUS = new DbaseCharacter(Schema.LBLSTATUS);
-            MORF = new DbaseNumber(Schema.MORF);
-            LBLMORF = new DbaseCharacter(Schema.LBLMORF);
-            WEGCAT = new DbaseCharacter(Schema.WEGCAT);
-            LBLWEGCAT = new DbaseCharacter(Schema.LBLWEGCAT);
-            LSTRNMID = new DbaseNumber(Schema.LSTRNMID);
-            LSTRNM = new DbaseCharacter(Schema.LSTRNM);
-            RSTRNMID = new DbaseNumber(Schema.RSTRNMID);
-            RSTRNM = new DbaseCharacter(Schema.RSTRNM);
-            BEHEER = new DbaseCharacter(Schema.BEHEER);
-            LBLBEHEER = new DbaseCharacter(Schema.LBLBEHEER);
-            METHODE = new DbaseNumber(Schema.METHODE);
-            LBLMETHOD = new DbaseCharacter(Schema.LBLMETHOD);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+            WS_UIDN = new DbaseString(Schema.WS_UIDN);
+            WS_GIDN = new DbaseString(Schema.WS_GIDN);
+            B_WK_OIDN = new DbaseInt32(Schema.B_WK_OIDN);
+            E_WK_OIDN = new DbaseInt32(Schema.E_WK_OIDN);
+            STATUS = new DbaseInt32(Schema.STATUS);
+            LBLSTATUS = new DbaseString(Schema.LBLSTATUS);
+            MORF = new DbaseInt32(Schema.MORF);
+            LBLMORF = new DbaseString(Schema.LBLMORF);
+            WEGCAT = new DbaseString(Schema.WEGCAT);
+            LBLWEGCAT = new DbaseString(Schema.LBLWEGCAT);
+            LSTRNMID = new DbaseNullableInt32(Schema.LSTRNMID);
+            LSTRNM = new DbaseString(Schema.LSTRNM);
+            RSTRNMID = new DbaseNullableInt32(Schema.RSTRNMID);
+            RSTRNM = new DbaseString(Schema.RSTRNM);
+            BEHEER = new DbaseString(Schema.BEHEER);
+            LBLBEHEER = new DbaseString(Schema.LBLBEHEER);
+            METHODE = new DbaseInt32(Schema.METHODE);
+            LBLMETHOD = new DbaseString(Schema.LBLMETHOD);
             OPNDATUM = new DbaseDateTime(Schema.OPNDATUM);
             BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-            BEGINORG = new DbaseCharacter(Schema.BEGINORG);
-            LBLBGNORG = new DbaseCharacter(Schema.LBLBGNORG);
-            TGBEP = new DbaseNumber(Schema.TGBEP);
-            LBLTGBEP = new DbaseCharacter(Schema.LBLTGBEP);
+            BEGINORG = new DbaseString(Schema.BEGINORG);
+            LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
+            TGBEP = new DbaseInt32(Schema.TGBEP);
+            LBLTGBEP = new DbaseString(Schema.LBLTGBEP);
 
             Values = new DbaseFieldValue[]
             {
@@ -64,30 +64,30 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
             };
         }
 
-        public DbaseNumber WS_OIDN { get; }
-        public DbaseCharacter WS_UIDN { get; }
-        public DbaseCharacter WS_GIDN { get; }
-        public DbaseNumber B_WK_OIDN { get; }
-        public DbaseNumber E_WK_OIDN { get; }
-        public DbaseNumber STATUS { get; }
-        public DbaseCharacter LBLSTATUS { get; }
-        public DbaseNumber MORF { get; }
-        public DbaseCharacter LBLMORF { get; }
-        public DbaseCharacter WEGCAT { get; }
-        public DbaseCharacter LBLWEGCAT { get; }
-        public DbaseNumber LSTRNMID { get; }
-        public DbaseCharacter LSTRNM { get; }
-        public DbaseNumber RSTRNMID { get; }
-        public DbaseCharacter RSTRNM { get; }
-        public DbaseCharacter BEHEER { get; }
-        public DbaseCharacter LBLBEHEER { get; }
-        public DbaseNumber METHODE { get; }
-        public DbaseCharacter LBLMETHOD { get; }
+        public DbaseInt32 WS_OIDN { get; }
+        public DbaseString WS_UIDN { get; }
+        public DbaseString WS_GIDN { get; }
+        public DbaseInt32 B_WK_OIDN { get; }
+        public DbaseInt32 E_WK_OIDN { get; }
+        public DbaseInt32 STATUS { get; }
+        public DbaseString LBLSTATUS { get; }
+        public DbaseInt32 MORF { get; }
+        public DbaseString LBLMORF { get; }
+        public DbaseString WEGCAT { get; }
+        public DbaseString LBLWEGCAT { get; }
+        public DbaseNullableInt32 LSTRNMID { get; }
+        public DbaseString LSTRNM { get; }
+        public DbaseNullableInt32 RSTRNMID { get; }
+        public DbaseString RSTRNM { get; }
+        public DbaseString BEHEER { get; }
+        public DbaseString LBLBEHEER { get; }
+        public DbaseInt32 METHODE { get; }
+        public DbaseString LBLMETHOD { get; }
         public DbaseDateTime OPNDATUM { get; }
         public DbaseDateTime BEGINTIJD { get; }
-        public DbaseCharacter BEGINORG { get; }
-        public DbaseCharacter LBLBGNORG { get; }
-        public DbaseNumber TGBEP { get; }
-        public DbaseCharacter LBLTGBEP { get; }
+        public DbaseString BEGINORG { get; }
+        public DbaseString LBLBGNORG { get; }
+        public DbaseInt32 TGBEP { get; }
+        public DbaseString LBLTGBEP { get; }
     }
 }

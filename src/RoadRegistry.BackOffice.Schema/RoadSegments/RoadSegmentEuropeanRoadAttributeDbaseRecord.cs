@@ -8,12 +8,12 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentEuropeanRoadAttributes
 
         public RoadSegmentEuropeanRoadAttributeDbaseRecord()
         {
-            EU_OIDN = new DbaseNumber(Schema.EU_OIDN);
-            WS_OIDN = new DbaseNumber(Schema.WS_OIDN);
-            EUNUMMER = new DbaseCharacter(Schema.EUNUMMER);
+            EU_OIDN = new DbaseInt32(Schema.EU_OIDN);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+            EUNUMMER = new DbaseString(Schema.EUNUMMER);
             BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-            BEGINORG = new DbaseCharacter(Schema.BEGINORG);
-            LBLBGNORG = new DbaseCharacter(Schema.LBLBGNORG);
+            BEGINORG = new DbaseString(Schema.BEGINORG);
+            LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
 
             Values = new DbaseFieldValue[]
             {
@@ -26,11 +26,11 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentEuropeanRoadAttributes
             };
         }
 
-        public DbaseNumber EU_OIDN { get; }
-        public DbaseNumber WS_OIDN { get; }
-        public DbaseCharacter EUNUMMER { get; }
+        public DbaseInt32 EU_OIDN { get; }
+        public DbaseInt32 WS_OIDN { get; }
+        public DbaseString EUNUMMER { get; }
         public DbaseDateTime BEGINTIJD { get; }
-        public DbaseCharacter BEGINORG { get; }
-        public DbaseCharacter LBLBGNORG { get; }
+        public DbaseString BEGINORG { get; }
+        public DbaseString LBLBGNORG { get; }
     }
 }

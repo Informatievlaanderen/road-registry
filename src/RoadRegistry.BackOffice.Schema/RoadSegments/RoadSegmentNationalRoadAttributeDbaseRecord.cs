@@ -8,12 +8,12 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNationalRoadAttributes
 
         public RoadSegmentNationalRoadAttributeDbaseRecord()
         {
-            NW_OIDN = new DbaseNumber(Schema.NW_OIDN);
-            WS_OIDN = new DbaseNumber(Schema.WS_OIDN);
-            IDENT2 = new DbaseCharacter(Schema.IDENT2);
+            NW_OIDN = new DbaseInt32(Schema.NW_OIDN);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+            IDENT2 = new DbaseString(Schema.IDENT2);
             BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-            BEGINORG = new DbaseCharacter(Schema.BEGINORG);
-            LBLBGNORG = new DbaseCharacter(Schema.LBLBGNORG);
+            BEGINORG = new DbaseString(Schema.BEGINORG);
+            LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
 
             Values = new DbaseFieldValue[]
             {
@@ -26,11 +26,11 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNationalRoadAttributes
             };
         }
 
-        public DbaseNumber NW_OIDN { get; }
-        public DbaseNumber WS_OIDN { get; }
-        public DbaseCharacter IDENT2 { get; }
+        public DbaseInt32 NW_OIDN { get; }
+        public DbaseInt32 WS_OIDN { get; }
+        public DbaseString IDENT2 { get; }
         public DbaseDateTime BEGINTIJD { get; }
-        public DbaseCharacter BEGINORG { get; }
-        public DbaseCharacter LBLBGNORG { get; }
+        public DbaseString BEGINORG { get; }
+        public DbaseString LBLBGNORG { get; }
     }
 }

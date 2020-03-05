@@ -8,9 +8,9 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
         public RoadSegmentGeometryDrawMethodDbaseRecord()
         {
-            METHODE = new DbaseNumber(Schema.METHODE);
-            LBLMETHOD = new DbaseCharacter(Schema.LBLMETHOD);
-            DEFMETHOD = new DbaseCharacter(Schema.DEFMETHOD);
+            METHODE = new DbaseInt32(Schema.METHODE);
+            LBLMETHOD = new DbaseString(Schema.LBLMETHOD);
+            DEFMETHOD = new DbaseString(Schema.DEFMETHOD);
 
             Values = new DbaseFieldValue[]
             {
@@ -18,8 +18,8 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
             };
         }
 
-        public DbaseNumber METHODE { get; }
-        public DbaseCharacter LBLMETHOD { get; }
-        public DbaseCharacter DEFMETHOD { get; }
+        public DbaseInt32 METHODE { get; }
+        public DbaseString LBLMETHOD { get; }
+        public DbaseString DEFMETHOD { get; }
     }
 }

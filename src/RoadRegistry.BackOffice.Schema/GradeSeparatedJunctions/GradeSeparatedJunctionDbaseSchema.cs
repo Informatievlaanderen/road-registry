@@ -10,12 +10,14 @@ namespace RoadRegistry.BackOffice.Schema.GradeSeparatedJunctions
             {
                 DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(OK_OIDN)),
-                    new DbaseFieldLength(15)),
+                    new DbaseFieldLength(15),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(TYPE)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -25,14 +27,18 @@ namespace RoadRegistry.BackOffice.Schema.GradeSeparatedJunctions
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(BO_WS_OIDN)),
-                        new DbaseFieldLength(15)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(ON_WS_OIDN)),
-                        new DbaseFieldLength(15)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
+                    .CreateCharacterField(
+                        new DbaseFieldName(nameof(BEGINTIJD)),
+                        new DbaseFieldLength(15)),
 
                 DbaseField
                     .CreateCharacterField(

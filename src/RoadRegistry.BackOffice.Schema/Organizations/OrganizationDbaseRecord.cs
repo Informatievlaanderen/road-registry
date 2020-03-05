@@ -8,8 +8,8 @@ namespace RoadRegistry.BackOffice.Schema.Organizations
 
         public OrganizationDbaseRecord()
         {
-            ORG = new DbaseCharacter(Schema.ORG);
-            LBLORG = new DbaseCharacter(Schema.LBLORG);
+            ORG = new DbaseString(Schema.ORG);
+            LBLORG = new DbaseString(Schema.LBLORG);
 
             Values = new DbaseFieldValue[]
             {
@@ -18,7 +18,7 @@ namespace RoadRegistry.BackOffice.Schema.Organizations
             };
         }
 
-        public DbaseCharacter ORG { get; }
-        public DbaseCharacter LBLORG { get; }
+        public DbaseString ORG { get; }
+        public DbaseString LBLORG { get; }
     }
 }

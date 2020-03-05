@@ -23,6 +23,7 @@ namespace RoadRegistry.LegacyStreamLoader
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Serilog;
+    using Serilog.Formatting.Compact;
 
 
     public class Program
@@ -63,7 +64,7 @@ namespace RoadRegistry.LegacyStreamLoader
 
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(hostContext.Configuration)
-                        .WriteTo.Console()
+                        .WriteTo.Console(new RenderedCompactJsonFormatter())
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
                         .Enrich.WithThreadId()

@@ -10,7 +10,8 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
             {
                 DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(MORF)),
-                    new DbaseFieldLength(3)),
+                    new DbaseFieldLength(3),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(

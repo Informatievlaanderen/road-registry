@@ -10,7 +10,8 @@ namespace RoadRegistry.BackOffice.Schema.RoadNodes
             {
                 DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(WK_OIDN)),
-                    new DbaseFieldLength(15)),
+                    new DbaseFieldLength(15),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -20,7 +21,8 @@ namespace RoadRegistry.BackOffice.Schema.RoadNodes
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(TYPE)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -28,7 +30,9 @@ namespace RoadRegistry.BackOffice.Schema.RoadNodes
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
+                    .CreateCharacterField(
+                        new DbaseFieldName(nameof(BEGINTIJD)),
+                        new DbaseFieldLength(15)),
 
                 DbaseField
                     .CreateCharacterField(

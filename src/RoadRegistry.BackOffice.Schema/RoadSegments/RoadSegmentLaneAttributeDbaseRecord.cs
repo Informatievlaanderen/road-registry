@@ -8,17 +8,17 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentLaneAttributes
 
         public RoadSegmentLaneAttributeDbaseRecord()
         {
-            RS_OIDN = new DbaseNumber(Schema.RS_OIDN);
-            WS_OIDN = new DbaseNumber(Schema.WS_OIDN);
-            WS_GIDN = new DbaseCharacter(Schema.WS_GIDN);
-            AANTAL = new DbaseNumber(Schema.AANTAL);
-            RICHTING = new DbaseNumber(Schema.RICHTING);
-            LBLRICHT = new DbaseCharacter(Schema.LBLRICHT);
-            VANPOS = new DbaseNumber(Schema.VANPOS);
-            TOTPOS = new DbaseNumber(Schema.TOTPOS);
+            RS_OIDN = new DbaseInt32(Schema.RS_OIDN);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+            WS_GIDN = new DbaseString(Schema.WS_GIDN);
+            AANTAL = new DbaseInt32(Schema.AANTAL);
+            RICHTING = new DbaseInt32(Schema.RICHTING);
+            LBLRICHT = new DbaseString(Schema.LBLRICHT);
+            VANPOS = new DbaseDouble(Schema.VANPOS);
+            TOTPOS = new DbaseDouble(Schema.TOTPOS);
             BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-            BEGINORG = new DbaseCharacter(Schema.BEGINORG);
-            LBLBGNORG = new DbaseCharacter(Schema.LBLBGNORG);
+            BEGINORG = new DbaseString(Schema.BEGINORG);
+            LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
 
             Values = new DbaseFieldValue[]
             {
@@ -36,16 +36,17 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentLaneAttributes
             };
         }
 
-        public DbaseNumber RS_OIDN { get; set; }
-        public DbaseNumber WS_OIDN { get; set; }
-        public DbaseCharacter WS_GIDN { get; set; }
-        public DbaseNumber AANTAL { get; set; }
-        public DbaseNumber RICHTING { get; set; }
-        public DbaseCharacter LBLRICHT { get; set; }
-        public DbaseNumber VANPOS { get; set; }
-        public DbaseNumber TOTPOS { get; set; }
+        public DbaseInt32 RS_OIDN { get; set; }
+        public DbaseInt32 WS_OIDN { get; set; }
+        public DbaseString WS_GIDN { get; set; }
+        public DbaseInt32 AANTAL { get; set; }
+        public DbaseInt32 RICHTING { get; set; }
+        public DbaseString LBLRICHT { get; set; }
+        public DbaseDouble VANPOS { get; set; }
+        public DbaseDouble TOTPOS { get; set; }
         public DbaseDateTime BEGINTIJD { get; set; }
-        public DbaseCharacter BEGINORG { get; set; }
-        public DbaseCharacter LBLBGNORG { get; set; }
+        public DbaseString BEGINORG { get; set; }
+        public DbaseString LBLBGNORG { get; set; }
     }
 }
+

@@ -10,12 +10,14 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttributes
             {
                 DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(GW_OIDN)),
-                    new DbaseFieldLength(15)),
+                    new DbaseFieldLength(15),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(WS_OIDN)),
-                        new DbaseFieldLength(15)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -25,7 +27,8 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttributes
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(RICHTING)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -35,10 +38,13 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttributes
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(VOLGNUMMER)),
-                        new DbaseFieldLength(5)),
+                        new DbaseFieldLength(5),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
+                    .CreateCharacterField(
+                        new DbaseFieldName(nameof(BEGINTIJD)),
+                        new DbaseFieldLength(15)),
 
                 DbaseField
                     .CreateCharacterField(

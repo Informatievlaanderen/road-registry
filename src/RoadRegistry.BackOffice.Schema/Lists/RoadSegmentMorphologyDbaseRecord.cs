@@ -8,9 +8,9 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
         public RoadSegmentMorphologyDbaseRecord()
         {
-            MORF = new DbaseNumber(Schema.MORF);
-            LBLMORF = new DbaseCharacter(Schema.LBLMORF);
-            DEFMORF = new DbaseCharacter(Schema.DEFMORF);
+            MORF = new DbaseInt32(Schema.MORF);
+            LBLMORF = new DbaseString(Schema.LBLMORF);
+            DEFMORF = new DbaseString(Schema.DEFMORF);
 
             Values = new DbaseFieldValue[]
             {
@@ -18,8 +18,8 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
             };
         }
 
-        public DbaseNumber MORF { get; }
-        public DbaseCharacter LBLMORF { get; }
-        public DbaseCharacter DEFMORF { get; }
+        public DbaseInt32 MORF { get; }
+        public DbaseString LBLMORF { get; }
+        public DbaseString DEFMORF { get; }
     }
 }

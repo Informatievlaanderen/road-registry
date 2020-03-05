@@ -8,15 +8,15 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttributes
 
         public RoadSegmentNumberedRoadAttributeDbaseRecord()
         {
-            GW_OIDN = new DbaseNumber(Schema.GW_OIDN);
-            WS_OIDN = new DbaseNumber(Schema.WS_OIDN);
-            IDENT8 = new DbaseCharacter(Schema.IDENT8);
-            RICHTING = new DbaseNumber(Schema.RICHTING);
-            LBLRICHT = new DbaseCharacter(Schema.LBLRICHT);
-            VOLGNUMMER = new DbaseNumber(Schema.VOLGNUMMER);
+            GW_OIDN = new DbaseInt32(Schema.GW_OIDN);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+            IDENT8 = new DbaseString(Schema.IDENT8);
+            RICHTING = new DbaseInt32(Schema.RICHTING);
+            LBLRICHT = new DbaseString(Schema.LBLRICHT);
+            VOLGNUMMER = new DbaseInt32(Schema.VOLGNUMMER);
             BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-            BEGINORG = new DbaseCharacter(Schema.BEGINORG);
-            LBLBGNORG = new DbaseCharacter(Schema.LBLBGNORG);
+            BEGINORG = new DbaseString(Schema.BEGINORG);
+            LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
 
             Values = new DbaseFieldValue[]
             {
@@ -32,14 +32,14 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttributes
             };
         }
 
-        public DbaseNumber GW_OIDN { get; }
-        public DbaseNumber WS_OIDN { get; }
-        public DbaseCharacter IDENT8 { get; }
-        public DbaseNumber RICHTING { get; }
-        public DbaseCharacter LBLRICHT { get; }
-        public DbaseNumber VOLGNUMMER { get; }
+        public DbaseInt32 GW_OIDN { get; }
+        public DbaseInt32 WS_OIDN { get; }
+        public DbaseString IDENT8 { get; }
+        public DbaseInt32 RICHTING { get; }
+        public DbaseString LBLRICHT { get; }
+        public DbaseInt32 VOLGNUMMER { get; }
         public DbaseDateTime BEGINTIJD { get; }
-        public DbaseCharacter BEGINORG { get; }
-        public DbaseCharacter LBLBGNORG { get; }
+        public DbaseString BEGINORG { get; }
+        public DbaseString LBLBGNORG { get; }
     }
 }

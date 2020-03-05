@@ -8,13 +8,13 @@ namespace RoadRegistry.BackOffice.Schema.RoadNodes
 
         public RoadNodeDbaseRecord()
         {
-            WK_OIDN = new DbaseNumber(Schema.WK_OIDN);
-            WK_UIDN = new DbaseCharacter(Schema.WK_UIDN);
-            TYPE = new DbaseNumber(Schema.TYPE);
-            LBLTYPE = new DbaseCharacter(Schema.LBLTYPE);
+            WK_OIDN = new DbaseInt32(Schema.WK_OIDN);
+            WK_UIDN = new DbaseString(Schema.WK_UIDN);
+            TYPE = new DbaseInt32(Schema.TYPE);
+            LBLTYPE = new DbaseString(Schema.LBLTYPE);
             BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-            BEGINORG = new DbaseCharacter(Schema.BEGINORG);
-            LBLBGNORG = new DbaseCharacter(Schema.LBLBGNORG);
+            BEGINORG = new DbaseString(Schema.BEGINORG);
+            LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
 
             Values = new DbaseFieldValue[]
             {
@@ -22,12 +22,12 @@ namespace RoadRegistry.BackOffice.Schema.RoadNodes
             };
         }
 
-        public DbaseNumber WK_OIDN { get; }
-        public DbaseCharacter WK_UIDN { get; }
-        public DbaseNumber TYPE { get; }
-        public DbaseCharacter LBLTYPE { get; }
+        public DbaseInt32 WK_OIDN { get; }
+        public DbaseString WK_UIDN { get; }
+        public DbaseInt32 TYPE { get; }
+        public DbaseString LBLTYPE { get; }
         public DbaseDateTime BEGINTIJD { get; }
-        public DbaseCharacter BEGINORG { get; }
-        public DbaseCharacter LBLBGNORG { get; }
+        public DbaseString BEGINORG { get; }
+        public DbaseString LBLBGNORG { get; }
     }
 }

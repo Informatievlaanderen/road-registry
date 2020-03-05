@@ -76,6 +76,7 @@ services:
       - mssql
       - minio
     environment:
+      LOCAL: True
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -90,6 +91,7 @@ services:
       - mssql
       - minio
     environment:
+      LOCAL: True
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -104,6 +106,7 @@ services:
       - mssql
       - minio
     environment:
+      LOCAL: True
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -120,6 +123,7 @@ services:
       - mssql
       - minio
     environment:
+      LOCAL: True
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -136,6 +140,7 @@ services:
       - projectionhost
       - minio
     environment:
+      LOCAL: True
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -152,6 +157,7 @@ services:
     depends_on:
       - api
     environment:
+      LOCAL: True
       API__ENDPOINT: http://localhost:5020
     ports:
       - "5010:5000"

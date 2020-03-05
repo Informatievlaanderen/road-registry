@@ -8,9 +8,9 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
         public RoadSegmentCategoryDbaseRecord()
         {
-            WEGCAT = new DbaseCharacter(Schema.WEGCAT);
-            LBLWEGCAT = new DbaseCharacter(Schema.LBLWEGCAT);
-            DEFWEGCAT = new DbaseCharacter(Schema.DEFWEGCAT);
+            WEGCAT = new DbaseString(Schema.WEGCAT);
+            LBLWEGCAT = new DbaseString(Schema.LBLWEGCAT);
+            DEFWEGCAT = new DbaseString(Schema.DEFWEGCAT);
 
             Values = new DbaseFieldValue[]
             {
@@ -18,8 +18,8 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
             };
         }
 
-        public DbaseCharacter WEGCAT { get; }
-        public DbaseCharacter LBLWEGCAT { get; }
-        public DbaseCharacter DEFWEGCAT { get; }
+        public DbaseString WEGCAT { get; }
+        public DbaseString LBLWEGCAT { get; }
+        public DbaseString DEFWEGCAT { get; }
     }
 }

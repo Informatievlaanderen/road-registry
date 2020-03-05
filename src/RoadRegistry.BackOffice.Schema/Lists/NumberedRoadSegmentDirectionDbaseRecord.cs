@@ -8,9 +8,9 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
         public NumberedRoadSegmentDirectionDbaseRecord()
         {
-            RICHTING = new DbaseNumber(Schema.RICHTING);
-            LBLRICHT = new DbaseCharacter(Schema.LBLRICHT);
-            DEFRICHT = new DbaseCharacter(Schema.DEFRICHT);
+            RICHTING = new DbaseInt32(Schema.RICHTING);
+            LBLRICHT = new DbaseString(Schema.LBLRICHT);
+            DEFRICHT = new DbaseString(Schema.DEFRICHT);
 
             Values = new DbaseFieldValue[]
             {
@@ -18,8 +18,8 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
             };
         }
 
-        public DbaseNumber RICHTING { get; }
-        public DbaseCharacter LBLRICHT { get; }
-        public DbaseCharacter DEFRICHT { get; }
+        public DbaseInt32 RICHTING { get; }
+        public DbaseString LBLRICHT { get; }
+        public DbaseString DEFRICHT { get; }
     }
 }

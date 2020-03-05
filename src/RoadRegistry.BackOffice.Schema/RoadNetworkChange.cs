@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Schema
 {
-    using System;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -21,7 +20,7 @@ namespace RoadRegistry.BackOffice.Schema
         {
             b.ToTable(TableName, Schema.Shape)
                 .HasIndex(p => p.Id)
-                .ForSqlServerIsClustered(false);
+                .IsClustered(false);
 
             b.Property(p => p.Id).ValueGeneratedNever();
             b.Property(p => p.Title);

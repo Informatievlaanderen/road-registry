@@ -30,8 +30,8 @@ namespace RoadRegistry.BackOffice.Projections
         {
             if (client == null) throw new ArgumentNullException(nameof(client));
 
-            When<Envelope<BeganRoadNetworkImport>>((context, envelope, ct) =>
-                context.RoadNetworkChanges.AddAsync(
+            When<Envelope<BeganRoadNetworkImport>>(async (context, envelope, ct) =>
+                await context.RoadNetworkChanges.AddAsync(
                     new RoadNetworkChange
                     {
                         Id = envelope.Position,
@@ -41,8 +41,8 @@ namespace RoadRegistry.BackOffice.Projections
                         When = envelope.Message.When
                     }, ct));
 
-            When<Envelope<CompletedRoadNetworkImport>>((context, envelope, ct) =>
-                context.RoadNetworkChanges.AddAsync(
+            When<Envelope<CompletedRoadNetworkImport>>(async (context, envelope, ct) =>
+                await context.RoadNetworkChanges.AddAsync(
                     new RoadNetworkChange
                     {
                         Id = envelope.Position,

@@ -8,15 +8,15 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentWidthAttributes
 
         public RoadSegmentWidthAttributeDbaseRecord()
         {
-            WB_OIDN = new DbaseNumber(Schema.WB_OIDN);
-            WS_OIDN = new DbaseNumber(Schema.WS_OIDN);
-            WS_GIDN = new DbaseCharacter(Schema.WS_GIDN);
-            BREEDTE = new DbaseNumber(Schema.BREEDTE);
-            VANPOS = new DbaseNumber(Schema.VANPOS);
-            TOTPOS = new DbaseNumber(Schema.TOTPOS);
+            WB_OIDN = new DbaseInt32(Schema.WB_OIDN);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+            WS_GIDN = new DbaseString(Schema.WS_GIDN);
+            BREEDTE = new DbaseInt32(Schema.BREEDTE);
+            VANPOS = new DbaseDouble(Schema.VANPOS);
+            TOTPOS = new DbaseDouble(Schema.TOTPOS);
             BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-            BEGINORG = new DbaseCharacter(Schema.BEGINORG);
-            LBLBGNORG = new DbaseCharacter(Schema.LBLBGNORG);
+            BEGINORG = new DbaseString(Schema.BEGINORG);
+            LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
 
             Values = new DbaseFieldValue[]
             {
@@ -32,14 +32,14 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentWidthAttributes
             };
         }
 
-        public DbaseNumber WB_OIDN { get; set; }
-        public DbaseNumber WS_OIDN { get; set; }
-        public DbaseCharacter WS_GIDN { get; set; }
-        public DbaseNumber BREEDTE { get; set; }
-        public DbaseNumber VANPOS { get; set; }
-        public DbaseNumber TOTPOS { get; set; }
+        public DbaseInt32 WB_OIDN { get; set; }
+        public DbaseInt32 WS_OIDN { get; set; }
+        public DbaseString WS_GIDN { get; set; }
+        public DbaseInt32 BREEDTE { get; set; }
+        public DbaseDouble VANPOS { get; set; }
+        public DbaseDouble TOTPOS { get; set; }
         public DbaseDateTime BEGINTIJD { get; set; }
-        public DbaseCharacter BEGINORG { get; set; }
-        public DbaseCharacter LBLBGNORG { get; set; }
+        public DbaseString BEGINORG { get; set; }
+        public DbaseString LBLBGNORG { get; set; }
     }
 }

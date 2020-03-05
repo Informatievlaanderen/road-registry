@@ -10,7 +10,8 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
             {
                 DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(WS_OIDN)),
-                    new DbaseFieldLength(15)),
+                    new DbaseFieldLength(15),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -25,17 +26,20 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(B_WK_OIDN)),
-                        new DbaseFieldLength(15)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(E_WK_OIDN)),
-                        new DbaseFieldLength(15)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(STATUS)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -45,7 +49,8 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(MORF)),
-                        new DbaseFieldLength(3)),
+                        new DbaseFieldLength(3),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -65,7 +70,8 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(LSTRNMID)),
-                        new DbaseFieldLength(15)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -75,7 +81,8 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(RSTRNMID)),
-                        new DbaseFieldLength(15)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -95,7 +102,8 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(METHODE)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -103,10 +111,14 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateDateTimeField(new DbaseFieldName(nameof(OPNDATUM))),
+                    .CreateCharacterField(
+                        new DbaseFieldName(nameof(OPNDATUM)),
+                        new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
+                    .CreateCharacterField(
+                        new DbaseFieldName(nameof(BEGINTIJD)),
+                        new DbaseFieldLength(15)),
 
                 DbaseField
                     .CreateCharacterField(
@@ -121,7 +133,8 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(TGBEP)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
                     .CreateCharacterField(

@@ -8,9 +8,9 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
 
         public RoadSegmentStatusDbaseRecord()
         {
-            STATUS = new DbaseNumber(Schema.STATUS);
-            LBLSTATUS = new DbaseCharacter(Schema.LBLSTATUS);
-            DEFSTATUS = new DbaseCharacter(Schema.DEFSTATUS);
+            STATUS = new DbaseInt32(Schema.STATUS);
+            LBLSTATUS = new DbaseString(Schema.LBLSTATUS);
+            DEFSTATUS = new DbaseString(Schema.DEFSTATUS);
 
             Values = new DbaseFieldValue[]
             {
@@ -18,8 +18,8 @@ namespace RoadRegistry.BackOffice.Schema.ReferenceData
             };
         }
 
-        public DbaseNumber STATUS { get; }
-        public DbaseCharacter LBLSTATUS { get; }
-        public DbaseCharacter DEFSTATUS { get; }
+        public DbaseInt32 STATUS { get; }
+        public DbaseString LBLSTATUS { get; }
+        public DbaseString DEFSTATUS { get; }
     }
 }

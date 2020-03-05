@@ -17,7 +17,7 @@ namespace RoadRegistry.BackOffice.Projections
             if (manager == null) throw new ArgumentNullException(nameof(manager));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
-            When<Envelope<ImportedOrganization>>((content, envelope, token) =>
+            When<Envelope<ImportedOrganization>>(async (content, envelope, token) =>
             {
                 var organization = new OrganizationRecord
                 {
@@ -30,7 +30,7 @@ namespace RoadRegistry.BackOffice.Projections
                     }.ToBytes(manager, encoding)
                 };
 
-                return content.AddAsync(organization, token);
+                await content.AddAsync(organization, token);
             });
         }
 
