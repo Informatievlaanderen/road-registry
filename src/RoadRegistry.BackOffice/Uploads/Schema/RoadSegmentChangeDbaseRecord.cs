@@ -8,20 +8,20 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public RoadSegmentChangeDbaseRecord()
         {
-            WS_OIDN = new DbaseNumber(Schema.WS_OIDN);
-            METHODE = new DbaseNumber(Schema.METHODE);
-            BEHEERDER = new DbaseCharacter(Schema.BEHEERDER);
-            MORFOLOGIE = new DbaseNumber(Schema.MORFOLOGIE);
-            STATUS = new DbaseNumber(Schema.STATUS);
-            WEGCAT = new DbaseCharacter(Schema.WEGCAT);
-            B_WK_OIDN = new DbaseNumber(Schema.B_WK_OIDN);
-            E_WK_OIDN = new DbaseNumber(Schema.E_WK_OIDN);
-            LSTRNMID = new DbaseNumber(Schema.LSTRNMID);
-            RSTRNMID = new DbaseNumber(Schema.RSTRNMID);
-            TGBEP = new DbaseNumber(Schema.TGBEP);
-            TRANSACTID = new DbaseNumber(Schema.TRANSACTID);
-            RECORDTYPE = new DbaseNumber(Schema.RECORDTYPE);
-            EVENTIDN = new DbaseNumber(Schema.EVENTIDN);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+            METHODE = new DbaseInt16(Schema.METHODE);
+            BEHEERDER = new DbaseString(Schema.BEHEERDER);
+            MORFOLOGIE = new DbaseInt16(Schema.MORFOLOGIE);
+            STATUS = new DbaseInt32(Schema.STATUS);
+            WEGCAT = new DbaseString(Schema.WEGCAT);
+            B_WK_OIDN = new DbaseInt32(Schema.B_WK_OIDN);
+            E_WK_OIDN = new DbaseInt32(Schema.E_WK_OIDN);
+            LSTRNMID = new DbaseNullableInt32(Schema.LSTRNMID);
+            RSTRNMID = new DbaseNullableInt32(Schema.RSTRNMID);
+            TGBEP = new DbaseInt16(Schema.TGBEP);
+            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
+            EVENTIDN = new DbaseInt32(Schema.EVENTIDN);
 
             Values = new DbaseFieldValue[]
             {
@@ -42,32 +42,32 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             };
         }
 
-        public DbaseNumber WS_OIDN { get; }
+        public DbaseInt32 WS_OIDN { get; }
 
-        public DbaseNumber METHODE { get; }
+        public DbaseInt16 METHODE { get; }
 
-        public DbaseCharacter BEHEERDER { get; }
+        public DbaseString BEHEERDER { get; }
 
-        public DbaseNumber MORFOLOGIE { get; }
+        public DbaseInt16 MORFOLOGIE { get; }
 
-        public DbaseNumber STATUS { get; }
+        public DbaseInt32 STATUS { get; }
 
-        public DbaseCharacter WEGCAT { get; }
+        public DbaseString WEGCAT { get; }
 
-        public DbaseNumber B_WK_OIDN { get; }
+        public DbaseInt32 B_WK_OIDN { get; }
 
-        public DbaseNumber E_WK_OIDN { get; }
+        public DbaseInt32 E_WK_OIDN { get; }
 
-        public DbaseNumber LSTRNMID { get; }
+        public DbaseNullableInt32 LSTRNMID { get; }
 
-        public DbaseNumber RSTRNMID { get; }
+        public DbaseNullableInt32 RSTRNMID { get; }
 
-        public DbaseNumber TGBEP { get; }
+        public DbaseInt16 TGBEP { get; }
 
-        public DbaseNumber TRANSACTID { get; }
+        public DbaseInt16 TRANSACTID { get; }
 
-        public DbaseNumber RECORDTYPE { get; }
+        public DbaseInt16 RECORDTYPE { get; }
 
-        public DbaseNumber EVENTIDN { get; }
+        public DbaseInt32 EVENTIDN { get; }
     }
 }

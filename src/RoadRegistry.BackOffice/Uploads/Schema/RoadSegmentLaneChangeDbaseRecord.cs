@@ -8,14 +8,14 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public RoadSegmentLaneChangeDbaseRecord()
         {
-            RS_OIDN = new DbaseNumber(Schema.RS_OIDN);
-            WS_OIDN = new DbaseNumber(Schema.WS_OIDN);
-            VANPOSITIE = new DbaseNumber(Schema.VANPOSITIE);
-            TOTPOSITIE = new DbaseNumber(Schema.TOTPOSITIE);
-            AANTAL = new DbaseNumber(Schema.AANTAL);
-            RICHTING = new DbaseNumber(Schema.RICHTING);
-            TRANSACTID = new DbaseNumber(Schema.TRANSACTID);
-            RECORDTYPE = new DbaseNumber(Schema.RECORDTYPE);
+            RS_OIDN = new DbaseInt32(Schema.RS_OIDN);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+            VANPOSITIE = new DbaseDouble(Schema.VANPOSITIE);
+            TOTPOSITIE = new DbaseDouble(Schema.TOTPOSITIE);
+            AANTAL = new DbaseInt16(Schema.AANTAL);
+            RICHTING = new DbaseInt16(Schema.RICHTING);
+            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 
             Values = new DbaseFieldValue[]
             {
@@ -30,20 +30,20 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             };
         }
 
-        public DbaseNumber RS_OIDN { get; }
+        public DbaseInt32 RS_OIDN { get; }
 
-        public DbaseNumber WS_OIDN { get; }
+        public DbaseInt32 WS_OIDN { get; }
 
-        public DbaseNumber VANPOSITIE { get; }
+        public DbaseDouble VANPOSITIE { get; }
 
-        public DbaseNumber TOTPOSITIE { get; }
+        public DbaseDouble TOTPOSITIE { get; }
 
-        public DbaseNumber AANTAL { get; }
+        public DbaseInt16 AANTAL { get; }
 
-        public DbaseNumber RICHTING { get; }
+        public DbaseInt16 RICHTING { get; }
 
-        public DbaseNumber TRANSACTID { get; }
+        public DbaseInt16 TRANSACTID { get; }
 
-        public DbaseNumber RECORDTYPE { get; }
+        public DbaseInt16 RECORDTYPE { get; }
     }
 }

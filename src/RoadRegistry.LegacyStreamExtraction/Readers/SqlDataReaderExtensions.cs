@@ -1,7 +1,7 @@
 namespace RoadRegistry.LegacyStreamExtraction.Readers
 {
     using System;
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
     using System.IO;
 
     internal static class SqlDataReaderExtensions
@@ -34,8 +34,5 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
 
         public static int? GetNullableInt32(this SqlDataReader reader, int index)
             => reader.IsDBNull(index) ? new int?() : reader.GetInt32(index);
-
-        public static DateTime? GetNullableDateTime(this SqlDataReader reader, int index)
-            => reader.IsDBNull(index) ? new DateTime?() : reader.GetDateTime(index);
     }
 }

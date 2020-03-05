@@ -23,11 +23,11 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.AddedIdentifier:
                             changes = changes.Append(
                                 new AddRoadSegmentToNumberedRoad(
-                                    new AttributeId(record.GW_OIDN.Value.GetValueOrDefault()),
-                                    new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault()),
+                                    new AttributeId(record.GW_OIDN.Value),
+                                    new RoadSegmentId(record.WS_OIDN.Value),
                                     NumberedRoadNumber.Parse(record.IDENT8.Value),
-                                    RoadSegmentNumberedRoadDirection.ByIdentifier[record.RICHTING.Value.GetValueOrDefault()],
-                                    new RoadSegmentNumberedRoadOrdinal(record.VOLGNUMMER.Value.GetValueOrDefault())
+                                    RoadSegmentNumberedRoadDirection.ByIdentifier[record.RICHTING.Value],
+                                    new RoadSegmentNumberedRoadOrdinal(record.VOLGNUMMER.Value)
                                 )
                             );
                             break;

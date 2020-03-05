@@ -23,15 +23,15 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.EqualIdentifier:
                         case RecordType.AddedIdentifier:
                         case RecordType.ModifiedIdentifier:
-                            var segmentId = new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault());
+                            var segmentId = new RoadSegmentId(record.WS_OIDN.Value);
                             if (changes.TryFindAddRoadSegment(segmentId, out var change))
                             {
                                 var lane = new RoadSegmentLaneAttribute(
-                                    new AttributeId(record.RS_OIDN.Value.GetValueOrDefault()),
-                                    new RoadSegmentLaneCount(record.AANTAL.Value.GetValueOrDefault()),
-                                    RoadSegmentLaneDirection.ByIdentifier[record.RICHTING.Value.GetValueOrDefault()],
-                                    RoadSegmentPosition.FromDouble(record.VANPOSITIE.Value.GetValueOrDefault()),
-                                    RoadSegmentPosition.FromDouble(record.TOTPOSITIE.Value.GetValueOrDefault())
+                                    new AttributeId(record.RS_OIDN.Value),
+                                    new RoadSegmentLaneCount(record.AANTAL.Value),
+                                    RoadSegmentLaneDirection.ByIdentifier[record.RICHTING.Value],
+                                    RoadSegmentPosition.FromDouble(record.VANPOSITIE.Value),
+                                    RoadSegmentPosition.FromDouble(record.TOTPOSITIE.Value)
                                 );
                                 changes = changes.Replace(change, change.WithLane(lane));
                             }

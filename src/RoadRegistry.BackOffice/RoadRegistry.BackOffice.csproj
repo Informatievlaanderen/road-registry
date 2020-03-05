@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
-
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>RoadRegistry.BackOffice</RootNamespace>
+    <AssemblyName>RoadRegistry.BackOffice</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="ident2.txt" />

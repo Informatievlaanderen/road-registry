@@ -26,15 +26,15 @@ namespace RoadRegistry.BackOffice.Uploads
                         var record = records.Current;
                         if (record != null)
                         {
-                            if (record.BESCHRIJV.Value == null)
+                            if (!record.BESCHRIJV.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.BESCHRIJV.Field);
                             }
-                            if (record.OPERATOR.Value == null)
+                            if (!record.OPERATOR.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.OPERATOR.Field);
                             }
-                            if (record.ORG.Value == null)
+                            if (!record.ORG.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.ORG.Field);
                             }

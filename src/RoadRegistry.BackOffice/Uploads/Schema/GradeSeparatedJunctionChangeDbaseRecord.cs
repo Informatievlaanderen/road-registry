@@ -8,12 +8,12 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public GradeSeparatedJunctionChangeDbaseRecord()
         {
-            OK_OIDN = new DbaseNumber(Schema.OK_OIDN);
-            TYPE = new DbaseNumber(Schema.TYPE);
-            BO_WS_OIDN = new DbaseNumber(Schema.BO_WS_OIDN);
-            ON_WS_OIDN = new DbaseNumber(Schema.ON_WS_OIDN);
-            TRANSACTID = new DbaseNumber(Schema.TRANSACTID);
-            RECORDTYPE = new DbaseNumber(Schema.RECORDTYPE);
+            OK_OIDN = new DbaseInt32(Schema.OK_OIDN);
+            TYPE = new DbaseInt16(Schema.TYPE);
+            BO_WS_OIDN = new DbaseInt32(Schema.BO_WS_OIDN);
+            ON_WS_OIDN = new DbaseInt32(Schema.ON_WS_OIDN);
+            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 
             Values = new DbaseFieldValue[]
             {
@@ -26,16 +26,16 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             };
         }
 
-        public DbaseNumber OK_OIDN { get; }
+        public DbaseInt32 OK_OIDN { get; }
 
-        public DbaseNumber TYPE { get; }
+        public DbaseInt16 TYPE { get; }
 
-        public DbaseNumber BO_WS_OIDN { get; }
+        public DbaseInt32 BO_WS_OIDN { get; }
 
-        public DbaseNumber ON_WS_OIDN { get; }
+        public DbaseInt32 ON_WS_OIDN { get; }
 
-        public DbaseNumber TRANSACTID { get; }
+        public DbaseInt16 TRANSACTID { get; }
 
-        public DbaseNumber RECORDTYPE { get; }
+        public DbaseInt16 RECORDTYPE { get; }
     }
 }

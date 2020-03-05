@@ -8,13 +8,13 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public NumberedRoadChangeDbaseRecord()
         {
-            GW_OIDN = new DbaseNumber(Schema.GW_OIDN);
-            WS_OIDN = new DbaseNumber(Schema.WS_OIDN);
-            IDENT8 = new DbaseCharacter(Schema.IDENT8);
-            RICHTING = new DbaseNumber(Schema.RICHTING);
-            VOLGNUMMER = new DbaseNumber(Schema.VOLGNUMMER);
-            TRANSACTID = new DbaseNumber(Schema.TRANSACTID);
-            RECORDTYPE = new DbaseNumber(Schema.RECORDTYPE);
+            GW_OIDN = new DbaseInt32(Schema.GW_OIDN);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+            IDENT8 = new DbaseString(Schema.IDENT8);
+            RICHTING = new DbaseInt16(Schema.RICHTING);
+            VOLGNUMMER = new DbaseInt32(Schema.VOLGNUMMER);
+            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 
             Values = new DbaseFieldValue[]
             {
@@ -28,18 +28,18 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             };
         }
 
-        public DbaseNumber GW_OIDN { get; }
+        public DbaseInt32 GW_OIDN { get; }
 
-        public DbaseNumber WS_OIDN { get; }
+        public DbaseInt32 WS_OIDN { get; }
 
-        public DbaseCharacter IDENT8 { get; }
+        public DbaseString IDENT8 { get; }
 
-        public DbaseNumber RICHTING { get; }
+        public DbaseInt16 RICHTING { get; }
 
-        public DbaseNumber VOLGNUMMER { get; }
+        public DbaseInt32 VOLGNUMMER { get; }
 
-        public DbaseNumber TRANSACTID { get; }
+        public DbaseInt16 TRANSACTID { get; }
 
-        public DbaseNumber RECORDTYPE { get; }
+        public DbaseInt16 RECORDTYPE { get; }
     }
 }

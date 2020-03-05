@@ -8,11 +8,11 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public EuropeanRoadChangeDbaseRecord()
         {
-            EU_OIDN = new DbaseNumber(Schema.EU_OIDN);
-            WS_OIDN = new DbaseNumber(Schema.WS_OIDN);
-            EUNUMMER = new DbaseCharacter(Schema.EUNUMMER);
-            TRANSACTID = new DbaseNumber(Schema.TRANSACTID);
-            RECORDTYPE = new DbaseNumber(Schema.RECORDTYPE);
+            EU_OIDN = new DbaseInt32(Schema.EU_OIDN);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+            EUNUMMER = new DbaseString(Schema.EUNUMMER);
+            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 
             Values = new DbaseFieldValue[]
             {
@@ -24,14 +24,14 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             };
         }
 
-        public DbaseNumber EU_OIDN { get; }
+        public DbaseInt32 EU_OIDN { get; }
 
-        public DbaseNumber WS_OIDN { get; }
+        public DbaseInt32 WS_OIDN { get; }
 
-        public DbaseCharacter EUNUMMER { get; }
+        public DbaseString EUNUMMER { get; }
 
-        public DbaseNumber TRANSACTID { get; }
+        public DbaseInt16 TRANSACTID { get; }
 
-        public DbaseNumber RECORDTYPE { get; }
+        public DbaseInt16 RECORDTYPE { get; }
     }
 }

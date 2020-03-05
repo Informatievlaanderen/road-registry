@@ -8,11 +8,11 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public NationalRoadChangeDbaseRecord()
         {
-            NW_OIDN = new DbaseNumber(Schema.NW_OIDN);
-            WS_OIDN = new DbaseNumber(Schema.WS_OIDN);
-            IDENT2 = new DbaseCharacter(Schema.IDENT2);
-            TRANSACTID = new DbaseNumber(Schema.TRANSACTID);
-            RECORDTYPE = new DbaseNumber(Schema.RECORDTYPE);
+            NW_OIDN = new DbaseInt32(Schema.NW_OIDN);
+            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+            IDENT2 = new DbaseString(Schema.IDENT2);
+            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 
             Values = new DbaseFieldValue[]
             {
@@ -24,14 +24,14 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             };
         }
 
-        public DbaseNumber NW_OIDN { get; }
+        public DbaseInt32 NW_OIDN { get; }
 
-        public DbaseNumber WS_OIDN { get; }
+        public DbaseInt32 WS_OIDN { get; }
 
-        public DbaseCharacter IDENT2 { get; }
+        public DbaseString IDENT2 { get; }
 
-        public DbaseNumber TRANSACTID { get; }
+        public DbaseInt16 TRANSACTID { get; }
 
-        public DbaseNumber RECORDTYPE { get; }
+        public DbaseInt16 RECORDTYPE { get; }
     }
 }

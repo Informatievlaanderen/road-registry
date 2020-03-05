@@ -2,7 +2,7 @@ namespace RoadRegistry.LegacyStreamExtraction.Readers
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
     using BackOffice;
     using BackOffice.Core;
     using BackOffice.Messages;

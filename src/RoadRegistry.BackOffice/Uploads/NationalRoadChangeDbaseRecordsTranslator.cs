@@ -23,8 +23,8 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.AddedIdentifier:
                             changes = changes.Append(
                                 new AddRoadSegmentToNationalRoad(
-                                    new AttributeId(record.NW_OIDN.Value.GetValueOrDefault()),
-                                    new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault()),
+                                    new AttributeId(record.NW_OIDN.Value),
+                                    new RoadSegmentId(record.WS_OIDN.Value),
                                     NationalRoadNumber.Parse(record.IDENT2.Value)
                                 )
                             );

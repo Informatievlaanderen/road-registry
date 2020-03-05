@@ -27,25 +27,25 @@ namespace RoadRegistry.BackOffice.Uploads
                         var record = records.Current;
                         if (record != null)
                         {
-                            if (record.RECORDTYPE.Value == null)
+                            if (!record.RECORDTYPE.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.RECORDTYPE.Field);
                             } else
                             {
-                                if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value.Value))
+                                if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value))
                                 {
-                                    problems += recordContext.RecordTypeMismatch(record.RECORDTYPE.Value.Value);
+                                    problems += recordContext.RecordTypeMismatch(record.RECORDTYPE.Value);
                                 }
                             }
-                            if (record.WEGKNOOPID.Value.HasValue)
+                            if (record.WEGKNOOPID.HasValue)
                             {
-                                if (record.WEGKNOOPID.Value.Value == 0)
+                                if (record.WEGKNOOPID.Value == 0)
                                 {
                                     problems += recordContext.IdentifierZero();
                                 }
                                 else
                                 {
-                                    var identifier = new RoadNodeId(record.WEGKNOOPID.Value.Value);
+                                    var identifier = new RoadNodeId(record.WEGKNOOPID.Value);
                                     if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
                                     {
                                         problems += recordContext.IdentifierNotUnique(
@@ -64,13 +64,13 @@ namespace RoadRegistry.BackOffice.Uploads
                                 problems += recordContext.RequiredFieldIsNull(record.WEGKNOOPID.Field);
                             }
 
-                            if (!record.TYPE.Value.HasValue)
+                            if (!record.TYPE.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.TYPE.Field);
                             }
-                            else if (!RoadNodeType.ByIdentifier.ContainsKey(record.TYPE.Value.Value))
+                            else if (!RoadNodeType.ByIdentifier.ContainsKey(record.TYPE.Value))
                             {
-                                problems += recordContext.RoadNodeTypeMismatch(record.TYPE.Value.Value);
+                                problems += recordContext.RoadNodeTypeMismatch(record.TYPE.Value);
                             }
 
                             moved = records.MoveNext();

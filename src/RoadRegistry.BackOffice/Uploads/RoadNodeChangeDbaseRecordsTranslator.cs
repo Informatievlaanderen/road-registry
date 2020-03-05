@@ -25,8 +25,8 @@ namespace RoadRegistry.BackOffice.Uploads
                             changes = changes.Append(
                                 new AddRoadNode(
                                     recordNumber,
-                                    new RoadNodeId(record.WEGKNOOPID.Value.GetValueOrDefault()),
-                                    RoadNodeType.ByIdentifier[record.TYPE.Value.GetValueOrDefault()]
+                                    new RoadNodeId(record.WEGKNOOPID.Value),
+                                    RoadNodeType.ByIdentifier[record.TYPE.Value]
                                 )
                             );
                             break;

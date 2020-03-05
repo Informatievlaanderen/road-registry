@@ -23,14 +23,14 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.EqualIdentifier:
                         case RecordType.AddedIdentifier:
                         case RecordType.ModifiedIdentifier:
-                            var segmentId = new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault());
+                            var segmentId = new RoadSegmentId(record.WS_OIDN.Value);
                             if (changes.TryFindAddRoadSegment(segmentId, out var before))
                             {
                                 var surface = new RoadSegmentSurfaceAttribute(
-                                    new AttributeId(record.WV_OIDN.Value.GetValueOrDefault()),
-                                    RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value.GetValueOrDefault()],
-                                    RoadSegmentPosition.FromDouble(record.VANPOSITIE.Value.GetValueOrDefault()),
-                                    RoadSegmentPosition.FromDouble(record.TOTPOSITIE.Value.GetValueOrDefault())
+                                    new AttributeId(record.WV_OIDN.Value),
+                                    RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value],
+                                    RoadSegmentPosition.FromDouble(record.VANPOSITIE.Value),
+                                    RoadSegmentPosition.FromDouble(record.TOTPOSITIE.Value)
                                 );
                                 changes = changes.Replace(before, before.WithSurface(surface));
                             }

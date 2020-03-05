@@ -1,9 +1,11 @@
 System.Collections.Immutable
+
 Microsoft.IO.RecyclableMemoryStream
 
 FluentValidation
 MessagePack
 NetTopologySuite
+NodaTime
 SqlStreamStore
 
 Be.Vlaanderen.Basisregisters.BlobStore
