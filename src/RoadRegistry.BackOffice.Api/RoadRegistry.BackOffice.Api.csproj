@@ -12,13 +12,16 @@
     <ProjectReference Include="..\RoadRegistry.BackOffice.Schema\RoadRegistry.BackOffice.Schema.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Dockerfile">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="init.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="init.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
