@@ -24,6 +24,7 @@ src/RoadRegistry.LegacyStreamExtraction/output/
 src/RoadRegistry.LegacyStreamLoader/output/
 src/RoadRegistry.LegacyDatabase/empty/legacydb.bak
 src/RoadRegistry.LegacyDatabase/filled/legacydb.bak
+SolutionInfo.cs
 
 *.suo
 *.user
