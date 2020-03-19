@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace RoadRegistry.BackOffice.Schema.Migrations
@@ -13,6 +12,34 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.EnsureSchema(
                 name: "RoadRegistryShape");
+
+            migrationBuilder.CreateTable(
+                name: "RoadNodeBoundingBox",
+                columns: table => new
+                {
+                    MinimumX = table.Column<double>(nullable: false),
+                    MaximumX = table.Column<double>(nullable: false),
+                    MinimumY = table.Column<double>(nullable: false),
+                    MaximumY = table.Column<double>(nullable: false)
+                },
+                constraints: table =>
+                {
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoadSegmentBoundingBox",
+                columns: table => new
+                {
+                    MinimumX = table.Column<double>(nullable: false),
+                    MaximumX = table.Column<double>(nullable: false),
+                    MinimumY = table.Column<double>(nullable: false),
+                    MaximumY = table.Column<double>(nullable: false),
+                    MinimumM = table.Column<double>(nullable: false),
+                    MaximumM = table.Column<double>(nullable: false)
+                },
+                constraints: table =>
+                {
+                });
 
             migrationBuilder.CreateTable(
                 name: "ProjectionStates",
@@ -36,7 +63,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                    DbaseRecord = table.Column<byte[]>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -50,10 +77,10 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
-                    Code = table.Column<string>(nullable: true),
-                    SortableCode = table.Column<string>(nullable: true)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DbaseRecord = table.Column<byte[]>(nullable: false),
+                    Code = table.Column<string>(nullable: false),
+                    SortableCode = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -66,10 +93,10 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false),
-                    Title = table.Column<string>(nullable: true),
-                    Type = table.Column<string>(nullable: true),
-                    Content = table.Column<string>(nullable: true),
-                    When = table.Column<string>(nullable: true)
+                    Title = table.Column<string>(nullable: false),
+                    Type = table.Column<string>(nullable: false),
+                    Content = table.Column<string>(nullable: false),
+                    When = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -107,13 +134,13 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    ShapeRecordContent = table.Column<byte[]>(nullable: true),
+                    ShapeRecordContent = table.Column<byte[]>(nullable: false),
                     ShapeRecordContentLength = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
-                    BoundingBox_MinimumX = table.Column<double>(nullable: false),
-                    BoundingBox_MaximumX = table.Column<double>(nullable: false),
-                    BoundingBox_MinimumY = table.Column<double>(nullable: false),
-                    BoundingBox_MaximumY = table.Column<double>(nullable: false)
+                    DbaseRecord = table.Column<byte[]>(nullable: false),
+                    BoundingBox_MinimumX = table.Column<double>(nullable: true),
+                    BoundingBox_MaximumX = table.Column<double>(nullable: true),
+                    BoundingBox_MinimumY = table.Column<double>(nullable: true),
+                    BoundingBox_MaximumY = table.Column<double>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -127,15 +154,15 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    ShapeRecordContent = table.Column<byte[]>(nullable: true),
+                    ShapeRecordContent = table.Column<byte[]>(nullable: false),
                     ShapeRecordContentLength = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true),
-                    BoundingBox_MinimumX = table.Column<double>(nullable: false),
-                    BoundingBox_MaximumX = table.Column<double>(nullable: false),
-                    BoundingBox_MinimumY = table.Column<double>(nullable: false),
-                    BoundingBox_MaximumY = table.Column<double>(nullable: false),
-                    BoundingBox_MinimumM = table.Column<double>(nullable: false),
-                    BoundingBox_MaximumM = table.Column<double>(nullable: false)
+                    DbaseRecord = table.Column<byte[]>(nullable: false),
+                    BoundingBox_MinimumX = table.Column<double>(nullable: true),
+                    BoundingBox_MaximumX = table.Column<double>(nullable: true),
+                    BoundingBox_MinimumY = table.Column<double>(nullable: true),
+                    BoundingBox_MaximumY = table.Column<double>(nullable: true),
+                    BoundingBox_MinimumM = table.Column<double>(nullable: true),
+                    BoundingBox_MaximumM = table.Column<double>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -150,7 +177,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 {
                     Id = table.Column<int>(nullable: false),
                     RoadSegmentId = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                    DbaseRecord = table.Column<byte[]>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -165,7 +192,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 {
                     Id = table.Column<int>(nullable: false),
                     RoadSegmentId = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                    DbaseRecord = table.Column<byte[]>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -180,7 +207,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 {
                     Id = table.Column<int>(nullable: false),
                     RoadSegmentId = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                    DbaseRecord = table.Column<byte[]>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -195,7 +222,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 {
                     Id = table.Column<int>(nullable: false),
                     RoadSegmentId = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                    DbaseRecord = table.Column<byte[]>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -210,7 +237,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 {
                     Id = table.Column<int>(nullable: false),
                     RoadSegmentId = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                    DbaseRecord = table.Column<byte[]>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -225,7 +252,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 {
                     Id = table.Column<int>(nullable: false),
                     RoadSegmentId = table.Column<int>(nullable: false),
-                    DbaseRecord = table.Column<byte[]>(nullable: true)
+                    DbaseRecord = table.Column<byte[]>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -253,10 +280,52 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 table: "RoadNetworkInfo",
                 column: "Id")
                 .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoadSegmentEuropeanRoadAttribute_RoadSegmentId",
+                schema: "RoadRegistryShape",
+                table: "RoadSegmentEuropeanRoadAttribute",
+                column: "RoadSegmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoadSegmentLaneAttribute_RoadSegmentId",
+                schema: "RoadRegistryShape",
+                table: "RoadSegmentLaneAttribute",
+                column: "RoadSegmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoadSegmentNationalRoadAttribute_RoadSegmentId",
+                schema: "RoadRegistryShape",
+                table: "RoadSegmentNationalRoadAttribute",
+                column: "RoadSegmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoadSegmentNumberedRoadAttribute_RoadSegmentId",
+                schema: "RoadRegistryShape",
+                table: "RoadSegmentNumberedRoadAttribute",
+                column: "RoadSegmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoadSegmentSurfaceAttribute_RoadSegmentId",
+                schema: "RoadRegistryShape",
+                table: "RoadSegmentSurfaceAttribute",
+                column: "RoadSegmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoadSegmentWidthAttribute_RoadSegmentId",
+                schema: "RoadRegistryShape",
+                table: "RoadSegmentWidthAttribute",
+                column: "RoadSegmentId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "RoadNodeBoundingBox");
+
+            migrationBuilder.DropTable(
+                name: "RoadSegmentBoundingBox");
+
             migrationBuilder.DropTable(
                 name: "ProjectionStates",
                 schema: "RoadRegistryProjectionMetaData");

@@ -1,10 +1,9 @@
 ﻿namespace RoadRegistry.BackOffice.EventHost
 {
     using System;
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
     using System.IO;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using Amazon;
     using Amazon.Runtime;
@@ -15,7 +14,6 @@
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
     using Configuration;
     using Core;
-    using Destructurama;
     using Framework;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +22,7 @@
     using Microsoft.IO;
     using NodaTime;
     using Serilog;
+    using Serilog.Formatting.Compact;
     using SqlStreamStore;
     using Uploads;
 
@@ -62,12 +61,11 @@
 
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(hostContext.Configuration)
-                        .WriteTo.Console()
+                        .WriteTo.Console(new RenderedCompactJsonFormatter())
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
                         .Enrich.WithThreadId()
-                        .Enrich.WithEnvironmentUserName()
-                        .Destructure.JsonNetTypes();
+                        .Enrich.WithEnvironmentUserName();
 
                     Log.Logger = loggerConfiguration.CreateLogger();
 

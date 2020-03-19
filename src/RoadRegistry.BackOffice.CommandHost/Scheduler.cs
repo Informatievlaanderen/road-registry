@@ -4,8 +4,8 @@ namespace RoadRegistry.BackOffice.CommandHost
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using System.Threading.Channels;
     using System.Threading.Tasks;
-    using System.Threading.Tasks.Dataflow;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using NodaTime;
@@ -18,13 +18,10 @@ namespace RoadRegistry.BackOffice.CommandHost
         private readonly ILogger<Scheduler> _logger;
 
         private readonly TimeSpan _frequency;
-
-        private CancellationTokenSource _messagePumpCancellation;
-
-        private BufferBlock<object> _messagePumpInbox;
-
         private Timer _timer;
 
+        private CancellationTokenSource _messagePumpCancellation;
+        private Channel<object> _messageChannel;
         private Task _messagePump;
 
         public Scheduler(IClock clock, ILogger<Scheduler> logger)
@@ -34,14 +31,14 @@ namespace RoadRegistry.BackOffice.CommandHost
             _frequency = DefaultFrequency;
         }
 
-        public void Schedule(Action action, TimeSpan due)
+        public async Task Schedule(Func<CancellationToken, Task> action, TimeSpan due)
         {
             if (action == null)
             {
                 throw new ArgumentNullException(nameof(action));
             }
 
-            _messagePumpInbox?.Post(
+            await _messageChannel.Writer.WriteAsync(
                 new ScheduleAction
                 {
                     Action = action,
@@ -52,26 +49,25 @@ namespace RoadRegistry.BackOffice.CommandHost
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _messagePumpCancellation = new CancellationTokenSource();
-            _messagePumpInbox = new BufferBlock<object>(new DataflowBlockOptions
+            _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
             {
-                BoundedCapacity = int.MaxValue,
-                EnsureOrdered = false,
-                MaxMessagesPerTask = 1,
-                CancellationToken = _messagePumpCancellation.Token
+                SingleReader = true,
+                SingleWriter = false,
+                AllowSynchronousContinuations = true
             });
             _timer = new Timer(
-                _ => _messagePumpInbox.Post(new TimerElapsed { Time = _clock.GetCurrentInstant() }),
+                async _ => await _messageChannel.Writer.WriteAsync(new TimerElapsed { Time = _clock.GetCurrentInstant() }, _messagePumpCancellation.Token),
                 null,
                 Timeout.InfiniteTimeSpan,
                 Timeout.InfiniteTimeSpan);
             _messagePump = Task.Run(async () =>
             {
                 var scheduled = new List<ScheduledAction>();
-                while (!_messagePumpCancellation.IsCancellationRequested)
+                try
                 {
-                    try
+                    while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token))
                     {
-                        switch (await _messagePumpInbox.ReceiveAsync(_messagePumpCancellation.Token))
+                        switch (await _messageChannel.Reader.ReadAsync(_messagePumpCancellation.Token))
                         {
                             case TimerElapsed elapsed:
                                 if (_logger.IsEnabled(LogLevel.Debug))
@@ -89,7 +85,7 @@ namespace RoadRegistry.BackOffice.CommandHost
 
                                 foreach (var dueEntry in dueEntries)
                                 {
-                                    dueEntry.Action();
+                                    await dueEntry.Action(_messagePumpCancellation.Token);
                                     scheduled.Remove(dueEntry);
                                 }
 
@@ -126,26 +122,26 @@ namespace RoadRegistry.BackOffice.CommandHost
                                 break;
                         }
                     }
-                    catch (TaskCanceledException)
+                }
+                catch (TaskCanceledException)
+                {
+                    if (_logger.IsEnabled(LogLevel.Information))
                     {
-                        if (_logger.IsEnabled(LogLevel.Information))
-                        {
-                            _logger.Log(LogLevel.Information, "Scheduler message pump is exiting due to cancellation.");
-                        }
+                        _logger.Log(LogLevel.Information, "Scheduler message pump is exiting due to cancellation.");
                     }
-                    catch (OperationCanceledException)
+                }
+                catch (OperationCanceledException)
+                {
+                    if (_logger.IsEnabled(LogLevel.Information))
                     {
-                        if (_logger.IsEnabled(LogLevel.Information))
-                        {
-                            _logger.Log(LogLevel.Information, "Scheduler message pump is exiting due to cancellation.");
-                        }
+                        _logger.Log(LogLevel.Information, "Scheduler message pump is exiting due to cancellation.");
                     }
-                    catch (Exception exception)
+                }
+                catch (Exception exception)
+                {
+                    if (_logger.IsEnabled(LogLevel.Error))
                     {
-                        if (_logger.IsEnabled(LogLevel.Error))
-                        {
-                            _logger.Log(LogLevel.Error, exception, "Scheduler message pump is exiting due to a bug.");
-                        }
+                        _logger.Log(LogLevel.Error, exception, "Scheduler message pump is exiting due to a bug.");
                     }
                 }
             }, _messagePumpCancellation.Token);
@@ -155,9 +151,8 @@ namespace RoadRegistry.BackOffice.CommandHost
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            _messageChannel.Writer.Complete();
             _messagePumpCancellation.Cancel();
-            _messagePumpInbox.Complete();
-            await _messagePumpInbox.Completion;
             await _messagePump;
             _messagePumpCancellation.Dispose();
             _timer.Dispose();
@@ -165,11 +160,11 @@ namespace RoadRegistry.BackOffice.CommandHost
 
         private class ScheduledAction
         {
-            public Action Action { get; }
+            public Func<CancellationToken, Task> Action { get; }
 
             public Instant Due { get; }
 
-            public ScheduledAction(Action action, Instant due)
+            public ScheduledAction(Func<CancellationToken, Task> action, Instant due)
             {
                 Action = action;
                 Due = due;
@@ -178,7 +173,7 @@ namespace RoadRegistry.BackOffice.CommandHost
 
         private class ScheduleAction
         {
-            public Action Action { get; set; }
+            public Func<CancellationToken, Task> Action { get; set; }
 
             public Instant Due { get; set; }
         }

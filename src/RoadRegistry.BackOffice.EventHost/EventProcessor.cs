@@ -1,8 +1,9 @@
 namespace RoadRegistry.BackOffice.EventHost
 {
     using System;
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
     using System.Threading;
+    using System.Threading.Channels;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Dataflow;
     using Be.Vlaanderen.Basisregisters.EventHandling;
@@ -26,7 +27,7 @@ namespace RoadRegistry.BackOffice.EventHost
 
         private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
 
-        private readonly BufferBlock<object> _messagePumpInbox;
+        private readonly Channel<object> _messageChannel;
         private readonly CancellationTokenSource _messagePumpCancellation;
         private readonly Task _messagePump;
 
@@ -51,59 +52,55 @@ namespace RoadRegistry.BackOffice.EventHost
             _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
 
             _messagePumpCancellation = new CancellationTokenSource();
-            _messagePumpInbox = new BufferBlock<object>(new DataflowBlockOptions
+            _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
             {
-                BoundedCapacity = int.MaxValue,
-                EnsureOrdered = true,
-                MaxMessagesPerTask = 1,
-                CancellationToken = _messagePumpCancellation.Token
+                SingleReader = true,
+                SingleWriter = false,
+                AllowSynchronousContinuations = false
             });
             _messagePump = Task.Run(async () =>
             {
                 IAllStreamSubscription subscription = null;
                 try
                 {
-                    while (!_messagePumpCancellation.IsCancellationRequested)
+                    while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token))
                     {
-                        switch (await _messagePumpInbox.ReceiveAsync(_messagePumpCancellation.Token))
+                        switch (await _messageChannel.Reader.ReadAsync(_messagePumpCancellation.Token))
                         {
                             case Subscribe _:
                                 subscription?.Dispose();
                                 var position = await positionStore.ReadPosition(RoadNetworkArchiveEventQueue, _messagePumpCancellation.Token);
                                 subscription = streamStore.SubscribeToAll(
-                                    position,
-                                    (_, message, token) =>
+                                    position, async (_, message, token) =>
                                     {
                                         if (filter(message))
                                         {
                                             var command = new ProcessStreamMessage(message);
-                                            _messagePumpInbox.Post(command);
-                                            return command.Completion;
+                                            await _messageChannel.Writer.WriteAsync(command, token);
+                                            await command.Completion;
                                         }
-
-                                        if (message.Position % RecordPositionThreshold == 0 && !_messagePumpCancellation.IsCancellationRequested)
+                                        else if (message.Position % RecordPositionThreshold == 0 && !_messagePumpCancellation.IsCancellationRequested)
                                         {
-                                            _messagePumpInbox.Post(new RecordPosition(message));
+                                            await _messageChannel.Writer.WriteAsync(new RecordPosition(message), token);
                                         }
-
-                                        return Task.CompletedTask;
-                                    },
-                                    (_, reason, exception) =>
+                                    }, async (_, reason, exception) =>
                                     {
                                         if (!_messagePumpCancellation.IsCancellationRequested)
                                         {
-                                            _messagePumpInbox.Post(new SubscriptionDropped(reason, exception));
+                                            await _messageChannel.Writer.WriteAsync(new SubscriptionDropped(reason, exception), _messagePumpCancellation.Token);
                                         }
                                     },
                                     prefetchJsonData: false,
-                                    name: "RoadRegistry.BackOffice.EventProcessor");
+                                    name: "RoadRegistry.BackOffice.EventHost.EventProcessor");
                                 break;
                             case RecordPosition record:
                                 try
                                 {
                                     logger.LogDebug("Recording position of stream message {MessageType} at position {Position} as processed.",
                                         record.Message.Type, record.Message.Position);
-                                    await positionStore.WritePosition(RoadNetworkArchiveEventQueue, record.Message.Position,
+                                    await positionStore.WritePosition(
+                                        RoadNetworkArchiveEventQueue,
+                                        record.Message.Position,
                                         _messagePumpCancellation.Token);
                                 }
                                 catch (Exception exception)
@@ -123,7 +120,9 @@ namespace RoadRegistry.BackOffice.EventHost
                                     var @event = new Event(body).WithMessageId(process.Message.MessageId);
                                     await dispatcher(@event, _messagePumpCancellation.Token);
 
-                                    await positionStore.WritePosition(RoadNetworkArchiveEventQueue, process.Message.Position,
+                                    await positionStore.WritePosition(
+                                        RoadNetworkArchiveEventQueue,
+                                        process.Message.Position,
                                         _messagePumpCancellation.Token);
                                     process.Complete();
                                 }
@@ -140,11 +139,11 @@ namespace RoadRegistry.BackOffice.EventHost
                             case SubscriptionDropped dropped:
                                 if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
                                 {
-                                    scheduler.Schedule(() =>
+                                    await scheduler.Schedule(async token =>
                                     {
                                         if (!_messagePumpCancellation.IsCancellationRequested)
                                         {
-                                            _messagePumpInbox.Post(new Subscribe());
+                                            await _messageChannel.Writer.WriteAsync(new Subscribe(), token);
                                         }
                                     }, ResubscribeAfter);
                                 }
@@ -156,11 +155,11 @@ namespace RoadRegistry.BackOffice.EventHost
                                         && dropped.Exception is SqlException sqlException
                                         && sqlException.Number == -2 /* timeout */)
                                     {
-                                        scheduler.Schedule(() =>
+                                        await scheduler.Schedule(async token =>
                                         {
                                             if (!_messagePumpCancellation.IsCancellationRequested)
                                             {
-                                                _messagePumpInbox.Post(new Subscribe());
+                                                await _messageChannel.Writer.WriteAsync(new Subscribe(), token);
                                             }
                                         }, ResubscribeAfter);
                                     }
@@ -172,14 +171,21 @@ namespace RoadRegistry.BackOffice.EventHost
                 }
                 catch (TaskCanceledException)
                 {
+                    if (logger.IsEnabled(LogLevel.Information))
+                    {
+                        logger.Log(LogLevel.Information, "EventProcessor message pump is exiting due to cancellation.");
+                    }
                 }
                 catch (OperationCanceledException)
                 {
+                    if (logger.IsEnabled(LogLevel.Information))
+                    {
+                        logger.Log(LogLevel.Information, "EventProcessor message pump is exiting due to cancellation.");
+                    }
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception,
-                        "EventProcessor stopped processing due to an unexpected error.");
+                    logger.LogError(exception, "EventProcessor message pump is exiting due to a bug.");
                 }
                 finally
                 {
@@ -233,14 +239,13 @@ namespace RoadRegistry.BackOffice.EventHost
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             await _scheduler.StartAsync(cancellationToken);
-            await _messagePumpInbox.SendAsync(new Subscribe(), cancellationToken);
+            await _messageChannel.Writer.WriteAsync(new Subscribe(), cancellationToken);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            _messageChannel.Writer.Complete();
             _messagePumpCancellation.Cancel();
-            _messagePumpInbox.Complete();
-            await _messagePumpInbox.Completion;
             await _messagePump;
             _messagePumpCancellation.Dispose();
             await _scheduler.StopAsync(cancellationToken);

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.BackOffice.ProjectionHost
 {
     internal static class WellknownBuckets
     {

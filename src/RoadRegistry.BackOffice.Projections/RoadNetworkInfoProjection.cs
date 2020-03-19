@@ -9,7 +9,7 @@
     using Microsoft.EntityFrameworkCore;
     using Schema;
 
-    public class RoadNetworkInfoProjection : ConnectedProjection<ShapeContext>
+    public class RoadNetworkInfoProjection : ConnectedProjection<BackOfficeContext>
     {
         public RoadNetworkInfoProjection()
         {

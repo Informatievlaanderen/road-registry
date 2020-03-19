@@ -1,0 +1,15 @@
+Microsoft.Data.SqlClient
+Microsoft.Extensions.Logging
+Microsoft.Extensions.Hosting
+
+SqlStreamStore.MsSql
+
+Serilog
+Serilog.Enrichers.Environment
+Serilog.Enrichers.Thread
+Serilog.Extensions.Hosting
+Serilog.Formatting.Compact
+Serilog.Settings.Configuration
+Serilog.Sinks.Console
+
+System.Threading.Channels

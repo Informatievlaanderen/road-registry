@@ -444,7 +444,11 @@ namespace RoadRegistry.Structurizr
             foreach (var @event in events)
                 eventsView.Add(@event);
 
-            eventsView.Relationships.RemoveWhere(x => x.Relationship.Tags.Contains(CustomTags.Event));
+            foreach (var relationship in eventsView.Relationships
+                .Where(x => x.Relationship.Tags.Contains(CustomTags.Event)).ToArray())
+            {
+                eventsView.Relationships.Remove(relationship);
+            }
 
             eventsView.PaperSize = PaperSize.A4_Landscape;
 
@@ -490,7 +494,11 @@ namespace RoadRegistry.Structurizr
             foreach (var command in commands)
                 commandsView.Add(command);
 
-            commandsView.Relationships.RemoveWhere(x => x.Relationship.Tags.Contains(CustomTags.Event));
+            foreach (var relationship in commandsView.Relationships
+                .Where(x => x.Relationship.Tags.Contains(CustomTags.Event)).ToArray()) // ?? CustomTags.Command ??
+            {
+                commandsView.Relationships.Remove(relationship);
+            }
 
             commandsView.PaperSize = PaperSize.A4_Landscape;
 

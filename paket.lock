@@ -1457,6 +1457,7 @@ NUGET
     System.Threading (4.3)
       System.Runtime (>= 4.3)
       System.Threading.Tasks (>= 4.3)
+    System.Threading.Channels (4.7)
     System.Threading.Overlapped (4.3)
       Microsoft.NETCore.Platforms (>= 1.1)
       System.Resources.ResourceManager (>= 4.3)

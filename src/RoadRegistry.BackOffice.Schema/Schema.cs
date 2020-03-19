@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Schema
 {
     public class Schema
     {
-        public const string Events = "RoadRegistry";
         public const string Shape = "RoadRegistryShape";
 
         public const string ProjectionMetaData = "RoadRegistryProjectionMetaData";
@@ -10,6 +9,6 @@ namespace RoadRegistry.BackOffice.Schema
 
     public class MigrationTables
     {
-        public const string Shape = "__EFMigrationsHistoryShape";
+        public const string BackOffice = "__EFMigrationsHistoryBackOffice";
     }
 }

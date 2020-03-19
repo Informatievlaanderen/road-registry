@@ -13,9 +13,9 @@ namespace RoadRegistry.BackOffice.Schema
     using RoadSegmentSurfaceAttributes;
     using RoadSegmentWidthAttributes;
 
-    public class ShapeContext : RunnerDbContext<ShapeContext>
+    public class BackOfficeContext : RunnerDbContext<BackOfficeContext>
     {
-        public override string ProjectionStateSchema => Schema.ProjectionMetaData;
+        public override string ProjectionStateSchema => WellknownSchemas.BackOfficeMetaSchema;
 
         public DbSet<RoadNodeRecord> RoadNodes { get; set; }
         public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
@@ -28,14 +28,14 @@ namespace RoadRegistry.BackOffice.Schema
         public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
         public DbSet<OrganizationRecord> Organizations { get; set; }
         public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }
-        public DbQuery<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
-        public DbQuery<RoadSegmentBoundingBox3D> RoadSegmentBoundingBox { get; set; }
+        public DbSet<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
+        public DbSet<RoadSegmentBoundingBox3D> RoadSegmentBoundingBox { get; set; }
         public DbSet<RoadNetworkChange> RoadNetworkChanges { get; set; }
 
-        public ShapeContext() {}
+        public BackOfficeContext() {}
 
         // This needs to be DbContextOptions<T> for Autofac!
-        public ShapeContext(DbContextOptions<ShapeContext> options)
+        public BackOfficeContext(DbContextOptions<BackOfficeContext> options)
             : base(options) { }
 
         protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)

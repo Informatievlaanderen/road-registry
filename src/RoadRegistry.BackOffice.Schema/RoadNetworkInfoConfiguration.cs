@@ -9,9 +9,9 @@
 
         public void Configure(EntityTypeBuilder<RoadNetworkInfo> b)
         {
-            b.ToTable(TableName, Schema.Shape)
+            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
                 .HasIndex(p => p.Id)
-                .ForSqlServerIsClustered(false);
+                .IsClustered(false);
 
             b.Property(p => p.Id).ValueGeneratedNever().HasDefaultValue(0);
             b.Property(p => p.CompletedImport).HasDefaultValue(false);

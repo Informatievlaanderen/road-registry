@@ -11,7 +11,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Schema;
     using Schema.RoadSegmentNationalRoadAttributes;
 
-    public class RoadSegmentNationalRoadAttributeRecordProjection : ConnectedProjection<ShapeContext>
+    public class RoadSegmentNationalRoadAttributeRecordProjection : ConnectedProjection<BackOfficeContext>
     {
         public RoadSegmentNationalRoadAttributeRecordProjection(RecyclableMemoryStreamManager manager,
             Encoding encoding)

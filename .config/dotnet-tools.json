@@ -13,6 +13,12 @@
       "commands": [
         "fake"
       ]
+    },
+    "dotnet-ef": {
+      "version": "3.1.2",
+      "commands": [
+        "dotnet-ef"
+      ]
     }
   }
 }

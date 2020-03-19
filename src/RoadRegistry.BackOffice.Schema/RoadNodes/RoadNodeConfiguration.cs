@@ -9,9 +9,9 @@ namespace RoadRegistry.BackOffice.Schema.RoadNodes
 
         public void Configure(EntityTypeBuilder<RoadNodeRecord> b)
         {
-            b.ToTable(TableName, Schema.Shape)
+            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
                 .HasKey(p => p.Id)
-                .ForSqlServerIsClustered(false);
+                .IsClustered(false);
 
             b.Property(p => p.Id).ValueGeneratedNever();
             b.Property(p => p.ShapeRecordContent);

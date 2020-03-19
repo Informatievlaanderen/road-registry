@@ -9,9 +9,9 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentWidthAttributes
 
         public void Configure(EntityTypeBuilder<RoadSegmentWidthAttributeRecord> b)
         {
-            b.ToTable(TableName, Schema.Shape)
+            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
                 .HasKey(p => p.Id)
-                .ForSqlServerIsClustered(false);
+                .IsClustered(false);
 
             b.Property(p => p.Id).ValueGeneratedNever();
             b.Property(p => p.RoadSegmentId);

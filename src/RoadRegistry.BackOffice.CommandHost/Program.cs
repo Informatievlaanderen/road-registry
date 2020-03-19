@@ -1,7 +1,7 @@
 ﻿namespace RoadRegistry.BackOffice.CommandHost
 {
     using System;
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -17,7 +17,6 @@
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Configuration;
     using Core;
-    using Destructurama;
     using Framework;
     using Messages;
     using Microsoft.Extensions.Configuration;
@@ -69,8 +68,7 @@
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
                         .Enrich.WithThreadId()
-                        .Enrich.WithEnvironmentUserName()
-                        .Destructure.JsonNetTypes();
+                        .Enrich.WithEnvironmentUserName();
 
                     Log.Logger = loggerConfiguration.CreateLogger();
 

@@ -9,9 +9,9 @@ namespace RoadRegistry.BackOffice.Schema.Organizations
 
         public void Configure(EntityTypeBuilder<OrganizationRecord> b)
         {
-            b.ToTable(TableName, Schema.Shape)
+            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
                 .HasIndex(p => p.Id)
-                .ForSqlServerIsClustered(false);
+                .IsClustered(false);
 
             b.Property(p => p.Id).ValueGeneratedOnAdd();
             b.Property(p => p.Code);

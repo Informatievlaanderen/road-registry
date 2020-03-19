@@ -19,20 +19,20 @@ let push = push dockerRepository
 Target "Restore_Solution" (fun _ -> restore "RoadRegistry")
 
 Target "Build_Solution" (fun _ ->
-  CleanDir ("src" @@ "RoadRegistry.UI" @@ "wwwroot")
-  CleanDir ("src" @@ "RoadRegistry.UI" @@ "elm-stuff")
+  CleanDir ("src" @@ "RoadRegistry.BackOffice.UI" @@ "wwwroot")
+  CleanDir ("src" @@ "RoadRegistry.BackOffice.UI" @@ "elm-stuff")
 
   Npm (fun p ->
     { p with
         Command = Install Standard
-        WorkingDirectory = "src" @@ "RoadRegistry.UI"
+        WorkingDirectory = "src" @@ "RoadRegistry.BackOffice.UI"
     }
   )
 
   Npm (fun p ->
     { p with
         Command = (Run "build")
-        WorkingDirectory = "src" @@ "RoadRegistry.UI"
+        WorkingDirectory = "src" @@ "RoadRegistry.BackOffice.UI"
     }
   )
 
@@ -51,7 +51,7 @@ Target "Publish_Solution" (fun _ ->
     "RoadRegistry.LegacyStreamExtraction"
     "RoadRegistry.LegacyStreamLoader"
     "RoadRegistry.BackOffice.Api"
-    "RoadRegistry.UI"
+    "RoadRegistry.BackOffice.UI"
   ] |> List.iter publish)
 
 Target "Pack_Solution" DoNothing
@@ -59,17 +59,17 @@ Target "Pack_Solution" DoNothing
 Target "Containerize_BackOfficeApi" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
 Target "PushContainer_BackOfficeApi" (fun _ -> push "backoffice-api")
 
-Target "Containerize_BackOfficeUI" (fun _ -> containerize "RoadRegistry.UI" "backoffice-ui")
+Target "Containerize_BackOfficeUI" (fun _ -> containerize "RoadRegistry.BackOffice.UI" "backoffice-ui")
 Target "PushContainer_BackOfficeUI" (fun _ -> push "backoffice-ui")
 
-Target "Containerize_BackOfficeProjectionHost" (fun _ -> containerize "RoadRegistry.BackOffice.Projections" "backoffice-projectionhost")
-Target "PushContainer_Projections" (fun _ -> push "backoffice-projectionhost")
+Target "Containerize_BackOfficeProjectionHost" (fun _ -> containerize "RoadRegistry.BackOffice.ProjectionHost" "backoffice-projectionhost")
+Target "PushContainer_BackOfficeProjectionHost" (fun _ -> push "backoffice-projectionhost")
 
 Target "Containerize_BackOfficeEventHost" (fun _ -> containerize "RoadRegistry.BackOffice.EventHost" "backoffice-eventhost")
-Target "PushContainer_EventHost" (fun _ -> push "backoffice-eventhost")
+Target "PushContainer_BackOfficeEventHost" (fun _ -> push "backoffice-eventhost")
 
 Target "Containerize_BackOfficeCommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
-Target "PushContainer_CommandHost" (fun _ -> push "backoffice-commandhost")
+Target "PushContainer_BackOfficeCommandHost" (fun _ -> push "backoffice-commandhost")
 
 Target "Containerize_ImportLegacy" (fun _ -> containerize "RoadRegistry.LegacyStreamLoader" "import-legacy")
 Target "PushContainer_ImportLegacy" (fun _ -> push "import-legacy")
@@ -110,15 +110,15 @@ Target "Push" DoNothing
 "Containerize_ExtractLegacy"            ==> "Containerize"
 // Possibly add more projects to containerize here
 
-"Containerize"                ==> "Push"
-"DockerLogin"                 ==> "Push"
-"PushContainer_BackOfficeApi" ==> "Push"
-"PushContainer_BackOfficeUI"  ==> "Push"
-"PushContainer_Projections"   ==> "Push"
-"PushContainer_EventHost"     ==> "Push"
-"PushContainer_CommandHost"   ==> "Push"
-"PushContainer_ImportLegacy"  ==> "Push"
-"PushContainer_ExtractLegacy" ==> "Push"
+"Containerize"                             ==> "Push"
+"DockerLogin"                              ==> "Push"
+"PushContainer_BackOfficeApi"              ==> "Push"
+"PushContainer_BackOfficeUI"               ==> "Push"
+"PushContainer_BackOfficeProjectionHost"   ==> "Push"
+"PushContainer_BackOfficeEventHost"        ==> "Push"
+"PushContainer_BackOfficeCommandHost"      ==> "Push"
+"PushContainer_ImportLegacy"               ==> "Push"
+"PushContainer_ExtractLegacy"              ==> "Push"
 // Possibly add more projects to push here
 
 // By default we build & test

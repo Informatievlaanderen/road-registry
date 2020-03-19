@@ -9,9 +9,9 @@ namespace RoadRegistry.BackOffice.Schema.GradeSeparatedJunctions
 
         public void Configure(EntityTypeBuilder<GradeSeparatedJunctionRecord> b)
         {
-            b.ToTable(TableName, Schema.Shape)
+            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
                 .HasKey(p => p.Id)
-                .ForSqlServerIsClustered(false);
+                .IsClustered(false);
 
             b.Property(p => p.Id).ValueGeneratedNever();
             b.Property(p => p.DbaseRecord);

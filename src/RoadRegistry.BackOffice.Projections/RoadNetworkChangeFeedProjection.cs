@@ -24,7 +24,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Problem = Messages.Problem;
     using RejectedChange = Messages.RejectedChange;
 
-    public class RoadNetworkChangeFeedProjection : ConnectedProjection<ShapeContext>
+    public class RoadNetworkChangeFeedProjection : ConnectedProjection<BackOfficeContext>
     {
         public RoadNetworkChangeFeedProjection(IBlobClient client)
         {

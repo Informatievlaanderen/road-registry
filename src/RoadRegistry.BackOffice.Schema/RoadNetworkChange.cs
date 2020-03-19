@@ -18,7 +18,7 @@ namespace RoadRegistry.BackOffice.Schema
 
         public void Configure(EntityTypeBuilder<RoadNetworkChange> b)
         {
-            b.ToTable(TableName, Schema.Shape)
+            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
                 .HasIndex(p => p.Id)
                 .IsClustered(false);
 

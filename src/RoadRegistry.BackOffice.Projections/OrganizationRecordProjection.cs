@@ -10,7 +10,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Schema;
     using Schema.Organizations;
 
-    public class OrganizationRecordProjection : ConnectedProjection<ShapeContext>
+    public class OrganizationRecordProjection : ConnectedProjection<BackOfficeContext>
     {
         public OrganizationRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {

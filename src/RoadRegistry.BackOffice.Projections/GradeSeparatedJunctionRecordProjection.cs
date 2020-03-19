@@ -9,7 +9,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Schema;
     using Schema.GradeSeparatedJunctions;
 
-    public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<ShapeContext>
+    public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<BackOfficeContext>
     {
         public GradeSeparatedJunctionRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
