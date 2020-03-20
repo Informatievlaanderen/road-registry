@@ -5,17 +5,13 @@ namespace RoadRegistry.BackOffice.Api.Downloads
     using System.Text;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Api;
-    using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using Framework;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
     using Microsoft.Net.Http.Headers;
-    using Newtonsoft.Json.Converters;
-    using Responses;
     using Schema;
-    using Swashbuckle.AspNetCore.Filters;
     using ZipArchiveWriters;
 
     [ApiVersion("1.0")]
@@ -31,18 +27,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         }
 
-        /// <summary>
-        /// Request an archive of the entire road registry for shape editing purposes.
-        /// </summary>
-        /// <param name="context">The database context to query data with.</param>
-        /// <response code="200">Returned if the road registry can be downloaded.</response>
-        /// <response code="500">Returned if the road registry can not be downloaded due to an unforeseen server error.</response>
-        /// <response code="503">Returned if the road registry can not yet be downloaded (e.g. because the import has not yet completed).</response>
         [HttpGet("")]
-        [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        [SwaggerResponseExample(StatusCodes.Status200OK, typeof(DownloadResponseExamples), jsonConverter: typeof(StringEnumConverter))]
-        [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         public async Task<IActionResult> Get(
             [FromServices] BackOfficeContext context)
         {
@@ -56,7 +41,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
                 new MediaTypeHeaderValue("application/zip"),
                 async (stream, actionContext) =>
                 {
-                    var encoding = Encoding.ASCII; // TODO: Inject
+                    var encoding = Encoding.GetEncoding(1252);
                     var writer = new RoadNetworkForShapeEditingZipArchiveWriter(_manager, encoding);
                     using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
                     {

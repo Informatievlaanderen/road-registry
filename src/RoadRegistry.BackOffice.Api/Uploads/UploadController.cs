@@ -7,16 +7,12 @@ namespace RoadRegistry.BackOffice.Api.Uploads
     using BackOffice;
     using BackOffice.Framework;
     using Be.Vlaanderen.Basisregisters.Api;
-    using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Framework;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Net.Http.Headers;
-    using Newtonsoft.Json.Converters;
-    using Responses;
-    using Swashbuckle.AspNetCore.Filters;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]
@@ -24,22 +20,7 @@ namespace RoadRegistry.BackOffice.Api.Uploads
     [ApiExplorerSettings(GroupName = "Uploads")]
     public class UploadController : ControllerBase
     {
-        /// <summary>
-        /// Request an archive of the entire road registry for shape editing purposes.
-        /// </summary>
-        /// <param name="dispatcher">The command handler dispatcher.</param>
-        /// <param name="client">The blob client to upload the file with.</param>
-        /// <param name="archive">The file to upload.</param>
-        /// <response code="200">Returned if the file was uploaded.</response>
-        /// <response code="415">Returned if the file can not be uploaded due to an unsupported media type.</response>
-        /// <response code="500">Returned if the file can not be uploaded due to an unforeseen server error.</response>
         [HttpPost("")]
-        [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(UnsupportedMediaTypeResult), StatusCodes.Status415UnsupportedMediaType)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        [SwaggerResponseExample(StatusCodes.Status200OK, typeof(UploadResponseExamples), jsonConverter: typeof(StringEnumConverter))]
-        [SwaggerResponseExample(StatusCodes.Status415UnsupportedMediaType, typeof(UnsupportedMediaTypeResponseExamples), jsonConverter: typeof(StringEnumConverter))]
-        [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [DisableRequestSizeLimit]
         [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
         public async Task<IActionResult> Post(
@@ -85,10 +66,6 @@ namespace RoadRegistry.BackOffice.Api.Uploads
         }
 
         [HttpGet("{identifier}")]
-        [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Get([FromServices] IBlobClient client, string identifier)
         {
             if (!ArchiveId.Accepts(identifier))

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Information.Responses
+namespace RoadRegistry.BackOffice.Api.Information
 {
     using System;
     using Schema;

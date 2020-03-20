@@ -1,8 +1,6 @@
 namespace RoadRegistry.BackOffice.Api
 {
     using System.Reflection;
-    using System.Threading;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Net.Http.Headers;
 

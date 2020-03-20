@@ -6,18 +6,14 @@ namespace RoadRegistry.BackOffice.Api.Changes
     using System.Linq;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Api;
-    using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
     using NodaTime;
     using NodaTime.Text;
-    using Responses;
     using Schema;
-    using Swashbuckle.AspNetCore.Filters;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]
@@ -38,17 +34,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
             _localTimeOfDayPattern = LocalTimePattern.CreateWithInvariantCulture("HH':'mm");
         }
 
-        /// <summary>
-        /// Request an archive of the entire road registry for shape editing purposes.
-        /// </summary>
-        /// <param name="context">The database context to query data with.</param>
-        /// <response code="200">Returned if the road registry activity can be downloaded.</response>
-        /// <response code="500">Returned if the road registry activity can not be downloaded due to an unforeseen server error.</response>
         [HttpGet("")]
-        [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        [SwaggerResponseExample(StatusCodes.Status200OK, typeof(ChangeFeedResponseExamples), jsonConverter: typeof(StringEnumConverter))]
-        [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         public async Task<IActionResult> Get([FromServices] BackOfficeContext context)
         {
             var entries = new List<ChangeFeedEntry>();
