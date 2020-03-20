@@ -2,10 +2,9 @@ namespace RoadRegistry.BackOffice.Api
 {
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Framework.Containers;
-    using RoadRegistry.Api.Downloads;
-    using RoadRegistry.Api.ZipArchiveWriters;
     using Schema.ReferenceData;
     using Xunit;
+    using ZipArchiveWriters;
 
     public class ListsTests
     {

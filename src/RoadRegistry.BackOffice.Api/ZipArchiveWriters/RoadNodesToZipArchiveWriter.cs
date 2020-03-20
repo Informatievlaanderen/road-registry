@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.ZipArchiveWriters
+namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
 {
     using System;
     using System.IO;
@@ -7,11 +7,11 @@ namespace RoadRegistry.Api.ZipArchiveWriters
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using BackOffice.Schema;
-    using BackOffice.Schema.RoadNodes;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
+    using Schema;
+    using Schema.RoadNodes;
 
     public class RoadNodesToZipArchiveWriter : IZipArchiveWriter
     {
@@ -24,7 +24,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, ShapeContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, BackOfficeContext context, CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -57,7 +57,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
                 (await
                      context
                     .RoadNodeBoundingBox
-                    .FromSql("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [RoadRegistry].[RoadRegistryShape].[RoadNode]")
+                    .FromSqlRaw("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [RoadRegistry].[RoadRegistryShape].[RoadNode]")
                     .SingleOrDefaultAsync(cancellationToken)
                 )?.ToBoundingBox3D()
                 ?? new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);

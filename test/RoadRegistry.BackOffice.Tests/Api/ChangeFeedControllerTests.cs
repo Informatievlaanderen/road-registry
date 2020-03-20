@@ -2,6 +2,8 @@ namespace RoadRegistry.BackOffice.Api
 {
     using System;
     using System.Threading.Tasks;
+    using Changes;
+    using Changes.Responses;
     using Framework.Containers;
     using Messages;
     using Microsoft.AspNetCore.Http;
@@ -10,8 +12,6 @@ namespace RoadRegistry.BackOffice.Api
     using NodaTime;
     using NodaTime.Testing;
     using NodaTime.Text;
-    using RoadRegistry.Api.Activities;
-    using RoadRegistry.Api.Changes.Responses;
     using Schema;
     using Xunit;
 

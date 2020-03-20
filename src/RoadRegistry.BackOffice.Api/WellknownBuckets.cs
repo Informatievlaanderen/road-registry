@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api
+namespace RoadRegistry.BackOffice.Api
 {
     internal static class WellknownBuckets
     {

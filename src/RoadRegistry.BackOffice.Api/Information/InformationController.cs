@@ -1,14 +1,14 @@
-namespace RoadRegistry.Api.Information
+namespace RoadRegistry.BackOffice.Api.Information
 {
     using System.Threading.Tasks;
-    using BackOffice.Schema;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-    using Responses;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json.Converters;
+    using Responses;
+    using Schema;
     using Swashbuckle.AspNetCore.Filters;
 
     [ApiVersion("1.0")]
@@ -25,11 +25,11 @@ namespace RoadRegistry.Api.Information
         /// <response code="500">Returned if the road registry information can not be downloaded due to an unforeseen server error.</response>
         [HttpGet("")]
         [ProducesResponseType(typeof(JsonResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(BasicApiProblem), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [SwaggerResponseExample(StatusCodes.Status200OK, typeof(InformationResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         public async Task<IActionResult> Get(
-            [FromServices] ShapeContext context)
+            [FromServices] BackOfficeContext context)
         {
             var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
             return new JsonResult(RoadNetworkInformationResponse.From(info));

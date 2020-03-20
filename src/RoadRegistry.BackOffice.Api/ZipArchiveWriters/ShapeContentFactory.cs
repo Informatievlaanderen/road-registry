@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.ZipArchiveWriters
+namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
 {
     using System;
     using System.IO;

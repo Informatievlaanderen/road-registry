@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Downloads
+namespace RoadRegistry.BackOffice.Api.Downloads
 {
     using System;
     using System.IO.Compression;
@@ -6,8 +6,7 @@ namespace RoadRegistry.Api.Downloads
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-    using BackOffice.Schema;
-    using Infrastructure;
+    using Framework;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
@@ -15,6 +14,7 @@ namespace RoadRegistry.Api.Downloads
     using Microsoft.Net.Http.Headers;
     using Newtonsoft.Json.Converters;
     using Responses;
+    using Schema;
     using Swashbuckle.AspNetCore.Filters;
     using ZipArchiveWriters;
 
@@ -40,11 +40,11 @@ namespace RoadRegistry.Api.Downloads
         /// <response code="503">Returned if the road registry can not yet be downloaded (e.g. because the import has not yet completed).</response>
         [HttpGet("")]
         [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(BasicApiProblem), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [SwaggerResponseExample(StatusCodes.Status200OK, typeof(DownloadResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         public async Task<IActionResult> Get(
-            [FromServices] ShapeContext context)
+            [FromServices] BackOfficeContext context)
         {
             var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
             if (info == null || !info.CompletedImport)

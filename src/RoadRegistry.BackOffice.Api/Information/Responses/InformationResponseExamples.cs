@@ -1,6 +1,5 @@
-namespace RoadRegistry.Api.Information.Responses
+namespace RoadRegistry.BackOffice.Api.Information.Responses
 {
-    using BackOffice.Schema;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Filters;
 

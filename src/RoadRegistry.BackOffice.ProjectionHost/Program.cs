@@ -157,6 +157,9 @@
                                 )
                             );
                             break;
+
+                        default:
+                            throw new Exception(blobOptions.BlobClientType + " is not a supported blob client type.");
                     }
 
                     builder

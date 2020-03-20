@@ -3,12 +3,12 @@
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Downloads;
+    using Framework;
     using Framework.Containers;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.IO;
-    using RoadRegistry.Api.Downloads;
-    using RoadRegistry.Api.Infrastructure;
     using Schema;
     using Xunit;
 

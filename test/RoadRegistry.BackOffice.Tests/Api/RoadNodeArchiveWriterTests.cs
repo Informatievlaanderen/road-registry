@@ -7,9 +7,9 @@
     using System.Threading.Tasks;
     using Framework.Containers;
     using Microsoft.IO;
-    using RoadRegistry.Api.ZipArchiveWriters;
     using Schema;
     using Xunit;
+    using ZipArchiveWriters;
 
     [Collection(nameof(SqlServerCollection))]
     public class RoadNodeArchiveWriterTests

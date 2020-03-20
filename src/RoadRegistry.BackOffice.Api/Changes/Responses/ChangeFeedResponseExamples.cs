@@ -1,8 +1,8 @@
-namespace RoadRegistry.Api.Changes.Responses
+namespace RoadRegistry.BackOffice.Api.Changes.Responses
 {
     using System;
-    using BackOffice.Messages;
-    using BackOffice.Schema;
+    using Messages;
+    using Schema;
     using Swashbuckle.AspNetCore.Filters;
 
     public class ChangeFeedResponseExamples : IExamplesProvider

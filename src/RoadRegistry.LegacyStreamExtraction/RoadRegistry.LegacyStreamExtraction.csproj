@@ -5,11 +5,9 @@
     <RootNamespace>RoadRegistry.LegacyStreamExtraction</RootNamespace>
     <AssemblyName>RoadRegistry.LegacyStreamExtraction</AssemblyName>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="appsettings.seabeast.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -24,6 +22,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
+  <ItemGroup>
+    <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

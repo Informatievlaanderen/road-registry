@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Changes.Responses
+namespace RoadRegistry.BackOffice.Api.Changes.Responses
 {
     public class ChangeFeedEntry
     {

@@ -1,8 +1,7 @@
-namespace RoadRegistry.Api.Downloads.Responses
+namespace RoadRegistry.BackOffice.Api.Downloads.Responses
 {
-    using System.Threading;
     using System.Threading.Tasks;
-    using Infrastructure;
+    using Framework;
     using Microsoft.Net.Http.Headers;
     using Swashbuckle.AspNetCore.Filters;
 

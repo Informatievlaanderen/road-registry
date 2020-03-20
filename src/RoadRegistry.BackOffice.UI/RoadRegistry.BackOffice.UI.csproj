@@ -8,7 +8,6 @@
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Include="wwwroot\**\*" CopyToOutputDirectory="Always" />
     <Folder Include="output" />
@@ -19,6 +18,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
+  <ItemGroup>
+    <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

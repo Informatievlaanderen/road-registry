@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.ZipArchiveWriters
+namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
 {
     using System;
     using System.IO;
@@ -7,11 +7,11 @@ namespace RoadRegistry.Api.ZipArchiveWriters
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using BackOffice.Schema;
-    using BackOffice.Schema.RoadSegments;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
+    using Schema;
+    using Schema.RoadSegments;
 
     public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter
     {
@@ -24,7 +24,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, ShapeContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, BackOfficeContext context, CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -57,7 +57,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
                 (await
                     context
                         .RoadSegmentBoundingBox
-                        .FromSql("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [RoadRegistry].[RoadRegistryShape].[RoadSegment]")
+                        .FromSqlRaw("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [RoadRegistry].[RoadRegistryShape].[RoadSegment]")
                         .SingleOrDefaultAsync(cancellationToken)
                 )?.ToBoundingBox3D()
                 ?? new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);

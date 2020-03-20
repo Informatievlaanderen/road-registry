@@ -1,15 +1,13 @@
-namespace RoadRegistry.Api.Activities
+namespace RoadRegistry.BackOffice.Api.Changes
 {
     using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
-    using BackOffice.Messages;
-    using BackOffice.Schema;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-    using Changes.Responses;
+    using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
@@ -17,6 +15,8 @@ namespace RoadRegistry.Api.Activities
     using Newtonsoft.Json.Converters;
     using NodaTime;
     using NodaTime.Text;
+    using Responses;
+    using Schema;
     using Swashbuckle.AspNetCore.Filters;
 
     [ApiVersion("1.0")]
@@ -46,10 +46,10 @@ namespace RoadRegistry.Api.Activities
         /// <response code="500">Returned if the road registry activity can not be downloaded due to an unforeseen server error.</response>
         [HttpGet("")]
         [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(BasicApiProblem), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [SwaggerResponseExample(StatusCodes.Status200OK, typeof(ChangeFeedResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
-        public async Task<IActionResult> Get([FromServices] ShapeContext context)
+        public async Task<IActionResult> Get([FromServices] BackOfficeContext context)
         {
             var entries = new List<ChangeFeedEntry>();
             await context

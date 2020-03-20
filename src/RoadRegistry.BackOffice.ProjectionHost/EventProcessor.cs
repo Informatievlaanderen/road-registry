@@ -149,8 +149,9 @@ namespace RoadRegistry.BackOffice.ProjectionHost
                                         catchUpPosition,
                                         _messagePumpCancellation.Token);
                                     await context.SaveChangesAsync(_messagePumpCancellation.Token);
-                                    await context.DisposeAsync();
                                 }
+                                await context.DisposeAsync();
+
 
                                 //switch to subscription as of the last page
                                 await _messageChannel.Writer.WriteAsync(new Subscribe(catchUpPosition), _messagePumpCancellation.Token);

@@ -1,7 +1,7 @@
-namespace RoadRegistry.Api.Information.Responses
+namespace RoadRegistry.BackOffice.Api.Information.Responses
 {
     using System;
-    using BackOffice.Schema;
+    using Schema;
 
     public class RoadNetworkInformationResponse
     {

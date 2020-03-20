@@ -17,7 +17,6 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.Extensions.Primitives;
     using Newtonsoft.Json;
     using NodaTime;
-    using RoadRegistry.Api.Uploads;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using Uploads;

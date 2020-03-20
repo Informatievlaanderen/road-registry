@@ -1,30 +1,22 @@
-namespace RoadRegistry.Api.Uploads
+namespace RoadRegistry.BackOffice.Api.Uploads
 {
     using System;
     using System.Collections.Generic;
-    using System.IO.Compression;
     using System.Linq;
-    using System.Runtime.InteropServices.ComTypes;
-    using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using BackOffice;
     using BackOffice.Framework;
-    using BackOffice.Messages;
-    using BackOffice.Schema;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using Be.Vlaanderen.Basisregisters.BlobStore;
-    using Infrastructure;
+    using Framework;
+    using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Net.Http.Headers;
     using Newtonsoft.Json.Converters;
     using Responses;
-    using SqlStreamStore;
-    using SqlStreamStore.Streams;
     using Swashbuckle.AspNetCore.Filters;
-    using ZipArchiveWriters;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]
@@ -44,7 +36,7 @@ namespace RoadRegistry.Api.Uploads
         [HttpPost("")]
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(UnsupportedMediaTypeResult), StatusCodes.Status415UnsupportedMediaType)]
-        [ProducesResponseType(typeof(BasicApiProblem), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [SwaggerResponseExample(StatusCodes.Status200OK, typeof(UploadResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status415UnsupportedMediaType, typeof(UnsupportedMediaTypeResponseExamples), jsonConverter: typeof(StringEnumConverter))]
         [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples), jsonConverter: typeof(StringEnumConverter))]
@@ -96,7 +88,7 @@ namespace RoadRegistry.Api.Uploads
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(BasicApiProblem), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Get([FromServices] IBlobClient client, string identifier)
         {
             if (!ArchiveId.Accepts(identifier))

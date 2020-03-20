@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Uploads.Responses
+namespace RoadRegistry.BackOffice.Api.Uploads.Responses
 {
     using Swashbuckle.AspNetCore.Filters;
 
