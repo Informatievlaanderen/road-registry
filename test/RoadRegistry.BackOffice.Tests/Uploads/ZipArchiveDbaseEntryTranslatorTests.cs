@@ -176,7 +176,8 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     DbaseField.CreateNumberField(
                         new DbaseFieldName(nameof(Field)),
-                        new DbaseFieldLength(10))
+                        new DbaseFieldLength(10),
+                        new DbaseDecimalCount(0))
                 };
             }
 

@@ -134,25 +134,25 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 yield return new object[]
                 {
-                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.EU_OIDN.Value = null),
+                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.EU_OIDN.Reset()),
                     EuropeanRoadChangeDbaseRecord.Schema.EU_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
                     EuropeanRoadChangeDbaseRecord.Schema.RECORDTYPE
                 };
 
                 yield return new object[]
                 {
-                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.EUNUMMER.Value = null),
+                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.EUNUMMER.Reset()),
                     EuropeanRoadChangeDbaseRecord.Schema.EUNUMMER
                 };
 
                 yield return new object[]
                 {
-                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.WS_OIDN.Value = null),
+                    new Action<EuropeanRoadChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
                     EuropeanRoadChangeDbaseRecord.Schema.WS_OIDN
                 };
             }

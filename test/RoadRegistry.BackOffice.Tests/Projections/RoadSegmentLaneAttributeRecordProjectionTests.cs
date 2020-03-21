@@ -14,10 +14,13 @@ namespace RoadRegistry.BackOffice.Projections
 
     public class RoadSegmentLaneAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {
+        private readonly ProjectionTestServices _services;
         private readonly Fixture _fixture;
 
-        public RoadSegmentLaneAttributeRecordProjectionTests()
+        public RoadSegmentLaneAttributeRecordProjectionTests(ProjectionTestServices services)
         {
+            _services = services ?? throw new ArgumentNullException(nameof(services));
+
             _fixture = new Fixture();
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
@@ -83,7 +86,7 @@ namespace RoadRegistry.BackOffice.Projections
                                 BEGINTIJD = { Value = lane.Origin.Since },
                                 BEGINORG = { Value = lane.Origin.OrganizationId },
                                 LBLBGNORG = { Value = lane.Origin.Organization }
-                            }.ToBytes(Encoding.UTF8)
+                            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
                         });
 
                     return new

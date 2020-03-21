@@ -3355,7 +3355,7 @@ namespace RoadRegistry.BackOffice.Core
                             new Messages.ProblemParameter
                             {
                                 Name = "Length",
-                                Value = "141.42135623731"
+                                Value = "141.4213562373095"
                             }
                         }
                     }
@@ -3529,7 +3529,7 @@ namespace RoadRegistry.BackOffice.Core
                             new Messages.ProblemParameter
                             {
                                 Name = "Length",
-                                Value = "141.42135623731"
+                                Value = "141.4213562373095"
                             }
                         }
                     }
@@ -3703,7 +3703,7 @@ namespace RoadRegistry.BackOffice.Core
                             new Messages.ProblemParameter
                             {
                                 Name = "Length",
-                                Value = "141.42135623731"
+                                Value = "141.4213562373095"
                             }
                         }
                     }

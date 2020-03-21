@@ -117,10 +117,10 @@ namespace RoadRegistry.BackOffice.Uploads
                             segment,
                             (current, record) => current.WithSurface(
                                 new Uploads.RoadSegmentSurfaceAttribute(
-                                    new AttributeId(record.WV_OIDN.Value.GetValueOrDefault()),
-                                    RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value.GetValueOrDefault()],
-                                    new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value.GetValueOrDefault())),
-                                    new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value.GetValueOrDefault())))
+                                    new AttributeId(record.WV_OIDN.Value),
+                                    RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value],
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value)))
                             )
                         )
                 );

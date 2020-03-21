@@ -14,12 +14,12 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
     using Schema;
     using Xunit.Sdk;
 
-    public static class ShapeContextScenarioExtensions
+    public static class BackOfficeContextScenarioExtensions
     {
-        public static ConnectedProjectionScenario<ShapeContext> Scenario(this ConnectedProjection<ShapeContext> projection) =>
-            new ConnectedProjectionScenario<ShapeContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        public static ConnectedProjectionScenario<BackOfficeContext> Scenario(this ConnectedProjection<BackOfficeContext> projection) =>
+            new ConnectedProjectionScenario<BackOfficeContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
 
-        public static async Task ExpectNone(this ConnectedProjectionScenario<ShapeContext> scenario)
+        public static async Task ExpectNone(this ConnectedProjectionScenario<BackOfficeContext> scenario)
         {
             var database = Guid.NewGuid().ToString("N");
 
@@ -33,7 +33,7 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
 
             using (var context = CreateContextFor(database))
             {
-                var projector = new ConnectedProjector<ShapeContext>(specification.Resolver);
+                var projector = new ConnectedProjector<BackOfficeContext>(specification.Resolver);
                 foreach (var message in specification.Messages)
                 {
                     var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
@@ -52,14 +52,14 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
         }
 
         public static Task Expect(
-            this ConnectedProjectionScenario<ShapeContext> scenario,
+            this ConnectedProjectionScenario<BackOfficeContext> scenario,
             IEnumerable<object> records)
         {
             return scenario.Expect(records.ToArray());
         }
 
         public static async Task Expect(
-            this ConnectedProjectionScenario<ShapeContext> scenario,
+            this ConnectedProjectionScenario<BackOfficeContext> scenario,
             params object[] records)
         {
             var database = Guid.NewGuid().ToString("N");
@@ -81,7 +81,7 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
 
             using (var context = CreateContextFor(database))
             {
-                var projector = new ConnectedProjector<ShapeContext>(specification.Resolver);
+                var projector = new ConnectedProjector<BackOfficeContext>(specification.Resolver);
                 var position = 0L;
                 foreach (var message in specification.Messages)
                 {
@@ -102,7 +102,7 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
             }
         }
 
-        private static async Task<object[]> AllRecords(this ShapeContext context)
+        private static async Task<object[]> AllRecords(this BackOfficeContext context)
         {
             var records = new List<object>();
             records.AddRange(await context.RoadNodes.ToArrayAsync());
@@ -120,17 +120,17 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
             return records.ToArray();
         }
 
-        private static ShapeContext CreateContextFor(string database)
+        private static BackOfficeContext CreateContextFor(string database)
         {
-            var options = new DbContextOptionsBuilder<ShapeContext>()
+            var options = new DbContextOptionsBuilder<BackOfficeContext>()
                 .UseInMemoryDatabase(database)
                 .EnableSensitiveDataLogging()
                 .Options;
 
-            return new ShapeContext(options);
+            return new BackOfficeContext(options);
         }
 
-        private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<ShapeContext> specification, VerificationResult result)
+        private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<BackOfficeContext> specification, VerificationResult result)
         {
             var title = string.Empty;
             var exceptionMessage = new StringBuilder()

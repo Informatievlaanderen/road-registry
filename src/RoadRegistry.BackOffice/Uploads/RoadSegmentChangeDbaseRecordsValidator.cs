@@ -127,7 +127,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 problems += recordContext.EndRoadNodeIdOutOfRange(record.E_WK_OIDN.Value);
                             }
 
-                            if (record.BEHEERDER.HasValue)
+                            if (!record.BEHEERDER.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.BEHEERDER.Field);
                             }

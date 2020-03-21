@@ -117,10 +117,10 @@ namespace RoadRegistry.BackOffice.Uploads
                             segment,
                             (current, record) => current.WithWidth(
                                 new Uploads.RoadSegmentWidthAttribute(
-                                    new AttributeId(record.WB_OIDN.Value.GetValueOrDefault()),
-                                    new RoadSegmentWidth(record.BREEDTE.Value.GetValueOrDefault()),
-                                    new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value.GetValueOrDefault())),
-                                    new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value.GetValueOrDefault())))
+                                    new AttributeId(record.WB_OIDN.Value),
+                                    new RoadSegmentWidth(record.BREEDTE.Value),
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value)))
                             )
                         )
                 );

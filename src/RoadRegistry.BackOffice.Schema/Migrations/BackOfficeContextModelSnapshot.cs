@@ -36,7 +36,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.HasKey("Name")
                         .HasAnnotation("SqlServer:Clustered", true);
 
-                    b.ToTable("ProjectionStates","RoadRegistryProjectionMetaData");
+                    b.ToTable("ProjectionStates","RoadRegistryBackOfficeMeta");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.GradeSeparatedJunctions.GradeSeparatedJunctionRecord", b =>
@@ -51,7 +51,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.HasKey("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("GradeSeparatedJunction","RoadRegistryShape");
+                    b.ToTable("GradeSeparatedJunction","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.Organizations.OrganizationRecord", b =>
@@ -78,7 +78,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.HasIndex("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("Organization","RoadRegistryShape");
+                    b.ToTable("Organization","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNetworkChange", b =>
@@ -107,7 +107,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.HasIndex("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("RoadNetworkChange","RoadRegistryShape");
+                    b.ToTable("RoadNetworkChange","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNetworkInfo", b =>
@@ -182,7 +182,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.HasIndex("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("RoadNetworkInfo","RoadRegistryShape");
+                    b.ToTable("RoadNetworkInfo","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNodeBoundingBox2D", b =>
@@ -221,7 +221,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.HasKey("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("RoadNode","RoadRegistryShape");
+                    b.ToTable("RoadNode","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentBoundingBox3D", b =>
@@ -264,7 +264,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentEuropeanRoadAttribute","RoadRegistryShape");
+                    b.ToTable("RoadSegmentEuropeanRoadAttribute","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentLaneAttributes.RoadSegmentLaneAttributeRecord", b =>
@@ -284,7 +284,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentLaneAttribute","RoadRegistryShape");
+                    b.ToTable("RoadSegmentLaneAttribute","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentNationalRoadAttributes.RoadSegmentNationalRoadAttributeRecord", b =>
@@ -304,7 +304,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentNationalRoadAttribute","RoadRegistryShape");
+                    b.ToTable("RoadSegmentNationalRoadAttribute","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttributes.RoadSegmentNumberedRoadAttributeRecord", b =>
@@ -324,7 +324,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentNumberedRoadAttribute","RoadRegistryShape");
+                    b.ToTable("RoadSegmentNumberedRoadAttribute","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentSurfaceAttributes.RoadSegmentSurfaceAttributeRecord", b =>
@@ -344,7 +344,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentSurfaceAttribute","RoadRegistryShape");
+                    b.ToTable("RoadSegmentSurfaceAttribute","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentWidthAttributes.RoadSegmentWidthAttributeRecord", b =>
@@ -364,7 +364,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentWidthAttribute","RoadRegistryShape");
+                    b.ToTable("RoadSegmentWidthAttribute","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegments.RoadSegmentRecord", b =>
@@ -386,7 +386,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.HasKey("Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("RoadSegment","RoadRegistryShape");
+                    b.ToTable("RoadSegment","RoadRegistryBackOffice");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNodes.RoadNodeRecord", b =>

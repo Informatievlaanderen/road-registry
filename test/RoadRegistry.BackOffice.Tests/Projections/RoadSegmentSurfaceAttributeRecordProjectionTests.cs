@@ -85,7 +85,7 @@ namespace RoadRegistry.BackOffice.Projections
                                 BEGINTIJD = { Value = surface.Origin.Since },
                                 BEGINORG = { Value = surface.Origin.OrganizationId },
                                 LBLBGNORG = { Value = surface.Origin.Organization }
-                            }.ToBytes(Encoding.UTF8)
+                            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
                         });
 
                     return new

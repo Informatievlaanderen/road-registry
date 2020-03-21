@@ -8,10 +8,10 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "RoadRegistryProjectionMetaData");
+                name: "RoadRegistryBackOfficeMeta");
 
             migrationBuilder.EnsureSchema(
-                name: "RoadRegistryShape");
+                name: "RoadRegistryBackOffice");
 
             migrationBuilder.CreateTable(
                 name: "RoadNodeBoundingBox",
@@ -42,24 +42,8 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProjectionStates",
-                schema: "RoadRegistryProjectionMetaData",
-                columns: table => new
-                {
-                    Name = table.Column<string>(nullable: false),
-                    Position = table.Column<long>(nullable: false),
-                    DesiredState = table.Column<string>(nullable: true),
-                    DesiredStateChangedAt = table.Column<DateTimeOffset>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProjectionStates", x => x.Name)
-                        .Annotation("SqlServer:Clustered", true);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "GradeSeparatedJunction",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -73,7 +57,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Organization",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -89,7 +73,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoadNetworkChange",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false),
@@ -105,7 +89,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoadNetworkInfo",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false, defaultValue: 0),
@@ -130,7 +114,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoadNode",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -150,7 +134,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoadSegment",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -172,7 +156,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoadSegmentEuropeanRoadAttribute",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -187,7 +171,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoadSegmentLaneAttribute",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -202,7 +186,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoadSegmentNationalRoadAttribute",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -217,7 +201,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoadSegmentNumberedRoadAttribute",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -232,7 +216,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoadSegmentSurfaceAttribute",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -247,7 +231,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoadSegmentWidthAttribute",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -260,60 +244,76 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                         .Annotation("SqlServer:Clustered", false);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ProjectionStates",
+                schema: "RoadRegistryBackOfficeMeta",
+                columns: table => new
+                {
+                    Name = table.Column<string>(nullable: false),
+                    Position = table.Column<long>(nullable: false),
+                    DesiredState = table.Column<string>(nullable: true),
+                    DesiredStateChangedAt = table.Column<DateTimeOffset>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectionStates", x => x.Name)
+                        .Annotation("SqlServer:Clustered", true);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Organization_Id",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 table: "Organization",
                 column: "Id")
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoadNetworkChange_Id",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 table: "RoadNetworkChange",
                 column: "Id")
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoadNetworkInfo_Id",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 table: "RoadNetworkInfo",
                 column: "Id")
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoadSegmentEuropeanRoadAttribute_RoadSegmentId",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 table: "RoadSegmentEuropeanRoadAttribute",
                 column: "RoadSegmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoadSegmentLaneAttribute_RoadSegmentId",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 table: "RoadSegmentLaneAttribute",
                 column: "RoadSegmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoadSegmentNationalRoadAttribute_RoadSegmentId",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 table: "RoadSegmentNationalRoadAttribute",
                 column: "RoadSegmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoadSegmentNumberedRoadAttribute_RoadSegmentId",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 table: "RoadSegmentNumberedRoadAttribute",
                 column: "RoadSegmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoadSegmentSurfaceAttribute_RoadSegmentId",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 table: "RoadSegmentSurfaceAttribute",
                 column: "RoadSegmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoadSegmentWidthAttribute_RoadSegmentId",
-                schema: "RoadRegistryShape",
+                schema: "RoadRegistryBackOffice",
                 table: "RoadSegmentWidthAttribute",
                 column: "RoadSegmentId");
         }
@@ -327,56 +327,56 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 name: "RoadSegmentBoundingBox");
 
             migrationBuilder.DropTable(
-                name: "ProjectionStates",
-                schema: "RoadRegistryProjectionMetaData");
-
-            migrationBuilder.DropTable(
                 name: "GradeSeparatedJunction",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
 
             migrationBuilder.DropTable(
                 name: "Organization",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
 
             migrationBuilder.DropTable(
                 name: "RoadNetworkChange",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
 
             migrationBuilder.DropTable(
                 name: "RoadNetworkInfo",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
 
             migrationBuilder.DropTable(
                 name: "RoadNode",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
 
             migrationBuilder.DropTable(
                 name: "RoadSegment",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
 
             migrationBuilder.DropTable(
                 name: "RoadSegmentEuropeanRoadAttribute",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
 
             migrationBuilder.DropTable(
                 name: "RoadSegmentLaneAttribute",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
 
             migrationBuilder.DropTable(
                 name: "RoadSegmentNationalRoadAttribute",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
 
             migrationBuilder.DropTable(
                 name: "RoadSegmentNumberedRoadAttribute",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
 
             migrationBuilder.DropTable(
                 name: "RoadSegmentSurfaceAttribute",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
 
             migrationBuilder.DropTable(
                 name: "RoadSegmentWidthAttribute",
-                schema: "RoadRegistryShape");
+                schema: "RoadRegistryBackOffice");
+
+            migrationBuilder.DropTable(
+                name: "ProjectionStates",
+                schema: "RoadRegistryBackOfficeMeta");
         }
     }
 }

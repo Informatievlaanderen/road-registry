@@ -101,8 +101,8 @@ nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.AspNetCore 4.4.1
 nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore 4.4.1
 
 nuget Be.Vlaanderen.Basisregisters.BlobStore 2.2.2
-nuget Be.Vlaanderen.Basisregisters.Shaperon 7.6.0
-nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 7.6.0
+nuget Be.Vlaanderen.Basisregisters.Shaperon 7.7.0
+nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 7.7.0
 
 // DOCS STUFF
 nuget Structurizr.Core 0.9.5

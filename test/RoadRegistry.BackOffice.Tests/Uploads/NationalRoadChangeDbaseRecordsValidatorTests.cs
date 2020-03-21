@@ -184,25 +184,25 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 yield return new object[]
                 {
-                    new Action<NationalRoadChangeDbaseRecord>(r => r.NW_OIDN.Value = null),
+                    new Action<NationalRoadChangeDbaseRecord>(r => r.NW_OIDN.Reset()),
                     NationalRoadChangeDbaseRecord.Schema.NW_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<NationalRoadChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    new Action<NationalRoadChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
                     NationalRoadChangeDbaseRecord.Schema.RECORDTYPE
                 };
 
                 yield return new object[]
                 {
-                    new Action<NationalRoadChangeDbaseRecord>(r => r.WS_OIDN.Value = null),
+                    new Action<NationalRoadChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
                     NationalRoadChangeDbaseRecord.Schema.WS_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<NationalRoadChangeDbaseRecord>(r => r.IDENT2.Value = null),
+                    new Action<NationalRoadChangeDbaseRecord>(r => r.IDENT2.Reset()),
                     NationalRoadChangeDbaseRecord.Schema.IDENT2
                 };
             }

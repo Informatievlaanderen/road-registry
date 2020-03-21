@@ -103,11 +103,11 @@ namespace RoadRegistry.BackOffice.Uploads
                 TranslatedChanges.Empty,
                 (changes, current) => changes.Append(
                     new Uploads.AddRoadSegmentToNumberedRoad(
-                        new AttributeId(current.GW_OIDN.Value.GetValueOrDefault()),
-                        new RoadSegmentId(current.WS_OIDN.Value.GetValueOrDefault()),
+                        new AttributeId(current.GW_OIDN.Value),
+                        new RoadSegmentId(current.WS_OIDN.Value),
                         NumberedRoadNumber.Parse(current.IDENT8.Value),
-                        RoadSegmentNumberedRoadDirection.ByIdentifier[current.RICHTING.Value.GetValueOrDefault()],
-                        new RoadSegmentNumberedRoadOrdinal(current.VOLGNUMMER.Value.GetValueOrDefault())))
+                        RoadSegmentNumberedRoadDirection.ByIdentifier[current.RICHTING.Value],
+                        new RoadSegmentNumberedRoadOrdinal(current.VOLGNUMMER.Value)))
             );
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }

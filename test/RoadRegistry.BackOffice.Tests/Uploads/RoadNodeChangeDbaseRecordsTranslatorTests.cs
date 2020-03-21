@@ -99,8 +99,8 @@ namespace RoadRegistry.BackOffice.Uploads
                 (changes, current) => changes.Append(
                     new Uploads.AddRoadNode(
                         new RecordNumber(Array.IndexOf(records, current) + 1),
-                        new RoadNodeId(current.WEGKNOOPID.Value.GetValueOrDefault()),
-                        RoadNodeType.ByIdentifier[current.TYPE.Value.GetValueOrDefault()]
+                        new RoadNodeId(current.WEGKNOOPID.Value),
+                        RoadNodeType.ByIdentifier[current.TYPE.Value]
                     )
                 )
             );

@@ -6,13 +6,13 @@ namespace RoadRegistry.BackOffice.Api
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice.Framework;
+    using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
     using Core;
-    using Framework;
     using Messages;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Primitives;
     using Newtonsoft.Json;

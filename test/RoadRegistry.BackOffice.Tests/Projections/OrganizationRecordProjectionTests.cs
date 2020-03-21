@@ -14,10 +14,13 @@ namespace RoadRegistry.BackOffice.Projections
 
     public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {
+        private readonly ProjectionTestServices _services;
         private readonly Fixture _fixture;
 
-        public OrganizationRecordProjectionTests()
+        public OrganizationRecordProjectionTests(ProjectionTestServices services)
         {
+            _services = services ?? throw new ArgumentNullException(nameof(services));
+            
             _fixture = new Fixture();
             _fixture.CustomizeOrganizationId();
             _fixture.CustomizeOrganizationName();
@@ -49,7 +52,7 @@ namespace RoadRegistry.BackOffice.Projections
                         {
                             ORG = { Value = @event.Code },
                             LBLORG = { Value = @event.Name }
-                        }.ToBytes(Encoding.UTF8)
+                        }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
                     };
                     return new
                     {

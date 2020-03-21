@@ -100,10 +100,10 @@ namespace RoadRegistry.BackOffice.Uploads
                 TranslatedChanges.Empty,
                 (changes, current) => changes.Append(
                     new Uploads.AddGradeSeparatedJunction(
-                        new GradeSeparatedJunctionId(current.OK_OIDN.Value.GetValueOrDefault()),
-                        GradeSeparatedJunctionType.ByIdentifier[current.TYPE.Value.GetValueOrDefault()],
-                        new RoadSegmentId(current.BO_WS_OIDN.Value.GetValueOrDefault()),
-                        new RoadSegmentId(current.ON_WS_OIDN.Value.GetValueOrDefault())
+                        new GradeSeparatedJunctionId(current.OK_OIDN.Value),
+                        GradeSeparatedJunctionType.ByIdentifier[current.TYPE.Value],
+                        new RoadSegmentId(current.BO_WS_OIDN.Value),
+                        new RoadSegmentId(current.ON_WS_OIDN.Value)
                     )
                 )
             );

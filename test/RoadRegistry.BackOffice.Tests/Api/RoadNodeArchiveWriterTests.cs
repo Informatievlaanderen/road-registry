@@ -5,8 +5,7 @@
     using System.IO.Compression;
     using System.Text;
     using System.Threading.Tasks;
-    using Framework.Containers;
-    using Microsoft.IO;
+    using BackOffice.Framework.Containers;
     using Schema;
     using Xunit;
     using ZipArchiveWriters;
@@ -26,7 +25,7 @@
         {
             var sut = new RoadNodesToZipArchiveWriter(_fixture.MemoryStreamManager,  Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
-                () => sut.WriteAsync(null, new ShapeContext(), default));
+                () => sut.WriteAsync(null, new BackOfficeContext(), default));
         }
 
         [Fact]

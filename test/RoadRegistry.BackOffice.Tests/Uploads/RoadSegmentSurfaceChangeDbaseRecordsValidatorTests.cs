@@ -186,37 +186,37 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 yield return new object[]
                 {
-                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.WS_OIDN.Value = null),
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
                     RoadSegmentSurfaceChangeDbaseRecord.Schema.WS_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
                     RoadSegmentSurfaceChangeDbaseRecord.Schema.RECORDTYPE
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.WV_OIDN.Value = null),
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.WV_OIDN.Reset()),
                     RoadSegmentSurfaceChangeDbaseRecord.Schema.WV_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.TYPE.Value = null),
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.TYPE.Reset()),
                     RoadSegmentSurfaceChangeDbaseRecord.Schema.TYPE
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.VANPOSITIE.Value = null),
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.VANPOSITIE.Reset()),
                     RoadSegmentSurfaceChangeDbaseRecord.Schema.VANPOSITIE
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.TOTPOSITIE.Value = null),
+                    new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.TOTPOSITIE.Reset()),
                     RoadSegmentSurfaceChangeDbaseRecord.Schema.TOTPOSITIE
                 };
             }

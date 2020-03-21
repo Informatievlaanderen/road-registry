@@ -185,31 +185,31 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 yield return new object[]
                 {
-                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.OK_OIDN.Value = null),
+                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.OK_OIDN.Reset()),
                     GradeSeparatedJunctionChangeDbaseRecord.Schema.OK_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
                     GradeSeparatedJunctionChangeDbaseRecord.Schema.RECORDTYPE
                 };
 
                 yield return new object[]
                 {
-                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.BO_WS_OIDN.Value = null),
+                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.BO_WS_OIDN.Reset()),
                     GradeSeparatedJunctionChangeDbaseRecord.Schema.BO_WS_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.TYPE.Value = null),
+                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.TYPE.Reset()),
                     GradeSeparatedJunctionChangeDbaseRecord.Schema.TYPE
                 };
 
                 yield return new object[]
                 {
-                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.ON_WS_OIDN.Value = null),
+                    new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.ON_WS_OIDN.Reset()),
                     GradeSeparatedJunctionChangeDbaseRecord.Schema.ON_WS_OIDN
                 };
             }

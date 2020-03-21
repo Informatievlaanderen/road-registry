@@ -2,8 +2,8 @@ namespace RoadRegistry.BackOffice.Api
 {
     using System;
     using System.Threading.Tasks;
+    using BackOffice.Framework.Containers;
     using Changes;
-    using Framework.Containers;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -29,7 +29,7 @@ namespace RoadRegistry.BackOffice.Api
         {
             var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
                 {ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
-            using (var context = await _fixture.CreateEmptyShapeContextAsync(await _fixture.CreateDatabaseAsync()))
+            using (var context = await _fixture.CreateEmptyBackOfficeContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 var result = await controller.Get(context);
 
@@ -47,7 +47,7 @@ namespace RoadRegistry.BackOffice.Api
                 {ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
             var database = await _fixture.CreateDatabaseAsync();
             var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
-            using (var context = await _fixture.CreateEmptyShapeContextAsync(database))
+            using (var context = await _fixture.CreateEmptyBackOfficeContextAsync(database))
             {
                 context.RoadNetworkChanges.Add(new RoadNetworkChange
                 {
@@ -62,7 +62,7 @@ namespace RoadRegistry.BackOffice.Api
                 await context.SaveChangesAsync();
             }
 
-            using (var context = await _fixture.CreateShapeContextAsync(database))
+            using (var context = await _fixture.CreateBackOfficeContextAsync(database))
             {
                 var result = await controller.Get(context);
 

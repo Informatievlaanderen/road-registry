@@ -18,10 +18,13 @@ namespace RoadRegistry.BackOffice.Projections
 
     public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {
+        private readonly ProjectionTestServices _services;
         private readonly Fixture _fixture;
 
-        public RoadNodeRecordProjectionTests()
+        public RoadNodeRecordProjectionTests(ProjectionTestServices services)
         {
+            _services = services ?? throw new ArgumentNullException(nameof(services));
+
             _fixture = new Fixture();
 
             _fixture.CustomizeRoadNodeId();
@@ -61,8 +64,8 @@ namespace RoadRegistry.BackOffice.Projections
                             BEGINTIJD = {Value = @event.Origin.Since},
                             BEGINORG = {Value = @event.Origin.OrganizationId},
                             LBLBGNORG = {Value = @event.Origin.Organization}
-                        }.ToBytes(Encoding.UTF8),
-                        ShapeRecordContent = pointShapeContent.ToBytes(),
+                        }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
+                        ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
                         BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
                     };

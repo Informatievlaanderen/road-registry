@@ -118,11 +118,11 @@ namespace RoadRegistry.BackOffice.Uploads
                             segment,
                             (current, record) => current.WithLane(
                                 new Uploads.RoadSegmentLaneAttribute(
-                                    new AttributeId(record.RS_OIDN.Value.GetValueOrDefault()),
-                                    new RoadSegmentLaneCount(record.AANTAL.Value.GetValueOrDefault()),
-                                    RoadSegmentLaneDirection.ByIdentifier[record.RICHTING.Value.GetValueOrDefault()],
-                                    new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value.GetValueOrDefault())),
-                                    new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value.GetValueOrDefault())))
+                                    new AttributeId(record.RS_OIDN.Value),
+                                    new RoadSegmentLaneCount(record.AANTAL.Value),
+                                    RoadSegmentLaneDirection.ByIdentifier[record.RICHTING.Value],
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value)))
                             )
                         )
                 );

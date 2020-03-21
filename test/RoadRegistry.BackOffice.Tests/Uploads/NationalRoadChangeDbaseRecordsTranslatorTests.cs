@@ -99,8 +99,8 @@ namespace RoadRegistry.BackOffice.Uploads
                 TranslatedChanges.Empty,
                 (changes, current) => changes.Append(
                     new Uploads.AddRoadSegmentToNationalRoad(
-                        new AttributeId(current.NW_OIDN.Value.GetValueOrDefault()),
-                        new RoadSegmentId(current.WS_OIDN.Value.GetValueOrDefault()),
+                        new AttributeId(current.NW_OIDN.Value),
+                        new RoadSegmentId(current.WS_OIDN.Value),
                         NationalRoadNumber.Parse(current.IDENT2.Value)))
             );
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());

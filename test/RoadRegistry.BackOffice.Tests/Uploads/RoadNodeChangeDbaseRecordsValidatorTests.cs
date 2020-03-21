@@ -181,19 +181,19 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 yield return new object[]
                 {
-                    new Action<RoadNodeChangeDbaseRecord>(r => r.WEGKNOOPID.Value = null),
+                    new Action<RoadNodeChangeDbaseRecord>(r => r.WEGKNOOPID.Reset()),
                     RoadNodeChangeDbaseRecord.Schema.WEGKNOOPID
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadNodeChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    new Action<RoadNodeChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
                     RoadNodeChangeDbaseRecord.Schema.RECORDTYPE
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadNodeChangeDbaseRecord>(r => r.TYPE.Value = null),
+                    new Action<RoadNodeChangeDbaseRecord>(r => r.TYPE.Reset()),
                     RoadNodeChangeDbaseRecord.Schema.TYPE
                 };
             }

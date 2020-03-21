@@ -272,8 +272,8 @@ NUGET
       Dapper (>= 2.0.30)
       Microsoft.Data.SqlClient (>= 1.1.1)
       System.Threading.Tasks.Dataflow (>= 4.11)
-    Be.Vlaanderen.Basisregisters.Shaperon (7.6)
-    Be.Vlaanderen.Basisregisters.Shaperon.Geometries (7.6)
+    Be.Vlaanderen.Basisregisters.Shaperon (7.7)
+    Be.Vlaanderen.Basisregisters.Shaperon.Geometries (7.7)
     Be.Vlaanderen.Basisregisters.Testing.Infrastructure.Events (2.2.1) - copy_local: true, copy_content_to_output_dir: always, content: true
       Be.Vlaanderen.Basisregisters.AggregateSource (>= 4.2.2)
       Be.Vlaanderen.Basisregisters.EventHandling (>= 2.2.1)

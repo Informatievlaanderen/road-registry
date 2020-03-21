@@ -188,43 +188,43 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 yield return new object[]
                 {
-                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.WS_OIDN.Value = null),
+                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
                     RoadSegmentLaneChangeDbaseRecord.Schema.WS_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
                     RoadSegmentLaneChangeDbaseRecord.Schema.RECORDTYPE
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RS_OIDN.Value = null),
+                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RS_OIDN.Reset()),
                     RoadSegmentLaneChangeDbaseRecord.Schema.RS_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.AANTAL.Value = null),
+                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.AANTAL.Reset()),
                     RoadSegmentLaneChangeDbaseRecord.Schema.AANTAL
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RICHTING.Value = null),
+                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RICHTING.Reset()),
                     RoadSegmentLaneChangeDbaseRecord.Schema.RICHTING
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.VANPOSITIE.Value = null),
+                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.VANPOSITIE.Reset()),
                     RoadSegmentLaneChangeDbaseRecord.Schema.VANPOSITIE
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.TOTPOSITIE.Value = null),
+                    new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.TOTPOSITIE.Reset()),
                     RoadSegmentLaneChangeDbaseRecord.Schema.TOTPOSITIE
                 };
             }

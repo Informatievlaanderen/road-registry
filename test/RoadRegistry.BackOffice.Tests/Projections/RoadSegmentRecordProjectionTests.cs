@@ -72,7 +72,7 @@ namespace RoadRegistry.BackOffice.Projections
                     var expected = new RoadSegmentRecord
                     {
                         Id = importedRoadSegment.Id,
-                        ShapeRecordContent = polyLineMShapeContent.ToBytes(),
+                        ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                         BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                         DbaseRecord = new RoadSegmentDbaseRecord
@@ -102,7 +102,7 @@ namespace RoadRegistry.BackOffice.Projections
                             LBLBGNORG = { Value = importedRoadSegment.Origin.Organization },
                             TGBEP = { Value = RoadSegmentAccessRestriction.Parse(importedRoadSegment.AccessRestriction).Translation.Identifier },
                             LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(importedRoadSegment.AccessRestriction).Translation.Name }
-                        }.ToBytes(Encoding.UTF8)
+                        }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
                     };
                     return new { importedRoadSegment, expected};
                 }).ToList();
