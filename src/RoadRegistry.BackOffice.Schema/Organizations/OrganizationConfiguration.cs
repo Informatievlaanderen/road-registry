@@ -13,10 +13,10 @@ namespace RoadRegistry.BackOffice.Schema.Organizations
                 .HasIndex(p => p.Id)
                 .IsClustered(false);
 
-            b.Property(p => p.Id).ValueGeneratedOnAdd();
-            b.Property(p => p.Code);
-            b.Property(p => p.SortableCode);
-            b.Property(p => p.DbaseRecord);
+            b.Property(p => p.Id).ValueGeneratedOnAdd().IsRequired();
+            b.Property(p => p.Code).IsRequired();
+            b.Property(p => p.SortableCode).IsRequired();
+            b.Property(p => p.DbaseRecord).IsRequired();
         }
     }
 }

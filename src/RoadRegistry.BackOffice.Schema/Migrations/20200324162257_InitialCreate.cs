@@ -14,34 +14,6 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                 name: "RoadRegistryBackOffice");
 
             migrationBuilder.CreateTable(
-                name: "RoadNodeBoundingBox",
-                columns: table => new
-                {
-                    MinimumX = table.Column<double>(nullable: false),
-                    MaximumX = table.Column<double>(nullable: false),
-                    MinimumY = table.Column<double>(nullable: false),
-                    MaximumY = table.Column<double>(nullable: false)
-                },
-                constraints: table =>
-                {
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RoadSegmentBoundingBox",
-                columns: table => new
-                {
-                    MinimumX = table.Column<double>(nullable: false),
-                    MaximumX = table.Column<double>(nullable: false),
-                    MinimumY = table.Column<double>(nullable: false),
-                    MaximumY = table.Column<double>(nullable: false),
-                    MinimumM = table.Column<double>(nullable: false),
-                    MaximumM = table.Column<double>(nullable: false)
-                },
-                constraints: table =>
-                {
-                });
-
-            migrationBuilder.CreateTable(
                 name: "GradeSeparatedJunction",
                 schema: "RoadRegistryBackOffice",
                 columns: table => new
@@ -79,7 +51,7 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     Id = table.Column<long>(nullable: false),
                     Title = table.Column<string>(nullable: false),
                     Type = table.Column<string>(nullable: false),
-                    Content = table.Column<string>(nullable: false),
+                    Content = table.Column<string>(nullable: true),
                     When = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
@@ -320,12 +292,6 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "RoadNodeBoundingBox");
-
-            migrationBuilder.DropTable(
-                name: "RoadSegmentBoundingBox");
-
             migrationBuilder.DropTable(
                 name: "GradeSeparatedJunction",
                 schema: "RoadRegistryBackOffice");

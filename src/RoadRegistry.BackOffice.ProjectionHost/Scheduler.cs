@@ -10,14 +10,13 @@ namespace RoadRegistry.BackOffice.ProjectionHost
     using Microsoft.Extensions.Logging;
     using NodaTime;
 
-    public class Scheduler : IHostedService
+    public class Scheduler
     {
         private static readonly TimeSpan DefaultFrequency = TimeSpan.FromSeconds(1);
 
         private readonly IClock _clock;
         private readonly ILogger<Scheduler> _logger;
 
-        private readonly TimeSpan _frequency;
         private Timer _timer;
 
         private CancellationTokenSource _messagePumpCancellation;
@@ -28,7 +27,81 @@ namespace RoadRegistry.BackOffice.ProjectionHost
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _frequency = DefaultFrequency;
+
+            _messagePumpCancellation = new CancellationTokenSource();
+            _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
+            {
+                SingleReader = true,
+                SingleWriter = false,
+                AllowSynchronousContinuations = false
+            });
+            _timer = new Timer(
+                async _ => await _messageChannel.Writer.WriteAsync(new TimerElapsed { Time = _clock.GetCurrentInstant() }, _messagePumpCancellation.Token),
+                null,
+                Timeout.InfiniteTimeSpan,
+                Timeout.InfiniteTimeSpan);
+            _messagePump = Task.Run(async () =>
+            {
+                var scheduled = new List<ScheduledAction>();
+                try
+                {
+                    while (await _messageChannel.Reader.WaitToReadAsync().ConfigureAwait(false))
+                    {
+                        while (_messageChannel.Reader.TryRead(out var message))
+                        {
+                            switch (message)
+                            {
+                                case TimerElapsed elapsed:
+                                    _logger.LogInformation("Timer elapsed at instant {0}.", elapsed.Time);
+                                    var dueEntries = scheduled
+                                        .Where(entry => entry.Due <= elapsed.Time)
+                                        .ToArray();
+                                    _logger.LogInformation("{0} actions due.", dueEntries.Length);
+
+                                    foreach (var dueEntry in dueEntries)
+                                    {
+                                        await dueEntry.Action(_messagePumpCancellation.Token).ConfigureAwait(false);
+                                        scheduled.Remove(dueEntry);
+                                    }
+
+                                    if (scheduled.Count == 0) // deactivate timer when no more work
+                                    {
+                                        _logger.LogInformation("Timer deactivated because no more scheduled actions.");
+
+                                        _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                                    }
+
+                                    break;
+                                case ScheduleAction schedule:
+                                    if (scheduled.Count == 0) // activate timer when more work
+                                    {
+                                        _logger.LogInformation("Timer activated because new scheduled actions.");
+
+                                        _timer.Change(DefaultFrequency, DefaultFrequency);
+                                    }
+
+                                    _logger.LogInformation("Scheduling an action to be executed at {0}.", schedule.Due);
+
+                                    scheduled.Add(new ScheduledAction(schedule.Action, schedule.Due));
+                                    break;
+                            }
+                        }
+
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    _logger.LogInformation("Scheduler message pump is exiting due to cancellation.");
+                }
+                catch (OperationCanceledException)
+                {
+                    _logger.LogInformation("Scheduler message pump is exiting due to cancellation.");
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception, "Scheduler message pump is exiting due to a bug.");
+                }
+            }, _messagePumpCancellation.Token);
         }
 
         public async Task Schedule(Func<CancellationToken, Task> action, TimeSpan due)
@@ -48,76 +121,8 @@ namespace RoadRegistry.BackOffice.ProjectionHost
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _messagePumpCancellation = new CancellationTokenSource();
-            _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
-            {
-                SingleReader = true,
-                SingleWriter = false,
-                AllowSynchronousContinuations = true
-            });
-            _timer = new Timer(
-                async _ => await _messageChannel.Writer.WriteAsync(new TimerElapsed { Time = _clock.GetCurrentInstant() }, _messagePumpCancellation.Token),
-                null,
-                Timeout.InfiniteTimeSpan,
-                Timeout.InfiniteTimeSpan);
-            _messagePump = Task.Run(async () =>
-            {
-                var scheduled = new List<ScheduledAction>();
-                try
-                {
-                    while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token))
-                    {
-                        switch (await _messageChannel.Reader.ReadAsync(_messagePumpCancellation.Token))
-                        {
-                            case TimerElapsed elapsed:
-                                _logger.LogInformation("Timer elapsed at instant {0}.", elapsed.Time);
-                                var dueEntries = scheduled
-                                    .Where(entry => entry.Due <= elapsed.Time)
-                                    .ToArray();
-                                _logger.LogInformation("{0} actions due.", dueEntries.Length);
-
-                                foreach (var dueEntry in dueEntries)
-                                {
-                                    await dueEntry.Action(_messagePumpCancellation.Token);
-                                    scheduled.Remove(dueEntry);
-                                }
-
-                                if (scheduled.Count == 0) // deactivate timer when no more work
-                                {
-                                    _logger.LogInformation("Timer deactivated because no more scheduled actions.");
-
-                                    _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-                                }
-
-                                break;
-                            case ScheduleAction schedule:
-                                if (scheduled.Count == 0) // activate timer when more work
-                                {
-                                    _logger.LogInformation("Timer activated because new scheduled actions.");
-
-                                    _timer.Change(_frequency, _frequency);
-                                }
-
-                                _logger.LogInformation("Scheduling an action to be executed at {0}.", schedule.Due);
-
-                                scheduled.Add(new ScheduledAction(schedule.Action, schedule.Due));
-                                break;
-                        }
-                    }
-                }
-                catch (TaskCanceledException)
-                {
-                    _logger.LogInformation("Scheduler message pump is exiting due to cancellation.");
-                }
-                catch (OperationCanceledException)
-                {
-                    _logger.LogInformation("Scheduler message pump is exiting due to cancellation.");
-                }
-                catch (Exception exception)
-                {
-                    _logger.LogError(exception, "Scheduler message pump is exiting due to a bug.");
-                }
-            }, _messagePumpCancellation.Token);
+            _logger.LogInformation("Starting scheduler ...");
+            _logger.LogInformation("Started scheduler ...");
             return Task.CompletedTask;
         }
 
@@ -127,9 +132,9 @@ namespace RoadRegistry.BackOffice.ProjectionHost
             _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             _messageChannel.Writer.Complete();
             _messagePumpCancellation.Cancel();
-            await _messagePump;
+            await _messagePump.ConfigureAwait(false);
             _messagePumpCancellation.Dispose();
-            _timer.Dispose();
+            await _timer.DisposeAsync().ConfigureAwait(false);
             _logger.LogInformation("Stopped scheduler.");
         }
 

@@ -72,210 +72,256 @@ namespace RoadRegistry.BackOffice.ProjectionHost
                 IAllStreamSubscription subscription = null;
                 try
                 {
-                    while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token))
+                    logger.LogInformation("Projection host message pump waiting to read ...");
+                    while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
                     {
-                        switch (await _messageChannel.Reader.ReadAsync(_messagePumpCancellation.Token))
+                        while (_messageChannel.Reader.TryRead(out var message))
                         {
-                            case Resume _:
-                                logger.LogInformation("Resuming projection host ...");
-                                await using (var resumeContext = dbContextFactory())
-                                {
-                                    var projection = await resumeContext.ProjectionStates.SingleOrDefaultAsync(item => item.Name == RoadRegistryBackOfficeProjectionHost, _messagePumpCancellation.Token);
-                                    long? after = projection?.Position ?? default;
-                                    var head = await streamStore.ReadHeadPosition();
-                                    if (head == Position.Start || (after.HasValue ? head - after <= CatchUpThreshold : head - CatchUpThreshold <= 0))
+                            switch (message)
+                            {
+                                case Resume _:
+                                    logger.LogInformation("Resuming projection host ...");
+                                    await using (var resumeContext = dbContextFactory())
                                     {
-                                        await _messageChannel.Writer.WriteAsync(new Subscribe(after), _messagePumpCancellation.Token);
-                                    }
-                                    else
-                                    {
-                                        await _messageChannel.Writer.WriteAsync(new CatchUp(after, CatchUpBatchSize), _messagePumpCancellation.Token);
-                                    }
-                                }
-
-                                break;
-                            case CatchUp catchUp:
-                                logger.LogInformation("Catching up as of {Position}", catchUp.AfterPosition);
-                                var observedMessageCount = 0;
-                                var catchUpPosition = catchUp.AfterPosition ?? Position.Start;
-                                var context = dbContextFactory();
-                                var page = await streamStore.ReadAllForwards(
-                                    catchUpPosition,
-                                    catchUp.BatchSize,
-                                    true,
-                                    _messagePumpCancellation.Token);
-
-                                while (!page.IsEnd)
-                                {
-                                    foreach (var message in page.Messages)
-                                    {
-                                        if (catchUp.AfterPosition.HasValue &&
-                                            message.Position == catchUp.AfterPosition.Value)
+                                        var projection =
+                                            await resumeContext.ProjectionStates
+                                                .SingleOrDefaultAsync(
+                                                    item => item.Name == RoadRegistryBackOfficeProjectionHost,
+                                                    _messagePumpCancellation.Token)
+                                                .ConfigureAwait(false);
+                                        var after = projection?.Position;
+                                        var head = await streamStore.ReadHeadPosition();
+                                        if (head == Position.Start || (after.HasValue
+                                            ? head - after.Value <= CatchUpThreshold
+                                            : head - CatchUpThreshold <= 0))
                                         {
-                                            continue; // skip already processed message
+                                            await _messageChannel.Writer
+                                                .WriteAsync(new Subscribe(after), _messagePumpCancellation.Token)
+                                                .ConfigureAwait(false);
                                         }
-
-                                        if (filter(message))
+                                        else
                                         {
-                                            logger.LogInformation("Catching up on {MessageType} at {Position}", message.Type, message.Position);
-                                            var envelope = envelopeFactory.Create(message);
-                                            var handlers = resolver(envelope);
-                                            foreach (var handler in handlers)
+                                            await _messageChannel.Writer
+                                                .WriteAsync(new CatchUp(after, CatchUpBatchSize), _messagePumpCancellation.Token)
+                                                .ConfigureAwait(false);
+                                        }
+                                    }
+
+                                    break;
+                                case CatchUp catchUp:
+                                    logger.LogInformation("Catching up as of {Position}", catchUp.AfterPosition);
+                                    var observedMessageCount = 0;
+                                    var catchUpPosition = catchUp.AfterPosition ?? Position.Start;
+                                    var context = dbContextFactory();
+                                    var page = await streamStore
+                                        .ReadAllForwards(
+                                            catchUpPosition,
+                                            catchUp.BatchSize,
+                                            true,
+                                            _messagePumpCancellation.Token)
+                                        .ConfigureAwait(false);
+
+                                    while (!page.IsEnd)
+                                    {
+                                        foreach (var streamMessage in page.Messages)
+                                        {
+                                            if (catchUp.AfterPosition.HasValue &&
+                                                streamMessage.Position == catchUp.AfterPosition.Value)
                                             {
-                                                await handler.Handler(context, envelope, _messagePumpCancellation.Token);
+                                                continue; // skip already processed message
+                                            }
+
+                                            if (filter(streamMessage))
+                                            {
+                                                logger.LogInformation("Catching up on {MessageType} at {Position}",
+                                                    streamMessage.Type, streamMessage.Position);
+                                                var envelope = envelopeFactory.Create(streamMessage);
+                                                var handlers = resolver(envelope);
+                                                foreach (var handler in handlers)
+                                                {
+                                                    await handler
+                                                        .Handler(context, envelope, _messagePumpCancellation.Token)
+                                                        .ConfigureAwait(false);
+                                                }
+                                            }
+
+                                            observedMessageCount++;
+                                            catchUpPosition = streamMessage.Position;
+
+                                            if (observedMessageCount % CatchUpBatchSize == 0)
+                                            {
+                                                logger.LogInformation(
+                                                    "Flushing catch up position of {0} and persisting changes ...",
+                                                    catchUpPosition);
+                                                await context
+                                                    .UpdateProjectionState(
+                                                        RoadRegistryBackOfficeProjectionHost,
+                                                        catchUpPosition,
+                                                        _messagePumpCancellation.Token)
+                                                    .ConfigureAwait(false);
+                                                await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
+                                                await context.DisposeAsync().ConfigureAwait(false);
+
+                                                context = dbContextFactory();
+                                                observedMessageCount = 0;
                                             }
                                         }
 
-                                        observedMessageCount++;
-                                        catchUpPosition = message.Position;
+                                        page = await page.ReadNext(_messagePumpCancellation.Token).ConfigureAwait(false);
+                                    }
 
-                                        if (observedMessageCount % CatchUpBatchSize == 0)
-                                        {
-                                            logger.LogInformation("Flushing catch up position of {0} and persisting changes ...", catchUpPosition);
-                                            await context.UpdateProjectionState(
+                                    if (observedMessageCount > 0) // case where we just read the last page and pending work in memory needs to be flushed
+                                    {
+                                        logger.LogInformation(
+                                            "Flushing catch up position of {Position} and persisting changes ...",
+                                            catchUpPosition);
+                                        await context
+                                            .UpdateProjectionState(
                                                 RoadRegistryBackOfficeProjectionHost,
                                                 catchUpPosition,
-                                                _messagePumpCancellation.Token);
-                                            await context.SaveChangesAsync(_messagePumpCancellation.Token);
-                                            await context.DisposeAsync();
-
-                                            context = dbContextFactory();
-                                            observedMessageCount = 0;
-                                        }
+                                                _messagePumpCancellation.Token)
+                                            .ConfigureAwait(false);
+                                        await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                     }
 
-                                    page = await page.ReadNext(_messagePumpCancellation.Token);
-                                }
+                                    await context.DisposeAsync().ConfigureAwait(false);
 
-                                if (observedMessageCount > 0) // case where we just read the last page and pending work in memory needs to be flushed
-                                {
-                                    logger.LogInformation("Flushing catch up position of {Position} and persisting changes ...", catchUpPosition);
-                                    await context.UpdateProjectionState(
-                                        RoadRegistryBackOfficeProjectionHost,
-                                        catchUpPosition,
-                                        _messagePumpCancellation.Token);
-                                    await context.SaveChangesAsync(_messagePumpCancellation.Token);
-                                }
-                                await context.DisposeAsync();
-
-
-                                //switch to subscription as of the last page
-                                await _messageChannel.Writer.WriteAsync(new Subscribe(catchUpPosition), _messagePumpCancellation.Token);
-                                break;
-                            case Subscribe subscribe:
-                                logger.LogInformation("Subscribing as of {0}", subscribe.AfterPosition);
-                                subscription?.Dispose();
-                                await using (var subscribeContext = dbContextFactory())
-                                {
+                                    //switch to subscription as of the last page
+                                    await _messageChannel.Writer
+                                        .WriteAsync(
+                                            new Subscribe(catchUpPosition),
+                                            _messagePumpCancellation.Token)
+                                        .ConfigureAwait(false);
+                                    break;
+                                case Subscribe subscribe:
+                                    logger.LogInformation("Subscribing as of {0}", subscribe.AfterPosition);
+                                    subscription?.Dispose();
                                     subscription = streamStore.SubscribeToAll(
-                                        subscribe.AfterPosition, async (_, message, token) =>
+                                        subscribe.AfterPosition, async (_, streamMessage, token) =>
                                         {
-                                            if (filter(message))
+                                            if (filter(streamMessage))
                                             {
-                                                logger.LogInformation("Observing {0} at {1}", message.Type, message.Position);
-                                                var command = new ProcessStreamMessage(message);
-                                                await _messageChannel.Writer.WriteAsync(command, token);
-                                                await command.Completion;
+                                                logger.LogInformation("Observing {0} at {1}", streamMessage.Type,
+                                                    streamMessage.Position);
+                                                var command = new ProcessStreamMessage(streamMessage);
+                                                await _messageChannel.Writer.WriteAsync(command, token).ConfigureAwait(false);
+                                                await command.Completion.ConfigureAwait(false);
                                             }
-                                            else if (message.Position % RecordPositionThreshold == 0 &&
+                                            else if (streamMessage.Position % RecordPositionThreshold == 0 &&
                                                      !_messagePumpCancellation.IsCancellationRequested)
                                             {
-                                                await _messageChannel.Writer.WriteAsync(new RecordPosition(message),  token);
+                                                await _messageChannel.Writer
+                                                    .WriteAsync(new RecordPosition(streamMessage), token)
+                                                    .ConfigureAwait(false);
                                             }
                                         }, async (_, reason, exception) =>
                                         {
                                             if (!_messagePumpCancellation.IsCancellationRequested)
                                             {
-                                                await _messageChannel.Writer.WriteAsync(
-                                                    new SubscriptionDropped(reason, exception),
-                                                    _messagePumpCancellation.Token);
+                                                await _messageChannel.Writer
+                                                    .WriteAsync(
+                                                        new SubscriptionDropped(reason, exception),
+                                                        _messagePumpCancellation.Token)
+                                                    .ConfigureAwait(false);
                                             }
                                         },
                                         prefetchJsonData: false,
                                         name: "RoadRegistry.BackOffice.ProjectionHost.EventProcessor");
-                                }
 
-                                break;
-                            case RecordPosition record:
-                                try
-                                {
-                                    logger.LogInformation("Recording position of {MessageType} at {Position}.",
-                                        record.Message.Type, record.Message.Position);
-
-                                    await using (var recordContext = dbContextFactory())
+                                    break;
+                                case RecordPosition record:
+                                    try
                                     {
-                                        await recordContext.UpdateProjectionState(RoadRegistryBackOfficeProjectionHost,
-                                            record.Message.Position, _messagePumpCancellation.Token);
-                                        await recordContext.SaveChangesAsync(_messagePumpCancellation.Token);
-                                    }
-                                }
-                                catch (Exception exception)
-                                {
-                                    logger.LogError(exception, exception.Message);
-                                }
-                                break;
-                            case ProcessStreamMessage process:
-                                try
-                                {
-                                    logger.LogInformation("Processing {MessageType} at {Position}", process.Message.Type, process.Message.Position);
+                                        logger.LogInformation("Recording position of {MessageType} at {Position}.",
+                                            record.Message.Type, record.Message.Position);
 
-                                    var envelope = envelopeFactory.Create(process.Message);
-                                    var handlers = resolver(envelope);
-                                    await using (var processContext = dbContextFactory())
-                                    {
-                                        foreach (var handler in handlers)
+                                        await using (var recordContext = dbContextFactory())
                                         {
-                                            await handler.Handler(processContext, envelope, _messagePumpCancellation.Token);
+                                            await recordContext
+                                                .UpdateProjectionState(
+                                                    RoadRegistryBackOfficeProjectionHost,
+                                                    record.Message.Position, _messagePumpCancellation.Token)
+                                                .ConfigureAwait(false);
+                                            await recordContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                         }
-                                        await processContext.UpdateProjectionState(
-                                            RoadRegistryBackOfficeProjectionHost,
-                                            process.Message.Position,
-                                            _messagePumpCancellation.Token);
-                                        await processContext.SaveChangesAsync(_messagePumpCancellation.Token);
                                     }
-                                    process.Complete();
-                                }
-                                catch (Exception exception)
-                                {
-                                    logger.LogError(exception, exception.Message);
-
-                                    // how are we going to recover from this? do we even need to recover from this?
-                                    // prediction: it's going to be a serialization error, a data quality error, or a bug
-
-                                    process.Fault(exception);
-                                }
-                                break;
-                            case SubscriptionDropped dropped:
-                                if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
-                                {
-                                    logger.LogError(dropped.Exception, "Subscription was dropped because of a stream store error");
-                                    await scheduler.Schedule(async token =>
+                                    catch (Exception exception)
                                     {
-                                        if (!_messagePumpCancellation.IsCancellationRequested)
+                                        logger.LogError(exception, exception.Message);
+                                    }
+
+                                    break;
+                                case ProcessStreamMessage process:
+                                    try
+                                    {
+                                        logger.LogInformation("Processing {MessageType} at {Position}",
+                                            process.Message.Type, process.Message.Position);
+
+                                        var envelope = envelopeFactory.Create(process.Message);
+                                        var handlers = resolver(envelope);
+                                        await using (var processContext = dbContextFactory())
                                         {
-                                            await _messageChannel.Writer.WriteAsync(new Resume(), token);
-                                        }
-                                    }, ResubscribeAfter);
-                                }
-                                else if(dropped.Reason == SubscriptionDroppedReason.SubscriberError)
-                                {
-                                    logger.LogError(dropped.Exception, "Subscription was dropped because of a subscriber error");
+                                            foreach (var handler in handlers)
+                                            {
+                                                await handler
+                                                    .Handler(processContext, envelope, _messagePumpCancellation.Token)
+                                                    .ConfigureAwait(false);
+                                            }
 
-                                    if (dropped.Exception != null
-                                        && dropped.Exception is SqlException sqlException
-                                        && sqlException.Number == -2 /* timeout */)
+                                            await processContext.UpdateProjectionState(
+                                                RoadRegistryBackOfficeProjectionHost,
+                                                process.Message.Position,
+                                                _messagePumpCancellation.Token).ConfigureAwait(false);
+                                            await processContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
+                                        }
+
+                                        process.Complete();
+                                    }
+                                    catch (Exception exception)
                                     {
+                                        logger.LogError(exception, exception.Message);
+
+                                        // how are we going to recover from this? do we even need to recover from this?
+                                        // prediction: it's going to be a serialization error, a data quality error, or a bug
+
+                                        process.Fault(exception);
+                                    }
+
+                                    break;
+                                case SubscriptionDropped dropped:
+                                    if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
+                                    {
+                                        logger.LogError(dropped.Exception,
+                                            "Subscription was dropped because of a stream store error");
                                         await scheduler.Schedule(async token =>
                                         {
                                             if (!_messagePumpCancellation.IsCancellationRequested)
                                             {
-                                                await _messageChannel.Writer.WriteAsync(new Resume(), token);
+                                                await _messageChannel.Writer.WriteAsync(new Resume(), token).ConfigureAwait(false);
                                             }
-                                        }, ResubscribeAfter);
+                                        }, ResubscribeAfter).ConfigureAwait(false);
                                     }
-                                }
+                                    else if (dropped.Reason == SubscriptionDroppedReason.SubscriberError)
+                                    {
+                                        logger.LogError(dropped.Exception,
+                                            "Subscription was dropped because of a subscriber error");
 
-                                break;
+                                        if (dropped.Exception != null
+                                            && dropped.Exception is SqlException sqlException
+                                            && sqlException.Number == -2 /* timeout */)
+                                        {
+                                            await scheduler.Schedule(async token =>
+                                            {
+                                                if (!_messagePumpCancellation.IsCancellationRequested)
+                                                {
+                                                    await _messageChannel.Writer.WriteAsync(new Resume(), token).ConfigureAwait(false);
+                                                }
+                                            }, ResubscribeAfter).ConfigureAwait(false);
+                                        }
+                                    }
+
+                                    break;
+                            }
                         }
                     }
                 }
@@ -295,7 +341,7 @@ namespace RoadRegistry.BackOffice.ProjectionHost
                 {
                     subscription?.Dispose();
                 }
-            });
+            }, _messagePumpCancellation.Token);
         }
 
         private class Resume { }
@@ -365,8 +411,8 @@ namespace RoadRegistry.BackOffice.ProjectionHost
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting event processor ...");
-            await _scheduler.StartAsync(cancellationToken);
-            await _messageChannel.Writer.WriteAsync(new Resume(), cancellationToken);
+            await _scheduler.StartAsync(cancellationToken).ConfigureAwait(false);
+            await _messageChannel.Writer.WriteAsync(new Resume(), cancellationToken).ConfigureAwait(false);
             _logger.LogInformation("Started event processor.");
         }
 
@@ -375,9 +421,9 @@ namespace RoadRegistry.BackOffice.ProjectionHost
             _logger.LogInformation("Stopping event processor ...");
             _messageChannel.Writer.Complete();
             _messagePumpCancellation.Cancel();
-            await _messagePump;
+            await _messagePump.ConfigureAwait(false);
             _messagePumpCancellation.Dispose();
-            await _scheduler.StopAsync(cancellationToken);
+            await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
             _logger.LogInformation("Stopped event processor.");
         }
     }

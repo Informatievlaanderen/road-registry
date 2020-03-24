@@ -40,5 +40,20 @@ namespace RoadRegistry.BackOffice.Schema
 
         protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder
+                .Entity<RoadNodeBoundingBox2D>()
+                .HasNoKey()
+                .ToQuery(() => RoadNodeBoundingBox.FromSqlRaw("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [RoadRegistry].[RoadRegistryShape].[RoadNode]"));
+
+            builder
+                .Entity<RoadSegmentBoundingBox3D>()
+                .HasNoKey()
+                .ToQuery(() => RoadSegmentBoundingBox.FromSqlRaw("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [RoadRegistry].[RoadRegistryShape].[RoadSegment]"));
+        }
     }
 }

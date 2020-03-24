@@ -13,8 +13,8 @@ namespace RoadRegistry.BackOffice.Schema.GradeSeparatedJunctions
                 .HasKey(p => p.Id)
                 .IsClustered(false);
 
-            b.Property(p => p.Id).ValueGeneratedNever();
-            b.Property(p => p.DbaseRecord);
+            b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
+            b.Property(p => p.DbaseRecord).IsRequired();
         }
     }
 }

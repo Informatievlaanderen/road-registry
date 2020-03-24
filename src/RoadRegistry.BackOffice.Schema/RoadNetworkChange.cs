@@ -1,8 +1,5 @@
 namespace RoadRegistry.BackOffice.Schema
 {
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
     public class RoadNetworkChange
     {
         public long Id { get; set; }
@@ -10,23 +7,5 @@ namespace RoadRegistry.BackOffice.Schema
         public string Type { get; set; }
         public string Content { get; set; }
         public string When { get; set; }
-    }
-
-    public class RoadNetworkChangeConfiguration : IEntityTypeConfiguration<RoadNetworkChange>
-    {
-        public const string TableName = "RoadNetworkChange";
-
-        public void Configure(EntityTypeBuilder<RoadNetworkChange> b)
-        {
-            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
-                .HasIndex(p => p.Id)
-                .IsClustered(false);
-
-            b.Property(p => p.Id).ValueGeneratedNever();
-            b.Property(p => p.Title);
-            b.Property(p => p.Type);
-            b.Property(p => p.Content);
-            b.Property(p => p.When);
-        }
     }
 }

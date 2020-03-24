@@ -10,7 +10,7 @@ using RoadRegistry.BackOffice.Schema;
 namespace RoadRegistry.BackOffice.Schema.Migrations
 {
     [DbContext(typeof(BackOfficeContext))]
-    [Migration("20200321153801_InitialCreate")]
+    [Migration("20200324162257_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -89,7 +89,6 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -187,23 +186,6 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                     b.ToTable("RoadNetworkInfo","RoadRegistryBackOffice");
                 });
 
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNodeBoundingBox2D", b =>
-                {
-                    b.Property<double>("MaximumX")
-                        .HasColumnType("float");
-
-                    b.Property<double>("MaximumY")
-                        .HasColumnType("float");
-
-                    b.Property<double>("MinimumX")
-                        .HasColumnType("float");
-
-                    b.Property<double>("MinimumY")
-                        .HasColumnType("float");
-
-                    b.ToTable("RoadNodeBoundingBox");
-                });
-
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadNodes.RoadNodeRecord", b =>
                 {
                     b.Property<int>("Id")
@@ -224,29 +206,6 @@ namespace RoadRegistry.BackOffice.Schema.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("RoadNode","RoadRegistryBackOffice");
-                });
-
-            modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentBoundingBox3D", b =>
-                {
-                    b.Property<double>("MaximumM")
-                        .HasColumnType("float");
-
-                    b.Property<double>("MaximumX")
-                        .HasColumnType("float");
-
-                    b.Property<double>("MaximumY")
-                        .HasColumnType("float");
-
-                    b.Property<double>("MinimumM")
-                        .HasColumnType("float");
-
-                    b.Property<double>("MinimumX")
-                        .HasColumnType("float");
-
-                    b.Property<double>("MinimumY")
-                        .HasColumnType("float");
-
-                    b.ToTable("RoadSegmentBoundingBox");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.Schema.RoadSegmentEuropeanRoadAttributes.RoadSegmentEuropeanRoadAttributeRecord", b =>

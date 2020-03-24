@@ -54,12 +54,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
             }
 
             var shpBoundingBox =
-                (await
-                     context
-                    .RoadNodeBoundingBox
-                    .FromSqlRaw("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [RoadRegistry].[RoadRegistryShape].[RoadNode]")
-                    .SingleOrDefaultAsync(cancellationToken)
-                )?.ToBoundingBox3D()
+                (await context.RoadNodeBoundingBox.SingleOrDefaultAsync(cancellationToken))?.ToBoundingBox3D()
                 ?? new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             var info = await context.RoadNetworkInfo.SingleAsync(cancellationToken);
 

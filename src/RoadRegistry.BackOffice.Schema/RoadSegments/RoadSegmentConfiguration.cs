@@ -13,10 +13,10 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
                 .HasKey(p => p.Id)
                 .IsClustered(false);
 
-            b.Property(p => p.Id).ValueGeneratedNever();
-            b.Property(p => p.ShapeRecordContent);
-            b.Property(p => p.ShapeRecordContentLength);
-            b.Property(p => p.DbaseRecord);
+            b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
+            b.Property(p => p.ShapeRecordContent).IsRequired();
+            b.Property(p => p.ShapeRecordContentLength).IsRequired();
+            b.Property(p => p.DbaseRecord).IsRequired();
 
             b.OwnsOne(p => p.BoundingBox);
         }
