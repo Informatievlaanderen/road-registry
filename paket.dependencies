@@ -19,6 +19,7 @@ nuget Microsoft.Extensions.Logging 3.1.2
 nuget Microsoft.Extensions.Options.ConfigurationExtensions 3.1.2
 
 nuget Microsoft.Extensions.Http.Polly 3.1.2
+nuget Polly 7.2.0
 
 // For more healtchecks, look at https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks
 nuget AspNetCore.HealthChecks.SqlServer 3.0.0

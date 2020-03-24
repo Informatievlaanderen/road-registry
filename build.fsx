@@ -102,11 +102,11 @@ Target.create "Publish_Solution" (fun _ ->
   [
     "RoadRegistry.BackOffice"
     "RoadRegistry.BackOffice.Schema"
-    "RoadRegistry.BackOffice.Projections"
+    "RoadRegistry.BackOffice.ProjectionHost"
     "RoadRegistry.BackOffice.EventHost"
     "RoadRegistry.BackOffice.CommandHost"
-    "RoadRegistry.LegacyStreamExtraction"
-    "RoadRegistry.LegacyStreamLoader"
+    "RoadRegistry.Legacy.Extract"
+    "RoadRegistry.Legacy.Import"
     "RoadRegistry.BackOffice.Api"
     "RoadRegistry.BackOffice.UI"
   ] |> List.iter publish)
@@ -128,10 +128,10 @@ Target.create "PushContainer_BackOfficeEventHost" (fun _ -> push "backoffice-eve
 Target.create "Containerize_BackOfficeCommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
 Target.create "PushContainer_BackOfficeCommandHost" (fun _ -> push "backoffice-commandhost")
 
-Target.create "Containerize_ImportLegacy" (fun _ -> containerize "RoadRegistry.LegacyStreamLoader" "import-legacy")
+Target.create "Containerize_ImportLegacy" (fun _ -> containerize "RoadRegistry.Legacy.Import" "import-legacy")
 Target.create "PushContainer_ImportLegacy" (fun _ -> push "import-legacy")
 
-Target.create "Containerize_ExtractLegacy" (fun _ -> containerize "RoadRegistry.LegacyStreamExtraction" "extract-legacy")
+Target.create "Containerize_ExtractLegacy" (fun _ -> containerize "RoadRegistry.Legacy.Extract" "extract-legacy")
 Target.create "PushContainer_ExtractLegacy" (fun _ -> push "extract-legacy")
 
 // --------------------------------------------------------------------------------

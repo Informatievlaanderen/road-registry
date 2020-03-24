@@ -16,3 +16,5 @@ Serilog.Settings.Configuration
 Serilog.Sinks.Console
 
 System.Threading.Channels
+
+Polly

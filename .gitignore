@@ -20,8 +20,8 @@ elm-stuff/
 src/RoadRegistry.BackOffice.UI/output/
 src/RoadRegistry.BackOffice.UI/wwwroot/
 src/RoadRegistry.BackOffice.Simulator/output/
-src/RoadRegistry.LegacyStreamExtraction/output/
-src/RoadRegistry.LegacyStreamLoader/output/
+src/RoadRegistry.Legacy.Extract/output/
+src/RoadRegistry.Legacy.Import/output/
 src/RoadRegistry.LegacyDatabase/empty/legacydb.bak
 src/RoadRegistry.LegacyDatabase/filled/legacydb.bak
 SolutionInfo.cs

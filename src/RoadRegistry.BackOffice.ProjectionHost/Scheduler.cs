@@ -70,18 +70,11 @@ namespace RoadRegistry.BackOffice.ProjectionHost
                         switch (await _messageChannel.Reader.ReadAsync(_messagePumpCancellation.Token))
                         {
                             case TimerElapsed elapsed:
-                                if (_logger.IsEnabled(LogLevel.Debug))
-                                {
-                                    _logger.Log(LogLevel.Debug, "Timer elapsed at instant {0}.", elapsed.Time);
-                                }
-
+                                _logger.LogInformation("Timer elapsed at instant {0}.", elapsed.Time);
                                 var dueEntries = scheduled
                                     .Where(entry => entry.Due <= elapsed.Time)
                                     .ToArray();
-                                if (_logger.IsEnabled(LogLevel.Debug))
-                                {
-                                    _logger.Log(LogLevel.Debug, "{0} actions due.", dueEntries.Length);
-                                }
+                                _logger.LogInformation("{0} actions due.", dueEntries.Length);
 
                                 foreach (var dueEntry in dueEntries)
                                 {
@@ -91,11 +84,7 @@ namespace RoadRegistry.BackOffice.ProjectionHost
 
                                 if (scheduled.Count == 0) // deactivate timer when no more work
                                 {
-                                    if (_logger.IsEnabled(LogLevel.Debug))
-                                    {
-                                        _logger.Log(LogLevel.Debug,
-                                            "Timer deactivated because no more scheduled actions.");
-                                    }
+                                    _logger.LogInformation("Timer deactivated because no more scheduled actions.");
 
                                     _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
                                 }
@@ -104,19 +93,12 @@ namespace RoadRegistry.BackOffice.ProjectionHost
                             case ScheduleAction schedule:
                                 if (scheduled.Count == 0) // activate timer when more work
                                 {
-                                    if (_logger.IsEnabled(LogLevel.Debug))
-                                    {
-                                        _logger.Log(LogLevel.Debug, "Timer activated because new scheduled actions.");
-                                    }
+                                    _logger.LogInformation("Timer activated because new scheduled actions.");
 
                                     _timer.Change(_frequency, _frequency);
                                 }
 
-                                if (_logger.IsEnabled(LogLevel.Debug))
-                                {
-                                    _logger.Log(LogLevel.Debug, "Scheduling an action to be executed at {0}.",
-                                        schedule.Due);
-                                }
+                                _logger.LogInformation("Scheduling an action to be executed at {0}.", schedule.Due);
 
                                 scheduled.Add(new ScheduledAction(schedule.Action, schedule.Due));
                                 break;
@@ -125,24 +107,15 @@ namespace RoadRegistry.BackOffice.ProjectionHost
                 }
                 catch (TaskCanceledException)
                 {
-                    if (_logger.IsEnabled(LogLevel.Information))
-                    {
-                        _logger.Log(LogLevel.Information, "Scheduler message pump is exiting due to cancellation.");
-                    }
+                    _logger.LogInformation("Scheduler message pump is exiting due to cancellation.");
                 }
                 catch (OperationCanceledException)
                 {
-                    if (_logger.IsEnabled(LogLevel.Information))
-                    {
-                        _logger.Log(LogLevel.Information, "Scheduler message pump is exiting due to cancellation.");
-                    }
+                    _logger.LogInformation("Scheduler message pump is exiting due to cancellation.");
                 }
                 catch (Exception exception)
                 {
-                    if (_logger.IsEnabled(LogLevel.Error))
-                    {
-                        _logger.Log(LogLevel.Error, exception, "Scheduler message pump is exiting due to a bug.");
-                    }
+                    _logger.LogError(exception, "Scheduler message pump is exiting due to a bug.");
                 }
             }, _messagePumpCancellation.Token);
             return Task.CompletedTask;
@@ -150,12 +123,14 @@ namespace RoadRegistry.BackOffice.ProjectionHost
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Stopping scheduler ...");
             _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             _messageChannel.Writer.Complete();
             _messagePumpCancellation.Cancel();
             await _messagePump;
             _messagePumpCancellation.Dispose();
             _timer.Dispose();
+            _logger.LogInformation("Stopped scheduler.");
         }
 
         private class ScheduledAction

@@ -39,9 +39,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker_local.sh = docker_local.sh
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.LegacyStreamExtraction", "src\RoadRegistry.LegacyStreamExtraction\RoadRegistry.LegacyStreamExtraction.csproj", "{B5267E8A-DB8F-44C3-9046-69573A75B104}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Legacy.Extract", "src\RoadRegistry.Legacy.Extract\RoadRegistry.Legacy.Extract.csproj", "{B5267E8A-DB8F-44C3-9046-69573A75B104}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.LegacyStreamLoader", "src\RoadRegistry.LegacyStreamLoader\RoadRegistry.LegacyStreamLoader.csproj", "{89A34C62-12D6-4505-AE09-9ECC7B5D07D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Legacy.Import", "src\RoadRegistry.Legacy.Import\RoadRegistry.Legacy.Import.csproj", "{89A34C62-12D6-4505-AE09-9ECC7B5D07D6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.UI", "src\RoadRegistry.BackOffice.UI\RoadRegistry.BackOffice.UI.csproj", "{A728F9A0-76BB-4659-AB57-9F591D66618A}"
 EndProject
