@@ -67,12 +67,12 @@ namespace RoadRegistry.BackOffice.ProjectionHost
                 SingleWriter = false,
                 AllowSynchronousContinuations = false
             });
-            _messagePump = Task.Run(async () =>
+            _messagePump = Task.Factory.StartNew(async () =>
             {
                 IAllStreamSubscription subscription = null;
                 try
                 {
-                    logger.LogInformation("Projection host message pump waiting to read ...");
+                    logger.LogInformation("EventProcessor message pump entered ...");
                     while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
                     {
                         while (_messageChannel.Reader.TryRead(out var message))
@@ -80,7 +80,7 @@ namespace RoadRegistry.BackOffice.ProjectionHost
                             switch (message)
                             {
                                 case Resume _:
-                                    logger.LogInformation("Resuming projection host ...");
+                                    logger.LogInformation("Resuming ...");
                                     await using (var resumeContext = dbContextFactory())
                                     {
                                         var projection =
@@ -341,7 +341,7 @@ namespace RoadRegistry.BackOffice.ProjectionHost
                 {
                     subscription?.Dispose();
                 }
-            }, _messagePumpCancellation.Token);
+            }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
         }
 
         private class Resume { }
