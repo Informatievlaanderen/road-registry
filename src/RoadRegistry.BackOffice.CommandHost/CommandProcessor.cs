@@ -55,7 +55,7 @@ namespace RoadRegistry.BackOffice.CommandHost
                 SingleWriter = false,
                 AllowSynchronousContinuations = true
             });
-            _messagePump = Task.Run(async () =>
+            _messagePump = Task.Factory.StartNew(async () =>
             {
                 IStreamSubscription subscription = null;
                 try
@@ -67,10 +67,12 @@ namespace RoadRegistry.BackOffice.CommandHost
                             switch (message)
                             {
                                 case Subscribe _:
+                                    logger.LogInformation("Subscribing ...");
                                     subscription?.Dispose();
                                     var version = await positionStore
                                         .ReadVersion(RoadNetworkCommandQueue, _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
+                                    logger.LogInformation("Subscribing as of v{0}", version);
                                     subscription = streamStore.SubscribeToStream(
                                         RoadNetworkCommandQueue,
                                         version,
@@ -101,7 +103,7 @@ namespace RoadRegistry.BackOffice.CommandHost
                                     try
                                     {
                                         logger.LogDebug(
-                                            "Processing stream message {MessageType} at position {Position}",
+                                            "Processing {MessageType} at {Position}",
                                             process.Message.Type, process.Message.Position);
 
                                         var body = JsonConvert.DeserializeObject(
@@ -139,6 +141,8 @@ namespace RoadRegistry.BackOffice.CommandHost
                                 case SubscriptionDropped dropped:
                                     if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
                                     {
+                                        logger.LogError(dropped.Exception,
+                                            "Subscription was dropped because of a stream store error.");
                                         await scheduler.Schedule(async token =>
                                         {
                                             if (!_messagePumpCancellation.IsCancellationRequested)
@@ -193,7 +197,7 @@ namespace RoadRegistry.BackOffice.CommandHost
                 {
                     subscription?.Dispose();
                 }
-            });
+            }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
         }
 
         private class Subscribe { }

@@ -58,11 +58,12 @@ namespace RoadRegistry.BackOffice.EventHost
                 SingleWriter = false,
                 AllowSynchronousContinuations = false
             });
-            _messagePump = Task.Run(async () =>
+            _messagePump = Task.Factory.StartNew(async () =>
             {
                 IAllStreamSubscription subscription = null;
                 try
                 {
+                    logger.LogInformation("EventProcessor message pump entered ...");
                     while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
                     {
                         while (_messageChannel.Reader.TryRead(out var message))
@@ -70,10 +71,12 @@ namespace RoadRegistry.BackOffice.EventHost
                             switch (message)
                             {
                                 case Subscribe _:
+                                    logger.LogInformation("Subscribing ...");
                                     subscription?.Dispose();
                                     var position = await positionStore
                                         .ReadPosition(RoadNetworkArchiveEventQueue, _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
+                                    logger.LogInformation("Subscribing as of {0}", position);
                                     subscription = streamStore.SubscribeToAll(
                                         position, async (_, streamMessage, token) =>
                                         {
@@ -90,6 +93,10 @@ namespace RoadRegistry.BackOffice.EventHost
                                                     .WriteAsync(new RecordPosition(streamMessage), token)
                                                     .ConfigureAwait(false);
                                             }
+                                            else
+                                            {
+                                                logger.LogInformation("Skipping {MessageType} at {Position}", streamMessage.Type, streamMessage.Position);
+                                            }
                                         }, async (_, reason, exception) =>
                                         {
                                             if (!_messagePumpCancellation.IsCancellationRequested)
@@ -105,9 +112,9 @@ namespace RoadRegistry.BackOffice.EventHost
                                 case RecordPosition record:
                                     try
                                     {
-                                        logger.LogDebug(
-                                            "Recording position of stream message {MessageType} at position {Position} as processed.",
+                                        logger.LogInformation("Recording position of {MessageType} at {Position}.",
                                             record.Message.Type, record.Message.Position);
+
                                         await positionStore
                                             .WritePosition(
                                                 RoadNetworkArchiveEventQueue,
@@ -124,8 +131,7 @@ namespace RoadRegistry.BackOffice.EventHost
                                 case ProcessStreamMessage process:
                                     try
                                     {
-                                        logger.LogDebug(
-                                            "Processing stream message {MessageType} at position {Position}",
+                                        logger.LogInformation("Processing {MessageType} at {Position}",
                                             process.Message.Type, process.Message.Position);
 
                                         var body = JsonConvert.DeserializeObject(
@@ -157,6 +163,8 @@ namespace RoadRegistry.BackOffice.EventHost
                                 case SubscriptionDropped dropped:
                                     if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
                                     {
+                                        logger.LogError(dropped.Exception,
+                                            "Subscription was dropped because of a stream store error");
                                         await scheduler.Schedule(async token =>
                                         {
                                             if (!_messagePumpCancellation.IsCancellationRequested)
@@ -168,7 +176,7 @@ namespace RoadRegistry.BackOffice.EventHost
                                     else if (dropped.Reason == SubscriptionDroppedReason.SubscriberError)
                                     {
                                         logger.LogError(dropped.Exception,
-                                            "Subscription was dropped because of a subscriber error.");
+                                            "Subscription was dropped because of a subscriber error");
 
                                         if (dropped.Exception != null
                                             && dropped.Exception is SqlException sqlException
@@ -211,7 +219,7 @@ namespace RoadRegistry.BackOffice.EventHost
                 {
                     subscription?.Dispose();
                 }
-            });
+            }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
         }
 
         private class Subscribe { }

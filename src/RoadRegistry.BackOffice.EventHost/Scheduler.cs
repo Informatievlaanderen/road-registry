@@ -17,11 +17,11 @@ namespace RoadRegistry.BackOffice.EventHost
         private readonly IClock _clock;
         private readonly ILogger<Scheduler> _logger;
 
-        private Timer _timer;
+        private readonly Timer _timer;
 
-        private CancellationTokenSource _messagePumpCancellation;
-        private Channel<object> _messageChannel;
-        private Task _messagePump;
+        private readonly CancellationTokenSource _messagePumpCancellation;
+        private readonly Channel<object> _messageChannel;
+        private readonly Task _messagePump;
 
         public Scheduler(IClock clock, ILogger<Scheduler> logger)
         {
@@ -40,11 +40,12 @@ namespace RoadRegistry.BackOffice.EventHost
                 null,
                 Timeout.InfiniteTimeSpan,
                 Timeout.InfiniteTimeSpan);
-            _messagePump = Task.Run(async () =>
+            _messagePump = Task.Factory.StartNew(async () =>
             {
                 var scheduled = new List<ScheduledAction>();
                 try
                 {
+                    _logger.LogInformation("Scheduler message pump entered ...");
                     while (await _messageChannel.Reader.WaitToReadAsync().ConfigureAwait(false))
                     {
                         while (_messageChannel.Reader.TryRead(out var message))
@@ -101,7 +102,7 @@ namespace RoadRegistry.BackOffice.EventHost
                 {
                     _logger.LogError(exception, "Scheduler message pump is exiting due to a bug.");
                 }
-            }, _messagePumpCancellation.Token);
+            }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
         }
 
         public async Task Schedule(Func<CancellationToken, Task> action, TimeSpan due)
