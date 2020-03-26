@@ -14,6 +14,46 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
     using Schema;
     using Xunit.Sdk;
 
+    internal class MemoryBackOfficeContext : BackOfficeContext {
+        public MemoryBackOfficeContext(DbContextOptions<BackOfficeContext> options) : base(options) { }
+
+        protected override void OnModelQueryTypes(ModelBuilder builder)
+        {
+            builder
+                .Entity<RoadNodeBoundingBox2D>()
+                .HasNoKey()
+                .ToQuery(() =>
+                    from node in RoadNodes
+                    group node by node.Id
+                    into nodes
+                    select new RoadNodeBoundingBox2D
+                    {
+                        MinimumX = nodes.Min(n => n.BoundingBox.MinimumX),
+                        MaximumX = nodes.Max(n => n.BoundingBox.MaximumX),
+                        MinimumY = nodes.Min(n => n.BoundingBox.MinimumY),
+                        MaximumY = nodes.Max(n => n.BoundingBox.MaximumY)
+                    }
+                );
+            builder
+                .Entity<RoadSegmentBoundingBox3D>()
+                .HasNoKey()
+                .ToQuery(() =>
+                    from segment in RoadSegments
+                    group segment by segment.Id
+                    into segments
+                    select new RoadSegmentBoundingBox3D
+                    {
+                        MinimumX = segments.Min(n => n.BoundingBox.MinimumX),
+                        MaximumX = segments.Max(n => n.BoundingBox.MaximumX),
+                        MinimumY = segments.Min(n => n.BoundingBox.MinimumY),
+                        MaximumY = segments.Max(n => n.BoundingBox.MaximumY),
+                        MinimumM = segments.Min(n => n.BoundingBox.MinimumM),
+                        MaximumM = segments.Max(n => n.BoundingBox.MaximumM)
+                    }
+                );
+        }
+    }
+
     public static class BackOfficeContextScenarioExtensions
     {
         public static ConnectedProjectionScenario<BackOfficeContext> Scenario(this ConnectedProjection<BackOfficeContext> projection) =>
@@ -127,7 +167,7 @@ namespace RoadRegistry.BackOffice.Framework.Testing.Projections
                 .EnableSensitiveDataLogging()
                 .Options;
 
-            return new BackOfficeContext(options);
+            return new MemoryBackOfficeContext(options);
         }
 
         private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<BackOfficeContext> specification, VerificationResult result)
