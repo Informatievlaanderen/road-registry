@@ -39,7 +39,7 @@ namespace RoadRegistry.BackOffice.Api
             try
             {
                 await streamStore.WaitUntilAvailable(logger);
-                await host.RunAsync();
+                host.Run();
             }
             catch (Exception e)
             {
