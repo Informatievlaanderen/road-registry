@@ -211,6 +211,34 @@
 
             try
             {
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.Events,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.CommandHost,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.CommandHost))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.CommandHostAdmin,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.Snapshots,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
                 await streamStore.WaitUntilAvailable();
                 await
                     new SqlCommandProcessorPositionStoreSchema(

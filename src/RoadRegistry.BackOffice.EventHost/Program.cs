@@ -204,6 +204,41 @@
 
             try
             {
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.Events,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.EventHost,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHost))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.EventHostAdmin,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.Snapshots,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.SnapshotsAdmin,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
                 await streamStore.WaitUntilAvailable();
                 await
                     new SqlBlobSchema(

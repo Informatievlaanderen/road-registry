@@ -224,6 +224,27 @@
 
             try
             {
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.Events,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.BackOfficeProjections,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.BackOfficeProjections))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.BackOfficeProjectionsAdmin,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.BackOfficeProjectionsAdmin))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
                 await streamStore.WaitUntilAvailable(logger);
                 await migratorFactory.CreateMigrator(configuration, loggerFactory).MigrateAsync(CancellationToken.None);
                 await host.RunAsync();

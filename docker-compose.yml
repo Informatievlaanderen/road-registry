@@ -96,7 +96,7 @@ services:
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-      CONNECTIONSTRINGS__BACKOFFICEROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__BACKOFFICEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__BACKOFFICEPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
   backoffice-event-host:
     build: dist/RoadRegistry.BackOffice.EventHost/linux

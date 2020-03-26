@@ -186,6 +186,14 @@ namespace RoadRegistry.Legacy.Import
 
             try
             {
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.Events,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
+                    {
+                        Password = "**REDACTED**"
+                    });
+
                 var builder = new SqlConnectionStringBuilder(
                     configuration.GetConnectionString(WellknownConnectionNames.Events))
                 {
