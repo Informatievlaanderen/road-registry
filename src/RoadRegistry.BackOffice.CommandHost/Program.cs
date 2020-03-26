@@ -26,6 +26,7 @@
     using Microsoft.IO;
     using NodaTime;
     using Serilog;
+    using Serilog.Formatting.Compact;
     using SqlStreamStore;
     using Uploads;
 
@@ -64,7 +65,7 @@
 
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(hostContext.Configuration)
-                        .WriteTo.Console()
+                        .WriteTo.Console(new RenderedCompactJsonFormatter())
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
                         .Enrich.WithThreadId()
