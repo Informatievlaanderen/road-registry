@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/informatievlaanderen/road-registry/compare/v1.0.0...v1.0.1) (2020-04-06)
+
+
+### Bug Fixes
+
+* use correct build user ([8202034](https://github.com/informatievlaanderen/road-registry/commit/820203484b525eb8db127e5689985ff9d2fb59f1))
+
 # 1.0.0 (2020-04-06)
 
 
