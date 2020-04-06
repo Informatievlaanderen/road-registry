@@ -61,7 +61,6 @@
 
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(hostContext.Configuration)
-                        .WriteTo.Console(new RenderedCompactJsonFormatter())
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
                         .Enrich.WithThreadId()
@@ -209,37 +208,37 @@
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
                 logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
                     WellknownConnectionNames.EventHost,
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHost))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
                 logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
                     WellknownConnectionNames.EventHostAdmin,
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
                 logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
                     WellknownConnectionNames.Snapshots,
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
                 logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
                     WellknownConnectionNames.SnapshotsAdmin,
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
-                await streamStore.WaitUntilAvailable();
+                await streamStore.WaitUntilAvailable(logger);
                 await
                     new SqlBlobSchema(
                         new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))

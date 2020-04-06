@@ -4,6 +4,7 @@
   <PropertyGroup>
     <RootNamespace>RoadRegistry.BackOffice</RootNamespace>
     <AssemblyName>RoadRegistry.BackOffice.Tests</AssemblyName>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.CommandHost\RoadRegistry.BackOffice.CommandHost.csproj" />

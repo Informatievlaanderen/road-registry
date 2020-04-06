@@ -6,6 +6,7 @@
     <RootNamespace>RoadRegistry.Structurizr</RootNamespace>
     <AssemblyName>RoadRegistry.Structurizr</AssemblyName>
     <OutputType>Exe</OutputType>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

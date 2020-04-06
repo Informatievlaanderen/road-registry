@@ -71,7 +71,6 @@
 
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(hostContext.Configuration)
-                        .WriteTo.Console(new RenderedCompactJsonFormatter())
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
                         .Enrich.WithThreadId()
@@ -229,21 +228,21 @@
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
                 logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
                     WellknownConnectionNames.BackOfficeProjections,
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.BackOfficeProjections))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
                 logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
                     WellknownConnectionNames.BackOfficeProjectionsAdmin,
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.BackOfficeProjectionsAdmin))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
                 await streamStore.WaitUntilAvailable(logger);
                 await migratorFactory.CreateMigrator(configuration, loggerFactory).MigrateAsync(CancellationToken.None);

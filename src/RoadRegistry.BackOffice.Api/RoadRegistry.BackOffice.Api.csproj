@@ -7,6 +7,7 @@
     <AssemblyName>RoadRegistry.BackOffice.Api</AssemblyName>
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />

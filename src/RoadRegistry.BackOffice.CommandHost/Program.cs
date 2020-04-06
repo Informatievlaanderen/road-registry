@@ -65,7 +65,6 @@
 
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(hostContext.Configuration)
-                        .WriteTo.Console(new RenderedCompactJsonFormatter())
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
                         .Enrich.WithThreadId()
@@ -216,30 +215,30 @@
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
                 logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
                     WellknownConnectionNames.CommandHost,
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.CommandHost))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
                 logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
                     WellknownConnectionNames.CommandHostAdmin,
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
                 logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
                     WellknownConnectionNames.Snapshots,
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
-                await streamStore.WaitUntilAvailable();
+                await streamStore.WaitUntilAvailable(logger);
                 await
                     new SqlCommandProcessorPositionStoreSchema(
                         new SqlConnectionStringBuilder(

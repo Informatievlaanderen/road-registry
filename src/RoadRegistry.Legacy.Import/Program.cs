@@ -39,7 +39,8 @@ namespace RoadRegistry.Legacy.Import
             var host = new HostBuilder()
                 .ConfigureHostConfiguration(builder => {
                     builder
-                        .AddEnvironmentVariables("DOTNET_");
+                        .AddEnvironmentVariables("DOTNET_")
+                        .AddEnvironmentVariables("ASPNETCORE_");
                 })
                 .ConfigureAppConfiguration((hostContext, builder) =>
                 {
@@ -64,7 +65,6 @@ namespace RoadRegistry.Legacy.Import
 
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(hostContext.Configuration)
-                        .WriteTo.Console(new RenderedCompactJsonFormatter())
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
                         .Enrich.WithThreadId()
@@ -192,7 +192,7 @@ namespace RoadRegistry.Legacy.Import
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
                     {
                         Password = "**REDACTED**"
-                    });
+                    }.ConnectionString);
 
                 var builder = new SqlConnectionStringBuilder(
                     configuration.GetConnectionString(WellknownConnectionNames.Events))

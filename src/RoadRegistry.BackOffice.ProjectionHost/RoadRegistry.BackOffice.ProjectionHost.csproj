@@ -6,6 +6,7 @@
     <RootNamespace>RoadRegistry.BackOffice.ProjectionHost</RootNamespace>
     <AssemblyName>RoadRegistry.BackOffice.ProjectionHost</AssemblyName>
     <ServerGarbageCollection>true</ServerGarbageCollection>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice.Schema\RoadRegistry.BackOffice.Schema.csproj" />

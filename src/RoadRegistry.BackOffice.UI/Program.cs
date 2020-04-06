@@ -1,4 +1,4 @@
-namespace RoadRegistry.UI
+namespace RoadRegistry.BackOffice.UI
 {
     using System.IO;
     using Microsoft.AspNetCore;

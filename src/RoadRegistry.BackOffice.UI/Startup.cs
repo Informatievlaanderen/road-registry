@@ -1,4 +1,4 @@
-namespace RoadRegistry.UI
+namespace RoadRegistry.BackOffice.UI
 {
     using System;
     using System.Linq;
@@ -12,7 +12,7 @@ namespace RoadRegistry.UI
 
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -28,7 +28,7 @@ namespace RoadRegistry.UI
         {
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.Use(async (context, next) =>
             {
@@ -94,7 +94,7 @@ namespace RoadRegistry.UI
                 );
         }
 
-        private string BuildConfigJavascript(IHostingEnvironment env)
+        private string BuildConfigJavascript(IWebHostEnvironment env)
         {
             var version = Assembly.GetEntryAssembly().GetName().Version.ToString();
 

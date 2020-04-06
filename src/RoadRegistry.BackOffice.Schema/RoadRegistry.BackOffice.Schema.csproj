@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>RoadRegistry.BackOffice.Schema</RootNamespace>
     <AssemblyName>RoadRegistry.BackOffice.Schema</AssemblyName>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />

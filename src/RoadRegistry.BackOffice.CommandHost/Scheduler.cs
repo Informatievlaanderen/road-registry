@@ -10,7 +10,7 @@ namespace RoadRegistry.BackOffice.CommandHost
     using Microsoft.Extensions.Logging;
     using NodaTime;
 
-        public class Scheduler
+    public class Scheduler
     {
         private static readonly TimeSpan DefaultFrequency = TimeSpan.FromSeconds(1);
 

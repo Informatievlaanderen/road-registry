@@ -39,7 +39,8 @@ namespace RoadRegistry.Legacy.Extract
             var host = new HostBuilder()
                 .ConfigureHostConfiguration(builder => {
                     builder
-                        .AddEnvironmentVariables("DOTNET_");
+                        .AddEnvironmentVariables("DOTNET_")
+                        .AddEnvironmentVariables("ASPNETCORE_");
                 })
                 .ConfigureAppConfiguration((hostContext, builder) =>
                 {
@@ -63,7 +64,6 @@ namespace RoadRegistry.Legacy.Extract
 
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(hostContext.Configuration)
-                        .WriteTo.Console()
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
                         .Enrich.WithThreadId()

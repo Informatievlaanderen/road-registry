@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>RoadRegistry.BackOffice.Projections</RootNamespace>
     <AssemblyName>RoadRegistry.BackOffice.Projections</AssemblyName>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice.Schema\RoadRegistry.BackOffice.Schema.csproj" />

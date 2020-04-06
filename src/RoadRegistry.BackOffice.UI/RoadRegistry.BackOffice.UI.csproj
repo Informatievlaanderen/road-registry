@@ -7,6 +7,7 @@
     <AssemblyName>RoadRegistry.BackOffice.UI</AssemblyName>
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="output" />
