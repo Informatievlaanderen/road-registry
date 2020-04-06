@@ -115,15 +115,15 @@ namespace RoadRegistry.BackOffice.Uploads
                 (changes, current) => changes.Append(
                     new Uploads.AddRoadSegment(
                         new RecordNumber(Array.IndexOf(records, current) + 1),
-                        new RoadSegmentId(current.WS_OIDN.Value.GetValueOrDefault()),
-                        new RoadNodeId(current.B_WK_OIDN.Value.GetValueOrDefault()),
-                        new RoadNodeId(current.E_WK_OIDN.Value.GetValueOrDefault()),
+                        new RoadSegmentId(current.WS_OIDN.Value),
+                        new RoadNodeId(current.B_WK_OIDN.Value),
+                        new RoadNodeId(current.E_WK_OIDN.Value),
                         new OrganizationId(current.BEHEERDER.Value),
-                        RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value.GetValueOrDefault()],
-                        RoadSegmentMorphology.ByIdentifier[current.MORFOLOGIE.Value.GetValueOrDefault()],
-                        RoadSegmentStatus.ByIdentifier[current.STATUS.Value.GetValueOrDefault()],
+                        RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value],
+                        RoadSegmentMorphology.ByIdentifier[current.MORFOLOGIE.Value],
+                        RoadSegmentStatus.ByIdentifier[current.STATUS.Value],
                         RoadSegmentCategory.ByIdentifier[current.WEGCAT.Value],
-                        RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value.GetValueOrDefault()],
+                        RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
                         current.LSTRNMID.Value.HasValue ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault()) : default,
                         current.RSTRNMID.Value.HasValue ? new CrabStreetnameId(current.RSTRNMID.Value.GetValueOrDefault()) : default
                     )

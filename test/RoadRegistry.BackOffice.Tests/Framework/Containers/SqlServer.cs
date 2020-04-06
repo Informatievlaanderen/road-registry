@@ -1,8 +1,7 @@
 namespace RoadRegistry.BackOffice.Framework.Containers
 {
     using System;
-    using System.Data.SqlClient;
-    using System.IO;
+    using Microsoft.Data.SqlClient;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
@@ -42,21 +41,21 @@ namespace RoadRegistry.BackOffice.Framework.Containers
             return _inner.CreateDatabaseAsync();
         }
 
-        public async Task<ShapeContext> CreateShapeContextAsync(SqlConnectionStringBuilder builder)
+        public async Task<BackOfficeContext> CreateBackOfficeContextAsync(SqlConnectionStringBuilder builder)
         {
-            var options = new DbContextOptionsBuilder<ShapeContext>()
+            var options = new DbContextOptionsBuilder<BackOfficeContext>()
                 .UseSqlServer(builder.ConnectionString)
                 .EnableSensitiveDataLogging()
                 .Options;
 
-            var context = new ShapeContext(options);
+            var context = new BackOfficeContext(options);
             await context.Database.MigrateAsync();
             return context;
         }
 
-        public async Task<ShapeContext> CreateEmptyShapeContextAsync(SqlConnectionStringBuilder builder)
+        public async Task<BackOfficeContext> CreateEmptyBackOfficeContextAsync(SqlConnectionStringBuilder builder)
         {
-            var context = await CreateShapeContextAsync(builder);
+            var context = await CreateBackOfficeContextAsync(builder);
 
             context.Organizations.RemoveRange(context.Organizations);
             context.RoadNodes.RemoveRange(context.RoadNodes);

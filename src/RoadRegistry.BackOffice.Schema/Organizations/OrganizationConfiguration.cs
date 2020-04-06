@@ -9,14 +9,14 @@ namespace RoadRegistry.BackOffice.Schema.Organizations
 
         public void Configure(EntityTypeBuilder<OrganizationRecord> b)
         {
-            b.ToTable(TableName, Schema.Shape)
+            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
                 .HasIndex(p => p.Id)
-                .ForSqlServerIsClustered(false);
+                .IsClustered(false);
 
-            b.Property(p => p.Id).ValueGeneratedOnAdd();
-            b.Property(p => p.Code);
-            b.Property(p => p.SortableCode);
-            b.Property(p => p.DbaseRecord);
+            b.Property(p => p.Id).ValueGeneratedOnAdd().IsRequired();
+            b.Property(p => p.Code).IsRequired();
+            b.Property(p => p.SortableCode).IsRequired();
+            b.Property(p => p.DbaseRecord).IsRequired();
         }
     }
 }

@@ -20,6 +20,7 @@ namespace RoadRegistry.BackOffice.Projections
         public RoadSegmentNumberedRoadAttributeRecordProjectionTests(ProjectionTestServices services)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
+
             _fixture = new Fixture();
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
@@ -83,7 +84,7 @@ namespace RoadRegistry.BackOffice.Projections
                                 BEGINTIJD = { Value = numberedRoad.Origin.Since },
                                 BEGINORG = { Value = numberedRoad.Origin.OrganizationId },
                                 LBLBGNORG = { Value = numberedRoad.Origin.Organization }
-                            }.ToBytes(Encoding.UTF8)
+                            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
                         });
 
                     return new

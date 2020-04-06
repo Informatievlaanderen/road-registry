@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.EventHost
 {
     using System;
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
     using System.Threading.Tasks;
     using AutoFixture;
     using Framework.Containers;

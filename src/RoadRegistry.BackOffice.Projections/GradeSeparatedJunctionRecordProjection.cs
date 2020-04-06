@@ -9,14 +9,14 @@ namespace RoadRegistry.BackOffice.Projections
     using Schema;
     using Schema.GradeSeparatedJunctions;
 
-    public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<ShapeContext>
+    public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<BackOfficeContext>
     {
         public GradeSeparatedJunctionRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
             if (manager == null) throw new ArgumentNullException(nameof(manager));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
-            When<Envelope<ImportedGradeSeparatedJunction>>((context, envelope, token) =>
+            When<Envelope<ImportedGradeSeparatedJunction>>(async (context, envelope, token) =>
             {
                 var translation = GradeSeparatedJunctionType.Parse(envelope.Message.Type).Translation;
                 var junctionRecord = new GradeSeparatedJunctionRecord
@@ -35,7 +35,7 @@ namespace RoadRegistry.BackOffice.Projections
                     }.ToBytes(manager, encoding)
                 };
 
-                return context.AddAsync(junctionRecord, token);
+                await context.AddAsync(junctionRecord, token);
             });
 
             When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>

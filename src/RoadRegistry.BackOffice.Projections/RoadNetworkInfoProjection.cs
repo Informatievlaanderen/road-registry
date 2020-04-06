@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.BackOffice.Projections
 {
-    using System;
     using System.Linq;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -10,12 +9,12 @@
     using Microsoft.EntityFrameworkCore;
     using Schema;
 
-    public class RoadNetworkInfoProjection : ConnectedProjection<ShapeContext>
+    public class RoadNetworkInfoProjection : ConnectedProjection<BackOfficeContext>
     {
         public RoadNetworkInfoProjection()
         {
-            When<Envelope<BeganRoadNetworkImport>>((context, envelope, token) =>
-                context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo(), token)
+            When<Envelope<BeganRoadNetworkImport>>(async (context, envelope, token) =>
+                await context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo(), token)
             );
             When<Envelope<CompletedRoadNetworkImport>>(async (context, envelope, token) =>
             {

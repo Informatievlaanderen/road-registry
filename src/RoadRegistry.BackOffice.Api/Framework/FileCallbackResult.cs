@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Infrastructure
+namespace RoadRegistry.BackOffice.Api.Framework
 {
     using System;
     using System.IO;

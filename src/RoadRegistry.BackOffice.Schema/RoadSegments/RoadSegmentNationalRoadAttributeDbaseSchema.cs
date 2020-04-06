@@ -8,30 +8,34 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNationalRoadAttributes
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(NW_OIDN)),
-                    new DbaseFieldLength(15)),
+                    new DbaseFieldLength(15),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(WS_OIDN)),
-                        new DbaseFieldLength(15)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(IDENT2)),
                         new DbaseFieldLength(8)),
 
                 DbaseField
-                    .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
+                    .CreateCharacterField(
+                        new DbaseFieldName(nameof(BEGINTIJD)),
+                        new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(BEGINORG)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLBGNORG)),
                         new DbaseFieldLength(64))
             };

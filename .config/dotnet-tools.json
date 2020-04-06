@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "paket": {
+      "version": "5.241.6",
+      "commands": [
+        "paket"
+      ]
+    },
+    "fake-cli": {
+      "version": "5.19.1",
+      "commands": [
+        "fake"
+      ]
+    },
+    "dotnet-ef": {
+      "version": "3.1.2",
+      "commands": [
+        "dotnet-ef"
+      ]
+    }
+  }
+}

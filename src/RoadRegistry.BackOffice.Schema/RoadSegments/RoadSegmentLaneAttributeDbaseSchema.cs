@@ -8,57 +8,63 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentLaneAttributes
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(RS_OIDN)),
-                    new DbaseFieldLength(15)),
+                    new DbaseFieldLength(15),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(WS_OIDN)),
-                        new DbaseFieldLength(15)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(WS_GIDN)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(AANTAL)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(RICHTING)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLRICHT)),
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateDoubleField(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(VANPOS)),
                         new DbaseFieldLength(9),
                         new DbaseDecimalCount(3)),
 
                 DbaseField
-                    .CreateDoubleField(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(TOTPOS)),
                         new DbaseFieldLength(9),
                         new DbaseDecimalCount(3)),
 
                 DbaseField
-                    .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
+                    .CreateCharacterField(
+                        new DbaseFieldName(nameof(BEGINTIJD)),
+                        new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(BEGINORG)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLBGNORG)),
                         new DbaseFieldLength(64))
             };

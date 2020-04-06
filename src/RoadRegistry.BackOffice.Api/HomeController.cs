@@ -1,8 +1,6 @@
-namespace RoadRegistry.Api
+namespace RoadRegistry.BackOffice.Api
 {
     using System.Reflection;
-    using System.Threading;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Net.Http.Headers;
 
@@ -12,9 +10,7 @@ namespace RoadRegistry.Api
     {
         [HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public IActionResult Get(
-            [FromServices] IHostingEnvironment hostingEnvironment,
-            CancellationToken cancellationToken)
+        public IActionResult Get()
         {
             return Request.Headers[HeaderNames.Accept].ToString().Contains("text/html")
                 ? (IActionResult)new RedirectResult("/docs")

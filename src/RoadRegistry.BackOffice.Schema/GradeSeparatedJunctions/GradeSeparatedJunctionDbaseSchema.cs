@@ -8,39 +8,45 @@ namespace RoadRegistry.BackOffice.Schema.GradeSeparatedJunctions
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(OK_OIDN)),
-                    new DbaseFieldLength(15)),
+                    new DbaseFieldLength(15),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(TYPE)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLTYPE)),
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(BO_WS_OIDN)),
-                        new DbaseFieldLength(15)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(ON_WS_OIDN)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
+
+                DbaseField
+                    .CreateCharacterField(
+                        new DbaseFieldName(nameof(BEGINTIJD)),
                         new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
-
-                DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(BEGINORG)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLBGNORG)),
                         new DbaseFieldLength(64))
             };

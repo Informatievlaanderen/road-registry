@@ -83,7 +83,7 @@ namespace RoadRegistry.BackOffice.Projections
                                 BEGINTIJD = { Value = width.Origin.Since },
                                 BEGINORG = { Value = width.Origin.OrganizationId },
                                 LBLBGNORG = { Value = width.Origin.Organization }
-                            }.ToBytes(Encoding.UTF8)
+                            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
                         });
 
                     return new

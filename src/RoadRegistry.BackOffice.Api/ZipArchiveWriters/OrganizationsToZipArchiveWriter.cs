@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.ZipArchiveWriters
+namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
 {
     using System;
     using System.IO;
@@ -7,12 +7,12 @@ namespace RoadRegistry.Api.ZipArchiveWriters
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using BackOffice.Core;
-    using BackOffice.Schema;
-    using BackOffice.Schema.Organizations;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Core;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
+    using Schema;
+    using Schema.Organizations;
 
     public class OrganizationsToZipArchiveWriter : IZipArchiveWriter
     {
@@ -25,7 +25,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, ShapeContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, BackOfficeContext context, CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));

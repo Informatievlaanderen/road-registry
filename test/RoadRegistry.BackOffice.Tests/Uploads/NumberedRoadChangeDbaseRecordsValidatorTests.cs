@@ -187,37 +187,37 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 yield return new object[]
                 {
-                    new Action<NumberedRoadChangeDbaseRecord>(r => r.GW_OIDN.Value = null),
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.GW_OIDN.Reset()),
                     NumberedRoadChangeDbaseRecord.Schema.GW_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<NumberedRoadChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
                     NumberedRoadChangeDbaseRecord.Schema.RECORDTYPE
                 };
 
                 yield return new object[]
                 {
-                    new Action<NumberedRoadChangeDbaseRecord>(r => r.WS_OIDN.Value = null),
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
                     NumberedRoadChangeDbaseRecord.Schema.WS_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<NumberedRoadChangeDbaseRecord>(r => r.IDENT8.Value = null),
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.IDENT8.Reset()),
                     NumberedRoadChangeDbaseRecord.Schema.IDENT8
                 };
 
                 yield return new object[]
                 {
-                    new Action<NumberedRoadChangeDbaseRecord>(r => r.RICHTING.Value = null),
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.RICHTING.Reset()),
                     NumberedRoadChangeDbaseRecord.Schema.RICHTING
                 };
 
                 yield return new object[]
                 {
-                    new Action<NumberedRoadChangeDbaseRecord>(r => r.VOLGNUMMER.Value = null),
+                    new Action<NumberedRoadChangeDbaseRecord>(r => r.VOLGNUMMER.Reset()),
                     NumberedRoadChangeDbaseRecord.Schema.VOLGNUMMER
                 };
             }

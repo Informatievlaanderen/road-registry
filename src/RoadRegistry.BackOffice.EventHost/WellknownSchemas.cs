@@ -4,6 +4,6 @@ namespace RoadRegistry.BackOffice.EventHost
     {
         public const string SnapshotSchema = "RoadRegistrySnapshot";
         public const string EventSchema = "RoadRegistry";
-        public const string EventHostSchema = "RoadRegistryEventHost";
+        public const string EventHostSchema = "RoadRegistryBackOfficeEventHost";
     }
 }

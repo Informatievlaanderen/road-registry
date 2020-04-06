@@ -16,8 +16,8 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             WEGCAT = new DbaseString(Schema.WEGCAT);
             B_WK_OIDN = new DbaseInt32(Schema.B_WK_OIDN);
             E_WK_OIDN = new DbaseInt32(Schema.E_WK_OIDN);
-            LSTRNMID = new DbaseInt32(Schema.LSTRNMID);
-            RSTRNMID = new DbaseInt32(Schema.RSTRNMID);
+            LSTRNMID = new DbaseNullableInt32(Schema.LSTRNMID);
+            RSTRNMID = new DbaseNullableInt32(Schema.RSTRNMID);
             TGBEP = new DbaseInt16(Schema.TGBEP);
             TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
             RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
@@ -58,9 +58,9 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public DbaseInt32 E_WK_OIDN { get; }
 
-        public DbaseInt32 LSTRNMID { get; }
+        public DbaseNullableInt32 LSTRNMID { get; }
 
-        public DbaseInt32 RSTRNMID { get; }
+        public DbaseNullableInt32 RSTRNMID { get; }
 
         public DbaseInt16 TGBEP { get; }
 

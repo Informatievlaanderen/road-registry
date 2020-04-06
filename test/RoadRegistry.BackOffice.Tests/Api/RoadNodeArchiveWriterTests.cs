@@ -5,11 +5,10 @@
     using System.IO.Compression;
     using System.Text;
     using System.Threading.Tasks;
-    using Framework.Containers;
-    using Microsoft.IO;
-    using RoadRegistry.Api.ZipArchiveWriters;
+    using BackOffice.Framework.Containers;
     using Schema;
     using Xunit;
+    using ZipArchiveWriters;
 
     [Collection(nameof(SqlServerCollection))]
     public class RoadNodeArchiveWriterTests
@@ -26,7 +25,7 @@
         {
             var sut = new RoadNodesToZipArchiveWriter(_fixture.MemoryStreamManager,  Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
-                () => sut.WriteAsync(null, new ShapeContext(), default));
+                () => sut.WriteAsync(null, new BackOfficeContext(), default));
         }
 
         [Fact]

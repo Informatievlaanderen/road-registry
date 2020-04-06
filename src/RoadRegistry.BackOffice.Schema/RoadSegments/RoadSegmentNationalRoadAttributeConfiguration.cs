@@ -9,13 +9,13 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNationalRoadAttributes
 
         public void Configure(EntityTypeBuilder<RoadSegmentNationalRoadAttributeRecord> b)
         {
-            b.ToTable(TableName, Schema.Shape)
+            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
                 .HasKey(p => p.Id)
-                .ForSqlServerIsClustered(false);
+                .IsClustered(false);
 
-            b.Property(p => p.Id).ValueGeneratedNever();
-            b.Property(p => p.RoadSegmentId);
-            b.Property(p => p.DbaseRecord);
+            b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
+            b.Property(p => p.RoadSegmentId).IsRequired();
+            b.Property(p => p.DbaseRecord).IsRequired();
 
             b.HasIndex(p => p.RoadSegmentId);
         }

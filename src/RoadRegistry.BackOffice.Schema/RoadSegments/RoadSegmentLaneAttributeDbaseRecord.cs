@@ -49,3 +49,4 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentLaneAttributes
         public DbaseString LBLBGNORG { get; set; }
     }
 }
+

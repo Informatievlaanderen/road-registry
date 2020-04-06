@@ -10,14 +10,14 @@ namespace RoadRegistry.BackOffice.Projections
     using Schema;
     using Schema.Organizations;
 
-    public class OrganizationRecordProjection : ConnectedProjection<ShapeContext>
+    public class OrganizationRecordProjection : ConnectedProjection<BackOfficeContext>
     {
         public OrganizationRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
             if (manager == null) throw new ArgumentNullException(nameof(manager));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
-            When<Envelope<ImportedOrganization>>((content, envelope, token) =>
+            When<Envelope<ImportedOrganization>>(async (content, envelope, token) =>
             {
                 var organization = new OrganizationRecord
                 {
@@ -30,7 +30,7 @@ namespace RoadRegistry.BackOffice.Projections
                     }.ToBytes(manager, encoding)
                 };
 
-                return content.AddAsync(organization, token);
+                await content.AddAsync(organization, token);
             });
         }
 

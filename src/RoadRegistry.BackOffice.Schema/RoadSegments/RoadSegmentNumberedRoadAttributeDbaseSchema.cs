@@ -8,45 +8,51 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegmentNumberedRoadAttributes
         {
             Fields = new DbaseField[]
             {
-                DbaseField.CreateInt32Field(
+                DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(GW_OIDN)),
-                    new DbaseFieldLength(15)),
+                    new DbaseFieldLength(15),
+                    new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(WS_OIDN)),
-                        new DbaseFieldLength(15)),
+                        new DbaseFieldLength(15),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(IDENT8)),
                         new DbaseFieldLength(8)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(RICHTING)),
-                        new DbaseFieldLength(2)),
+                        new DbaseFieldLength(2),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLRICHT)),
                         new DbaseFieldLength(64)),
 
                 DbaseField
-                    .CreateInt32Field(
+                    .CreateNumberField(
                         new DbaseFieldName(nameof(VOLGNUMMER)),
-                        new DbaseFieldLength(5)),
+                        new DbaseFieldLength(5),
+                        new DbaseDecimalCount(0)),
 
                 DbaseField
-                    .CreateDateTimeField(new DbaseFieldName(nameof(BEGINTIJD))),
+                    .CreateCharacterField(
+                        new DbaseFieldName(nameof(BEGINTIJD)),
+                        new DbaseFieldLength(15)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(BEGINORG)),
                         new DbaseFieldLength(18)),
 
                 DbaseField
-                    .CreateStringField(
+                    .CreateCharacterField(
                         new DbaseFieldName(nameof(LBLBGNORG)),
                         new DbaseFieldLength(64))
             };

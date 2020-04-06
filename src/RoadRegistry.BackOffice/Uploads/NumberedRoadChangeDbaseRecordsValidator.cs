@@ -27,25 +27,25 @@ namespace RoadRegistry.BackOffice.Uploads
                         var record = records.Current;
                         if (record != null)
                         {
-                            if (record.RECORDTYPE.Value == null)
+                            if (!record.RECORDTYPE.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.RECORDTYPE.Field);
                             } else
                             {
-                                if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value.Value))
+                                if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value))
                                 {
-                                    problems += recordContext.RecordTypeMismatch(record.RECORDTYPE.Value.Value);
+                                    problems += recordContext.RecordTypeMismatch(record.RECORDTYPE.Value);
                                 }
                             }
-                            if (record.GW_OIDN.Value.HasValue)
+                            if (record.GW_OIDN.HasValue)
                             {
-                                if (record.GW_OIDN.Value.Value == 0)
+                                if (record.GW_OIDN.Value == 0)
                                 {
                                     problems += recordContext.IdentifierZero();
                                 }
                                 else
                                 {
-                                    var identifier = new AttributeId(record.GW_OIDN.Value.Value);
+                                    var identifier = new AttributeId(record.GW_OIDN.Value);
                                     if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
                                     {
                                         problems += recordContext.IdentifierNotUnique(
@@ -73,31 +73,31 @@ namespace RoadRegistry.BackOffice.Uploads
                                 problems += recordContext.NotNumberedRoadNumber(record.IDENT8.Value);
                             }
 
-                            if (!record.RICHTING.Value.HasValue)
+                            if (!record.RICHTING.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.RICHTING.Field);
                             }
-                            else if (!RoadSegmentNumberedRoadDirection.ByIdentifier.ContainsKey(record.RICHTING.Value.Value))
+                            else if (!RoadSegmentNumberedRoadDirection.ByIdentifier.ContainsKey(record.RICHTING.Value))
                             {
-                                problems += recordContext.NumberedRoadDirectionMismatch(record.RICHTING.Value.Value);
+                                problems += recordContext.NumberedRoadDirectionMismatch(record.RICHTING.Value);
                             }
 
-                            if (!record.VOLGNUMMER.Value.HasValue)
+                            if (!record.VOLGNUMMER.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.VOLGNUMMER.Field);
                             }
-                            else if (!RoadSegmentNumberedRoadOrdinal.Accepts(record.VOLGNUMMER.Value.Value))
+                            else if (!RoadSegmentNumberedRoadOrdinal.Accepts(record.VOLGNUMMER.Value))
                             {
-                                problems += recordContext.NumberedRoadOrdinalOutOfRange(record.VOLGNUMMER.Value.Value);
+                                problems += recordContext.NumberedRoadOrdinalOutOfRange(record.VOLGNUMMER.Value);
                             }
 
-                            if (!record.WS_OIDN.Value.HasValue)
+                            if (!record.WS_OIDN.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.WS_OIDN.Field);
                             }
-                            else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value.Value))
+                            else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value))
                             {
-                                problems += recordContext.RoadSegmentIdOutOfRange(record.WS_OIDN.Value.Value);
+                                problems += recordContext.RoadSegmentIdOutOfRange(record.WS_OIDN.Value);
                             }
                         }
                         moved = records.MoveNext();

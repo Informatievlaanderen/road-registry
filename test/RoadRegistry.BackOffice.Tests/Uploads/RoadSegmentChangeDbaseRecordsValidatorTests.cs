@@ -197,61 +197,61 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 yield return new object[]
                 {
-                    new Action<RoadSegmentChangeDbaseRecord>(r => r.WS_OIDN.Value = null),
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
                     RoadSegmentChangeDbaseRecord.Schema.WS_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentChangeDbaseRecord>(r => r.RECORDTYPE.Value = null),
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
                     RoadSegmentChangeDbaseRecord.Schema.RECORDTYPE
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentChangeDbaseRecord>(r => r.B_WK_OIDN.Value = null),
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.B_WK_OIDN.Reset()),
                     RoadSegmentChangeDbaseRecord.Schema.B_WK_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentChangeDbaseRecord>(r => r.E_WK_OIDN.Value = null),
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.E_WK_OIDN.Reset()),
                     RoadSegmentChangeDbaseRecord.Schema.E_WK_OIDN
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentChangeDbaseRecord>(r => r.TGBEP.Value = null),
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.TGBEP.Reset()),
                     RoadSegmentChangeDbaseRecord.Schema.TGBEP
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentChangeDbaseRecord>(r => r.STATUS.Value = null),
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.STATUS.Reset()),
                     RoadSegmentChangeDbaseRecord.Schema.STATUS
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentChangeDbaseRecord>(r => r.WEGCAT.Value = null),
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.WEGCAT.Reset()),
                     RoadSegmentChangeDbaseRecord.Schema.WEGCAT
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentChangeDbaseRecord>(r => r.MORFOLOGIE.Value = null),
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.MORFOLOGIE.Reset()),
                     RoadSegmentChangeDbaseRecord.Schema.MORFOLOGIE
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentChangeDbaseRecord>(r => r.METHODE.Value = null),
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.METHODE.Reset()),
                     RoadSegmentChangeDbaseRecord.Schema.METHODE
                 };
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentChangeDbaseRecord>(r => r.BEHEERDER.Value = null),
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.BEHEERDER.Reset()),
                     RoadSegmentChangeDbaseRecord.Schema.BEHEERDER
                 };
             }

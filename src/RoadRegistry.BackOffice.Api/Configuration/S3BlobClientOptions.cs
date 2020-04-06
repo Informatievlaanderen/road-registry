@@ -1,4 +1,4 @@
-namespace RoadRegistry.Api.Configuration
+namespace RoadRegistry.BackOffice.Api.Configuration
 {
     public class S3BlobClientOptions
     {

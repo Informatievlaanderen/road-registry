@@ -21,8 +21,8 @@ services:
     volumes:
       - empty-legacy-mssql-data:/var/opt/mssql
       - ./src/RoadRegistry.LegacyDatabase/empty:/var/lib/backup
-  empty-legacystreamextraction:
-    build: dist/RoadRegistry.LegacyStreamExtraction/linux
+  extract-empty-legacy:
+    build: dist/RoadRegistry.Legacy.Extract/linux
     depends_on:
       - empty-legacy-mssql
       - minio
@@ -34,7 +34,7 @@ services:
       S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
       CONNECTIONSTRINGS__LEGACY: Data Source=tcp:empty-legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
-      - ./src/RoadRegistry.LegacyStreamExtraction:/var/lib/RoadRegistry.LegacyStreamExtraction
+      - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
   filled-legacy-mssql:
     build: src/RoadRegistry.LegacyDatabase/filled
     environment:
@@ -46,8 +46,8 @@ services:
     volumes:
       - filled-legacy-mssql-data:/var/opt/mssql
       - ./src/RoadRegistry.LegacyDatabase/filled:/var/lib/backup
-  filled-legacystreamextraction:
-    build: dist/RoadRegistry.LegacyStreamExtraction/linux
+  extract-filled-legacy:
+    build: dist/RoadRegistry.Legacy.Extract/linux
     depends_on:
       - filled-legacy-mssql
       - minio
@@ -59,7 +59,7 @@ services:
       S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
       CONNECTIONSTRINGS__LEGACY: Data Source=tcp:legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
-      - ./src/RoadRegistry.LegacyStreamExtraction:/var/lib/RoadRegistry.LegacyStreamExtraction
+      - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
   mssql:
     build: src/RoadRegistry.Database
     environment:
@@ -70,8 +70,8 @@ services:
       - "21433:1433"
     volumes:
       - mssql-data:/var/opt/mssql
-  legacystreamloader:
-    build: dist/RoadRegistry.LegacyStreamLoader/linux
+  import-legacy:
+    build: dist/RoadRegistry.Legacy.Import/linux
     depends_on:
       - mssql
       - minio
@@ -83,9 +83,9 @@ services:
       S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
-      - ./src/RoadRegistry.LegacyStreamExtraction:/var/lib/RoadRegistry.LegacyStreamExtraction
-  projectionhost:
-    build: dist/RoadRegistry.BackOffice.Projections/linux
+      - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
+  backoffice-projection-host:
+    build: dist/RoadRegistry.BackOffice.ProjectionHost/linux
     depends_on:
       - mssql
       - minio
@@ -96,9 +96,9 @@ services:
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-      CONNECTIONSTRINGS__SHAPEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-      CONNECTIONSTRINGS__SHAPEPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-  eventhost:
+      CONNECTIONSTRINGS__BACKOFFICEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__BACKOFFICEPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+  backoffice-event-host:
     build: dist/RoadRegistry.BackOffice.EventHost/linux
     depends_on:
       - mssql
@@ -114,7 +114,7 @@ services:
       CONNECTIONSTRINGS__EVENTHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-  commandhost:
+  backoffice-command-host:
     build: dist/RoadRegistry.BackOffice.CommandHost/linux
     depends_on:
       - mssql
@@ -129,11 +129,11 @@ services:
       CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-  api:
+  backoffice-api:
     build: dist/RoadRegistry.BackOffice.Api/linux
     depends_on:
       - mssql
-      - projectionhost
+      - backoffice-projection-host
       - minio
     environment:
       MINIO_SERVER: http://minio:9000
@@ -143,14 +143,14 @@ services:
       S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
       CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-      CONNECTIONSTRINGS__SHAPEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__BACKOFFICEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       IDEMPOTENCY__CONNECTIONSTRING: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     ports:
       - "5020:5000"
-  ui:
-    build: dist/RoadRegistry.UI/linux
+  backoffice-ui:
+    build: dist/RoadRegistry.BackOffice.UI/linux
     depends_on:
-      - api
+      - backoffice-api
     environment:
       API__ENDPOINT: http://localhost:5020
     ports:

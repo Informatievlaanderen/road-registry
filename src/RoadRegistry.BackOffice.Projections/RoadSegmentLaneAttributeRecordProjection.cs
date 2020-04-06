@@ -12,7 +12,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Schema;
     using Schema.RoadSegmentLaneAttributes;
 
-    public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<ShapeContext>
+    public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<BackOfficeContext>
     {
         public RoadSegmentLaneAttributeRecordProjection(RecyclableMemoryStreamManager manager,
             Encoding encoding)

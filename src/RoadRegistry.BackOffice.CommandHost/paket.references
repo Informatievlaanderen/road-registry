@@ -1,32 +1,15 @@
-Microsoft.EntityFrameworkCore.SqlServer
-Microsoft.EntityFrameworkCore.InMemory
-Microsoft.EntityFrameworkCore.Design
-
-Microsoft.Extensions.Configuration
-Microsoft.Extensions.Configuration.CommandLine
-Microsoft.Extensions.Configuration.Json
-Microsoft.Extensions.Configuration.EnvironmentVariables
+Microsoft.Data.SqlClient
+Microsoft.Extensions.Logging
 Microsoft.Extensions.Hosting
-Microsoft.Extensions.Options.ConfigurationExtensions
 
 SqlStreamStore.MsSql
 
-Autofac.Extensions.DependencyInjection
-
-Microsoft.IO.RecyclableMemoryStream
-
-Destructurama.JsonNet
-
 Serilog
-Serilog.Settings.Configuration
-Serilog.Extensions.Logging
-Serilog.Sinks.Console
-Serilog.Enrichers.Thread
 Serilog.Enrichers.Environment
+Serilog.Enrichers.Thread
+Serilog.Extensions.Hosting
+Serilog.Formatting.Compact
+Serilog.Settings.Configuration
+Serilog.Sinks.Console
 
-System.Text.Encoding.CodePages
-
-AWSSDK.S3
-
-Be.Vlaanderen.Basisregisters.BlobStore
-Be.Vlaanderen.Basisregisters.EventHandling.Autofac
+System.Threading.Channels

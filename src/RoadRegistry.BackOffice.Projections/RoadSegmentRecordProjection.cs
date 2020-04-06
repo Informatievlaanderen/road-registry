@@ -13,7 +13,7 @@ namespace RoadRegistry.BackOffice.Projections
     using Schema;
     using Schema.RoadSegments;
 
-    public class RoadSegmentRecordProjection : ConnectedProjection<ShapeContext>
+    public class RoadSegmentRecordProjection : ConnectedProjection<BackOfficeContext>
     {
         public RoadSegmentRecordProjection(RecyclableMemoryStreamManager manager,
             Encoding encoding)
@@ -21,7 +21,7 @@ namespace RoadRegistry.BackOffice.Projections
             if (manager == null) throw new ArgumentNullException(nameof(manager));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
-            When<Envelope<ImportedRoadSegment>>((context, envelope, token) =>
+            When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
                 var geometry =
                     GeometryTranslator.FromGeometryMultiLineString(Core.GeometryTranslator.Translate(envelope.Message.Geometry));
@@ -33,7 +33,7 @@ namespace RoadRegistry.BackOffice.Projections
                     RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod).Translation;
                 var accessRestrictionTranslation =
                     RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction).Translation;
-                return context.RoadSegments.AddAsync(
+                await context.RoadSegments.AddAsync(
                     new RoadSegmentRecord
                     {
                         Id = envelope.Message.Id,

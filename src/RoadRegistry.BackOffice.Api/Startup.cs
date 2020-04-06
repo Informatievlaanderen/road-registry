@@ -1,83 +1,165 @@
-namespace RoadRegistry.Api
+namespace RoadRegistry.BackOffice.Api
 {
-    using System;
-    using System.Collections.Generic;
-    using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-    using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware;
-    using Be.Vlaanderen.Basisregisters.AspNetCore.Swagger.ReDoc;
+    using Autofac;
+    using Autofac.Extensions.DependencyInjection;
+    using Be.Vlaanderen.Basisregisters.Api;
+    using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
     using Configuration;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc.ApiExplorer;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Logging;
-    using Serilog;
+    using Microsoft.Extensions.Hosting;
+    using System;
+    using System.Linq;
+    using System.Reflection;
+    using Microsoft.OpenApi.Models;
 
     public class Startup
     {
-        private const string AllowSpecificOrigin = "AllowSpecificOrigin";
+        private const string DatabaseTag = "db";
+
+        private IContainer _applicationContainer;
+
+        private readonly IConfiguration _configuration;
+        private readonly ILoggerFactory _loggerFactory;
+
+        public Startup(
+            IConfiguration configuration,
+            ILoggerFactory loggerFactory)
+        {
+            _configuration = configuration;
+            _loggerFactory = loggerFactory;
+        }
+
+        public IServiceProvider ConfigureServices(IServiceCollection services)
+        {
+            services
+                .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
+                {
+                    Cors =
+                    {
+                        Origins = _configuration
+                            .GetSection("Cors")
+                            .GetChildren()
+                            .Select(c => c.Value)
+                            .ToArray()
+                    },
+                    Swagger =
+                    {
+                        ApiInfo = (provider, description) => new OpenApiInfo
+                        {
+                            Version = description.ApiVersion.ToString(),
+                            Title = "Basisregisters Vlaanderen Road Registry API",
+                            Description = GetApiLeadingText(description),
+                            Contact = new OpenApiContact
+                            {
+                                Name = "Informatie Vlaanderen",
+                                Email = "informatie.vlaanderen@vlaanderen.be",
+                                Url = new Uri("https://legacy.basisregisters.vlaanderen")
+                            }
+                        },
+                        XmlCommentPaths = new[] {typeof(Startup).GetTypeInfo().Assembly.GetName().Name}
+                    },
+                    MiddlewareHooks =
+                    {
+                        FluentValidation = fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>(),
+
+                        AfterHealthChecks = health =>
+                        {
+                            var connectionStrings = _configuration
+                                .GetSection("ConnectionStrings")
+                                .GetChildren();
+
+                            foreach (var connectionString in connectionStrings)
+                                health.AddSqlServer(
+                                    connectionString.Value,
+                                    name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
+                                    tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                        }
+                    }
+                });
+
+            var builder = new ContainerBuilder();
+            builder.Populate(services);
+            builder.RegisterModule(new DataDogModule(_configuration));
+            _applicationContainer = builder.Build();
+
+            return new AutofacServiceProvider(_applicationContainer);
+        }
 
         public void Configure(
+            IServiceProvider serviceProvider,
             IApplicationBuilder app,
-            IHostingEnvironment env,
-            IApplicationLifetime appLifetime,
+            IWebHostEnvironment env,
+            IHostApplicationLifetime appLifetime,
             ILoggerFactory loggerFactory,
-            IApiVersionDescriptionProvider provider)
+            IApiVersionDescriptionProvider apiVersionProvider,
+            ApiDataDogToggle datadogToggle,
+            ApiDebugDataDogToggle debugDataDogToggle,
+            HealthCheckService healthCheckService)
         {
-            if (env.IsDevelopment())
-                app
-                    .UseDeveloperExceptionPage()
-                    .UseDatabaseErrorPage()
-                    .UseBrowserLink();
+            StartupHelpers.CheckDatabases(healthCheckService, DatabaseTag).GetAwaiter().GetResult();
 
             app
-                .UseCors(policyName: AllowSpecificOrigin)
-
-                .UseApiExceptionHandler(loggerFactory, AllowSpecificOrigin)
-
-                //.UseIdempotencyDatabaseMigrations()
-
-                .UseMiddleware<EnableRequestRewindMiddleware>()
-                .UseMiddleware<AddCorrelationIdToLogContextMiddleware>()
-                .UseMiddleware<AddCorrelationIdToResponseMiddleware>()
-                .UseMiddleware<AddCorrelationIdMiddleware>()
-                .UseMiddleware<AddHttpSecurityHeadersMiddleware>()
-                .UseMiddleware<AddRemoteIpAddressMiddleware>()
-                .UseMiddleware<AddVersionHeaderMiddleware>()
-                .UseMiddleware<AddNoCacheHeadersMiddleware>()
-
-                .UseMiddleware<DefaultResponseCompressionQualityMiddleware>(new Dictionary<string, double>
+                .UseDataDog<Startup>(new DataDogOptions
                 {
-                    { "br", 1.0 },
-                    { "gzip", 0.9 }
+                    Common =
+                    {
+                        ServiceProvider = serviceProvider,
+                        LoggerFactory = loggerFactory
+                    },
+                    Toggles =
+                    {
+                        Enable = datadogToggle,
+                        Debug = debugDataDogToggle
+                    },
+                    Tracing =
+                    {
+                        ServiceName = _configuration["DataDog:ServiceName"],
+                    }
                 })
-                .UseResponseCompression()
 
-                .UseDefaultFiles()
-                .UseStaticFiles()
-
-                .UseMvc()
-
-                .UseSwaggerDocumentation(provider, groupName => $"Basisregisters.Vlaanderen - Wegenregister API {groupName}");
-
-            RegisterApplicationLifetimeHandling(appLifetime);
+                .UseDefaultForApi(new StartupUseOptions
+                {
+                    Common =
+                    {
+                        ApplicationContainer = _applicationContainer,
+                        ServiceProvider = serviceProvider,
+                        HostingEnvironment = env,
+                        ApplicationLifetime = appLifetime,
+                        LoggerFactory = loggerFactory,
+                    },
+                    Api =
+                    {
+                        VersionProvider = apiVersionProvider,
+                        Info = groupName => $"Basisregisters Vlaanderen - Road Registry API {groupName}",
+                        CSharpClientOptions =
+                        {
+                            ClassName = "AddressRegistry",
+                            Namespace = "Be.Vlaanderen.Basisregisters"
+                        },
+                        TypeScriptClientOptions =
+                        {
+                            ClassName = "AddressRegistry"
+                        }
+                    },
+                    Server =
+                    {
+                        PoweredByName = "Vlaamse overheid - Basisregisters Vlaanderen",
+                        ServerName = "agentschap Informatie Vlaanderen"
+                    },
+                    MiddlewareHooks =
+                    {
+                        AfterMiddleware = x => x.UseMiddleware<AddNoCacheHeadersMiddleware>(),
+                    }
+                });
         }
 
-        private void RegisterApplicationLifetimeHandling(IApplicationLifetime appLifetime)
-        {
-            appLifetime.ApplicationStarted.Register(() => Log.Information("Application started."));
-
-            appLifetime.ApplicationStopping.Register(() =>
-            {
-                Log.Information("Application stopping.");
-                Log.CloseAndFlush();
-            });
-
-            Console.CancelKeyPress += (sender, eventArgs) =>
-            {
-                appLifetime.StopApplication();
-                // Don't terminate the process immediately, wait for the Main thread to exit gracefully.
-                eventArgs.Cancel = true;
-            };
-        }
+        private static string GetApiLeadingText(ApiVersionDescription description)
+            => $"Momenteel leest u de documentatie voor versie {description.ApiVersion} van de Basisregisters Vlaanderen Address Registry API{string.Format(description.IsDeprecated ? ", **deze API versie is niet meer ondersteund * *." : ".")}";
     }
 }

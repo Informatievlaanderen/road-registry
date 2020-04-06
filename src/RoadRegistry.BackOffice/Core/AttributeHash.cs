@@ -2,17 +2,16 @@ namespace RoadRegistry.BackOffice.Core
 {
     using System;
     using System.Diagnostics.Contracts;
-    using Framework;
 
     public readonly struct AttributeHash : IEquatable<AttributeHash>
     {
-        public static readonly AttributeHash None = new AttributeHash(HashCode.Initial);
+        public static readonly AttributeHash None = new AttributeHash(Framework.HashCode.Initial);
 
-        public static AttributeHash FromHashCode(int value) => new AttributeHash(HashCode.FromHashCode(value));
+        public static AttributeHash FromHashCode(int value) => new AttributeHash(Framework.HashCode.FromHashCode(value));
 
-        private readonly HashCode _hashCode;
+        private readonly Framework.HashCode _hashCode;
 
-        private AttributeHash(HashCode hashCode)
+        private AttributeHash(Framework.HashCode hashCode)
         {
             _hashCode = hashCode;
         }

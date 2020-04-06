@@ -9,14 +9,14 @@ namespace RoadRegistry.BackOffice.Schema.RoadNodes
 
         public void Configure(EntityTypeBuilder<RoadNodeRecord> b)
         {
-            b.ToTable(TableName, Schema.Shape)
+            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
                 .HasKey(p => p.Id)
-                .ForSqlServerIsClustered(false);
+                .IsClustered(false);
 
-            b.Property(p => p.Id).ValueGeneratedNever();
-            b.Property(p => p.ShapeRecordContent);
-            b.Property(p => p.ShapeRecordContentLength);
-            b.Property(p => p.DbaseRecord);
+            b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
+            b.Property(p => p.ShapeRecordContent).IsRequired();
+            b.Property(p => p.ShapeRecordContentLength).IsRequired();
+            b.Property(p => p.DbaseRecord).IsRequired();
 
             b.OwnsOne(p => p.BoundingBox);
         }

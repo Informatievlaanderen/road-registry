@@ -1,10 +1,10 @@
-namespace RoadRegistry.Api.ZipArchiveWriters
+namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
 {
     using System;
     using System.IO.Compression;
     using System.Threading;
     using System.Threading.Tasks;
-    using BackOffice.Schema;
+    using Schema;
 
     public class CompositeZipArchiveWriter : IZipArchiveWriter
     {
@@ -15,7 +15,7 @@ namespace RoadRegistry.Api.ZipArchiveWriters
             _writers = writers ?? throw new ArgumentNullException(nameof(writers));
         }
 
-        public async Task WriteAsync(ZipArchive archive, ShapeContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, BackOfficeContext context, CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));

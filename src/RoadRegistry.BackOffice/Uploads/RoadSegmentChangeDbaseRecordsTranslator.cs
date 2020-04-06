@@ -24,15 +24,15 @@ namespace RoadRegistry.BackOffice.Uploads
                             changes = changes.Append(
                                 new AddRoadSegment(
                                     records.CurrentRecordNumber,
-                                    new RoadSegmentId(record.WS_OIDN.Value.GetValueOrDefault()),
-                                    new RoadNodeId(record.B_WK_OIDN.Value.GetValueOrDefault()),
-                                    new RoadNodeId(record.E_WK_OIDN.Value.GetValueOrDefault()),
+                                    new RoadSegmentId(record.WS_OIDN.Value),
+                                    new RoadNodeId(record.B_WK_OIDN.Value),
+                                    new RoadNodeId(record.E_WK_OIDN.Value),
                                     new OrganizationId(record.BEHEERDER.Value),
-                                    RoadSegmentGeometryDrawMethod.ByIdentifier[record.METHODE.Value.GetValueOrDefault()],
-                                    RoadSegmentMorphology.ByIdentifier[record.MORFOLOGIE.Value.GetValueOrDefault()],
-                                    RoadSegmentStatus.ByIdentifier[record.STATUS.Value.GetValueOrDefault()],
+                                    RoadSegmentGeometryDrawMethod.ByIdentifier[record.METHODE.Value],
+                                    RoadSegmentMorphology.ByIdentifier[record.MORFOLOGIE.Value],
+                                    RoadSegmentStatus.ByIdentifier[record.STATUS.Value],
                                     RoadSegmentCategory.ByIdentifier[record.WEGCAT.Value],
-                                    RoadSegmentAccessRestriction.ByIdentifier[record.TGBEP.Value.GetValueOrDefault()],
+                                    RoadSegmentAccessRestriction.ByIdentifier[record.TGBEP.Value],
                                     record.LSTRNMID.Value.HasValue ? new CrabStreetnameId(record.LSTRNMID.Value.Value) : new CrabStreetnameId?(),
                                     record.RSTRNMID.Value.HasValue ? new CrabStreetnameId(record.RSTRNMID.Value.Value) : new CrabStreetnameId?()
                                 )

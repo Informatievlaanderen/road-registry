@@ -1,180 +1,125 @@
-// https://fsprojects.github.io/Paket/
-// https://fsprojects.github.io/Paket/groups.html
 // Only the target frameworks that are used in projects.
 // If you change the target framework of the projects then you need to run paket install again.
-framework: netstandard20, netcoreapp22
+framework: netcoreapp31
 
-source https://informatievlaanderen.myget.org/F/nuget-mirror/api/v3/index.json username: "%MYGET_FEED_USER%" password: "%MYGET_FEED_PASS%" authtype: "basic"
-// source https://informatievlaanderen.myget.org/F/basisregisters/api/v3/index.json username: "%MYGET_FEED_USER%" password: "%MYGET_FEED_PASS%" authtype: "basic"
+source https://api.nuget.org/v3/index.json
 
-// This is what Microsoft likes to do from now on, except it makes no sense
-// - It does not work for self contained apps
-// - It requires you to pre install this new "GAC" on every machine
-// - It requires huge Docker base images to contain this new "GAC"
-// nuget Microsoft.AspNetCore.All 2.0.0
-
-// DOTNETCORE ISSUES
-nuget Microsoft.NETCore.App 2.2.6
-nuget Microsoft.NETCore.DotNetAppHost 2.2.6
-nuget Microsoft.NETCore.DotNetHostResolver 2.2.6
-nuget Microsoft.NETCore.DotNetHostPolicy 2.2.6
-nuget NETStandard.Library 2.0.3
+// When doing development as an employee, uncomment this to use the private NuGet proxy
+// source https://informatievlaanderen.myget.org/F/nuget-mirror/api/v3/index.json username: "%MYGET_FEED_USER%" password: "%MYGET_FEED_PASS%" authtype: "basic"
 
 // PRODUCTION STUFF
-nuget Microsoft.Extensions.Configuration 2.2.0
-nuget Microsoft.Extensions.Configuration.CommandLine 2.2.0
-nuget Microsoft.Extensions.Configuration.FileExtensions 2.2.0
-nuget Microsoft.Extensions.Configuration.Json 2.2.0
-nuget Microsoft.Extensions.Configuration.EnvironmentVariables 2.2.4
-nuget Microsoft.Extensions.Options.ConfigurationExtensions 2.2.0
-nuget Microsoft.Extensions.Configuration.Binder 2.2.0
-nuget Microsoft.Extensions.Hosting 2.2.0
+nuget Microsoft.Extensions.Configuration 3.1.2
+nuget Microsoft.Extensions.Configuration.CommandLine 3.1.2
+nuget Microsoft.Extensions.Configuration.FileExtensions 3.1.2
+nuget Microsoft.Extensions.Configuration.EnvironmentVariables 3.1.2
+nuget Microsoft.Extensions.Configuration.Json 3.1.2
+nuget Microsoft.Extensions.Configuration.Binder 3.1.2
+nuget Microsoft.Extensions.Hosting 3.1.2
+nuget Microsoft.Extensions.Logging 3.1.2
+nuget Microsoft.Extensions.Options.ConfigurationExtensions 3.1.2
+
+nuget Microsoft.Extensions.Http.Polly 3.1.2
+nuget Polly 7.2.0
+
+// For more healtchecks, look at https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks
+nuget AspNetCore.HealthChecks.SqlServer 3.0.0
+
+nuget NetTopologySuite 2.0.0
+
+nuget Microsoft.EntityFrameworkCore 3.1.2
+nuget Microsoft.EntityFrameworkCore.Abstractions 3.1.2
+nuget Microsoft.EntityFrameworkCore.Design 3.1.2
+nuget Microsoft.EntityFrameworkCore.InMemory 3.1.2
+nuget Microsoft.EntityFrameworkCore.Relational 3.1.2
+nuget Microsoft.EntityFrameworkCore.SqlServer 3.1.2
+
+nuget AsyncEnumerator 4.0.2
+nuget AWSSDK.Core 3.3.104.32
+nuget AWSSDK.S3 3.3.110.30
+nuget Docker.DotNet 3.125.2
+nuget NodaTime 2.4.7
+
+nuget System.Collections.Immutable 1.7.0
+nuget Microsoft.Data.SqlClient 1.1.1
+// nuget System.IO.Compression
+// nuget System.Security.Claims
+nuget System.Text.Encoding.CodePages 4.7.0
+nuget System.Threading.Tasks.Dataflow 4.11.0
+nuget System.Threading.Channels 4.7.0
 
 nuget Microsoft.IO.RecyclableMemoryStream 1.3.0
-nuget MessagePack 2.0.231-rc
-nuget System.IO.Pipelines 4.6.0
-
-nuget Autofac 4.9.4
-nuget Autofac.Extensions.DependencyInjection 4.4
-
-nuget Microsoft.AspNetCore 2.2.0
-nuget Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore 2.2.0
-nuget Microsoft.AspNetCore.Mvc.Core 2.2.0
-nuget Microsoft.AspNetCore.Mvc.Cors 2.2.0
-nuget Microsoft.AspNetCore.Mvc.Formatters.Json 2.2.0
-nuget Microsoft.AspNetCore.Mvc.Formatters.Xml 2.2.0
-nuget Microsoft.AspNetCore.Mvc.Versioning 3.1.1
-nuget Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer 3.1.0
-nuget Microsoft.AspNetCore.ResponseCompression 2.2.0
-nuget Microsoft.AspNetCore.StaticFiles 2.2.0
-nuget Microsoft.AspNetCore.Authentication.OpenIdConnect 2.2.0
-nuget Microsoft.AspNetCore.Authentication.Cookies 2.2.0
-nuget Microsoft.AspNetCore.Authentication.JwtBearer 2.2.0
-nuget Microsoft.AspNetCore.Server.Kestrel.Transport.Libuv 2.2.0
-
-nuget Microsoft.EntityFrameworkCore 2.2.6
-nuget Microsoft.EntityFrameworkCore.Abstractions 2.2.6
-nuget Microsoft.EntityFrameworkCore.Design 2.2.6
-nuget Microsoft.EntityFrameworkCore.InMemory 2.2.6
-nuget Microsoft.EntityFrameworkCore.Relational 2.2.6
-nuget Microsoft.EntityFrameworkCore.SqlServer 2.2.6
-
-nuget Microsoft.VisualStudio.Web.BrowserLink 2.2.0
+nuget MessagePack 2.1.90
+nuget FluentValidation 8.6.2
 
 nuget SqlStreamStore 1.1.3
 nuget SqlStreamStore.MsSql 1.1.3
 
-nuget Newtonsoft.Json 12.0.2
-nuget Destructurama.JsonNet 1.2.1
-
-nuget Serilog 2.8
-nuget Serilog.Settings.Configuration 3.1
-nuget Serilog.Extensions.Logging 3.0.1
-nuget Serilog.Sinks.Console 3.1.1
-nuget Serilog.Sinks.File 4.0.0
-nuget Serilog.Enrichers.Thread 3.1
+nuget Serilog 2.9.0
+nuget Serilog.AspNetCore 3.2.0
 nuget Serilog.Enrichers.Environment 2.1.3
-
-//nuget Swashbuckle.AspNetCore 4.0.1
-//nuget Swashbuckle.AspNetCore.Filters 4.5.2
-
-nuget System.Collections.Immutable
-nuget System.Data.SqlClient
-nuget System.IO.Compression
-nuget System.Security.Claims
-nuget System.Text.Encoding.CodePages
-nuget System.Threading.Tasks.Dataflow
-
-nuget NetTopologySuite 2.0
-
-nuget Docker.DotNet
-nuget FluentValidation 8.4
-nuget AspNetCore.AsyncInitialization
-
-nuget NodaTime
-nuget NodaTime.Testing
-nuget AWSSDK.S3
-nuget AWSSDK.Extensions.NETCore.Setup
+nuget Serilog.Enrichers.Thread 3.1.0
+nuget Serilog.Extensions.Logging 3.0.1
+nuget Serilog.Extensions.Hosting 3.0.0
+nuget Serilog.Formatting.Compact 1.1.0
+nuget Serilog.Settings.Configuration 3.1.0
+nuget Serilog.Sinks.Console 3.1.1
 
 // VBR STUFF
-nuget Be.Vlaanderen.Basisregisters.Build.Pipeline ~> 1.5
-nuget Be.Vlaanderen.Basisregisters.Testing.Infrastructure.Events ~> 1.0 content: true, copy_content_to_output_dir: always, copy_local: true
+nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 3.3.2
+nuget Be.Vlaanderen.Basisregisters.Testing.Infrastructure.Events 2.2.1 content: true, copy_content_to_output_dir: always, copy_local: true
 
-nuget Be.Vlaanderen.Basisregisters.AggregateSource ~> 1.2
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting ~> 1.2
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac ~> 1.2
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing ~> 1.2
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling ~> 1.1
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac ~> 1.2
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit ~> 1.2
+nuget Be.Vlaanderen.Basisregisters.AggregateSource 4.2.2
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting 4.2.2
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 4.2.2
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing 4.2.2
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling 4.2.2
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac 4.2.2
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit 4.2.2
 
-nuget Be.Vlaanderen.Basisregisters.Api 1.3
+nuget Be.Vlaanderen.Basisregisters.Api 11.1.3
 
-nuget Be.Vlaanderen.Basisregisters.CommandHandling ~> 1.2
-nuget Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency ~> 1.2
-nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore ~> 1.2
-nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore.Autofac ~> 1.2
+nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex 2.2.1
 
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Formatters.Json ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Formatters.Csv ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Logging ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware.AddCorrelationId ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware.AddCorrelationIdToLogContext ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware.AddCorrelationIdToResponse ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware.AddHttpSecurityHeaders ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware.AddRemoteIpAddress ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware.AddVersionHeader ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware.DefaultResponseCompressionQuality ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware.EnableRequestRewind ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.ModelBinding.GuidHeader ~> 1.0
+nuget Be.Vlaanderen.Basisregisters.CommandHandling 4.2.2
+nuget Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency 4.2.2
+nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore 4.2.2
 
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Swagger ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.AspNetCore.Swagger.ReDoc ~> 1.0
+nuget Be.Vlaanderen.Basisregisters.EventHandling 2.2.1
+nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 2.2.1
 
-nuget Be.Vlaanderen.Basisregisters.EntityFrameworkCore.EntityTypeConfiguration ~> 1.0
-nuget Be.Vlaanderen.Basisregisters.EventHandling ~> 1.3
-nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac ~> 1.3
-nuget Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic ~> 1.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList 5.3.1
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 5.3.1
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 5.3.1
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 5.3.1
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing 5.3.1
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Testing.Xunit 5.3.1
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication 5.3.1
 
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore ~> 4.6
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac ~> 4.6
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner ~> 4.6
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing ~> 4.6
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication ~> 4.6
+nuget Be.Vlaanderen.Basisregisters.Projector 5.2.1
 
-// nuget Be.Vlaanderen.Basisregisters.Projector ~> 4.2
+nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac 4.4.1
+nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.AspNetCore 4.4.1
+nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore 4.4.1
 
-nuget Be.Vlaanderen.Basisregisters.Shaperon ~> 6.0
-nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries ~> 6.0
-nuget Be.Vlaanderen.Basisregisters.BlobStore ~> 1.3.1
-
-//nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing ~> 1.1
-//nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql ~> 1.1
-//nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.AspNetCore ~> 1.1
-//nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore ~> 1.1
-//nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac ~> 1.1
+nuget Be.Vlaanderen.Basisregisters.BlobStore 2.2.2
+nuget Be.Vlaanderen.Basisregisters.Shaperon 7.7.0
+nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 7.7.0
 
 // DOCS STUFF
-nuget Structurizr.Core 0.9.0
-nuget Structurizr.Client 0.9.0
-nuget Structurizr.AdrTools 0.9.0
+nuget Structurizr.Core 0.9.5
+nuget Structurizr.Client 0.9.5
+nuget Structurizr.AdrTools 0.9.3
 
 // TEST STUFF
-nuget Microsoft.AspNetCore.TestHost 2.2.0
-nuget Microsoft.NET.Test.Sdk 15.9.0
+nuget Microsoft.NET.Test.Sdk 16.5.0
+
 nuget xunit 2.4.1
 nuget xunit.runner.visualstudio 2.4.1
 nuget xunit.categories 2.0.4
-nuget FluentAssertions 5.9.0
-nuget AutoFixture.Xunit2 4.11.0
-nuget Serilog.Sinks.XUnit 1.0.21
 
 nuget Albedo
-nuget AutoFixture
-nuget AutoFixture.Idioms
-nuget CompareNETObjects
-
-// BUILD STUFF
-nuget FAKE 4.64.17
-nuget SourceLink.Embed.AllSourceFiles 2.8.3 copy_local: true
-nuget SourceLink.Copy.PdbFiles 2.8.3 copy_local: true
+nuget AutoFixture 4.11.0
+nuget AutoFixture.Xunit2 4.11.0
+nuget AutoFixture.Idioms 4.11.0
+nuget CompareNETObjects 4.65.0
+nuget NodaTime.Testing 2.4.7

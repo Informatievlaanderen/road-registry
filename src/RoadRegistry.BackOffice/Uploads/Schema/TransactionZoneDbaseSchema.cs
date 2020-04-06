@@ -8,17 +8,25 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
         {
             Fields = new []
             {
-                DbaseField.CreateInt32Field(new DbaseFieldName(nameof(SOURCE_ID)),
-                    new DbaseFieldLength(4)),
-                DbaseField.CreateInt32Field(new DbaseFieldName(nameof(TYPE)),
-                    new DbaseFieldLength(4)),
-                DbaseField.CreateStringField(new DbaseFieldName(nameof(BESCHRIJV)),
+                DbaseField.CreateNumberField(
+                    new DbaseFieldName(nameof(SOURCE_ID)),
+                    new DbaseFieldLength(4),
+                    new DbaseDecimalCount(0)),
+                DbaseField.CreateNumberField(
+                    new DbaseFieldName(nameof(TYPE)),
+                    new DbaseFieldLength(4),
+                    new DbaseDecimalCount(0)),
+                DbaseField.CreateCharacterField(
+                    new DbaseFieldName(nameof(BESCHRIJV)),
                     new DbaseFieldLength(254)),
-                DbaseField.CreateStringField(new DbaseFieldName(nameof(OPERATOR)),
+                DbaseField.CreateCharacterField(
+                    new DbaseFieldName(nameof(OPERATOR)),
                     new DbaseFieldLength(254)),
-                DbaseField.CreateStringField(new DbaseFieldName(nameof(ORG)),
+                DbaseField.CreateCharacterField(
+                    new DbaseFieldName(nameof(ORG)),
                     new DbaseFieldLength(18)),
-                DbaseField.CreateStringField(new DbaseFieldName(nameof(APPLICATIE)),
+                DbaseField.CreateCharacterField(
+                    new DbaseFieldName(nameof(APPLICATIE)),
                     new DbaseFieldLength(18))
             };
         }

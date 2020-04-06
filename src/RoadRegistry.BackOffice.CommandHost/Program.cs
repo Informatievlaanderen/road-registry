@@ -1,7 +1,7 @@
 ﻿namespace RoadRegistry.BackOffice.CommandHost
 {
     using System;
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -17,7 +17,6 @@
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Configuration;
     using Core;
-    using Destructurama;
     using Framework;
     using Messages;
     using Microsoft.Extensions.Configuration;
@@ -27,6 +26,7 @@
     using Microsoft.IO;
     using NodaTime;
     using Serilog;
+    using Serilog.Formatting.Compact;
     using SqlStreamStore;
     using Uploads;
 
@@ -65,12 +65,10 @@
 
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(hostContext.Configuration)
-                        .WriteTo.Console()
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
                         .Enrich.WithThreadId()
-                        .Enrich.WithEnvironmentUserName()
-                        .Destructure.JsonNetTypes();
+                        .Enrich.WithEnvironmentUserName();
 
                     Log.Logger = loggerConfiguration.CreateLogger();
 
@@ -152,6 +150,9 @@
                                 )
                             );
                             break;
+
+                        default:
+                            throw new Exception(blobOptions.BlobClientType + " is not a supported blob client type.");
                     }
 
                     builder
@@ -209,7 +210,35 @@
 
             try
             {
-                await streamStore.WaitUntilAvailable();
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.Events,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
+                    {
+                        Password = "**REDACTED**"
+                    }.ConnectionString);
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.CommandHost,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.CommandHost))
+                    {
+                        Password = "**REDACTED**"
+                    }.ConnectionString);
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.CommandHostAdmin,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
+                    {
+                        Password = "**REDACTED**"
+                    }.ConnectionString);
+
+                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
+                    WellknownConnectionNames.Snapshots,
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots))
+                    {
+                        Password = "**REDACTED**"
+                    }.ConnectionString);
+
+                await streamStore.WaitUntilAvailable(logger);
                 await
                     new SqlCommandProcessorPositionStoreSchema(
                         new SqlConnectionStringBuilder(

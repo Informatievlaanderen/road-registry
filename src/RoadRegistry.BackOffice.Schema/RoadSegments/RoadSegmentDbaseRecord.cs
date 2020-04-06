@@ -19,9 +19,9 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
             LBLMORF = new DbaseString(Schema.LBLMORF);
             WEGCAT = new DbaseString(Schema.WEGCAT);
             LBLWEGCAT = new DbaseString(Schema.LBLWEGCAT);
-            LSTRNMID = new DbaseInt32(Schema.LSTRNMID);
+            LSTRNMID = new DbaseNullableInt32(Schema.LSTRNMID);
             LSTRNM = new DbaseString(Schema.LSTRNM);
-            RSTRNMID = new DbaseInt32(Schema.RSTRNMID);
+            RSTRNMID = new DbaseNullableInt32(Schema.RSTRNMID);
             RSTRNM = new DbaseString(Schema.RSTRNM);
             BEHEER = new DbaseString(Schema.BEHEER);
             LBLBEHEER = new DbaseString(Schema.LBLBEHEER);
@@ -75,9 +75,9 @@ namespace RoadRegistry.BackOffice.Schema.RoadSegments
         public DbaseString LBLMORF { get; }
         public DbaseString WEGCAT { get; }
         public DbaseString LBLWEGCAT { get; }
-        public DbaseInt32 LSTRNMID { get; }
+        public DbaseNullableInt32 LSTRNMID { get; }
         public DbaseString LSTRNM { get; }
-        public DbaseInt32 RSTRNMID { get; }
+        public DbaseNullableInt32 RSTRNMID { get; }
         public DbaseString RSTRNM { get; }
         public DbaseString BEHEER { get; }
         public DbaseString LBLBEHEER { get; }

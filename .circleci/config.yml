@@ -120,29 +120,33 @@ jobs:
             eval $(AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID     AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY     aws ecr get-login --no-include-email --region eu-west-1 | sed 's|https://||')
             eval $(AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_PRD AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_PRD aws ecr get-login --no-include-email --region eu-west-1 | sed 's|https://||')
 
-            docker pull $BUILD_DOCKER_REGISTRY/road-registry/legacy-stream-loader:$SEMVER
-            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/legacy-stream-loader:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/api-legacy:$SEMVER
-            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/legacy-stream-loader:$SEMVER
+            docker pull $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
+            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
+            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
 
-            docker pull $BUILD_DOCKER_REGISTRY/road-registry/projection-host:$SEMVER
-            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/projection-host:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/projection-host:$SEMVER
-            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/projection-host:$SEMVER
+            docker pull $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
+            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
+            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
 
-            docker pull $BUILD_DOCKER_REGISTRY/road-registry/command-host:$SEMVER
-            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/command-host:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/command-host:$SEMVER
-            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/command-host:$SEMVER
+            docker pull $BUILD_DOCKER_REGISTRY/road-registry/backoffice-projectionhost:$SEMVER
+            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/backoffice-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-projectionhost:$SEMVER
+            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-projectionhost:$SEMVER
 
-            docker pull $BUILD_DOCKER_REGISTRY/road-registry/event-host:$SEMVER
-            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/event-host:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/event-host:$SEMVER
-            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/event-host:$SEMVER
+            docker pull $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
+            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
+            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
 
-            docker pull $BUILD_DOCKER_REGISTRY/road-registry/api:$SEMVER
-            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/api:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/api:$SEMVER
-            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/api:$SEMVER
+            docker pull $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
+            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
+            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
 
-            docker pull $BUILD_DOCKER_REGISTRY/road-registry/ui:$SEMVER
-            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/ui:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/ui:$SEMVER
-            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/ui:$SEMVER
+            docker pull $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
+            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
+            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
+
+            docker pull $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
+            docker tag  $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
+            docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
 
 workflows:
   version: 2
