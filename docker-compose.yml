@@ -15,7 +15,7 @@ services:
     environment:
       ACCEPT_EULA: 'Y'
       SA_PASSWORD: 'E@syP@ssw0rd'
-      MSSQL_MEMORY_LIMIT_MB: 4000
+      MSSQL_MEMORY_LIMIT_MB: 1000
       MSSQL_PID: 'Standard'
     ports:
       - "31433:1433"
