@@ -10,21 +10,27 @@ services:
     volumes:
     - minio-data:/data
     command: server /data
-  empty-legacy-mssql:
-    build: src/RoadRegistry.LegacyDatabase/empty
+  legacy-mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
       ACCEPT_EULA: 'Y'
       SA_PASSWORD: 'E@syP@ssw0rd'
       MSSQL_MEMORY_LIMIT_MB: 1000
+      MSSQL_PID: 'Standard'
     ports:
-      - "41433:1433"
+      - "31433:1433"
     volumes:
-      - empty-legacy-mssql-data:/var/opt/mssql
-      - ./src/RoadRegistry.LegacyDatabase/empty:/var/lib/backup
+      - legacy-mssql-data:/var/opt/mssql
+      - ./src/RoadRegistry.LegacyDatabase/empty:/var/lib/backup/empty
+      - ./src/RoadRegistry.LegacyDatabase/filled:/var/lib/backup/filled
+  empty-legacy-mssql-seed:
+    build: src/RoadRegistry.LegacyDatabase/empty
+    depends_on:
+      - legacy-mssql
   extract-empty-legacy:
     build: dist/RoadRegistry.Legacy.Extract/linux
     depends_on:
-      - empty-legacy-mssql
+      - empty-legacy-mssql-seed
       - minio
     environment:
       MINIO_SERVER: http://minio:9000
@@ -32,24 +38,19 @@ services:
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
-      CONNECTIONSTRINGS__LEGACY: Data Source=tcp:empty-legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__LEGACY: Data Source=tcp:legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
       - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
-  filled-legacy-mssql:
+  filled-legacy-mssql-seed:
     build: src/RoadRegistry.LegacyDatabase/filled
-    environment:
-      ACCEPT_EULA: 'Y'
-      SA_PASSWORD: 'E@syP@ssw0rd'
-      MSSQL_MEMORY_LIMIT_MB: 1000
-    ports:
-      - "31433:1433"
+    depends_on:
+      - legacy-mssql
     volumes:
-      - filled-legacy-mssql-data:/var/opt/mssql
       - ./src/RoadRegistry.LegacyDatabase/filled:/var/lib/backup
   extract-filled-legacy:
     build: dist/RoadRegistry.Legacy.Extract/linux
     depends_on:
-      - filled-legacy-mssql
+      - filled-legacy-mssql-seed
       - minio
     environment:
       MINIO_SERVER: http://minio:9000
@@ -61,19 +62,24 @@ services:
     volumes:
       - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
   mssql:
-    build: src/RoadRegistry.Database
+    image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
       ACCEPT_EULA: 'Y'
       SA_PASSWORD: 'E@syP@ssw0rd'
       MSSQL_MEMORY_LIMIT_MB: 4000
+      MSSQL_PID: 'Standard'
     ports:
       - "21433:1433"
     volumes:
       - mssql-data:/var/opt/mssql
+  mssql-seed:
+    build: ./src/RoadRegistry.Database
+    depends_on:
+      - mssql
   import-legacy:
     build: dist/RoadRegistry.Legacy.Import/linux
     depends_on:
-      - mssql
+      - mssql-seed
       - minio
     environment:
       MINIO_SERVER: http://minio:9000
@@ -87,7 +93,7 @@ services:
   backoffice-projection-host:
     build: dist/RoadRegistry.BackOffice.ProjectionHost/linux
     depends_on:
-      - mssql
+      - mssql-seed
       - minio
     environment:
       MINIO_SERVER: http://minio:9000
@@ -101,7 +107,7 @@ services:
   backoffice-event-host:
     build: dist/RoadRegistry.BackOffice.EventHost/linux
     depends_on:
-      - mssql
+      - mssql-seed
       - minio
     environment:
       MINIO_SERVER: http://minio:9000
@@ -117,7 +123,7 @@ services:
   backoffice-command-host:
     build: dist/RoadRegistry.BackOffice.CommandHost/linux
     depends_on:
-      - mssql
+      - mssql-seed
       - minio
     environment:
       MINIO_SERVER: http://minio:9000
@@ -132,7 +138,7 @@ services:
   backoffice-api:
     build: dist/RoadRegistry.BackOffice.Api/linux
     depends_on:
-      - mssql
+      - mssql-seed
       - backoffice-projection-host
       - minio
     environment:
@@ -157,6 +163,5 @@ services:
       - "5010:5000"
 volumes:
   mssql-data:
-  filled-legacy-mssql-data:
-  empty-legacy-mssql-data:
+  legacy-mssql-data:
   minio-data:

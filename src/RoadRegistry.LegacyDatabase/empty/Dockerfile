@@ -1,4 +1,4 @@
-FROM microsoft/mssql-server-linux:2017-latest
+FROM mcr.microsoft.com/mssql/server:2019-latest
 
 LABEL maintainer "Informatie Vlaanderen <informatie.vlaanderen@vlaanderen.be>"
 
