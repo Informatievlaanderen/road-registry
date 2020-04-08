@@ -134,7 +134,7 @@ namespace RoadRegistry.BackOffice
         public static void CustomizeNumberedRoadNumber(this IFixture fixture)
         {
             fixture.Customize<NumberedRoadNumber>(composer =>
-                composer.FromFactory<int>(value => NumberedRoadNumber.All[Math.Abs(value) % NumberedRoadNumber.All.Length]));
+                composer.FromFactory<int>(value => NumberedRoadNumbers.All[Math.Abs(value) % NumberedRoadNumbers.All.Length]));
         }
 
         public static void CustomizeAttributeHash(this IFixture fixture)
