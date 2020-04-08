@@ -91,10 +91,11 @@ namespace RoadRegistry.BackOffice
             return new NumberedRoadNumber(value.ToCharArray());
         }
 
-        public bool Equals(NumberedRoadNumber other) => other._value.SequenceEqual(_value);
+        public bool Equals(NumberedRoadNumber other) =>
+            (other._value ?? Array.Empty<char>()).SequenceEqual(_value ?? Array.Empty<char>());
         public override bool Equals(object obj) => obj is NumberedRoadNumber type && Equals(type);
-        public override int GetHashCode() => new string(_value).GetHashCode();
-        public override string ToString() => new string(_value);
+        public override int GetHashCode() => new string(_value ?? Array.Empty<char>()).GetHashCode();
+        public override string ToString() => new string(_value ?? Array.Empty<char>());
 
         public static implicit operator string(NumberedRoadNumber instance) => instance.ToString();
         public static bool operator ==(NumberedRoadNumber left, NumberedRoadNumber right) => Equals(left, right);
