@@ -233,7 +233,7 @@ namespace RoadRegistry.BackOffice.Simulator
             var numberedRoadRecord = new NumberedRoadChangeDbaseRecord();
             numberedRoadRecord.GW_OIDN.Value = 1;
             numberedRoadRecord.WS_OIDN.Value = 1;
-            numberedRoadRecord.IDENT8.Value = NumberedRoadNumber.All[5].ToString();
+            numberedRoadRecord.IDENT8.Value = NumberedRoadNumber.Parse("A0001231").ToString();
             numberedRoadRecord.RICHTING.Value = (short) RoadSegmentNumberedRoadDirection.Backward.Translation.Identifier;
             numberedRoadRecord.VOLGNUMMER.Value = 1;
             numberedRoadRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;

@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice
 {
     using System;
+    using System.Linq;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Framework;
@@ -14,7 +15,7 @@ namespace RoadRegistry.BackOffice
         public NumberedRoadNumberTests()
         {
             _fixture = new Fixture();
-            _knownValues = Array.ConvertAll(NumberedRoadNumber.All, type => type.ToString());
+            _knownValues = Array.ConvertAll(NumberedRoadNumbers.All, type => type.ToString());
         }
 
         [Fact]
@@ -40,14 +41,6 @@ namespace RoadRegistry.BackOffice
         }
 
         [Fact]
-        public void AllReturnsExpectedResult()
-        {
-            Assert.Equal(
-                5813,
-                NumberedRoadNumber.All.Length);
-        }
-
-        [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = _knownValues[new Random().Next(0, _knownValues.Length)];
@@ -64,16 +57,87 @@ namespace RoadRegistry.BackOffice
         }
 
         [Fact]
-        public void ParseReturnsExpectedResultWhenValueIsWellKnown()
+        public void ParseReturnsExpectedResultWhenValueIsWellFormed()
         {
             var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-            Assert.NotNull(NumberedRoadNumber.Parse(value));
+            Assert.Equal(value, NumberedRoadNumber.Parse(value).ToString());
         }
 
         [Fact]
-        public void ParseReturnsExpectedResultWhenValueIsUnknown()
+        public void ParseThrowsWhenValueIsNot8CharactersLong()
         {
-            var value = _fixture.Create<string>();
+            var value =
+                new Generator<string>(_fixture)
+                    .First(candidate => candidate.Length != 8);
+
+            Assert.Throws<FormatException>(() => NumberedRoadNumber.Parse(value));
+        }
+
+        [Fact]
+        public void ParseThrowsWhenValueDoesNotStartWithAcceptableRoadType()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                !Array.Exists(NumberedRoadNumber.RoadTypes,
+                                    letter => letter.Equals(candidate))),
+                    '1', '1', '1', '1', '1', '1', '1'
+                });
+
+            Assert.Throws<FormatException>(() => NumberedRoadNumber.Parse(value));
+        }
+
+        [Fact]
+        public void ParseThrowsWhenValueDoesNotEndWithDigits()
+        {
+            var generator = new Generator<char>(_fixture);
+            var roadType = generator
+                .First(
+                    candidate =>
+                        Array.Exists(NumberedRoadNumber.RoadTypes,
+                            letter => letter.Equals(candidate)));
+            var not_a_digit_position = _fixture.Create<int>() % 6;
+            var all_digits_except_for_one = new char[6];
+            for (var index = 0; index < 6; index++)
+            {
+                if (index == not_a_digit_position)
+                {
+                    all_digits_except_for_one[index] = generator.First(candidate => !char.IsDigit(candidate));
+                }
+                else
+                {
+                    all_digits_except_for_one[index] = generator.First(char.IsDigit);
+                }
+            }
+            var value =
+                new string(new [] { roadType }.Concat(all_digits_except_for_one).Concat(new []{ '1' }).ToArray());
+
+            Assert.Throws<FormatException>(() => NumberedRoadNumber.Parse(value));
+        }
+
+        [Fact]
+        public void ParseThrowsWhenValueDoesNotEndWithDigitThatIsOneOrTwo()
+        {
+            var generator = new Generator<char>(_fixture);
+            var roadType = generator
+                .First(
+                    candidate =>
+                        Array.Exists(NumberedRoadNumber.RoadTypes,
+                            letter => letter.Equals(candidate)));
+            var all_digits = new char[6];
+            for (var index = 0; index < 6; index++)
+            {
+                all_digits[index] = generator.First(char.IsDigit);
+            }
+            var not_one_nor_two = generator
+                .First(candidate =>
+                    char.IsDigit(candidate) && candidate != '1' && candidate != '2');
+            var value =
+                new string(new [] { roadType }.Concat(all_digits).Concat(new [] {not_one_nor_two}).ToArray());
+
             Assert.Throws<FormatException>(() => NumberedRoadNumber.Parse(value));
         }
 
@@ -84,22 +148,98 @@ namespace RoadRegistry.BackOffice
         }
 
         [Fact]
-        public void TryParseReturnsExpectedResultWhenValueIsWellKnown()
+        public void TryParseReturnsExpectedResultWhenValueIsWellFormed()
         {
             var value = _knownValues[new Random().Next(0, _knownValues.Length)];
             var result = NumberedRoadNumber.TryParse(value, out var parsed);
             Assert.True(result);
-            Assert.NotNull(parsed);
             Assert.Equal(value, parsed.ToString());
         }
 
         [Fact]
-        public void TryParseReturnsExpectedResultWhenValueIsUnknown()
+        public void TryParseReturnsExpectedResultWhenValueIsNot8CharactersLong()
         {
-            var value = _fixture.Create<string>();
+            var value =
+                new Generator<string>(_fixture)
+                    .First(candidate => candidate.Length != 8);
+
             var result = NumberedRoadNumber.TryParse(value, out var parsed);
             Assert.False(result);
-            Assert.Null(parsed);
+            Assert.Equal(default, parsed);
+        }
+
+        [Fact]
+        public void TryParseReturnsExpectedResultWhenValueDoesNotStartWithAcceptableRoadType()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                !Array.Exists(NumberedRoadNumber.RoadTypes,
+                                    letter => letter.Equals(candidate))),
+                    '1', '1', '1', '1', '1', '1', '1'
+                });
+
+            var result = NumberedRoadNumber.TryParse(value, out var parsed);
+            Assert.False(result);
+            Assert.Equal(default, parsed);
+        }
+
+        [Fact]
+        public void TryParseReturnsExpectedResultWhenValueDoesNotEndWithDigits()
+        {
+            var generator = new Generator<char>(_fixture);
+            var roadType = generator
+                .First(
+                    candidate =>
+                        Array.Exists(NumberedRoadNumber.RoadTypes,
+                            letter => letter.Equals(candidate)));
+            var not_a_digit_position = _fixture.Create<int>() % 6;
+            var all_digits_except_for_one = new char[6];
+            for (var index = 0; index < 6; index++)
+            {
+                if (index == not_a_digit_position)
+                {
+                    all_digits_except_for_one[index] = generator.First(candidate => !char.IsDigit(candidate));
+                }
+                else
+                {
+                    all_digits_except_for_one[index] = generator.First(char.IsDigit);
+                }
+            }
+            var value =
+                new string(new [] { roadType }.Concat(all_digits_except_for_one).Concat(new []{ '1' }).ToArray());
+
+            var result = NumberedRoadNumber.TryParse(value, out var parsed);
+            Assert.False(result);
+            Assert.Equal(default, parsed);
+        }
+
+        [Fact]
+        public void TryParseReturnsExpectedResultWhenValueDoesNotEndWithDigitThatIsOneOrTwo()
+        {
+            var generator = new Generator<char>(_fixture);
+            var roadType = generator
+                .First(
+                    candidate =>
+                        Array.Exists(NumberedRoadNumber.RoadTypes,
+                            letter => letter.Equals(candidate)));
+            var all_digits = new char[6];
+            for (var index = 0; index < 6; index++)
+            {
+                all_digits[index] = generator.First(char.IsDigit);
+            }
+            var not_one_nor_two = generator
+                .First(candidate =>
+                    char.IsDigit(candidate) && candidate != '1' && candidate != '2');
+            var value =
+                new string(new [] { roadType }.Concat(all_digits).Concat(new [] {not_one_nor_two}).ToArray());
+
+            var result = NumberedRoadNumber.TryParse(value, out var parsed);
+            Assert.False(result);
+            Assert.Equal(default, parsed);
         }
 
         [Fact]
@@ -109,19 +249,93 @@ namespace RoadRegistry.BackOffice
         }
 
         [Fact]
-        public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+        public void CanParseReturnsExpectedResultWhenValueIsWellFormed()
         {
-            var value = _fixture.Create<string>();
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+            var result = NumberedRoadNumber.CanParse(value);
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsNot8CharactersLong()
+        {
+            var value =
+                new Generator<string>(_fixture)
+                    .First(candidate => candidate.Length != 8);
+
             var result = NumberedRoadNumber.CanParse(value);
             Assert.False(result);
         }
 
         [Fact]
-        public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+        public void CanParseReturnsExpectedResultWhenValueDoesNotStartWithAcceptableRoadType()
         {
-            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                !Array.Exists(NumberedRoadNumber.RoadTypes,
+                                    letter => letter.Equals(candidate))),
+                    '1', '1', '1', '1', '1', '1', '1'
+                });
+
             var result = NumberedRoadNumber.CanParse(value);
-            Assert.True(result);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueDoesNotEndWithDigits()
+        {
+            var generator = new Generator<char>(_fixture);
+            var roadType = generator
+                .First(
+                    candidate =>
+                        Array.Exists(NumberedRoadNumber.RoadTypes,
+                            letter => letter.Equals(candidate)));
+            var not_a_digit_position = _fixture.Create<int>() % 6;
+            var all_digits_except_for_one = new char[6];
+            for (var index = 0; index < 6; index++)
+            {
+                if (index == not_a_digit_position)
+                {
+                    all_digits_except_for_one[index] = generator.First(candidate => !char.IsDigit(candidate));
+                }
+                else
+                {
+                    all_digits_except_for_one[index] = generator.First(char.IsDigit);
+                }
+            }
+            var value =
+                new string(new [] { roadType }.Concat(all_digits_except_for_one).Concat(new []{ '1' }).ToArray());
+
+            var result = NumberedRoadNumber.CanParse(value);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueDoesNotEndWithDigitThatIsOneOrTwo()
+        {
+            var generator = new Generator<char>(_fixture);
+            var roadType = generator
+                .First(
+                    candidate =>
+                        Array.Exists(NumberedRoadNumber.RoadTypes,
+                            letter => letter.Equals(candidate)));
+            var all_digits = new char[6];
+            for (var index = 0; index < 6; index++)
+            {
+                all_digits[index] = generator.First(char.IsDigit);
+            }
+            var not_one_nor_two = generator
+                .First(candidate =>
+                    char.IsDigit(candidate) && candidate != '1' && candidate != '2');
+            var value =
+                new string(new [] { roadType }.Concat(all_digits).Concat(new [] {not_one_nor_two}).ToArray());
+
+            var result = NumberedRoadNumber.CanParse(value);
+            Assert.False(result);
         }
     }
 }
