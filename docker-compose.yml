@@ -37,7 +37,7 @@ services:
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
-      S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
+      S3BLOBCLIENTOPTIONS__BUCKETS__IMPORTLEGACY: road-registry-import-legacy
       CONNECTIONSTRINGS__LEGACY: Data Source=tcp:legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
       - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
@@ -57,7 +57,7 @@ services:
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
-      S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
+      S3BLOBCLIENTOPTIONS__BUCKETS__IMPORTLEGACY: road-registry-import-legacy
       CONNECTIONSTRINGS__LEGACY: Data Source=tcp:legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
       - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
@@ -86,7 +86,7 @@ services:
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
-      S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
+      S3BLOBCLIENTOPTIONS__BUCKETS__IMPORTLEGACY: road-registry-import-legacy
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
       - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
@@ -100,7 +100,7 @@ services:
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
-      S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
+      S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__BACKOFFICEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__BACKOFFICEPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
@@ -114,7 +114,7 @@ services:
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
-      S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
+      S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
       CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__SNAPSHOTSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
@@ -130,7 +130,7 @@ services:
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
-      S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
+      S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
       CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
@@ -146,7 +146,7 @@ services:
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
-      S3BLOBCLIENTOPTIONS__BUCKETPREFIX: road-registry
+      S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploadsregistry
       CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__BACKOFFICEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;

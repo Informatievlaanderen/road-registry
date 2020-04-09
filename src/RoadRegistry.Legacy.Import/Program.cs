@@ -4,6 +4,7 @@ namespace RoadRegistry.Legacy.Import
     using Microsoft.Data.SqlClient;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
@@ -132,7 +133,7 @@ namespace RoadRegistry.Legacy.Import
                             builder.AddSingleton<IBlobClient>(sp =>
                                 new S3BlobClient(
                                     sp.GetService<AmazonS3Client>(),
-                                    s3Options.BucketPrefix + WellknownBuckets.ImportLegacyBucket
+                                    s3Options.Buckets[WellknownBuckets.ImportLegacyBucket]
                                 )
                             );
                             break;
@@ -183,15 +184,13 @@ namespace RoadRegistry.Legacy.Import
             var writer = host.Services.GetService<LegacyStreamEventsWriter>();
             var client = host.Services.GetService<IBlobClient>();
             var streamStore = host.Services.GetService<IStreamStore>();
+            var blobClientOptions = new BlobClientOptions();
+            configuration.Bind(blobClientOptions);
 
             try
             {
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.Events,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
+                logger.LogBlobClientCredentials(blobClientOptions);
 
                 var eventsConnectionStringBuilder =
                     new SqlConnectionStringBuilder(

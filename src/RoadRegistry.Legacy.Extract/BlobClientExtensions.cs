@@ -13,7 +13,7 @@ namespace RoadRegistry.Legacy.Extract
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
 
-    public static class BlobClientExtensions
+    internal static class BlobClientExtensions
     {
         public static async Task ProvisionResources(this IBlobClient client, IHost host, CancellationToken token = default)
         {
@@ -29,9 +29,9 @@ namespace RoadRegistry.Legacy.Extract
                         configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
                         var buckets = await s3Client.ListBucketsAsync(token);
-                        if (!buckets.Buckets.Exists(bucket => bucket.BucketName == s3Options.BucketPrefix + WellknownBuckets.ImportLegacyBucket))
+                        if (!buckets.Buckets.Exists(bucket => bucket.BucketName == s3Options.Buckets[WellknownBuckets.ImportLegacyBucket]))
                         {
-                            await s3Client.PutBucketAsync(s3Options.BucketPrefix + WellknownBuckets.ImportLegacyBucket, token);
+                            await s3Client.PutBucketAsync(s3Options.Buckets[WellknownBuckets.ImportLegacyBucket], token);
                         }
                     }
                     break;

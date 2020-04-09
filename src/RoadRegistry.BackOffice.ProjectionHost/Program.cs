@@ -140,7 +140,7 @@
                             builder.AddSingleton<IBlobClient>(sp =>
                                 new S3BlobClient(
                                     sp.GetService<AmazonS3Client>(),
-                                    s3Options.BucketPrefix + WellknownBuckets.UploadsBucket
+                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
                                 )
                             );
 
@@ -220,29 +220,15 @@
             var streamStore = host.Services.GetRequiredService<IStreamStore>();
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
             var logger = host.Services.GetRequiredService<ILogger<Program>>();
+            var blobClientOptions = new BlobClientOptions();
+            configuration.Bind(blobClientOptions);
 
             try
             {
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.Events,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
-
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.BackOfficeProjections,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.BackOfficeProjections))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
-
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.BackOfficeProjectionsAdmin,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.BackOfficeProjectionsAdmin))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.BackOfficeProjections);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.BackOfficeProjectionsAdmin);
+                logger.LogBlobClientCredentials(blobClientOptions);
 
                 await streamStore.WaitUntilAvailable(logger);
                 await migratorFactory.CreateMigrator(configuration, loggerFactory).MigrateAsync(CancellationToken.None);

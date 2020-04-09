@@ -22,7 +22,6 @@
     using Microsoft.IO;
     using NodaTime;
     using Serilog;
-    using Serilog.Formatting.Compact;
     using SqlStreamStore;
     using Uploads;
 
@@ -130,7 +129,7 @@
                             builder.AddSingleton<IBlobClient>(sp =>
                                 new S3BlobClient(
                                     sp.GetService<AmazonS3Client>(),
-                                    s3Options.BucketPrefix + WellknownBuckets.UploadsBucket
+                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
                                 )
                             );
 
@@ -200,43 +199,17 @@
             var configuration = host.Services.GetService<IConfiguration>();
             var streamStore = host.Services.GetService<IStreamStore>();
             var logger = host.Services.GetService<ILogger<Program>>();
+            var blobClientOptions = new BlobClientOptions();
+            configuration.Bind(blobClientOptions);
 
             try
             {
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.Events,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
-
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.EventHost,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHost))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
-
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.EventHostAdmin,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
-
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.Snapshots,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
-
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.SnapshotsAdmin,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EventHost);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EventHostAdmin);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SnapshotsAdmin);
+                logger.LogBlobClientCredentials(blobClientOptions);
 
                 await streamStore.WaitUntilAvailable(logger);
                 await

@@ -131,7 +131,7 @@ namespace RoadRegistry.BackOffice.Api
                             builder.AddSingleton<IBlobClient>(sp =>
                                 new S3BlobClient(
                                     sp.GetService<AmazonS3Client>(),
-                                    s3Options.BucketPrefix + WellknownBuckets.UploadsBucket
+                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
                                 )
                             );
 
