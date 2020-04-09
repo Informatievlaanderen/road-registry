@@ -2,7 +2,7 @@
 version 5.241.6
 framework: netstandard20
 source https://api.nuget.org/v3/index.json
-nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 3.3.2 //"
+nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 3.3.5 //"
 
 #load "packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/build-generic.fsx"
 
@@ -12,10 +12,6 @@ open Fake.DotNet
 open Fake.IO.FileSystemOperators
 open Fake.IO
 open Fake.JavaScript
-
-open System
-open System.IO
-
 open ``Build-generic``
 
 // The buildserver passes in `BITBUCKET_BUILD_NUMBER` as an integer to version the results
@@ -75,85 +71,6 @@ let publish = publish assemblyVersionNumber
 let pack = pack nugetVersionNumber
 let containerize = containerize dockerRepository
 let push = push dockerRepository
-
-let getDotnetExePath defaultPath : string =
-  match customDotnetExePath with
-  | None -> defaultPath
-  | Some dotnetExePath -> dotnetExePath
-
-let determineInstalledFxVersions () : string list =
-  printfn "Determining CLR Versions using %s" (getDotnetExePath "dotnet")
-
-  let clrVersions =
-    try
-      let dotnetCommand = getDotnetExePath "dotnet"
-
-      ["--list-runtimes"]
-      |> CreateProcess.fromRawCommand dotnetCommand
-      |> CreateProcess.withWorkingDirectory Environment.CurrentDirectory
-      |> CreateProcess.withTimeout (TimeSpan.FromMinutes 30.)
-      |> CreateProcess.redirectOutput
-      |> Proc.run
-      |> fun output -> output.Result.Output.Split([| Environment.NewLine |], StringSplitOptions.None)
-      |> Seq.filter (fun line -> line.Contains("Microsoft.NETCore.App"))
-      |> Seq.map (fun line -> line.Split([| " " |], StringSplitOptions.None).[1].Trim())
-      |> Seq.sortDescending
-      |> Seq.toList
-    with
-      | _ -> []
-
-  printfn "Determined CLR Versions: %A" clrVersions
-  clrVersions
-
-let determineInstalledSdkVersions () : string list =
-  printfn "Determining SDK Versions using %s" (getDotnetExePath "dotnet")
-
-  let sdkVersions =
-    try
-      let dotnetCommand = getDotnetExePath "dotnet"
-
-      ["--list-sdks"]
-      |> CreateProcess.fromRawCommand dotnetCommand
-      |> CreateProcess.withWorkingDirectory Environment.CurrentDirectory
-      |> CreateProcess.withTimeout (TimeSpan.FromMinutes 30.)
-      |> CreateProcess.redirectOutput
-      |> Proc.run
-      |> fun output -> output.Result.Output.Split([| Environment.NewLine |], StringSplitOptions.None)
-      |> Seq.map (fun line -> line.Split([| " " |], StringSplitOptions.None).[0].Trim())
-      |> Seq.sortDescending
-      |> Seq.toList
-    with
-      | _ -> []
-
-  printfn "Determined SDK Versions: %A" sdkVersions
-  sdkVersions
-
-Target.create "DotNetCliCustom" (fun _ ->
-  let desiredFxVersion = getDotNetClrVersionFromGlobalJson()
-  let installedFxVersions = determineInstalledFxVersions()
-  let desiredSdkVersion = DotNet.getSDKVersionFromGlobalJson()
-  let installedSdkVersions = determineInstalledSdkVersions()
-
-  if not (List.contains desiredSdkVersion installedSdkVersions) then
-    printfn "Invalid SDK Version, Desired: %s Installed: %A" desiredSdkVersion installedSdkVersions
-
-    let install = DotNet.install (fun p ->
-      { p with
-          Version = DotNet.getSDKVersionFromGlobalJson() |> DotNet.Version
-      })
-
-    let installOptions = DotNet.Options.Create() |> install
-
-    customDotnetExePath <- Some installOptions.DotNetCliPath
-    printfn "Custom SDK Path: %s" customDotnetExePath.Value
-  else
-    printfn "Desired SDK Version %s found" desiredSdkVersion
-
-  if not (List.contains desiredFxVersion installedFxVersions) then
-    failwithf "Invalid CLR Version, Desired: %s Installed: %A" desiredFxVersion installedFxVersions
-  else
-    printfn "Desired CLR Version %s found" desiredFxVersion
-)
 
 // Solution -----------------------------------------------------------------------
 
@@ -227,7 +144,7 @@ Target.create "Containerize" ignore
 Target.create "Push" ignore
 
 "NpmInstall"
-  ==> "DotNetCliCustom"
+  ==> "DotNetCli"
   ==> "Clean"
   ==> "Restore_Solution"
   ==> "Build_Solution"
