@@ -131,7 +131,7 @@ namespace RoadRegistry.Legacy.Extract
                             builder.AddSingleton<IBlobClient>(sp =>
                                 new S3BlobClient(
                                     sp.GetService<AmazonS3Client>(),
-                                    s3Options.BucketPrefix + WellknownBuckets.ImportLegacyBucket
+                                    s3Options.Buckets[WellknownBuckets.ImportLegacyBucket]
                                 )
                             );
                             break;

@@ -29,9 +29,9 @@ namespace RoadRegistry.Legacy.Extract
                         configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
                         var buckets = await s3Client.ListBucketsAsync(token);
-                        if (!buckets.Buckets.Exists(bucket => bucket.BucketName == s3Options.BucketPrefix + WellknownBuckets.ImportLegacyBucket))
+                        if (!buckets.Buckets.Exists(bucket => bucket.BucketName == s3Options.Buckets[WellknownBuckets.ImportLegacyBucket]))
                         {
-                            await s3Client.PutBucketAsync(s3Options.BucketPrefix + WellknownBuckets.ImportLegacyBucket, token);
+                            await s3Client.PutBucketAsync(s3Options.Buckets[WellknownBuckets.ImportLegacyBucket], token);
                         }
                     }
                     break;
