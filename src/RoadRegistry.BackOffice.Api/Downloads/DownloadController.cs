@@ -28,8 +28,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> Get(
-            [FromServices] BackOfficeContext context)
+        public async Task<IActionResult> Get([FromServices] BackOfficeContext context)
         {
             var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
             if (info == null || !info.CompletedImport)

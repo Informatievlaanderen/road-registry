@@ -35,7 +35,6 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_uploading_a_file_that_is_not_a_zip()
         {
-            var controller = new UploadController {ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
             var client = new MemoryBlobClient();
             var store = new InMemoryStreamStore();
             var validator = new ZipArchiveValidator(Encoding.UTF8);
@@ -48,6 +47,12 @@ namespace RoadRegistry.BackOffice.Api
                     SystemClock.Instance
                 )
             );
+            var controller = new UploadController(
+                Dispatch.Using(resolver),
+                client)
+            {
+                ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
+            };
             var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
             {
                 Headers = new HeaderDictionary(new Dictionary<string, StringValues>
@@ -55,11 +60,7 @@ namespace RoadRegistry.BackOffice.Api
                     { "Content-Type", StringValues.Concat(StringValues.Empty, "application/octet-stream")}
                 })
             };
-            var result = await controller.Post(
-                Dispatch.Using(resolver),
-                client,
-                formFile
-            );
+            var result = await controller.Post(formFile);
 
             Assert.IsType<UnsupportedMediaTypeResult>(result);
         }
@@ -67,7 +68,6 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_uploading_a_file_that_is_a_zip()
         {
-            var controller = new UploadController{ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
             var client = new MemoryBlobClient();
             var store = new InMemoryStreamStore();
             var validator = new ZipArchiveValidator(Encoding.UTF8);
@@ -80,6 +80,11 @@ namespace RoadRegistry.BackOffice.Api
                     SystemClock.Instance
                 )
             );
+            var controller = new UploadController(Dispatch.Using(resolver),
+                client)
+            {
+                ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
+            };
 
             using (var sourceStream = new MemoryStream())
             {
@@ -102,11 +107,7 @@ namespace RoadRegistry.BackOffice.Api
                         {"Content-Type", StringValues.Concat(StringValues.Empty, "application/zip")}
                     })
                 };
-                var result = await controller.Post(
-                    Dispatch.Using(resolver),
-                    client,
-                    formFile
-                );
+                var result = await controller.Post(formFile);
 
                 Assert.IsType<OkResult>(result);
 
@@ -133,7 +134,6 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_uploading_an_externally_created_file_that_is_a_zip()
         {
-            var controller = new UploadController{ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
             var client = new MemoryBlobClient();
             var store = new InMemoryStreamStore();
             var validator = new ZipArchiveValidator(Encoding.UTF8);
@@ -146,6 +146,12 @@ namespace RoadRegistry.BackOffice.Api
                     SystemClock.Instance
                 )
             );
+            var controller = new UploadController(
+                Dispatch.Using(resolver),
+                client)
+            {
+                ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
+            };
 
             using (var sourceStream = new MemoryStream())
             {
@@ -165,11 +171,7 @@ namespace RoadRegistry.BackOffice.Api
                         {"Content-Type", StringValues.Concat(StringValues.Empty, "application/zip")}
                     })
                 };
-                var result = await controller.Post(
-                    Dispatch.Using(resolver),
-                    client,
-                    formFile
-                );
+                var result = await controller.Post(formFile);
 
                 Assert.IsType<OkResult>(result);
 
