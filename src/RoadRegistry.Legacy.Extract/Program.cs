@@ -162,15 +162,19 @@ namespace RoadRegistry.Legacy.Extract
                 })
                 .Build();
 
-
-            var blobClient = host.Services.GetService<IBlobClient>();
             var configuration = host.Services.GetService<IConfiguration>();
             var logger = host.Services.GetService<ILogger<Program>>();
             var reader = host.Services.GetService<IEventReader>();
             var writer = host.Services.GetService<LegacyStreamArchiveWriter>();
+            var blobClient = host.Services.GetService<IBlobClient>();
+            var blobClientOptions = new BlobClientOptions();
+            configuration.Bind(blobClientOptions);
 
             try
             {
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Legacy);
+                logger.LogBlobClientCredentials(blobClientOptions);
+
                 await WaitForSqlServer(
                     new SqlConnectionStringBuilder(
                         configuration.GetConnectionString(WellknownConnectionNames.Legacy)), logger);

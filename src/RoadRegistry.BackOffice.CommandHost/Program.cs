@@ -207,36 +207,16 @@
             var configuration = host.Services.GetService<IConfiguration>();
             var streamStore = host.Services.GetService<IStreamStore>();
             var logger = host.Services.GetService<ILogger<Program>>();
+            var blobClientOptions = new BlobClientOptions();
+            configuration.Bind(blobClientOptions);
 
             try
             {
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.Events,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Events))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
-
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.CommandHost,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.CommandHost))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
-
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.CommandHostAdmin,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
-
-                logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                    WellknownConnectionNames.Snapshots,
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots))
-                    {
-                        Password = "**REDACTED**"
-                    }.ConnectionString);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.CommandHost);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.CommandHostAdmin);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
+                logger.LogBlobClientCredentials(blobClientOptions);
 
                 await streamStore.WaitUntilAvailable(logger);
                 await

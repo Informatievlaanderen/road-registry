@@ -13,7 +13,7 @@ namespace RoadRegistry.Legacy.Extract
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
 
-    public static class BlobClientExtensions
+    internal static class BlobClientExtensions
     {
         public static async Task ProvisionResources(this IBlobClient client, IHost host, CancellationToken token = default)
         {
