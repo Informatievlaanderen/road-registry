@@ -199,6 +199,7 @@
             var configuration = host.Services.GetService<IConfiguration>();
             var streamStore = host.Services.GetService<IStreamStore>();
             var logger = host.Services.GetService<ILogger<Program>>();
+            var blobClient = host.Services.GetService<IBlobClient>();
             var blobClientOptions = new BlobClientOptions();
             configuration.Bind(blobClientOptions);
 
@@ -220,6 +221,7 @@
                     new SqlEventProcessorPositionStoreSchema(
                         new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
                     ).CreateSchemaIfNotExists(WellknownSchemas.EventHostSchema);
+                await blobClient.ProvisionResources(host);
                 await host.RunAsync();
             }
             catch (Exception e)
