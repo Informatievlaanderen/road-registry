@@ -234,21 +234,21 @@ namespace RoadRegistry.BackOffice.CommandHost
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting event processor ...");
+            _logger.LogInformation("Starting command processor ...");
             await _scheduler.StartAsync(cancellationToken).ConfigureAwait(false);
             await _messageChannel.Writer.WriteAsync(new Subscribe(), cancellationToken).ConfigureAwait(false);
-            _logger.LogInformation("Started event processor.");
+            _logger.LogInformation("Started command processor.");
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Stopping event processor ...");
+            _logger.LogInformation("Stopping command processor ...");
             _messageChannel.Writer.Complete();
             _messagePumpCancellation.Cancel();
             await _messagePump.ConfigureAwait(false);
             _messagePumpCancellation.Dispose();
             await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
-            _logger.LogInformation("Stopped event processor.");
+            _logger.LogInformation("Stopped command processor.");
         }
     }
 }

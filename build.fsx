@@ -72,6 +72,8 @@ let pack = pack nugetVersionNumber
 let containerize = containerize dockerRepository
 let push = push dockerRepository
 
+supportedRuntimeIdentifiers <- [ "linux-x64" ]
+
 // Solution -----------------------------------------------------------------------
 
 Target.create "Restore_Solution" (fun _ -> restore "RoadRegistry")
