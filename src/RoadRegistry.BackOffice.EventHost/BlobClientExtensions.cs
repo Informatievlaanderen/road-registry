@@ -17,14 +17,14 @@ namespace RoadRegistry.BackOffice.EventHost
     {
         public static async Task ProvisionResources(this IBlobClient client, IHost host, CancellationToken token = default)
         {
-            var configuration = host.Services.GetService<IConfiguration>();
+            var configuration = host.Services.GetRequiredService<IConfiguration>();
 
             switch (client)
             {
                 case S3BlobClient _:
                     if (Environment.GetEnvironmentVariable("MINIO_SERVER") != null)
                     {
-                        var s3Client = host.Services.GetService<AmazonS3Client>();
+                        var s3Client = host.Services.GetRequiredService<AmazonS3Client>();
                         var s3Options = new S3BlobClientOptions();
                         configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 

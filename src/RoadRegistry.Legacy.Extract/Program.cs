@@ -162,11 +162,11 @@ namespace RoadRegistry.Legacy.Extract
                 })
                 .Build();
 
-            var configuration = host.Services.GetService<IConfiguration>();
-            var logger = host.Services.GetService<ILogger<Program>>();
-            var reader = host.Services.GetService<IEventReader>();
-            var writer = host.Services.GetService<LegacyStreamArchiveWriter>();
-            var blobClient = host.Services.GetService<IBlobClient>();
+            var configuration = host.Services.GetRequiredService<IConfiguration>();
+            var logger = host.Services.GetRequiredService<ILogger<Program>>();
+            var reader = host.Services.GetRequiredService<IEventReader>();
+            var writer = host.Services.GetRequiredService<LegacyStreamArchiveWriter>();
+            var blobClient = host.Services.GetRequiredService<IBlobClient>();
             var blobClientOptions = new BlobClientOptions();
             configuration.Bind(blobClientOptions);
 
@@ -185,7 +185,7 @@ namespace RoadRegistry.Legacy.Extract
 
                 await blobClient.ProvisionResources(host);
 
-                using (var connection = host.Services.GetService<SqlConnection>())
+                using (var connection = host.Services.GetRequiredService<SqlConnection>())
                 {
                     await connection.OpenAsync();
 
