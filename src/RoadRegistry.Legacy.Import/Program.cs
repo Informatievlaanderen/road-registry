@@ -132,7 +132,7 @@ namespace RoadRegistry.Legacy.Import
 
                             builder.AddSingleton<IBlobClient>(sp =>
                                 new S3BlobClient(
-                                    sp.GetService<AmazonS3Client>(),
+                                    sp.GetRequiredService<AmazonS3Client>(),
                                     s3Options.Buckets[WellknownBuckets.ImportLegacyBucket]
                                 )
                             );
@@ -178,12 +178,12 @@ namespace RoadRegistry.Legacy.Import
                 })
                 .Build();
 
-            var configuration = host.Services.GetService<IConfiguration>();
-            var logger = host.Services.GetService<ILogger<Program>>();
-            var reader = host.Services.GetService<LegacyStreamArchiveReader>();
-            var writer = host.Services.GetService<LegacyStreamEventsWriter>();
-            var client = host.Services.GetService<IBlobClient>();
-            var streamStore = host.Services.GetService<IStreamStore>();
+            var configuration = host.Services.GetRequiredService<IConfiguration>();
+            var logger = host.Services.GetRequiredService<ILogger<Program>>();
+            var reader = host.Services.GetRequiredService<LegacyStreamArchiveReader>();
+            var writer = host.Services.GetRequiredService<LegacyStreamEventsWriter>();
+            var client = host.Services.GetRequiredService<IBlobClient>();
+            var streamStore = host.Services.GetRequiredService<IStreamStore>();
             var blobClientOptions = new BlobClientOptions();
             configuration.Bind(blobClientOptions);
 

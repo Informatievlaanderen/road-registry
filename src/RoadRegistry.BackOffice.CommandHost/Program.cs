@@ -204,9 +204,9 @@
                 })
                 .Build();
 
-            var configuration = host.Services.GetService<IConfiguration>();
-            var streamStore = host.Services.GetService<IStreamStore>();
-            var logger = host.Services.GetService<ILogger<Program>>();
+            var configuration = host.Services.GetRequiredService<IConfiguration>();
+            var streamStore = host.Services.GetRequiredService<IStreamStore>();
+            var logger = host.Services.GetRequiredService<ILogger<Program>>();
             var blobClientOptions = new BlobClientOptions();
             configuration.Bind(blobClientOptions);
 
