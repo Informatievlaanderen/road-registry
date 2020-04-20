@@ -43,6 +43,11 @@
                 Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
 
             var host = new HostBuilder()
+                .ConfigureHostConfiguration(builder => {
+                    builder
+                        .AddEnvironmentVariables("DOTNET_")
+                        .AddEnvironmentVariables("ASPNETCORE_");
+                })
                 .ConfigureAppConfiguration((hostContext, builder) =>
                 {
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

@@ -1,5 +1,14 @@
 version: '3'
 services:
+  seq:
+    image: datalust/seq:latest
+    ports:
+      - "8888:80"
+      - "5341:5341"
+    environment:
+      ACCEPT_EULA: 'Y'
+    volumes:
+    - seq-data:/data
   minio:
     image: minio/minio:latest
     ports:
@@ -32,7 +41,11 @@ services:
     depends_on:
       - empty-legacy-mssql-seed
       - minio
+      - seq
     environment:
+      DOTNET_ENVIRONMENT: Development
+      SERILOG__WRITETO__0__NAME: "Seq"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -52,7 +65,11 @@ services:
     depends_on:
       - filled-legacy-mssql-seed
       - minio
+      - seq
     environment:
+      DOTNET_ENVIRONMENT: Development
+      SERILOG__WRITETO__0__NAME: "Seq"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -81,7 +98,11 @@ services:
     depends_on:
       - mssql-seed
       - minio
+      - seq
     environment:
+      DOTNET_ENVIRONMENT: Development
+      SERILOG__WRITETO__0__NAME: "Seq"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -95,7 +116,11 @@ services:
     depends_on:
       - mssql-seed
       - minio
+      - seq
     environment:
+      DOTNET_ENVIRONMENT: Development
+      SERILOG__WRITETO__0__NAME: "Seq"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -109,7 +134,11 @@ services:
     depends_on:
       - mssql-seed
       - minio
+      - seq
     environment:
+      DOTNET_ENVIRONMENT: Development
+      SERILOG__WRITETO__0__NAME: "Seq"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -125,7 +154,11 @@ services:
     depends_on:
       - mssql-seed
       - minio
+      - seq
     environment:
+      DOTNET_ENVIRONMENT: Development
+      SERILOG__WRITETO__0__NAME: "Seq"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -142,6 +175,9 @@ services:
       - backoffice-projection-host
       - minio
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      SERILOG__WRITETO__0__NAME: "Seq"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -157,7 +193,11 @@ services:
     build: dist/RoadRegistry.BackOffice.UI/linux
     depends_on:
       - backoffice-api
+      - seq
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      SERILOG__WRITETO__0__NAME: "Seq"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       API__ENDPOINT: http://localhost:5020
     ports:
       - "5010:5000"
@@ -165,3 +205,4 @@ volumes:
   mssql-data:
   legacy-mssql-data:
   minio-data:
+  seq-data:
