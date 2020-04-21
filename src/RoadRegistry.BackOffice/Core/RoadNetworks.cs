@@ -12,6 +12,8 @@ namespace RoadRegistry.BackOffice.Core
 
     public class RoadNetworks : IRoadNetworks
     {
+        private const int StreamPageSize = 5_000;
+
         public static readonly StreamName Stream = new StreamName("roadnetwork");
 
         private readonly EventSourcedEntityMap _map;
@@ -48,7 +50,7 @@ namespace RoadRegistry.BackOffice.Core
             {
                 version = StreamVersion.Start;
             }
-            var page = await _store.ReadStreamForwards(Stream, version, 200_000, ct);
+            var page = await _store.ReadStreamForwards(Stream, version, StreamPageSize, ct);
             if (page.Status == PageReadStatus.StreamNotFound)
             {
                 var initial = RoadNetwork.Factory();
@@ -108,7 +110,7 @@ namespace RoadRegistry.BackOffice.Core
                 version = StreamVersion.Start;
             }
 
-            var page = await _store.ReadStreamForwards(Stream, version, 200_000, ct);
+            var page = await _store.ReadStreamForwards(Stream, version, StreamPageSize, ct);
             if (page.Status == PageReadStatus.StreamNotFound)
             {
                 var network = RoadNetwork.Factory();

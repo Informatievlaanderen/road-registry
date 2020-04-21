@@ -72,7 +72,7 @@ namespace RoadRegistry.BackOffice.CommandHost
                                     var version = await positionStore
                                         .ReadVersion(RoadNetworkCommandQueue, _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
-                                    logger.LogInformation("Subscribing as of v{0}", version);
+                                    logger.LogInformation("Subscribing as of {0}", version ?? -1);
                                     subscription = streamStore.SubscribeToStream(
                                         RoadNetworkCommandQueue,
                                         version,

@@ -76,7 +76,7 @@ namespace RoadRegistry.BackOffice.EventHost
                                     var position = await positionStore
                                         .ReadPosition(RoadNetworkArchiveEventQueue, _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
-                                    logger.LogInformation("Subscribing as of {0}", position);
+                                    logger.LogInformation("Subscribing as of {0}", position ?? -1L);
                                     subscription = streamStore.SubscribeToAll(
                                         position, async (_, streamMessage, token) =>
                                         {

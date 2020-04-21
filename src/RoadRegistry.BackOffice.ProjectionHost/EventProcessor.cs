@@ -109,7 +109,7 @@ namespace RoadRegistry.BackOffice.ProjectionHost
 
                                     break;
                                 case CatchUp catchUp:
-                                    logger.LogInformation("Catching up as of {Position}", catchUp.AfterPosition);
+                                    logger.LogInformation("Catching up as of {Position}", catchUp.AfterPosition ?? -1L);
                                     var observedMessageCount = 0;
                                     var catchUpPosition = catchUp.AfterPosition ?? Position.Start;
                                     var context = dbContextFactory();
