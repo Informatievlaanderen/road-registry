@@ -14,3 +14,4 @@ Serilog.Sinks.Console
 Serilog.Sinks.Seq
 
 Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
+Be.Vlaanderen.Basisregisters.Aws.DistributedMutex

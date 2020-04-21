@@ -9,17 +9,15 @@
     using Amazon;
     using Amazon.Runtime;
     using Amazon.S3;
+    using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-    using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Configuration;
-    using Framework;
-    using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +29,6 @@
     using Projections;
     using Schema;
     using Serilog;
-    using Serilog.Formatting.Compact;
     using SqlStreamStore;
 
     public class Program
@@ -235,9 +232,15 @@
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.BackOfficeProjectionsAdmin);
                 logger.LogBlobClientCredentials(blobClientOptions);
 
-                await streamStore.WaitUntilAvailable(logger);
-                await migratorFactory.CreateMigrator(configuration, loggerFactory).MigrateAsync(CancellationToken.None);
-                await host.RunAsync();
+                await DistributedLock<Program>.RunAsync(async () =>
+                    {
+                        await streamStore.WaitUntilAvailable(logger);
+                        await migratorFactory.CreateMigrator(configuration, loggerFactory)
+                            .MigrateAsync(CancellationToken.None);
+                        await host.RunAsync();
+                    },
+                    DistributedLockOptions.LoadFromConfiguration(configuration),
+                    host.Services.GetService<Microsoft.Extensions.Logging.ILogger>());
             }
             catch (Exception e)
             {

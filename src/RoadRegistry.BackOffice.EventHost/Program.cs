@@ -8,6 +8,7 @@
     using Amazon;
     using Amazon.Runtime;
     using Amazon.S3;
+    using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
@@ -217,17 +218,22 @@
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SnapshotsAdmin);
                 logger.LogBlobClientCredentials(blobClientOptions);
 
-                await streamStore.WaitUntilAvailable(logger);
-                await
-                    new SqlBlobSchema(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
-                    ).CreateSchemaIfNotExists(WellknownSchemas.SnapshotSchema);
-                await
-                    new SqlEventProcessorPositionStoreSchema(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
-                    ).CreateSchemaIfNotExists(WellknownSchemas.EventHostSchema);
-                await blobClient.ProvisionResources(host);
-                await host.RunAsync();
+                await DistributedLock<Program>.RunAsync(async () =>
+                    {
+                        await streamStore.WaitUntilAvailable(logger);
+                        await
+                            new SqlBlobSchema(
+                                new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
+                            ).CreateSchemaIfNotExists(WellknownSchemas.SnapshotSchema);
+                        await
+                            new SqlEventProcessorPositionStoreSchema(
+                                new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
+                            ).CreateSchemaIfNotExists(WellknownSchemas.EventHostSchema);
+                        await blobClient.ProvisionResources(host);
+                        await host.RunAsync();
+                    },
+                    DistributedLockOptions.LoadFromConfiguration(configuration),
+                    host.Services.GetService<Microsoft.Extensions.Logging.ILogger>());
             }
             catch (Exception e)
             {

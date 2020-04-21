@@ -4,7 +4,6 @@ namespace RoadRegistry.Legacy.Import
     using Microsoft.Data.SqlClient;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
@@ -16,6 +15,7 @@ namespace RoadRegistry.Legacy.Import
     using Amazon.Runtime;
     using Amazon.S3;
     using BackOffice.Core;
+    using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
@@ -24,8 +24,6 @@ namespace RoadRegistry.Legacy.Import
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Serilog;
-    using Serilog.Formatting.Compact;
-
 
     public class Program
     {
@@ -192,45 +190,53 @@ namespace RoadRegistry.Legacy.Import
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
                 logger.LogBlobClientCredentials(blobClientOptions);
 
-                var eventsConnectionStringBuilder =
-                    new SqlConnectionStringBuilder(
-                        configuration.GetConnectionString(WellknownConnectionNames.Events));
-                var masterConnectionStringBuilder = new SqlConnectionStringBuilder(eventsConnectionStringBuilder.ConnectionString)
-                {
-                    InitialCatalog = "master"
-                };
-
-                await WaitForSqlServer(masterConnectionStringBuilder, logger).ConfigureAwait(false);
-                await WaitForSqlServerDatabase(masterConnectionStringBuilder, eventsConnectionStringBuilder, logger).ConfigureAwait(false);
-
-                if (streamStore is MsSqlStreamStore sqlStreamStore)
-                {
-                    await sqlStreamStore.CreateSchema().ConfigureAwait(false);
-                }
-
-                var page = await streamStore
-                    .ReadStreamForwards(RoadNetworks.Stream, StreamVersion.Start, 1)
-                    .ConfigureAwait(false);
-                if (page.Status == PageReadStatus.StreamNotFound)
-                {
-                    var blob = await client
-                        .GetBlobAsync(new BlobName("import-streams.zip"), CancellationToken.None)
-                        .ConfigureAwait(false);
-
-                    var watch = Stopwatch.StartNew();
-                    using (var blobStream = await blob.OpenAsync().ConfigureAwait(false))
+                await DistributedLock<Program>.RunAsync(async () =>
                     {
-                        await writer
-                            .WriteAsync(reader.Read(blobStream))
-                            .ConfigureAwait(false);
-                    }
+                        var eventsConnectionStringBuilder =
+                            new SqlConnectionStringBuilder(
+                                configuration.GetConnectionString(WellknownConnectionNames.Events));
+                        var masterConnectionStringBuilder =
+                            new SqlConnectionStringBuilder(eventsConnectionStringBuilder.ConnectionString)
+                            {
+                                InitialCatalog = "master"
+                            };
 
-                    logger.LogInformation("Total append took {0}ms", watch.ElapsedMilliseconds);
-                }
-                else
-                {
-                    logger.LogWarning("The road network was previously imported. This can only be performed once.");
-                }
+                        await WaitForSqlServer(masterConnectionStringBuilder, logger).ConfigureAwait(false);
+                        await WaitForSqlServerDatabase(masterConnectionStringBuilder, eventsConnectionStringBuilder,
+                            logger).ConfigureAwait(false);
+
+                        if (streamStore is MsSqlStreamStore sqlStreamStore)
+                        {
+                            await sqlStreamStore.CreateSchema().ConfigureAwait(false);
+                        }
+
+                        var page = await streamStore
+                            .ReadStreamForwards(RoadNetworks.Stream, StreamVersion.Start, 1)
+                            .ConfigureAwait(false);
+                        if (page.Status == PageReadStatus.StreamNotFound)
+                        {
+                            var blob = await client
+                                .GetBlobAsync(new BlobName("import-streams.zip"), CancellationToken.None)
+                                .ConfigureAwait(false);
+
+                            var watch = Stopwatch.StartNew();
+                            using (var blobStream = await blob.OpenAsync().ConfigureAwait(false))
+                            {
+                                await writer
+                                    .WriteAsync(reader.Read(blobStream))
+                                    .ConfigureAwait(false);
+                            }
+
+                            logger.LogInformation("Total append took {0}ms", watch.ElapsedMilliseconds);
+                        }
+                        else
+                        {
+                            logger.LogWarning(
+                                "The road network was previously imported. This can only be performed once.");
+                        }
+                    },
+                    DistributedLockOptions.LoadFromConfiguration(configuration),
+                    host.Services.GetService<Microsoft.Extensions.Logging.ILogger>());
             }
             catch (Exception exception)
             {
