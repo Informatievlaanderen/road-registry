@@ -106,6 +106,8 @@ nuget Be.Vlaanderen.Basisregisters.BlobStore 2.2.2
 nuget Be.Vlaanderen.Basisregisters.Shaperon 7.7.0
 nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 7.7.0
 
+nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex 2.2.1
+
 // DOCS STUFF
 nuget Structurizr.Core 0.9.5
 nuget Structurizr.Client 0.9.5

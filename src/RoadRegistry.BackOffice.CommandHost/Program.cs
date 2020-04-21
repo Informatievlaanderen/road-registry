@@ -10,6 +10,7 @@
     using Amazon;
     using Amazon.Runtime;
     using Amazon.S3;
+    using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
@@ -223,13 +224,18 @@
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
                 logger.LogBlobClientCredentials(blobClientOptions);
 
-                await streamStore.WaitUntilAvailable(logger);
-                await
-                    new SqlCommandProcessorPositionStoreSchema(
-                        new SqlConnectionStringBuilder(
-                            configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
-                    ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema);
-                await host.RunAsync();
+                await DistributedLock<Program>.RunAsync(async () =>
+                    {
+                        await streamStore.WaitUntilAvailable(logger);
+                        await
+                            new SqlCommandProcessorPositionStoreSchema(
+                                new SqlConnectionStringBuilder(
+                                    configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
+                            ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema);
+                        await host.RunAsync();
+                    },
+                    DistributedLockOptions.LoadFromConfiguration(configuration),
+                    host.Services.GetService<Microsoft.Extensions.Logging.ILogger>());
             }
             catch (Exception e)
             {

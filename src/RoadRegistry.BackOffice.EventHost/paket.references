@@ -14,3 +14,5 @@ Serilog.Sinks.Console
 Serilog.Sinks.Seq
 
 System.Threading.Channels
+
+Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
