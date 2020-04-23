@@ -1,6 +1,7 @@
 # RoadRegistry
 
 The road registry is a mid-scale reference database of all Flemish roads. This code base supports
+
 - back office tasks, such as allowing operators to download a snapshot of the registry as shape files and to upload changes to the registry
 - exposing the road registry as a product, an OSLO compliant product, a snapshot for shape editing purposes
 
@@ -53,10 +54,10 @@ This host exposes the website the operator can interact with to download, upload
 
 ### Overview
 
-Please make sure you've ran `./build.sh publish` so that the self-contained .net core apps and their docker files are published (into the `dist` folder)
+Please make sure you've ran `./build.sh publish` so that the self-contained .NET Core apps and their docker files are published (into the `dist` folder)
 and ready to be consumed.
 
-Blobs that usually end up in AWS S3 will in this environment be stored in a Minio container (a S3 compatible, docker-based blob store).
+Blobs that usually end up in AWS S3 will in this environment be stored in a Minio container (an S3 compatible, docker-based blob store).
 Data that ends up or originates from AWS RDS SQL Server will in this environment be stored in a SQL Server container (multiple).
 Logging that usually ends up in DataDog will in this environment be accessible via the Seq container (Seq is a docker-based log server).
 
@@ -70,7 +71,6 @@ To seed the legacy database you can type
 or
 
 `docker-compose up --build filled-legacy-mssql-seed`
-
 
 To test whether the extraction works you can type
 
