@@ -195,10 +195,8 @@ services:
       - backoffice-api
       - seq
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: "Seq"
-      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
-      API__ENDPOINT: http://localhost:5020
+      API_ENDPOINT: http://localhost:5020
+      API_VERSION: 0.0.0
     ports:
       - "5010:5000"
 volumes:
