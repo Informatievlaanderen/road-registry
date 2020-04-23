@@ -1,13 +1,6 @@
 #!/bin/sh
 
-CT=eventhost
+echo "window.wegenregisterVersion=\"$API_VERSION\";" >> /usr/share/nginx/html/config.js
+echo "window.wegenregisterApiEndpoint=\"$API_ENDPOINT\";" >> /usr/share/nginx/html/config.js
 
-curl -s http://169.254.170.2/v2/metadata > metadata
-cat metadata
-
-CONTAINERID=$(cat metadata | jq -r ".Containers[] | select(.Labels[\"com.amazonaws.ecs.container-name\"] | startswith(\"basisregisters-\") and endswith(\"-$CT\")) | .DockerId")
-echo CONTAINERID = $CONTAINERID
-
-sed -i "s/REPLACE_CONTAINERID/$CONTAINERID/g" appsettings.json
-
-./RoadRegistry.BackOffice.UI
+nginx -g 'daemon off;'

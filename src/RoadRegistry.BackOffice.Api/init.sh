@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CT=commandhost
+CT=api
 
 curl -s http://169.254.170.2/v2/metadata > metadata
 cat metadata

@@ -194,7 +194,7 @@ namespace RoadRegistry.BackOffice.ProjectionHost
                                         .ConfigureAwait(false);
                                     break;
                                 case Subscribe subscribe:
-                                    logger.LogInformation("Subscribing as of {0}", subscribe.AfterPosition);
+                                    logger.LogInformation("Subscribing as of {0}", subscribe.AfterPosition ?? -1L);
                                     subscription?.Dispose();
                                     subscription = streamStore.SubscribeToAll(
                                         subscribe.AfterPosition, async (_, streamMessage, token) =>

@@ -1,15 +1,14 @@
-FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.1.2
+FROM nginx:stable-alpine as production-stage
 
 LABEL maintainer "agentschap Informatie Vlaanderen <informatie.vlaanderen@vlaanderen.be>"
 
-COPY / /wwwroot
-WORKDIR /wwwroot
+COPY default.conf /etc/nginx/conf.d/default.conf
+COPY /wwwroot /usr/share/nginx/html
+COPY config.js /usr/share/nginx/html/config.js
+COPY init.sh ./init.sh
 
-RUN apt-get update && \
-    apt-get install curl jq -y && \
-    chmod +x ./init.sh
+RUN chmod +x ./init.sh
 
-EXPOSE 5000/tcp
-ENV ASPNETCORE_URLS http://*:5000
+EXPOSE 8007
 
 ENTRYPOINT ["./init.sh"]
