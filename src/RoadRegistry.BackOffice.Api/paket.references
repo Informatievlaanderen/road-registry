@@ -6,3 +6,4 @@ Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 Be.Vlaanderen.Basisregisters.Shaperon
 
 Serilog.Formatting.Compact
+Serilog.Sinks.Seq
