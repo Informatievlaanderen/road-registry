@@ -4,14 +4,12 @@ namespace RoadRegistry.Legacy.Extract
     using System.Data;
     using Microsoft.Data.SqlClient;
     using System.IO;
-    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Amazon;
     using Amazon.Runtime;
     using Amazon.S3;
-    using Amazon.S3.Model;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
@@ -172,12 +170,14 @@ namespace RoadRegistry.Legacy.Extract
 
             try
             {
+                await WaitFor.SeqToBecomeAvailable(configuration);
+
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Legacy);
                 logger.LogBlobClientCredentials(blobClientOptions);
 
-                await WaitForSqlServer(
-                    new SqlConnectionStringBuilder(
-                        configuration.GetConnectionString(WellknownConnectionNames.Legacy)), logger);
+                await WaitFor.SqlServerToBecomeAvailable(
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Legacy))
+                    , logger);
 
                 await OptimizeDatabasePerformance(
                     new SqlConnectionStringBuilder(
@@ -200,55 +200,6 @@ namespace RoadRegistry.Legacy.Extract
             {
                 Log.CloseAndFlush();
             }
-        }
-
-        private static async Task WaitForSqlServer(SqlConnectionStringBuilder builder, ILogger<Program> logger, CancellationToken token = default)
-        {
-            var exit = false;
-            while(!exit)
-            {
-                try
-                {
-                    logger.LogInformation("Waiting for sql server to become available ...");
-                    using (var connection = new SqlConnection(builder.ConnectionString))
-                    {
-                        await connection.OpenAsync(token).ConfigureAwait(false);
-                        using (var command = new SqlCommand(@"SELECT
-    (SELECT COUNT(*) FROM [dbo].[wegknoop]) AS RoadNodeCount,
-    (SELECT COUNT(*) FROM [dbo].[wegsegment]) AS RoadSegmentCount,
-    (SELECT COUNT(*) FROM [dbo].[listOrganisatie]) AS OrganizationCount,
-    (SELECT COUNT(*) FROM [dbo].[crabsnm]) AS StreetNameCount,
-    (SELECT COUNT(*) FROM [dbo].[gemeenteNIS]) AS MunicipalityCount,
-    (SELECT COUNT(*) FROM [dbo].[EuropeseWeg]) AS EuropeanRoadAttributeCount,
-    (SELECT COUNT(*) FROM [dbo].[nationaleWeg]) AS NationalRoadAttributeCount,
-    (SELECT COUNT(*) FROM [dbo].[genummerdeWeg]) AS NumberedRoadAttributeCount,
-    (SELECT COUNT(*) FROM [dbo].[rijstroken]) AS LaneAttributeCount,
-    (SELECT COUNT(*) FROM [dbo].[wegbreedte]) AS WidthAttributeCount,
-    (SELECT COUNT(*) FROM [dbo].[wegverharding]) AS SurfaceAttributeCount,
-    (SELECT COUNT(*) FROM [dbo].[ongelijkgrondseKruising]) AS GradeSeparatedJunctionCount", connection))
-                        {
-                            command.CommandType = CommandType.Text;
-                            using (var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false))
-                            {
-                                if (!reader.IsClosed && reader.HasRows)
-                                {
-                                    exit = true;
-                                }
-                            }
-                        }
-                    }
-                }
-                catch(Exception exception)
-                {
-                    if (logger.IsEnabled(LogLevel.Debug))
-                    {
-                        logger.LogDebug(exception, "Sql server still not available because: {0}", exception.Message);
-                    }
-                    await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-                }
-            }
-
-            logger.LogInformation("Sql server became available.");
         }
 
         private static async Task OptimizeDatabasePerformance(SqlConnectionStringBuilder builder,

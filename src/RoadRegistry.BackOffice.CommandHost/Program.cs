@@ -3,9 +3,7 @@
     using System;
     using Microsoft.Data.SqlClient;
     using System.IO;
-    using System.Linq;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using Amazon;
     using Amazon.Runtime;
@@ -15,11 +13,9 @@
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
-    using Be.Vlaanderen.Basisregisters.EventHandling;
     using Configuration;
     using Core;
     using Framework;
-    using Messages;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -27,7 +23,6 @@
     using Microsoft.IO;
     using NodaTime;
     using Serilog;
-    using Serilog.Formatting.Compact;
     using SqlStreamStore;
     using Uploads;
 
@@ -218,6 +213,8 @@
 
             try
             {
+                await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
+
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.CommandHost);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.CommandHostAdmin);
@@ -226,16 +223,17 @@
 
                 await DistributedLock<Program>.RunAsync(async () =>
                     {
-                        await streamStore.WaitUntilAvailable(logger);
+                        await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
                         await
                             new SqlCommandProcessorPositionStoreSchema(
                                 new SqlConnectionStringBuilder(
                                     configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
-                            ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema);
-                        await host.RunAsync();
+                            ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema).ConfigureAwait(false);
+                        await host.RunAsync().ConfigureAwait(false);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),
-                    host.Services.GetService<Microsoft.Extensions.Logging.ILogger>());
+                    logger)
+                    .ConfigureAwait(false);
             }
             catch (Exception e)
             {

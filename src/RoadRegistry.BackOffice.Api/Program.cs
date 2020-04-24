@@ -34,12 +34,16 @@ namespace RoadRegistry.BackOffice.Api
         public static async Task Main(string[] args)
         {
             var host = CreateWebHostBuilder(args).Build();
+            var configuration = host.Services.GetRequiredService<IConfiguration>();
             var streamStore = host.Services.GetRequiredService<IStreamStore>();
             var logger = host.Services.GetRequiredService<ILogger<Program>>();
             try
             {
-                await streamStore.WaitUntilAvailable(logger);
-                await host.RunAsync();
+                await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
+
+                await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
+
+                await host.RunAsync().ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -58,7 +62,7 @@ namespace RoadRegistry.BackOffice.Api
                     {
                         Hosting =
                         {
-                            HttpPort = 5000
+                            HttpPort = 10000
                         },
                         Logging =
                         {

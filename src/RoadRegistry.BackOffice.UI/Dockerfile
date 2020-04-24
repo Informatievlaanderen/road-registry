@@ -9,6 +9,6 @@ COPY init.sh ./init.sh
 
 RUN chmod +x ./init.sh
 
-EXPOSE 8007
+EXPOSE 10007
 
 ENTRYPOINT ["./init.sh"]
