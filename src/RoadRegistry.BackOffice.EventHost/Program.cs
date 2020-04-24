@@ -211,6 +211,8 @@
 
             try
             {
+                await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
+
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EventHost);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EventHostAdmin);
@@ -220,20 +222,21 @@
 
                 await DistributedLock<Program>.RunAsync(async () =>
                     {
-                        await streamStore.WaitUntilAvailable(logger);
+                        await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
                         await
                             new SqlBlobSchema(
                                 new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
-                            ).CreateSchemaIfNotExists(WellknownSchemas.SnapshotSchema);
+                            ).CreateSchemaIfNotExists(WellknownSchemas.SnapshotSchema).ConfigureAwait(false);
                         await
                             new SqlEventProcessorPositionStoreSchema(
                                 new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
-                            ).CreateSchemaIfNotExists(WellknownSchemas.EventHostSchema);
-                        await blobClient.ProvisionResources(host);
-                        await host.RunAsync();
+                            ).CreateSchemaIfNotExists(WellknownSchemas.EventHostSchema).ConfigureAwait(false);
+                        await blobClient.ProvisionResources(host).ConfigureAwait(false);
+                        await host.RunAsync().ConfigureAwait(false);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),
-                    host.Services.GetService<Microsoft.Extensions.Logging.ILogger>());
+                    logger)
+                    .ConfigureAwait(false);
             }
             catch (Exception e)
             {

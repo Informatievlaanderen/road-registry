@@ -227,6 +227,8 @@
 
             try
             {
+                await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
+
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.BackOfficeProjections);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.BackOfficeProjectionsAdmin);
@@ -234,13 +236,14 @@
 
                 await DistributedLock<Program>.RunAsync(async () =>
                     {
-                        await streamStore.WaitUntilAvailable(logger);
+                        await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
                         await migratorFactory.CreateMigrator(configuration, loggerFactory)
-                            .MigrateAsync(CancellationToken.None);
-                        await host.RunAsync();
+                            .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+                        await host.RunAsync().ConfigureAwait(false);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),
-                    host.Services.GetService<Microsoft.Extensions.Logging.ILogger>());
+                    logger)
+                    .ConfigureAwait(false);
             }
             catch (Exception e)
             {

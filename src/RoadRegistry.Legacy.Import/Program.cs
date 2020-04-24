@@ -187,6 +187,8 @@ namespace RoadRegistry.Legacy.Import
 
             try
             {
+                await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
+
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
                 logger.LogBlobClientCredentials(blobClientOptions);
 
@@ -201,9 +203,12 @@ namespace RoadRegistry.Legacy.Import
                                 InitialCatalog = "master"
                             };
 
-                        await WaitForSqlServer(masterConnectionStringBuilder, logger).ConfigureAwait(false);
-                        await WaitForSqlServerDatabase(masterConnectionStringBuilder, eventsConnectionStringBuilder,
-                            logger).ConfigureAwait(false);
+                        await WaitFor.SqlServerToBecomeAvailable(masterConnectionStringBuilder, logger).ConfigureAwait(false);
+                        await WaitFor.SqlServerDatabaseToBecomeAvailable(
+                            masterConnectionStringBuilder,
+                            eventsConnectionStringBuilder,
+                            logger
+                        ).ConfigureAwait(false);
 
                         if (streamStore is MsSqlStreamStore sqlStreamStore)
                         {
@@ -236,7 +241,8 @@ namespace RoadRegistry.Legacy.Import
                         }
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),
-                    host.Services.GetService<Microsoft.Extensions.Logging.ILogger>());
+                    logger)
+                    .ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -245,69 +251,6 @@ namespace RoadRegistry.Legacy.Import
             finally
             {
                 Log.CloseAndFlush();
-            }
-        }
-
-        private static async Task WaitForSqlServer(
-            SqlConnectionStringBuilder masterConnectionStringBuilder,
-            ILogger<Program> logger,
-            CancellationToken token = default)
-        {
-            var exit = false;
-            while(!exit)
-            {
-                try
-                {
-                    logger.LogInformation("Waiting for sql server to become available");
-                    using (var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString))
-                    {
-                        await connection.OpenAsync(token).ConfigureAwait(false);
-                        await connection.CloseAsync().ConfigureAwait(false);
-                    }
-
-                    exit = true;
-                }
-                catch(Exception exception)
-                {
-                    logger.LogWarning(exception, "Encountered an exception while waiting for sql server to become available");
-                    await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-                }
-            }
-        }
-
-        private static async Task WaitForSqlServerDatabase(
-            SqlConnectionStringBuilder masterConnectionStringBuilder,
-            SqlConnectionStringBuilder eventsConnectionStringBuilder,
-            ILogger<Program> logger,
-            CancellationToken token = default)
-        {
-            var exit = false;
-            while(!exit)
-            {
-                try
-                {
-                    logger.LogInformation($"Waiting for sql database {eventsConnectionStringBuilder.InitialCatalog} to become available");
-                    using (var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString))
-                    {
-                        await connection.OpenAsync(token).ConfigureAwait(false);
-                        var text = $"SELECT COUNT(*) FROM [SYS].[DATABASES] WHERE [Name] = N'{eventsConnectionStringBuilder.InitialCatalog}'";
-                        using(var command = new SqlCommand(text, connection))
-                        {
-                            var value = await command.ExecuteScalarAsync(token);
-                            exit = (int) value == 1;
-                        }
-
-                        if (!exit)
-                        {
-                            await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-                        }
-                    }
-                }
-                catch(Exception exception)
-                {
-                    logger.LogWarning(exception, $"Encountered exception while waiting for sql database {eventsConnectionStringBuilder.InitialCatalog} to become available");
-                    await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-                }
             }
         }
     }
