@@ -83,25 +83,26 @@ namespace RoadRegistry.Legacy.Extract
                             hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
                             // Use MINIO
-                            if (Environment.GetEnvironmentVariable("MINIO_SERVER") != null)
+                            if (hostContext.Configuration.GetValue<string>("MINIO_SERVER") != null)
                             {
-                                if (Environment.GetEnvironmentVariable("MINIO_ACCESS_KEY") == null)
+                                if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null)
                                 {
-                                    throw new Exception("The MINIO_ACCESS_KEY environment variable was not set.");
+                                    throw new Exception("The MINIO_ACCESS_KEY configuration variable was not set.");
                                 }
-                                if (Environment.GetEnvironmentVariable("MINIO_SECRET_KEY") == null)
+
+                                if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null)
                                 {
-                                    throw new Exception("The MINIO_SECRET_KEY environment variable was not set.");
+                                    throw new Exception("The MINIO_SECRET_KEY configuration variable was not set.");
                                 }
 
                                 builder.AddSingleton(new AmazonS3Client(
                                         new BasicAWSCredentials(
-                                            Environment.GetEnvironmentVariable("MINIO_ACCESS_KEY"),
-                                            Environment.GetEnvironmentVariable("MINIO_SECRET_KEY")),
+                                            hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY"),
+                                            hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY")),
                                         new AmazonS3Config
                                         {
                                             RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                                            ServiceURL = Environment.GetEnvironmentVariable("MINIO_SERVER"),
+                                            ServiceURL = hostContext.Configuration.GetValue<string>("MINIO_SERVER"),
                                             ForcePathStyle = true
                                         }
                                     )
@@ -110,18 +111,20 @@ namespace RoadRegistry.Legacy.Extract
                             }
                             else // Use AWS
                             {
-                                if (Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") == null)
+                                if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null)
                                 {
-                                    throw new Exception("The AWS_ACCESS_KEY_ID environment variable was not set.");
+                                    throw new Exception("The AWS_ACCESS_KEY_ID configuration variable was not set.");
                                 }
-                                if (Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") == null)
+
+                                if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null)
                                 {
-                                    throw new Exception("The AWS_SECRET_ACCESS_KEY environment variable was not set.");
+                                    throw new Exception("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
                                 }
+
                                 builder.AddSingleton(new AmazonS3Client(
                                         new BasicAWSCredentials(
-                                            Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
-                                            Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"))
+                                            hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID"),
+                                            hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY"))
                                     )
                                 );
                             }
@@ -142,8 +145,9 @@ namespace RoadRegistry.Legacy.Extract
                                     new DirectoryInfo(fileOptions.Directory)
                                 )
                             );
-
                             break;
+                        default:
+                            throw new Exception(blobOptions.BlobClientType + " is not a supported blob client type.");
                     }
 
                     builder
