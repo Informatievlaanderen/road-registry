@@ -46,6 +46,7 @@ services:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__1__NAME: "Console"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -70,6 +71,7 @@ services:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__1__NAME: "Console"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -103,6 +105,7 @@ services:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__1__NAME: "Console"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -121,6 +124,7 @@ services:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__1__NAME: "Console"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -139,6 +143,7 @@ services:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__1__NAME: "Console"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -159,6 +164,7 @@ services:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__1__NAME: "Console"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -178,6 +184,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__1__NAME: "Console"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
