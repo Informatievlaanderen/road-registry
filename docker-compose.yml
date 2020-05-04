@@ -188,7 +188,7 @@ services:
       CONNECTIONSTRINGS__BACKOFFICEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       IDEMPOTENCY__CONNECTIONSTRING: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     ports:
-      - "5020:5000"
+      - "5020:10000"
   backoffice-ui:
     build: dist/RoadRegistry.BackOffice.UI/linux
     depends_on:
@@ -198,7 +198,7 @@ services:
       API_ENDPOINT: http://localhost:5020
       API_VERSION: 0.0.0
     ports:
-      - "5010:5000"
+      - "5010:10007"
 volumes:
   mssql-data:
   legacy-mssql-data:
