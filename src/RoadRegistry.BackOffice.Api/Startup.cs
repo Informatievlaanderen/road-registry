@@ -61,8 +61,7 @@ namespace RoadRegistry.BackOffice.Api
                                 Email = "informatie.vlaanderen@vlaanderen.be",
                                 Url = new Uri("https://legacy.basisregisters.vlaanderen")
                             }
-                        },
-                        XmlCommentPaths = new[] {typeof(Startup).GetTypeInfo().Assembly.GetName().Name}
+                        }
                     },
                     MiddlewareHooks =
                     {
