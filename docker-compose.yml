@@ -180,8 +180,10 @@ services:
       - mssql-seed
       - backoffice-projection-host
       - minio
+    ports:
+      - "5020:10000"
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_ENVIRONMENT: Staging
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       SERILOG__WRITETO__1__NAME: "Console"
@@ -194,18 +196,16 @@ services:
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__BACKOFFICEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       IDEMPOTENCY__CONNECTIONSTRING: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
-    ports:
-      - "5020:10000"
   backoffice-ui:
     build: dist/RoadRegistry.BackOffice.UI/linux
     depends_on:
       - backoffice-api
       - seq
+    ports:
+      - "5010:10007"
     environment:
       API_ENDPOINT: http://localhost:5020
       API_VERSION: 0.0.0
-    ports:
-      - "5010:10007"
 volumes:
   mssql-data:
   legacy-mssql-data:
