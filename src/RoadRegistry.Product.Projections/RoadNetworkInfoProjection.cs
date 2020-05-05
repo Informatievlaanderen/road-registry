@@ -1,10 +1,12 @@
 ﻿namespace RoadRegistry.Product.Projections
 {
+    using System.Linq;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+    using Microsoft.EntityFrameworkCore;
     using Schema;
 
     public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
