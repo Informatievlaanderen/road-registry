@@ -53,6 +53,7 @@ structurizr-*.json
 run-local.bat
 docker_local.sh
 appsettings.seawolf.json
+appsettings.shelby.json
 
 # don't check the dev certificates in
 *.cer
