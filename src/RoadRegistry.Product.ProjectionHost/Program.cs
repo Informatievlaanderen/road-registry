@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.ProjectionHost
+﻿namespace RoadRegistry.Product.ProjectionHost
 {
     using System;
     using System.IO;
@@ -172,16 +172,16 @@
                             new EventDeserializer((eventData, eventType) =>
                                 JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
                         )
-                        .AddSingleton<Func<BackOfficeContext>>(
+                        .AddSingleton<Func<ProductContext>>(
                             () =>
-                                new BackOfficeContext(
-                                    new DbContextOptionsBuilder<BackOfficeContext>()
+                                new ProductContext(
+                                    new DbContextOptionsBuilder<ProductContext>()
                                         .UseSqlServer(
                                             hostContext.Configuration.GetConnectionString(WellknownConnectionNames.BackOfficeProjections),
                                             options => options.EnableRetryOnFailure()
                                         ).Options)
                         )
-                        .AddSingleton(sp => new ConnectedProjection<BackOfficeContext>[]
+                        .AddSingleton(sp => new ConnectedProjection<ProductContext>[]
                         {
                             new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
                             new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
@@ -199,12 +199,12 @@
                         .AddSingleton(sp =>
                             Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Resolve
                                 .WhenEqualToHandlerMessageType(
-                            sp.GetRequiredService<ConnectedProjection<BackOfficeContext>[]>()
+                            sp.GetRequiredService<ConnectedProjection<ProductContext>[]>()
                                     .SelectMany(projection => projection.Handlers)
                                     .ToArray()
                                 )
                         )
-                        .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<BackOfficeContext>[]>(), EventProcessor.EventMapping))
+                        .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<ProductContext>[]>(), EventProcessor.EventMapping))
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStore(
                                 new MsSqlStreamStoreSettings(
@@ -212,7 +212,7 @@
                                         .GetService<IConfiguration>()
                                         .GetConnectionString(WellknownConnectionNames.Events)
                                 ) {Schema = WellknownSchemas.EventSchema}))
-                        .AddSingleton<IRunnerDbContextMigratorFactory>(new BackOfficeContextMigrationFactory());
+                        .AddSingleton<IRunnerDbContextMigratorFactory>(new ProductContextMigrationFactory());
                 })
                 .Build();
 

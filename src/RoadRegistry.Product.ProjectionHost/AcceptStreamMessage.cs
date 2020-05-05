@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ProjectionHost
+namespace RoadRegistry.Product.ProjectionHost
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -9,7 +9,7 @@ namespace RoadRegistry.BackOffice.ProjectionHost
 
     public static class AcceptStreamMessage
     {
-        public static AcceptStreamMessageFilter WhenEqualToMessageType(ConnectedProjection<BackOfficeContext>[] projections, EventMapping mapping)
+        public static AcceptStreamMessageFilter WhenEqualToMessageType(ConnectedProjection<ProductContext>[] projections, EventMapping mapping)
         {
             var acceptableEventNames = new HashSet<string>(
                 projections

@@ -1,19 +1,18 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.Product.Projections
 {
     using System;
     using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using BackOffice;
+    using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using Messages;
     using Microsoft.IO;
     using Schema;
     using Schema.RoadNodes;
 
-    public class RoadNodeRecordProjection : ConnectedProjection<BackOfficeContext>
+    public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
     {
         public RoadNodeRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
@@ -34,7 +33,7 @@ namespace RoadRegistry.BackOffice.Projections
                     LBLBGNORG = {Value = envelope.Message.Origin.Organization}
                 };
 
-                var point = GeometryTranslator.FromGeometryPoint(Core.GeometryTranslator.Translate(envelope.Message.Geometry));
+                var point = GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(envelope.Message.Geometry));
                 var pointShapeContent = new PointShapeContent(point);
 
                 await context.RoadNodes.AddAsync(new RoadNodeRecord
@@ -66,7 +65,7 @@ namespace RoadRegistry.BackOffice.Projections
                                 LBLBGNORG = {Value = envelope.Message.Organization}
                             };
 
-                            var point = GeometryTranslator.FromGeometryPoint(Core.GeometryTranslator.Translate(node.Geometry));
+                            var point = GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(node.Geometry));
                             var pointShapeContent = new PointShapeContent(point);
 
                             await context.RoadNodes.AddAsync(new RoadNodeRecord

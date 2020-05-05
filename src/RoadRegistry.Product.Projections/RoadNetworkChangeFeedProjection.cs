@@ -1,30 +1,31 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.Product.Projections
 {
     using System;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice;
+    using BackOffice.Core;
+    using BackOffice.Messages;
+    using BackOffice.Uploads;
+    using BackOffice.Uploads.Schema;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Core;
-    using Messages;
     using Newtonsoft.Json;
     using Schema;
-    using Uploads;
-    using Uploads.Schema;
-    using AcceptedChange = Messages.AcceptedChange;
-    using AddGradeSeparatedJunction = Messages.AddGradeSeparatedJunction;
-    using AddRoadNode = Messages.AddRoadNode;
-    using AddRoadSegment = Messages.AddRoadSegment;
-    using AddRoadSegmentToEuropeanRoad = Messages.AddRoadSegmentToEuropeanRoad;
-    using AddRoadSegmentToNationalRoad = Messages.AddRoadSegmentToNationalRoad;
-    using AddRoadSegmentToNumberedRoad = Messages.AddRoadSegmentToNumberedRoad;
-    using FileProblem = Messages.FileProblem;
-    using Problem = Messages.Problem;
-    using RejectedChange = Messages.RejectedChange;
+    using AcceptedChange = BackOffice.Messages.AcceptedChange;
+    using AddGradeSeparatedJunction = BackOffice.Messages.AddGradeSeparatedJunction;
+    using AddRoadNode = BackOffice.Messages.AddRoadNode;
+    using AddRoadSegment = BackOffice.Messages.AddRoadSegment;
+    using AddRoadSegmentToEuropeanRoad = BackOffice.Messages.AddRoadSegmentToEuropeanRoad;
+    using AddRoadSegmentToNationalRoad = BackOffice.Messages.AddRoadSegmentToNationalRoad;
+    using AddRoadSegmentToNumberedRoad = BackOffice.Messages.AddRoadSegmentToNumberedRoad;
+    using FileProblem = BackOffice.Messages.FileProblem;
+    using Problem = BackOffice.Messages.Problem;
+    using RejectedChange = BackOffice.Messages.RejectedChange;
 
-    public class RoadNetworkChangeFeedProjection : ConnectedProjection<BackOfficeContext>
+    public class RoadNetworkChangeFeedProjection : ConnectedProjection<ProductContext>
     {
         public RoadNetworkChangeFeedProjection(IBlobClient client)
         {

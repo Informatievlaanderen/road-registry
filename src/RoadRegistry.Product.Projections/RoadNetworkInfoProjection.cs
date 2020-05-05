@@ -1,15 +1,13 @@
-﻿namespace RoadRegistry.BackOffice.Projections
+﻿namespace RoadRegistry.Product.Projections
 {
-    using System.Linq;
+    using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using Messages;
-    using Microsoft.EntityFrameworkCore;
     using Schema;
 
-    public class RoadNetworkInfoProjection : ConnectedProjection<BackOfficeContext>
+    public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
     {
         public RoadNetworkInfoProjection()
         {
@@ -29,7 +27,7 @@
                 info.RoadNodeCount += 1;
                 info.TotalRoadNodeShapeLength +=
                     new PointShapeContent(
-                        GeometryTranslator.FromGeometryPoint(Core.GeometryTranslator.Translate(envelope.Message.Geometry))
+                        GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(envelope.Message.Geometry))
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32();
@@ -41,7 +39,7 @@
                 info.RoadSegmentCount += 1;
                 info.TotalRoadSegmentShapeLength +=
                     new PolyLineMShapeContent(
-                        GeometryTranslator.FromGeometryMultiLineString(Core.GeometryTranslator.Translate(envelope.Message.Geometry))
+                        GeometryTranslator.FromGeometryMultiLineString(BackOffice.Core.GeometryTranslator.Translate(envelope.Message.Geometry))
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32();
@@ -77,7 +75,7 @@
                             info.RoadNodeCount++;
                             info.TotalRoadNodeShapeLength +=
                                 new PointShapeContent(
-                                        GeometryTranslator.FromGeometryPoint(Core.GeometryTranslator.Translate(m.Geometry))
+                                        GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(m.Geometry))
                                     )
                                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                                     .ToInt32();
@@ -87,7 +85,7 @@
                             info.RoadSegmentCount += 1;
                             info.TotalRoadSegmentShapeLength +=
                                 new PolyLineMShapeContent(
-                                        GeometryTranslator.FromGeometryMultiLineString(Core.GeometryTranslator.Translate(m.Geometry))
+                                        GeometryTranslator.FromGeometryMultiLineString(BackOffice.Core.GeometryTranslator.Translate(m.Geometry))
                                     )
                                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                                     .ToInt32();

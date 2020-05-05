@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.Product.Projections
 {
     using System;
     using NodaTime;

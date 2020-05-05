@@ -1,18 +1,18 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.Product.Projections
 {
     using System;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using BackOffice;
+    using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Messages;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
     using Schema;
-    using Schema.RoadSegmentSurfaceAttributes;
+    using Schema.RoadSegments;
 
-    public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<BackOfficeContext>
+    public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<ProductContext>
     {
         public RoadSegmentSurfaceAttributeRecordProjection(RecyclableMemoryStreamManager manager,
             Encoding encoding)

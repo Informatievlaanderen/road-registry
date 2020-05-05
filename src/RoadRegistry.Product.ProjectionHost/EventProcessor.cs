@@ -1,17 +1,15 @@
-namespace RoadRegistry.BackOffice.ProjectionHost
+namespace RoadRegistry.Product.ProjectionHost
 {
     using System;
     using System.Threading;
     using System.Threading.Channels;
     using System.Threading.Tasks;
+    using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Framework;
-    using Messages;
     using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Internal;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
@@ -46,8 +44,8 @@ namespace RoadRegistry.BackOffice.ProjectionHost
             IStreamStore streamStore,
             AcceptStreamMessageFilter filter,
             EnvelopeFactory envelopeFactory,
-            ConnectedProjectionHandlerResolver<BackOfficeContext> resolver,
-            Func<BackOfficeContext> dbContextFactory,
+            ConnectedProjectionHandlerResolver<ProductContext> resolver,
+            Func<ProductContext> dbContextFactory,
             Scheduler scheduler,
             ILogger<EventProcessor> logger)
         {

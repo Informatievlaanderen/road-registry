@@ -1,16 +1,16 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.Product.Projections
 {
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Messages;
     using Microsoft.IO;
     using Schema;
     using Schema.Organizations;
 
-    public class OrganizationRecordProjection : ConnectedProjection<BackOfficeContext>
+    public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
     {
         public OrganizationRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {

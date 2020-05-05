@@ -1,15 +1,16 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.Product.Projections
 {
     using System;
     using System.Text;
+    using BackOffice;
+    using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Messages;
     using Microsoft.IO;
     using Schema;
     using Schema.GradeSeparatedJunctions;
 
-    public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<BackOfficeContext>
+    public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<ProductContext>
     {
         public GradeSeparatedJunctionRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {

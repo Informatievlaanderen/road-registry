@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ProjectionHost
+namespace RoadRegistry.Product.ProjectionHost
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,6 @@ namespace RoadRegistry.BackOffice.ProjectionHost
     using System.Threading;
     using System.Threading.Channels;
     using System.Threading.Tasks;
-    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using NodaTime;
 

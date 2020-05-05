@@ -1,19 +1,18 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.Product.Projections
 {
     using System;
     using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using BackOffice;
+    using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using Messages;
     using Microsoft.IO;
     using Schema;
     using Schema.RoadSegments;
 
-    public class RoadSegmentRecordProjection : ConnectedProjection<BackOfficeContext>
+    public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
     {
         public RoadSegmentRecordProjection(RecyclableMemoryStreamManager manager,
             Encoding encoding)
@@ -24,7 +23,7 @@ namespace RoadRegistry.BackOffice.Projections
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
                 var geometry =
-                    GeometryTranslator.FromGeometryMultiLineString(Core.GeometryTranslator.Translate(envelope.Message.Geometry));
+                    GeometryTranslator.FromGeometryMultiLineString(BackOffice.Core.GeometryTranslator.Translate(envelope.Message.Geometry));
                 var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
                 var statusTranslation = RoadSegmentStatus.Parse(envelope.Message.Status).Translation;
                 var morphologyTranslation = RoadSegmentMorphology.Parse(envelope.Message.Morphology).Translation;
@@ -80,7 +79,7 @@ namespace RoadRegistry.BackOffice.Projections
                     {
                         case RoadSegmentAdded segment:
                             var geometry =
-                                GeometryTranslator.FromGeometryMultiLineString(Core.GeometryTranslator.Translate(segment.Geometry));
+                                GeometryTranslator.FromGeometryMultiLineString(BackOffice.Core.GeometryTranslator.Translate(segment.Geometry));
                             var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
                             var statusTranslation = RoadSegmentStatus.Parse(segment.Status).Translation;
                             var morphologyTranslation = RoadSegmentMorphology.Parse(segment.Morphology).Translation;

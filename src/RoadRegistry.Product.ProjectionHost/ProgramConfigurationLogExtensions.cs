@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ProjectionHost
+namespace RoadRegistry.Product.ProjectionHost
 {
     using System;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
