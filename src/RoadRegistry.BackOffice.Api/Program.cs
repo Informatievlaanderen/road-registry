@@ -26,6 +26,7 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.Extensions.Logging;
     using Microsoft.IO;
     using NodaTime;
+    using Product.Schema;
     using Serilog;
     using SqlStreamStore;
 
@@ -200,6 +201,16 @@ namespace RoadRegistry.BackOffice.Api
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                             .UseSqlServer(
                                 sp.GetRequiredService<TraceDbConnection<EditorContext>>(),
+                                sql => sql.EnableRetryOnFailure())
+                        )
+                        .AddScoped(sp => new TraceDbConnection<ProductContext>(
+                            new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ProductProjections)),
+                            sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+                        .AddDbContext<ProductContext>((sp, options) => options
+                            .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                            .UseSqlServer(
+                                sp.GetRequiredService<TraceDbConnection<ProductContext>>(),
                                 sql => sql.EnableRetryOnFailure())
                         );
                 });
