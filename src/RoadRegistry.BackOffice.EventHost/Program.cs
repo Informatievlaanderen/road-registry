@@ -55,8 +55,9 @@
                     }
 
                     builder
-                        .AddJsonFile("appsettings.json", true, true)
-                        .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
+                        .AddJsonFile("appsettings.json", true, false)
+                        .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName.ToLowerInvariant()}.json", true, false)
+                        .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
                         .AddEnvironmentVariables()
                         .AddCommandLine(args);
                 })

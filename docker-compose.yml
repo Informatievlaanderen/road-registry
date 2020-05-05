@@ -47,6 +47,7 @@ services:
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       SERILOG__WRITETO__1__NAME: "Console"
+      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -72,6 +73,7 @@ services:
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       SERILOG__WRITETO__1__NAME: "Console"
+      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -106,6 +108,7 @@ services:
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       SERILOG__WRITETO__1__NAME: "Console"
+      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -125,6 +128,7 @@ services:
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       SERILOG__WRITETO__1__NAME: "Console"
+      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -144,6 +148,7 @@ services:
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       SERILOG__WRITETO__1__NAME: "Console"
+      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -165,6 +170,7 @@ services:
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       SERILOG__WRITETO__1__NAME: "Console"
+      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -187,6 +193,7 @@ services:
       SERILOG__WRITETO__0__NAME: "Seq"
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
       SERILOG__WRITETO__1__NAME: "Console"
+      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
@@ -196,6 +203,7 @@ services:
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__BACKOFFICEPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       IDEMPOTENCY__CONNECTIONSTRING: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CORS__0: "http://localhost:5010"
   backoffice-ui:
     build: dist/RoadRegistry.BackOffice.UI/linux
     depends_on:
