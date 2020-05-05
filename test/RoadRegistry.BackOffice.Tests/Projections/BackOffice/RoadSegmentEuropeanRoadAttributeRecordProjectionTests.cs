@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.BackOffice.Projections.BackOffice
 {
     using System;
     using System.Linq;

@@ -1,14 +1,14 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.BackOffice.Projections.BackOffice
 {
     using System;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
-    using BackOffice;
     using Framework.Testing.Projections;
     using Messages;
     using Microsoft.IO;
+    using RoadRegistry.BackOffice;
     using Schema.RoadSegmentLaneAttributes;
     using Xunit;
 

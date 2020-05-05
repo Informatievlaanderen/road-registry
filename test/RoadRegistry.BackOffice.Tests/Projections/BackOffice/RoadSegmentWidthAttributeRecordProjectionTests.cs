@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.BackOffice.Projections.BackOffice
 {
     using System;
     using System.Linq;
@@ -7,7 +7,6 @@ namespace RoadRegistry.BackOffice.Projections
     using AutoFixture;
     using Framework.Testing.Projections;
     using Messages;
-    using Microsoft.IO;
     using Schema.RoadSegmentWidthAttributes;
     using Xunit;
 

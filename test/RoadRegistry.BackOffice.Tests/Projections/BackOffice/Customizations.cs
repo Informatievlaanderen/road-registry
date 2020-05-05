@@ -1,14 +1,14 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.BackOffice.Projections.BackOffice
 {
     using System;
     using System.Linq;
     using AutoFixture;
-    using BackOffice;
     using Core;
     using Messages;
     using NetTopologySuite.Geometries;
     using NodaTime;
     using NodaTime.Text;
+    using RoadRegistry.BackOffice;
 
     internal static class Customizations
     {

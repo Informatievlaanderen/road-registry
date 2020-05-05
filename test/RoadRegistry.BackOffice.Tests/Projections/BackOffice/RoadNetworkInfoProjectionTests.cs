@@ -1,18 +1,16 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.BackOffice.Projections.BackOffice
 {
     using System;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
-    using BackOffice;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Framework.Testing.Projections;
     using Messages;
     using NetTopologySuite.Geometries;
+    using RoadRegistry.BackOffice;
     using Schema;
-    using Schema.GradeSeparatedJunctions;
     using Xunit;
     using GeometryTranslator = Core.GeometryTranslator;
 

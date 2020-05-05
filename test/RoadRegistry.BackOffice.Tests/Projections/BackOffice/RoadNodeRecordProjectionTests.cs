@@ -1,20 +1,19 @@
-namespace RoadRegistry.BackOffice.Projections
+namespace RoadRegistry.BackOffice.Projections.BackOffice
 {
     using System;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
     using AutoFixture;
-    using BackOffice;
-    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Framework.Testing.Projections;
     using Messages;
     using Microsoft.IO;
+    using RoadRegistry.BackOffice;
     using Schema.RoadNodes;
     using Xunit;
     using GeometryTranslator = Core.GeometryTranslator;
-    using RoadNodeType = BackOffice.RoadNodeType;
+    using RoadNodeType = RoadRegistry.BackOffice.RoadNodeType;
 
     public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {
