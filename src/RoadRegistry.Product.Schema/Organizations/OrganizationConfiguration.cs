@@ -9,7 +9,7 @@ namespace RoadRegistry.Product.Schema.Organizations
 
         public void Configure(EntityTypeBuilder<OrganizationRecord> b)
         {
-            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
+            b.ToTable(TableName, WellknownSchemas.ProductSchema)
                 .HasIndex(p => p.Id)
                 .IsClustered(false);
 

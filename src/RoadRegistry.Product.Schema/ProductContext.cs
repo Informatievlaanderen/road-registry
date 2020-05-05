@@ -7,9 +7,9 @@ namespace RoadRegistry.Product.Schema
     using RoadNodes;
     using RoadSegments;
 
-    public class BackOfficeContext : RunnerDbContext<BackOfficeContext>
+    public class ProductContext : RunnerDbContext<ProductContext>
     {
-        public override string ProjectionStateSchema => WellknownSchemas.BackOfficeMetaSchema;
+        public override string ProjectionStateSchema => WellknownSchemas.ProductMetaSchema;
 
         public DbSet<RoadNodeRecord> RoadNodes { get; set; }
         public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
@@ -24,10 +24,10 @@ namespace RoadRegistry.Product.Schema
         public DbSet<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
         public DbSet<RoadSegmentBoundingBox3D> RoadSegmentBoundingBox { get; set; }
 
-        public BackOfficeContext() {}
+        public ProductContext() {}
 
         // This needs to be DbContextOptions<T> for Autofac!
-        public BackOfficeContext(DbContextOptions<BackOfficeContext> options)
+        public ProductContext(DbContextOptions<ProductContext> options)
             : base(options) { }
 
         protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
@@ -46,12 +46,12 @@ namespace RoadRegistry.Product.Schema
             builder
                 .Entity<RoadNodeBoundingBox2D>()
                 .HasNoKey()
-                .ToQuery(() => RoadNodeBoundingBox.FromSqlRaw("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [" + WellknownSchemas.BackOfficeSchema + "].[RoadNode]"));
+                .ToQuery(() => RoadNodeBoundingBox.FromSqlRaw("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [" + WellknownSchemas.ProductSchema + "].[RoadNode]"));
 
             builder
                 .Entity<RoadSegmentBoundingBox3D>()
                 .HasNoKey()
-                .ToQuery(() => RoadSegmentBoundingBox.FromSqlRaw("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [" + WellknownSchemas.BackOfficeSchema + "].[RoadSegment]"));
+                .ToQuery(() => RoadSegmentBoundingBox.FromSqlRaw("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [" + WellknownSchemas.ProductSchema + "].[RoadSegment]"));
         }
     }
 }

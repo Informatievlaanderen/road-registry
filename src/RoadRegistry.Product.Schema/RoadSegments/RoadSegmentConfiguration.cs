@@ -9,7 +9,7 @@ namespace RoadRegistry.Product.Schema.RoadSegments
 
         public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
         {
-            b.ToTable(TableName, WellknownSchemas.BackOfficeSchema)
+            b.ToTable(TableName, WellknownSchemas.ProductSchema)
                 .HasKey(p => p.Id)
                 .IsClustered(false);
 
