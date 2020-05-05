@@ -8,7 +8,6 @@ namespace RoadRegistry.Editor.Projections
     using BackOffice;
     using BackOffice.Messages;
     using Framework.Projections;
-    using Microsoft.IO;
     using RoadRegistry.Projections;
     using Schema.RoadSegments;
     using Xunit;
@@ -98,7 +97,7 @@ namespace RoadRegistry.Editor.Projections
 
                 }).ToList();
 
-            return new RoadSegmentLaneAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            return new RoadSegmentLaneAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -114,7 +113,7 @@ namespace RoadRegistry.Editor.Projections
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.Lanes = new ImportedRoadSegmentLaneAttributes[0];
 
-            return new RoadSegmentLaneAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            return new RoadSegmentLaneAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new object[0]);
