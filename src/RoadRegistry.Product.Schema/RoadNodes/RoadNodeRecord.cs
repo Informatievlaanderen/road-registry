@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Schema.RoadNodes
+namespace RoadRegistry.Product.Schema.RoadNodes
 {
     public class RoadNodeRecord
     {

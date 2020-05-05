@@ -1,7 +1,5 @@
-namespace RoadRegistry.BackOffice.Schema.RoadSegments
+namespace RoadRegistry.Product.Schema.RoadSegments
 {
-    using RoadNodes;
-
     public class RoadSegmentRecord
     {
         public int Id { get; set; }

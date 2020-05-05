@@ -1,17 +1,11 @@
-namespace RoadRegistry.BackOffice.Schema
+namespace RoadRegistry.Product.Schema
 {
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using GradeSeparatedJunctions;
     using Microsoft.EntityFrameworkCore;
     using Organizations;
     using RoadNodes;
-    using RoadSegmentEuropeanRoadAttributes;
-    using RoadSegmentLaneAttributes;
-    using RoadSegmentNationalRoadAttributes;
-    using RoadSegmentNumberedRoadAttributes;
     using RoadSegments;
-    using RoadSegmentSurfaceAttributes;
-    using RoadSegmentWidthAttributes;
 
     public class BackOfficeContext : RunnerDbContext<BackOfficeContext>
     {

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Schema.Organizations
+namespace RoadRegistry.Product.Schema.Organizations
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;

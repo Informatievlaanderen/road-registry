@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Schema.RoadSegmentNationalRoadAttributes
+namespace RoadRegistry.Product.Schema.RoadSegments
 {
     using Be.Vlaanderen.Basisregisters.Shaperon;
 

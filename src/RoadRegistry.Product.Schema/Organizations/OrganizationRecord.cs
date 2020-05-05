@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Schema.Organizations
+namespace RoadRegistry.Product.Schema.Organizations
 {
     public class OrganizationRecord
     {

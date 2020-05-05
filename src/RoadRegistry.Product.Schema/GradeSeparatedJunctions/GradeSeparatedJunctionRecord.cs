@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Schema.GradeSeparatedJunctions
+namespace RoadRegistry.Product.Schema.GradeSeparatedJunctions
 {
     public class GradeSeparatedJunctionRecord
     {

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Schema
+namespace RoadRegistry.Product.Schema
 {
     internal static class WellknownConnectionNames
     {

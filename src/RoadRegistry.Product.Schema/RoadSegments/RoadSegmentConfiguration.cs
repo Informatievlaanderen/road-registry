@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Schema.RoadSegments
+namespace RoadRegistry.Product.Schema.RoadSegments
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;

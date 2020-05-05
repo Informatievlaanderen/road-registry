@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Schema.Organizations
+namespace RoadRegistry.Product.Schema.Organizations
 {
     using Be.Vlaanderen.Basisregisters.Shaperon;
 

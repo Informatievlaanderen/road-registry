@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Schema.RoadSegmentWidthAttributes
+namespace RoadRegistry.Product.Schema.RoadSegments
 {
     public class RoadSegmentWidthAttributeRecord
     {

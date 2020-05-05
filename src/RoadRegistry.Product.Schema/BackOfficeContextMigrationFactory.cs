@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Schema
+namespace RoadRegistry.Product.Schema
 {
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Microsoft.EntityFrameworkCore;

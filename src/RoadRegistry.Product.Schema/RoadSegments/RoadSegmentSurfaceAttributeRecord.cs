@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Schema.RoadSegmentSurfaceAttributes
+namespace RoadRegistry.Product.Schema.RoadSegments
 {
     public class RoadSegmentSurfaceAttributeRecord
     {
