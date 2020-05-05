@@ -37,7 +37,7 @@
 
         public static async Task Main(string[] args)
         {
-            Console.WriteLine("Starting RoadRegistry.BackOffice.ProjectionHost");
+            Console.WriteLine("Starting RoadRegistry.Product.ProjectionHost");
 
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
                 Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
@@ -178,7 +178,7 @@
                                 new ProductContext(
                                     new DbContextOptionsBuilder<ProductContext>()
                                         .UseSqlServer(
-                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.BackOfficeProjections),
+                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.ProductProjections),
                                             options => options.EnableRetryOnFailure()
                                         ).Options)
                         )
@@ -229,8 +229,8 @@
                 await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
 
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
-                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.BackOfficeProjections);
-                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.BackOfficeProjectionsAdmin);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProductProjections);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProductProjectionsAdmin);
                 logger.LogBlobClientCredentials(blobClientOptions);
 
                 await DistributedLock<Program>.RunAsync(async () =>
