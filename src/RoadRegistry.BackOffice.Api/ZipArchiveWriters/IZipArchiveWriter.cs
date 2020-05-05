@@ -4,9 +4,10 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.Threading;
     using System.Threading.Tasks;
     using Editor.Schema;
+    using Microsoft.EntityFrameworkCore;
 
-    public interface IZipArchiveWriter
+    public interface IZipArchiveWriter<in TContext> where TContext : DbContext
     {
-        Task WriteAsync(ZipArchive archive, EditorContext context, CancellationToken cancellationToken);
+        Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken);
     }
 }

@@ -9,6 +9,7 @@
     using RoadRegistry.Framework.Containers;
     using Xunit;
     using ZipArchiveWriters;
+    using ZipArchiveWriters.ForEditor;
 
     [Collection(nameof(SqlServerCollection))]
     public class RoadNodeArchiveWriterTests

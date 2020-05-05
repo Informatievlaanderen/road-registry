@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
+namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
 {
     using System;
     using System.IO;
@@ -13,12 +13,12 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
 
-    public class RoadSegmentSurfaceAttributesToZipArchiveWriter : IZipArchiveWriter
+    public class RoadSegmentLaneAttributesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
         private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
-        public RoadSegmentSurfaceAttributesToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
+        public RoadSegmentLaneAttributesToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
@@ -29,13 +29,13 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var count = await context.RoadSegmentSurfaceAttributes.CountAsync(cancellationToken);
-            var dbfEntry = archive.CreateEntry("AttWegverharding.dbf");
+            var count = await context.RoadSegmentLaneAttributes.CountAsync(cancellationToken);
+            var dbfEntry = archive.CreateEntry("AttRijstroken.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
                 new DbaseRecordCount(count),
-                RoadSegmentSurfaceAttributeDbaseRecord.Schema
+                RoadSegmentLaneAttributeDbaseRecord.Schema
             );
             using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
@@ -43,8 +43,8 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
                     dbfHeader,
                     new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
-                var dbfRecord = new RoadSegmentSurfaceAttributeDbaseRecord();
-                foreach (var data in context.RoadSegmentSurfaceAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+                var dbfRecord = new RoadSegmentLaneAttributeDbaseRecord();
+                foreach (var data in context.RoadSegmentLaneAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
                     dbfRecord.FromBytes(data, _manager, _encoding);
                     dbfWriter.Write(dbfRecord);

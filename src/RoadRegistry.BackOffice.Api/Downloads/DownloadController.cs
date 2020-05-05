@@ -13,6 +13,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
     using Microsoft.IO;
     using Microsoft.Net.Http.Headers;
     using ZipArchiveWriters;
+    using ZipArchiveWriters.ForEditor;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]
@@ -27,7 +28,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         }
 
-        [HttpGet("")]
+        [HttpGet("/for-editor")]
         public async Task<IActionResult> Get([FromServices] EditorContext context)
         {
             var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
@@ -41,7 +42,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
                 async (stream, actionContext) =>
                 {
                     var encoding = Encoding.GetEncoding(1252);
-                    var writer = new RoadNetworkForShapeEditingZipArchiveWriter(_manager, encoding);
+                    var writer = new RoadNetworkForEditorToZipArchiveWriter(_manager, encoding);
                     using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
                     {
                         await writer.WriteAsync(archive, context, HttpContext.RequestAborted);
