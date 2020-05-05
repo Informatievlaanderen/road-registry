@@ -65,7 +65,7 @@ namespace RoadRegistry.Structurizr
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, true)
+                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
                 .Build();
 
             _workspaceId = long.Parse(configuration["Structurizr:WorkspaceId"]);
