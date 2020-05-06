@@ -102,9 +102,8 @@ Target.create "Test_Solution" (fun _ -> test "RoadRegistry")
 
 Target.create "Publish_Solution" (fun _ ->
   [
-    "RoadRegistry.BackOffice"
-    "RoadRegistry.BackOffice.Schema"
-    "RoadRegistry.BackOffice.ProjectionHost"
+    "RoadRegistry.Editor.ProjectionHost"
+    "RoadRegistry.Product.ProjectionHost"
     "RoadRegistry.BackOffice.EventHost"
     "RoadRegistry.BackOffice.CommandHost"
     "RoadRegistry.Legacy.Extract"
@@ -130,8 +129,11 @@ Target.create "PushContainer_BackOfficeApi" (fun _ -> push "backoffice-api")
 Target.create "Containerize_BackOfficeUI" (fun _ -> containerize "RoadRegistry.BackOffice.UI" "backoffice-ui")
 Target.create "PushContainer_BackOfficeUI" (fun _ -> push "backoffice-ui")
 
-Target.create "Containerize_BackOfficeProjectionHost" (fun _ -> containerize "RoadRegistry.BackOffice.ProjectionHost" "backoffice-projectionhost")
-Target.create "PushContainer_BackOfficeProjectionHost" (fun _ -> push "backoffice-projectionhost")
+Target.create "Containerize_EditorProjectionHost" (fun _ -> containerize "RoadRegistry.Editor.ProjectionHost" "editor-projectionhost")
+Target.create "PushContainer_EditorProjectionHost" (fun _ -> push "editor-projectionhost")
+
+Target.create "Containerize_ProductProjectionHost" (fun _ -> containerize "RoadRegistry.Product.ProjectionHost" "product-projectionhost")
+Target.create "PushContainer_ProductProjectionHost" (fun _ -> push "product-projectionhost")
 
 Target.create "Containerize_BackOfficeEventHost" (fun _ -> containerize "RoadRegistry.BackOffice.EventHost" "backoffice-eventhost")
 Target.create "PushContainer_BackOfficeEventHost" (fun _ -> push "backoffice-eventhost")
@@ -176,7 +178,8 @@ Target.create "Push" ignore
 "Pack"
   ==> "Containerize_BackOfficeApi"
   ==> "Containerize_BackOfficeUI"
-  ==> "Containerize_BackOfficeProjectionHost"
+  ==> "Containerize_EditorProjectionHost"
+  ==> "Containerize_ProductProjectionHost"
   ==> "Containerize_BackOfficeEventHost"
   ==> "Containerize_BackOfficeCommandHost"
   ==> "Containerize_ImportLegacy"
@@ -188,7 +191,8 @@ Target.create "Push" ignore
   ==> "DockerLogin"
   ==> "PushContainer_BackOfficeApi"
   ==> "PushContainer_BackOfficeUI"
-  ==> "PushContainer_BackOfficeProjectionHost"
+  ==> "PushContainer_EditorProjectionHost"
+  ==> "PushContainer_ProductProjectionHost"
   ==> "PushContainer_BackOfficeEventHost"
   ==> "PushContainer_BackOfficeCommandHost"
   ==> "PushContainer_ImportLegacy"

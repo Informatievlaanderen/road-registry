@@ -198,7 +198,7 @@
                             new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding)
                         })
                         .AddSingleton(sp =>
-                            Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Resolve
+                            Resolve
                                 .WhenEqualToHandlerMessageType(
                             sp.GetRequiredService<ConnectedProjection<EditorContext>[]>()
                                     .SelectMany(projection => projection.Handlers)

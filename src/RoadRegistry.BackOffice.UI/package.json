@@ -17,7 +17,6 @@
     "build-upload": "node_modules/.bin/elm make src/Upload.elm --optimize --output=output/upload.js",
     "prebuild": "npm run build-index && npm run build-activity && npm run build-information && npm run build-download && npm run build-upload",
     "build": "node_modules/.bin/parcel build --out-dir wwwroot index.html activity.html information.html download.html upload.html",
-    "prelive": "echo "window.wegenregisterApiEndpoint=\"$API_ENDPOINT\";""
     "live": "node_modules/.bin/parcel index.html activity.html information.html download.html upload.html"
   },
   "engines": {
