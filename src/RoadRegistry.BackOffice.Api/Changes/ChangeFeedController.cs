@@ -6,6 +6,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
     using System.Linq;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Api;
+    using Editor.Schema;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,6 @@ namespace RoadRegistry.BackOffice.Api.Changes
     using Newtonsoft.Json;
     using NodaTime;
     using NodaTime.Text;
-    using Schema;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]
@@ -35,7 +35,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> Get([FromServices] BackOfficeContext context)
+        public async Task<IActionResult> Get([FromServices] EditorContext context)
         {
             var entries = new List<ChangeFeedEntry>();
             await context

@@ -5,9 +5,9 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Editor.Schema;
+    using Editor.Schema.Lists;
     using Microsoft.IO;
-    using Schema;
-    using Schema.ReferenceData;
 
     public class RoadNetworkForShapeEditingZipArchiveWriter : IZipArchiveWriter
     {
@@ -46,7 +46,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
             );
         }
 
-        public Task WriteAsync(ZipArchive archive, BackOfficeContext context, CancellationToken cancellationToken)
+        public Task WriteAsync(ZipArchive archive, EditorContext context, CancellationToken cancellationToken)
         {
             return _writer.WriteAsync(archive, context, cancellationToken);
         }

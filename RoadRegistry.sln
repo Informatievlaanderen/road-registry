@@ -16,15 +16,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Api", "src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj", "{FF17E3C0-79EB-4585-978F-D77CEFF70BD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.BackOffice.Schema", "src\RoadRegistry.BackOffice.Schema\RoadRegistry.BackOffice.Schema.csproj", "{940C6D7A-3D79-4CF1-AC43-1B059A389296}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.Editor.Schema", "src\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj", "{940C6D7A-3D79-4CF1-AC43-1B059A389296}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Projections", "src\RoadRegistry.BackOffice.Projections\RoadRegistry.BackOffice.Projections.csproj", "{1DB4FC79-FCB0-4186-AB90-693334475938}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Editor.Projections", "src\RoadRegistry.Editor.Projections\RoadRegistry.Editor.Projections.csproj", "{1DB4FC79-FCB0-4186-AB90-693334475938}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Structurizr", "docs\RoadRegistry.Structurizr\RoadRegistry.Structurizr.csproj", "{E769594D-0625-4928-8061-481BF7FFFCFD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{FCF39E66-4EE0-4265-B8D6-0AD721AF138C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Tests", "test\RoadRegistry.BackOffice.Tests\RoadRegistry.BackOffice.Tests.csproj", "{0943FA25-9B89-4023-81DE-4A320B88EA7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Tests", "test\RoadRegistry.Tests\RoadRegistry.Tests.csproj", "{0943FA25-9B89-4023-81DE-4A320B88EA7F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1710F546-49E2-4BAA-A8AB-655D55AD91CF}"
 	ProjectSection(SolutionItems) = preProject
@@ -48,7 +48,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.BackOffice.Eve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.BackOffice.Simulator", "src\RoadRegistry.BackOffice.Simulator\RoadRegistry.BackOffice.Simulator.csproj", "{CA1BFB13-0998-4474-A9FE-D3250496E51C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.BackOffice.ProjectionHost", "src\RoadRegistry.BackOffice.ProjectionHost\RoadRegistry.BackOffice.ProjectionHost.csproj", "{1E346E33-D705-45EC-9281-6A468D710F6A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.Editor.ProjectionHost", "src\RoadRegistry.Editor.ProjectionHost\RoadRegistry.Editor.ProjectionHost.csproj", "{1E346E33-D705-45EC-9281-6A468D710F6A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.Product.Schema", "src\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj", "{5BC8F8EF-64C6-4628-948B-2399AC407FAF}"
 EndProject

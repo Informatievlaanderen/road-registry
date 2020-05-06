@@ -4,6 +4,6 @@ namespace RoadRegistry.BackOffice.Api
     {
         public const string Snapshots = "Snapshots";
         public const string Events = "Events";
-        public const string BackOfficeProjections = "BackOfficeProjections";
+        public const string EditorProjections = "EditorProjections";
     }
 }

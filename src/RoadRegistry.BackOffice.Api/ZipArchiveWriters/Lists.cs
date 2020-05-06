@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
 {
     using System;
     using BackOffice;
-    using Schema.ReferenceData;
+    using Editor.Schema.Lists;
 
     public static class Lists
     {
