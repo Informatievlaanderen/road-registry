@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>RoadRegistry.Editor.ProjectionHost</RootNamespace>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.Editor.Projections\RoadRegistry.Editor.Projections.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Dockerfile" CopyToOutputDirectory="Always" />
+    <Content Include="init.sh" CopyToOutputDirectory="Always" />
+    <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
+    <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

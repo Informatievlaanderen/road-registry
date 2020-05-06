@@ -9,10 +9,10 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Core;
+    using Editor.Schema;
+    using Editor.Schema.Organizations;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
-    using Schema;
-    using Schema.Organizations;
 
     public class OrganizationsToZipArchiveWriter : IZipArchiveWriter
     {
@@ -25,7 +25,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, BackOfficeContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, EditorContext context, CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));

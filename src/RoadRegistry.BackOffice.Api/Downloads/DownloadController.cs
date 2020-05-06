@@ -5,13 +5,13 @@ namespace RoadRegistry.BackOffice.Api.Downloads
     using System.Text;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Api;
+    using Editor.Schema;
     using Framework;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
     using Microsoft.Net.Http.Headers;
-    using Schema;
     using ZipArchiveWriters;
 
     [ApiVersion("1.0")]
@@ -28,7 +28,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> Get([FromServices] BackOfficeContext context)
+        public async Task<IActionResult> Get([FromServices] EditorContext context)
         {
             var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
             if (info == null || !info.CompletedImport)

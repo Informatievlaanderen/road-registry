@@ -17,6 +17,7 @@ namespace RoadRegistry.BackOffice.Api
     using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
     using Configuration;
     using Core;
+    using Editor.Schema;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,6 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.Extensions.Logging;
     using Microsoft.IO;
     using NodaTime;
-    using Schema;
     using Serilog;
     using SqlStreamStore;
 
@@ -192,14 +192,14 @@ namespace RoadRegistry.BackOffice.Api
                                     sp.GetService<IClock>()
                                 )
                             })))
-                        .AddScoped(sp => new TraceDbConnection<BackOfficeContext>(
-                            new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.BackOfficeProjections)),
+                        .AddScoped(sp => new TraceDbConnection<EditorContext>(
+                            new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EditorProjections)),
                             sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
-                        .AddDbContext<BackOfficeContext>((sp, options) => options
+                        .AddDbContext<EditorContext>((sp, options) => options
                             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                             .UseSqlServer(
-                                sp.GetRequiredService<TraceDbConnection<BackOfficeContext>>(),
+                                sp.GetRequiredService<TraceDbConnection<EditorContext>>(),
                                 sql => sql.EnableRetryOnFailure())
                         );
                 });

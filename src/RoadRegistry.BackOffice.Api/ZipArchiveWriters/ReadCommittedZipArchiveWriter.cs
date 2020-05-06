@@ -5,8 +5,8 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.IO.Compression;
     using System.Threading;
     using System.Threading.Tasks;
+    using Editor.Schema;
     using Microsoft.EntityFrameworkCore;
-    using Schema;
 
     public class ReadCommittedZipArchiveWriter : IZipArchiveWriter
     {
@@ -17,7 +17,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
             _writer = writer ?? throw new ArgumentNullException(nameof(writer));
         }
 
-        public async Task WriteAsync(ZipArchive archive, BackOfficeContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, EditorContext context, CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));
