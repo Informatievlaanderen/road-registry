@@ -1,42 +1,41 @@
-namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
+namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
+    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Editor.Schema;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.IO;
+    using Product.Schema;
+    using Product.Schema.RoadSegments;
 
-    public class DbaseFileArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
+    public class RoadSegmentWidthAttributesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
     {
-        private readonly string _filename;
-        private readonly DbaseSchema _schema;
-        private readonly IReadOnlyCollection<DbaseRecord> _records;
+        private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
-        public DbaseFileArchiveWriter(string filename, DbaseSchema schema, IReadOnlyCollection<DbaseRecord> records, Encoding encoding)
+        public RoadSegmentWidthAttributesToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
-            _filename = filename ?? throw new ArgumentNullException(nameof(filename));
-            _schema = schema ?? throw new ArgumentNullException(nameof(schema));
-            _records = records ?? throw new ArgumentNullException(nameof(records));
+            _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, ProductContext context, CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var dbfEntry = archive.CreateEntry(_filename);
+            var count = await context.RoadSegmentWidthAttributes.CountAsync(cancellationToken);
+            var dbfEntry = archive.CreateEntry("AttWegbreedte.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
-                new DbaseRecordCount(_records.Count),
-                _schema
+                new DbaseRecordCount(count),
+                RoadSegmentWidthAttributeDbaseRecord.Schema
             );
             using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
@@ -44,10 +43,13 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
                     dbfHeader,
                     new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
-                foreach (var dbfRecord in _records)
+                var dbfRecord = new RoadSegmentWidthAttributeDbaseRecord();
+                foreach (var data in context.RoadSegmentWidthAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
+                    dbfRecord.FromBytes(data, _manager, _encoding);
                     dbfWriter.Write(dbfRecord);
                 }
+
                 dbfWriter.Writer.Flush();
                 await dbfEntryStream.FlushAsync(cancellationToken);
             }

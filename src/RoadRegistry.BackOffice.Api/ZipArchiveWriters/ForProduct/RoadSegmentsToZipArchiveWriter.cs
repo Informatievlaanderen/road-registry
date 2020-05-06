@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
+namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
 {
     using System;
     using System.IO;
@@ -8,12 +8,12 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Editor.Schema;
-    using Editor.Schema.RoadSegments;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
+    using Product.Schema;
+    using Product.Schema.RoadSegments;
 
-    public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter
+    public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
     {
         private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
@@ -24,7 +24,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, EditorContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, ProductContext context, CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));

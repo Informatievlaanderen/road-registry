@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
+namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
 {
     using System;
     using System.IO;
@@ -13,7 +13,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
 
-    public class RoadSegmentNationalRoadAttributesToZipArchiveWriter : IZipArchiveWriter
+    public class RoadSegmentNationalRoadAttributesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
         private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;

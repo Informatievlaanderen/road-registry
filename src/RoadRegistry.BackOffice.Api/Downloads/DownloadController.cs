@@ -12,7 +12,9 @@ namespace RoadRegistry.BackOffice.Api.Downloads
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
     using Microsoft.Net.Http.Headers;
-    using ZipArchiveWriters;
+    using Product.Schema;
+    using ZipArchiveWriters.ForEditor;
+    using ZipArchiveWriters.ForProduct;
 
     [ApiVersion("1.0")]
     [AdvertiseApiVersions("1.0")]
@@ -27,7 +29,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         }
 
-        [HttpGet("")]
+        [HttpGet("/for-editor")]
         public async Task<IActionResult> Get([FromServices] EditorContext context)
         {
             var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
@@ -41,7 +43,32 @@ namespace RoadRegistry.BackOffice.Api.Downloads
                 async (stream, actionContext) =>
                 {
                     var encoding = Encoding.GetEncoding(1252);
-                    var writer = new RoadNetworkForShapeEditingZipArchiveWriter(_manager, encoding);
+                    var writer = new RoadNetworkForEditorToZipArchiveWriter(_manager, encoding);
+                    using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
+                    {
+                        await writer.WriteAsync(archive, context, HttpContext.RequestAborted);
+                    }
+                })
+            {
+                FileDownloadName = "wegenregister.zip"
+            };
+        }
+
+        [HttpGet("/for-product")]
+        public async Task<IActionResult> Get([FromServices] ProductContext context)
+        {
+            var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
+            if (info == null || !info.CompletedImport)
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
+
+            return new FileCallbackResult(
+                new MediaTypeHeaderValue("application/zip"),
+                async (stream, actionContext) =>
+                {
+                    var encoding = Encoding.GetEncoding(1252);
+                    var writer = new RoadNetworkForProductToZipArchiveWriter(_manager, encoding);
                     using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
                     {
                         await writer.WriteAsync(archive, context, HttpContext.RequestAborted);
