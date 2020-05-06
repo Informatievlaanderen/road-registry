@@ -14,10 +14,11 @@
     "build-activity": "node_modules/.bin/elm make src/Activity.elm --optimize --output=output/activity.js",
     "build-information": "node_modules/.bin/elm make src/Information.elm --optimize --output=output/information.js",
     "build-download": "node_modules/.bin/elm make src/Download.elm --optimize --output=output/download.js",
+    "build-download-product": "node_modules/.bin/elm make src/DownloadProduct.elm --optimize --output=output/download-product.js",
     "build-upload": "node_modules/.bin/elm make src/Upload.elm --optimize --output=output/upload.js",
-    "prebuild": "npm run build-index && npm run build-activity && npm run build-information && npm run build-download && npm run build-upload",
-    "build": "node_modules/.bin/parcel build --out-dir wwwroot index.html activity.html information.html download.html upload.html",
-    "live": "node_modules/.bin/parcel index.html activity.html information.html download.html upload.html"
+    "prebuild": "npm run build-index && npm run build-activity && npm run build-information && npm run build-download && npm run build-download-product && npm run build-upload",
+    "build": "node_modules/.bin/parcel build --out-dir wwwroot index.html activity.html information.html download.html download-product.html upload.html",
+    "live": "node_modules/.bin/parcel index.html activity.html information.html download.html download-product.html upload.html"
   },
   "engines": {
     "node": ">= 8.16.0",
