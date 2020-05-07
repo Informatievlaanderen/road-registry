@@ -21,9 +21,13 @@ Each `organization` gets a stream of its own. Road nodes, segments, and grade se
 
 The import legacy program takes the output of the extract legacy program and appends it to the various streams mentioned in the `streams.json` file, contained in the `import-streams.zip`.
 
-### BackOffice Projection Host
+### Editor Projection Host
 
 This host projects the entire event stream into a series of shape and dbase records which can be composed into shape files for editing purposes, i.e. what the operator needs to do his / her work and ultimately what is part of the download.
+
+### Product Projection Host
+
+This host projects the entire event stream into a series of shape and dbase records which can be composed into shape files for product release purposes, i.e. what third party consumers need.
 
 ### BackOffice Event Host
 
