@@ -36,7 +36,7 @@ type alias Model =
 
 init : String -> ( Model, Cmd Msg )
 init url =
-    ( { header = Header.init |> Header.downloadBecameActive
+    ( { header = Header.init |> Header.downloadExtractBecameActive
       , download =
             { title = "Register dump"
             , url = String.concat [ url, "/v1/download/for-editor" ]
