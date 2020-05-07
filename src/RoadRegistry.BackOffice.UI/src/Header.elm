@@ -32,7 +32,7 @@ init =
     , tabActions =
         [ { title = "Activiteit", link = "/activity.html", active = False }
         , { title = "Informatie", link = "/information.html", active = False }
-        , { title = "Download extract", link = "/download.html", active = False }
+        , { title = "Download extract", link = "/download-extract.html", active = False }
         , { title = "Download product", link = "/download-product.html", active = False }
         , { title = "Opladen", link = "/upload.html", active = False }
         ]

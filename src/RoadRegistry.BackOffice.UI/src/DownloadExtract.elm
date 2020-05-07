@@ -1,4 +1,4 @@
-module Download exposing (Msg(..), init, main, subscriptions, update, view)
+module DownloadExtract exposing (Msg(..), init, main, subscriptions, update, view)
 
 import Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showError, viewAlert)
 import Browser
