@@ -53,9 +53,10 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                 await dbfEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shpBoundingBox =
-                (await context.RoadNodeBoundingBox.SingleOrDefaultAsync(cancellationToken))?.ToBoundingBox3D()
-                ?? new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            var shpBoundingBox = count > 0 ?
+                (await context.RoadNodeBoundingBox.SingleAsync(cancellationToken)).ToBoundingBox3D()
+                : BoundingBox3D.Empty;
+
             var info = await context.RoadNetworkInfo.SingleAsync(cancellationToken);
 
             var shpEntry = archive.CreateEntry("Wegknoop.shp");

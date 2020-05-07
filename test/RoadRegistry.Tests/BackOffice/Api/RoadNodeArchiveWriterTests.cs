@@ -4,11 +4,13 @@
     using System.IO;
     using System.IO.Compression;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Editor.Schema;
+    using Editor.Schema.RoadNodes;
     using RoadRegistry.Framework.Containers;
     using Xunit;
-    using ZipArchiveWriters;
     using ZipArchiveWriters.ForEditor;
 
     [Collection(nameof(SqlServerCollection))]
@@ -41,6 +43,84 @@
         public Task WriteAsyncHasExpectedResult()
         {
             return Task.CompletedTask;
+        }
+
+        [Fact]
+        public async Task WithEmptyRoadNetworkWritesArchiveWithExpectedEntries()
+        {
+            var sut = new RoadNodesToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+
+            var db = await _fixture.CreateDatabaseAsync();
+            var context = await _fixture.CreateEditorContextAsync(db);
+            await context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo
+            {
+                CompletedImport = true,
+                TotalRoadNodeShapeLength = 0,
+            });
+            await context.SaveChangesAsync();
+
+            using (var memoryStream = _fixture.MemoryStreamManager.GetStream())
+            {
+                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true, Encoding.UTF8))
+                {
+                    await sut.WriteAsync(archive, context, CancellationToken.None);
+                }
+                memoryStream.Position = 0;
+                using (var readArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read, false, Encoding.UTF8))
+                {
+                    Assert.Equal(3, readArchive.Entries.Count);
+                    foreach (var entry in readArchive.Entries)
+                    {
+                        switch (entry.Name)
+                        {
+                            case "Wegknoop.dbf":
+                                using (var entryStream = entry.Open())
+                                using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
+                                {
+                                    Assert.Equal(
+                                        new DbaseFileHeader(
+                                            DateTime.Now,
+                                            DbaseCodePage.Western_European_ANSI,
+                                            new DbaseRecordCount(0),
+                                            RoadNodeDbaseRecord.Schema),
+                                        DbaseFileHeader.Read(reader));
+                                }
+
+                                break;
+
+                            case "Wegknoop.shp":
+                                using (var entryStream = entry.Open())
+                                using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
+                                {
+                                    Assert.Equal(
+                                        new ShapeFileHeader(
+                                            new WordLength(0),
+                                            ShapeType.Point,
+                                            BoundingBox3D.Empty),
+                                        ShapeFileHeader.Read(reader));
+                                }
+
+                                break;
+
+                            case "Wegknoop.shx":
+                                using (var entryStream = entry.Open())
+                                using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
+                                {
+                                    Assert.Equal(
+                                        new ShapeFileHeader(
+                                            ShapeFileHeader.Length,
+                                            ShapeType.Point,
+                                            BoundingBox3D.Empty),
+                                        ShapeFileHeader.Read(reader));
+                                }
+                                break;
+
+                            default:
+                                throw new Exception($"File '{entry.Name}' was not expected in this archive.");
+                        }
+                    }
+                }
+            }
         }
     }
 }
