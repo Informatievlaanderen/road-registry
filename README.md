@@ -88,9 +88,13 @@ To test whether the import works you can type
 
 `docker-compose up --build import-legacy`
 
-To test whether the backoffice projection host works you can type
+To test whether the editor projection host works you can type
 
-`docker-compose up --build backoffice-projection-host`
+`docker-compose up --build editor-projection-host`
+
+To test whether the product projection host works you can type
+
+`docker-compose up --build product-projection-host`
 
 To test whether the backoffice event host works you can type
 
