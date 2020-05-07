@@ -29,7 +29,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         }
 
-        [HttpGet("/for-editor")]
+        [HttpGet("for-editor")]
         public async Task<IActionResult> Get([FromServices] EditorContext context)
         {
             var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
@@ -54,7 +54,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
             };
         }
 
-        [HttpGet("/for-product")]
+        [HttpGet("for-product")]
         public async Task<IActionResult> Get([FromServices] ProductContext context)
         {
             var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
