@@ -217,6 +217,7 @@ services:
       CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__PRODUCTPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       IDEMPOTENCY__CONNECTIONSTRING: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CORS__0: "http://localhost:5010"
       CORS__1: "http://localhost:1234"
