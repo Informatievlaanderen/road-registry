@@ -200,8 +200,7 @@ namespace RoadRegistry.BackOffice.Api
                             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                             .UseSqlServer(
-                                sp.GetRequiredService<TraceDbConnection<EditorContext>>(),
-                                sql => sql.EnableRetryOnFailure())
+                                sp.GetRequiredService<TraceDbConnection<EditorContext>>())
                         )
                         .AddScoped(sp => new TraceDbConnection<ProductContext>(
                             new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ProductProjections)),
@@ -210,9 +209,7 @@ namespace RoadRegistry.BackOffice.Api
                             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                             .UseSqlServer(
-                                sp.GetRequiredService<TraceDbConnection<ProductContext>>(),
-                                sql => sql.EnableRetryOnFailure())
-                        );
+                                sp.GetRequiredService<TraceDbConnection<ProductContext>>()));
                 });
     }
 }
