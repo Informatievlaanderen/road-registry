@@ -1,4 +1,4 @@
-module DownloadExtract exposing (Msg(..), init, main, subscriptions, update, view)
+module DownloadForEditor exposing (Msg(..), init, main, subscriptions, update, view)
 
 import Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showError, viewAlert)
 import Browser
@@ -36,7 +36,7 @@ type alias Model =
 
 init : String -> ( Model, Cmd Msg )
 init url =
-    ( { header = Header.init |> Header.downloadExtractBecameActive
+    ( { header = Header.init |> Header.downloadForEditorBecameActive
       , download =
             { title = "Register dump"
             , url = String.concat [ url, "/v1/download/for-editor" ]

@@ -1,6 +1,6 @@
-import { Elm } from './output/download-extract.js'
+import { Elm } from './output/download-for-editor.js'
 
-Elm.DownloadExtract.init({
+Elm.DownloadForEditor.init({
 	node: document.getElementById('app'),
 	flags: window.wegenregisterApiEndpoint
 });
