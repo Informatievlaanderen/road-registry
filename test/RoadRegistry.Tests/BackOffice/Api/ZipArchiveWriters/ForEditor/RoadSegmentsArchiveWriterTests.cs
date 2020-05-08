@@ -58,14 +58,9 @@
             });
             await context.SaveChangesAsync();
 
-            using (var memoryStream = _fixture.MemoryStreamManager.GetStream())
-            {
-                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true, Encoding.UTF8))
-                {
-                    await sut.WriteAsync(archive, context, CancellationToken.None);
-                }
-                memoryStream.Position = 0;
-                using (var readArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read, false, Encoding.UTF8))
+            await new ZipArchiveScenario<EditorContext>(_fixture, sut)
+                .WithContext(context)
+                .Assert(readArchive =>
                 {
                     Assert.Equal(3, readArchive.Entries.Count);
                     foreach (var entry in readArchive.Entries)
@@ -112,14 +107,14 @@
                                             BoundingBox3D.Empty),
                                         ShapeFileHeader.Read(reader));
                                 }
+
                                 break;
 
                             default:
                                 throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                         }
                     }
-                }
-            }
+                });
         }
     }
 }
