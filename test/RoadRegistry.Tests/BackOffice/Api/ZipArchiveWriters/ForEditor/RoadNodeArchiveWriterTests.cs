@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Api
+﻿namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
 {
     using System;
     using System.IO;
@@ -11,7 +11,6 @@
     using Editor.Schema.RoadNodes;
     using RoadRegistry.Framework.Containers;
     using Xunit;
-    using ZipArchiveWriters.ForEditor;
 
     [Collection(nameof(SqlServerCollection))]
     public class RoadNodeArchiveWriterTests
