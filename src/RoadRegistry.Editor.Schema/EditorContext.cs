@@ -1,5 +1,8 @@
 namespace RoadRegistry.Editor.Schema
 {
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using GradeSeparatedJunctions;
     using Microsoft.EntityFrameworkCore;
@@ -9,6 +12,8 @@ namespace RoadRegistry.Editor.Schema
 
     public class EditorContext : RunnerDbContext<EditorContext>
     {
+        private RoadNetworkInfo _localRoadNetworkInfo;
+
         public override string ProjectionStateSchema => WellknownSchemas.EditorMetaSchema;
 
         public DbSet<RoadNodeRecord> RoadNodes { get; set; }
@@ -25,6 +30,13 @@ namespace RoadRegistry.Editor.Schema
         public DbSet<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
         public DbSet<RoadSegmentBoundingBox3D> RoadSegmentBoundingBox { get; set; }
         public DbSet<RoadNetworkChange> RoadNetworkChanges { get; set; }
+
+        public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken token)
+        {
+            return _localRoadNetworkInfo ??=
+                RoadNetworkInfo.Local.SingleOrDefault() ??
+                await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
+        }
 
         public EditorContext() {}
 

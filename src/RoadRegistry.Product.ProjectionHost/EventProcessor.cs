@@ -111,6 +111,7 @@ namespace RoadRegistry.Product.ProjectionHost
                                     var observedMessageCount = 0;
                                     var catchUpPosition = catchUp.AfterPosition ?? Position.Start;
                                     var context = dbContextFactory();
+                                    context.ChangeTracker.AutoDetectChangesEnabled = false;
                                     var page = await streamStore
                                         .ReadAllForwards(
                                             catchUpPosition,
@@ -157,10 +158,12 @@ namespace RoadRegistry.Product.ProjectionHost
                                                         catchUpPosition,
                                                         _messagePumpCancellation.Token)
                                                     .ConfigureAwait(false);
+                                                context.ChangeTracker.DetectChanges();
                                                 await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                                 await context.DisposeAsync().ConfigureAwait(false);
 
                                                 context = dbContextFactory();
+                                                context.ChangeTracker.AutoDetectChangesEnabled = false;
                                                 observedMessageCount = 0;
                                             }
                                         }
@@ -179,6 +182,7 @@ namespace RoadRegistry.Product.ProjectionHost
                                                 catchUpPosition,
                                                 _messagePumpCancellation.Token)
                                             .ConfigureAwait(false);
+                                        context.ChangeTracker.DetectChanges();
                                         await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                     }
 

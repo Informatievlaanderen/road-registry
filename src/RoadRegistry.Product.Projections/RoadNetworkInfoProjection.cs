@@ -1,12 +1,10 @@
 ﻿namespace RoadRegistry.Product.Projections
 {
-    using System.Linq;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using Microsoft.EntityFrameworkCore;
     using Schema;
 
     public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
@@ -18,14 +16,12 @@
             );
             When<Envelope<CompletedRoadNetworkImport>>(async (context, envelope, token) =>
             {
-                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
-                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
+                var info = await context.GetRoadNetworkInfo(token);
                 info.CompletedImport = true;
             });
             When<Envelope<ImportedRoadNode>>(async (context, envelope, token) =>
             {
-                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
-                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
+                var info = await context.GetRoadNetworkInfo(token);
                 info.RoadNodeCount += 1;
                 info.TotalRoadNodeShapeLength +=
                     new PointShapeContent(
@@ -36,8 +32,7 @@
             });
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
-                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
-                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
+                var info = await context.GetRoadNetworkInfo(token);
                 info.RoadSegmentCount += 1;
                 info.TotalRoadSegmentShapeLength +=
                     new PolyLineMShapeContent(
@@ -54,21 +49,18 @@
             });
             When<Envelope<ImportedGradeSeparatedJunction>>(async (context, envelope, token) =>
             {
-                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
-                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
+                var info = await context.GetRoadNetworkInfo(token);
                 info.GradeSeparatedJunctionCount += 1;
             });
             When<Envelope<ImportedOrganization>>(async (context, envelope, token) =>
             {
-                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
-                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
+                var info = await context.GetRoadNetworkInfo(token);
                 info.OrganizationCount += 1;
             });
 
             When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
             {
-                var info = context.RoadNetworkInfo.Local.SingleOrDefault() ??
-                           await context.RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
+                var info = await context.GetRoadNetworkInfo(token);
                 foreach (var change in envelope.Message.Changes.Flatten())
                 {
                     switch (change)
