@@ -4,7 +4,6 @@
     using System.IO;
     using System.IO.Compression;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Product.Schema;

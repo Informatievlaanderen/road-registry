@@ -6,17 +6,18 @@
     using System.Text;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Core;
     using Editor.Schema;
-    using Editor.Schema.GradeSeparatedJunctions;
+    using Editor.Schema.Organizations;
     using RoadRegistry.Framework.Containers;
     using Xunit;
 
     [Collection(nameof(SqlServerCollection))]
-    public class GradeSeparatedJunctionArchiveWriterTests
+    public class OrganizationsToZipArchiveWriterTests
     {
         private readonly SqlServer _fixture;
 
-        public GradeSeparatedJunctionArchiveWriterTests(SqlServer fixture)
+        public OrganizationsToZipArchiveWriterTests(SqlServer fixture)
         {
             _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }
@@ -24,7 +25,7 @@
         [Fact]
         public Task ArchiveCanNotBeNull()
         {
-            var sut = new GradeSeparatedJunctionArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+            var sut = new OrganizationsToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
                 () => sut.WriteAsync(null, new EditorContext(), default));
         }
@@ -32,7 +33,7 @@
         [Fact]
         public Task ContextCanNotBeNull()
         {
-            var sut = new GradeSeparatedJunctionArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+            var sut = new OrganizationsToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
                 () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
         }
@@ -40,7 +41,7 @@
         [Fact]
         public async Task WithEmptyDatabaseWritesArchiveWithExpectedEntries()
         {
-            var sut = new GradeSeparatedJunctionArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+            var sut = new OrganizationsToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
 
             var db = await _fixture.CreateDatabaseAsync();
             var context = await _fixture.CreateEditorContextAsync(db);
@@ -54,7 +55,7 @@
                     {
                         switch (entry.Name)
                         {
-                            case "RltOgkruising.dbf":
+                            case "LstOrg.dbf":
                                 using (var entryStream = entry.Open())
                                 using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
                                 {
@@ -62,8 +63,8 @@
                                         new DbaseFileHeader(
                                             DateTime.Now,
                                             DbaseCodePage.Western_European_ANSI,
-                                            new DbaseRecordCount(0),
-                                            GradeSeparatedJunctionDbaseRecord.Schema),
+                                            new DbaseRecordCount(0 + Organization.PredefinedTranslations.All.Length),
+                                            OrganizationDbaseRecord.Schema),
                                         DbaseFileHeader.Read(reader));
                                 }
 
