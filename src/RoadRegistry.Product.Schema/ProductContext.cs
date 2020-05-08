@@ -35,7 +35,7 @@ namespace RoadRegistry.Product.Schema
         {
             return _localRoadNetworkInfo ??=
                 RoadNetworkInfo.Local.SingleOrDefault() ??
-                await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == 0, token);
+                await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == Schema.RoadNetworkInfo.Identifier, token);
         }
 
         public ProductContext() {}

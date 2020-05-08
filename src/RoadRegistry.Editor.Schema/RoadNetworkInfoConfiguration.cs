@@ -13,7 +13,7 @@
                 .HasIndex(p => p.Id)
                 .IsClustered(false);
 
-            b.Property(p => p.Id).ValueGeneratedNever().HasDefaultValue(0).IsRequired();
+            b.Property(p => p.Id).ValueGeneratedNever().HasDefaultValue(RoadNetworkInfo.Identifier).IsRequired();
             b.Property(p => p.CompletedImport).HasDefaultValue(false).IsRequired();
             b.Property(p => p.OrganizationCount).HasDefaultValue(0).IsRequired();
             b.Property(p => p.RoadNodeCount).HasDefaultValue(0).IsRequired();
