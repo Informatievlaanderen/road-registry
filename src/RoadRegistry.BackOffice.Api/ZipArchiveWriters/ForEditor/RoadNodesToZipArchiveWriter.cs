@@ -53,8 +53,8 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                 await dbfEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shpBoundingBox = count > 0 ?
-                (await context.RoadNodeBoundingBox.SingleAsync(cancellationToken)).ToBoundingBox3D()
+            var shpBoundingBox = count > 0
+                ? (await context.RoadNodeBoundingBox.SingleAsync(cancellationToken)).ToBoundingBox3D()
                 : BoundingBox3D.Empty;
 
             var info = await context.RoadNetworkInfo.SingleAsync(cancellationToken);
