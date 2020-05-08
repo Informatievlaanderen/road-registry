@@ -1,4 +1,4 @@
-module Header exposing (HeaderAction, HeaderModel, TabAction, activityBecameActive, downloadBecameActive, homeBecameActive, informationBecameActive, init, uploadBecameActive, viewBanner, viewHeader)
+module Header exposing (HeaderAction, HeaderModel, TabAction, activityBecameActive, downloadForEditorBecameActive, downloadProductBecameActive, homeBecameActive, informationBecameActive, init, uploadBecameActive, viewBanner, viewHeader)
 
 import Html exposing (Html, a, div, h1, header, li, nav, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, id, target)
@@ -32,7 +32,8 @@ init =
     , tabActions =
         [ { title = "Activiteit", link = "/activity.html", active = False }
         , { title = "Informatie", link = "/information.html", active = False }
-        , { title = "Downloaden", link = "/download.html", active = False }
+        , { title = "Download extract", link = "/download-for-editor.html", active = False }
+        , { title = "Download product", link = "/download-product.html", active = False }
         , { title = "Opladen", link = "/upload.html", active = False }
         ]
     }
@@ -47,9 +48,14 @@ activateTitle title tabAction =
         { tabAction | active = False }
 
 
-downloadBecameActive : HeaderModel -> HeaderModel
-downloadBecameActive model =
-    { model | tabActions = List.map (activateTitle "Downloaden") model.tabActions }
+downloadForEditorBecameActive : HeaderModel -> HeaderModel
+downloadForEditorBecameActive model =
+    { model | tabActions = List.map (activateTitle "Download extract") model.tabActions }
+
+
+downloadProductBecameActive : HeaderModel -> HeaderModel
+downloadProductBecameActive model =
+    { model | tabActions = List.map (activateTitle "Download product") model.tabActions }
 
 
 uploadBecameActive : HeaderModel -> HeaderModel
