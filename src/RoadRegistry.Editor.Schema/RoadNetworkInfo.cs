@@ -2,7 +2,9 @@
 {
     public class RoadNetworkInfo
     {
-        public int Id { get; set; } = 0;
+        public const int Identifier = 0;
+
+        public int Id { get; set; } = Identifier;
         public bool CompletedImport { get; set; }
         public int OrganizationCount { get; set; }
         public int RoadNodeCount { get; set; }

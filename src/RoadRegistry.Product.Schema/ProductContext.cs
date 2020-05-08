@@ -1,5 +1,8 @@
 namespace RoadRegistry.Product.Schema
 {
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using GradeSeparatedJunctions;
     using Microsoft.EntityFrameworkCore;
@@ -9,6 +12,8 @@ namespace RoadRegistry.Product.Schema
 
     public class ProductContext : RunnerDbContext<ProductContext>
     {
+        private RoadNetworkInfo _localRoadNetworkInfo;
+
         public override string ProjectionStateSchema => WellknownSchemas.ProductMetaSchema;
 
         public DbSet<RoadNodeRecord> RoadNodes { get; set; }
@@ -25,6 +30,13 @@ namespace RoadRegistry.Product.Schema
 
         public DbSet<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
         public DbSet<RoadSegmentBoundingBox3D> RoadSegmentBoundingBox { get; set; }
+
+        public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken token)
+        {
+            return _localRoadNetworkInfo ??=
+                RoadNetworkInfo.Local.SingleOrDefault() ??
+                await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == Schema.RoadNetworkInfo.Identifier, token);
+        }
 
         public ProductContext() {}
 
