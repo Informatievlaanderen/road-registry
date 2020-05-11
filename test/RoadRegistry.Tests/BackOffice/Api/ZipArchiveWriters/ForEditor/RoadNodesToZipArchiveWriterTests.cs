@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
+﻿namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
 {
     using System;
     using System.IO;
@@ -6,17 +6,17 @@
     using System.Text;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Product.Schema;
-    using Product.Schema.RoadNodes;
+    using Editor.Schema;
+    using Editor.Schema.RoadNodes;
     using RoadRegistry.Framework.Containers;
     using Xunit;
 
     [Collection(nameof(SqlServerCollection))]
-    public class RoadNodeArchiveWriterTests
+    public class RoadNodesToZipArchiveWriterTests
     {
         private readonly SqlServer _fixture;
 
-        public RoadNodeArchiveWriterTests(SqlServer fixture)
+        public RoadNodesToZipArchiveWriterTests(SqlServer fixture)
         {
             _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }
@@ -26,7 +26,7 @@
         {
             var sut = new RoadNodesToZipArchiveWriter(_fixture.MemoryStreamManager,  Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
-                () => sut.WriteAsync(null, new ProductContext(), default));
+                () => sut.WriteAsync(null, new EditorContext(), default));
         }
 
         [Fact]
@@ -49,7 +49,7 @@
             var sut = new RoadNodesToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
 
             var db = await _fixture.CreateDatabaseAsync();
-            var context = await _fixture.CreateProductContextAsync(db);
+            var context = await _fixture.CreateEditorContextAsync(db);
             await context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo
             {
                 CompletedImport = true,
@@ -57,7 +57,7 @@
             });
             await context.SaveChangesAsync();
 
-            await new ZipArchiveScenario<ProductContext>(_fixture, sut)
+            await new ZipArchiveScenario<EditorContext>(_fixture, sut)
                 .WithContext(context)
                 .Assert(readArchive =>
                 {
