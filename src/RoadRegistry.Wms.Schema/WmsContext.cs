@@ -2,10 +2,13 @@ namespace RoadRegistry.Wms.Schema
 {
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Microsoft.EntityFrameworkCore;
+    using RoadSegmentDenorm;
 
     public class WmsContext : RunnerDbContext<WmsContext>
     {
         public override string ProjectionStateSchema => WellknownSchemas.WmsMetaSchema;
+
+        public DbSet<RoadSegmentDenormRecord> RoadSegments { get; set; }
 
         public WmsContext() {}
 
