@@ -44,11 +44,6 @@
 
             var db = await _fixture.CreateDatabaseAsync();
             var context = await _fixture.CreateEditorContextAsync(db);
-            await context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo
-            {
-                CompletedImport = true,
-                TotalRoadNodeShapeLength = 0,
-            });
             await context.SaveChangesAsync();
 
             await new ZipArchiveScenario<EditorContext>(_fixture, sut)
