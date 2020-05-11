@@ -1,4 +1,4 @@
-namespace RoadRegistry.Editor.ProjectionHost.Configuration
+namespace RoadRegistry.Wms.ProjectionHost.Configuration
 {
     using System;
     using System.Collections.Generic;

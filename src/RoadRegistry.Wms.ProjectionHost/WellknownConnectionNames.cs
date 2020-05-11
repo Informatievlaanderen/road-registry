@@ -1,9 +1,9 @@
-namespace RoadRegistry.Editor.ProjectionHost
+namespace RoadRegistry.Wms.ProjectionHost
 {
     internal static class WellknownConnectionNames
     {
-        public const string EditorProjections = "EditorProjections";
-        public const string EditorProjectionsAdmin = "EditorProjectionsAdmin";
+        public const string WmsProjections = "WmsProjections";
+        public const string WmsProjectionsAdmin = "WmsProjectionsAdmin";
         public const string Events = "Events";
     }
 }

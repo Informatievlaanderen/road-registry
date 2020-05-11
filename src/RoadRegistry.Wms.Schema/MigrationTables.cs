@@ -1,7 +1,7 @@
-namespace RoadRegistry.Editor.Schema
+namespace RoadRegistry.Wms.Schema
 {
     public class MigrationTables
     {
-        public const string Editor = "__EFMigrationsHistoryEditor";
+        public const string Wms = "__EFMigrationsHistoryWms";
     }
 }
