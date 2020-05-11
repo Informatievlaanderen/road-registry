@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Editor.ProjectionHost
+﻿namespace RoadRegistry.Wms.ProjectionHost
 {
     using System;
     using System.IO;
@@ -37,7 +37,7 @@
 
         public static async Task Main(string[] args)
         {
-            Console.WriteLine("Starting RoadRegistry.Editor.ProjectionHost");
+            Console.WriteLine("Starting RoadRegistry.Wms.ProjectionHost");
 
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
                 Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
@@ -173,39 +173,28 @@
                             new EventDeserializer((eventData, eventType) =>
                                 JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
                         )
-                        .AddSingleton<Func<EditorContext>>(
+                        .AddSingleton<Func<WmsContext>>(
                             () =>
-                                new EditorContext(
-                                    new DbContextOptionsBuilder<EditorContext>()
+                                new WmsContext(
+                                    new DbContextOptionsBuilder<WmsContext>()
                                         .UseSqlServer(
-                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.EditorProjections),
+                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.WmsProjections),
                                             options => options.EnableRetryOnFailure()
                                         ).Options)
                         )
-                        .AddSingleton(sp => new ConnectedProjection<EditorContext>[]
+                        .AddSingleton(sp => new ConnectedProjection<WmsContext>[]
                         {
-                            new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                            new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                            new RoadNetworkChangeFeedProjection(sp.GetRequiredService<IBlobClient>()),
-                            new RoadNetworkInfoProjection(),
-                            new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                            new RoadSegmentEuropeanRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                            new RoadSegmentLaneAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                            new RoadSegmentNationalRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                            new RoadSegmentNumberedRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                            new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                            new RoadSegmentSurfaceAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                            new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding)
+                            // add projections
                         })
                         .AddSingleton(sp =>
                             Resolve
                                 .WhenEqualToHandlerMessageType(
-                            sp.GetRequiredService<ConnectedProjection<EditorContext>[]>()
+                            sp.GetRequiredService<ConnectedProjection<WmsContext>[]>()
                                     .SelectMany(projection => projection.Handlers)
                                     .ToArray()
                                 )
                         )
-                        .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<EditorContext>[]>(), EventProcessor.EventMapping))
+                        .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<WmsContext>[]>(), EventProcessor.EventMapping))
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStore(
                                 new MsSqlStreamStoreSettings(
@@ -213,7 +202,7 @@
                                         .GetService<IConfiguration>()
                                         .GetConnectionString(WellknownConnectionNames.Events)
                                 ) {Schema = WellknownSchemas.EventSchema}))
-                        .AddSingleton<IRunnerDbContextMigratorFactory>(new EditorContextMigrationFactory());
+                        .AddSingleton<IRunnerDbContextMigratorFactory>(new WmsContextMigrationFactory());
                 })
                 .Build();
 
@@ -230,8 +219,8 @@
                 await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
 
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
-                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EditorProjections);
-                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EditorProjectionsAdmin);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.WmsProjections);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.WmsProjectionsAdmin);
                 logger.LogBlobClientCredentials(blobClientOptions);
 
                 await DistributedLock<Program>.RunAsync(async () =>

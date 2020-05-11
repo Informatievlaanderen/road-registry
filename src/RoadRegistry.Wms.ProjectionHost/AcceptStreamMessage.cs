@@ -1,4 +1,4 @@
-namespace RoadRegistry.Editor.ProjectionHost
+namespace RoadRegistry.Wms.ProjectionHost
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -9,7 +9,7 @@ namespace RoadRegistry.Editor.ProjectionHost
 
     public static class AcceptStreamMessage
     {
-        public static AcceptStreamMessageFilter WhenEqualToMessageType(ConnectedProjection<EditorContext>[] projections, EventMapping mapping)
+        public static AcceptStreamMessageFilter WhenEqualToMessageType(ConnectedProjection<WmsContext>[] projections, EventMapping mapping)
         {
             var acceptableEventNames = new HashSet<string>(
                 projections

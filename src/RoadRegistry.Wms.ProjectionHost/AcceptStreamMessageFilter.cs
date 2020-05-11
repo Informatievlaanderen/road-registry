@@ -1,4 +1,4 @@
-namespace RoadRegistry.Editor.ProjectionHost
+namespace RoadRegistry.Wms.ProjectionHost
 {
     using SqlStreamStore.Streams;
 

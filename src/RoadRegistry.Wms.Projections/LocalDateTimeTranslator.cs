@@ -1,4 +1,4 @@
-namespace RoadRegistry.Editor.Projections
+namespace RoadRegistry.Wms.Projections
 {
     using System;
     using NodaTime;

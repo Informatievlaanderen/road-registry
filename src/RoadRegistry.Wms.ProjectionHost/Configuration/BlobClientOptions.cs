@@ -1,4 +1,4 @@
-namespace RoadRegistry.Editor.ProjectionHost.Configuration
+namespace RoadRegistry.Wms.ProjectionHost.Configuration
 {
     public class BlobClientOptions
     {
