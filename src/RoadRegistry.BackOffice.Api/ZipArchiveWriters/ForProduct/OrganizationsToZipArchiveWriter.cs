@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
                 new DbaseRecordCount(await context.Organizations.CountAsync(cancellationToken) + Organization.PredefinedTranslations.All.Length),
                 OrganizationDbaseRecord.Schema
             );
-            using (var dbfEntryStream = dbfEntry.Open())
+            await using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
                 new DbaseBinaryWriter(
                     dbfHeader,

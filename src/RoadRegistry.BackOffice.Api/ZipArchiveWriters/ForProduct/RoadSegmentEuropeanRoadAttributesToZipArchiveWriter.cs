@@ -38,7 +38,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
                 new DbaseRecordCount(count),
                 RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema
             );
-            using (var dbfEntryStream = dbfEntry.Open())
+            await using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
                 new DbaseBinaryWriter(
                     dbfHeader,

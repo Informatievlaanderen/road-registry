@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
                 new DbaseRecordCount(count),
                 RoadNodeDbaseRecord.Schema
             );
-            using (var dbfEntryStream = dbfEntry.Open())
+            await using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
                 new DbaseBinaryWriter(
                     dbfHeader,
@@ -64,7 +64,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
                 new WordLength(info.TotalRoadNodeShapeLength),
                 ShapeType.Point,
                 shpBoundingBox);
-            using (var shpEntryStream = shpEntry.Open())
+            await using (var shpEntryStream = shpEntry.Open())
             using (var shpWriter =
                 new ShapeBinaryWriter(
                     shpHeader,
@@ -86,7 +86,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
 
             var shxEntry = archive.CreateEntry("Wegknoop.shx");
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(count));
-            using (var shxEntryStream = shxEntry.Open())
+            await using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =
                 new ShapeIndexBinaryWriter(
                     shxHeader,

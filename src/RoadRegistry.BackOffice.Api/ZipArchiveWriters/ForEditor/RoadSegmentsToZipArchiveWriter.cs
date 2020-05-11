@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                 new DbaseRecordCount(count),
                 RoadSegmentDbaseRecord.Schema
             );
-            using (var dbfEntryStream = dbfEntry.Open())
+            await using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
                 new DbaseBinaryWriter(
                     dbfHeader,
@@ -64,7 +64,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                 new WordLength(info.TotalRoadSegmentShapeLength),
                 ShapeType.PolyLineM,
                 shpBoundingBox);
-            using (var shpEntryStream = shpEntry.Open())
+            await using (var shpEntryStream = shpEntry.Open())
             using (var shpWriter =
                 new ShapeBinaryWriter(
                     shpHeader,
@@ -86,7 +86,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
 
             var shxEntry = archive.CreateEntry("Wegsegment.shx");
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(count));
-            using (var shxEntryStream = shxEntry.Open())
+            await using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =
                 new ShapeIndexBinaryWriter(
                     shxHeader,
