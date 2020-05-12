@@ -85,84 +85,6 @@
                 })
                 .ConfigureServices((hostContext, builder) =>
                 {
-                    var blobOptions = new BlobClientOptions();
-                    hostContext.Configuration.Bind(blobOptions);
-
-                    switch (blobOptions.BlobClientType)
-                    {
-                        case nameof(S3BlobClient):
-                            var s3Options = new S3BlobClientOptions();
-                            hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
-
-                            // Use MINIO
-                            if (hostContext.Configuration.GetValue<string>("MINIO_SERVER") != null)
-                            {
-                                if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null)
-                                {
-                                    throw new Exception("The MINIO_ACCESS_KEY configuration variable was not set.");
-                                }
-
-                                if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null)
-                                {
-                                    throw new Exception("The MINIO_SECRET_KEY configuration variable was not set.");
-                                }
-
-                                builder.AddSingleton(new AmazonS3Client(
-                                        new BasicAWSCredentials(
-                                            hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY"),
-                                            hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY")),
-                                        new AmazonS3Config
-                                        {
-                                            RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                                            ServiceURL = hostContext.Configuration.GetValue<string>("MINIO_SERVER"),
-                                            ForcePathStyle = true
-                                        }
-                                    )
-                                );
-                            }
-                            else // Use AWS
-                            {
-                                if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null)
-                                {
-                                    throw new Exception("The AWS_ACCESS_KEY_ID configuration variable was not set.");
-                                }
-
-                                if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null)
-                                {
-                                    throw new Exception("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
-                                }
-
-                                builder.AddSingleton(new AmazonS3Client(
-                                        new BasicAWSCredentials(
-                                            hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID"),
-                                            hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY"))
-                                    )
-                                );
-                            }
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new S3BlobClient(
-                                    sp.GetService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )
-                            );
-
-                            break;
-
-                        case nameof(FileBlobClient):
-                            var fileOptions = new FileBlobClientOptions();
-                            hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
-
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new FileBlobClient(
-                                    new DirectoryInfo(fileOptions.Directory)
-                                )
-                            );
-                            break;
-
-                        default:
-                            throw new Exception(blobOptions.BlobClientType + " is not a supported blob client type.");
-                    }
-
                     builder
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
@@ -211,8 +133,6 @@
             var streamStore = host.Services.GetRequiredService<IStreamStore>();
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
             var logger = host.Services.GetRequiredService<ILogger<Program>>();
-            var blobClientOptions = new BlobClientOptions();
-            configuration.Bind(blobClientOptions);
 
             try
             {
@@ -221,7 +141,6 @@
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.WmsProjections);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.WmsProjectionsAdmin);
-                logger.LogBlobClientCredentials(blobClientOptions);
 
                 await DistributedLock<Program>.RunAsync(async () =>
                     {
