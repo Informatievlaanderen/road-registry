@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                 new DbaseRecordCount(count),
                 RoadNodeDbaseRecord.Schema
             );
-            using (var dbfEntryStream = dbfEntry.Open())
+            await using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
                 new DbaseBinaryWriter(
                     dbfHeader,
@@ -53,9 +53,10 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                 await dbfEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shpBoundingBox =
-                (await context.RoadNodeBoundingBox.SingleOrDefaultAsync(cancellationToken))?.ToBoundingBox3D()
-                ?? new BoundingBox3D(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            var shpBoundingBox = count > 0
+                ? (await context.RoadNodeBoundingBox.SingleAsync(cancellationToken)).ToBoundingBox3D()
+                : BoundingBox3D.Empty;
+
             var info = await context.RoadNetworkInfo.SingleAsync(cancellationToken);
 
             var shpEntry = archive.CreateEntry("Wegknoop.shp");
@@ -63,7 +64,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                 new WordLength(info.TotalRoadNodeShapeLength),
                 ShapeType.Point,
                 shpBoundingBox);
-            using (var shpEntryStream = shpEntry.Open())
+            await using (var shpEntryStream = shpEntry.Open())
             using (var shpWriter =
                 new ShapeBinaryWriter(
                     shpHeader,
@@ -85,7 +86,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
 
             var shxEntry = archive.CreateEntry("Wegknoop.shx");
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(count));
-            using (var shxEntryStream = shxEntry.Open())
+            await using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =
                 new ShapeIndexBinaryWriter(
                     shxHeader,
