@@ -50,7 +50,7 @@ namespace RoadRegistry.Wms.Projections
         }
 
         [Fact]
-        public Task ImportedRoadNodeExample()
+        public Task ImportedRoadNodeExample_904()
         {
             var json = File.ReadAllText("Wms/Projections/TestData/importedRoadSegment.904.json");
 
@@ -108,15 +108,67 @@ namespace RoadRegistry.Wms.Projections
                     EndRoadNodeId = 125446,
                 });
         }
-    }
 
-    public static class Hextensions
-    {
-        public static byte[] StringToByteArray(string hex) {
-            return Enumerable.Range(0, hex.Length)
-                .Where(x => x % 2 == 0)
-                .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
-                .ToArray();
+        [Fact]
+        public Task ImportedRoadNodeExample_458()
+        {
+            var json = File.ReadAllText("Wms/Projections/TestData/importedRoadSegment.458.json");
+
+            var importedRoadSegment = JsonConvert.DeserializeObject<ImportedRoadSegment>(json);
+
+            return new RoadSegmentRecordProjection(Encoding.UTF8)
+                .Scenario()
+                .Given(importedRoadSegment)
+                .Expect(new RoadSegmentDenormRecord
+                {
+                    Id = 458,
+                    BeginOperator = "",
+                    BeginOrganization = "AGIV",
+                    BeginTime = DateTime.Parse("2016-01-15 17:11:08.000"),
+                    BeginApplication = "Wegenregister-BLL",
+
+                    Maintainer = "73109",
+                    MaintainerLabel = "Gemeente Voeren",
+
+                    Method = 2,
+                    MethodLabel = "ingemeten",
+
+                    Category = "-8",
+                    CategoryLabel = "niet gekend",
+
+                    Geometry = null,
+                    Geometry2D = null,
+                    GeometryVersion = 2,
+
+                    Morphology = 114,
+                    MorphologyLabel = "wandel- of fietsweg, niet toegankelijk voor andere voertuigen",
+
+                    Status = 4,
+                    StatusLabel = "in gebruik",
+
+                    AccessRestriction = 1,
+                    AccessRestrictionLabel = "openbare weg",
+
+                    OrganizationLabel = "Agentschap voor Geografische Informatie Vlaanderen",
+                    RecordingDate = DateTime.Parse("2016-01-15 15:20:07.000"),
+
+                    SourceId = null,
+                    SourceIdSource = null,
+
+                    TransactionId = 359,
+
+                    LeftSideMunicipality = 507,
+                    LeftSideStreetNameId = 123904,
+                    LeftSideStreetNameLabel = "Mot                                                                                                                             ",
+
+                    RightSideMunicipality = 507,
+                    RightSideStreetNameId = 123904,
+                    RightSideStreetNameLabel = "Mot                                                                                                                             ",
+
+                    RoadSegmentVersion = 2,
+                    BeginRoadNodeId = 764900,
+                    EndRoadNodeId = 916,
+                });
         }
     }
 }
