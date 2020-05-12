@@ -202,7 +202,7 @@ services:
       - editor-projection-host
       - minio
     ports:
-      - "5020:10000"
+      - "5020:10002"
     environment:
       ASPNETCORE_ENVIRONMENT: Staging
       SERILOG__WRITETO__0__NAME: "Seq"

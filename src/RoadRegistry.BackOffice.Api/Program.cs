@@ -63,7 +63,7 @@ namespace RoadRegistry.BackOffice.Api
                     {
                         Hosting =
                         {
-                            HttpPort = 10000
+                            HttpPort = 10002
                         },
                         Logging =
                         {
