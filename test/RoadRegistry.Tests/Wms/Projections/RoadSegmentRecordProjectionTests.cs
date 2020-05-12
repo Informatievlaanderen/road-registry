@@ -1,6 +1,7 @@
 namespace RoadRegistry.Wms.Projections
 {
     using System;
+    using System.IO;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace RoadRegistry.Wms.Projections
     using BackOffice;
     using BackOffice.Messages;
     using Framework.Projections;
+    using Newtonsoft.Json;
     using Schema.RoadSegmentDenorm;
     using RoadRegistry.Projections;
     using Xunit;
@@ -48,24 +50,73 @@ namespace RoadRegistry.Wms.Projections
         }
 
         [Fact]
-        public Task When_road_segments_are_imported()
+        public Task ImportedRoadNodeExample()
         {
-            var random = new Random();
-            var data = _fixture
-                .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
-                .Select(importedRoadSegment =>
-                {
-                    var expected = new RoadSegmentDenormRecord
-                    {
-                        Id = importedRoadSegment.Id,
-                    };
-                    return new { importedRoadSegment, expected};
-                }).ToList();
+            var json = File.ReadAllText("Wms/Projections/TestData/importedRoadSegment.904.json");
+
+            var importedRoadSegment = JsonConvert.DeserializeObject<ImportedRoadSegment>(json);
 
             return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
-                .Given(data.Select(d => d.importedRoadSegment))
-                .Expect(data.Select(d => d.expected));
+                .Given(importedRoadSegment)
+                .Expect(new RoadSegmentDenormRecord
+                {
+                    Id = 904,
+                    BeginOperator = "-8",
+                    BeginOrganization = "AGIV",
+                    BeginTime = DateTime.Parse("2014-02-20 14:35:32.000"),
+                    BeginApplication = "-8",
+
+                    Maintainer = "13003",
+                    MaintainerLabel = "Gemeente Balen",
+
+                    Method = 2,
+                    MethodLabel = "ingemeten",
+
+                    Category = "-8",
+                    CategoryLabel = "niet gekend",
+
+                    Geometry = null,
+                    Geometry2D = null,
+                    GeometryVersion = 1,
+
+                    Morphology = 114,
+                    MorphologyLabel = "wandel- of fietsweg, niet toegankelijk voor andere voertuigen",
+
+                    Status = 4,
+                    StatusLabel = "in gebruik",
+
+                    AccessRestriction = 1,
+                    AccessRestrictionLabel = "openbare weg",
+
+                    OrganizationLabel = "Agentschap voor Geografische Informatie Vlaanderen",
+                    RecordingDate = DateTime.Parse("2014-02-20 14:35:32.237"),
+                    SourceId = null,
+                    TransactionId = 0,
+
+                    LeftSideMunicipality = 46,
+                    LeftSideStreetNameId = -9,
+                    LeftSideStreetNameLabel = null,
+
+                    RightSideMunicipality = 46,
+                    RightSideStreetNameId = -9,
+                    RightSideStreetNameLabel = null,
+
+                    RoadSegmentVersion = 1,
+                    SourceIdSource = null,
+                    BeginRoadNodeId = 800780,
+                    EndRoadNodeId = 125446,
+                });
+        }
+    }
+
+    public static class Hextensions
+    {
+        public static byte[] StringToByteArray(string hex) {
+            return Enumerable.Range(0, hex.Length)
+                .Where(x => x % 2 == 0)
+                .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                .ToArray();
         }
     }
 }
