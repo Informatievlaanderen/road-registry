@@ -69,7 +69,7 @@ init url =
             }
       }
     , Http.get
-        { url = String.concat [ url, "/v1/information" ]
+        { url = if String.endsWith "/" url then String.concat [ url, "v1/information" ] else String.concat [ url, "/v1/information" ]
         , expect = Http.expectJson GotInformation informationDecoder
         }
     )

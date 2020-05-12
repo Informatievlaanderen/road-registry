@@ -250,7 +250,7 @@ init url =
             }
       }
     , Http.get
-        { url = String.concat [ url, "/v1/changefeed" ]
+        { url = if String.endsWith "/" url then String.concat [ url, "v1/changefeed" ] else String.concat [ url, "/v1/changefeed" ]
         , expect = Http.expectJson GotActivity decodeResponse
         }
     )
