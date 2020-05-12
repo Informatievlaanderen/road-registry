@@ -237,7 +237,7 @@ init : String -> ( Model, Cmd Msg )
 init url =
     ( { header = Header.init |> Header.activityBecameActive
       , activity =
-            { feedUrl = String.concat [ url, "/v1/changefeed" ]
+            { feedUrl = if String.endsWith "/" url then String.concat [ url, "v1/changefeed" ] else String.concat [ url, "/v1/changefeed" ]
             , archiveUrl = String.concat [ url, "/v1/upload/"]
             , entries = []
             }
