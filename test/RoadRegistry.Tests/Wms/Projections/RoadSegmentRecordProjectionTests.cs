@@ -56,7 +56,7 @@ namespace RoadRegistry.Wms.Projections
 
             var importedRoadSegment = JsonConvert.DeserializeObject<ImportedRoadSegment>(json);
 
-            return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            return new RoadSegmentRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new RoadSegmentDenormRecord

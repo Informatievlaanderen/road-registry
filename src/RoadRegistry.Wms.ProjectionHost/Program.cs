@@ -106,7 +106,7 @@
                         )
                         .AddSingleton(sp => new ConnectedProjection<WmsContext>[]
                         {
-                            new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding)
+                            new RoadSegmentRecordProjection(WindowsAnsiEncoding)
                         })
                         .AddSingleton(sp =>
                             Resolve
