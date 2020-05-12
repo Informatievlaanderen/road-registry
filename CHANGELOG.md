@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/informatievlaanderen/road-registry/compare/v1.7.0...v1.8.0) (2020-05-12)
+
+
+### Features
+
+* fix url slash and move api port ([#31](https://github.com/informatievlaanderen/road-registry/issues/31)) ([94034e8](https://github.com/informatievlaanderen/road-registry/commit/94034e8aba54ab63b8dee16845a9b0715adfe3cf))
+
 # [1.7.0](https://github.com/informatievlaanderen/road-registry/compare/v1.6.0...v1.7.0) (2020-05-12)
 
 
