@@ -1,3 +1,26 @@
+# [1.6.0](https://github.com/informatievlaanderen/road-registry/compare/v1.5.1...v1.6.0) (2020-05-12)
+
+
+### Bug Fixes
+
+* disable retryOnFailure ([#27](https://github.com/informatievlaanderen/road-registry/issues/27)) ([886b0c9](https://github.com/informatievlaanderen/road-registry/commit/886b0c922e157399585454de506a70641887e60e))
+* remove leading slash for routes ([#25](https://github.com/informatievlaanderen/road-registry/issues/25)) ([afa5efa](https://github.com/informatievlaanderen/road-registry/commit/afa5efa39ec93c77ee8ef60a59f69bbf206fb70b))
+
+
+### Features
+
+* await IAsyncDisposable for streams in ZipArchiveWriters ([8c36f97](https://github.com/informatievlaanderen/road-registry/commit/8c36f973a312b1b00600b4f0094b4fe89f8f7abc))
+* download product ([#23](https://github.com/informatievlaanderen/road-registry/issues/23)) ([01376c7](https://github.com/informatievlaanderen/road-registry/commit/01376c74d8cf3d93f09b619e14f2b15aa8bceadf))
+* handle writing RoadNodes with an empty road network ([5453bf5](https://github.com/informatievlaanderen/road-registry/commit/5453bf5a3fb23ffa4ce0a2db932ba38a7aa5f72f))
+* handle writing RoadNodes with an empty road network for product ([d09ecc2](https://github.com/informatievlaanderen/road-registry/commit/d09ecc2c5b63acd6f9d27be8d4c774156ab3037f))
+* handle writing RoadSegments with an empty road network ([d579ee0](https://github.com/informatievlaanderen/road-registry/commit/d579ee0886944829ae090dd5b90858d6aff5727d))
+* product download via api ([#18](https://github.com/informatievlaanderen/road-registry/issues/18)) ([0732ceb](https://github.com/informatievlaanderen/road-registry/commit/0732cebd120c607417632dc7171376150fbd40aa))
+
+
+### Performance Improvements
+
+* improve projection performance ([#28](https://github.com/informatievlaanderen/road-registry/issues/28)) ([7415ca0](https://github.com/informatievlaanderen/road-registry/commit/7415ca025b6cb3249dc7ed020edd2c8d80386f63))
+
 ## [1.5.1](https://github.com/informatievlaanderen/road-registry/compare/v1.5.0...v1.5.1) (2020-05-05)
 
 
