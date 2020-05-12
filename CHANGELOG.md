@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/informatievlaanderen/road-registry/compare/v1.6.0...v1.7.0) (2020-05-12)
+
+
+### Features
+
+* ui now deals with trailing slashes ([#30](https://github.com/informatievlaanderen/road-registry/issues/30)) ([42dc701](https://github.com/informatievlaanderen/road-registry/commit/42dc701f6d16165b8d1576cee06648269f10ceb0))
+
 # [1.6.0](https://github.com/informatievlaanderen/road-registry/compare/v1.5.1...v1.6.0) (2020-05-12)
 
 
