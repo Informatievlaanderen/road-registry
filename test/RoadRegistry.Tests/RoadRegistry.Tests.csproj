@@ -30,7 +30,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Content Include="Wms\Projections\TestData\*.json">
+    <Content Include="Wms\Projections\TestData\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

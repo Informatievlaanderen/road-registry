@@ -18,3 +18,5 @@ xunit.runner.visualstudio
 xunit.categories
 
 SqlStreamStore.MsSql
+dotMorten.Microsoft.SqlServer.Types
+Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite

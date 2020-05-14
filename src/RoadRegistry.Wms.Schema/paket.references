@@ -8,3 +8,6 @@ Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
+
+Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+dotMorten.Microsoft.SqlServer.Types

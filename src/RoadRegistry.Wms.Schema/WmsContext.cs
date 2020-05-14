@@ -8,7 +8,8 @@ namespace RoadRegistry.Wms.Schema
     {
         public override string ProjectionStateSchema => WellknownSchemas.WmsMetaSchema;
 
-        public DbSet<RoadSegmentDenormRecord> RoadSegments { get; set; }
+        // public DbSet<RoadSegmentDenormRecord> RoadSegments { get; set; }
+        public DbSet<RoadSegmentDenormTestRecord> RoadSegmentTests { get; set; }
 
         public WmsContext() {}
 
