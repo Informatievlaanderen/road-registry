@@ -17,7 +17,8 @@ namespace RoadRegistry.Wms.ProjectionHost
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using SqlStreamStore.Subscriptions;
-
+    using System.Data.SqlClient;
+    
     public class EventProcessor : IHostedService
     {
         private const string RoadRegistryWmsProjectionHost = "roadregistry-wms-projectionhost";

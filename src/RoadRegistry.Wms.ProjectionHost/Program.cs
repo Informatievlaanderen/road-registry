@@ -30,6 +30,7 @@
     using Schema;
     using Serilog;
     using SqlStreamStore;
+    using Microsoft.Data.SqlClient;
 
     public class Program
     {
@@ -145,8 +146,14 @@
                 await DistributedLock<Program>.RunAsync(async () =>
                     {
                         await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
-                        await migratorFactory.CreateMigrator(configuration, loggerFactory)
-                            .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+                        using(var connection = new SqlConnection(configuration.GetConnectionString(WellknownConnectionNames.WmsProjectionsAdmin)))
+                        {
+                            await connection.OpenAsync();
+                            await RoadSegmentRecordProjection2.CreateSchemaIfNotExists(connection);
+                            await connection.CloseAsync();
+                        }
+                        // await migratorFactory.CreateMigrator(configuration, loggerFactory)
+                        //     .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
                         await host.RunAsync().ConfigureAwait(false);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),

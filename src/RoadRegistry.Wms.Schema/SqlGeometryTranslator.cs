@@ -27,6 +27,27 @@ namespace RoadRegistry.Wms.Schema
         private const SerializationProps Geometry2DSerializationProps =
             SerializationProps.IsValid;
 
+        public static byte[] TranslateToSqlGeometry(RoadSegmentGeometry geometry)
+        {
+            var builder = new SqlGeometryBuilder();
+            builder.SetSrid(Lambert1972Srid);
+            builder.BeginGeometry(OpenGisGeometryType.LineString);
+
+            var lineString = geometry.MultiLineString[0];
+
+            builder.BeginFigure(lineString.Points[0].X, lineString.Points[0].Y, 0, lineString.Measures[0]);
+            for (int i = 1; i < geometry.MultiLineString[0].Points.Length; i++)
+            {
+                builder.AddLine(lineString.Points[i].X, lineString.Points[i].Y, 0, lineString.Measures[i]);
+            }
+
+            builder.EndFigure();
+            builder.EndGeometry();
+            var buffer = builder.ConstructedGeometry.Serialize().Buffer;
+            buffer[5] =  (byte) GeometrySerializationProps;
+            return buffer;
+        }
+
         public static SqlGeometry TranslateGeometry(ImportedRoadSegment importedRoadSegment)
         {
             var sqlGeometry = BuildGeometry(importedRoadSegment);

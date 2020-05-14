@@ -9,6 +9,57 @@ namespace RoadRegistry.Wms.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Schema;
     using Schema.RoadSegmentDenorm;
+    using Projac.Sql;
+    using Projac.SqlClient;
+    using System.Data;
+    using Microsoft.Data.SqlClient;
+    using System.Threading.Tasks;
+
+    public class RoadSegmentRecordProjection2 : SqlProjection
+    {
+        private static readonly SqlClientSyntax TSql = new SqlClientSyntax();
+
+        public RoadSegmentRecordProjection2()
+        {
+            When<Envelope<ImportedRoadSegment>>(envelope =>
+            {
+                return TSql.NonQueryStatement(
+                    "INSERT INTO [RoadRegistryWms].[RoadSegmentDenormRecord] ([Id], [Geometry]) VALUES (@P0, @P1)",
+                    new {
+                        P1 = TSql.Int(envelope.Message.Id),
+                        P2 = TSql.VarBinaryMax(SqlGeometryTranslator.TranslateToSqlGeometry(envelope.Message.Geometry))
+                    });
+            });
+        }
+
+        //TODO: This method could be called like you would do for migrations, in Program.cs, using a sql connection that can do DDL.
+        public static async Task CreateSchemaIfNotExists(SqlConnection connection)
+        {
+            var text = $@"
+                IF NOT EXISTS (SELECT * FROM SYS.SCHEMAS WHERE [Name] = '{WellknownSchemas.WmsSchema}')
+                BEGIN
+                    EXEC('CREATE SCHEMA [{WellknownSchemas.WmsSchema}] AUTHORIZATION [dbo]')
+                END
+                IF NOT EXISTS (SELECT * FROM SYS.OBJECTS WHERE [Name] = 'RoadSegmentDenormRecord' AND [Type] = 'U' AND [Schema_ID] = SCHEMA_ID('{WellknownSchemas.WmsSchema}'))
+                BEGIN
+                    CREATE TABLE [{WellknownSchemas.WmsSchema}].[RoadSegmentDenormRecord]
+                    (
+                        [Id]                                       INT                NOT NULL,
+                        [Geometry]                                 GEOMETRY           NOT NULL,
+                        CONSTRAINT [PK_RoadSegmentDenormRecord]    PRIMARY KEY        NONCLUSTERED ([Id])
+                    )
+                END";
+
+            using(var command = connection.CreateCommand())
+            {
+                command.CommandText = text;
+                command.CommandType = CommandType.Text;
+                command.CommandTimeout = 30; // point of configuration, maybe
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+    }
+
 
     public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
     {
