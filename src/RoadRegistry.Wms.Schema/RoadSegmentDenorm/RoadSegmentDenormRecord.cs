@@ -1,7 +1,12 @@
 namespace RoadRegistry.Wms.Schema.RoadSegmentDenorm
 {
     using System;
+    using System.Data.SqlTypes;
+    using System.Text.Json.Serialization;
+    using Microsoft.Data.SqlClient.Server;
+    using Microsoft.SqlServer.Types;
     using NetTopologySuite.Geometries;
+    using Newtonsoft.Json;
 
     public class RoadSegmentDenormRecord
     {
@@ -67,5 +72,15 @@ namespace RoadRegistry.Wms.Schema.RoadSegmentDenorm
         public string MaintainerLabel { get; set; }
 
         public Geometry Geometry2D { get; set; }
+
+        public byte[] GeometryAsByte { get; set; }
     }
+
+    public class RoadSegmentDenormTestRecord
+    {
+        public int Id { get; set; }
+
+        public SqlBytes Geometrie { get; set; }
+    }
+
 }

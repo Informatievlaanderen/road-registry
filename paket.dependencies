@@ -8,6 +8,8 @@ source https://api.nuget.org/v3/index.json
 // source https://informatievlaanderen.myget.org/F/nuget-mirror/api/v3/index.json username: "%MYGET_FEED_USER%" password: "%MYGET_FEED_PASS%" authtype: "basic"
 
 // PRODUCTION STUFF
+nuget dotMorten.Microsoft.SqlServer.Types 1.1.0
+nuget Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite 3.1.2
 nuget Microsoft.Extensions.Configuration 3.1.2
 nuget Microsoft.Extensions.Configuration.CommandLine 3.1.2
 nuget Microsoft.Extensions.Configuration.FileExtensions 3.1.2
@@ -19,6 +21,7 @@ nuget Microsoft.Extensions.Logging 3.1.2
 nuget Microsoft.Extensions.Options.ConfigurationExtensions 3.1.2
 
 nuget Microsoft.Extensions.Http.Polly 3.1.2
+nuget Microsoft.SqlServer.Types 14.0.1016.290
 nuget Polly 7.2.0
 
 // For more healtchecks, look at https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks

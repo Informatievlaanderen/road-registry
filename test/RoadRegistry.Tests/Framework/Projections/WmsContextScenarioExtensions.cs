@@ -109,7 +109,7 @@ namespace RoadRegistry.Framework.Projections
         private static async Task<object[]> AllRecords(this WmsContext context)
         {
             var records = new List<object>();
-            records.AddRange(await context.RoadSegments.ToArrayAsync());
+            // records.AddRange(await context.RoadSegments.ToArrayAsync());
             return records.ToArray();
         }
 
