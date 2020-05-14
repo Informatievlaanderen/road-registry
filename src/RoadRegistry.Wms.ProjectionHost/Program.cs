@@ -31,7 +31,8 @@
     using Serilog;
     using SqlStreamStore;
     using Microsoft.Data.SqlClient;
-
+    using Projac.Sql;
+    using Projac.SqlClient;
     public class Program
     {
         private static readonly Encoding WindowsAnsiEncoding = Encoding.GetEncoding(1252);

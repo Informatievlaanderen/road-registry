@@ -6,19 +6,20 @@ namespace RoadRegistry.Wms.ProjectionHost
     using System.Threading.Tasks;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.EventHandling;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
-    using Schema;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using SqlStreamStore.Subscriptions;
     using System.Data.SqlClient;
-    
+    using System.Collections.Generic;
+    using Projac.Sql;
+    using Projac.Sql.Executors;
+    using Projac.SqlClient;
+
     public class EventProcessor : IHostedService
     {
         private const string RoadRegistryWmsProjectionHost = "roadregistry-wms-projectionhost";
@@ -45,8 +46,8 @@ namespace RoadRegistry.Wms.ProjectionHost
             IStreamStore streamStore,
             AcceptStreamMessageFilter filter,
             EnvelopeFactory envelopeFactory,
-            ConnectedProjectionHandlerResolver<WmsContext> resolver,
-            Func<WmsContext> dbContextFactory,
+            SqlProjectionHandlerResolver resolver,
+            Func<SqlConnection> sqlConnectionFactory,
             Scheduler scheduler,
             ILogger<EventProcessor> logger)
         {
@@ -54,7 +55,7 @@ namespace RoadRegistry.Wms.ProjectionHost
             if (filter == null) throw new ArgumentNullException(nameof(filter));
             if (envelopeFactory == null) throw new ArgumentNullException(nameof(envelopeFactory));
             if (resolver == null) throw new ArgumentNullException(nameof(resolver));
-            if (dbContextFactory == null) throw new ArgumentNullException(nameof(dbContextFactory));
+            if (sqlConnectionFactory == null) throw new ArgumentNullException(nameof(sqlConnectionFactory));
 
             _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -80,39 +81,43 @@ namespace RoadRegistry.Wms.ProjectionHost
                             {
                                 case Resume _:
                                     logger.LogInformation("Resuming ...");
-                                    await using (var resumeContext = dbContextFactory())
-                                    {
-                                        var projection =
-                                            await resumeContext.ProjectionStates
-                                                .SingleOrDefaultAsync(
-                                                    item => item.Name == RoadRegistryWmsProjectionHost,
-                                                    _messagePumpCancellation.Token)
-                                                .ConfigureAwait(false);
-                                        var after = projection?.Position;
-                                        var head = await streamStore.ReadHeadPosition();
-                                        if (head == Position.Start || (after.HasValue
-                                            ? head - after.Value <= CatchUpThreshold
-                                            : head - CatchUpThreshold <= 0))
-                                        {
-                                            await _messageChannel.Writer
-                                                .WriteAsync(new Subscribe(after), _messagePumpCancellation.Token)
-                                                .ConfigureAwait(false);
-                                        }
-                                        else
-                                        {
-                                            await _messageChannel.Writer
-                                                .WriteAsync(new CatchUp(after, CatchUpBatchSize), _messagePumpCancellation.Token)
-                                                .ConfigureAwait(false);
-                                        }
-                                    }
+
+                                    // TODO: we need an object that can read and write a position but can also participate in an
+                                    // ongoing transaction during the write phase (because the position needs to be stored
+                                    // within the same transaction).
+
+                                    // await using (var resumeContext = dbContextFactory())
+                                    // {
+                                    //     var projection =
+                                    //         await resumeContext.ProjectionStates
+                                    //             .SingleOrDefaultAsync(
+                                    //                 item => item.Name == RoadRegistryWmsProjectionHost,
+                                    //                 _messagePumpCancellation.Token)
+                                    //             .ConfigureAwait(false);
+                                    //     var after = projection?.Position;
+                                    //     var head = await streamStore.ReadHeadPosition();
+                                    //     if (head == Position.Start || (after.HasValue
+                                    //         ? head - after.Value <= CatchUpThreshold
+                                    //         : head - CatchUpThreshold <= 0))
+                                    //     {
+                                    //         await _messageChannel.Writer
+                                    //             .WriteAsync(new Subscribe(after), _messagePumpCancellation.Token)
+                                    //             .ConfigureAwait(false);
+                                    //     }
+                                    //     else
+                                    //     {
+                                    //         await _messageChannel.Writer
+                                    //             .WriteAsync(new CatchUp(after, CatchUpBatchSize), _messagePumpCancellation.Token)
+                                    //             .ConfigureAwait(false);
+                                    //     }
+                                    // }
 
                                     break;
                                 case CatchUp catchUp:
                                     logger.LogInformation("Catching up as of {Position}", catchUp.AfterPosition ?? -1L);
                                     var observedMessageCount = 0;
                                     var catchUpPosition = catchUp.AfterPosition ?? Position.Start;
-                                    var context = dbContextFactory();
-                                    context.ChangeTracker.AutoDetectChangesEnabled = false;
+                                    var statements = new List<SqlNonQueryCommand>();
                                     var page = await streamStore
                                         .ReadAllForwards(
                                             catchUpPosition,
@@ -139,9 +144,7 @@ namespace RoadRegistry.Wms.ProjectionHost
                                                 var handlers = resolver(envelope);
                                                 foreach (var handler in handlers)
                                                 {
-                                                    await handler
-                                                        .Handler(context, envelope, _messagePumpCancellation.Token)
-                                                        .ConfigureAwait(false);
+                                                    statements.AddRange(handler.Handler(envelope));
                                                 }
                                             }
 
@@ -153,18 +156,28 @@ namespace RoadRegistry.Wms.ProjectionHost
                                                 logger.LogInformation(
                                                     "Flushing catch up position of {0} and persisting changes ...",
                                                     catchUpPosition);
-                                                await context
-                                                    .UpdateProjectionState(
-                                                        RoadRegistryWmsProjectionHost,
-                                                        catchUpPosition,
-                                                        _messagePumpCancellation.Token)
-                                                    .ConfigureAwait(false);
-                                                context.ChangeTracker.DetectChanges();
-                                                await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
-                                                await context.DisposeAsync().ConfigureAwait(false);
+                                                // TODO: Need to create a schema for projection position tracking and making it part of
+                                                //       the transaction we're executing.
 
-                                                context = dbContextFactory();
-                                                context.ChangeTracker.AutoDetectChangesEnabled = false;
+                                                // await context
+                                                //     .UpdateProjectionState(
+                                                //         RoadRegistryWmsProjectionHost,
+                                                //         catchUpPosition,
+                                                //         _messagePumpCancellation.Token)
+                                                //     .ConfigureAwait(false);
+
+                                                using(var connection = sqlConnectionFactory())
+                                                {
+                                                    await connection.OpenAsync();
+                                                    using(var transaction = await connection.BeginTransactionAsync(_messagePumpCancellation.Token))
+                                                    {
+                                                        var executor = new ConnectedTransactionalSqlCommandExecutor(transaction, 30);
+                                                        await executor.ExecuteNonQueryAsync(statements);
+                                                        await transaction.CommitAsync(_messagePumpCancellation.Token);
+                                                    }
+                                                    await connection.CloseAsync();
+                                                }
+                                                statements.Clear();
                                                 observedMessageCount = 0;
                                             }
                                         }
@@ -177,17 +190,26 @@ namespace RoadRegistry.Wms.ProjectionHost
                                         logger.LogInformation(
                                             "Flushing catch up position of {Position} and persisting changes ...",
                                             catchUpPosition);
-                                        await context
-                                            .UpdateProjectionState(
-                                                RoadRegistryWmsProjectionHost,
-                                                catchUpPosition,
-                                                _messagePumpCancellation.Token)
-                                            .ConfigureAwait(false);
-                                        context.ChangeTracker.DetectChanges();
-                                        await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
+                                        // await context
+                                        //     .UpdateProjectionState(
+                                        //         RoadRegistryWmsProjectionHost,
+                                        //         catchUpPosition,
+                                        //         _messagePumpCancellation.Token)
+                                        //     .ConfigureAwait(false);
+                                        using(var connection = sqlConnectionFactory())
+                                        {
+                                            await connection.OpenAsync();
+                                            using(var transaction = await connection.BeginTransactionAsync(_messagePumpCancellation.Token))
+                                            {
+                                                var executor = new ConnectedTransactionalSqlCommandExecutor(transaction, 30);
+                                                await executor.ExecuteNonQueryAsync(statements);
+                                                await transaction.CommitAsync(_messagePumpCancellation.Token);
+                                            }
+                                            await connection.CloseAsync();
+                                        }
                                     }
 
-                                    await context.DisposeAsync().ConfigureAwait(false);
+                                    //await context.DisposeAsync().ConfigureAwait(false);
 
                                     //switch to subscription as of the last page
                                     await _messageChannel.Writer
