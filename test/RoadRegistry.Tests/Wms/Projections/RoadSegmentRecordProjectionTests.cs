@@ -1,8 +1,8 @@
 namespace RoadRegistry.Wms.Projections
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using System.Data.SqlClient;
     using System.Data.SqlTypes;
     using System.IO;
     using System.Linq;
@@ -11,11 +11,12 @@ namespace RoadRegistry.Wms.Projections
     using AutoFixture;
     using BackOffice;
     using BackOffice.Messages;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using Framework.Containers;
-    using Framework.Projections;
+    using Framework;
     using KellermanSoftware.CompareNetObjects;
+    using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
     using Microsoft.SqlServer.Types;
@@ -25,13 +26,16 @@ namespace RoadRegistry.Wms.Projections
     using NetTopologySuite.IO.GML2;
     using NetTopologySuite.Utilities;
     using Newtonsoft.Json;
+    using RoadRegistry.Framework.Containers;
     using Schema.RoadSegmentDenorm;
     using RoadRegistry.Projections;
     using Schema;
     using Xunit;
     using Assert = Xunit.Assert;
+    using Envelope = Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope;
     using GeometryTranslator = BackOffice.Core.GeometryTranslator;
     using LineString = NetTopologySuite.Geometries.LineString;
+    using SqlConnection = System.Data.SqlClient.SqlConnection;
 
     [Collection(nameof(SqlServerCollection))]
     public class RoadSegmentRecordProjectionTests
@@ -69,6 +73,35 @@ namespace RoadRegistry.Wms.Projections
             _fixture.CustomizeRoadSegmentGeometryVersion();
 
             _fixture.CustomizeImportedRoadSegment();
+        }
+
+        [Theory]
+        [InlineData(904)]
+        [InlineData(458)]
+        public async Task ProjacTest(int wegSegmentId)
+        {
+            var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(wegSegmentId);
+
+            var sqlGeometry = SqlGeometryTranslator.TranslateGeometry(importedRoadSegment);
+
+            var expected = await _testDataHelper.ExpectedWegsegmentDeNormFromFileAsync(wegSegmentId);
+
+            var databaseAsync = await _sqlServer.CreateDatabaseAsync();
+
+            await _sqlServer.EnsureWmsSchemaAsync(databaseAsync);
+
+            var testSpecification = new Scenario(new RoadSegmentRecordProjection2())
+                .GivenNone()
+                .When(new Envelope(importedRoadSegment, new Dictionary<string, object>()).ToGenericEnvelope())
+                .ExpectRowCount(
+                    new SqlQueryStatement($"select count(*) from [{WellknownSchemas.WmsSchema}].[{RoadSegmentRecordProjection2.TableName}]", new SqlParameter[0]),
+                    1)
+                .Build();
+
+            var testRunResult = new TestSpecificationRunner(databaseAsync.ConnectionString)
+                .Run(testSpecification);
+
+            Assert.True(testRunResult.Passed);
         }
 
         [Theory]

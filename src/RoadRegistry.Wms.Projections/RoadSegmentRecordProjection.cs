@@ -17,19 +17,17 @@ namespace RoadRegistry.Wms.Projections
 
     public class RoadSegmentRecordProjection2 : SqlProjection
     {
+        public const string TableName = "wegsegmentDeNorm";
         private static readonly SqlClientSyntax TSql = new SqlClientSyntax();
 
         public RoadSegmentRecordProjection2()
         {
-            When<Envelope<ImportedRoadSegment>>(envelope =>
-            {
-                return TSql.NonQueryStatement(
-                    "INSERT INTO [RoadRegistryWms].[RoadSegmentDenormRecord] ([Id], [Geometry]) VALUES (@P0, @P1)",
-                    new {
-                        P1 = TSql.Int(envelope.Message.Id),
-                        P2 = TSql.VarBinaryMax(SqlGeometryTranslator.TranslateToSqlGeometry(envelope.Message.Geometry))
-                    });
-            });
+            When<Envelope<ImportedRoadSegment>>(envelope => TSql.NonQueryStatement(
+                $"INSERT INTO [{WellknownSchemas.WmsSchema}].[{TableName}] ([wegSegmentId], [Geometrie]) VALUES (@P1, @P2)",
+                new {
+                    P1 = TSql.Int(envelope.Message.Id),
+                    P2 = TSql.VarBinaryMax(SqlGeometryTranslator.TranslateToSqlGeometry(envelope.Message.Geometry))
+                }));
         }
 
         //TODO: This method could be called like you would do for migrations, in Program.cs, using a sql connection that can do DDL.
@@ -40,9 +38,9 @@ namespace RoadRegistry.Wms.Projections
                 BEGIN
                     EXEC('CREATE SCHEMA [{WellknownSchemas.WmsSchema}] AUTHORIZATION [dbo]')
                 END
-                IF NOT EXISTS (SELECT * FROM SYS.OBJECTS WHERE [Name] = 'RoadSegmentDenormRecord' AND [Type] = 'U' AND [Schema_ID] = SCHEMA_ID('{WellknownSchemas.WmsSchema}'))
+                IF NOT EXISTS (SELECT * FROM SYS.OBJECTS WHERE [Name] = '{TableName}' AND [Type] = 'U' AND [Schema_ID] = SCHEMA_ID('{WellknownSchemas.WmsSchema}'))
                 BEGIN
-                    CREATE TABLE [{WellknownSchemas.WmsSchema}].[RoadSegmentDenormRecord]
+                    CREATE TABLE [{WellknownSchemas.WmsSchema}].[{TableName}]
                     (
                         [Id]                                       INT                NOT NULL,
                         [Geometry]                                 GEOMETRY           NOT NULL,

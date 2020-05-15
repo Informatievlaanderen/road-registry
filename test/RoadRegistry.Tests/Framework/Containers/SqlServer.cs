@@ -7,6 +7,7 @@ namespace RoadRegistry.Framework.Containers
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
     using Product.Schema;
+    using Wms.Projections;
 
     public class SqlServer : ISqlServerDatabase
     {
@@ -115,9 +116,13 @@ namespace RoadRegistry.Framework.Containers
             {
                 conn.Open();
 
-                const string createTableScript = @"SET ANSI_NULLS ON;
+                var createTableScript = $@"SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
-CREATE TABLE [dbo].[wegsegmentDeNorm](
+IF NOT EXISTS (SELECT * FROM SYS.SCHEMAS WHERE [Name] = '{Wms.Schema.WellknownSchemas.WmsSchema}')
+BEGIN
+    EXEC('CREATE SCHEMA [{Wms.Schema.WellknownSchemas.WmsSchema}] AUTHORIZATION [dbo]')
+END;
+CREATE TABLE [{Wms.Schema.WellknownSchemas.WmsSchema}].[{RoadSegmentRecordProjection2.TableName}](
 	[wegsegmentID] [int] NOT NULL,
 	[methode] [int] NULL,
 	[beheerder] [varchar](18) NULL,
@@ -153,12 +158,12 @@ CREATE TABLE [dbo].[wegsegmentDeNorm](
 	[lblBeheerder] [varchar](64) NULL,
 	[geometrie2D] [geometry] NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
-ALTER TABLE [dbo].[wegsegmentDeNorm] ADD  CONSTRAINT [PK_wegsegmentDeNormWMS] PRIMARY KEY CLUSTERED
+ALTER TABLE [{Wms.Schema.WellknownSchemas.WmsSchema}].[{RoadSegmentRecordProjection2.TableName}] ADD  CONSTRAINT [PK_wegsegmentDeNormWMS] PRIMARY KEY CLUSTERED
 (
 	[wegsegmentID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY];
 
-CREATE NONCLUSTERED INDEX [idxwegsegmentmorfologie] ON [dbo].[wegsegmentDeNorm]
+CREATE NONCLUSTERED INDEX [idxwegsegmentmorfologie] ON [{Wms.Schema.WellknownSchemas.WmsSchema}].[{RoadSegmentRecordProjection2.TableName}]
 (
 	[morfologie] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY];
@@ -169,7 +174,7 @@ SET ANSI_NULLS ON;
 SET ANSI_PADDING ON;
 SET ANSI_WARNINGS ON;
 SET NUMERIC_ROUNDABORT OFF;
-CREATE SPATIAL INDEX [SPATIAL_wegsegmentDeNorm0708] ON [dbo].[wegsegmentDeNorm]
+CREATE SPATIAL INDEX [SPATIAL_wegsegmentDeNorm0708] ON [{Wms.Schema.WellknownSchemas.WmsSchema}].[{RoadSegmentRecordProjection2.TableName}]
 (
 	[geometrie]
 )USING  GEOMETRY_GRID
@@ -182,7 +187,7 @@ SET ANSI_NULLS ON;
 SET ANSI_PADDING ON;
 SET ANSI_WARNINGS ON;
 SET NUMERIC_ROUNDABORT OFF;
-CREATE SPATIAL INDEX [SPATIAL_wegsegmentDeNorm2D0708] ON [dbo].[wegsegmentDeNorm]
+CREATE SPATIAL INDEX [SPATIAL_wegsegmentDeNorm2D0708] ON [{Wms.Schema.WellknownSchemas.WmsSchema}].[{RoadSegmentRecordProjection2.TableName}]
 (
 	[geometrie2D]
 )USING  GEOMETRY_GRID
