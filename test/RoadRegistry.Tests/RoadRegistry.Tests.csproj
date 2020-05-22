@@ -1,11 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
+
   <PropertyGroup>
     <RootNamespace>RoadRegistry</RootNamespace>
     <AssemblyName>RoadRegistry.Tests</AssemblyName>
     <Nullable>disable</Nullable>
   </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.CommandHost\RoadRegistry.BackOffice.CommandHost.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.EventHost\RoadRegistry.BackOffice.EventHost.csproj" />
@@ -15,12 +17,15 @@
     <ProjectReference Include="..\..\src\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Product.Projections\RoadRegistry.Product.Projections.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="BackOffice\Api\empty.zip" />
     <EmbeddedResource Include="BackOffice\ident8.txt" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
   </ItemGroup>
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

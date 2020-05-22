@@ -22,6 +22,7 @@ namespace RoadRegistry.Framework.Containers
             {
                 _inner = new SqlServerComposedContainer();
             }
+
             MemoryStreamManager = new RecyclableMemoryStreamManager();
         }
 

@@ -3,8 +3,9 @@
 .fake/
 .idea/
 .cache/
-elm-stuff/
 .ionide/
+.paket/
+elm-stuff/
 
 [Pp]ackages/
 [Pp]aket-files/

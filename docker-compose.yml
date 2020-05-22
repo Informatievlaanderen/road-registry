@@ -9,6 +9,7 @@ services:
       ACCEPT_EULA: 'Y'
     volumes:
     - seq-data:/data
+
   minio:
     image: minio/minio:latest
     ports:
@@ -19,6 +20,7 @@ services:
     volumes:
     - minio-data:/data
     command: server /data
+
   legacy-mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
@@ -36,6 +38,7 @@ services:
     build: src/RoadRegistry.LegacyDatabase/empty
     depends_on:
       - legacy-mssql
+
   extract-empty-legacy:
     build: dist/RoadRegistry.Legacy.Extract/linux
     depends_on:
@@ -56,12 +59,14 @@ services:
       CONNECTIONSTRINGS__LEGACY: Data Source=tcp:legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
       - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
+
   filled-legacy-mssql-seed:
     build: src/RoadRegistry.LegacyDatabase/filled
     depends_on:
       - legacy-mssql
     volumes:
       - ./src/RoadRegistry.LegacyDatabase/filled:/var/lib/backup
+
   extract-filled-legacy:
     build: dist/RoadRegistry.Legacy.Extract/linux
     depends_on:
@@ -82,6 +87,7 @@ services:
       CONNECTIONSTRINGS__LEGACY: Data Source=tcp:legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
       - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
+
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
@@ -93,10 +99,12 @@ services:
       - "21433:1433"
     volumes:
       - mssql-data:/var/opt/mssql
+
   mssql-seed:
     build: ./src/RoadRegistry.Database
     depends_on:
       - mssql
+
   import-legacy:
     build: dist/RoadRegistry.Legacy.Import/linux
     depends_on:
@@ -117,6 +125,7 @@ services:
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
     volumes:
       - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
+
   editor-projection-host:
     build: dist/RoadRegistry.Editor.ProjectionHost/linux
     depends_on:
@@ -137,6 +146,7 @@ services:
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EDITORPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+
   product-projection-host:
     build: dist/RoadRegistry.Product.ProjectionHost/linux
     depends_on:
@@ -152,6 +162,7 @@ services:
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__PRODUCTPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__PRODUCTPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+
   backoffice-event-host:
     build: dist/RoadRegistry.BackOffice.EventHost/linux
     depends_on:
@@ -174,6 +185,7 @@ services:
       CONNECTIONSTRINGS__EVENTHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+
   backoffice-command-host:
     build: dist/RoadRegistry.BackOffice.CommandHost/linux
     depends_on:
@@ -195,6 +207,7 @@ services:
       CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+
   backoffice-api:
     build: dist/RoadRegistry.BackOffice.Api/linux
     depends_on:
@@ -221,6 +234,7 @@ services:
       IDEMPOTENCY__CONNECTIONSTRING: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CORS__0: "http://localhost:5010"
       CORS__1: "http://localhost:1234"
+
   backoffice-ui:
     build: dist/RoadRegistry.BackOffice.UI/linux
     depends_on:
@@ -231,6 +245,7 @@ services:
     environment:
       API_ENDPOINT: http://localhost:5020
       API_VERSION: 0.0.0
+
 volumes:
   mssql-data:
   legacy-mssql-data:
