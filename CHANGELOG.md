@@ -1,3 +1,16 @@
+# [1.9.0](https://github.com/informatievlaanderen/road-registry/compare/v1.8.0...v1.9.0) (2020-05-22)
+
+
+### Bug Fixes
+
+* force build ([bbb0b03](https://github.com/informatievlaanderen/road-registry/commit/bbb0b036d8dfd138e5886ca3765be1a8951c6f10))
+* force gh actions ([660679b](https://github.com/informatievlaanderen/road-registry/commit/660679b0571c22dd12fccd3d83356f80f5fcae9f))
+
+
+### Features
+
+* move to 3.1.4 and gh actions ([25673a9](https://github.com/informatievlaanderen/road-registry/commit/25673a9babaef88bb34155e183db9de07ab14d6b))
+
 # [1.8.0](https://github.com/informatievlaanderen/road-registry/compare/v1.7.0...v1.8.0) (2020-05-12)
 
 
