@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/informatievlaanderen/road-registry/compare/v1.9.0...v1.9.1) (2020-05-23)
+
+
+### Bug Fixes
+
+* publish docker images ([355df7e](https://github.com/informatievlaanderen/road-registry/commit/355df7e74c04020d07927156401b0f43571c21d2))
+
 # [1.9.0](https://github.com/informatievlaanderen/road-registry/compare/v1.8.0...v1.9.0) (2020-05-22)
 
 
