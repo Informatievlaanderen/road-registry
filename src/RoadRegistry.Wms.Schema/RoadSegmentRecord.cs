@@ -1,14 +1,9 @@
-namespace RoadRegistry.Wms.Schema.RoadSegmentDenorm
+namespace RoadRegistry.Wms.Schema
 {
     using System;
-    using System.Data.SqlTypes;
-    using System.Text.Json.Serialization;
-    using Microsoft.Data.SqlClient.Server;
-    using Microsoft.SqlServer.Types;
     using NetTopologySuite.Geometries;
-    using Newtonsoft.Json;
 
-    public class RoadSegmentDenormRecord
+    public class RoadSegmentRecord
     {
         public int? Id { get; set; }
         public int? Method { get; set; }
@@ -75,12 +70,4 @@ namespace RoadRegistry.Wms.Schema.RoadSegmentDenorm
 
         public byte[] GeometryAsByte { get; set; }
     }
-
-    public class RoadSegmentDenormTestRecord
-    {
-        public int Id { get; set; }
-
-        public SqlBytes Geometrie { get; set; }
-    }
-
 }

@@ -25,7 +25,6 @@ namespace RoadRegistry.Wms.Projections
     using NetTopologySuite.IO.GML2;
     using NetTopologySuite.Utilities;
     using Newtonsoft.Json;
-    using Schema.RoadSegmentDenorm;
     using RoadRegistry.Projections;
     using Schema;
     using Xunit;

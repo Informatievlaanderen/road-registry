@@ -8,7 +8,6 @@ namespace RoadRegistry.Wms.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Schema;
-    using Schema.RoadSegmentDenorm;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
     {
