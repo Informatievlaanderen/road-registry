@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/informatievlaanderen/road-registry/compare/v1.9.1...v1.10.0) (2020-06-02)
+
+
+### Features
+
+* upgrade shaperon dependency ([#34](https://github.com/informatievlaanderen/road-registry/issues/34)) ([81a334e](https://github.com/informatievlaanderen/road-registry/commit/81a334e767f12e29c417bd24973aa8a202159972))
+
 ## [1.9.1](https://github.com/informatievlaanderen/road-registry/compare/v1.9.0...v1.9.1) (2020-05-23)
 
 
