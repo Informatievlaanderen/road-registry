@@ -67,7 +67,5 @@ namespace RoadRegistry.Wms.Schema
         public string MaintainerLabel { get; set; }
 
         public Geometry Geometry2D { get; set; }
-
-        public byte[] GeometryAsByte { get; set; }
     }
 }
