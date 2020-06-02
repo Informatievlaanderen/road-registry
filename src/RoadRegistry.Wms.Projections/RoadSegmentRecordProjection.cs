@@ -3,7 +3,6 @@ namespace RoadRegistry.Wms.Projections
     using System;
     using System.Text;
     using BackOffice;
-    using BackOffice.Core;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -46,8 +45,8 @@ namespace RoadRegistry.Wms.Projections
                     Category = roadSegmentCategory.Translation.Identifier,
                     CategoryLabel = roadSegmentCategory.Translation.Name,
 
-                    Geometry = GeometryTranslator.Translate(envelope.Message.Geometry),
-                    Geometry2D = null,
+                    Geometry = WmsGeometryTranslator.Translate3D(envelope.Message.Geometry),
+                    Geometry2D = WmsGeometryTranslator.Translate2D(envelope.Message.Geometry),
                     GeometryVersion = envelope.Message.GeometryVersion,
 
                     Morphology = roadSegmentMorphology.Translation.Identifier,

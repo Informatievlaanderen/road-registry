@@ -153,6 +153,9 @@ namespace RoadRegistry.Wms.Projections
         {
             var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(458);
 
+            var expectedGeometry = await _testDataHelper.ExpectedGeometry(458);
+            var expectedGeometry2D = await _testDataHelper.ExpectedGeometry2D(458);
+
             await new RoadSegmentRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
@@ -173,8 +176,8 @@ namespace RoadRegistry.Wms.Projections
                     Category = "-8",
                     CategoryLabel = "niet gekend",
 
-                    Geometry = null,
-                    Geometry2D = null,
+                    Geometry = expectedGeometry,
+                    Geometry2D = expectedGeometry2D,
                     GeometryVersion = 2,
 
                     Morphology = 114,
@@ -213,6 +216,9 @@ namespace RoadRegistry.Wms.Projections
         {
             var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(904);
 
+            var expectedGeometry = await _testDataHelper.ExpectedGeometry(458);
+            var expectedGeometry2D = await _testDataHelper.ExpectedGeometry2D(458);
+
             await new RoadSegmentRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
@@ -233,8 +239,8 @@ namespace RoadRegistry.Wms.Projections
                     Category = "-8",
                     CategoryLabel = "niet gekend",
 
-                    Geometry = null,
-                    Geometry2D = null,
+                    Geometry = expectedGeometry,
+                    Geometry2D = expectedGeometry2D,
                     GeometryVersion = 1,
 
                     Morphology = 114,

@@ -8,11 +8,12 @@ namespace RoadRegistry.Framework.Projections
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using KellermanSoftware.CompareNetObjects;
+    using KellermanSoftware.CompareNetObjects.TypeComparers;
     using Microsoft.EntityFrameworkCore;
     using Wms.Schema;
     using Xunit.Sdk;
+    using Envelope = Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope;
 
     internal class MemoryWmsContext : WmsContext {
         public MemoryWmsContext(DbContextOptions<WmsContext> options) : base(options) { }
@@ -70,7 +71,14 @@ namespace RoadRegistry.Framework.Projections
 
             var specification = scenario.Verify(async context =>
             {
-                var comparisonConfig = new ComparisonConfig { MaxDifferences = 5};
+                var comparisonConfig = new ComparisonConfig
+                {
+                    MaxDifferences = 10,
+                    CustomComparers = new List<BaseTypeComparer>
+                    {
+                        new GeometryComparer(RootComparerFactory.GetRootComparer())
+                    }
+                };
                 var comparer = new CompareLogic(comparisonConfig);
                 var actualRecords = await context.AllRecords();
                 var result = comparer.Compare(
