@@ -101,7 +101,9 @@
                                     new DbContextOptionsBuilder<WmsContext>()
                                         .UseSqlServer(
                                             hostContext.Configuration.GetConnectionString(WellknownConnectionNames.WmsProjections),
-                                            options => options.EnableRetryOnFailure()
+                                            options => options
+                                                .EnableRetryOnFailure()
+                                                .UseNetTopologySuite()
                                         ).Options)
                         )
                         .AddSingleton(sp => new ConnectedProjection<WmsContext>[]
