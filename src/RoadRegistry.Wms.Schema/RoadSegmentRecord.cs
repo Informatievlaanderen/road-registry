@@ -34,7 +34,7 @@ namespace RoadRegistry.Wms.Schema
 
         public int? GeometryVersion { get; set; }
 
-        public DateTime RecordingDate { get; set; }
+        public DateTime? RecordingDate { get; set; }
 
         public int? AccessRestriction { get; set; }
 

@@ -132,188 +132,71 @@ namespace RoadRegistry.Wms.Projections
             }
         }
 
-        [Fact]
-        public async Task ImportedRoadNodeExample_458()
+        [Theory]
+        [InlineData(904)]
+        [InlineData(458)]
+        [InlineData(4)]
+        public async Task ImportedRoadNodeExamples(int wegSegmentId)
         {
-            var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(458);
+            var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(wegSegmentId);
 
-            var expectedGeometry = await _testDataHelper.ExpectedGeometry(458);
-            var expectedGeometry2D = await _testDataHelper.ExpectedGeometry2D(458);
+            var expectedGeometry = await _testDataHelper.ExpectedGeometry(wegSegmentId);
+            var expectedGeometry2D = await _testDataHelper.ExpectedGeometry2D(wegSegmentId);
+
+            var expectedRoadSegment = await _testDataHelper.ExpectedRoadSegment(wegSegmentId);
 
             await new RoadSegmentRecordProjection(Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new RoadSegmentRecord
                 {
-                    Id = 458,
-                    BeginOperator = "",
-                    BeginOrganization = "AGIV",
-                    BeginTime = DateTime.Parse("2016-01-15 17:11:08.000"),
-                    BeginApplication = "Wegenregister-BLL",
+                    Id = expectedRoadSegment.wegsegmentID,
+                    BeginOperator = expectedRoadSegment.beginoperator,
+                    BeginOrganization = expectedRoadSegment.beginorganisatie,
+                    BeginTime = expectedRoadSegment.begintijd,
+                    BeginApplication = expectedRoadSegment.beginapplicatie,
 
-                    Maintainer = "73109",
-                    MaintainerLabel = "Gemeente Voeren",
+                    Maintainer = expectedRoadSegment.beheerder,
+                    MaintainerLabel = expectedRoadSegment.lblBeheerder,
 
-                    Method = 2,
-                    MethodLabel = "ingemeten",
+                    Method = expectedRoadSegment.methode,
+                    MethodLabel = expectedRoadSegment.lblMethode,
 
-                    Category = "-8",
-                    CategoryLabel = "niet gekend",
-
-                    Geometry = expectedGeometry,
-                    Geometry2D = expectedGeometry2D,
-                    GeometryVersion = 2,
-
-                    Morphology = 114,
-                    MorphologyLabel = "wandel- of fietsweg, niet toegankelijk voor andere voertuigen",
-
-                    Status = 4,
-                    StatusLabel = "in gebruik",
-
-                    AccessRestriction = 1,
-                    AccessRestrictionLabel = "openbare weg",
-
-                    OrganizationLabel = "Agentschap voor Geografische Informatie Vlaanderen",
-                    RecordingDate = DateTime.Parse("2016-01-15 15:20:07.000"),
-
-                    SourceId = null,
-                    SourceIdSource = null,
-
-                    TransactionId = 359,
-
-                    LeftSideMunicipality = 507,
-                    LeftSideStreetNameId = 123904,
-                    LeftSideStreetNameLabel = "Mot                                                                                                                             ",
-
-                    RightSideMunicipality = 507,
-                    RightSideStreetNameId = 123904,
-                    RightSideStreetNameLabel = "Mot                                                                                                                             ",
-
-                    RoadSegmentVersion = 2,
-                    BeginRoadNodeId = 764900,
-                    EndRoadNodeId = 916,
-                });
-        }
-
-        [Fact]
-        public async Task ImportedRoadNodeExample_904()
-        {
-            var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(904);
-
-            var expectedGeometry = await _testDataHelper.ExpectedGeometry(904);
-            var expectedGeometry2D = await _testDataHelper.ExpectedGeometry2D(904);
-
-            await new RoadSegmentRecordProjection(Encoding.UTF8)
-                .Scenario()
-                .Given(importedRoadSegment)
-                .Expect(new RoadSegmentRecord
-                {
-                    Id = 904,
-                    BeginOperator = "-8",
-                    BeginOrganization = "AGIV",
-                    BeginTime = DateTime.Parse("2014-02-20 14:35:32.000"),
-                    BeginApplication = "-8",
-
-                    Maintainer = "13003",
-                    MaintainerLabel = "Gemeente Balen",
-
-                    Method = 2,
-                    MethodLabel = "ingemeten",
-
-                    Category = "-8",
-                    CategoryLabel = "niet gekend",
+                    Category = expectedRoadSegment.categorie,
+                    CategoryLabel = expectedRoadSegment.lblCategorie,
 
                     Geometry = expectedGeometry,
                     Geometry2D = expectedGeometry2D,
-                    GeometryVersion = 1,
+                    GeometryVersion = expectedRoadSegment.geometrieversie,
 
-                    Morphology = 114,
-                    MorphologyLabel = "wandel- of fietsweg, niet toegankelijk voor andere voertuigen",
+                    Morphology = expectedRoadSegment.morfologie,
+                    MorphologyLabel = expectedRoadSegment.lblMorfologie,
 
-                    Status = 4,
-                    StatusLabel = "in gebruik",
+                    Status = expectedRoadSegment.status,
+                    StatusLabel = expectedRoadSegment.lblStatus,
 
-                    AccessRestriction = 1,
-                    AccessRestrictionLabel = "openbare weg",
+                    AccessRestriction = expectedRoadSegment.toegangsbeperking,
+                    AccessRestrictionLabel = expectedRoadSegment.lblToegangsbeperking,
 
-                    OrganizationLabel = "Agentschap voor Geografische Informatie Vlaanderen",
-                    RecordingDate = DateTime.Parse("2014-02-20 14:35:32.237"),
-                    SourceId = null,
-                    TransactionId = 0,
+                    OrganizationLabel = expectedRoadSegment.lblOrganisatie,
+                    RecordingDate = expectedRoadSegment.opnamedatum,
 
-                    LeftSideMunicipality = 46,
-                    LeftSideStreetNameId = -9,
-                    LeftSideStreetNameLabel = null,
+                    SourceId = expectedRoadSegment.sourceID,
+                    SourceIdSource = expectedRoadSegment.bronSourceID,
 
-                    RightSideMunicipality = 46,
-                    RightSideStreetNameId = -9,
-                    RightSideStreetNameLabel = null,
+                    TransactionId = expectedRoadSegment.transactieID,
 
-                    RoadSegmentVersion = 1,
-                    SourceIdSource = null,
-                    BeginRoadNodeId = 800780,
-                    EndRoadNodeId = 125446,
-                });
-        }
+                    LeftSideMunicipality = expectedRoadSegment.linksGemeente,
+                    LeftSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
+                    LeftSideStreetNameLabel = expectedRoadSegment.linksStraatnaam,
 
-        [Fact]
-        public async Task ImportedRoadNodeExample_4()
-        {
-            var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(4);
+                    RightSideMunicipality = expectedRoadSegment.linksGemeente,
+                    RightSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
+                    RightSideStreetNameLabel = expectedRoadSegment.linksStraatnaam,
 
-            var expectedGeometry = await _testDataHelper.ExpectedGeometry(4);
-            var expectedGeometry2D = await _testDataHelper.ExpectedGeometry2D(4);
-
-            await new RoadSegmentRecordProjection(Encoding.UTF8)
-                .Scenario()
-                .Given(importedRoadSegment)
-                .Expect(new RoadSegmentRecord
-                {
-                    Id = 4,
-                    BeginOperator = "",
-                    BeginOrganization = "AWV",
-                    BeginTime = DateTime.Parse("2017-03-15 15:44:48.000"),
-                    BeginApplication = "Wegenregister-BLL",
-
-                    Maintainer = "AWV720",
-                    MaintainerLabel = "Agentschap Wegen en Verkeer - District Centraal-Limburg",
-
-                    Method = 2,
-                    MethodLabel = "ingemeten",
-
-                    Category = "-9",
-                    CategoryLabel = "niet van toepassing",
-
-                    Geometry = expectedGeometry,
-                    Geometry2D = expectedGeometry2D,
-                    GeometryVersion = 3,
-
-                    Morphology = 114,
-                    MorphologyLabel = "dienstweg",
-
-                    Status = 4,
-                    StatusLabel = "in gebruik",
-
-                    AccessRestriction = 1,
-                    AccessRestrictionLabel = "openbare weg",
-
-                    OrganizationLabel = "Agentschap Wegen en Verkeer",
-                    RecordingDate = DateTime.Parse("2017-03-15 15:44:11.000"),
-                    SourceId = null,
-                    TransactionId = 979,
-
-                    LeftSideMunicipality = 503,
-                    LeftSideStreetNameId = -9,
-                    LeftSideStreetNameLabel = null,
-
-                    RightSideMunicipality = 503,
-                    RightSideStreetNameId = -9,
-                    RightSideStreetNameLabel = null,
-
-                    RoadSegmentVersion = 3,
-                    SourceIdSource = null,
-                    BeginRoadNodeId = 7,
-                    EndRoadNodeId = 8,
+                    RoadSegmentVersion = expectedRoadSegment.wegsegmentversie,
+                    BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,
+                    EndRoadNodeId = expectedRoadSegment.eindWegknoopID,
                 });
         }
     }

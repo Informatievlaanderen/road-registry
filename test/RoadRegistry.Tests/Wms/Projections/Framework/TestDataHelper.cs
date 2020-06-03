@@ -35,6 +35,15 @@ namespace RoadRegistry.Wms.Projections.Framework
             };
         }
 
+        public async Task<ExpectedWegsegmentRecord> ExpectedRoadSegment(int number)
+        {
+            using (var streamReader = new StreamReader($"Wms/Projections/TestData/expected.{number}.csv"))
+            using (var csv = new CsvTestDataReader(streamReader))
+            {
+                return csv.GetRecords<ExpectedWegsegmentRecord>().Single();
+            }
+        }
+
         public async Task<Geometry> ExpectedGeometry(int number)
         {
             var reader = new SqlServerBytesReader
@@ -44,11 +53,9 @@ namespace RoadRegistry.Wms.Projections.Framework
             };
 
             using (var streamReader = new StreamReader($"Wms/Projections/TestData/expected.{number}.csv"))
-            using (var csv = new CsvReader(streamReader, CultureInfo.InvariantCulture))
+            using (var csv = new CsvTestDataReader(streamReader))
             {
-                csv.Configuration.TypeConverterCache.AddConverter<int>(new NullToInt32Converter(typeof(int?), csv.Configuration.TypeConverterCache));
-                csv.Configuration.HasHeaderRecord = true;
-                var record = csv.GetRecords<ExpectedWegsegmentRecord>().First();
+                var record = csv.GetRecords<ExpectedWegsegmentRecord>().Single();
                 return reader.Read(StringToByteArray(record.geometrie.Substring(2)));
             }
         }
@@ -62,11 +69,9 @@ namespace RoadRegistry.Wms.Projections.Framework
             };
 
             using (var streamReader = new StreamReader($"Wms/Projections/TestData/expected.{number}.csv"))
-            using (var csv = new CsvReader(streamReader, CultureInfo.InvariantCulture))
+            using (var csv = new CsvTestDataReader(streamReader))
             {
-                csv.Configuration.TypeConverterCache.AddConverter<int>(new NullToInt32Converter(typeof(int?), csv.Configuration.TypeConverterCache));
-                csv.Configuration.HasHeaderRecord = true;
-                var record = csv.GetRecords<ExpectedWegsegmentRecord>().First();
+                var record = csv.GetRecords<ExpectedWegsegmentRecord>().Single();
                 return reader.Read(StringToByteArray(record.geometrie2D.Substring(2)));
             }
         }
