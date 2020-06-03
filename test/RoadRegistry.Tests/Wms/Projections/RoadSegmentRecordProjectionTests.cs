@@ -3,34 +3,18 @@ namespace RoadRegistry.Wms.Projections
     using System;
     using System.Data;
     using System.Data.SqlClient;
-    using System.Data.SqlTypes;
-    using System.IO;
-    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
     using BackOffice;
     using BackOffice.Messages;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using Framework.Containers;
-    using Framework.Projections;
-    using KellermanSoftware.CompareNetObjects;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-    using Microsoft.SqlServer.Types;
-    using NetTopologySuite;
-    using NetTopologySuite.Geometries;
-    using NetTopologySuite.IO;
-    using NetTopologySuite.IO.GML2;
-    using NetTopologySuite.Utilities;
-    using Newtonsoft.Json;
+    using Framework;
+    using RoadRegistry.Framework.Containers;
+    using RoadRegistry.Framework.Projections;
     using RoadRegistry.Projections;
     using Schema;
     using Xunit;
     using Assert = Xunit.Assert;
-    using GeometryTranslator = BackOffice.Core.GeometryTranslator;
-    using LineString = NetTopologySuite.Geometries.LineString;
 
     [Collection(nameof(SqlServerCollection))]
     public class RoadSegmentRecordProjectionTests

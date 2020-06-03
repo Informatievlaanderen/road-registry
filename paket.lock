@@ -297,6 +297,8 @@ NUGET
       FSharp.Core (>= 4.2.3)
     CompareNETObjects (4.66)
       Microsoft.CSharp (>= 4.5)
+    CsvHelper (15.0.5)
+      Microsoft.CSharp (>= 4.5)
     Dapper (2.0.35)
       System.Reflection.Emit.Lightweight (>= 4.7)
     Docker.DotNet (3.125.2)

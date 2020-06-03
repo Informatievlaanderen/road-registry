@@ -1,9 +1,11 @@
-namespace RoadRegistry.Wms.Projections
+namespace RoadRegistry.Wms.Projections.Framework
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using CsvHelper;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
     using Newtonsoft.Json;
@@ -41,9 +43,14 @@ namespace RoadRegistry.Wms.Projections
                 HandleSRID = true
             };
 
-            var lines = await File.ReadAllLinesAsync($"Wms/Projections/TestData/expected.{number}.csv");
-            var split = lines[1].Split(',');
-            return reader.Read(StringToByteArray(split[7].Substring(2)));
+            using (var streamReader = new StreamReader($"Wms/Projections/TestData/expected.{number}.csv"))
+            using (var csv = new CsvReader(streamReader, CultureInfo.InvariantCulture))
+            {
+                csv.Configuration.TypeConverterCache.AddConverter<int>(new NullToInt32Converter(typeof(int?), csv.Configuration.TypeConverterCache));
+                csv.Configuration.HasHeaderRecord = true;
+                var record = csv.GetRecords<ExpectedWegsegmentRecord>().First();
+                return reader.Read(StringToByteArray(record.geometrie.Substring(2)));
+            }
         }
 
         public async Task<Geometry> ExpectedGeometry2D(int number)
@@ -54,9 +61,14 @@ namespace RoadRegistry.Wms.Projections
                 HandleSRID = true
             };
 
-            var lines = await File.ReadAllLinesAsync($"Wms/Projections/TestData/expected.{number}.csv");
-            var split = lines[1].Split(',');
-            return reader.Read(StringToByteArray(split[34].Substring(2)));
+            using (var streamReader = new StreamReader($"Wms/Projections/TestData/expected.{number}.csv"))
+            using (var csv = new CsvReader(streamReader, CultureInfo.InvariantCulture))
+            {
+                csv.Configuration.TypeConverterCache.AddConverter<int>(new NullToInt32Converter(typeof(int?), csv.Configuration.TypeConverterCache));
+                csv.Configuration.HasHeaderRecord = true;
+                var record = csv.GetRecords<ExpectedWegsegmentRecord>().First();
+                return reader.Read(StringToByteArray(record.geometrie2D.Substring(2)));
+            }
         }
 
         private static byte[] StringToByteArray(string hex) {

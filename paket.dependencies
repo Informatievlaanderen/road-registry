@@ -127,3 +127,5 @@ nuget AutoFixture.Xunit2 4.11.0
 nuget AutoFixture.Idioms 4.11.0
 nuget CompareNETObjects 4.66.0
 nuget NodaTime.Testing 2.4.8
+nuget CsvHelper 15.0.5
+

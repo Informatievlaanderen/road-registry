@@ -1,4 +1,4 @@
-namespace RoadRegistry.Wms.Projections
+namespace RoadRegistry.Wms.Projections.Framework
 {
     public class ProjectionTestServices
     {

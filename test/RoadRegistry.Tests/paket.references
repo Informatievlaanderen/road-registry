@@ -21,3 +21,4 @@ SqlStreamStore.MsSql
 dotMorten.Microsoft.SqlServer.Types
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
 NetTopologySuite.IO.GeoJSON
+CsvHelper
