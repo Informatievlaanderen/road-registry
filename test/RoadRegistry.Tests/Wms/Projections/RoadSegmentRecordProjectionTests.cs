@@ -216,8 +216,8 @@ namespace RoadRegistry.Wms.Projections
         {
             var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(904);
 
-            var expectedGeometry = await _testDataHelper.ExpectedGeometry(458);
-            var expectedGeometry2D = await _testDataHelper.ExpectedGeometry2D(458);
+            var expectedGeometry = await _testDataHelper.ExpectedGeometry(904);
+            var expectedGeometry2D = await _testDataHelper.ExpectedGeometry2D(904);
 
             await new RoadSegmentRecordProjection(Encoding.UTF8)
                 .Scenario()
@@ -269,6 +269,67 @@ namespace RoadRegistry.Wms.Projections
                     SourceIdSource = null,
                     BeginRoadNodeId = 800780,
                     EndRoadNodeId = 125446,
+                });
+        }
+
+        [Fact]
+        public async Task ImportedRoadNodeExample_4()
+        {
+            var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(4);
+
+            var expectedGeometry = await _testDataHelper.ExpectedGeometry(4);
+            var expectedGeometry2D = await _testDataHelper.ExpectedGeometry2D(4);
+
+            await new RoadSegmentRecordProjection(Encoding.UTF8)
+                .Scenario()
+                .Given(importedRoadSegment)
+                .Expect(new RoadSegmentRecord
+                {
+                    Id = 4,
+                    BeginOperator = "",
+                    BeginOrganization = "AWV",
+                    BeginTime = DateTime.Parse("2017-03-15 15:44:48.000"),
+                    BeginApplication = "Wegenregister-BLL",
+
+                    Maintainer = "AWV720",
+                    MaintainerLabel = "Agentschap Wegen en Verkeer - District Centraal-Limburg",
+
+                    Method = 2,
+                    MethodLabel = "ingemeten",
+
+                    Category = "-9",
+                    CategoryLabel = "niet van toepassing",
+
+                    Geometry = expectedGeometry,
+                    Geometry2D = expectedGeometry2D,
+                    GeometryVersion = 3,
+
+                    Morphology = 114,
+                    MorphologyLabel = "dienstweg",
+
+                    Status = 4,
+                    StatusLabel = "in gebruik",
+
+                    AccessRestriction = 1,
+                    AccessRestrictionLabel = "openbare weg",
+
+                    OrganizationLabel = "Agentschap Wegen en Verkeer",
+                    RecordingDate = DateTime.Parse("2017-03-15 15:44:11.000"),
+                    SourceId = null,
+                    TransactionId = 979,
+
+                    LeftSideMunicipality = 503,
+                    LeftSideStreetNameId = -9,
+                    LeftSideStreetNameLabel = null,
+
+                    RightSideMunicipality = 503,
+                    RightSideStreetNameId = -9,
+                    RightSideStreetNameLabel = null,
+
+                    RoadSegmentVersion = 3,
+                    SourceIdSource = null,
+                    BeginRoadNodeId = 7,
+                    EndRoadNodeId = 8,
                 });
         }
     }

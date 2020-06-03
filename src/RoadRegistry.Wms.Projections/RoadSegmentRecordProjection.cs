@@ -31,10 +31,10 @@ namespace RoadRegistry.Wms.Projections
                 await context.RoadSegments.AddAsync(new RoadSegmentRecord
                 {
                     Id = envelope.Message.Id,
-                    BeginOperator = OrganizationId.Unknown,
+                    BeginOperator = string.Empty,
                     BeginOrganization = envelope.Message.Origin.OrganizationId,
                     BeginTime = envelope.Message.Origin.Since,
-                    BeginApplication = "-8",
+                    BeginApplication = string.Empty,
 
                     Maintainer = envelope.Message.MaintenanceAuthority.Code,
                     MaintainerLabel = envelope.Message.MaintenanceAuthority.Name,
