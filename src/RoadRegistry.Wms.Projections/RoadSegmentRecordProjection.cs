@@ -65,13 +65,13 @@ namespace RoadRegistry.Wms.Projections
                     RecordingDate = envelope.Message.RecordingDate,
                     TransactionId = 0,
 
-                    LeftSideMunicipality = 0,
+                    LeftSideMunicipality = null,
                     LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
                     LeftSideStreetNameLabel = string.IsNullOrWhiteSpace(envelope.Message.LeftSide.StreetName)
                         ? null
                         : envelope.Message.LeftSide.StreetName,
 
-                    RightSideMunicipality = 0,
+                    RightSideMunicipality = null,
                     RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
                     RightSideStreetNameLabel = string.IsNullOrWhiteSpace(envelope.Message.RightSide.StreetName)
                         ? null

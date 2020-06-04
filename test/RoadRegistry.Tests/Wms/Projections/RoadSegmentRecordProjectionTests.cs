@@ -186,11 +186,11 @@ namespace RoadRegistry.Wms.Projections
 
                     TransactionId = expectedRoadSegment.transactieID,
 
-                    LeftSideMunicipality = expectedRoadSegment.linksGemeente,
+                    LeftSideMunicipality = null,
                     LeftSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
                     LeftSideStreetNameLabel = expectedRoadSegment.linksStraatnaam,
 
-                    RightSideMunicipality = expectedRoadSegment.linksGemeente,
+                    RightSideMunicipality = null,
                     RightSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
                     RightSideStreetNameLabel = expectedRoadSegment.linksStraatnaam,
 
