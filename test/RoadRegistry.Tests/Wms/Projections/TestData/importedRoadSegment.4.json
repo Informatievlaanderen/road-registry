@@ -174,7 +174,8 @@
                 "organization": "Agentschap Wegen en Verkeer",
                 "operator": null,
                 "application": null,
-                "since": "2018-05-31T14:14:07.563Z"
+                "since": "2018-05-31T14:14:07.563Z",
+                "transactionId": null
             }
         },
         {
@@ -187,7 +188,8 @@
                 "organization": "Agentschap Wegen en Verkeer",
                 "operator": null,
                 "application": null,
-                "since": "2018-05-31T14:14:07.563Z"
+                "since": "2018-05-31T14:14:07.563Z",
+                "transactionId": null
             }
         }
     ],
@@ -204,7 +206,8 @@
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
                 "operator": null,
                 "application": null,
-                "since": "2014-02-20T14:35:32Z"
+                "since": "2014-02-20T14:35:32Z",
+                "transactionId": null
             }
         }
     ],
@@ -220,7 +223,8 @@
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
                 "operator": null,
                 "application": null,
-                "since": "2014-02-20T14:35:32Z"
+                "since": "2014-02-20T14:35:32Z",
+                "transactionId": null
             }
         }
     ],
@@ -236,7 +240,8 @@
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
                 "operator": null,
                 "application": null,
-                "since": "2014-02-20T14:35:32Z"
+                "since": "2014-02-20T14:35:32Z",
+                "transactionId": null
             }
         }
     ],
@@ -246,7 +251,8 @@
         "organization": "Agentschap Wegen en Verkeer",
         "operator": "",
         "application": "Wegenregister-BLL",
-        "since": "2017-03-15T15:44:48Z"
+        "since": "2017-03-15T15:44:48Z",
+        "transactionId": 979
     },
-    "when": "2020-06-04T15:00:21.6979322Z"
+    "when": "2020-06-05T07:08:15.4657302Z"
 }

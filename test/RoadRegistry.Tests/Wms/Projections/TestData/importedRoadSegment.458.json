@@ -117,7 +117,8 @@
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
                 "operator": null,
                 "application": null,
-                "since": "2014-02-20T14:35:32Z"
+                "since": "2014-02-20T14:35:32Z",
+                "transactionId": null
             }
         }
     ],
@@ -133,7 +134,8 @@
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
                 "operator": null,
                 "application": null,
-                "since": "2014-02-20T14:35:32Z"
+                "since": "2014-02-20T14:35:32Z",
+                "transactionId": null
             }
         }
     ],
@@ -149,7 +151,8 @@
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
                 "operator": null,
                 "application": null,
-                "since": "2014-02-20T14:35:32Z"
+                "since": "2014-02-20T14:35:32Z",
+                "transactionId": null
             }
         },
         {
@@ -163,7 +166,8 @@
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
                 "operator": null,
                 "application": null,
-                "since": "2014-02-20T14:35:32Z"
+                "since": "2014-02-20T14:35:32Z",
+                "transactionId": null
             }
         },
         {
@@ -177,7 +181,8 @@
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
                 "operator": null,
                 "application": null,
-                "since": "2014-02-20T14:35:32Z"
+                "since": "2014-02-20T14:35:32Z",
+                "transactionId": null
             }
         }
     ],
@@ -187,7 +192,8 @@
         "organization": "Agentschap voor Geografische Informatie Vlaanderen",
         "operator": "",
         "application": "Wegenregister-BLL",
-        "since": "2016-01-15T17:11:08Z"
+        "since": "2016-01-15T17:11:08Z",
+        "transactionId": 359
     },
-    "when": "2020-06-04T15:00:21.7068556Z"
+    "when": "2020-06-05T07:08:15.4725299Z"
 }

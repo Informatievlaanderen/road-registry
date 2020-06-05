@@ -84,7 +84,8 @@ namespace RoadRegistry.Legacy.Extract.Readers
                         lo.[label], --23
                         ws.[beginoperator], --24
                         ws.[beginapplicatie], --25
-                        ws.[begintijd] --26
+                        ws.[begintijd],--26
+                        ws.[transactieID] --27
                     FROM [dbo].[wegsegment] ws
                     LEFT OUTER JOIN [dbo].[gemeenteNIS] lg ON ws.[linksGemeente] = lg.[gemeenteId]
                     LEFT OUTER JOIN [dbo].[crabsnm] ls ON ws.[linksStraatnaamID] = ls.[EXN]
@@ -165,6 +166,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                                 Operator = reader.GetNullableString(24),
                                 Application = reader.GetNullableString(25),
                                 Since = reader.GetDateTime(26),
+                                TransactionId = reader.GetNullableInt32(27),
                             },
                             PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
                             PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),
@@ -209,7 +211,8 @@ namespace RoadRegistry.Legacy.Extract.Readers
                         lo.[label], --23
                         ws.[beginoperator], --24
                         ws.[beginapplicatie], --25
-                        ws.[begintijd] --26
+                        ws.[begintijd],--26
+                        ws.[transactieID] --27
                     FROM [dbo].[wegsegment] ws
                     LEFT OUTER JOIN [dbo].[gemeenteNIS] lg ON ws.[linksGemeente] = lg.[gemeenteId]
                     LEFT OUTER JOIN [dbo].[crabsnm] ls ON ws.[linksStraatnaamID] = ls.[EXN]
@@ -294,6 +297,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                                 Operator = reader.GetNullableString(24),
                                 Application = reader.GetNullableString(25),
                                 Since = reader.GetDateTime(26),
+                                TransactionId = reader.GetNullableInt32(27),
                             },
                             PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
                             PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),

@@ -77,7 +77,8 @@
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
                 "operator": null,
                 "application": null,
-                "since": "2014-02-20T14:35:32Z"
+                "since": "2014-02-20T14:35:32Z",
+                "transactionId": null
             }
         }
     ],
@@ -93,7 +94,8 @@
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
                 "operator": null,
                 "application": null,
-                "since": "2014-02-20T14:35:32Z"
+                "since": "2014-02-20T14:35:32Z",
+                "transactionId": null
             }
         }
     ],
@@ -109,7 +111,8 @@
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
                 "operator": null,
                 "application": null,
-                "since": "2014-02-20T14:35:32Z"
+                "since": "2014-02-20T14:35:32Z",
+                "transactionId": null
             }
         }
     ],
@@ -119,7 +122,8 @@
         "organization": "Agentschap voor Geografische Informatie Vlaanderen",
         "operator": "-8",
         "application": "-8",
-        "since": "2014-02-20T14:35:32Z"
+        "since": "2014-02-20T14:35:32Z",
+        "transactionId": 0
     },
-    "when": "2020-06-04T15:00:21.7136922Z"
+    "when": "2020-06-05T07:08:15.4801051Z"
 }

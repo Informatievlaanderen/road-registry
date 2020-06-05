@@ -63,7 +63,7 @@ namespace RoadRegistry.Wms.Projections
 
                     OrganizationLabel = envelope.Message.Origin.Organization,
                     RecordingDate = envelope.Message.RecordingDate,
-                    TransactionId = 0,
+                    TransactionId = envelope.Message.Origin.TransactionId,
 
                     LeftSideMunicipality = null,
                     LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,

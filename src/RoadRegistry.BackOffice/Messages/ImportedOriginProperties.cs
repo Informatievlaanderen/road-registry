@@ -9,5 +9,6 @@
         public string Operator { get; set; }
         public string Application { get; set; }
         public DateTime Since { get; set; }
+        public int? TransactionId { get; set; }
     }
 }
