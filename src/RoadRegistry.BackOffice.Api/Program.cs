@@ -159,8 +159,8 @@ namespace RoadRegistry.BackOffice.Api
 
                     builder
                         .AddSingleton<IStreamStore>(sp =>
-                            new MsSqlStreamStore(
-                                new MsSqlStreamStoreSettings(
+                            new MsSqlStreamStoreV3(
+                                new MsSqlStreamStoreV3Settings(
                                     hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events))
                                 {
                                     Schema = WellknownSchemas.EventSchema

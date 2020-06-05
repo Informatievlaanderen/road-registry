@@ -3,8 +3,7 @@ services:
   seq:
     image: datalust/seq:latest
     ports:
-      - "8888:80"
-      - "5341:5341"
+      - "5341:80"
     environment:
       ACCEPT_EULA: 'Y'
     volumes:
@@ -48,7 +47,7 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
-      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
       SERILOG__WRITETO__1__NAME: "Console"
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
@@ -76,7 +75,7 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
-      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
       SERILOG__WRITETO__1__NAME: "Console"
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
@@ -114,7 +113,7 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
-      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
       SERILOG__WRITETO__1__NAME: "Console"
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
@@ -135,7 +134,7 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
-      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
       SERILOG__WRITETO__1__NAME: "Console"
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
@@ -156,7 +155,7 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
-      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
       SERILOG__WRITETO__1__NAME: "Console"
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
@@ -172,7 +171,7 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
-      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
       SERILOG__WRITETO__1__NAME: "Console"
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
@@ -195,7 +194,7 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
-      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
       SERILOG__WRITETO__1__NAME: "Console"
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000
@@ -219,7 +218,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Staging
       SERILOG__WRITETO__0__NAME: "Seq"
-      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:5341"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
       SERILOG__WRITETO__1__NAME: "Console"
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MINIO_SERVER: http://minio:9000

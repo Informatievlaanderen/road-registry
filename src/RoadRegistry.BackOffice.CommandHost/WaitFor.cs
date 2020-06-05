@@ -57,7 +57,7 @@ namespace RoadRegistry.BackOffice.CommandHost
 
         public static async Task SqlStreamStoreToBecomeAvailable(IStreamStore store, ILogger<Program> logger, CancellationToken cancellationToken = default)
         {
-            if (store is MsSqlStreamStore)
+            if (store is MsSqlStreamStoreV3)
             {
                 var watch = Stopwatch.StartNew();
                 var exit = false;
