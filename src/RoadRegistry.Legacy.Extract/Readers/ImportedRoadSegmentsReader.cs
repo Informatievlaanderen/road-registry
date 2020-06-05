@@ -82,7 +82,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                         ws.[opnamedatum], --21
                         ws.[beginorganisatie], --22
                         lo.[label], --23
-                        ws.[begintijd] --24
+                        ws.[beginoperator], --24
+                        ws.[beginapplicatie], --25
+                        ws.[begintijd] --26
                     FROM [dbo].[wegsegment] ws
                     LEFT OUTER JOIN [dbo].[gemeenteNIS] lg ON ws.[linksGemeente] = lg.[gemeenteId]
                     LEFT OUTER JOIN [dbo].[crabsnm] ls ON ws.[linksStraatnaamID] = ls.[EXN]
@@ -160,7 +162,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                             {
                                 OrganizationId = reader.GetNullableString(22),
                                 Organization = reader.GetNullableString(23),
-                                Since = reader.GetDateTime(24)
+                                Operator = reader.GetNullableString(24),
+                                Application = reader.GetNullableString(25),
+                                Since = reader.GetDateTime(26),
                             },
                             PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
                             PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),
@@ -203,7 +207,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                         ws.[opnamedatum], --21
                         ws.[beginorganisatie], --22
                         lo.[label], --23
-                        ws.[begintijd] --24
+                        ws.[beginoperator], --24
+                        ws.[beginapplicatie], --25
+                        ws.[begintijd] --26
                     FROM [dbo].[wegsegment] ws
                     LEFT OUTER JOIN [dbo].[gemeenteNIS] lg ON ws.[linksGemeente] = lg.[gemeenteId]
                     LEFT OUTER JOIN [dbo].[crabsnm] ls ON ws.[linksStraatnaamID] = ls.[EXN]
@@ -285,7 +291,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                             {
                                 OrganizationId = reader.GetNullableString(22),
                                 Organization = reader.GetNullableString(23),
-                                Since = reader.GetDateTime(24)
+                                Operator = reader.GetNullableString(24),
+                                Application = reader.GetNullableString(25),
+                                Since = reader.GetDateTime(26),
                             },
                             PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
                             PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),

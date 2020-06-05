@@ -4,7 +4,7 @@
     "startNodeId": 7,
     "endNodeId": 8,
     "geometry": {
-        "spatialReferenceSystemIdentifier": 103300,
+        "spatialReferenceSystemIdentifier": 31370,
         "multiLineString": [
             {
                 "points": [
@@ -172,6 +172,8 @@
             "origin": {
                 "organizationId": "V0201             ",
                 "organization": "Agentschap Wegen en Verkeer",
+                "operator": null,
+                "application": null,
                 "since": "2018-05-31T14:14:07.563Z"
             }
         },
@@ -183,6 +185,8 @@
             "origin": {
                 "organizationId": "V0201             ",
                 "organization": "Agentschap Wegen en Verkeer",
+                "operator": null,
+                "application": null,
                 "since": "2018-05-31T14:14:07.563Z"
             }
         }
@@ -198,6 +202,8 @@
             "origin": {
                 "organizationId": "AGIV",
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
+                "operator": null,
+                "application": null,
                 "since": "2014-02-20T14:35:32Z"
             }
         }
@@ -212,6 +218,8 @@
             "origin": {
                 "organizationId": "AGIV",
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
+                "operator": null,
+                "application": null,
                 "since": "2014-02-20T14:35:32Z"
             }
         }
@@ -226,6 +234,8 @@
             "origin": {
                 "organizationId": "AGIV",
                 "organization": "Agentschap voor Geografische Informatie Vlaanderen",
+                "operator": null,
+                "application": null,
                 "since": "2014-02-20T14:35:32Z"
             }
         }
@@ -234,7 +244,9 @@
     "origin": {
         "organizationId": "AWV",
         "organization": "Agentschap Wegen en Verkeer",
+        "operator": "",
+        "application": "Wegenregister-BLL",
         "since": "2017-03-15T15:44:48Z"
     },
-    "when": "2020-05-11T11:38:28.270244Z"
+    "when": "2020-06-04T15:00:21.6979322Z"
 }
