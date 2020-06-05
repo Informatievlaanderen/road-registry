@@ -11,7 +11,7 @@ namespace RoadRegistry.Wms.Schema
         {
             b.ToTable(TableName, WellknownSchemas.WmsSchema)
                 .HasIndex(p => p.Id)
-                .IsClustered();
+                .IsClustered(false);
 
             b.Property(p => p.Id)
                 .ValueGeneratedOnAdd()
