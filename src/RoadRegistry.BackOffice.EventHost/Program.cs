@@ -167,8 +167,8 @@
                                 ),
                                 WellknownSchemas.EventHostSchema))
                         .AddSingleton<IStreamStore>(sp =>
-                            new MsSqlStreamStore(
-                                new MsSqlStreamStoreSettings(
+                            new MsSqlStreamStoreV3(
+                                new MsSqlStreamStoreV3Settings(
                                     sp
                                         .GetService<IConfiguration>()
                                         .GetConnectionString(WellknownConnectionNames.Events)

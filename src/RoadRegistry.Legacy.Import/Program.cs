@@ -171,13 +171,14 @@ namespace RoadRegistry.Legacy.Import
                                 hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events)
                             )
                         )
-                        .AddSingleton<IStreamStore>(new MsSqlStreamStore(
-                            new MsSqlStreamStoreSettings(
-                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events)
-                            )
-                            {
-                                Schema = WellknownSchemas.EventSchema
-                            }))
+                        .AddSingleton<IStreamStore>(
+                            new MsSqlStreamStoreV3(
+                                new MsSqlStreamStoreV3Settings(
+                                    hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events)
+                                )
+                                {
+                                    Schema = WellknownSchemas.EventSchema
+                                }))
                         .AddSingleton<LegacyStreamEventsWriter>();
                 })
                 .Build();
@@ -216,9 +217,9 @@ namespace RoadRegistry.Legacy.Import
                             logger
                         ).ConfigureAwait(false);
 
-                        if (streamStore is MsSqlStreamStore sqlStreamStore)
+                        if (streamStore is MsSqlStreamStoreV3 sqlStreamStore)
                         {
-                            await sqlStreamStore.CreateSchema().ConfigureAwait(false);
+                            await sqlStreamStore.CreateSchemaIfNotExists().ConfigureAwait(false);
                         }
 
                         var page = await streamStore
