@@ -6,18 +6,11 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Amazon;
-    using Amazon.Runtime;
-    using Amazon.S3;
     using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
-    using Be.Vlaanderen.Basisregisters.BlobStore;
-    using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
-    using Be.Vlaanderen.Basisregisters.BlobStore.IO;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Configuration;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -108,7 +101,7 @@
                         )
                         .AddSingleton(sp => new ConnectedProjection<WmsContext>[]
                         {
-                            new RoadSegmentRecordProjection(WindowsAnsiEncoding)
+                            new RoadSegmentRecordProjection()
                         })
                         .AddSingleton(sp =>
                             Resolve

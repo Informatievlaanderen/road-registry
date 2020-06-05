@@ -1,7 +1,5 @@
 namespace RoadRegistry.Wms.Projections
 {
-    using System;
-    using System.Text;
     using BackOffice;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -10,10 +8,8 @@ namespace RoadRegistry.Wms.Projections
 
     public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
     {
-        public RoadSegmentRecordProjection(Encoding encoding)
+        public RoadSegmentRecordProjection()
         {
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
-
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
                 var roadSegmentGeometryDrawMethod =

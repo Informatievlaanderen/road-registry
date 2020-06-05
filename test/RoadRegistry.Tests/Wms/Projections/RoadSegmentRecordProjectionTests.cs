@@ -3,7 +3,6 @@ namespace RoadRegistry.Wms.Projections
     using System;
     using System.Data;
     using System.Data.SqlClient;
-    using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
     using BackOffice;
@@ -145,7 +144,7 @@ namespace RoadRegistry.Wms.Projections
 
             var expectedRoadSegment = await _testDataHelper.ExpectedRoadSegment(wegSegmentId);
 
-            await new RoadSegmentRecordProjection(Encoding.UTF8)
+            await new RoadSegmentRecordProjection()
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new RoadSegmentRecord
