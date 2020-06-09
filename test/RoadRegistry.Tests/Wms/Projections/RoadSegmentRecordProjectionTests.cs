@@ -1,33 +1,27 @@
 namespace RoadRegistry.Wms.Projections
 {
     using System;
-    using System.Data;
-    using System.Data.SqlClient;
     using System.Threading.Tasks;
     using AutoFixture;
     using BackOffice;
     using BackOffice.Messages;
     using Framework;
-    using RoadRegistry.Framework.Containers;
     using RoadRegistry.Framework.Projections;
     using RoadRegistry.Projections;
     using Schema;
     using Xunit;
-    using Assert = Xunit.Assert;
 
-    [Collection(nameof(SqlServerCollection))]
     public class RoadSegmentRecordProjectionTests
     {
-        private readonly SqlServer _sqlServer;
         private readonly Fixture _fixture;
         private readonly TestDataHelper _testDataHelper;
 
-        public RoadSegmentRecordProjectionTests(SqlServer sqlServer)
+        public RoadSegmentRecordProjectionTests()
         {
-            _sqlServer = sqlServer ?? throw new ArgumentNullException(nameof(sqlServer));
             _testDataHelper = new TestDataHelper();
 
             _fixture = new Fixture();
+            _fixture.CustomizeArchiveId();
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeRoadNodeId();
@@ -50,88 +44,8 @@ namespace RoadRegistry.Wms.Projections
             _fixture.CustomizeRoadSegmentAccessRestriction();
             _fixture.CustomizeRoadSegmentGeometryVersion();
 
-            _fixture.CustomizeArchiveId();
-
             _fixture.CustomizeImportedRoadSegment();
             _fixture.CustomizeRoadSegmentAdded();
-        }
-
-        [Theory]
-        [InlineData(904)]
-        [InlineData(458)]
-        public async Task GeometryTest(int wegSegmentId)
-        {
-            var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(wegSegmentId);
-
-            var sqlGeometry = SqlGeometryTranslator.TranslateGeometry(importedRoadSegment);
-
-            var expected = await _testDataHelper.ExpectedWegsegmentDeNormFromFileAsync(wegSegmentId);
-
-            Assert.Equal(expected.Geometrie, sqlGeometry.Serialize().Buffer);
-        }
-
-        [Theory]
-        [InlineData(904)]
-        [InlineData(458)]
-        public async Task Geometry2DTest(int wegSegmentId)
-        {
-            var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(wegSegmentId);
-
-            var sqlGeometry = SqlGeometryTranslator.TranslateGeometry2D(importedRoadSegment);
-
-            var expected = await _testDataHelper.ExpectedWegsegmentDeNormFromFileAsync(wegSegmentId);
-
-            Assert.Equal(expected.Geometrie2D, sqlGeometry.Serialize().Buffer);
-        }
-
-        [Theory]
-        [InlineData(904)]
-        [InlineData(458)]
-        public async Task CanWriteAndReadSameGeometry(int wegSegmentId)
-        {
-            var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(wegSegmentId);
-
-            var sqlGeometry = SqlGeometryTranslator.TranslateGeometry(importedRoadSegment);
-
-            var expected = await _testDataHelper.ExpectedWegsegmentDeNormFromFileAsync(wegSegmentId);
-
-            var databaseAsync = await _sqlServer.CreateDatabaseAsync();
-
-            await _sqlServer.EnsureWmsSchemaAsync(databaseAsync);
-
-            using (var conn = new SqlConnection(databaseAsync.ConnectionString))
-            {
-                conn.Open();
-
-                const string sql =
-                    "INSERT INTO [dbo].[wegsegmentDeNorm](wegSegmentId, geometrie) VALUES(@param1,@param2)";
-                using(var cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = sql;
-                    cmd.Parameters.Add("@param1", SqlDbType.Int).Value = wegSegmentId;
-                    cmd.Parameters.Add("@param2", SqlDbType.Binary).Value = sqlGeometry.Serialize().Buffer;
-                    cmd.CommandType = CommandType.Text;
-                    cmd.ExecuteNonQuery();
-                }
-
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText =
-                        "select wegSegmentId, geometrie from [dbo].[wegsegmentDeNorm] where wegSegmentId = @param1";
-                    cmd.Parameters.Add("@param1", SqlDbType.Int).Value = wegSegmentId;
-
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                    {
-                        while (reader.Read())
-                        {
-                            var geoValue = reader.GetSqlBytes(1);
-                            Assert.Equal(
-                                geoValue.Buffer,
-                                expected.Geometrie);
-                        }
-                    }
-                }
-            }
         }
 
         [Theory]

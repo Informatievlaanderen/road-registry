@@ -21,8 +21,6 @@ nuget Microsoft.Extensions.Options.ConfigurationExtensions 3.1.4
 nuget Microsoft.Extensions.Http.Polly 3.1.4
 nuget Polly 7.2.1
 
-nuget dotMorten.Microsoft.SqlServer.Types 1.1.0
-nuget Microsoft.SqlServer.Types 14.0.1016.290
 nuget Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite 3.1.4
 
 // For more healtchecks, look at https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks
@@ -128,4 +126,3 @@ nuget AutoFixture.Idioms 4.11.0
 nuget CompareNETObjects 4.66.0
 nuget NodaTime.Testing 2.4.8
 nuget CsvHelper 15.0.5
-
