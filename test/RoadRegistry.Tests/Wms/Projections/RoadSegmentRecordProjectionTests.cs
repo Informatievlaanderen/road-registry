@@ -128,7 +128,7 @@ namespace RoadRegistry.Wms.Projections
                     Id = segment.Id,
                     BeginOperator = message.Operator,
                     BeginOrganization = message.Organization,
-                    BeginTime = DateTime.Parse(message.When),
+                    BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When),
                     BeginApplication = null,
 
                     Maintainer = segment.MaintenanceAuthority.Code,
@@ -154,7 +154,7 @@ namespace RoadRegistry.Wms.Projections
                     AccessRestrictionLabel = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name,
 
                     OrganizationLabel = message.Organization,
-                    RecordingDate = DateTime.Parse(message.When),
+                    RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(message.When),
 
                     SourceId = null,
                     SourceIdSource = null,
