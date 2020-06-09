@@ -35,7 +35,7 @@ namespace RoadRegistry.Wms.Projections.Framework
             };
         }
 
-        public async Task<ExpectedWegsegmentRecord> ExpectedRoadSegment(int number)
+        public ExpectedWegsegmentRecord ExpectedRoadSegment(int number)
         {
             using (var streamReader = new StreamReader($"Wms/Projections/TestData/expected.{number}.csv"))
             using (var csv = new CsvTestDataReader(streamReader))
@@ -44,7 +44,7 @@ namespace RoadRegistry.Wms.Projections.Framework
             }
         }
 
-        public async Task<Geometry> ExpectedGeometry(int number)
+        public Geometry ExpectedGeometry(int number)
         {
             var reader = new SqlServerBytesReader
             {
@@ -60,7 +60,7 @@ namespace RoadRegistry.Wms.Projections.Framework
             }
         }
 
-        public async Task<Geometry> ExpectedGeometry2D(int number)
+        public Geometry ExpectedGeometry2D(int number)
         {
             var reader = new SqlServerBytesReader
             {

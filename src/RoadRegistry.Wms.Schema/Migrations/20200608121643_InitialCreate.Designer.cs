@@ -11,7 +11,7 @@ using RoadRegistry.Wms.Schema;
 namespace RoadRegistry.Wms.Schema.Migrations
 {
     [DbContext(typeof(WmsContext))]
-    [Migration("20200605122406_InitialCreate")]
+    [Migration("20200608121643_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,10 +45,8 @@ namespace RoadRegistry.Wms.Schema.Migrations
             modelBuilder.Entity("RoadRegistry.Wms.Schema.RoadSegmentRecord", b =>
                 {
                     b.Property<int?>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnName("wegsegmentID")
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<int?>("AccessRestriction")
                         .HasColumnName("toegangsbeperking")

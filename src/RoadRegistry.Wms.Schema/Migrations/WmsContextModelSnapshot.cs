@@ -43,10 +43,8 @@ namespace RoadRegistry.Wms.Schema.Migrations
             modelBuilder.Entity("RoadRegistry.Wms.Schema.RoadSegmentRecord", b =>
                 {
                     b.Property<int?>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnName("wegsegmentID")
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<int?>("AccessRestriction")
                         .HasColumnName("toegangsbeperking")

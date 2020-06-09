@@ -19,8 +19,7 @@ namespace RoadRegistry.Wms.Schema.Migrations
                 schema: "RoadRegistryWms",
                 columns: table => new
                 {
-                    wegsegmentID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    wegsegmentID = table.Column<int>(nullable: false),
                     methode = table.Column<int>(nullable: true),
                     beheerder = table.Column<string>(type: "varchar(18)", nullable: true),
                     begintijd = table.Column<string>(type: "varchar(100)", nullable: true),

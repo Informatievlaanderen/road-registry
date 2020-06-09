@@ -14,7 +14,7 @@ namespace RoadRegistry.Wms.Schema
                 .IsClustered(false);
 
             b.Property(p => p.Id)
-                .ValueGeneratedOnAdd()
+                .ValueGeneratedNever()
                 .IsRequired()
                 .HasColumnName("wegsegmentID");
 

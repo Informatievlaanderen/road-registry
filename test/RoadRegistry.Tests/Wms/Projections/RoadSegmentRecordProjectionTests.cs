@@ -139,10 +139,10 @@ namespace RoadRegistry.Wms.Projections
         {
             var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(wegSegmentId);
 
-            var expectedGeometry = await _testDataHelper.ExpectedGeometry(wegSegmentId);
-            var expectedGeometry2D = await _testDataHelper.ExpectedGeometry2D(wegSegmentId);
+            var expectedGeometry = _testDataHelper.ExpectedGeometry(wegSegmentId);
+            var expectedGeometry2D = _testDataHelper.ExpectedGeometry2D(wegSegmentId);
 
-            var expectedRoadSegment = await _testDataHelper.ExpectedRoadSegment(wegSegmentId);
+            var expectedRoadSegment = _testDataHelper.ExpectedRoadSegment(wegSegmentId);
 
             await new RoadSegmentRecordProjection()
                 .Scenario()
