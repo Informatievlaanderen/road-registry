@@ -9,6 +9,9 @@ namespace RoadRegistry.Projections
     using NetTopologySuite.Geometries;
     using NodaTime;
     using NodaTime.Text;
+    using RoadSegmentLaneAttributes = BackOffice.Messages.RoadSegmentLaneAttributes;
+    using RoadSegmentSurfaceAttributes = BackOffice.Messages.RoadSegmentSurfaceAttributes;
+    using RoadSegmentWidthAttributes = BackOffice.Messages.RoadSegmentWidthAttributes;
 
     internal static class Customizations
     {
@@ -225,6 +228,60 @@ namespace RoadRegistry.Projections
                                 Type = fixture.Create<GradeSeparatedJunctionType>(),
                                 LowerRoadSegmentId = fixture.Create<RoadSegmentId>(),
                                 UpperRoadSegmentId = fixture.Create<RoadSegmentId>()
+                            }
+                        }
+                    )
+                    .OmitAutoProperties()
+                );
+            fixture.Customize<RoadNetworkChangesBasedOnArchiveAccepted>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadNetworkChangesBasedOnArchiveAccepted
+                        {
+                            ArchiveId = fixture.Create<ArchiveId>(),
+                            Reason = fixture.Create<Reason>(),
+                            Operator = fixture.Create<OperatorName>(),
+                            OrganizationId = fixture.Create<OrganizationId>(),
+                            Organization = fixture.Create<OrganizationName>(),
+                            Changes = fixture.CreateMany<BackOffice.Messages.AcceptedChange>(generator.Next(1,5)).ToArray(),
+                            When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeRoadSegmentAdded(this IFixture fixture)
+        {
+            fixture.Customize<BackOffice.Messages.AcceptedChange>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new BackOffice.Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = new RoadSegmentAdded
+                            {
+                                Id = fixture.Create<RoadSegmentId>(),
+                                TemporaryId = fixture.Create<RoadSegmentId>(),
+                                Category = fixture.Create<RoadSegmentCategory>(),
+                                Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
+                                Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>(generator.Next(1,5)).ToArray(),
+                                Morphology = fixture.Create<RoadSegmentMorphology>(),
+                                Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>(generator.Next(1,5)).ToArray(),
+                                Version = fixture.Create<int>(),
+                                Widths = fixture.CreateMany<RoadSegmentWidthAttributes>(generator.Next(1,5)).ToArray(),
+                                LeftSide = fixture.Create<RoadSegmentSideAttributes>(),
+                                RightSide = fixture.Create<RoadSegmentSideAttributes>(),
+                                MaintenanceAuthority = new MaintenanceAuthority
+                                {
+                                    Code = fixture.Create<OrganizationId>(),
+                                    Name = fixture.Create<OrganizationName>()
+                                },
+                                GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                                GeometryVersion = fixture.Create<GeometryVersion>(),
+                                Status = fixture.Create<RoadSegmentStatus>(),
+                                AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
+                                StartNodeId = fixture.Create<RoadNodeId>(),
+                                EndNodeId = fixture.Create<RoadNodeId>()
                             }
                         }
                     )

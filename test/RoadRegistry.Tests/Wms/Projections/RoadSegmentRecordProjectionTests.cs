@@ -50,7 +50,10 @@ namespace RoadRegistry.Wms.Projections
             _fixture.CustomizeRoadSegmentAccessRestriction();
             _fixture.CustomizeRoadSegmentGeometryVersion();
 
+            _fixture.CustomizeArchiveId();
+
             _fixture.CustomizeImportedRoadSegment();
+            _fixture.CustomizeRoadSegmentAdded();
         }
 
         [Theory]
@@ -135,7 +138,7 @@ namespace RoadRegistry.Wms.Projections
         [InlineData(904)]
         [InlineData(458)]
         [InlineData(4)]
-        public async Task ImportedRoadNodeExamples(int wegSegmentId)
+        public async Task When_importing_road_segments(int wegSegmentId)
         {
             var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(wegSegmentId);
 
@@ -197,6 +200,71 @@ namespace RoadRegistry.Wms.Projections
                     BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,
                     EndRoadNodeId = expectedRoadSegment.eindWegknoopID,
                 });
+        }
+
+        [Fact]
+        public Task When_adding_road_segments()
+        {
+            var message = _fixture.Create<RoadNetworkChangesBasedOnArchiveAccepted>();
+            var expectedRecords = Array.ConvertAll(message.Changes, change =>
+            {
+                var segment = change.RoadSegmentAdded;
+                return (object)new RoadSegmentRecord
+                {
+                    Id = segment.Id,
+                    BeginOperator = message.Operator,
+                    BeginOrganization = message.Organization,
+                    BeginTime = DateTime.Parse(message.When),
+                    BeginApplication = null,
+
+                    Maintainer = segment.MaintenanceAuthority.Code,
+                    MaintainerLabel = segment.MaintenanceAuthority.Name,
+
+                    Method = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Identifier,
+                    MethodLabel = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Name,
+
+                    Category = RoadSegmentCategory.Parse(segment.Category).Translation.Identifier,
+                    CategoryLabel = RoadSegmentCategory.Parse(segment.Category).Translation.Name,
+
+                    Geometry = WmsGeometryTranslator.Translate3D(segment.Geometry),
+                    Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry),
+                    GeometryVersion = segment.GeometryVersion,
+
+                    Morphology = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Identifier,
+                    MorphologyLabel = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Name,
+
+                    Status = RoadSegmentStatus.Parse(segment.Status).Translation.Identifier,
+                    StatusLabel = RoadSegmentStatus.Parse(segment.Status).Translation.Name,
+
+                    AccessRestriction = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Identifier,
+                    AccessRestrictionLabel = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name,
+
+                    OrganizationLabel = message.Organization,
+                    RecordingDate = DateTime.Parse(message.When),
+
+                    SourceId = null,
+                    SourceIdSource = null,
+
+                    TransactionId = null,
+
+                    LeftSideMunicipality = null,
+                    LeftSideStreetNameId = segment.LeftSide.StreetNameId,
+                    LeftSideStreetNameLabel = null,
+
+                    RightSideMunicipality = null,
+                    RightSideStreetNameId = segment.RightSide.StreetNameId,
+                    RightSideStreetNameLabel = null,
+
+                    RoadSegmentVersion = segment.Version,
+                    BeginRoadNodeId = segment.StartNodeId,
+                    EndRoadNodeId = segment.EndNodeId,
+                };
+            });
+
+            return new RoadSegmentRecordProjection()
+                .Scenario()
+                .Given(message)
+                .Expect(expectedRecords);
         }
     }
 }
