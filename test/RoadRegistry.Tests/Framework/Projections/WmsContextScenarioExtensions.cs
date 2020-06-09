@@ -15,10 +15,6 @@ namespace RoadRegistry.Framework.Projections
     using Xunit.Sdk;
     using Envelope = Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope;
 
-    internal class MemoryWmsContext : WmsContext {
-        public MemoryWmsContext(DbContextOptions<WmsContext> options) : base(options) { }
-    }
-
     public static class WmsContextScenarioExtensions
     {
         public static ConnectedProjectionScenario<WmsContext> Scenario(this ConnectedProjection<WmsContext> projection) =>
@@ -128,7 +124,7 @@ namespace RoadRegistry.Framework.Projections
                 .EnableSensitiveDataLogging()
                 .Options;
 
-            return new MemoryWmsContext(options);
+            return new WmsContext(options);
         }
 
         private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<WmsContext> specification, VerificationResult result)
