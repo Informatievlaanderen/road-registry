@@ -162,6 +162,21 @@ services:
       CONNECTIONSTRINGS__PRODUCTPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__PRODUCTPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
 
+  wms-projection-host:
+    build: dist/RoadRegistry.Wms.ProjectionHost/linux
+    depends_on:
+      - mssql-seed
+      - seq
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      SERILOG__WRITETO__0__NAME: "Seq"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
+      SERILOG__WRITETO__1__NAME: "Console"
+      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__WMSPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      CONNECTIONSTRINGS__WMSPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+
   backoffice-event-host:
     build: dist/RoadRegistry.BackOffice.EventHost/linux
     depends_on:
