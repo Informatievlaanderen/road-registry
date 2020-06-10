@@ -150,7 +150,6 @@ services:
     build: dist/RoadRegistry.Product.ProjectionHost/linux
     depends_on:
       - mssql-seed
-      - minio
       - seq
     environment:
       DOTNET_ENVIRONMENT: Development
