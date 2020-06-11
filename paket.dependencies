@@ -68,9 +68,9 @@ nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling 5.0.5
 nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac 5.0.5
 nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit 5.0.5
 
-nuget Be.Vlaanderen.Basisregisters.Api 11.2.3
+nuget Be.Vlaanderen.Basisregisters.Api 11.2.4
 
-nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex 2.2.3
+nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex 2.2.5
 
 nuget Be.Vlaanderen.Basisregisters.CommandHandling 5.0.5
 nuget Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency 5.0.5
@@ -89,9 +89,9 @@ nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication 6.0.4
 
 nuget Be.Vlaanderen.Basisregisters.Projector 5.2.4
 
-nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac 4.4.3
-nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.AspNetCore 4.4.3
-nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore 4.4.3
+nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac 4.5.0
+nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.AspNetCore 4.5.0
+nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore 4.5.0
 
 nuget Be.Vlaanderen.Basisregisters.BlobStore 2.2.4
 
