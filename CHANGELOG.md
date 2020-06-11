@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/informatievlaanderen/road-registry/compare/v1.10.0...v1.11.0) (2020-06-11)
+
+
+### Features
+
+* upgrade vbr api package ([703d7be](https://github.com/informatievlaanderen/road-registry/commit/703d7be749e85a0654ff9d871dba0d867cabb387))
+
 # [1.10.0](https://github.com/informatievlaanderen/road-registry/compare/v1.9.1...v1.10.0) (2020-06-02)
 
 
