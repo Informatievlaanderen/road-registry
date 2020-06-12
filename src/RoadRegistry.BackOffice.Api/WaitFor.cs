@@ -1,7 +1,9 @@
 namespace RoadRegistry.BackOffice.Api
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
@@ -9,16 +11,31 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.Extensions.Logging;
     using SqlStreamStore;
 
+    internal class WriteTo
+    {
+        public WriteTo()
+        {
+            Args = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        }
+
+        public string Name { get; set; }
+
+        public Dictionary<string, string> Args { get; set; }
+    }
+
     internal static class WaitFor
     {
         public static async Task SeqToBecomeAvailable(
             IConfiguration configuration,
             CancellationToken token = default)
         {
-            var nameOfSink = configuration.GetValue<string>("SERILOG__WRITETO__0__NAME");
-            if (nameOfSink == "Seq")
+            var writeTos = new List<WriteTo>();
+            configuration.GetSection("SERILOG").Bind("WRITETO", writeTos);
+
+            var seq = writeTos.SingleOrDefault(to => "seq".Equals(to.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (seq != null)
             {
-                var serverUrl = configuration.GetValue<string>("SERILOG__WRITETO__0__ARGS__SERVERURL");
+                var serverUrl = seq.Args["SERVERURL"];
                 using (var client = new HttpClient())
                 {
                     client.BaseAddress = new Uri(serverUrl);
