@@ -36,15 +36,6 @@ namespace RoadRegistry.BackOffice.Core
             });
         }
 
-        public void Change(RequestedChanges requestedChanges)
-        {
-            //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
-
-            requestedChanges
-                .VerifyWith(_view.With(requestedChanges))
-                .RecordUsing(Apply);
-        }
-
         public void ChangeBasedOnArchive(ArchiveId archiveId, Reason reason, OperatorName @operator,
             Organization.DutchTranslation organization, RequestedChanges requestedChanges)
         {
@@ -52,7 +43,30 @@ namespace RoadRegistry.BackOffice.Core
 
             requestedChanges
                 .VerifyWith(_view.With(requestedChanges))
-                .RecordUsing(archiveId, reason, @operator, organization, Apply);
+                .RecordUsing(archiveId, reason, @operator, organization, _view.MaximumTransactionId, Apply);
+            //TODO: Inline RecordUsing, it's merely obscuring what's going on and not really telling anything.
+        }
+
+        public Func<TransactionId> ProvidesNextTransactionId() // TODO: Find a use for this or kick it out
+        {
+            return new NextTransactionIdProvider(_view.MaximumTransactionId).Next;
+        }
+
+        private class NextTransactionIdProvider
+        {
+            private TransactionId _current;
+
+            public NextTransactionIdProvider(TransactionId current)
+            {
+                _current = current;
+            }
+
+            public TransactionId Next()
+            {
+                var next = _current.Next();
+                _current = next;
+                return next;
+            }
         }
 
         public Func<RoadNodeId> ProvidesNextRoadNodeId()

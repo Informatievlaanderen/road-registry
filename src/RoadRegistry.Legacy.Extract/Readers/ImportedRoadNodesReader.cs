@@ -30,14 +30,16 @@ namespace RoadRegistry.Legacy.Extract.Readers
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
             return new SqlCommand(
-                @"SELECT
-                            wk.[wegknoopID],
-                            wk.[wegknoopversie],
-                            wk.[type],
-                            wk.[geometrie].AsBinaryZM(),
-                            wk.[beginorganisatie],
-                            lo.[label],
-                            wk.[begintijd]
+                @"SELECT wk.[wegknoopID]
+                            ,wk.[wegknoopversie]
+                            ,wk.[type]
+                            ,wk.[geometrie].AsBinaryZM()
+                            ,wk.[beginorganisatie]
+                            ,lo.[label]
+                            ,wk.[beginoperator]
+                            ,wk.[beginapplicatie]
+                            ,wk.[begintijd]
+                            ,wk.[transactieid]
                         FROM [dbo].[wegknoop] wk
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON wk.[beginorganisatie] = lo.[code]", connection
             ).YieldEachDataRecord(reader =>
@@ -64,7 +66,10 @@ namespace RoadRegistry.Legacy.Extract.Readers
                     {
                         OrganizationId = reader.GetNullableString(4),
                         Organization = reader.GetNullableString(5),
-                        Since = reader.GetDateTime(6)
+                        Operator = reader.GetNullableString(6),
+                        Application = reader.GetNullableString(7),
+                        Since = reader.GetDateTime(8),
+                        TransactionId = reader.GetNullableInt32(9) ?? TransactionId.Unknown.ToInt32()
                     },
                     When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
                 });

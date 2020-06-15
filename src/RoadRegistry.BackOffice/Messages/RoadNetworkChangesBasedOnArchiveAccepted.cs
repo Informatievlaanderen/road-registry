@@ -11,6 +11,7 @@ namespace RoadRegistry.BackOffice.Messages
         public string Operator { get; set; }
         public string OrganizationId { get; set; }
         public string Organization { get; set; }
+        public int TransactionId { get; set; }
         public AcceptedChange[] Changes { get; set; }
         public string When { get; set; }
     }
