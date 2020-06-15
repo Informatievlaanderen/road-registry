@@ -411,6 +411,8 @@ namespace RoadRegistry.BackOffice
                         {
                             Organization = fixture.Create<OrganizationName>(),
                             OrganizationId = fixture.Create<OrganizationId>(),
+                            Operator = fixture.Create<OperatorName>(),
+                            Application = fixture.Create<string>(),
                             Since = fixture.Create<DateTime>()
                         }
                     )

@@ -18,3 +18,6 @@ xunit.runner.visualstudio
 xunit.categories
 
 SqlStreamStore.MsSql
+Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+NetTopologySuite.IO.GeoJSON
+CsvHelper

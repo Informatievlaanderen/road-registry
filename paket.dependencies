@@ -1,5 +1,11 @@
+// Only the target frameworks that are used in projects.
+// If you change the target framework of the projects then you need to run paket install again.
 framework: netcoreapp31
+
 source https://api.nuget.org/v3/index.json
+
+// When doing development as an employee, uncomment this to use the private NuGet proxy
+// source https://informatievlaanderen.myget.org/F/nuget-mirror/api/v3/index.json username: "%MYGET_FEED_USER%" password: "%MYGET_FEED_PASS%" authtype: "basic"
 
 // PRODUCTION STUFF
 nuget Microsoft.Extensions.Configuration 3.1.4
@@ -19,6 +25,8 @@ nuget Polly 7.2.1
 nuget AspNetCore.HealthChecks.SqlServer 3.1.1
 
 nuget NetTopologySuite 2.0.0
+nuget NetTopologySuite.IO.GeoJSON 2.0.2
+nuget Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite 3.1.4
 
 nuget Microsoft.EntityFrameworkCore 3.1.4
 nuget Microsoft.EntityFrameworkCore.Abstractions 3.1.4
@@ -116,3 +124,4 @@ nuget AutoFixture.Xunit2 4.11.0
 nuget AutoFixture.Idioms 4.11.0
 nuget CompareNETObjects 4.66.0
 nuget NodaTime.Testing 2.4.8
+nuget CsvHelper 15.0.5
