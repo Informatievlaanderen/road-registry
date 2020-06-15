@@ -13,11 +13,11 @@ namespace RoadRegistry.Wms.Projections
         {
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
-                var roadSegmentGeometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);
+                var method = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);
                 var accessRestriction = RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction);
-                var roadSegmentStatus = RoadSegmentStatus.Parse(envelope.Message.Status);
-                var roadSegmentMorphology = RoadSegmentMorphology.Parse(envelope.Message.Morphology);
-                var roadSegmentCategory = RoadSegmentCategory.Parse(envelope.Message.Category);
+                var status = RoadSegmentStatus.Parse(envelope.Message.Status);
+                var morphology = RoadSegmentMorphology.Parse(envelope.Message.Morphology);
+                var category = RoadSegmentCategory.Parse(envelope.Message.Category);
 
                 await context.RoadSegments.AddAsync(new RoadSegmentRecord
                 {
@@ -30,21 +30,21 @@ namespace RoadRegistry.Wms.Projections
                     Maintainer = envelope.Message.MaintenanceAuthority.Code,
                     MaintainerLabel = envelope.Message.MaintenanceAuthority.Name,
 
-                    Method = roadSegmentGeometryDrawMethod.Translation.Identifier,
-                    MethodLabel = roadSegmentGeometryDrawMethod.Translation.Name,
+                    Method = method.Translation.Identifier,
+                    MethodLabel = method.Translation.Name,
 
-                    Category = roadSegmentCategory.Translation.Identifier,
-                    CategoryLabel = roadSegmentCategory.Translation.Name,
+                    Category = category.Translation.Identifier,
+                    CategoryLabel = category.Translation.Name,
 
                     Geometry = WmsGeometryTranslator.Translate3D(envelope.Message.Geometry),
                     Geometry2D = WmsGeometryTranslator.Translate2D(envelope.Message.Geometry),
                     GeometryVersion = envelope.Message.GeometryVersion,
 
-                    Morphology = roadSegmentMorphology.Translation.Identifier,
-                    MorphologyLabel = roadSegmentMorphology.Translation.Name,
+                    Morphology = morphology.Translation.Identifier,
+                    MorphologyLabel = morphology.Translation.Name,
 
-                    Status = roadSegmentStatus.Translation.Identifier,
-                    StatusLabel = roadSegmentStatus.Translation.Name,
+                    Status = status.Translation.Identifier,
+                    StatusLabel = status.Translation.Name,
 
                     AccessRestriction = accessRestriction.Translation.Identifier,
                     AccessRestrictionLabel = accessRestriction.Translation.Name,
@@ -83,44 +83,44 @@ namespace RoadRegistry.Wms.Projections
                     {
                         case RoadSegmentAdded m:
 
-                            var roadSegmentGeometryDrawMethod =
+                            var method =
                                 RoadSegmentGeometryDrawMethod.Parse(m.GeometryDrawMethod);
 
                             var accessRestriction =
                                 RoadSegmentAccessRestriction.Parse(m.AccessRestriction);
 
-                            var roadSegmentStatus = RoadSegmentStatus.Parse(m.Status);
+                            var status = RoadSegmentStatus.Parse(m.Status);
 
-                            var roadSegmentMorphology = RoadSegmentMorphology.Parse(m.Morphology);
+                            var morphology = RoadSegmentMorphology.Parse(m.Morphology);
 
-                            var roadSegmentCategory = RoadSegmentCategory.Parse(m.Category);
+                            var category = RoadSegmentCategory.Parse(m.Category);
 
                             await context.RoadSegments.AddAsync(new RoadSegmentRecord
                             {
                                 Id = m.Id,
                                 BeginOperator = envelope.Message.Operator,
                                 BeginOrganization = envelope.Message.Organization,
-                                BeginTime = DateTime.Parse(envelope.Message.When),
+                                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                                 BeginApplication = null,
 
                                 Maintainer = m.MaintenanceAuthority.Code,
                                 MaintainerLabel = m.MaintenanceAuthority.Name,
 
-                                Method = roadSegmentGeometryDrawMethod.Translation.Identifier,
-                                MethodLabel = roadSegmentGeometryDrawMethod.Translation.Name,
+                                Method = method.Translation.Identifier,
+                                MethodLabel = method.Translation.Name,
 
-                                Category = roadSegmentCategory.Translation.Identifier,
-                                CategoryLabel = roadSegmentCategory.Translation.Name,
+                                Category = category.Translation.Identifier,
+                                CategoryLabel = category.Translation.Name,
 
                                 Geometry = WmsGeometryTranslator.Translate3D(m.Geometry),
                                 Geometry2D = WmsGeometryTranslator.Translate2D(m.Geometry),
                                 GeometryVersion = m.GeometryVersion,
 
-                                Morphology = roadSegmentMorphology.Translation.Identifier,
-                                MorphologyLabel = roadSegmentMorphology.Translation.Name,
+                                Morphology = morphology.Translation.Identifier,
+                                MorphologyLabel = morphology.Translation.Name,
 
-                                Status = roadSegmentStatus.Translation.Identifier,
-                                StatusLabel = roadSegmentStatus.Translation.Name,
+                                Status = status.Translation.Identifier,
+                                StatusLabel = status.Translation.Name,
 
                                 AccessRestriction = accessRestriction.Translation.Identifier,
                                 AccessRestrictionLabel = accessRestriction.Translation.Name,
