@@ -33,5 +33,7 @@ namespace RoadRegistry.BackOffice.Messages
         public RoadNetworkSnapshotSegmentReusableAttributeIdentifiers[] SegmentReusableWidthAttributeIdentifiers { get; set; }
         [Key(13)]
         public RoadNetworkSnapshotSegmentReusableAttributeIdentifiers[] SegmentReusableSurfaceAttributeIdentifiers { get; set; }
+        [Key(14)]
+        public int MaximumTransactionId { get; set; }
     }
 }

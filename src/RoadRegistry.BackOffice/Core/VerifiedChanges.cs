@@ -24,39 +24,12 @@ namespace RoadRegistry.BackOffice.Core
             return new VerifiedChanges(_changes.Add(change));
         }
 
-        public void RecordUsing(Action<object> applier)
-        {
-            if (applier == null) throw new ArgumentNullException(nameof(applier));
-
-            if (_changes.Count == 0) return;
-
-            if (_changes.OfType<RejectedChange>().Any())
-            {
-                applier(new Messages.RoadNetworkChangesRejected
-                {
-                    Changes = _changes
-                        .OfType<RejectedChange>()
-                        .Select(change => change.Translate())
-                        .ToArray()
-                });
-            }
-            else
-            {
-                applier(new Messages.RoadNetworkChangesAccepted
-                {
-                    Changes = _changes
-                        .OfType<AcceptedChange>()
-                        .Select(change => change.Translate())
-                        .ToArray()
-                });
-            }
-        }
-
         public void RecordUsing(
             ArchiveId archiveId,
             Reason reason,
             OperatorName @operator,
             Organization.DutchTranslation organization,
+            TransactionId transactionId,
             Action<object> applier)
         {
             if (organization == null) throw new ArgumentNullException(nameof(organization));
@@ -88,6 +61,7 @@ namespace RoadRegistry.BackOffice.Core
                     Operator = @operator,
                     OrganizationId = organization.Identifier,
                     Organization = organization.Name,
+                    TransactionId = transactionId,
                     Changes = _changes
                         .OfType<AcceptedChange>()
                         .Select(change => change.Translate())

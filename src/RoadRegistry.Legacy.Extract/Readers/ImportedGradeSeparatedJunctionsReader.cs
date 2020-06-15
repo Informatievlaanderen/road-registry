@@ -32,7 +32,10 @@ namespace RoadRegistry.Legacy.Extract.Readers
                             ,ok.[type]
                             ,ok.[beginorganisatie]
                             ,lo.[label]
+                            ,ok.[beginoperator]
+                            ,ok.[beginapplicatie]
                             ,ok.[begintijd]
+                            ,ok.[transactieid]
                         FROM [dbo].[ongelijkgrondseKruising] ok
                         LEFT OUTER JOIN [dbo].[listOrganisatie] lo ON ok.[beginorganisatie] = lo.[code]
                         WHERE ok.[bovenWegsegmentID] IS NOT NULL AND ok.[onderWegsegmentID] IS NOT NULL", connection
@@ -50,7 +53,10 @@ namespace RoadRegistry.Legacy.Extract.Readers
                         {
                             OrganizationId = reader.GetNullableString(4),
                             Organization = reader.GetNullableString(5),
-                            Since = reader.GetDateTime(6)
+                            Operator = reader.GetNullableString(6),
+                            Application = reader.GetNullableString(7),
+                            Since = reader.GetDateTime(8),
+                            TransactionId = reader.GetNullableInt32(9) ?? TransactionId.Unknown.ToInt32()
                         },
                         When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
                     });
