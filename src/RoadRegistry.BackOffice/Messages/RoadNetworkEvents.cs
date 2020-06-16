@@ -11,8 +11,6 @@ namespace RoadRegistry.BackOffice.Messages
             typeof(ImportedRoadNode),
             typeof(ImportedRoadSegment),
             typeof(ImportedOrganization),
-            typeof(RoadNetworkChangesAccepted),
-            typeof(RoadNetworkChangesRejected),
             typeof(RoadNetworkChangesArchiveAccepted),
             typeof(RoadNetworkChangesArchiveRejected),
             typeof(RoadNetworkChangesArchiveUploaded),

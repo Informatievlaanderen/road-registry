@@ -40,12 +40,6 @@ namespace RoadRegistry.BackOffice
                     case Messages.RoadNetworkChangesArchiveRejected m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.RoadNetworkChangesAccepted m:
-                        m.When = pattern.Format(clock.GetCurrentInstant());
-                        break;
-                    case Messages.RoadNetworkChangesRejected m:
-                        m.When = pattern.Format(clock.GetCurrentInstant());
-                        break;
                     case Messages.RoadNetworkChangesBasedOnArchiveAccepted m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
