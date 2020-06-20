@@ -75,11 +75,11 @@ namespace RoadRegistry.BackOffice.Api.Changes
                             item.Content = JsonConvert.DeserializeObject(change.Content,
                                 typeof(RoadNetworkChangesArchiveRejectedEntry));
                             break;
-                        case nameof(RoadNetworkChangesBasedOnArchiveAccepted):
+                        case nameof(RoadNetworkChangesAccepted):
                             item.Content = JsonConvert.DeserializeObject(change.Content,
                                 typeof(RoadNetworkChangesBasedOnArchiveAcceptedEntry));
                             break;
-                        case nameof(RoadNetworkChangesBasedOnArchiveRejected):
+                        case nameof(RoadNetworkChangesRejected):
                             item.Content = JsonConvert.DeserializeObject(change.Content,
                                 typeof(RoadNetworkChangesBasedOnArchiveRejectedEntry));
                             break;

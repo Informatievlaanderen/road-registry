@@ -2,9 +2,9 @@ namespace RoadRegistry.BackOffice.Messages
 {
     using Be.Vlaanderen.Basisregisters.EventHandling;
 
-    [EventName("RoadNetworkChangesBasedOnArchiveRejected")]
-    [EventDescription("Indicates the road network changes based on an archive were rejected.")]
-    public class RoadNetworkChangesBasedOnArchiveRejected
+    [EventName("RoadNetworkChangesRejected")]
+    [EventDescription("Indicates the road network changes were rejected.")]
+    public class RoadNetworkChangesRejected
     {
         public string RequestId { get; set; }
         public string Reason { get; set; }

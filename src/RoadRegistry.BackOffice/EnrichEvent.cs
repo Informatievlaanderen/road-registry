@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice
 {
-    using Core;
     using NodaTime;
     using NodaTime.Text;
 
@@ -40,10 +39,10 @@ namespace RoadRegistry.BackOffice
                     case Messages.RoadNetworkChangesArchiveRejected m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.RoadNetworkChangesBasedOnArchiveAccepted m:
+                    case Messages.RoadNetworkChangesAccepted m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.RoadNetworkChangesBasedOnArchiveRejected m:
+                    case Messages.RoadNetworkChangesRejected m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
                 }

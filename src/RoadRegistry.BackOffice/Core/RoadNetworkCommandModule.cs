@@ -14,12 +14,12 @@ namespace RoadRegistry.BackOffice.Core
             if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
             if (clock == null) throw new ArgumentNullException(nameof(clock));
 
-            For<ChangeRoadNetworkBasedOnArchive>()
+            For<ChangeRoadNetwork>()
                 .UseValidator(new ChangeRoadNetworkBasedOnArchiveValidator())
                 .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
                 .Handle(async (context, message, ct) =>
                 {
-                    var archive = new ArchiveId(message.Body.ArchiveId);
+                    var request = ChangeRequestId.FromString(message.Body.RequestId);
                     var @operator = new OperatorName(message.Body.Operator);
                     var reason = new Reason(message.Body.Reason);
                     var organizationId = new OrganizationId(message.Body.OrganizationId);
@@ -39,7 +39,7 @@ namespace RoadRegistry.BackOffice.Core
                         network.ProvidesNextRoadSegmentSurfaceAttributeId()
                     );
                     var requestedChanges = translator.Translate(message.Body.Changes);
-                    network.ChangeBasedOnArchive(archive, reason, @operator, translation, requestedChanges);
+                    network.ChangeBasedOnArchive(request, reason, @operator, translation, requestedChanges);
                 });
         }
     }

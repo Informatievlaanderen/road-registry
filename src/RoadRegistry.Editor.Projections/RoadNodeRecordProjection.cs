@@ -46,7 +46,7 @@ namespace RoadRegistry.Editor.Projections
                 }, token);
             });
 
-            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
+            When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var message in envelope.Message.Changes.Flatten())
                 {

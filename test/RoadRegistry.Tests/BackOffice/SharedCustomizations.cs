@@ -63,6 +63,15 @@ namespace RoadRegistry.BackOffice
             );
         }
 
+        public static void CustomizeChangeRequestId(this IFixture fixture)
+        {
+            fixture.Customize<ChangeRequestId>(composer =>
+                composer.FromFactory(generator =>
+                    new ChangeRequestId(Enumerable.Range(0,ChangeRequestId.ExactLength).Select(index => (byte)generator.Next(0,256)).ToArray())
+                )
+            );
+        }
+
         public static void CustomizeOrganizationName(this IFixture fixture)
         {
             fixture.Customize<OrganizationName>(composer =>

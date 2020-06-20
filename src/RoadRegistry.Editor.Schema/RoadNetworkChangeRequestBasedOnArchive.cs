@@ -2,7 +2,7 @@ namespace RoadRegistry.Editor.Schema
 {
     public class RoadNetworkChangeRequestBasedOnArchive
     {
-        public byte[] BinaryChangeRequestId { get; set; }
+        public byte[] ChangeRequestId { get; set; }
 
         public string ArchiveId { get; set; }
     }

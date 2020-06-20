@@ -4,14 +4,14 @@ namespace RoadRegistry.BackOffice.Core
     using FluentValidation;
     using Messages;
 
-    public class ChangeRoadNetworkBasedOnArchiveValidator : AbstractValidator<ChangeRoadNetworkBasedOnArchive>
+    public class ChangeRoadNetworkBasedOnArchiveValidator : AbstractValidator<ChangeRoadNetwork>
     {
         public ChangeRoadNetworkBasedOnArchiveValidator()
         {
-            RuleFor(c => c.ArchiveId)
+            RuleFor(c => c.RequestId)
                 .NotNull()
                 .NotEmpty()
-                .MaximumLength(ArchiveId.MaxLength);
+                .Length(ChangeRequestId.ExactStringLength);
 
             RuleFor(c => c.Reason)
                 .NotNull()

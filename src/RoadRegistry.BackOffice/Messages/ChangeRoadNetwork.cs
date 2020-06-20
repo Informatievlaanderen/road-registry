@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Messages
 {
-    public class ChangeRoadNetworkBasedOnArchive
+    public class ChangeRoadNetwork
     {
         public string RequestId { get; set; }
         public string Reason { get; set; }

@@ -233,12 +233,12 @@ namespace RoadRegistry.Projections
                     )
                     .OmitAutoProperties()
                 );
-            fixture.Customize<RoadNetworkChangesBasedOnArchiveAccepted>(customization =>
+            fixture.Customize<RoadNetworkChangesAccepted>(customization =>
                 customization
                     .FromFactory(generator =>
-                        new RoadNetworkChangesBasedOnArchiveAccepted
+                        new RoadNetworkChangesAccepted
                         {
-                            ArchiveId = fixture.Create<ArchiveId>(),
+                            RequestId = fixture.Create<ArchiveId>(),
                             Reason = fixture.Create<Reason>(),
                             Operator = fixture.Create<OperatorName>(),
                             OrganizationId = fixture.Create<OrganizationId>(),
@@ -287,12 +287,12 @@ namespace RoadRegistry.Projections
                     )
                     .OmitAutoProperties()
                 );
-            fixture.Customize<RoadNetworkChangesBasedOnArchiveAccepted>(customization =>
+            fixture.Customize<RoadNetworkChangesAccepted>(customization =>
                 customization
                     .FromFactory(generator =>
-                        new RoadNetworkChangesBasedOnArchiveAccepted
+                        new RoadNetworkChangesAccepted
                         {
-                            ArchiveId = fixture.Create<ArchiveId>(),
+                            RequestId = fixture.Create<ArchiveId>(),
                             Reason = fixture.Create<Reason>(),
                             Operator = fixture.Create<OperatorName>(),
                             OrganizationId = fixture.Create<OrganizationId>(),

@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice
 {
     using System;
+    using System.Linq;
     using Albedo;
     using AutoFixture;
     using AutoFixture.Idioms;
@@ -14,13 +15,13 @@ namespace RoadRegistry.BackOffice
         public ChangeRequestIdTests()
         {
             _fixture = new Fixture();
+            _fixture.CustomizeChangeRequestId();
         }
 
         [Fact]
         public void VerifyBehavior()
         {
             new CompositeIdiomaticAssertion(
-                new ImplicitConversionOperatorAssertion<Guid>(_fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
                 new EquatableEqualsOtherAssertion(_fixture),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -37,28 +38,114 @@ namespace RoadRegistry.BackOffice
         }
 
         [Fact]
-        public void CtorValueCanNotBeEmpty()
+        public void CtorValueCanNotBeNullOrEmpty()
         {
             new GuardClauseAssertion(
                 _fixture,
-                new EmptyGuidBehaviorExpectation()
-            ).Verify(Constructors.Select(() => new ChangeRequestId(Guid.Empty)));
+                new NullReferenceBehaviorExpectation()
+            ).Verify(Constructors.Select(() => new ChangeRequestId(null)));
+        }
+
+        [Fact]
+        public void CtorValueCanNotBeLongerThan32Bytes()
+        {
+            var value = _fixture.CreateMany<byte>(ChangeRequestId.ExactLength + 1).ToArray();
+            Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeRequestId(value));
+        }
+
+        [Fact]
+        public void CtorValueCanNotBeShorterThan32Bytes()
+        {
+            var value = _fixture.CreateMany<byte>(ChangeRequestId.ExactLength - 1).ToArray();
+            Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeRequestId(value));
         }
 
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
-            var value = Guid.NewGuid();
-            var sut = new ChangeRequestId(value);
+            var generator = new Random();
+            var value = string.Concat(
+                Enumerable
+                    .Range(0,32)
+                    .Select(index => ((byte)generator.Next(0,256)).ToString("X2"))
+            ).ToLowerInvariant();
+            var sut = ChangeRequestId.FromString(value);
 
-            Assert.Equal(value.ToString("N"), sut.ToString());
+            Assert.Equal(value.ToLowerInvariant(), sut.ToString());
         }
 
         [Fact]
-        public void AcceptsReturnsExceptedResult()
+        public void ImplicitConversionToStringReturnsExpectedResult()
         {
-            Assert.False(ChangeRequestId.Accepts(Guid.Empty));
-            Assert.True(ChangeRequestId.Accepts(Guid.NewGuid()));
+            var generator = new Random();
+            var value = string.Concat(
+                Enumerable
+                    .Range(0,32)
+                    .Select(index => ((byte)generator.Next(0,256)).ToString("X2"))
+            ).ToLowerInvariant();
+
+            var sut = ChangeRequestId.FromString(value);
+
+            string result = sut;
+
+            Assert.Equal(value, result);
+        }
+
+        [Theory]
+        [InlineData("51d90e5b3a2acc52ba1b6aa157280521e3b0da2973361f42761b61ff5d002dce", true)]
+        [InlineData("84DD6F9521C4B33340919B4EF6AF0653F1E0CE8C5FBF40294BBDB865443D38C8", true)]
+        [InlineData("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", false)]
+        public void ValueMustBeHex(string value, bool acceptable)
+        {
+            if (acceptable)
+            {
+                var sut = ChangeRequestId.FromString(value);
+                Assert.Equal(value.ToLowerInvariant(), sut.ToString());
+            }
+            else
+            {
+                Assert.Throws<ArgumentException>(() => ChangeRequestId.FromString(value));
+            }
+        }
+
+        [Fact]
+        public void ValueCanNotBeLongerThan64Chars()
+        {
+            const int length = ChangeRequestId.ExactStringLength + 2;
+
+            var generator = new Random();
+            var value = string.Concat(Enumerable.Range(0, length / 2)
+                .Select(index => ((byte) generator.Next(0, 256)).ToString("X2")));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ChangeRequestId.FromString(value));
+        }
+
+        [Fact]
+        public void ValueCanNotBeShorterThan64Chars()
+        {
+            const int length = ChangeRequestId.ExactStringLength - 2;
+
+            var generator = new Random();
+            var value = string.Concat(Enumerable.Range(0, length / 2)
+                .Select(index => ((byte) generator.Next(0, 256)).ToString("X2")));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ChangeRequestId.FromString(value));
+        }
+
+        [Theory]
+        [InlineData(null, false)]
+        [InlineData("", false)]
+        [InlineData("1234567890123456789012345678901234567890123456789012345678901234", true)]
+        [InlineData("123456789ABCDEF123456789ABCDEF123456789ABCDEF123456789ABCDEF1234", true)]
+        [InlineData("123456789abcdef123456789abcdef123456789abcdef123456789abcdef1234", true)]
+        [InlineData("12345678901234567890123456789012345678901234567890123456789012345", false)]
+        [InlineData("123456789012345678901234567890123456789012345678901234567890123456", false)]
+        [InlineData("123456789012345678901234567890123456789012345678901234567890123", false)]
+        [InlineData("12345678901234567890123456789012345678901234567890123456789012", false)]
+        [InlineData("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", false)]
+        public void AcceptsReturnsExceptedResult(string value, bool expected)
+        {
+            var result = ChangeRequestId.Accepts(value);
+
+            Assert.Equal(expected, result);
         }
     }
 }

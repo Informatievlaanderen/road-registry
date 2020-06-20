@@ -214,7 +214,7 @@ namespace RoadRegistry.BackOffice.Core
                 _segmentReusableSurfaceAttributeIdentifiers);
         }
 
-        public RoadNetworkView Given(Messages.RoadNetworkChangesBasedOnArchiveAccepted @event)
+        public RoadNetworkView Given(Messages.RoadNetworkChangesAccepted @event)
         {
             if (@event == null) throw new ArgumentNullException(nameof(@event));
             var result = new RoadNetworkView(
@@ -428,22 +428,7 @@ namespace RoadRegistry.BackOffice.Core
             if (changes == null)
                 throw new ArgumentNullException(nameof(changes));
 
-            var result = new RoadNetworkView(
-                _nodes,
-                _segments,
-                _maximumTransactionId.Next(), //TODO: Wrong place for this behavior
-                _maximumNodeId,
-                _maximumSegmentId,
-                _maximumGradeSeparatedJunctionId,
-                _maximumEuropeanRoadAttributeId,
-                _maximumNationalRoadAttributeId,
-                _maximumNumberedRoadAttributeId,
-                _maximumLaneAttributeId,
-                _maximumWidthAttributeId,
-                _maximumSurfaceAttributeId,
-                _segmentReusableLaneAttributeIdentifiers,
-                _segmentReusableWidthAttributeIdentifiers,
-                _segmentReusableSurfaceAttributeIdentifiers);
+            var result = this;
             foreach (var change in changes)
             {
                 switch (change)

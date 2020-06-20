@@ -151,11 +151,11 @@ namespace RoadRegistry.BackOffice.Core
                         }
                     ).OmitAutoProperties()
                 );
-            Validator = new ChangeRoadNetworkValidator();
+            Validator = new ChangeRoadNetworkBasedOnArchiveValidator();
         }
 
         public Fixture Fixture { get; }
-        public ChangeRoadNetworkValidator Validator { get; }
+        public ChangeRoadNetworkBasedOnArchiveValidator Validator { get; }
 
         [Fact]
         public void ChangesCanNotBeNull()
@@ -247,13 +247,5 @@ namespace RoadRegistry.BackOffice.Core
         {
             Validator.ShouldHaveChildValidator(c => c.Changes, typeof(RequestedChangeValidator));
         }
-
-        // [Fact]
-        // public void VerifyValid()
-        // {
-
-
-        //     Validator.ValidateAndThrow(data);
-        // }
     }
 }

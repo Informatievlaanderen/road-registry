@@ -52,7 +52,7 @@ namespace RoadRegistry.Product.Projections
                 return context.RoadSegmentNumberedRoadAttributes.AddRangeAsync(numberedRoadAttributes, token);
             });
 
-            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
+            When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
                 {

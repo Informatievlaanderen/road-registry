@@ -119,7 +119,7 @@ namespace RoadRegistry.Wms.Projections
         [Fact]
         public Task When_adding_road_segments()
         {
-            var message = _fixture.Create<RoadNetworkChangesBasedOnArchiveAccepted>();
+            var message = _fixture.Create<RoadNetworkChangesAccepted>();
             var expectedRecords = Array.ConvertAll(message.Changes, change =>
             {
                 var segment = change.RoadSegmentAdded;

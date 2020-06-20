@@ -58,7 +58,7 @@
                 info.OrganizationCount += 1;
             });
 
-            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
+            When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
                 var info = await context.GetRoadNetworkInfo(token);
                 foreach (var change in envelope.Message.Changes.Flatten())

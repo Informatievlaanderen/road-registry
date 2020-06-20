@@ -70,6 +70,16 @@ namespace RoadRegistry.Editor.Projections
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
                 }, ct);
+
+                await context.RoadNetworkChangeRequestsBasedOnArchive.AddAsync(
+                    new RoadNetworkChangeRequestBasedOnArchive
+                    {
+                        ChangeRequestId = ChangeRequestId
+                            .FromArchiveId(new ArchiveId(envelope.Message.ArchiveId))
+                            .ToBytes()
+                            .ToArray(),
+                        ArchiveId = envelope.Message.ArchiveId
+                    }, ct);
             });
 
             When<Envelope<RoadNetworkChangesArchiveAccepted>>(async (context, envelope, ct) =>
@@ -140,11 +150,17 @@ namespace RoadRegistry.Editor.Projections
                     }, ct);
             });
 
-            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, ct) =>
+            When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
             {
+                var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
+                        .FirstOrDefault(r =>
+                            r.ChangeRequestId == ChangeRequestId.FromString(envelope.Message.RequestId).ToBytes()
+                                .ToArray())
+                    ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(ChangeRequestId
+                        .FromString(envelope.Message.RequestId).ToBytes().ToArray());
                 var content = new RoadNetworkChangesBasedOnArchiveAcceptedEntry
                 {
-                    Archive = new RoadNetworkChangesArchiveInfo { Id = envelope.Message.ArchiveId },
+                    Archive = new RoadNetworkChangesArchiveInfo { Id = request.ArchiveId },
                     Changes = envelope.Message.Changes
                         .Select(change => new RoadNetworkAcceptedChange
                         {
@@ -160,24 +176,30 @@ namespace RoadRegistry.Editor.Projections
                         .ToArray()
                     };
 
-                await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
+                await EnrichWithArchiveInformation(envelope.Message.RequestId, content.Archive, client, ct);
 
                 await context.RoadNetworkChanges.AddAsync(
                     new RoadNetworkChange
                     {
                         Id = envelope.Position,
                         Title = $"Oplading \"{envelope.Message.Reason}\" door {envelope.Message.Organization} ({envelope.Message.Operator}) werd aanvaard",
-                        Type = nameof(RoadNetworkChangesBasedOnArchiveAccepted),
+                        Type = nameof(RoadNetworkChangesAccepted),
                         Content = JsonConvert.SerializeObject(content),
                         When = envelope.Message.When
                     }, ct);
             });
 
-            When<Envelope<RoadNetworkChangesBasedOnArchiveRejected>>(async (context, envelope, ct) =>
+            When<Envelope<RoadNetworkChangesRejected>>(async (context, envelope, ct) =>
             {
+                var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
+                                  .FirstOrDefault(r =>
+                                      r.ChangeRequestId == ChangeRequestId.FromString(envelope.Message.RequestId).ToBytes()
+                                          .ToArray())
+                              ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(ChangeRequestId
+                                  .FromString(envelope.Message.RequestId).ToBytes().ToArray());
                 var content = new RoadNetworkChangesBasedOnArchiveRejectedEntry
                 {
-                    Archive = new RoadNetworkChangesArchiveInfo { Id = envelope.Message.ArchiveId },
+                    Archive = new RoadNetworkChangesArchiveInfo { Id = request.ArchiveId },
                     Changes = envelope.Message.Changes
                         .Select(change => new RoadNetworkRejectedChange
                         {
@@ -193,14 +215,14 @@ namespace RoadRegistry.Editor.Projections
                         .ToArray()
                 };
 
-                await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
+                await EnrichWithArchiveInformation(envelope.Message.RequestId, content.Archive, client, ct);
 
                 await context.RoadNetworkChanges.AddAsync(
                     new RoadNetworkChange
                     {
                         Id = envelope.Position,
                         Title = $"Oplading \"{envelope.Message.Reason}\" door {envelope.Message.Organization} ({envelope.Message.Operator}) werd geweigerd",
-                        Type = nameof(RoadNetworkChangesBasedOnArchiveRejected),
+                        Type = nameof(RoadNetworkChangesRejected),
                         Content = JsonConvert.SerializeObject(content),
                         When = envelope.Message.When
                     }, ct);

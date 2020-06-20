@@ -2,9 +2,9 @@ namespace RoadRegistry.BackOffice.Messages
 {
     using Be.Vlaanderen.Basisregisters.EventHandling;
 
-    [EventName("RoadNetworkChangesBasedOnArchiveAccepted")]
-    [EventDescription("Indicates the road network changes based on an archive were accepted.")]
-    public class RoadNetworkChangesBasedOnArchiveAccepted
+    [EventName("RoadNetworkChangesAccepted")]
+    [EventDescription("Indicates the road network changes were accepted.")]
+    public class RoadNetworkChangesAccepted
     {
         public string RequestId { get; set; }
         public string Reason { get; set; }

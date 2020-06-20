@@ -2,8 +2,8 @@ namespace RoadRegistry.BackOffice.Core
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Framework;
-    using Messages;
 
     public class RoadNetwork : EventSourcedEntity
     {
@@ -15,35 +15,70 @@ namespace RoadRegistry.BackOffice.Core
         {
             _view = RoadNetworkView.Empty;
 
-            On<ImportedRoadNode>(e =>
+            On<Messages.ImportedRoadNode>(e =>
             {
                 _view = _view.Given(e);
             });
 
-            On<ImportedGradeSeparatedJunction>(e =>
+            On<Messages.ImportedGradeSeparatedJunction>(e =>
             {
                 _view = _view.Given(e);
             });
 
-            On<ImportedRoadSegment>(e =>
+            On<Messages.ImportedRoadSegment>(e =>
             {
                 _view = _view.Given(e);
             });
 
-            On<RoadNetworkChangesBasedOnArchiveAccepted>(e =>
+            On<Messages.RoadNetworkChangesAccepted>(e =>
             {
                 _view = _view.Given(e);
             });
         }
 
-        public void ChangeBasedOnArchive(ArchiveId archiveId, Reason reason, OperatorName @operator,
+        public void ChangeBasedOnArchive(ChangeRequestId requestId, Reason reason, OperatorName @operator,
             Organization.DutchTranslation organization, RequestedChanges requestedChanges)
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
-            requestedChanges
-                .VerifyWith(_view.With(requestedChanges))
-                .RecordUsing(archiveId, reason, @operator, organization, _view.MaximumTransactionId, Apply);
+            var verifiedChanges = requestedChanges.VerifyWith(_view.With(requestedChanges));
+
+            if (verifiedChanges.Count == 0) return;
+
+            if (verifiedChanges.OfType<RejectedChange>().Any())
+            {
+                Apply(new Messages.RoadNetworkChangesRejected
+                {
+                    RequestId = requestId,
+                    Reason = reason,
+                    Operator = @operator,
+                    OrganizationId = organization.Identifier,
+                    Organization = organization.Name,
+                    TransactionId = _view.MaximumTransactionId.Next(),
+                    Changes = verifiedChanges
+                        .OfType<RejectedChange>()
+                        .Select(change => change.Translate())
+                        .ToArray()
+                });
+            }
+            else
+            {
+                Apply(new Messages.RoadNetworkChangesAccepted
+                {
+                    RequestId = requestId,
+                    Reason = reason,
+                    Operator = @operator,
+                    OrganizationId = organization.Identifier,
+                    Organization = organization.Name,
+                    TransactionId = _view.MaximumTransactionId.Next(),
+                    Changes = verifiedChanges
+                        .OfType<AcceptedChange>()
+                        .Select(change => change.Translate())
+                        .ToArray()
+                });
+            }
+
+            //.RecordUsing(archiveId, reason, @operator, organization, _view.MaximumTransactionId, Apply);
             //TODO: Inline RecordUsing, it's merely obscuring what's going on and not really telling anything.
         }
 
@@ -230,14 +265,14 @@ namespace RoadRegistry.BackOffice.Core
             }
         }
 
-        public void RestoreFromSnapshot(RoadNetworkSnapshot snapshot)
+        public void RestoreFromSnapshot(Messages.RoadNetworkSnapshot snapshot)
         {
             if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
 
             _view = RoadNetworkView.Empty.RestoreFromSnapshot(snapshot);
         }
 
-        public RoadNetworkSnapshot TakeSnapshot()
+        public Messages.RoadNetworkSnapshot TakeSnapshot()
         {
             return _view.TakeSnapshot();
         }
