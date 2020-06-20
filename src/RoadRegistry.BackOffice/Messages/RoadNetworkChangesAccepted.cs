@@ -6,7 +6,7 @@ namespace RoadRegistry.BackOffice.Messages
     [EventDescription("Indicates the road network changes based on an archive were accepted.")]
     public class RoadNetworkChangesBasedOnArchiveAccepted
     {
-        public string ArchiveId { get; set; }
+        public string RequestId { get; set; }
         public string Reason { get; set; }
         public string Operator { get; set; }
         public string OrganizationId { get; set; }
