@@ -43,6 +43,7 @@ namespace RoadRegistry.Wms.Projections
             _fixture.CustomizeRoadSegmentCategory();
             _fixture.CustomizeRoadSegmentAccessRestriction();
             _fixture.CustomizeRoadSegmentGeometryVersion();
+            _fixture.CustomizeTransactionId();
 
             _fixture.CustomizeImportedRoadSegment();
             _fixture.CustomizeRoadSegmentAdded();
@@ -56,7 +57,6 @@ namespace RoadRegistry.Wms.Projections
         {
             var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(wegSegmentId);
 
-            var expectedGeometry = _testDataHelper.ExpectedGeometry(wegSegmentId);
             var expectedGeometry2D = _testDataHelper.ExpectedGeometry2D(wegSegmentId);
 
             var expectedRoadSegment = _testDataHelper.ExpectedRoadSegment(wegSegmentId);
@@ -68,47 +68,43 @@ namespace RoadRegistry.Wms.Projections
                 {
                     Id = expectedRoadSegment.wegsegmentID,
                     BeginOperator = expectedRoadSegment.beginoperator,
-                    BeginOrganization = expectedRoadSegment.beginorganisatie,
+                    BeginOrganizationId = expectedRoadSegment.beginorganisatie,
                     BeginTime = expectedRoadSegment.begintijd,
                     BeginApplication = expectedRoadSegment.beginapplicatie,
 
-                    Maintainer = expectedRoadSegment.beheerder,
-                    MaintainerLabel = expectedRoadSegment.lblBeheerder,
+                    MaintainerId = expectedRoadSegment.beheerder,
+                    MaintainerName = expectedRoadSegment.lblBeheerder,
 
-                    Method = expectedRoadSegment.methode,
-                    MethodLabel = expectedRoadSegment.lblMethode,
+                    MethodId = expectedRoadSegment.methode,
+                    MethodDutchName = expectedRoadSegment.lblMethode,
 
-                    Category = expectedRoadSegment.categorie,
-                    CategoryLabel = expectedRoadSegment.lblCategorie,
+                    CategoryId = expectedRoadSegment.categorie,
+                    CategoryDutchName = expectedRoadSegment.lblCategorie,
 
-                    Geometry = expectedGeometry,
                     Geometry2D = expectedGeometry2D,
                     GeometryVersion = expectedRoadSegment.geometrieversie,
 
-                    Morphology = expectedRoadSegment.morfologie,
-                    MorphologyLabel = expectedRoadSegment.lblMorfologie,
+                    MorphologyId = expectedRoadSegment.morfologie,
+                    MorphologyDutchName = expectedRoadSegment.lblMorfologie,
 
-                    Status = expectedRoadSegment.status,
-                    StatusLabel = expectedRoadSegment.lblStatus,
+                    StatusId = expectedRoadSegment.status,
+                    StatusDutchName = expectedRoadSegment.lblStatus,
 
-                    AccessRestriction = expectedRoadSegment.toegangsbeperking,
-                    AccessRestrictionLabel = expectedRoadSegment.lblToegangsbeperking,
+                    AccessRestrictionId = expectedRoadSegment.toegangsbeperking,
+                    AccessRestrictionDutchName = expectedRoadSegment.lblToegangsbeperking,
 
-                    OrganizationLabel = expectedRoadSegment.lblOrganisatie,
+                    BeginOrganizationName = expectedRoadSegment.lblOrganisatie,
                     RecordingDate = expectedRoadSegment.opnamedatum,
-
-                    SourceId = expectedRoadSegment.sourceID,
-                    SourceIdSource = expectedRoadSegment.bronSourceID,
 
                     TransactionId = expectedRoadSegment.transactieID,
 
-                    LeftSideMunicipality = null,
+                    LeftSideMunicipalityId = null,
                     LeftSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
-                    LeftSideStreetNameLabel = expectedRoadSegment.linksStraatnaam,
+                    LeftSideStreetName = expectedRoadSegment.linksStraatnaam,
 
-                    RightSideMunicipality = null,
+                    RightSideMunicipalityId = null,
                     RightSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
-                    RightSideStreetNameLabel = expectedRoadSegment.linksStraatnaam,
+                    RightSideStreetName = expectedRoadSegment.linksStraatnaam,
 
                     RoadSegmentVersion = expectedRoadSegment.wegsegmentversie,
                     BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,
@@ -127,47 +123,43 @@ namespace RoadRegistry.Wms.Projections
                 {
                     Id = segment.Id,
                     BeginOperator = message.Operator,
-                    BeginOrganization = message.Organization,
+                    BeginOrganizationId = message.OrganizationId,
+                    BeginOrganizationName = message.Organization,
                     BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When),
                     BeginApplication = null,
 
-                    Maintainer = segment.MaintenanceAuthority.Code,
-                    MaintainerLabel = segment.MaintenanceAuthority.Name,
+                    MaintainerId = segment.MaintenanceAuthority.Code,
+                    MaintainerName = segment.MaintenanceAuthority.Name,
 
-                    Method = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Identifier,
-                    MethodLabel = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Name,
+                    MethodId = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Identifier,
+                    MethodDutchName = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Name,
 
-                    Category = RoadSegmentCategory.Parse(segment.Category).Translation.Identifier,
-                    CategoryLabel = RoadSegmentCategory.Parse(segment.Category).Translation.Name,
+                    CategoryId = RoadSegmentCategory.Parse(segment.Category).Translation.Identifier,
+                    CategoryDutchName = RoadSegmentCategory.Parse(segment.Category).Translation.Name,
 
-                    Geometry = WmsGeometryTranslator.Translate3D(segment.Geometry),
                     Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry),
                     GeometryVersion = segment.GeometryVersion,
 
-                    Morphology = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Identifier,
-                    MorphologyLabel = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Name,
+                    MorphologyId = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Identifier,
+                    MorphologyDutchName = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Name,
 
-                    Status = RoadSegmentStatus.Parse(segment.Status).Translation.Identifier,
-                    StatusLabel = RoadSegmentStatus.Parse(segment.Status).Translation.Name,
+                    StatusId = RoadSegmentStatus.Parse(segment.Status).Translation.Identifier,
+                    StatusDutchName = RoadSegmentStatus.Parse(segment.Status).Translation.Name,
 
-                    AccessRestriction = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Identifier,
-                    AccessRestrictionLabel = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name,
+                    AccessRestrictionId = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Identifier,
+                    AccessRestrictionDutchName = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name,
 
-                    OrganizationLabel = message.Organization,
                     RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(message.When),
 
-                    SourceId = null,
-                    SourceIdSource = null,
+                    TransactionId = message.TransactionId,
 
-                    TransactionId = null,
-
-                    LeftSideMunicipality = null,
+                    LeftSideMunicipalityId = null,
                     LeftSideStreetNameId = segment.LeftSide.StreetNameId,
-                    LeftSideStreetNameLabel = null,
+                    LeftSideStreetName = null,
 
-                    RightSideMunicipality = null,
+                    RightSideMunicipalityId = null,
                     RightSideStreetNameId = segment.RightSide.StreetNameId,
-                    RightSideStreetNameLabel = null,
+                    RightSideStreetName = null,
 
                     RoadSegmentVersion = segment.Version,
                     BeginRoadNodeId = segment.StartNodeId,

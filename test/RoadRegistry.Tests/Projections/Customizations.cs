@@ -297,6 +297,7 @@ namespace RoadRegistry.Projections
                             Operator = fixture.Create<OperatorName>(),
                             OrganizationId = fixture.Create<OrganizationId>(),
                             Organization = fixture.Create<OrganizationName>(),
+                            TransactionId = fixture.Create<TransactionId>(),
                             Changes = fixture.CreateMany<BackOffice.Messages.AcceptedChange>(generator.Next(1,5)).ToArray(),
                             When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
                         }
