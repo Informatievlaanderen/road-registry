@@ -36,8 +36,12 @@ namespace RoadRegistry.BackOffice.Core
             });
         }
 
-        public void ChangeBasedOnArchive(ChangeRequestId requestId, Reason reason, OperatorName @operator,
-            Organization.DutchTranslation organization, RequestedChanges requestedChanges)
+        public void Change(
+            ChangeRequestId requestId,
+            Reason reason,
+            OperatorName @operator,
+            Organization.DutchTranslation organization,
+            RequestedChanges requestedChanges)
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
@@ -54,7 +58,7 @@ namespace RoadRegistry.BackOffice.Core
                     Operator = @operator,
                     OrganizationId = organization.Identifier,
                     Organization = organization.Name,
-                    TransactionId = _view.MaximumTransactionId.Next(),
+                    TransactionId = requestedChanges.TransactionId,
                     Changes = verifiedChanges
                         .OfType<RejectedChange>()
                         .Select(change => change.Translate())
@@ -70,19 +74,16 @@ namespace RoadRegistry.BackOffice.Core
                     Operator = @operator,
                     OrganizationId = organization.Identifier,
                     Organization = organization.Name,
-                    TransactionId = _view.MaximumTransactionId.Next(),
+                    TransactionId = requestedChanges.TransactionId,
                     Changes = verifiedChanges
                         .OfType<AcceptedChange>()
                         .Select(change => change.Translate())
                         .ToArray()
                 });
             }
-
-            //.RecordUsing(archiveId, reason, @operator, organization, _view.MaximumTransactionId, Apply);
-            //TODO: Inline RecordUsing, it's merely obscuring what's going on and not really telling anything.
         }
 
-        public Func<TransactionId> ProvidesNextTransactionId() // TODO: Find a use for this or kick it out
+        public Func<TransactionId> ProvidesNextTransactionId()
         {
             return new NextTransactionIdProvider(_view.MaximumTransactionId).Next;
         }

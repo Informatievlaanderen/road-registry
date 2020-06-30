@@ -49,6 +49,7 @@ namespace RoadRegistry.BackOffice.Core
             Fixture.CustomizeChangeRequestId();
             Fixture.CustomizeReason();
             Fixture.CustomizeOperatorName();
+            Fixture.CustomizeTransactionId();
 
             Fixture.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
                 composer.Do(instance =>
@@ -623,6 +624,7 @@ namespace RoadRegistry.BackOffice.Core
             ChangedByOperator = Fixture.Create<OperatorName>();
             ChangedByOrganization = Fixture.Create<OrganizationId>();
             ChangedByOrganizationName = Fixture.Create<OrganizationName>();
+            TransactionId = Fixture.Create<TransactionId>();
         }
 
         public ArchiveId ArchiveId { get; }
@@ -631,6 +633,7 @@ namespace RoadRegistry.BackOffice.Core
         public OperatorName ChangedByOperator { get; }
         public OrganizationId ChangedByOrganization { get; }
         public OrganizationName ChangedByOrganizationName { get; }
+        public TransactionId TransactionId { get; }
 
         public NetTopologySuite.Geometries.Point StartPoint1 { get; }
         public NetTopologySuite.Geometries.Point MiddlePoint1 { get; }
@@ -701,6 +704,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -745,6 +749,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -799,6 +804,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -870,6 +876,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1000,6 +1007,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1140,6 +1148,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1325,6 +1334,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -1450,6 +1460,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1616,6 +1627,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1782,6 +1794,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1902,6 +1915,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -2017,6 +2031,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -2098,6 +2113,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2216,6 +2232,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -2314,6 +2331,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -2378,6 +2396,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2420,6 +2439,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2450,6 +2470,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(2),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2662,6 +2683,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2820,6 +2842,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2865,6 +2888,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2910,6 +2934,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2961,6 +2986,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3031,6 +3057,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3082,6 +3109,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3152,6 +3180,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3213,6 +3242,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3399,6 +3429,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3573,6 +3604,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3747,6 +3779,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3800,6 +3833,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -3862,6 +3896,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -3928,6 +3963,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -3989,6 +4025,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4057,6 +4094,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -4122,6 +4160,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4233,6 +4272,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -4301,6 +4341,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4369,6 +4410,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4449,6 +4491,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4530,6 +4573,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4626,6 +4670,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4727,6 +4772,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4863,6 +4909,7 @@ namespace RoadRegistry.BackOffice.Core
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange

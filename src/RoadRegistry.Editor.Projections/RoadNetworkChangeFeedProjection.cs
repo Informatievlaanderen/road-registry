@@ -176,7 +176,7 @@ namespace RoadRegistry.Editor.Projections
                         .ToArray()
                     };
 
-                await EnrichWithArchiveInformation(envelope.Message.RequestId, content.Archive, client, ct);
+                await EnrichWithArchiveInformation(request.ArchiveId, content.Archive, client, ct);
 
                 await context.RoadNetworkChanges.AddAsync(
                     new RoadNetworkChange
@@ -215,7 +215,7 @@ namespace RoadRegistry.Editor.Projections
                         .ToArray()
                 };
 
-                await EnrichWithArchiveInformation(envelope.Message.RequestId, content.Archive, client, ct);
+                await EnrichWithArchiveInformation(request.ArchiveId, content.Archive, client, ct);
 
                 await context.RoadNetworkChanges.AddAsync(
                     new RoadNetworkChange

@@ -15,7 +15,7 @@ namespace RoadRegistry.BackOffice.Core
             if (clock == null) throw new ArgumentNullException(nameof(clock));
 
             For<ChangeRoadNetwork>()
-                .UseValidator(new ChangeRoadNetworkBasedOnArchiveValidator())
+                .UseValidator(new ChangeRoadNetworkValidator())
                 .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
                 .Handle(async (context, message, ct) =>
                 {
@@ -28,6 +28,7 @@ namespace RoadRegistry.BackOffice.Core
 
                     var network = await context.RoadNetworks.Get(ct);
                     var translator = new RequestedChangeTranslator(
+                        network.ProvidesNextTransactionId(),
                         network.ProvidesNextRoadNodeId(),
                         network.ProvidesNextRoadSegmentId(),
                         network.ProvidesNextGradeSeparatedJunctionId(),
@@ -39,7 +40,7 @@ namespace RoadRegistry.BackOffice.Core
                         network.ProvidesNextRoadSegmentSurfaceAttributeId()
                     );
                     var requestedChanges = translator.Translate(message.Body.Changes);
-                    network.ChangeBasedOnArchive(request, reason, @operator, translation, requestedChanges);
+                    network.Change(request, reason, @operator, translation, requestedChanges);
                 });
         }
     }

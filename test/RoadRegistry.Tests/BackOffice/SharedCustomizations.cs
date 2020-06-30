@@ -102,6 +102,13 @@ namespace RoadRegistry.BackOffice
             );
         }
 
+        public static void CustomizeTransactionId(this IFixture fixture)
+        {
+            fixture.Customize<TransactionId>(composer =>
+                composer.FromFactory(generator => new TransactionId(generator.Next()))
+            );
+        }
+
         public static void CustomizeRoadSegmentId(this IFixture fixture)
         {
             fixture.Customize<RoadSegmentId>(composer =>

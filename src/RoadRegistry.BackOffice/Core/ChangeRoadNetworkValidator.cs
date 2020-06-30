@@ -4,9 +4,9 @@ namespace RoadRegistry.BackOffice.Core
     using FluentValidation;
     using Messages;
 
-    public class ChangeRoadNetworkBasedOnArchiveValidator : AbstractValidator<ChangeRoadNetwork>
+    public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
     {
-        public ChangeRoadNetworkBasedOnArchiveValidator()
+        public ChangeRoadNetworkValidator()
         {
             RuleFor(c => c.RequestId)
                 .NotNull()

@@ -60,6 +60,19 @@ namespace RoadRegistry.Editor.Schema.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RoadNetworkChangeRequestBasedOnArchive",
+                schema: "RoadRegistryEditor",
+                columns: table => new
+                {
+                    ChangeRequestId = table.Column<byte[]>(maxLength: 32, nullable: false),
+                    ArchiveId = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoadNetworkChangeRequestBasedOnArchive", x => x.ChangeRequestId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoadNetworkInfo",
                 schema: "RoadRegistryEditor",
                 columns: table => new
@@ -247,6 +260,13 @@ namespace RoadRegistry.Editor.Schema.Migrations
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoadNetworkChangeRequestBasedOnArchive_ChangeRequestId",
+                schema: "RoadRegistryEditor",
+                table: "RoadNetworkChangeRequestBasedOnArchive",
+                column: "ChangeRequestId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RoadNetworkInfo_Id",
                 schema: "RoadRegistryEditor",
                 table: "RoadNetworkInfo",
@@ -302,6 +322,10 @@ namespace RoadRegistry.Editor.Schema.Migrations
 
             migrationBuilder.DropTable(
                 name: "RoadNetworkChange",
+                schema: "RoadRegistryEditor");
+
+            migrationBuilder.DropTable(
+                name: "RoadNetworkChangeRequestBasedOnArchive",
                 schema: "RoadRegistryEditor");
 
             migrationBuilder.DropTable(

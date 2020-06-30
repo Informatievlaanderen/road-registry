@@ -13,6 +13,7 @@ namespace RoadRegistry.Editor.Schema
                 .HasIndex(p => p.ChangeRequestId)
                 .IsClustered(false);
 
+            b.HasKey(p => p.ChangeRequestId);
             b.Property(p => p.ChangeRequestId).ValueGeneratedNever().IsRequired().HasMaxLength(32);
             b.Property(p => p.ArchiveId).IsRequired();
         }

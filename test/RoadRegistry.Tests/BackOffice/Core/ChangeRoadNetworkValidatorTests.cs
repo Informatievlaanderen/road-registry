@@ -151,11 +151,11 @@ namespace RoadRegistry.BackOffice.Core
                         }
                     ).OmitAutoProperties()
                 );
-            Validator = new ChangeRoadNetworkBasedOnArchiveValidator();
+            Validator = new ChangeRoadNetworkValidator();
         }
 
         public Fixture Fixture { get; }
-        public ChangeRoadNetworkBasedOnArchiveValidator Validator { get; }
+        public ChangeRoadNetworkValidator Validator { get; }
 
         [Fact]
         public void ChangesCanNotBeNull()
