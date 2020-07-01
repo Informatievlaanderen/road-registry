@@ -51,7 +51,7 @@ namespace RoadRegistry.Wms.Projections
                     AccessRestrictionDutchName = accessRestriction.Translation.Name,
 
                     RecordingDate = envelope.Message.RecordingDate,
-                    TransactionId = transactionId == TransactionId.Unknown ? default : transactionId,
+                    TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
 
                     LeftSideMunicipalityId = null,
                     LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
@@ -125,7 +125,7 @@ namespace RoadRegistry.Wms.Projections
                                 AccessRestrictionDutchName = accessRestriction.Translation.Name,
 
                                 RecordingDate = DateTime.Parse(envelope.Message.When),
-                                TransactionId = transactionId == TransactionId.Unknown ? default : transactionId,
+                                TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
 
                                 LeftSideMunicipalityId = null,
                                 LeftSideStreetNameId = m.LeftSide.StreetNameId,

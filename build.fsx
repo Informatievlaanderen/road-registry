@@ -43,12 +43,14 @@ Target.create "Build_Solution" (fun _ ->
   Npm.install (fun p ->
     { p with
         WorkingDirectory = "src" @@ "RoadRegistry.BackOffice.UI"
+        NpmFilePath = "src" @@ "RoadRegistry.BackOffice.UI" @@ "node_modules" @@ ".bin" @@ "npm"
     }
   )
 
   Npm.run "build" (fun p ->
     { p with
         WorkingDirectory = "src" @@ "RoadRegistry.BackOffice.UI"
+        NpmFilePath = "src" @@ "RoadRegistry.BackOffice.UI" @@ "node_modules" @@ ".bin" @@ "npm"
     }
   )
 
