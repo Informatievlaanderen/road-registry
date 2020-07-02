@@ -166,7 +166,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                                 Operator = reader.GetNullableString(24),
                                 Application = reader.GetNullableString(25),
                                 Since = reader.GetDateTime(26),
-                                TransactionId = reader.GetNullableInt32(27),
+                                TransactionId = reader.GetNullableInt32(27) ?? TransactionId.Unknown.ToInt32()
                             },
                             PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
                             PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),
@@ -297,7 +297,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                                 Operator = reader.GetNullableString(24),
                                 Application = reader.GetNullableString(25),
                                 Since = reader.GetDateTime(26),
-                                TransactionId = reader.GetNullableInt32(27),
+                                TransactionId = reader.GetNullableInt32(27) ?? TransactionId.Unknown.ToInt32()
                             },
                             PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
                             PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),

@@ -16,7 +16,7 @@ namespace RoadRegistry.Wms.Schema.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.4")
+                .HasAnnotation("ProductVersion", "3.1.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -46,13 +46,13 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnName("wegsegmentID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("AccessRestriction")
-                        .HasColumnName("toegangsbeperking")
-                        .HasColumnType("int");
-
-                    b.Property<string>("AccessRestrictionLabel")
+                    b.Property<string>("AccessRestrictionDutchName")
                         .HasColumnName("lblToegangsbeperking")
                         .HasColumnType("varchar(64)");
+
+                    b.Property<int?>("AccessRestrictionId")
+                        .HasColumnName("toegangsbeperking")
+                        .HasColumnType("int");
 
                     b.Property<string>("BeginApplication")
                         .HasColumnName("beginapplicatie")
@@ -62,9 +62,13 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnName("beginoperator")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("BeginOrganization")
+                    b.Property<string>("BeginOrganizationId")
                         .HasColumnName("beginorganisatie")
                         .HasColumnType("varchar(18)");
+
+                    b.Property<string>("BeginOrganizationName")
+                        .HasColumnName("lblOrganisatie")
+                        .HasColumnType("varchar(64)");
 
                     b.Property<int?>("BeginRoadNodeId")
                         .HasColumnName("beginWegknoopID")
@@ -74,21 +78,17 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnName("begintijd")
                         .HasColumnType("varchar(100)");
 
-                    b.Property<string>("Category")
-                        .HasColumnName("categorie")
-                        .HasColumnType("varchar(10)");
-
-                    b.Property<string>("CategoryLabel")
+                    b.Property<string>("CategoryDutchName")
                         .HasColumnName("lblCategorie")
                         .HasColumnType("varchar(64)");
+
+                    b.Property<string>("CategoryId")
+                        .HasColumnName("categorie")
+                        .HasColumnType("varchar(10)");
 
                     b.Property<int?>("EndRoadNodeId")
                         .HasColumnName("eindWegknoopID")
                         .HasColumnType("int");
-
-                    b.Property<Geometry>("Geometry")
-                        .HasColumnName("geometrie")
-                        .HasColumnType("Geometry");
 
                     b.Property<Geometry>("Geometry2D")
                         .HasColumnName("geometrie2D")
@@ -98,81 +98,69 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnName("geometrieversie")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LeftSideMunicipality")
+                    b.Property<int?>("LeftSideMunicipalityId")
                         .HasColumnName("linksGemeente")
                         .HasColumnType("int");
+
+                    b.Property<string>("LeftSideStreetName")
+                        .HasColumnName("linksStraatnaam")
+                        .HasColumnType("varchar(128)");
 
                     b.Property<int?>("LeftSideStreetNameId")
                         .HasColumnName("linksStraatnaamID")
                         .HasColumnType("int");
 
-                    b.Property<string>("LeftSideStreetNameLabel")
-                        .HasColumnName("linksStraatnaam")
-                        .HasColumnType("varchar(128)");
-
-                    b.Property<string>("Maintainer")
+                    b.Property<string>("MaintainerId")
                         .HasColumnName("beheerder")
                         .HasColumnType("varchar(18)");
 
-                    b.Property<string>("MaintainerLabel")
+                    b.Property<string>("MaintainerName")
                         .HasColumnName("lblBeheerder")
                         .HasColumnType("varchar(64)");
 
-                    b.Property<int?>("Method")
-                        .HasColumnName("methode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MethodLabel")
+                    b.Property<string>("MethodDutchName")
                         .HasColumnName("lblMethode")
                         .HasColumnType("varchar(64)");
 
-                    b.Property<int?>("Morphology")
-                        .HasColumnName("morfologie")
+                    b.Property<int?>("MethodId")
+                        .HasColumnName("methode")
                         .HasColumnType("int");
 
-                    b.Property<string>("MorphologyLabel")
+                    b.Property<string>("MorphologyDutchName")
                         .HasColumnName("lblMorfologie")
                         .HasColumnType("varchar(64)");
 
-                    b.Property<string>("OrganizationLabel")
-                        .HasColumnName("lblOrganisatie")
-                        .HasColumnType("varchar(64)");
+                    b.Property<int?>("MorphologyId")
+                        .HasColumnName("morfologie")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("RecordingDate")
                         .HasColumnName("opnamedatum")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("RightSideMunicipality")
+                    b.Property<int?>("RightSideMunicipalityId")
                         .HasColumnName("rechtsGemeente")
                         .HasColumnType("int");
+
+                    b.Property<string>("RightSideStreetName")
+                        .HasColumnName("rechtsStraatnaam")
+                        .HasColumnType("varchar(128)");
 
                     b.Property<int?>("RightSideStreetNameId")
                         .HasColumnName("rechtsStraatnaamID")
                         .HasColumnType("int");
 
-                    b.Property<string>("RightSideStreetNameLabel")
-                        .HasColumnName("rechtsStraatnaam")
-                        .HasColumnType("varchar(128)");
-
                     b.Property<int?>("RoadSegmentVersion")
                         .HasColumnName("wegsegmentversie")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SourceId")
-                        .HasColumnName("sourceID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SourceIdSource")
-                        .HasColumnName("bronSourceID")
-                        .HasColumnType("varchar(18)");
-
-                    b.Property<int?>("Status")
-                        .HasColumnName("status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("StatusLabel")
+                    b.Property<string>("StatusDutchName")
                         .HasColumnName("lblStatus")
                         .HasColumnType("varchar(64)");
+
+                    b.Property<int?>("StatusId")
+                        .HasColumnName("status")
+                        .HasColumnType("int");
 
                     b.Property<int?>("TransactionId")
                         .HasColumnName("transactieID")

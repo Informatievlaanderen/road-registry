@@ -23,6 +23,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Handle(async (queue, message, ct) =>
                 {
                     var archiveId = new ArchiveId(message.Body.ArchiveId);
+                    var requestId = ChangeRequestId.FromArchiveId(archiveId);
                     var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
                     using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
@@ -36,9 +37,9 @@ namespace RoadRegistry.BackOffice.Uploads
                             requestedChanges.Add(requestedChange);
                         }
 
-                        var command = new Command(new Messages.ChangeRoadNetworkBasedOnArchive
+                        var command = new Command(new Messages.ChangeRoadNetwork
                             {
-                                ArchiveId = archiveId,
+                                RequestId = requestId,
                                 Changes = requestedChanges.ToArray(),
                                 Reason = translatedChanges.Reason,
                                 Operator = translatedChanges.Operator,

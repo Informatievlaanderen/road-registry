@@ -247,13 +247,5 @@ namespace RoadRegistry.BackOffice.Core
         {
             Validator.ShouldHaveChildValidator(c => c.Changes, typeof(RequestedChangeValidator));
         }
-
-        // [Fact]
-        // public void VerifyValid()
-        // {
-
-
-        //     Validator.ValidateAndThrow(data);
-        // }
     }
 }

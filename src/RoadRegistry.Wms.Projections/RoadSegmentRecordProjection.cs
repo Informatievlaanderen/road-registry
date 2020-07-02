@@ -13,58 +13,55 @@ namespace RoadRegistry.Wms.Projections
         {
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
-                var roadSegmentGeometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);
+                var method = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);
                 var accessRestriction = RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction);
-                var roadSegmentStatus = RoadSegmentStatus.Parse(envelope.Message.Status);
-                var roadSegmentMorphology = RoadSegmentMorphology.Parse(envelope.Message.Morphology);
-                var roadSegmentCategory = RoadSegmentCategory.Parse(envelope.Message.Category);
+                var status = RoadSegmentStatus.Parse(envelope.Message.Status);
+                var morphology = RoadSegmentMorphology.Parse(envelope.Message.Morphology);
+                var category = RoadSegmentCategory.Parse(envelope.Message.Category);
+                var transactionId = new TransactionId(envelope.Message.Origin.TransactionId);
 
                 await context.RoadSegments.AddAsync(new RoadSegmentRecord
                 {
                     Id = envelope.Message.Id,
                     BeginOperator = envelope.Message.Origin.Operator,
-                    BeginOrganization = envelope.Message.Origin.OrganizationId,
+                    BeginOrganizationId = envelope.Message.Origin.OrganizationId,
+                    BeginOrganizationName = envelope.Message.Origin.Organization,
                     BeginTime = envelope.Message.Origin.Since,
                     BeginApplication = envelope.Message.Origin.Application,
 
-                    Maintainer = envelope.Message.MaintenanceAuthority.Code,
-                    MaintainerLabel = envelope.Message.MaintenanceAuthority.Name,
+                    MaintainerId = envelope.Message.MaintenanceAuthority.Code,
+                    MaintainerName = envelope.Message.MaintenanceAuthority.Name,
 
-                    Method = roadSegmentGeometryDrawMethod.Translation.Identifier,
-                    MethodLabel = roadSegmentGeometryDrawMethod.Translation.Name,
+                    MethodId = method.Translation.Identifier,
+                    MethodDutchName = method.Translation.Name,
 
-                    Category = roadSegmentCategory.Translation.Identifier,
-                    CategoryLabel = roadSegmentCategory.Translation.Name,
+                    CategoryId = category.Translation.Identifier,
+                    CategoryDutchName = category.Translation.Name,
 
-                    Geometry = WmsGeometryTranslator.Translate3D(envelope.Message.Geometry),
                     Geometry2D = WmsGeometryTranslator.Translate2D(envelope.Message.Geometry),
                     GeometryVersion = envelope.Message.GeometryVersion,
 
-                    Morphology = roadSegmentMorphology.Translation.Identifier,
-                    MorphologyLabel = roadSegmentMorphology.Translation.Name,
+                    MorphologyId = morphology.Translation.Identifier,
+                    MorphologyDutchName = morphology.Translation.Name,
 
-                    Status = roadSegmentStatus.Translation.Identifier,
-                    StatusLabel = roadSegmentStatus.Translation.Name,
+                    StatusId = status.Translation.Identifier,
+                    StatusDutchName = status.Translation.Name,
 
-                    AccessRestriction = accessRestriction.Translation.Identifier,
-                    AccessRestrictionLabel = accessRestriction.Translation.Name,
+                    AccessRestrictionId = accessRestriction.Translation.Identifier,
+                    AccessRestrictionDutchName = accessRestriction.Translation.Name,
 
-                    SourceId = null,
-                    SourceIdSource = null,
-
-                    OrganizationLabel = envelope.Message.Origin.Organization,
                     RecordingDate = envelope.Message.RecordingDate,
-                    TransactionId = envelope.Message.Origin.TransactionId,
+                    TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
 
-                    LeftSideMunicipality = null,
+                    LeftSideMunicipalityId = null,
                     LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
-                    LeftSideStreetNameLabel = string.IsNullOrWhiteSpace(envelope.Message.LeftSide.StreetName)
+                    LeftSideStreetName = string.IsNullOrWhiteSpace(envelope.Message.LeftSide.StreetName)
                         ? null
                         : envelope.Message.LeftSide.StreetName,
 
-                    RightSideMunicipality = null,
+                    RightSideMunicipalityId = null,
                     RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
-                    RightSideStreetNameLabel = string.IsNullOrWhiteSpace(envelope.Message.RightSide.StreetName)
+                    RightSideStreetName = string.IsNullOrWhiteSpace(envelope.Message.RightSide.StreetName)
                         ? null
                         : envelope.Message.RightSide.StreetName,
 
@@ -75,70 +72,68 @@ namespace RoadRegistry.Wms.Projections
                 }, token);
             });
 
-            When<Envelope<RoadNetworkChangesBasedOnArchiveAccepted>>(async (context, envelope, token) =>
+            When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
+                var transactionId = new TransactionId(envelope.Message.TransactionId);
+
                 foreach (var change in envelope.Message.Changes.Flatten())
                 {
                     switch (change)
                     {
                         case RoadSegmentAdded m:
 
-                            var roadSegmentGeometryDrawMethod =
+                            var method =
                                 RoadSegmentGeometryDrawMethod.Parse(m.GeometryDrawMethod);
 
                             var accessRestriction =
                                 RoadSegmentAccessRestriction.Parse(m.AccessRestriction);
 
-                            var roadSegmentStatus = RoadSegmentStatus.Parse(m.Status);
+                            var status = RoadSegmentStatus.Parse(m.Status);
 
-                            var roadSegmentMorphology = RoadSegmentMorphology.Parse(m.Morphology);
+                            var morphology = RoadSegmentMorphology.Parse(m.Morphology);
 
-                            var roadSegmentCategory = RoadSegmentCategory.Parse(m.Category);
+                            var category = RoadSegmentCategory.Parse(m.Category);
 
                             await context.RoadSegments.AddAsync(new RoadSegmentRecord
                             {
                                 Id = m.Id,
                                 BeginOperator = envelope.Message.Operator,
-                                BeginOrganization = envelope.Message.Organization,
-                                BeginTime = DateTime.Parse(envelope.Message.When),
+                                BeginOrganizationId = envelope.Message.OrganizationId,
+                                BeginOrganizationName = envelope.Message.Organization,
+                                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                                 BeginApplication = null,
 
-                                Maintainer = m.MaintenanceAuthority.Code,
-                                MaintainerLabel = m.MaintenanceAuthority.Name,
+                                MaintainerId = m.MaintenanceAuthority.Code,
+                                MaintainerName = m.MaintenanceAuthority.Name,
 
-                                Method = roadSegmentGeometryDrawMethod.Translation.Identifier,
-                                MethodLabel = roadSegmentGeometryDrawMethod.Translation.Name,
+                                MethodId = method.Translation.Identifier,
+                                MethodDutchName = method.Translation.Name,
 
-                                Category = roadSegmentCategory.Translation.Identifier,
-                                CategoryLabel = roadSegmentCategory.Translation.Name,
+                                CategoryId = category.Translation.Identifier,
+                                CategoryDutchName = category.Translation.Name,
 
-                                Geometry = WmsGeometryTranslator.Translate3D(m.Geometry),
                                 Geometry2D = WmsGeometryTranslator.Translate2D(m.Geometry),
                                 GeometryVersion = m.GeometryVersion,
 
-                                Morphology = roadSegmentMorphology.Translation.Identifier,
-                                MorphologyLabel = roadSegmentMorphology.Translation.Name,
+                                MorphologyId = morphology.Translation.Identifier,
+                                MorphologyDutchName = morphology.Translation.Name,
 
-                                Status = roadSegmentStatus.Translation.Identifier,
-                                StatusLabel = roadSegmentStatus.Translation.Name,
+                                StatusId = status.Translation.Identifier,
+                                StatusDutchName = status.Translation.Name,
 
-                                AccessRestriction = accessRestriction.Translation.Identifier,
-                                AccessRestrictionLabel = accessRestriction.Translation.Name,
+                                AccessRestrictionId = accessRestriction.Translation.Identifier,
+                                AccessRestrictionDutchName = accessRestriction.Translation.Name,
 
-                                SourceId = null,
-                                SourceIdSource = null,
-
-                                OrganizationLabel = envelope.Message.Organization,
                                 RecordingDate = DateTime.Parse(envelope.Message.When),
-                                TransactionId = null,
+                                TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
 
-                                LeftSideMunicipality = null,
+                                LeftSideMunicipalityId = null,
                                 LeftSideStreetNameId = m.LeftSide.StreetNameId,
-                                LeftSideStreetNameLabel = null,
+                                LeftSideStreetName = null,
 
-                                RightSideMunicipality = null,
+                                RightSideMunicipalityId = null,
                                 RightSideStreetNameId = m.RightSide.StreetNameId,
-                                RightSideStreetNameLabel = null,
+                                RightSideStreetName = null,
 
                                 RoadSegmentVersion = m.Version,
 

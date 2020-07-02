@@ -14,12 +14,12 @@ namespace RoadRegistry.BackOffice.Core
             if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
             if (clock == null) throw new ArgumentNullException(nameof(clock));
 
-            For<ChangeRoadNetworkBasedOnArchive>()
-                .UseValidator(new ChangeRoadNetworkBasedOnArchiveValidator())
+            For<ChangeRoadNetwork>()
+                .UseValidator(new ChangeRoadNetworkValidator())
                 .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
                 .Handle(async (context, message, ct) =>
                 {
-                    var archive = new ArchiveId(message.Body.ArchiveId);
+                    var request = ChangeRequestId.FromString(message.Body.RequestId);
                     var @operator = new OperatorName(message.Body.Operator);
                     var reason = new Reason(message.Body.Reason);
                     var organizationId = new OrganizationId(message.Body.OrganizationId);
@@ -28,6 +28,7 @@ namespace RoadRegistry.BackOffice.Core
 
                     var network = await context.RoadNetworks.Get(ct);
                     var translator = new RequestedChangeTranslator(
+                        network.ProvidesNextTransactionId(),
                         network.ProvidesNextRoadNodeId(),
                         network.ProvidesNextRoadSegmentId(),
                         network.ProvidesNextGradeSeparatedJunctionId(),
@@ -39,7 +40,7 @@ namespace RoadRegistry.BackOffice.Core
                         network.ProvidesNextRoadSegmentSurfaceAttributeId()
                     );
                     var requestedChanges = translator.Translate(message.Body.Changes);
-                    network.ChangeBasedOnArchive(archive, reason, @operator, translation, requestedChanges);
+                    network.Change(request, reason, @operator, translation, requestedChanges);
                 });
         }
     }

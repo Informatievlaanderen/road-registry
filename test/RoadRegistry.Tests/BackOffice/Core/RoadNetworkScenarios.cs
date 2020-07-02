@@ -46,8 +46,10 @@ namespace RoadRegistry.BackOffice.Core
             Fixture.CustomizeGradeSeparatedJunctionId();
             Fixture.CustomizeGradeSeparatedJunctionType();
             Fixture.CustomizeArchiveId();
+            Fixture.CustomizeChangeRequestId();
             Fixture.CustomizeReason();
             Fixture.CustomizeOperatorName();
+            Fixture.CustomizeTransactionId();
 
             Fixture.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
                 composer.Do(instance =>
@@ -617,17 +619,21 @@ namespace RoadRegistry.BackOffice.Core
             };
 
             ArchiveId = Fixture.Create<ArchiveId>();
+            RequestId = ChangeRequestId.FromArchiveId(ArchiveId);
             ReasonForChange = Fixture.Create<Reason>();
             ChangedByOperator = Fixture.Create<OperatorName>();
             ChangedByOrganization = Fixture.Create<OrganizationId>();
             ChangedByOrganizationName = Fixture.Create<OrganizationName>();
+            TransactionId = Fixture.Create<TransactionId>();
         }
 
         public ArchiveId ArchiveId { get; }
+        public ChangeRequestId RequestId { get; }
         public Reason ReasonForChange { get; }
         public OperatorName ChangedByOperator { get; }
         public OrganizationId ChangedByOrganization { get; }
         public OrganizationName ChangedByOrganizationName { get; }
+        public TransactionId TransactionId { get; }
 
         public NetTopologySuite.Geometries.Point StartPoint1 { get; }
         public NetTopologySuite.Geometries.Point MiddlePoint1 { get; }
@@ -680,8 +686,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -695,9 +701,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -732,16 +739,17 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -778,8 +786,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -793,9 +801,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -849,8 +858,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -864,9 +873,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -971,8 +981,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -994,9 +1004,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1111,8 +1122,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -1134,9 +1145,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1296,8 +1308,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -1319,9 +1331,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -1421,8 +1434,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -1444,9 +1457,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1579,8 +1593,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -1610,9 +1624,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment3
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1745,8 +1760,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -1776,9 +1791,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment3
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1858,9 +1874,9 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -1881,8 +1897,8 @@ namespace RoadRegistry.BackOffice.Core
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode2
@@ -1896,9 +1912,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -1973,9 +1990,9 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -1996,8 +2013,8 @@ namespace RoadRegistry.BackOffice.Core
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode2
@@ -2011,9 +2028,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -2065,8 +2083,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -2092,9 +2110,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2172,9 +2191,9 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2195,8 +2214,8 @@ namespace RoadRegistry.BackOffice.Core
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode2
@@ -2210,9 +2229,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -2270,9 +2290,9 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2293,8 +2313,8 @@ namespace RoadRegistry.BackOffice.Core
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode2
@@ -2308,9 +2328,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -2357,8 +2378,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadSegment = AddSegment1
@@ -2372,9 +2393,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadNode = AddStartNode1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2414,9 +2436,10 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -2437,16 +2460,17 @@ namespace RoadRegistry.BackOffice.Core
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(2),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2641,8 +2665,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -2656,9 +2680,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2799,8 +2824,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -2814,9 +2839,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2848,8 +2874,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddEndNode1
@@ -2859,9 +2885,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2893,8 +2920,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -2904,9 +2931,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2940,8 +2968,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -2955,9 +2983,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -2991,9 +3020,9 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -3014,8 +3043,8 @@ namespace RoadRegistry.BackOffice.Core
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddEndNode2
@@ -3025,9 +3054,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3061,8 +3091,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3076,9 +3106,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3112,9 +3143,9 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -3135,8 +3166,8 @@ namespace RoadRegistry.BackOffice.Core
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode2
@@ -3146,9 +3177,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3192,8 +3224,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3207,9 +3239,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3378,8 +3411,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3393,9 +3426,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3552,8 +3586,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3567,9 +3601,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3726,8 +3761,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3741,9 +3776,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new []
                     {
                         new Messages.RejectedChange
@@ -3775,8 +3811,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3794,9 +3830,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegmentToEuropeanRoad = addRoadSegmentToEuropeanRoad
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -3849,16 +3886,17 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadSegmentToEuropeanRoad = addRoadSegmentToEuropeanRoad
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -3903,8 +3941,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -3922,9 +3960,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegmentToNationalRoad = addRoadSegmentToNationalRoad
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -3976,16 +4015,17 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadSegmentToNationalRoad = addRoadSegmentToNationalRoad
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4032,8 +4072,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -4051,9 +4091,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegmentToNumberedRoad = addRoadSegmentToNumberedRoad
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -4109,16 +4150,17 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadSegmentToNumberedRoad = addRoadSegmentToNumberedRoad
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4188,9 +4230,9 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -4220,16 +4262,17 @@ namespace RoadRegistry.BackOffice.Core
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddGradeSeparatedJunction = addGradeSeparatedJunction
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.AcceptedChange
@@ -4268,9 +4311,9 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -4288,16 +4331,17 @@ namespace RoadRegistry.BackOffice.Core
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddGradeSeparatedJunction = addGradeSeparatedJunction
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4336,9 +4380,9 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -4356,16 +4400,17 @@ namespace RoadRegistry.BackOffice.Core
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddGradeSeparatedJunction = addGradeSeparatedJunction
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4404,9 +4449,9 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveAccepted
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     Changes = new []
                     {
                         new Messages.AcceptedChange
@@ -4436,16 +4481,17 @@ namespace RoadRegistry.BackOffice.Core
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddGradeSeparatedJunction = addGradeSeparatedJunction
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4509,8 +4555,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -4524,9 +4570,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4605,8 +4652,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -4620,9 +4667,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4706,8 +4754,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -4721,9 +4769,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange
@@ -4842,8 +4891,8 @@ namespace RoadRegistry.BackOffice.Core
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )
-                .When(TheOperator.ChangesTheRoadNetworkBasedOnAnArchive(
-                    ArchiveId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
                     new RequestedChange
                     {
                         AddRoadNode = AddStartNode1
@@ -4857,9 +4906,10 @@ namespace RoadRegistry.BackOffice.Core
                         AddRoadSegment = AddSegment1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesBasedOnArchiveRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
                 {
-                    ArchiveId = ArchiveId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
                         new Messages.RejectedChange

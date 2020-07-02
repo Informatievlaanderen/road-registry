@@ -1,10 +1,11 @@
 namespace RoadRegistry.BackOffice.Core
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Collections.Immutable;
-    using System.Linq;
 
-    public class VerifiedChanges
+    public class VerifiedChanges : IReadOnlyCollection<IVerifiedChange>
     {
         private readonly ImmutableList<IVerifiedChange> _changes;
 
@@ -24,76 +25,16 @@ namespace RoadRegistry.BackOffice.Core
             return new VerifiedChanges(_changes.Add(change));
         }
 
-        public void RecordUsing(Action<object> applier)
+        public int Count => _changes.Count;
+
+        public IEnumerator<IVerifiedChange> GetEnumerator()
         {
-            if (applier == null) throw new ArgumentNullException(nameof(applier));
-
-            if (_changes.Count == 0) return;
-
-            if (_changes.OfType<RejectedChange>().Any())
-            {
-                applier(new Messages.RoadNetworkChangesRejected
-                {
-                    Changes = _changes
-                        .OfType<RejectedChange>()
-                        .Select(change => change.Translate())
-                        .ToArray()
-                });
-            }
-            else
-            {
-                applier(new Messages.RoadNetworkChangesAccepted
-                {
-                    Changes = _changes
-                        .OfType<AcceptedChange>()
-                        .Select(change => change.Translate())
-                        .ToArray()
-                });
-            }
+            return _changes.GetEnumerator();
         }
 
-        public void RecordUsing(
-            ArchiveId archiveId,
-            Reason reason,
-            OperatorName @operator,
-            Organization.DutchTranslation organization,
-            Action<object> applier)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            if (organization == null) throw new ArgumentNullException(nameof(organization));
-            if (applier == null) throw new ArgumentNullException(nameof(applier));
-
-            if (_changes.Count == 0) return;
-
-            if (_changes.OfType<RejectedChange>().Any())
-            {
-                applier(new Messages.RoadNetworkChangesBasedOnArchiveRejected
-                {
-                    ArchiveId = archiveId,
-                    Reason = reason,
-                    Operator = @operator,
-                    OrganizationId = organization.Identifier,
-                    Organization = organization.Name,
-                    Changes = _changes
-                        .OfType<RejectedChange>()
-                        .Select(change => change.Translate())
-                        .ToArray()
-                });
-            }
-            else
-            {
-                applier(new Messages.RoadNetworkChangesBasedOnArchiveAccepted
-                {
-                    ArchiveId = archiveId,
-                    Reason = reason,
-                    Operator = @operator,
-                    OrganizationId = organization.Identifier,
-                    Organization = organization.Name,
-                    Changes = _changes
-                        .OfType<AcceptedChange>()
-                        .Select(change => change.Translate())
-                        .ToArray()
-                });
-            }
+            return GetEnumerator();
         }
     }
 }

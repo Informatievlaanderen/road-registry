@@ -75,7 +75,7 @@ namespace RoadRegistry.Editor.Projections
         [Fact]
         public Task When_adding_grade_separated_junctions()
         {
-            var message = _fixture.Create<BackOffice.Messages.RoadNetworkChangesBasedOnArchiveAccepted>();
+            var message = _fixture.Create<BackOffice.Messages.RoadNetworkChangesAccepted>();
             var expectedRecords = Array.ConvertAll(message.Changes, change =>
             {
                 var junction = change.GradeSeparatedJunctionAdded;

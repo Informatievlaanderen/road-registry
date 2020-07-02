@@ -7,6 +7,7 @@
 
     internal class RequestedChangeTranslator
     {
+        private readonly Func<TransactionId> _nextTransactionId;
         private readonly Func<RoadNodeId> _nextRoadNodeId;
         private readonly Func<RoadSegmentId> _nextRoadSegmentId;
         private readonly Func<GradeSeparatedJunctionId> _nextGradeSeparatedJunctionId;
@@ -18,6 +19,7 @@
         private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentSurfaceAttributeId;
 
         public RequestedChangeTranslator(
+            Func<TransactionId> nextTransactionId,
             Func<RoadNodeId> nextRoadNodeId,
             Func<RoadSegmentId> nextRoadSegmentId,
             Func<GradeSeparatedJunctionId> nextGradeSeparatedJunctionId,
@@ -28,6 +30,8 @@
             Func<RoadSegmentId, Func<AttributeId>> nextRoadSegmentWidthAttributeId,
             Func<RoadSegmentId, Func<AttributeId>> nextRoadSegmentSurfaceAttributeId)
         {
+            _nextTransactionId =
+                nextTransactionId ?? throw new ArgumentNullException(nameof(nextTransactionId));
             _nextRoadNodeId =
                 nextRoadNodeId ?? throw new ArgumentNullException(nameof(nextRoadNodeId));
             _nextRoadSegmentId =
@@ -53,7 +57,7 @@
             if (changes == null)
                 throw new ArgumentNullException(nameof(changes));
 
-            var translated = RequestedChanges.Empty;
+            var translated = RequestedChanges.Start(_nextTransactionId());
             foreach (var change in changes
                 .Flatten()
                 .Select((change, ordinal) => new SortableChange(change, ordinal))

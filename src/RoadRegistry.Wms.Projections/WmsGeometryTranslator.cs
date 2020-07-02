@@ -8,32 +8,6 @@ namespace RoadRegistry.Wms.Projections
 
     public static class WmsGeometryTranslator
     {
-        public static NetTopologySuite.Geometries.LineString Translate3D(RoadSegmentGeometry geometry)
-        {
-            if (geometry == null)
-                throw new ArgumentNullException(nameof(geometry));
-
-            if (geometry.MultiLineString.Length != 1)
-                throw new ArgumentException(
-                    $"The geometry multilinestring must contain exactly one linestring. The geometry contains {geometry.MultiLineString.Length} linestrings.",
-                    nameof(geometry));
-
-            var fromLineString = geometry.MultiLineString.Single();
-            var toPoints = new List<NetTopologySuite.Geometries.Coordinate>();
-            for (var index = 0; index < fromLineString.Points.Length && index < fromLineString.Measures.Length; index++)
-            {
-                var fromPoint = fromLineString.Points[index];
-                var fromMeasure = fromLineString.Measures[index];
-                toPoints.Add(new NetTopologySuite.Geometries.CoordinateZM(fromPoint.X, fromPoint.Y, 0.0, fromMeasure));
-            }
-
-            return new NetTopologySuite.Geometries.LineString(
-                new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(toPoints.ToArray()),
-                GeometryConfiguration.GeometryFactory)
-                {
-                    SRID = geometry.SpatialReferenceSystemIdentifier
-                };
-        }
         public static NetTopologySuite.Geometries.LineString Translate2D(RoadSegmentGeometry geometry)
         {
             if (geometry == null)

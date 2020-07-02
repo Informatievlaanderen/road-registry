@@ -8,6 +8,26 @@ namespace RoadRegistry.BackOffice.Core
     {
         public ChangeRoadNetworkValidator()
         {
+            RuleFor(c => c.RequestId)
+                .NotNull()
+                .NotEmpty()
+                .Length(ChangeRequestId.ExactStringLength);
+
+            RuleFor(c => c.Reason)
+                .NotNull()
+                .NotEmpty()
+                .MaximumLength(Reason.MaxLength);
+
+            RuleFor(c => c.Operator)
+                .NotNull()
+                .NotEmpty()
+                .MaximumLength(OperatorName.MaxLength);
+
+            RuleFor(c => c.OrganizationId)
+                .NotNull()
+                .NotEmpty()
+                .MaximumLength(OrganizationId.MaxLength);
+
             RuleFor(c => c.Changes)
                 .NotNull()
                 .Must(OnlyHaveUniqueRoadNodeIdentifiers)
@@ -41,15 +61,15 @@ namespace RoadRegistry.BackOffice.Core
 
             return
                 new object[]
-                   {
-                       change.AddRoadNode,
-                       change.AddRoadSegment,
-                       change.AddRoadSegmentToEuropeanRoad,
-                       change.AddRoadSegmentToNationalRoad,
-                       change.AddRoadSegmentToNumberedRoad,
-                       change.AddGradeSeparatedJunction
-                   }
-                   .Count(_ => !ReferenceEquals(_, null)) == 1;
+                    {
+                        change.AddRoadNode,
+                        change.AddRoadSegment,
+                        change.AddRoadSegmentToEuropeanRoad,
+                        change.AddRoadSegmentToNationalRoad,
+                        change.AddRoadSegmentToNumberedRoad,
+                        change.AddGradeSeparatedJunction
+                    }
+                    .Count(_ => !ReferenceEquals(_, null)) == 1;
         }
 
         private static bool OnlyHaveUniqueRoadNodeIdentifiers(RequestedChange[] changes)
