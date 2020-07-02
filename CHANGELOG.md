@@ -1,3 +1,18 @@
+# [1.12.0](https://github.com/informatievlaanderen/road-registry/compare/v1.11.0...v1.12.0) (2020-07-02)
+
+
+### Bug Fixes
+
+* move to 3.1.5 ([7eebc0a](https://github.com/informatievlaanderen/road-registry/commit/7eebc0a43eda37204553f3dd8152568c6f4d1815))
+* test ([#42](https://github.com/informatievlaanderen/road-registry/issues/42)) ([7c8185a](https://github.com/informatievlaanderen/road-registry/commit/7c8185a143cfa1220bd9bbdf0456b90be34ad3b4))
+* the build ([#41](https://github.com/informatievlaanderen/road-registry/issues/41)) ([7c33e5b](https://github.com/informatievlaanderen/road-registry/commit/7c33e5b4e68822d34aa2e135b560605239d647aa))
+
+
+### Features
+
+* transaction id integration ([#39](https://github.com/informatievlaanderen/road-registry/issues/39)) ([97a2187](https://github.com/informatievlaanderen/road-registry/commit/97a2187d6fdc36a5cb70fc5970db9d45107d5c12))
+* wms projection ([#29](https://github.com/informatievlaanderen/road-registry/issues/29)) ([fa73e36](https://github.com/informatievlaanderen/road-registry/commit/fa73e36f912e079ea66d750283d0b4658f517ea8))
+
 # [1.11.0](https://github.com/informatievlaanderen/road-registry/compare/v1.10.0...v1.11.0) (2020-06-11)
 
 
