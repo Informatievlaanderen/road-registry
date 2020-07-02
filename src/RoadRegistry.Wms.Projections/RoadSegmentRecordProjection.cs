@@ -124,7 +124,7 @@ namespace RoadRegistry.Wms.Projections
                                 AccessRestrictionId = accessRestriction.Translation.Identifier,
                                 AccessRestrictionDutchName = accessRestriction.Translation.Name,
 
-                                RecordingDate = DateTime.Parse(envelope.Message.When),
+                                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                                 TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
 
                                 LeftSideMunicipalityId = null,
