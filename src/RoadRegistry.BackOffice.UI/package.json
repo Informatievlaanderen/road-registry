@@ -32,8 +32,7 @@
     "elm-hot": "^1.1.4",
     "elm-live": "^4.0.2",
     "node-elm-compiler": "^5.0.4",
-    "parcel-bundler": "^1.12.4",
-    "npm": "^6.14.5"
+    "parcel-bundler": "^1.12.4"
   },
   "browserslist": [
     "> 0.5%",
