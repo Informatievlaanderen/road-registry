@@ -109,6 +109,16 @@ namespace RoadRegistry.BackOffice
             );
         }
 
+        public static void CustomizeMunicipalityNISCode(this IFixture fixture)
+        {
+            fixture.Customize<MunicipalityNISCode>(composer =>
+                composer.FromFactory(generator =>
+                    new MunicipalityNISCode(new string(
+                        (char)generator.Next(97, 123), // a-z
+                        MunicipalityNISCode.ExactLength)))
+            );
+        }
+
         public static void CustomizeRoadSegmentId(this IFixture fixture)
         {
             fixture.Customize<RoadSegmentId>(composer =>
