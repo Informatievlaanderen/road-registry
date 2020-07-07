@@ -1,6 +1,8 @@
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 
+Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication
+
 Microsoft.Data.SqlClient
 Microsoft.Extensions.Logging
 Microsoft.Extensions.Hosting
