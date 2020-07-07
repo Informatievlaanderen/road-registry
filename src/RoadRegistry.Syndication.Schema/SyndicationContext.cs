@@ -7,9 +7,7 @@ namespace RoadRegistry.Syndication.Schema
     {
         public override string ProjectionStateSchema => WellknownSchemas.SyndicationMetaSchema;
 
-        // public DbSet<RoadSegmentDenormRecord> RoadSegments { get; set; }
-        public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
-
+        public DbSet<MunicipalityRecord> Municipalities { get; set; }
         public SyndicationContext() {}
 
         // This needs to be DbContextOptions<T> for Autofac!
