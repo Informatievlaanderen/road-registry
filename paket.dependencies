@@ -110,6 +110,8 @@ nuget Be.Vlaanderen.Basisregisters.BlobStore 2.2.8
 nuget Be.Vlaanderen.Basisregisters.Shaperon 8.0.3
 nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 8.0.3
 
+nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 15.6.2
+
 // DOCS STUFF
 nuget Structurizr.Core 0.9.7
 nuget Structurizr.Client 0.9.7
