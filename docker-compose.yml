@@ -52,13 +52,7 @@ services:
       - "41433:1433"
     volumes:
       - municipality-mssql-data:/var/opt/mssql
-      - ./src/RoadRegistry.MunicipalityDatabase/empty:/var/lib/backup/empty
       - ./src/RoadRegistry.MunicipalityDatabase/filled:/var/lib/backup/filled
-
-  empty-municipality-mssql-seed:
-    build: src/RoadRegistry.MunicipalityDatabase/empty
-    depends_on:
-      - municipality-mssql
 
   legacy-mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
