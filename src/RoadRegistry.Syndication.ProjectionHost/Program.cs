@@ -81,13 +81,11 @@
                     builder
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
-                        .AddHostedService<EventProcessor>()
+                        .AddHttpClient()
+                        .AddScoped<IRegistryAtomFeedReader, RegistryAtomFeedReader>()
+                        .AddHostedService<AtomFeedProcessor>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
-                        .AddSingleton(new EnvelopeFactory(
-                            EventProcessor.EventMapping,
-                            new EventDeserializer((eventData, eventType) =>
-                                JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
-                        )
+                        .AddSingleton<AtomEnvelopeFactory>()
                         .AddSingleton<Func<SyndicationContext>>(
                             () =>
                                 new SyndicationContext(
@@ -101,7 +99,7 @@
                         )
                         .AddSingleton(sp => new ConnectedProjection<SyndicationContext>[]
                         {
-                            new RoadSegmentRecordProjection()
+                            new MunicipalityCacheProjection()
                         })
                         .AddSingleton(sp =>
                             Resolve
@@ -111,7 +109,6 @@
                                     .ToArray()
                                 )
                         )
-                        .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<SyndicationContext>[]>(), EventProcessor.EventMapping))
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(
                                 new MsSqlStreamStoreV3Settings(
