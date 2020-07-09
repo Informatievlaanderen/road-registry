@@ -4,35 +4,25 @@ namespace RoadRegistry.Syndication.ProjectionHost
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Runtime.Serialization;
     using System.Xml;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication;
+    using Mapping;
     using Microsoft.SyndicationFeed;
     using Projections;
-    using Projections.MunicipalityEvents;
 
     public class AtomEnvelopeFactory
     {
-        private readonly Dictionary<string, DataContractSerializer> _eventSerializers;
-        private readonly Dictionary<string, DataContractSerializer> _atomEntrySerializers;
+        private readonly EventSerializerMapping _eventSerializers;
+        private readonly AtomEntrySerializerMapping _atomEntrySerializerMapping;
 
-        public AtomEnvelopeFactory()
+        public AtomEnvelopeFactory(
+            EventSerializerMapping eventSerializerMapping,
+            AtomEntrySerializerMapping atomEntrySerializerMapping)
         {
-            _eventSerializers = Assembly
-                .GetAssembly(typeof(MunicipalityWasRegistered))
-                ?.GetTypes()
-                .Where(t => t.Namespace != null &&
-                            t.Namespace.EndsWith("MunicipalityEvents"))
-                .ToDictionary(
-                    type => type.Name,
-                    type => new DataContractSerializer(type));
-
-            _atomEntrySerializers = new Dictionary<string, DataContractSerializer>{
-            {
-                "https://data.vlaanderen.be/ns/gemeente", new DataContractSerializer(typeof(SyndicationContent<Gemeente>))
-            }};
+            _eventSerializers = eventSerializerMapping;
+            _atomEntrySerializerMapping = atomEntrySerializerMapping;
         }
 
         public object CreateEnvelope(IAtomEntry message)
@@ -79,13 +69,13 @@ namespace RoadRegistry.Syndication.ProjectionHost
         private DataContractSerializer FindAtomEntrySerializer(ISyndicationItem message)
         {
             var categoryName = message.Categories.First().Name;
-            return _atomEntrySerializers.ContainsKey(categoryName) ? _atomEntrySerializers[categoryName] : null;
+            return _atomEntrySerializerMapping.HasSerializerFor(categoryName) ? _atomEntrySerializerMapping.GetSerializerFor(categoryName) : null;
         }
 
         private DataContractSerializer FindEventSerializer(AtomEntry atomEntry)
         {
             var eventName = atomEntry.FeedEntry.Title.Split('-')[0];
-            return _eventSerializers.ContainsKey(eventName) ? _eventSerializers[eventName] : null;
+            return _eventSerializers.HasSerializerFor(eventName) ? _eventSerializers.GetSerializerFor(eventName) : null;
         }
     }
 }

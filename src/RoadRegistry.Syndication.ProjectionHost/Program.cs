@@ -11,6 +11,7 @@
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Mapping;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -85,6 +86,8 @@
                         .AddScoped<IRegistryAtomFeedReader, RegistryAtomFeedReader>()
                         .AddHostedService<AtomFeedProcessor>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
+                        .AddSingleton<EventSerializerMapping>()
+                        .AddSingleton<AtomEntrySerializerMapping>()
                         .AddSingleton<AtomEnvelopeFactory>()
                         .AddSingleton<Func<SyndicationContext>>(
                             () =>
