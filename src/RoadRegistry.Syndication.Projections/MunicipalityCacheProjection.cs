@@ -1,16 +1,8 @@
 namespace RoadRegistry.Syndication.Projections
 {
     using System;
-    using System.Collections.Generic;
-    using System.Runtime.Serialization;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
-    using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Gemeente;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication;
     using MunicipalityEvents;
     using Schema;
 
