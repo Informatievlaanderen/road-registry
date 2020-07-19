@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/informatievlaanderen/road-registry/compare/v1.12.0...v1.12.1) (2020-07-19)
+
+
+### Bug Fixes
+
+* move to 3.1.6 ([ce5cb7e](https://github.com/informatievlaanderen/road-registry/commit/ce5cb7ec488b1e8c97622a20b404a07a0caa0a87))
+
 # [1.12.0](https://github.com/informatievlaanderen/road-registry/compare/v1.11.0...v1.12.0) (2020-07-02)
 
 
