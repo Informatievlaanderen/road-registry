@@ -27,11 +27,12 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
         public AtomFeedProcessor(
             IRegistryAtomFeedReader reader,
-            // AcceptStreamMessageFilter filter,
             AtomEnvelopeFactory envelopeFactory,
+            // AcceptStreamMessageFilter filter,
             ConnectedProjectionHandlerResolver<SyndicationContext> resolver,
             Func<SyndicationContext> dbContextFactory,
             Scheduler scheduler,
+            MunicipalityFeedConfiguration municipalityFeedConfiguration,
             ILogger<AtomFeedProcessor> logger)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
@@ -39,6 +40,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
             if (envelopeFactory == null) throw new ArgumentNullException(nameof(envelopeFactory));
             if (resolver == null) throw new ArgumentNullException(nameof(resolver));
             if (dbContextFactory == null) throw new ArgumentNullException(nameof(dbContextFactory));
+            if (municipalityFeedConfiguration == null) throw new ArgumentNullException(nameof(municipalityFeedConfiguration));
 
             _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -87,12 +89,12 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                     context.ChangeTracker.AutoDetectChangesEnabled = false;
 
                                     var entries = (await reader.ReadEntriesAsync(
-                                            FeedUri,
+                                            municipalityFeedConfiguration.Uri,
                                             catchUpPosition,
-                                            FeedUserName,
-                                            FeedPassword,
+                                            municipalityFeedConfiguration.UserName,
+                                            municipalityFeedConfiguration.Password,
                                             true,
-                                            true))
+                                            false))
                                         .ToList();
 
                                     while (entries.Any())
@@ -154,12 +156,12 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
                                         catchUpPosition = lastEntryId + 1;
                                         entries = (await reader.ReadEntriesAsync(
-                                                FeedUri,
+                                                municipalityFeedConfiguration.Uri,
                                                 catchUpPosition,
-                                                FeedUserName,
-                                                FeedPassword,
+                                                municipalityFeedConfiguration.UserName,
+                                                municipalityFeedConfiguration.Password,
                                                 true,
-                                                true))
+                                                false))
                                             .ToList();
                                     }
 
@@ -209,12 +211,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
                 }
             }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
         }
-
-        public string FeedPassword => "";
-
-        public string FeedUserName => "";
-
-        public Uri FeedUri => new Uri("http://localhost:2002/v1/gemeenten/sync");
 
         private class Resume { }
 
