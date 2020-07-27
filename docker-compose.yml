@@ -10,7 +10,7 @@ services:
     - seq-data:/data
 
   municipality-api:
-    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/municipality-registry/api-legacy:3.7.0
+    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/municipality-registry/api-legacy:3.8.1
     depends_on:
       - municipality-mssql
       - seq
