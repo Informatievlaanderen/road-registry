@@ -27,6 +27,7 @@ CREATE TABLE [MunicipalityRegistryLegacy].[MunicipalitySyndication](
 	[OfficialLanguages] [nvarchar](max) NULL,
 	[EventDataAsXml] [nvarchar](max) NULL,
 	[Reason] [nvarchar](max) NULL,
+	[SyndicationItemCreatedAt] [datetimeoffset](7) NOT NULL,
  CONSTRAINT [PK_MunicipalitySyndication] PRIMARY KEY CLUSTERED 
 (
 	[Position] ASC
