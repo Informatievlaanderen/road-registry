@@ -80,6 +80,7 @@
                 .ConfigureServices((hostContext, builder) =>
                 {
                     builder
+                        .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MunicipalityFeedConfiguration.Section).Get<MunicipalityFeedConfiguration>())
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
                         .AddHttpClient()
