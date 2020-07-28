@@ -34,4 +34,18 @@ namespace RoadRegistry.Syndication.Projections
             FacilitiesLanguages = new List<Taal>();
         }
     }
+
+    [DataContract(Name = "StraatNaam", Namespace = "")]
+    public class StraatNaam
+    {
+        [DataMember(Name = "Id", Order = 1)]
+        public Guid Id { get; set; }
+
+        [DataMember(Name = "Identificator", Order = 2)]
+        public GemeenteIdentificator Identificator { get; set; }
+
+        public StraatNaam()
+        {
+        }
+    }
 }

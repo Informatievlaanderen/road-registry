@@ -12,16 +12,14 @@ namespace RoadRegistry.Syndication.ProjectionHost
     using Schema;
     using SqlStreamStore.Streams;
 
-    public class AtomFeedProcessor : IHostedService
+    public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedService where TConfiguration : ISyndicationFeedConfiguration
     {
-        private const string RoadRegistrySyndicationProjectionHost = "roadregistry-Syndication-projectionhost";
-
         private readonly Channel<object> _messageChannel;
         private readonly CancellationTokenSource _messagePumpCancellation;
         private readonly Task _messagePump;
 
         private readonly Scheduler _scheduler;
-        private readonly ILogger<AtomFeedProcessor> _logger;
+        private readonly ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> _logger;
 
         private const int CatchUpBatchSize = 5000;
 
@@ -32,15 +30,15 @@ namespace RoadRegistry.Syndication.ProjectionHost
             ConnectedProjectionHandlerResolver<SyndicationContext> resolver,
             Func<SyndicationContext> dbContextFactory,
             Scheduler scheduler,
-            MunicipalityFeedConfiguration municipalityFeedConfiguration,
-            ILogger<AtomFeedProcessor> logger)
+            TConfiguration feedConfiguration,
+            ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> logger)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
             // if (filter == null) throw new ArgumentNullException(nameof(filter));
             if (envelopeFactory == null) throw new ArgumentNullException(nameof(envelopeFactory));
             if (resolver == null) throw new ArgumentNullException(nameof(resolver));
             if (dbContextFactory == null) throw new ArgumentNullException(nameof(dbContextFactory));
-            if (municipalityFeedConfiguration == null) throw new ArgumentNullException(nameof(municipalityFeedConfiguration));
+            if (feedConfiguration == null) throw new ArgumentNullException(nameof(feedConfiguration));
 
             _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -52,11 +50,14 @@ namespace RoadRegistry.Syndication.ProjectionHost
                 SingleWriter = false,
                 AllowSynchronousContinuations = false
             });
+
+            var roadRegistrySyndicationProjectionHost = $"roadregistry-syndication-projectionhost-{typeof(TSyndicationContent).Name}";
+
             _messagePump = Task.Factory.StartNew(async () =>
             {
                 try
                 {
-                    logger.LogInformation("EventProcessor message pump entered ...");
+                    logger.LogInformation("[{Context}] EventProcessor message pump entered ...", typeof(TSyndicationContent).Name);
                     while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
                     {
                         while (_messageChannel.Reader.TryRead(out var message))
@@ -64,13 +65,13 @@ namespace RoadRegistry.Syndication.ProjectionHost
                             switch (message)
                             {
                                 case Resume _:
-                                    logger.LogInformation("Resuming ...");
+                                    logger.LogInformation("[{Context}] Resuming ...", typeof(TSyndicationContent).Name);
                                     await using (var resumeContext = dbContextFactory())
                                     {
                                         var projection =
                                             await resumeContext.ProjectionStates
                                                 .SingleOrDefaultAsync(
-                                                    item => item.Name == RoadRegistrySyndicationProjectionHost,
+                                                    item => item.Name == roadRegistrySyndicationProjectionHost,
                                                     _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
 
@@ -82,17 +83,17 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
                                     break;
                                 case CatchUp catchUp:
-                                    logger.LogInformation("Catching up as of {Position}", catchUp.AfterPosition ?? -1L);
+                                    logger.LogInformation("[{Context}] Catching up as of {Position}", typeof(TSyndicationContent).Name, catchUp.AfterPosition ?? -1L);
                                     var observedMessageCount = 0;
                                     var catchUpPosition = catchUp.AfterPosition ?? Position.Start;
                                     var context = dbContextFactory();
                                     context.ChangeTracker.AutoDetectChangesEnabled = false;
 
                                     var entries = (await reader.ReadEntriesAsync(
-                                            municipalityFeedConfiguration.Uri,
+                                            feedConfiguration.Uri,
                                             catchUpPosition,
-                                            municipalityFeedConfiguration.UserName,
-                                            municipalityFeedConfiguration.Password,
+                                            feedConfiguration.UserName,
+                                            feedConfiguration.Password,
                                             true,
                                             false))
                                         .ToList();
@@ -114,10 +115,10 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                             if (true) // filter here?
                                             {
 
-                                                logger.LogInformation("Catching up on {MessageType} at {Position}",
-                                                            atomEntry.ContentType, atomEntry.Id);
+                                                logger.LogInformation("[{Context}] Catching up on {MessageType} at {Position}",
+                                                            typeof(TSyndicationContent).Name, atomEntry.ContentType, atomEntry.Id);
 
-                                                var envelope = envelopeFactory.CreateEnvelope(atomEntry);
+                                                var envelope = envelopeFactory.CreateEnvelope<TSyndicationContent>(atomEntry);
                                                 if (envelope != null)
                                                 {
                                                     var handlers = resolver(envelope);
@@ -136,11 +137,11 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                             if (observedMessageCount % CatchUpBatchSize == 0)
                                             {
                                                 logger.LogInformation(
-                                                    "Flushing catch up position of {0} and persisting changes ...",
-                                                    catchUpPosition);
+                                                    "[{Context}] Flushing catch up position of {0} and persisting changes ...",
+                                                    typeof(TSyndicationContent).Name, catchUpPosition);
                                                 await context
                                                     .UpdateProjectionState(
-                                                        RoadRegistrySyndicationProjectionHost,
+                                                        roadRegistrySyndicationProjectionHost,
                                                         catchUpPosition,
                                                         _messagePumpCancellation.Token)
                                                     .ConfigureAwait(false);
@@ -156,10 +157,10 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
                                         catchUpPosition = lastEntryId + 1;
                                         entries = (await reader.ReadEntriesAsync(
-                                                municipalityFeedConfiguration.Uri,
+                                                feedConfiguration.Uri,
                                                 catchUpPosition,
-                                                municipalityFeedConfiguration.UserName,
-                                                municipalityFeedConfiguration.Password,
+                                                feedConfiguration.UserName,
+                                                feedConfiguration.Password,
                                                 true,
                                                 false))
                                             .ToList();
@@ -168,11 +169,11 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                     if (observedMessageCount > 0) // case where we just read the last page and pending work in memory needs to be flushed
                                     {
                                         logger.LogInformation(
-                                            "Flushing catch up position of {Position} and persisting changes ...",
-                                            catchUpPosition);
+                                            "[{Context}] Flushing catch up position of {Position} and persisting changes ...",
+                                            typeof(TSyndicationContent).Name, catchUpPosition);
                                         await context
                                             .UpdateProjectionState(
-                                                RoadRegistrySyndicationProjectionHost,
+                                                roadRegistrySyndicationProjectionHost,
                                                 catchUpPosition,
                                                 _messagePumpCancellation.Token)
                                             .ConfigureAwait(false);
@@ -195,15 +196,15 @@ namespace RoadRegistry.Syndication.ProjectionHost
                 }
                 catch (TaskCanceledException)
                 {
-                    logger.LogInformation("EventProcessor message pump is exiting due to cancellation");
+                    logger.LogInformation("[{Context}] EventProcessor message pump is exiting due to cancellation", typeof(TSyndicationContent).Name);
                 }
                 catch (OperationCanceledException)
                 {
-                    logger.LogInformation("EventProcessor message pump is exiting due to cancellation");
+                    logger.LogInformation("[{Context}] EventProcessor message pump is exiting due to cancellation", typeof(TSyndicationContent).Name);
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, "EventProcessor message pump is exiting due to a bug");
+                    logger.LogError(exception, "[{Context}] EventProcessor message pump is exiting due to a bug", typeof(TSyndicationContent).Name);
                 }
                 finally
                 {
@@ -238,21 +239,21 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting event processor ...");
+            _logger.LogInformation("[{Context}] Starting event processor ...", typeof(TSyndicationContent).Name);
             await _scheduler.StartAsync(cancellationToken).ConfigureAwait(false);
             await _messageChannel.Writer.WriteAsync(new Resume(), cancellationToken).ConfigureAwait(false);
-            _logger.LogInformation("Started event processor.");
+            _logger.LogInformation("[{Context}] Started event processor.", typeof(TSyndicationContent).Name);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Stopping event processor ...");
+            _logger.LogInformation("[{Context}] Stopping event processor ...", typeof(TSyndicationContent).Name);
             _messageChannel.Writer.Complete();
             _messagePumpCancellation.Cancel();
             await _messagePump.ConfigureAwait(false);
             _messagePumpCancellation.Dispose();
             await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
-            _logger.LogInformation("Stopped event processor.");
+            _logger.LogInformation("[{Context}] Stopped event processor.", typeof(TSyndicationContent).Name);
         }
     }
 }

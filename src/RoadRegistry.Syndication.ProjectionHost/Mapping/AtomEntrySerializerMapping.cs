@@ -17,6 +17,10 @@ namespace RoadRegistry.Syndication.ProjectionHost.Mapping
                     {
                         "https://data.vlaanderen.be/ns/gemeente",
                         new DataContractSerializer(typeof(SyndicationContent<Gemeente>))
+                    },
+                    {
+                        "https://data.vlaanderen.be/ns/straatnaam",
+                        new DataContractSerializer(typeof(SyndicationContent<StraatNaam>))
                     }
                 });
         }

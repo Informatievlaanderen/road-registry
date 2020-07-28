@@ -18,7 +18,8 @@ namespace RoadRegistry.Syndication.ProjectionHost.Mapping
                     .GetAssembly(typeof(MunicipalityWasRegistered))
                     ?.GetTypes()
                     .Where(t => t.Namespace != null &&
-                                t.Namespace.EndsWith("MunicipalityEvents"))
+                                (t.Namespace.EndsWith("MunicipalityEvents") ||
+                                 t.Namespace.EndsWith("StreetNameEvents")))
                     .ToDictionary(
                         type => type.Name,
                         type => new DataContractSerializer(type)));

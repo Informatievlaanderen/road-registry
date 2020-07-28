@@ -25,7 +25,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
             _atomEntrySerializerMapping = atomEntrySerializerMapping;
         }
 
-        public object CreateEnvelope(IAtomEntry message)
+        public object CreateEnvelope<T>(IAtomEntry message)
         {
             using (var contentXmlReader =
                 XmlReader.Create(
@@ -40,7 +40,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
                 using (var eventXmlReader =
                     XmlReader.Create(
-                        new StringReader(((SyndicationContent<Gemeente>) atomEntry.Content).Event.OuterXml)))
+                        new StringReader(((SyndicationContent<T>) atomEntry.Content).Event.OuterXml)))
                 {
                     var serializer = FindEventSerializer(atomEntry);
                     if (serializer == null)

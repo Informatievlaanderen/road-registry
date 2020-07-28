@@ -81,11 +81,27 @@
                 {
                     builder
                         .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MunicipalityFeedConfiguration.Section).Get<MunicipalityFeedConfiguration>())
+                        .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(StreetNameFeedConfiguration.Section).Get<StreetNameFeedConfiguration>())
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
                         .AddHttpClient()
-                        .AddScoped<IRegistryAtomFeedReader, RegistryAtomFeedReader>()
-                        .AddHostedService<AtomFeedProcessor>()
+                        .AddTransient<IRegistryAtomFeedReader, RegistryAtomFeedReader>()
+                        .AddHostedService(serviceProvider => new AtomFeedProcessor<MunicipalityFeedConfiguration, Gemeente>(
+                            serviceProvider.GetRequiredService<IRegistryAtomFeedReader>(),
+                            serviceProvider.GetRequiredService<AtomEnvelopeFactory>(),
+                            serviceProvider.GetRequiredService<ConnectedProjectionHandlerResolver<SyndicationContext>>(),
+                            serviceProvider.GetRequiredService<Func<SyndicationContext>>(),
+                            serviceProvider.GetRequiredService<Scheduler>(),
+                            serviceProvider.GetRequiredService<MunicipalityFeedConfiguration>(),
+                            serviceProvider.GetRequiredService<ILogger<AtomFeedProcessor<MunicipalityFeedConfiguration, Gemeente>>>()))
+                        .AddHostedService(serviceProvider => new AtomFeedProcessor<StreetNameFeedConfiguration, StraatNaam>(
+                            serviceProvider.GetRequiredService<IRegistryAtomFeedReader>(),
+                            serviceProvider.GetRequiredService<AtomEnvelopeFactory>(),
+                            serviceProvider.GetRequiredService<ConnectedProjectionHandlerResolver<SyndicationContext>>(),
+                            serviceProvider.GetRequiredService<Func<SyndicationContext>>(),
+                            serviceProvider.GetRequiredService<Scheduler>(),
+                            serviceProvider.GetRequiredService<StreetNameFeedConfiguration>(),
+                            serviceProvider.GetRequiredService<ILogger<AtomFeedProcessor<StreetNameFeedConfiguration, StraatNaam>>>()))
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton<EventSerializerMapping>()
                         .AddSingleton<AtomEntrySerializerMapping>()
@@ -103,7 +119,8 @@
                         )
                         .AddSingleton(sp => new ConnectedProjection<SyndicationContext>[]
                         {
-                            new MunicipalityCacheProjection()
+                            new MunicipalityCacheProjection(),
+                            new StreetNameCacheProjection()
                         })
                         .AddSingleton(sp =>
                             Resolve
