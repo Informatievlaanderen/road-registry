@@ -33,16 +33,16 @@ namespace RoadRegistry.Syndication.Projections
 
                 switch (envelope.Message.Language)
                 {
-                    case Language.Dutch:
+                    case MunicipalityLanguage.Dutch:
                         municipalityRecord.DutchName = envelope.Message.Name;
                         break;
-                    case Language.French:
+                    case MunicipalityLanguage.French:
                         municipalityRecord.FrenchName = envelope.Message.Name;
                         break;
-                    case Language.German:
+                    case MunicipalityLanguage.German:
                         municipalityRecord.GermanName = envelope.Message.Name;
                         break;
-                    case Language.English:
+                    case MunicipalityLanguage.English:
                         municipalityRecord.EnglishName = envelope.Message.Name;
                         break;
                     default:
@@ -58,16 +58,16 @@ namespace RoadRegistry.Syndication.Projections
 
                 switch (envelope.Message.Language)
                 {
-                    case Language.Dutch:
+                    case MunicipalityLanguage.Dutch:
                         municipalityRecord.DutchName = null;
                         break;
-                    case Language.French:
+                    case MunicipalityLanguage.French:
                         municipalityRecord.FrenchName = null;
                         break;
-                    case Language.German:
+                    case MunicipalityLanguage.German:
                         municipalityRecord.GermanName = null;
                         break;
-                    case Language.English:
+                    case MunicipalityLanguage.English:
                         municipalityRecord.EnglishName = null;
                         break;
                     default:
@@ -83,16 +83,16 @@ namespace RoadRegistry.Syndication.Projections
 
                 switch (envelope.Message.Language)
                 {
-                    case Language.Dutch:
+                    case MunicipalityLanguage.Dutch:
                         municipalityRecord.DutchName = envelope.Message.Name;
                         break;
-                    case Language.French:
+                    case MunicipalityLanguage.French:
                         municipalityRecord.FrenchName = envelope.Message.Name;
                         break;
-                    case Language.German:
+                    case MunicipalityLanguage.German:
                         municipalityRecord.GermanName = envelope.Message.Name;
                         break;
-                    case Language.English:
+                    case MunicipalityLanguage.English:
                         municipalityRecord.EnglishName = envelope.Message.Name;
                         break;
                     default:
@@ -108,16 +108,16 @@ namespace RoadRegistry.Syndication.Projections
 
                 switch (envelope.Message.Language)
                 {
-                    case Language.Dutch:
+                    case MunicipalityLanguage.Dutch:
                         municipalityRecord.DutchName = null;
                         break;
-                    case Language.French:
+                    case MunicipalityLanguage.French:
                         municipalityRecord.FrenchName = null;
                         break;
-                    case Language.German:
+                    case MunicipalityLanguage.German:
                         municipalityRecord.GermanName = null;
                         break;
-                    case Language.English:
+                    case MunicipalityLanguage.English:
                         municipalityRecord.EnglishName = null;
                         break;
                     default:

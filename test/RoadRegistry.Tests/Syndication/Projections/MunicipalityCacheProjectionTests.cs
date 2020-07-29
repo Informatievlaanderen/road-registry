@@ -422,7 +422,7 @@ namespace RoadRegistry.Syndication.Projections
         {
             var municipalityWasNamed = _fixture.Create<MunicipalityWasNamed>();
             municipalityWasNamed.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-            municipalityWasNamed.Language = Language.Dutch;
+            municipalityWasNamed.Language = MunicipalityLanguage.Dutch;
             return municipalityWasNamed;
         }
 
@@ -430,7 +430,7 @@ namespace RoadRegistry.Syndication.Projections
         {
             var municipalityNameWasCleared = _fixture.Create<MunicipalityNameWasCleared>();
             municipalityNameWasCleared.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-            municipalityNameWasCleared.Language = Language.Dutch;
+            municipalityNameWasCleared.Language = MunicipalityLanguage.Dutch;
             return municipalityNameWasCleared;
         }
 
@@ -438,7 +438,7 @@ namespace RoadRegistry.Syndication.Projections
         {
             var municipalityNameWasCorrected = _fixture.Create<MunicipalityNameWasCorrected>();
             municipalityNameWasCorrected.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-            municipalityNameWasCorrected.Language = Language.Dutch;
+            municipalityNameWasCorrected.Language = MunicipalityLanguage.Dutch;
             return municipalityNameWasCorrected;
         }
 
@@ -446,7 +446,7 @@ namespace RoadRegistry.Syndication.Projections
         {
             var municipalityNameWasCorrectedToCleared = _fixture.Create<MunicipalityNameWasCorrectedToCleared>();
             municipalityNameWasCorrectedToCleared.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-            municipalityNameWasCorrectedToCleared.Language = Language.Dutch;
+            municipalityNameWasCorrectedToCleared.Language = MunicipalityLanguage.Dutch;
             return municipalityNameWasCorrectedToCleared;
         }
 

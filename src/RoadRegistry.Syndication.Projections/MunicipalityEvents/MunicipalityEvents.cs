@@ -23,7 +23,7 @@ namespace RoadRegistry.Syndication.Projections.MunicipalityEvents
         public string Name { get; set; }
 
         [DataMember(Name = "Language", Order = 3)]
-        public Language Language { get; set; }
+        public MunicipalityLanguage Language { get; set; }
     }
 
     [DataContract(Name = "MunicipalityNameWasCleared", Namespace = "")]
@@ -33,7 +33,7 @@ namespace RoadRegistry.Syndication.Projections.MunicipalityEvents
         public Guid MunicipalityId { get; set; }
 
         [DataMember(Name = "Language", Order = 2)]
-        public Language Language { get; set; }
+        public MunicipalityLanguage Language { get; set; }
     }
 
     [DataContract(Name = "MunicipalityNameWasCorrected", Namespace = "")]
@@ -46,7 +46,7 @@ namespace RoadRegistry.Syndication.Projections.MunicipalityEvents
         public string Name { get; set; }
 
         [DataMember(Name = "Language", Order = 3)]
-        public Language Language { get; set; }
+        public MunicipalityLanguage Language { get; set; }
     }
 
     [DataContract(Name = "MunicipalityNameWasCorrectedToCleared", Namespace = "")]
@@ -57,7 +57,7 @@ namespace RoadRegistry.Syndication.Projections.MunicipalityEvents
 
 
         [DataMember(Name = "Language", Order = 2)]
-        public Language Language { get; set; }
+        public MunicipalityLanguage Language { get; set; }
     }
 
     [DataContract(Name = "MunicipalityNisCodeWasDefined", Namespace = "")]
@@ -111,7 +111,7 @@ namespace RoadRegistry.Syndication.Projections.MunicipalityEvents
         public Guid MunicipalityId { get; set; }
     }
 
-    public enum Language
+    public enum MunicipalityLanguage
     {
         Dutch = 0,
         French = 1,
