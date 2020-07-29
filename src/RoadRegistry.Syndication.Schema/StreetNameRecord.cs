@@ -4,12 +4,13 @@ namespace RoadRegistry.Syndication.Schema
 
     public class StreetNameRecord
     {
+        public Guid StreetNameId { get; set; }
         public Guid MunicipalityId { get; set; }
         public string NisCode { get; set; }
         public string DutchName { get; set; }
         public string FrenchName { get; set; }
         public string GermanName { get; set; }
         public string EnglishName { get; set; }
-        public MunicipalityStatus MunicipalityStatus { get; set; }
+        public StreetNameStatus? StreetNameStatus { get; set; }
     }
 }

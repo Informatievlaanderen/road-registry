@@ -20,6 +20,28 @@ namespace RoadRegistry.Syndication.Projections
                 //     }, token);
             });
 
+            When<Envelope<StreetNameNameWasCorrected>>(async (context, envelope, token) =>
+            {
+                // await context.Municipalities.AddAsync(
+                //     new StreetNameRecord
+                //     {
+                //         StreetNameId = envelope.Message.StreetNameId,
+                //         MunicipalityId = envelope.Message.MunicipalityId,
+                //         NisCode = envelope.Message.NisCode,
+                //     }, token);
+            });
+
+            When<Envelope<StreetNameWasNamed>>(async (context, envelope, token) =>
+            {
+                // await context.Municipalities.AddAsync(
+                //     new StreetNameRecord
+                //     {
+                //         StreetNameId = envelope.Message.StreetNameId,
+                //         MunicipalityId = envelope.Message.MunicipalityId,
+                //         NisCode = envelope.Message.NisCode,
+                //     }, token);
+            });
+
         }
     }
 }
