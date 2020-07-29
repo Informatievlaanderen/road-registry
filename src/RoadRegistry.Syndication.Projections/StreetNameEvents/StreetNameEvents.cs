@@ -2,7 +2,6 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
 {
     using System;
     using System.Runtime.Serialization;
-    using System.Xml.Serialization;
     using NodaTime;
 
     [DataContract(Name = "StreetNameWasRegistered", Namespace = "")]
@@ -18,8 +17,8 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         public string NisCode { get; set; }
     }
 
-    [DataContract(Name = "StreetNamePersistentLocalIdWasAssigned", Namespace = "")]
-    public class StreetNamePersistentLocalIdWasAssigned
+    [DataContract(Name = "StreetNamePersistentLocalIdentifierWasAssigned", Namespace = "")]
+    public class StreetNamePersistentLocalIdentifierWasAssigned
     {
         [DataMember(Name = "StreetNameId", Order = 1)]
         public Guid StreetNameId { get; set; }
@@ -44,15 +43,10 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         public string LanguageValue { get; set; }
 
         [IgnoreDataMember]
-        public StreetNameLanguage? Language
-        {
-            get
-            {
-                return string.IsNullOrEmpty(LanguageValue)
-                    ? (StreetNameLanguage?) null
-                    : Enum.Parse<StreetNameLanguage>(LanguageValue);
-            }
-        }
+        public StreetNameLanguage? Language =>
+            string.IsNullOrEmpty(LanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
     [DataContract(Name = "StreetNameNameWasCleared", Namespace = "")]
@@ -65,15 +59,10 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         public string LanguageValue { get; set; }
 
         [IgnoreDataMember]
-        public StreetNameLanguage? Language
-        {
-            get
-            {
-                return string.IsNullOrEmpty(LanguageValue)
-                    ? (StreetNameLanguage?) null
-                    : Enum.Parse<StreetNameLanguage>(LanguageValue);
-            }
-        }
+        public StreetNameLanguage? Language =>
+            string.IsNullOrEmpty(LanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
     [DataContract(Name = "StreetNameNameWasCorrected", Namespace = "")]
@@ -89,15 +78,10 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         public string LanguageValue { get; set; }
 
         [IgnoreDataMember]
-        public StreetNameLanguage? Language
-        {
-            get
-            {
-                return string.IsNullOrEmpty(LanguageValue)
-                    ? (StreetNameLanguage?) null
-                    : Enum.Parse<StreetNameLanguage>(LanguageValue);
-            }
-        }
+        public StreetNameLanguage? Language =>
+            string.IsNullOrEmpty(LanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
     [DataContract(Name = "StreetNameNameWasCorrectedToCleared", Namespace = "")]
@@ -110,15 +94,10 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         public string LanguageValue { get; set; }
 
         [IgnoreDataMember]
-        public StreetNameLanguage? Language
-        {
-            get
-            {
-                return string.IsNullOrEmpty(LanguageValue)
-                    ? (StreetNameLanguage?) null
-                    : Enum.Parse<StreetNameLanguage>(LanguageValue);
-            }
-        }
+        public StreetNameLanguage? Language =>
+            string.IsNullOrEmpty(LanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
     [DataContract(Name = "StreetNameBecameCurrent", Namespace = "")]
@@ -196,6 +175,192 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
     {
         [DataMember(Name = "StreetNameId", Order = 1)]
         public Guid StreetNameId { get; set; }
+    }
+
+    [DataContract(Name = "StreetNameHomonymAdditionWasCleared", Namespace = "")]
+    public class StreetNameHomonymAdditionWasCleared
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "Language", Order = 2)]
+        public string LanguageValue { get; set; }
+
+        [IgnoreDataMember]
+        public StreetNameLanguage? Language =>
+            string.IsNullOrEmpty(LanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(LanguageValue);
+    }
+
+    [DataContract(Name = "StreetNameHomonymAdditionWasCorrected", Namespace = "")]
+    public class StreetNameHomonymAdditionWasCorrected
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "HomonymAddition", Order = 2)]
+        public string HomonymAddition { get; set; }
+
+        [DataMember(Name = "Language", Order = 3)]
+        public string LanguageValue { get; set; }
+
+        [IgnoreDataMember]
+        public StreetNameLanguage? Language =>
+            string.IsNullOrEmpty(LanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(LanguageValue);
+    }
+
+    [DataContract(Name = "StreetNameHomonymAdditionWasCorrectedToCleared", Namespace = "")]
+    public class StreetNameHomonymAdditionWasCorrectedToCleared
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "Language", Order = 2)]
+        public string LanguageValue { get; set; }
+
+        [IgnoreDataMember]
+        public StreetNameLanguage? Language =>
+            string.IsNullOrEmpty(LanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(LanguageValue);
+    }
+
+    [DataContract(Name = "StreetNameHomonymAdditionWasDefined", Namespace = "")]
+    public class StreetNameHomonymAdditionWasDefined
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "HomonymAddition", Order = 2)]
+        public string HomonymAddition { get; set; }
+
+        [DataMember(Name = "Language", Order = 3)]
+        public string LanguageValue { get; set; }
+
+        [IgnoreDataMember]
+        public StreetNameLanguage? Language =>
+            string.IsNullOrEmpty(LanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(LanguageValue);
+    }
+
+    [DataContract(Name = "StreetNamePrimaryLanguageWasCleared", Namespace = "")]
+    public class StreetNamePrimaryLanguageWasCleared
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "MunicipalityId", Order = 2)]
+        public Guid MunicipalityId { get; set; }
+    }
+
+    [DataContract(Name = "StreetNamePrimaryLanguageWasCorrected", Namespace = "")]
+    public class StreetNamePrimaryLanguageWasCorrected
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "MunicipalityId", Order = 2)]
+        public Guid MunicipalityId { get; set; }
+
+        [DataMember(Name = "PrimaryLanguage", Order = 3)]
+        public string PrimaryLanguageValue { get; set; }
+
+        [IgnoreDataMember]
+        public StreetNameLanguage? PrimaryLanguage =>
+            string.IsNullOrEmpty(PrimaryLanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(PrimaryLanguageValue);
+    }
+
+    [DataContract(Name = "StreetNamePrimaryLanguageWasCorrectedToCleared", Namespace = "")]
+    public class StreetNamePrimaryLanguageWasCorrectedToCleared
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "MunicipalityId", Order = 2)]
+        public Guid MunicipalityId { get; set; }
+    }
+
+    [DataContract(Name = "StreetNamePrimaryLanguageWasDefined", Namespace = "")]
+    public class StreetNamePrimaryLanguageWasDefined
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "MunicipalityId", Order = 2)]
+        public Guid MunicipalityId { get; set; }
+
+        [DataMember(Name = "PrimaryLanguage", Order = 3)]
+        public string PrimaryLanguageValue { get; set; }
+
+        [IgnoreDataMember]
+        public StreetNameLanguage? PrimaryLanguage =>
+            string.IsNullOrEmpty(PrimaryLanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(PrimaryLanguageValue);
+    }
+
+    [DataContract(Name = "StreetNamePrimaryLanguageWasCleared", Namespace = "")]
+    public class StreetNameSecondaryLanguageWasCleared
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "MunicipalityId", Order = 2)]
+        public Guid MunicipalityId { get; set; }
+    }
+
+    [DataContract(Name = "StreetNameSecondaryLanguageWasCorrected", Namespace = "")]
+    public class StreetNameSecondaryLanguageWasCorrected
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "MunicipalityId", Order = 2)]
+        public Guid MunicipalityId { get; set; }
+
+        [DataMember(Name = "SecondaryLanguage", Order = 3)]
+        public string SecondaryLanguageValue { get; set; }
+
+        [IgnoreDataMember]
+        public StreetNameLanguage? SecondaryLanguage =>
+            string.IsNullOrEmpty(SecondaryLanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(SecondaryLanguageValue);
+    }
+
+    [DataContract(Name = "StreetNameSecondaryLanguageWasCorrectedToCleared", Namespace = "")]
+    public class StreetNameSecondaryLanguageWasCorrectedToCleared
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "MunicipalityId", Order = 2)]
+        public Guid MunicipalityId { get; set; }
+    }
+
+    [DataContract(Name = "StreetNameSecondaryLanguageWasDefined", Namespace = "")]
+    public class StreetNameSecondaryLanguageWasDefined
+    {
+        [DataMember(Name = "StreetNameId", Order = 1)]
+        public Guid StreetNameId { get; set; }
+
+        [DataMember(Name = "MunicipalityId", Order = 2)]
+        public Guid MunicipalityId { get; set; }
+
+        [DataMember(Name = "SecondaryLanguage", Order = 3)]
+        public string SecondaryLanguageValue { get; set; }
+
+        [IgnoreDataMember]
+        public StreetNameLanguage? SecondaryLanguage =>
+            string.IsNullOrEmpty(SecondaryLanguageValue)
+                ? (StreetNameLanguage?) null
+                : Enum.Parse<StreetNameLanguage>(SecondaryLanguageValue);
     }
 
 
