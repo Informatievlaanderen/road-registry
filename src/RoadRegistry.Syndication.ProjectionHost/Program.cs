@@ -3,14 +3,13 @@
     using System;
     using System.IO;
     using System.Linq;
+    using System.Net.Http;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
-    using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Mapping;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
@@ -18,7 +17,6 @@
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.IO;
-    using Newtonsoft.Json;
     using NodaTime;
     using Projections;
     using Schema;
@@ -27,8 +25,6 @@
 
     public class Program
     {
-        private static readonly Encoding WindowsAnsiEncoding = Encoding.GetEncoding(1252);
-
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.Syndication.ProjectionHost");
@@ -143,7 +139,9 @@
 
             var migratorFactory = host.Services.GetRequiredService<IRunnerDbContextMigratorFactory>();
             var configuration = host.Services.GetRequiredService<IConfiguration>();
-            var streamStore = host.Services.GetRequiredService<IStreamStore>();
+            var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
+            var municipalityFeedConfiguration = host.Services.GetRequiredService<MunicipalityFeedConfiguration>();
+            var streetNameFeedConfiguration = host.Services.GetRequiredService<StreetNameFeedConfiguration>();
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
             var logger = host.Services.GetRequiredService<ILogger<Program>>();
 
@@ -157,9 +155,19 @@
 
                 await DistributedLock<Program>.RunAsync(async () =>
                     {
-                        await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
+                        var municipalityToBecomeAvailable = WaitFor
+                            .SyndicationApiToBecomeAvailable(httpClientFactory, municipalityFeedConfiguration, logger)
+                            .ConfigureAwait(false);
+                        var streetNameToBecomeAvailable = WaitFor
+                            .SyndicationApiToBecomeAvailable(httpClientFactory, streetNameFeedConfiguration, logger)
+                            .ConfigureAwait(false);
+
+                        await municipalityToBecomeAvailable;
+                        await streetNameToBecomeAvailable;
+
                         await migratorFactory.CreateMigrator(configuration, loggerFactory)
                             .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+
                         await host.RunAsync().ConfigureAwait(false);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),

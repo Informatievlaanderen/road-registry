@@ -55,32 +55,41 @@ namespace RoadRegistry.Syndication.ProjectionHost
             }
         }
 
-        public static async Task SqlStreamStoreToBecomeAvailable(IStreamStore store, ILogger<Program> logger, CancellationToken cancellationToken = default)
+        public static async Task SyndicationApiToBecomeAvailable(
+            IHttpClientFactory httpClientFactory,
+            ISyndicationFeedConfiguration configuration,
+            ILogger<Program> logger,
+            CancellationToken cancellationToken = default)
         {
-            if (store is MsSqlStreamStoreV3)
+            var watch = Stopwatch.StartNew();
+            var exit = false;
+            while (!exit)
             {
-                var watch = Stopwatch.StartNew();
-                var exit = false;
-                while(!exit)
+                try
                 {
-                    try
+                    if (logger.IsEnabled(LogLevel.Information))
                     {
-                        if (logger.IsEnabled(LogLevel.Information))
-                        {
-                            logger.LogInformation($"Waiting until sql stream store becomes available ... ({watch.Elapsed:c})");
-                        }
-                        await store.ReadHeadPosition(cancellationToken);
-                        exit = true;
+                        logger.LogInformation(
+                            $"Waiting until syndication api ({configuration.Uri}) becomes available ... ({watch.Elapsed:c})");
                     }
-                    catch (Exception exception)
-                    {
-                        if (logger.IsEnabled(LogLevel.Warning))
-                        {
-                            logger.LogWarning(exception, "Encountered an exception while waiting for sql stream store to become available.");
-                        }
 
-                        await Task.Delay(1000, cancellationToken);
+                    var client = httpClientFactory.CreateClient();
+                    client.BaseAddress = new Uri($"{configuration.Uri.Scheme}://{configuration.Uri.Authority}");
+
+                    var httpResponseMessage = await client.GetAsync(configuration.Uri.PathAndQuery, cancellationToken);
+                    httpResponseMessage.EnsureSuccessStatusCode();
+
+                    exit = true;
+                }
+                catch (Exception exception)
+                {
+                    if (logger.IsEnabled(LogLevel.Warning))
+                    {
+                        logger.LogWarning(exception,
+                            $"Encountered an exception while waiting for the syndication api ({configuration.Uri}) to become available.");
                     }
+
+                    await Task.Delay(1000, cancellationToken);
                 }
             }
         }
