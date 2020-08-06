@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoadRegistry.Syndication.Schema;
 
 namespace RoadRegistry.Syndication.Schema.Migrations
 {
     [DbContext(typeof(SyndicationContext))]
-    partial class SyndicationContextModelSnapshot : ModelSnapshot
+    [Migration("20200806085459_AddStreetNameHomonymAdditions")]
+    partial class AddStreetNameHomonymAdditions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -84,7 +86,7 @@ namespace RoadRegistry.Syndication.Schema.Migrations
                     b.Property<string>("DutchNameWithHomonymAddition")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("nvarchar(max)")
-                        .HasComputedColumnSql("COALESCE(DutchName + COALESCE('_' + DutchHomonymAddition,''), DutchHomonymAddition) PERSISTED");
+                        .HasComputedColumnSql("CONCAT(DutchName,'_',DutchHomonymAddition) PERSISTED");
 
                     b.Property<string>("EnglishHomonymAddition")
                         .HasColumnType("nvarchar(max)");
@@ -95,7 +97,7 @@ namespace RoadRegistry.Syndication.Schema.Migrations
                     b.Property<string>("EnglishNameWithHomonymAddition")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("nvarchar(max)")
-                        .HasComputedColumnSql("COALESCE(EnglishName + COALESCE('_' + EnglishHomonymAddition,''), EnglishHomonymAddition) PERSISTED");
+                        .HasComputedColumnSql("CONCAT(EnglishName,'_',EnglishHomonymAddition) PERSISTED");
 
                     b.Property<string>("FrenchHomonymAddition")
                         .HasColumnType("nvarchar(max)");
@@ -106,7 +108,7 @@ namespace RoadRegistry.Syndication.Schema.Migrations
                     b.Property<string>("FrenchNameWithHomonymAddition")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("nvarchar(max)")
-                        .HasComputedColumnSql("COALESCE(FrenchName + COALESCE('_' + FrenchHomonymAddition,''), FrenchHomonymAddition) PERSISTED");
+                        .HasComputedColumnSql("CONCAT(FrenchName,'_',FrenchHomonymAddition) PERSISTED");
 
                     b.Property<string>("GermanHomonymAddition")
                         .HasColumnType("nvarchar(max)");
@@ -117,7 +119,7 @@ namespace RoadRegistry.Syndication.Schema.Migrations
                     b.Property<string>("GermanNameWithHomonymAddition")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("nvarchar(max)")
-                        .HasComputedColumnSql("COALESCE(GermanName + COALESCE('_' + GermanHomonymAddition,''), GermanHomonymAddition) PERSISTED");
+                        .HasComputedColumnSql("CONCAT(GermanName,'_',GermanHomonymAddition) PERSISTED");
 
                     b.Property<string>("HomonymAddition")
                         .HasColumnType("nvarchar(max)");
@@ -131,7 +133,7 @@ namespace RoadRegistry.Syndication.Schema.Migrations
                     b.Property<string>("NameWithHomonymAddition")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("nvarchar(max)")
-                        .HasComputedColumnSql("COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED");
+                        .HasComputedColumnSql("CONCAT(Name,'_',HomonymAddition) PERSISTED");
 
                     b.Property<string>("NisCode")
                         .HasColumnType("nvarchar(max)");

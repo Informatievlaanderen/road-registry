@@ -36,7 +36,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = null
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -72,12 +77,211 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = null
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
                     {
                         events = new object[]{ streetNameWasRegistered, streetNameWasNamed },
+                        expected
+                    };
+                }).ToList();
+
+            return new StreetNameCacheProjection()
+                .Scenario()
+                .Given(data.SelectMany(d => d.events))
+                .Expect(data.Select(d => d.expected));
+        }
+
+        [Fact]
+        public Task When_street_name_homonym_addition_was_defined()
+        {
+            var data = _fixture
+                .CreateMany<StreetNameWasRegistered>()
+                .Select(streetNameWasRegistered =>
+                {
+                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                    var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
+
+                    var expected = new StreetNameRecord
+                    {
+                        StreetNameId = streetNameWasRegistered.StreetNameId,
+                        PersistentLocalId = null,
+                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                        NisCode = streetNameWasRegistered.NisCode,
+                        Name = null,
+                        DutchName = streetNameWasNamed.Name,
+                        FrenchName = null,
+                        GermanName = null,
+                        EnglishName = null,
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = homonymAdditionWasDefined.HomonymAddition,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
+                    };
+
+                    return new
+                    {
+                        events = new object[]
+                        {
+                            streetNameWasRegistered,
+                            streetNameWasNamed,
+                            homonymAdditionWasDefined
+                        },
+                        expected
+                    };
+                }).ToList();
+
+            return new StreetNameCacheProjection()
+                .Scenario()
+                .Given(data.SelectMany(d => d.events))
+                .Expect(data.Select(d => d.expected));
+        }
+
+        [Fact]
+        public Task When_street_name_homonym_addition_was_corrected()
+        {
+            var data = _fixture
+                .CreateMany<StreetNameWasRegistered>()
+                .Select(streetNameWasRegistered =>
+                {
+                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                    var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
+                    var homonymAdditionWasCorrected = CreateStreetNameHomonymAdditionWasCorrected(streetNameWasRegistered);
+
+                    var expected = new StreetNameRecord
+                    {
+                        StreetNameId = streetNameWasRegistered.StreetNameId,
+                        PersistentLocalId = null,
+                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                        NisCode = streetNameWasRegistered.NisCode,
+                        Name = null,
+                        DutchName = streetNameWasNamed.Name,
+                        FrenchName = null,
+                        GermanName = null,
+                        EnglishName = null,
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = homonymAdditionWasCorrected.HomonymAddition,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
+                    };
+
+                    return new
+                    {
+                        events = new object[]
+                        {
+                            streetNameWasRegistered,
+                            streetNameWasNamed,
+                            homonymAdditionWasDefined,
+                            homonymAdditionWasCorrected
+                        },
+                        expected
+                    };
+                }).ToList();
+
+            return new StreetNameCacheProjection()
+                .Scenario()
+                .Given(data.SelectMany(d => d.events))
+                .Expect(data.Select(d => d.expected));
+        }
+
+        [Fact]
+        public Task When_street_name_homonym_addition_was_cleared()
+        {
+            var data = _fixture
+                .CreateMany<StreetNameWasRegistered>()
+                .Select(streetNameWasRegistered =>
+                {
+                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                    var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
+                    var homonymAdditionWasCleared = CreateStreetNameHomonymAdditionWasCleared(streetNameWasRegistered);
+
+                    var expected = new StreetNameRecord
+                    {
+                        StreetNameId = streetNameWasRegistered.StreetNameId,
+                        PersistentLocalId = null,
+                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                        NisCode = streetNameWasRegistered.NisCode,
+                        Name = null,
+                        DutchName = streetNameWasNamed.Name,
+                        FrenchName = null,
+                        GermanName = null,
+                        EnglishName = null,
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
+                    };
+
+                    return new
+                    {
+                        events = new object[]
+                        {
+                            streetNameWasRegistered,
+                            streetNameWasNamed,
+                            homonymAdditionWasDefined,
+                            homonymAdditionWasCleared
+                        },
+                        expected
+                    };
+                }).ToList();
+
+            return new StreetNameCacheProjection()
+                .Scenario()
+                .Given(data.SelectMany(d => d.events))
+                .Expect(data.Select(d => d.expected));
+        }
+
+        [Fact]
+        public Task When_street_name_homonym_addition_was_corrected_to_cleared()
+        {
+            var data = _fixture
+                .CreateMany<StreetNameWasRegistered>()
+                .Select(streetNameWasRegistered =>
+                {
+                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                    var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
+                    var homonymAdditionWasCorrectedToCleared = CreateStreetNameHomonymAdditionWasCorrectedToCleared(streetNameWasRegistered);
+
+                    var expected = new StreetNameRecord
+                    {
+                        StreetNameId = streetNameWasRegistered.StreetNameId,
+                        PersistentLocalId = null,
+                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                        NisCode = streetNameWasRegistered.NisCode,
+                        Name = null,
+                        DutchName = streetNameWasNamed.Name,
+                        FrenchName = null,
+                        GermanName = null,
+                        EnglishName = null,
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
+                    };
+
+                    return new
+                    {
+                        events = new object[]
+                        {
+                            streetNameWasRegistered,
+                            streetNameWasNamed,
+                            homonymAdditionWasDefined,
+                            homonymAdditionWasCorrectedToCleared
+                        },
                         expected
                     };
                 }).ToList();
@@ -108,7 +312,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = null
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -145,7 +354,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = null
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -187,7 +401,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = null
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -229,7 +448,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = null
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -271,7 +495,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = null
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -313,7 +542,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = null
+                        StreetNameStatus = null,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -354,7 +588,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Current
+                        StreetNameStatus = StreetNameStatus.Current,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -394,7 +633,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Current
+                        StreetNameStatus = StreetNameStatus.Current,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -434,7 +678,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Proposed
+                        StreetNameStatus = StreetNameStatus.Proposed,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -474,7 +723,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Proposed
+                        StreetNameStatus = StreetNameStatus.Proposed,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -514,7 +768,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Retired
+                        StreetNameStatus = StreetNameStatus.Retired,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -535,7 +794,7 @@ namespace RoadRegistry.Syndication.Projections
         }
 
         [Fact]
-        public Task When_street_name_was_corrected__retired()
+        public Task When_street_name_was_corrected_to_retired()
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
@@ -554,7 +813,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchName = null,
                         GermanName = null,
                         EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Retired
+                        StreetNameStatus = StreetNameStatus.Retired,
+                        HomonymAddition = null,
+                        DutchHomonymAddition = null,
+                        FrenchHomonymAddition = null,
+                        GermanHomonymAddition = null,
+                        EnglishHomonymAddition = null,
                     };
 
                     return new
@@ -580,6 +844,38 @@ namespace RoadRegistry.Syndication.Projections
             streetNameWasNamed.StreetNameId = streetNameWasRegistered.StreetNameId;
             streetNameWasNamed.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
             return streetNameWasNamed;
+        }
+
+        private StreetNameHomonymAdditionWasDefined CreateStreetNameHomonymAdditionWasDefined(StreetNameWasRegistered streetNameWasRegistered)
+        {
+            var streetNameWasNamed = _fixture.Create<StreetNameHomonymAdditionWasDefined>();
+            streetNameWasNamed.StreetNameId = streetNameWasRegistered.StreetNameId;
+            streetNameWasNamed.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+            return streetNameWasNamed;
+        }
+
+        private StreetNameHomonymAdditionWasCorrected CreateStreetNameHomonymAdditionWasCorrected(StreetNameWasRegistered streetNameWasRegistered)
+        {
+            var streetNameWasCorrected = _fixture.Create<StreetNameHomonymAdditionWasCorrected>();
+            streetNameWasCorrected.StreetNameId = streetNameWasRegistered.StreetNameId;
+            streetNameWasCorrected.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+            return streetNameWasCorrected;
+        }
+
+        private StreetNameHomonymAdditionWasCleared CreateStreetNameHomonymAdditionWasCleared(StreetNameWasRegistered streetNameWasRegistered)
+        {
+            var streetNameHomonymAdditionWasCleared = _fixture.Create<StreetNameHomonymAdditionWasCleared>();
+            streetNameHomonymAdditionWasCleared.StreetNameId = streetNameWasRegistered.StreetNameId;
+            streetNameHomonymAdditionWasCleared.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+            return streetNameHomonymAdditionWasCleared;
+        }
+
+        private StreetNameHomonymAdditionWasCorrectedToCleared CreateStreetNameHomonymAdditionWasCorrectedToCleared(StreetNameWasRegistered streetNameWasRegistered)
+        {
+            var streetNameHomonymAdditionWasCorrectedToCleared = _fixture.Create<StreetNameHomonymAdditionWasCorrectedToCleared>();
+            streetNameHomonymAdditionWasCorrectedToCleared.StreetNameId = streetNameWasRegistered.StreetNameId;
+            streetNameHomonymAdditionWasCorrectedToCleared.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+            return streetNameHomonymAdditionWasCorrectedToCleared;
         }
 
         private StreetNameNameWasCleared CreateStreetNameNameWasCleared(StreetNameWasRegistered streetNameWasRegistered)

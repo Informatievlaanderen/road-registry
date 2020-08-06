@@ -28,6 +28,27 @@ namespace RoadRegistry.Syndication.Schema
             b.Property(p => p.GermanName);
             b.Property(p => p.EnglishName);
             b.Property(p => p.StreetNameStatus);
+            b.Property(p => p.HomonymAddition);
+            b.Property(p => p.DutchHomonymAddition);
+            b.Property(p => p.FrenchHomonymAddition);
+            b.Property(p => p.GermanHomonymAddition);
+            b.Property(p => p.EnglishHomonymAddition);
+
+            b.Property(p => p.NameWithHomonymAddition)
+                .HasComputedColumnSql("COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED");
+
+            b.Property(p => p.DutchNameWithHomonymAddition)
+                .HasComputedColumnSql("COALESCE(DutchName + COALESCE('_' + DutchHomonymAddition,''), DutchHomonymAddition) PERSISTED");
+
+            b.Property(p => p.FrenchNameWithHomonymAddition)
+                .HasComputedColumnSql("COALESCE(FrenchName + COALESCE('_' + FrenchHomonymAddition,''), FrenchHomonymAddition) PERSISTED");
+
+            b.Property(p => p.GermanNameWithHomonymAddition)
+                .HasComputedColumnSql("COALESCE(GermanName + COALESCE('_' + GermanHomonymAddition,''), GermanHomonymAddition) PERSISTED");
+
+            b.Property(p => p.EnglishNameWithHomonymAddition)
+                .HasComputedColumnSql("COALESCE(EnglishName + COALESCE('_' + EnglishHomonymAddition,''), EnglishHomonymAddition) PERSISTED");
+
         }
     }
 }

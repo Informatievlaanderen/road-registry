@@ -37,10 +37,114 @@ namespace RoadRegistry.Syndication.Projections
                 streetNameRecord.StreetNameStatus = StreetNameStatus.Current;
             });
 
-            When<Envelope<StreetNameHomonymAdditionWasCleared>>(async (context, envelope, token) => { });
-            When<Envelope<StreetNameHomonymAdditionWasCorrected>>(async (context, envelope, token) => { });
-            When<Envelope<StreetNameHomonymAdditionWasCorrectedToCleared>>(async (context, envelope, token) => { });
-            When<Envelope<StreetNameHomonymAdditionWasDefined>>(async (context, envelope, token) => { });
+            When<Envelope<StreetNameHomonymAdditionWasCleared>>(async (context, envelope, token) =>
+            {
+                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
+                if (streetNameRecord == null)
+                    return;
+
+                switch (envelope.Message.Language)
+                {
+                    case StreetNameLanguage.Dutch:
+                        streetNameRecord.DutchHomonymAddition = null;
+                        break;
+                    case StreetNameLanguage.French:
+                        streetNameRecord.FrenchHomonymAddition = null;
+                        break;
+                    case StreetNameLanguage.German:
+                        streetNameRecord.GermanHomonymAddition = null;
+                        break;
+                    case StreetNameLanguage.English:
+                        streetNameRecord.EnglishHomonymAddition = null;
+                        break;
+                    case null:
+                        streetNameRecord.HomonymAddition = null;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            });
+            When<Envelope<StreetNameHomonymAdditionWasCorrected>>(async (context, envelope, token) =>
+            {
+                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
+                if (streetNameRecord == null)
+                    return;
+
+                switch (envelope.Message.Language)
+                {
+                    case StreetNameLanguage.Dutch:
+                        streetNameRecord.DutchHomonymAddition = envelope.Message.HomonymAddition;
+                        break;
+                    case StreetNameLanguage.French:
+                        streetNameRecord.FrenchHomonymAddition = envelope.Message.HomonymAddition;
+                        break;
+                    case StreetNameLanguage.German:
+                        streetNameRecord.GermanHomonymAddition = envelope.Message.HomonymAddition;
+                        break;
+                    case StreetNameLanguage.English:
+                        streetNameRecord.EnglishHomonymAddition = envelope.Message.HomonymAddition;
+                        break;
+                    case null:
+                        streetNameRecord.HomonymAddition = envelope.Message.HomonymAddition;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            });
+            When<Envelope<StreetNameHomonymAdditionWasCorrectedToCleared>>(async (context, envelope, token) =>
+            {
+                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
+                if (streetNameRecord == null)
+                    return;
+
+                switch (envelope.Message.Language)
+                {
+                    case StreetNameLanguage.Dutch:
+                        streetNameRecord.DutchHomonymAddition = null;
+                        break;
+                    case StreetNameLanguage.French:
+                        streetNameRecord.FrenchHomonymAddition = null;
+                        break;
+                    case StreetNameLanguage.German:
+                        streetNameRecord.GermanHomonymAddition = null;
+                        break;
+                    case StreetNameLanguage.English:
+                        streetNameRecord.EnglishHomonymAddition = null;
+                        break;
+                    case null:
+                        streetNameRecord.HomonymAddition = null;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            });
+            When<Envelope<StreetNameHomonymAdditionWasDefined>>(async (context, envelope, token) =>
+            {
+                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
+                if (streetNameRecord == null)
+                    return;
+
+                switch (envelope.Message.Language)
+                {
+                    case StreetNameLanguage.Dutch:
+                        streetNameRecord.DutchHomonymAddition = envelope.Message.HomonymAddition;
+                        break;
+                    case StreetNameLanguage.French:
+                        streetNameRecord.FrenchHomonymAddition = envelope.Message.HomonymAddition;
+                        break;
+                    case StreetNameLanguage.German:
+                        streetNameRecord.GermanHomonymAddition = envelope.Message.HomonymAddition;
+                        break;
+                    case StreetNameLanguage.English:
+                        streetNameRecord.EnglishHomonymAddition = envelope.Message.HomonymAddition;
+                        break;
+                    case null:
+                        streetNameRecord.HomonymAddition = envelope.Message.HomonymAddition;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            });
 
             When<Envelope<StreetNameNameWasCleared>>(async (context, envelope, token) =>
             {
