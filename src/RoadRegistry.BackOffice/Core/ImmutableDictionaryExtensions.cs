@@ -22,7 +22,21 @@ namespace RoadRegistry.BackOffice.Core
             return dictionary;
         }
 
-        public static ImmutableDictionary<TKey, IReadOnlyList<TValue>> AddOrMergeDistinct<TKey, TValue>(
+        public static ImmutableDictionary<TKey, TValue>.Builder TryReplace<TKey, TValue>(
+            this ImmutableDictionary<TKey, TValue>.Builder dictionary,
+            TKey key,
+            Converter<TValue, TValue> replacer
+        )
+        {
+            if(dictionary.TryGetValue(key, out var value))
+            {
+                dictionary[key] = replacer(value);
+            }
+
+            return dictionary;
+        }
+
+        public static ImmutableDictionary<TKey, IReadOnlyList<TValue>> Merge<TKey, TValue>(
             this ImmutableDictionary<TKey, IReadOnlyList<TValue>> dictionary,
             TKey key,
             IEnumerable<TValue> values)
@@ -34,7 +48,21 @@ namespace RoadRegistry.BackOffice.Core
                     .Add(key, values.Concat(mergeable).Distinct().ToArray());
             }
 
-            return dictionary.Add(key, values.ToArray());
+            return dictionary.Add(key, values.Distinct().ToArray());
+        }
+
+        public static void Merge<TKey, TValue>(this ImmutableDictionary<TKey, IReadOnlyList<TValue>>.Builder dictionary,
+            TKey key,
+            IEnumerable<TValue> values)
+        {
+            if(dictionary.TryGetValue(key, out var mergeable))
+            {
+                dictionary[key] = values.Concat(mergeable).Distinct().ToArray();
+            }
+            else
+            {
+                dictionary.Add(key, values.Distinct().ToArray());
+            }
         }
     }
 }

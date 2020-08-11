@@ -6,11 +6,11 @@ namespace RoadRegistry.BackOffice.Core
     {
         public static readonly double TooCloseDistance = 2.0;
 
-        public RoadNetworkView View { get; }
+        public IRoadNetworkView View { get; }
         public IRequestedChangeIdentityTranslator Translator { get; }
         public double Tolerance { get; }
 
-        public VerificationContext(RoadNetworkView view, IRequestedChangeIdentityTranslator translator)
+        public VerificationContext(IRoadNetworkView view, IRequestedChangeIdentityTranslator translator)
         {
             View = view ?? throw new ArgumentNullException(nameof(view));
             Translator = translator ?? throw new ArgumentNullException(nameof(translator));

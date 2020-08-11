@@ -188,7 +188,7 @@
                 : id;
         }
 
-        public VerifiedChanges VerifyWith(RoadNetworkView view)
+        public VerifiedChanges VerifyWith(IRoadNetworkView view)
         {
             var context = new VerificationContext(view, this);
             return _changes.Aggregate(
