@@ -7,32 +7,33 @@ namespace RoadRegistry.BackOffice.Core
 
     public class RoadNetwork : EventSourcedEntity
     {
-        public static readonly Func<RoadNetwork> Factory = () => new RoadNetwork();
+        public static readonly Func<IRoadNetworkView, RoadNetwork> Factory =
+            view => new RoadNetwork(view);
 
-        private RoadNetworkView _view;
+        private IRoadNetworkView _view;
 
-        private RoadNetwork()
+        private RoadNetwork(IRoadNetworkView view)
         {
-            _view = RoadNetworkView.Empty;
+            _view = view;
 
             On<Messages.ImportedRoadNode>(e =>
             {
-                _view = _view.Given(e);
+                _view = _view.RestoreFromEvent(e);
             });
 
             On<Messages.ImportedGradeSeparatedJunction>(e =>
             {
-                _view = _view.Given(e);
+                _view = _view.RestoreFromEvent(e);
             });
 
             On<Messages.ImportedRoadSegment>(e =>
             {
-                _view = _view.Given(e);
+                _view = _view.RestoreFromEvent(e);
             });
 
             On<Messages.RoadNetworkChangesAccepted>(e =>
             {
-                _view = _view.Given(e);
+                _view = _view.RestoreFromEvent(e);
             });
         }
 
@@ -270,7 +271,7 @@ namespace RoadRegistry.BackOffice.Core
         {
             if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
 
-            _view = RoadNetworkView.Empty.RestoreFromSnapshot(snapshot);
+            _view = ImmutableRoadNetworkView.Empty.RestoreFromSnapshot(snapshot);
         }
 
         public Messages.RoadNetworkSnapshot TakeSnapshot()

@@ -39,11 +39,11 @@ namespace RoadRegistry.BackOffice.Core
                 return (RoadNetwork)entry.Entity;
             }
 
-            var roadNetwork = RoadNetwork.Factory();
+            var view = ImmutableRoadNetworkView.Empty.ToBuilder();
             var (snapshot, version) = await _snapshotReader.ReadSnapshot(ct);
             if (version != ExpectedVersion.NoStream)
             {
-                roadNetwork.RestoreFromSnapshot(snapshot);
+                view = view.RestoreFromSnapshot(snapshot);
                 version += 1;
             }
             else
@@ -53,11 +53,10 @@ namespace RoadRegistry.BackOffice.Core
             var page = await _store.ReadStreamForwards(Stream, version, StreamPageSize, ct);
             if (page.Status == PageReadStatus.StreamNotFound)
             {
-                var initial = RoadNetwork.Factory();
+                var initial = RoadNetwork.Factory(ImmutableRoadNetworkView.Empty);
                 _map.Attach(new EventSourcedEntityMapEntry(initial, Stream, ExpectedVersion.NoStream));
                 return initial;
             }
-            IEventSourcedEntity entity = roadNetwork;
             var messages = new List<object>(page.Messages.Length);
             foreach (var message in page.Messages)
             {
@@ -67,14 +66,14 @@ namespace RoadRegistry.BackOffice.Core
                         _mapping.GetEventType(message.Type),
                         _settings));
             }
-            entity.RestoreFromEvents(messages.ToArray());
+            view = view.RestoreFromEvents(messages.ToArray());
             while (!page.IsEnd)
             {
                 messages.Clear();
                 page = await page.ReadNext(ct);
                 if (page.Status == PageReadStatus.StreamNotFound)
                 {
-                    var initial = RoadNetwork.Factory();
+                    var initial = RoadNetwork.Factory(ImmutableRoadNetworkView.Empty);
                     _map.Attach(new EventSourcedEntityMapEntry(initial, Stream, ExpectedVersion.NoStream));
                     return initial;
                 }
@@ -86,9 +85,11 @@ namespace RoadRegistry.BackOffice.Core
                             _mapping.GetEventType(message.Type),
                             _settings));
                 }
-                entity.RestoreFromEvents(messages.ToArray());
+                view = view.RestoreFromEvents(messages.ToArray());
             }
-            _map.Attach(new EventSourcedEntityMapEntry(entity, Stream, page.LastStreamVersion));
+
+            var roadNetwork = RoadNetwork.Factory(view.ToImmutable());
+            _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, Stream, page.LastStreamVersion));
             return roadNetwork;
         }
 
@@ -98,11 +99,11 @@ namespace RoadRegistry.BackOffice.Core
             {
                 return ((RoadNetwork)entry.Entity, entry.ExpectedVersion);
             }
-            var roadNetwork = RoadNetwork.Factory();
+            var view = ImmutableRoadNetworkView.Empty.ToBuilder();
             var (snapshot, version) = await _snapshotReader.ReadSnapshot(ct);
             if (version != ExpectedVersion.NoStream)
             {
-                roadNetwork.RestoreFromSnapshot(snapshot);
+                view = view.RestoreFromSnapshot(snapshot);
                 version += 1;
             }
             else
@@ -113,11 +114,10 @@ namespace RoadRegistry.BackOffice.Core
             var page = await _store.ReadStreamForwards(Stream, version, StreamPageSize, ct);
             if (page.Status == PageReadStatus.StreamNotFound)
             {
-                var network = RoadNetwork.Factory();
+                var network = RoadNetwork.Factory(ImmutableRoadNetworkView.Empty);
                 _map.Attach(new EventSourcedEntityMapEntry(network, Stream, ExpectedVersion.NoStream));
                 return (network, ExpectedVersion.NoStream);
             }
-            IEventSourcedEntity entity = roadNetwork;
             var messages = new List<object>(page.Messages.Length);
             foreach (var message in page.Messages)
             {
@@ -127,14 +127,14 @@ namespace RoadRegistry.BackOffice.Core
                         _mapping.GetEventType(message.Type),
                         _settings));
             }
-            entity.RestoreFromEvents(messages.ToArray());
+            view = view.RestoreFromEvents(messages.ToArray());
             while (!page.IsEnd)
             {
                 messages.Clear();
                 page = await page.ReadNext(ct);
                 if (page.Status == PageReadStatus.StreamNotFound)
                 {
-                    var network = RoadNetwork.Factory();
+                    var network = RoadNetwork.Factory(ImmutableRoadNetworkView.Empty);
                     _map.Attach(new EventSourcedEntityMapEntry(network, Stream, ExpectedVersion.NoStream));
                     return (network, ExpectedVersion.NoStream);
                 }
@@ -146,9 +146,11 @@ namespace RoadRegistry.BackOffice.Core
                             _mapping.GetEventType(message.Type),
                             _settings));
                 }
-                entity.RestoreFromEvents(messages.ToArray());
+                view = view.RestoreFromEvents(messages.ToArray());
             }
-            _map.Attach(new EventSourcedEntityMapEntry(entity, Stream, page.LastStreamVersion));
+
+            var roadNetwork = RoadNetwork.Factory(view.ToImmutable());
+            _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, Stream, page.LastStreamVersion));
             return (roadNetwork, page.LastStreamVersion);
         }
     }
