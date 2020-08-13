@@ -67,6 +67,20 @@
                 _mapToTemporaryGradeSeparatedJunctionIdentifiers);
         }
 
+        public RequestedChanges Append(ModifyRoadNode change)
+        {
+            if (change == null)
+                throw new ArgumentNullException(nameof(change));
+
+            return new RequestedChanges(_transactionId, _changes.Add(change),
+                _mapToPermanentNodeIdentifiers,
+                _mapToTemporaryNodeIdentifiers,
+                _mapToPermanentSegmentIdentifiers,
+                _mapToTemporarySegmentIdentifiers,
+                _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        }
+
         public RequestedChanges Append(AddRoadSegment change)
         {
             if (change == null)

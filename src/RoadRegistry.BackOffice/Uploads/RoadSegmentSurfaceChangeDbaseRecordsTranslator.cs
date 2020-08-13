@@ -20,7 +20,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     switch (record.RECORDTYPE.Value)
                     {
-                        case RecordType.EqualIdentifier:
+                        case RecordType.IdenticalIdentifier:
                         case RecordType.AddedIdentifier:
                         case RecordType.ModifiedIdentifier:
                             var segmentId = new RoadSegmentId(record.WS_OIDN.Value);

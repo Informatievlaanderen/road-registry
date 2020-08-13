@@ -44,13 +44,13 @@ namespace RoadRegistry.BackOffice.Uploads
         [Fact]
         public void EqualReturnsExpectedResult()
         {
-            Assert.Equal("Equal", RecordType.Equal);
+            Assert.Equal("Equal", RecordType.Identical);
         }
 
         [Fact]
         public void EqualTranslationReturnsExpectedResult()
         {
-            Assert.Equal(1, RecordType.Equal.Translation.Identifier);
+            Assert.Equal(1, RecordType.Identical.Translation.Identifier);
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace RoadRegistry.BackOffice.Uploads
             Assert.Equal(
                 new []
                 {
-                    RecordType.Equal,
+                    RecordType.Identical,
                     RecordType.Added,
                     RecordType.Modified,
                     RecordType.Removed

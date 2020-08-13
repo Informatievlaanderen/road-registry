@@ -12,6 +12,7 @@ namespace RoadRegistry.BackOffice.Messages
             new object[]
                 {
                     change.AddRoadNode,
+                    change.ModifyRoadNode,
                     change.AddRoadSegment,
                     change.AddRoadSegmentToEuropeanRoad,
                     change.AddRoadSegmentToNationalRoad,
@@ -27,6 +28,7 @@ namespace RoadRegistry.BackOffice.Messages
             new object[]
                 {
                     change.RoadNodeAdded,
+                    change.RoadNodeModified,
                     change.RoadSegmentAdded,
                     change.RoadSegmentAddedToEuropeanRoad,
                     change.RoadSegmentAddedToNationalRoad,
@@ -42,6 +44,7 @@ namespace RoadRegistry.BackOffice.Messages
             new object[]
                 {
                     change.AddRoadNode,
+                    change.ModifyRoadNode,
                     change.AddRoadSegment,
                     change.AddRoadSegmentToEuropeanRoad,
                     change.AddRoadSegmentToNationalRoad,

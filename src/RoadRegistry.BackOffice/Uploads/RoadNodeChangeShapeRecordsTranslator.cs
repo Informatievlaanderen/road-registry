@@ -20,9 +20,17 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     if (changes.TryTranslateToRoadNodeId(record.Header.RecordNumber, out var id))
                     {
-                        if (changes.TryFindAddRoadNode(id, out var change))
+                        if(changes.TryFindRoadNodeChange(id, out var change))
                         {
-                            changes = changes.Replace(change, change.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
+                            switch (change)
+                            {
+                                case AddRoadNode addition:
+                                    changes = changes.Replace(addition, addition.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
+                                    break;
+                                case ModifyRoadNode modification:
+                                    changes = changes.Replace(modification, modification.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
+                                    break;
+                            }
                         }
                     }
                 }
