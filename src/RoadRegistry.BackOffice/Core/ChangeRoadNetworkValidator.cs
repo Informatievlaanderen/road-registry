@@ -63,6 +63,7 @@ namespace RoadRegistry.BackOffice.Core
                 new object[]
                     {
                         change.AddRoadNode,
+                        change.ModifyRoadNode,
                         change.AddRoadSegment,
                         change.AddRoadSegmentToEuropeanRoad,
                         change.AddRoadSegmentToNationalRoad,

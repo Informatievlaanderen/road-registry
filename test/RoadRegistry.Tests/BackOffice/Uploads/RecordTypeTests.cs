@@ -42,9 +42,9 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         [Fact]
-        public void EqualReturnsExpectedResult()
+        public void IdenticalReturnsExpectedResult()
         {
-            Assert.Equal("Equal", RecordType.Identical);
+            Assert.Equal("Identical", RecordType.Identical);
         }
 
         [Fact]

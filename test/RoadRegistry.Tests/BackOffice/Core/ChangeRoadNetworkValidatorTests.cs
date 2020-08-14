@@ -96,6 +96,17 @@ namespace RoadRegistry.BackOffice.Core
                         }
                     )
             );
+            Fixture.Customize<Messages.ModifyRoadNode>(
+                composer =>
+                    composer.FromFactory(random =>
+                        new Messages.ModifyRoadNode
+                        {
+                            Id = Fixture.Create<RoadNodeId>(),
+                            Type = Fixture.Create<RoadNodeType>(),
+                            Geometry = Fixture.Create<RoadNodeGeometry>()
+                        }
+                    )
+            );
             Fixture.Customize<Messages.AddRoadSegment>(
                 composer =>
                     composer.FromFactory(random =>
@@ -135,7 +146,7 @@ namespace RoadRegistry.BackOffice.Core
                     composer.FromFactory(random =>
                         {
                             var result = new RequestedChange();
-                            switch(random.Next(0, 3))
+                            switch(random.Next(0, 4))
                             {
                                 case 0:
                                     result.AddRoadNode = Fixture.Create<Messages.AddRoadNode>();
@@ -145,6 +156,9 @@ namespace RoadRegistry.BackOffice.Core
                                     break;
                                 case 2:
                                     result.AddGradeSeparatedJunction = Fixture.Create<Messages.AddGradeSeparatedJunction>();
+                                    break;
+                                case 3:
+                                    result.ModifyRoadNode = Fixture.Create<Messages.ModifyRoadNode>();
                                     break;
                             }
                             return result;
@@ -215,6 +229,7 @@ namespace RoadRegistry.BackOffice.Core
             {
                 AddGradeSeparatedJunction = null,
                 AddRoadNode = null,
+                ModifyRoadNode = null,
                 AddRoadSegment = null,
                 AddRoadSegmentToEuropeanRoad = null,
                 AddRoadSegmentToNationalRoad = null,
@@ -233,6 +248,7 @@ namespace RoadRegistry.BackOffice.Core
             {
                 AddGradeSeparatedJunction = Fixture.Create<Messages.AddGradeSeparatedJunction>(),
                 AddRoadNode = Fixture.Create<Messages.AddRoadNode>(),
+                ModifyRoadNode = Fixture.Create<Messages.ModifyRoadNode>(),
                 AddRoadSegment = Fixture.Create<Messages.AddRoadSegment>(),
                 AddRoadSegmentToEuropeanRoad = Fixture.Create<Messages.AddRoadSegmentToEuropeanRoad>(),
                 AddRoadSegmentToNationalRoad = Fixture.Create<Messages.AddRoadSegmentToNationalRoad>(),

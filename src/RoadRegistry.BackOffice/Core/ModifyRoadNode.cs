@@ -33,51 +33,58 @@ namespace RoadRegistry.BackOffice.Core
                 );
             }
 
-            var node = context.View.Nodes[Id];
-
-            problems = context.View.Segments.Values
-                .Where(s =>
-                    !node.Segments.Contains(s.Id) &&
-                    s.Geometry.IsWithinDistance(Geometry, VerificationContext.TooCloseDistance)
-                )
-                .Aggregate(
-                    problems,
-                    (current, segment) =>
-                        current.RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id)));
-
-            var connectedSegmentCount = node.Segments.Count;
-            if (connectedSegmentCount == 0)
+            if (!context.View.Nodes.TryGetValue(Id, out var node))
             {
-                problems = problems.RoadNodeNotConnectedToAnySegment();
+                problems = problems.RoadNodeNotFound();
             }
-            else if (connectedSegmentCount == 1 && Type != RoadNodeType.EndNode)
+            else
             {
-                problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type, new []{RoadNodeType.EndNode});
-            }
-            else if (connectedSegmentCount == 2)
-            {
-                if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
+                problems = context.View.Segments.Values
+                    .Where(s =>
+                        !node.Segments.Contains(s.Id) &&
+                        s.Geometry.IsWithinDistance(Geometry, VerificationContext.TooCloseDistance)
+                    )
+                    .Aggregate(
+                        problems,
+                        (current, segment) =>
+                            current.RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id)));
+
+                var connectedSegmentCount = node.Segments.Count;
+                if (connectedSegmentCount == 0)
                 {
-                    problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type, new []{RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode});
+                    problems = problems.RoadNodeNotConnectedToAnySegment();
                 }
-                else if (Type == RoadNodeType.FakeNode)
+                else if (connectedSegmentCount == 1 && Type != RoadNodeType.EndNode)
                 {
-                    var segments = node.Segments.Select(segmentId => context.View.Segments[segmentId])
-                        .ToArray();
-                    var segment1 = segments[0];
-                    var segment2 = segments[1];
-                    if (segment1.AttributeHash.Equals(segment2.AttributeHash))
+                    problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type, new[] {RoadNodeType.EndNode});
+                }
+                else if (connectedSegmentCount == 2)
+                {
+                    if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
                     {
-                        problems = problems.FakeRoadNodeConnectedSegmentsDoNotDiffer(
-                            context.Translator.TranslateToTemporaryOrId(segment1.Id),
-                            context.Translator.TranslateToTemporaryOrId(segment2.Id)
-                        );
+                        problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type,
+                            new[] {RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode});
+                    }
+                    else if (Type == RoadNodeType.FakeNode)
+                    {
+                        var segments = node.Segments.Select(segmentId => context.View.Segments[segmentId])
+                            .ToArray();
+                        var segment1 = segments[0];
+                        var segment2 = segments[1];
+                        if (segment1.AttributeHash.Equals(segment2.AttributeHash))
+                        {
+                            problems = problems.FakeRoadNodeConnectedSegmentsDoNotDiffer(
+                                context.Translator.TranslateToTemporaryOrId(segment1.Id),
+                                context.Translator.TranslateToTemporaryOrId(segment2.Id)
+                            );
+                        }
                     }
                 }
-            }
-            else if (connectedSegmentCount > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
-            {
-                problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type, new []{RoadNodeType.RealNode, RoadNodeType.MiniRoundabout});
+                else if (connectedSegmentCount > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
+                {
+                    problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type,
+                        new[] {RoadNodeType.RealNode, RoadNodeType.MiniRoundabout});
+                }
             }
 
             if (problems.OfType<Error>().Any())
