@@ -30,7 +30,7 @@ namespace RoadRegistry.Syndication.ProjectionHost.Mapping
             if (_atomEntrySerializers.ContainsKey(categoryName))
                 return _atomEntrySerializers[categoryName];
 
-            throw new KeyNotFoundException($"Serializer voor categorie met naam '{categoryName}' niet gevonden.");
+            throw new KeyNotFoundException($"No serializer for category with name '{categoryName}' was found.");
         }
 
         public bool TryGetSerializerFor(string categoryName, out DataContractSerializer eventType) =>
