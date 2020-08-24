@@ -68,13 +68,20 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
         private DataContractSerializer FindAtomEntrySerializer(ISyndicationItem message)
         {
+            if (!message.Categories.Any())
+                throw new FormatException($"No category found in message with id {message.Id}.");
+
             var categoryName = message.Categories.First().Name;
             return _atomEntrySerializerMapping.HasSerializerFor(categoryName) ? _atomEntrySerializerMapping.GetSerializerFor(categoryName) : null;
         }
 
         private DataContractSerializer FindEventSerializer(AtomEntry atomEntry)
         {
-            var eventName = atomEntry.FeedEntry.Title.Split('-')[0];
+            var splitTitle = atomEntry.FeedEntry.Title.Split('-');
+            if(!splitTitle.Any())
+                throw new FormatException($"Could not find event name in atom entry with id {atomEntry.FeedEntry.Id}. Title was '{atomEntry.FeedEntry.Title}'.");
+
+            var eventName = splitTitle[0];
             return _eventSerializers.HasSerializerFor(eventName) ? _eventSerializers.GetSerializerFor(eventName) : null;
         }
     }
