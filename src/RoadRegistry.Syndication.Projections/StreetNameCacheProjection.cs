@@ -59,6 +59,7 @@ namespace RoadRegistry.Syndication.Projections
                         break;
                 }
             });
+
             When<Envelope<StreetNameHomonymAdditionWasCorrected>>(async (context, envelope, token) =>
             {
                 var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
@@ -82,6 +83,7 @@ namespace RoadRegistry.Syndication.Projections
                         break;
                 }
             });
+
             When<Envelope<StreetNameHomonymAdditionWasCorrectedToCleared>>(async (context, envelope, token) =>
             {
                 var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
@@ -105,6 +107,7 @@ namespace RoadRegistry.Syndication.Projections
                         break;
                 }
             });
+
             When<Envelope<StreetNameHomonymAdditionWasDefined>>(async (context, envelope, token) =>
             {
                 var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
@@ -209,12 +212,19 @@ namespace RoadRegistry.Syndication.Projections
             });
 
             When<Envelope<StreetNamePrimaryLanguageWasCleared>>(async (context, envelope, token) => { });
+
             When<Envelope<StreetNamePrimaryLanguageWasCorrected>>(async (context, envelope, token) => { });
+
             When<Envelope<StreetNamePrimaryLanguageWasCorrectedToCleared>>(async (context, envelope, token) => { });
+
             When<Envelope<StreetNamePrimaryLanguageWasDefined>>(async (context, envelope, token) => { });
+
             When<Envelope<StreetNameSecondaryLanguageWasCleared>>(async (context, envelope, token) => { });
+
             When<Envelope<StreetNameSecondaryLanguageWasCorrected>>(async (context, envelope, token) => { });
+
             When<Envelope<StreetNameSecondaryLanguageWasCorrectedToCleared>>(async (context, envelope, token) => { });
+
             When<Envelope<StreetNameSecondaryLanguageWasDefined>>(async (context, envelope, token) => { });
 
             When<Envelope<StreetNameStatusWasRemoved>>(async (context, envelope, token) =>
@@ -291,6 +301,7 @@ namespace RoadRegistry.Syndication.Projections
             });
 
             When<Envelope<StreetNameBecameComplete>>(async (context, envelope, token) => { });
+
             When<Envelope<StreetNameBecameIncomplete>>(async (context, envelope, token) => { });
         }
 
