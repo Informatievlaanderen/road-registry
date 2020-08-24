@@ -137,7 +137,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                             if (observedMessageCount % CatchUpBatchSize == 0)
                                             {
                                                 logger.LogInformation(
-                                                    "[{Context}] Flushing catch up position of {0} and persisting changes ...",
+                                                    "[{Context}] Flushing catch up position of {Position} and persisting changes ...",
                                                     typeof(TSyndicationContent).Name, catchUpPosition);
                                                 await context
                                                     .UpdateProjectionState(

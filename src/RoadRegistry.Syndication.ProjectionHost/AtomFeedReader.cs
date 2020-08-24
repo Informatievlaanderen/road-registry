@@ -2,6 +2,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Text;
@@ -54,11 +55,13 @@ namespace RoadRegistry.Syndication.ProjectionHost
             _httpClient.DefaultRequestHeaders.Remove("X-Filtering");
             if (from.HasValue)
             {
-                var filter = string.IsNullOrEmpty(embedString) ? $"{{ position: {@from} }}" : $"{{ position: {@from}, {embedString} }}";
+                var filter = string.IsNullOrEmpty(embedString) ? $"{{ position: {from} }}" : $"{{ position: {from}, {embedString} }}";
                 _httpClient.DefaultRequestHeaders.Add("X-Filtering", filter);
             }
             else
+            {
                 _httpClient.DefaultRequestHeaders.Add("X-Filtering", $"{{ {embedString} }}");
+            }
 
 
             if (!string.IsNullOrEmpty(feedUserName) && !string.IsNullOrEmpty(feedPassword))
@@ -66,6 +69,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
             try
             {
+                _logger.LogInformation("Performing HTTP request GET {FeedUrl} with headers: {@Params}", feedUrl, _httpClient.DefaultRequestHeaders.ToDictionary(x => x.Key, x => x.Value));
                 using (var response = await _httpClient.GetAsync(feedUrl))
                 using (var responseStream = await response.Content.ReadAsStreamAsync())
                 using (var xmlReader = XmlReader.Create(responseStream, new XmlReaderSettings { Async = true }))
