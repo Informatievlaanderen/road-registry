@@ -1,6 +1,7 @@
 namespace RoadRegistry.Syndication.Projections
 {
     using System;
+    using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Schema;
@@ -30,18 +31,14 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<StreetNameBecameCurrent>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 streetNameRecord.StreetNameStatus = StreetNameStatus.Current;
             });
 
             When<Envelope<StreetNameHomonymAdditionWasCleared>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 switch (envelope.Message.Language)
                 {
@@ -66,9 +63,7 @@ namespace RoadRegistry.Syndication.Projections
             });
             When<Envelope<StreetNameHomonymAdditionWasCorrected>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 switch (envelope.Message.Language)
                 {
@@ -93,9 +88,7 @@ namespace RoadRegistry.Syndication.Projections
             });
             When<Envelope<StreetNameHomonymAdditionWasCorrectedToCleared>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 switch (envelope.Message.Language)
                 {
@@ -120,9 +113,7 @@ namespace RoadRegistry.Syndication.Projections
             });
             When<Envelope<StreetNameHomonymAdditionWasDefined>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 switch (envelope.Message.Language)
                 {
@@ -148,9 +139,7 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<StreetNameNameWasCleared>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 switch (envelope.Message.Language)
                 {
@@ -176,9 +165,7 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<StreetNameNameWasCorrected>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 switch (envelope.Message.Language)
                 {
@@ -204,9 +191,7 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<StreetNameNameWasCorrectedToCleared>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 switch (envelope.Message.Language)
                 {
@@ -232,9 +217,7 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<StreetNamePersistentLocalIdentifierWasAssigned>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 streetNameRecord.PersistentLocalId = envelope.Message.PersistentLocalId;
             });
@@ -250,72 +233,56 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<StreetNameStatusWasRemoved>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 streetNameRecord.StreetNameStatus = null;
             });
 
             When<Envelope<StreetNameStatusWasCorrectedToRemoved>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 streetNameRecord.StreetNameStatus = null;
             });
 
             When<Envelope<StreetNameWasCorrectedToCurrent>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 streetNameRecord.StreetNameStatus = StreetNameStatus.Current;
             });
 
             When<Envelope<StreetNameWasProposed>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 streetNameRecord.StreetNameStatus = StreetNameStatus.Proposed;
             });
 
             When<Envelope<StreetNameWasRetired>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 streetNameRecord.StreetNameStatus = StreetNameStatus.Retired;
             });
 
             When<Envelope<StreetNameWasCorrectedToProposed>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 streetNameRecord.StreetNameStatus = StreetNameStatus.Proposed;
             });
 
             When<Envelope<StreetNameWasCorrectedToRetired>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 streetNameRecord.StreetNameStatus = StreetNameStatus.Retired;
             });
 
             When<Envelope<StreetNameWasNamed>>(async (context, envelope, token) =>
             {
-                var streetNameRecord = await context.StreetNames.FindAsync(envelope.Message.StreetNameId);
-                if (streetNameRecord == null)
-                    return;
+                var streetNameRecord = await FindOrThrow(context, envelope.Message.StreetNameId);
 
                 switch (envelope.Message.Language)
                 {
@@ -341,6 +308,15 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<StreetNameBecameComplete>>(async (context, envelope, token) => { });
             When<Envelope<StreetNameBecameIncomplete>>(async (context, envelope, token) => { });
+        }
+
+        private static async Task<StreetNameRecord> FindOrThrow(SyndicationContext context, Guid streetNameId)
+        {
+            var streetNameRecord = await context.StreetNames.FindAsync(streetNameId);
+            if (streetNameRecord == null)
+                throw new Exception($"No street name with id {streetNameId} was found.");
+
+            return streetNameRecord;
         }
     }
 }

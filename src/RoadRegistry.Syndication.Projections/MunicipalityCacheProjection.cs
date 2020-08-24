@@ -1,6 +1,7 @@
 namespace RoadRegistry.Syndication.Projections
 {
     using System;
+    using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using MunicipalityEvents;
@@ -27,9 +28,7 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<MunicipalityWasNamed>>(async (context, envelope, token) =>
             {
-                var municipalityRecord = await context.Municipalities.FindAsync(envelope.Message.MunicipalityId);
-                if (municipalityRecord == null)
-                    return;
+                var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
 
                 switch (envelope.Message.Language)
                 {
@@ -52,9 +51,7 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<MunicipalityNameWasCleared>>(async (context, envelope, token) =>
             {
-                var municipalityRecord = await context.Municipalities.FindAsync(envelope.Message.MunicipalityId);
-                if (municipalityRecord == null)
-                    return;
+                var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
 
                 switch (envelope.Message.Language)
                 {
@@ -77,9 +74,7 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<MunicipalityNameWasCorrected>>(async (context, envelope, token) =>
             {
-                var municipalityRecord = await context.Municipalities.FindAsync(envelope.Message.MunicipalityId);
-                if (municipalityRecord == null)
-                    return;
+                var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
 
                 switch (envelope.Message.Language)
                 {
@@ -102,9 +97,7 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<MunicipalityNameWasCorrectedToCleared>>(async (context, envelope, token) =>
             {
-                var municipalityRecord = await context.Municipalities.FindAsync(envelope.Message.MunicipalityId);
-                if (municipalityRecord == null)
-                    return;
+                var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
 
                 switch (envelope.Message.Language)
                 {
@@ -127,57 +120,54 @@ namespace RoadRegistry.Syndication.Projections
 
             When<Envelope<MunicipalityNisCodeWasDefined>>(async (context, envelope, token) =>
             {
-                var municipalityRecord = await context.Municipalities.FindAsync(envelope.Message.MunicipalityId);
-                if (municipalityRecord == null)
-                    return;
+                var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
 
                 municipalityRecord.NisCode = envelope.Message.NisCode;
             });
 
             When<Envelope<MunicipalityNisCodeWasCorrected>>(async (context, envelope, token) =>
             {
-                var municipalityRecord = await context.Municipalities.FindAsync(envelope.Message.MunicipalityId);
-                if (municipalityRecord == null)
-                    return;
+                var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
 
                 municipalityRecord.NisCode = envelope.Message.NisCode;
             });
 
             When<Envelope<MunicipalityBecameCurrent>>(async (context, envelope, token) =>
             {
-                var municipalityRecord = await context.Municipalities.FindAsync(envelope.Message.MunicipalityId);
-                if (municipalityRecord == null)
-                    return;
+                var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
 
                 municipalityRecord.MunicipalityStatus = MunicipalityStatus.Current;
             });
 
             When<Envelope<MunicipalityWasCorrectedToCurrent>>(async (context, envelope, token) =>
             {
-                var municipalityRecord = await context.Municipalities.FindAsync(envelope.Message.MunicipalityId);
-                if (municipalityRecord == null)
-                    return;
+                var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
 
                 municipalityRecord.MunicipalityStatus = MunicipalityStatus.Current;
             });
 
             When<Envelope<MunicipalityBecameRetired>>(async (context, envelope, token) =>
             {
-                var municipalityRecord = await context.Municipalities.FindAsync(envelope.Message.MunicipalityId);
-                if (municipalityRecord == null)
-                    return;
+                var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
 
                 municipalityRecord.MunicipalityStatus = MunicipalityStatus.Retired;
             });
 
             When<Envelope<MunicipalityWasCorrectedToRetired>>(async (context, envelope, token) =>
             {
-                var municipalityRecord = await context.Municipalities.FindAsync(envelope.Message.MunicipalityId);
-                if (municipalityRecord == null)
-                    return;
+                var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
 
                 municipalityRecord.MunicipalityStatus = MunicipalityStatus.Retired;
             });
+        }
+
+        private static async Task<MunicipalityRecord> FindOrThrow(SyndicationContext context, Guid municipalityId)
+        {
+            var municipalityRecord = await context.Municipalities.FindAsync(municipalityId);
+            if (municipalityRecord == null)
+                throw new Exception($"No municipality with id {municipalityId} was found.");
+
+            return municipalityRecord;
         }
     }
 }
