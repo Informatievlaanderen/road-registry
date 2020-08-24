@@ -5,5 +5,6 @@ namespace RoadRegistry.Wms.ProjectionHost
         public const string WmsProjections = "WmsProjections";
         public const string WmsProjectionsAdmin = "WmsProjectionsAdmin";
         public const string Events = "Events";
+        public const string SyndicationProjections = "SyndicationProjections";
     }
 }

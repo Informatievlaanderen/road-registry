@@ -23,6 +23,7 @@
     using Schema;
     using Serilog;
     using SqlStreamStore;
+    using Syndication.Schema;
 
     public class Program
     {
@@ -81,6 +82,7 @@
                     builder
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
+                        .AddSingleton<IStreetNameCache, StreetNameCache>()
                         .AddHostedService<EventProcessor>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(new EnvelopeFactory(
@@ -99,9 +101,19 @@
                                                 .UseNetTopologySuite()
                                         ).Options)
                         )
+                        .AddSingleton<Func<SyndicationContext>>(
+                            () =>
+                                new SyndicationContext(
+                                    new DbContextOptionsBuilder<SyndicationContext>()
+                                        .UseSqlServer(
+                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
+                                            options => options
+                                                .EnableRetryOnFailure()
+                                        ).Options)
+                        )
                         .AddSingleton(sp => new ConnectedProjection<WmsContext>[]
                         {
-                            new RoadSegmentRecordProjection()
+                            new RoadSegmentRecordProjection(sp.GetRequiredService<IStreetNameCache>())
                         })
                         .AddSingleton(sp =>
                             Resolve

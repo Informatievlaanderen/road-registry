@@ -1,15 +1,16 @@
 namespace RoadRegistry.Wms.Projections
 {
-    using System;
+    using System.Threading.Tasks;
     using BackOffice;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Schema;
+    using Syndication.Schema;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
     {
-        public RoadSegmentRecordProjection()
+        public RoadSegmentRecordProjection(IStreetNameCache streetNameCache)
         {
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
@@ -19,6 +20,9 @@ namespace RoadRegistry.Wms.Projections
                 var morphology = RoadSegmentMorphology.Parse(envelope.Message.Morphology);
                 var category = RoadSegmentCategory.Parse(envelope.Message.Category);
                 var transactionId = new TransactionId(envelope.Message.Origin.TransactionId);
+
+                var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.LeftSide.StreetNameId);
+                var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.RightSide.StreetNameId);
 
                 await context.RoadSegments.AddAsync(new RoadSegmentRecord
                 {
@@ -55,15 +59,12 @@ namespace RoadRegistry.Wms.Projections
 
                     LeftSideMunicipalityId = null,
                     LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
-                    LeftSideStreetName = string.IsNullOrWhiteSpace(envelope.Message.LeftSide.StreetName)
-                        ? null
-                        : envelope.Message.LeftSide.StreetName,
-
+                    LeftSideStreetName = leftSideStreetNameRecord?.DutchNameWithHomonymAddition ??
+                                         envelope.Message.LeftSide.StreetName,
                     RightSideMunicipalityId = null,
                     RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
-                    RightSideStreetName = string.IsNullOrWhiteSpace(envelope.Message.RightSide.StreetName)
-                        ? null
-                        : envelope.Message.RightSide.StreetName,
+                    RightSideStreetName = rightSideStreetNameRecord?.DutchNameWithHomonymAddition ??
+                                          envelope.Message.RightSide.StreetName,
 
                     RoadSegmentVersion = envelope.Message.Version,
 
@@ -93,6 +94,9 @@ namespace RoadRegistry.Wms.Projections
                             var morphology = RoadSegmentMorphology.Parse(m.Morphology);
 
                             var category = RoadSegmentCategory.Parse(m.Category);
+
+                            var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, m.LeftSide.StreetNameId);
+                            var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, m.RightSide.StreetNameId);
 
                             await context.RoadSegments.AddAsync(new RoadSegmentRecord
                             {
@@ -129,11 +133,11 @@ namespace RoadRegistry.Wms.Projections
 
                                 LeftSideMunicipalityId = null,
                                 LeftSideStreetNameId = m.LeftSide.StreetNameId,
-                                LeftSideStreetName = null,
+                                LeftSideStreetName = leftSideStreetNameRecord?.DutchName,
 
                                 RightSideMunicipalityId = null,
                                 RightSideStreetNameId = m.RightSide.StreetNameId,
-                                RightSideStreetName = null,
+                                RightSideStreetName = rightSideStreetNameRecord?.DutchName,
 
                                 RoadSegmentVersion = m.Version,
 
@@ -144,6 +148,13 @@ namespace RoadRegistry.Wms.Projections
                     }
                 }
             });
+        }
+
+        private static async Task<StreetNameRecord> TryGetFromCache(IStreetNameCache streetNameCache, int? streetNameId)
+        {
+            return streetNameId.HasValue ?
+                await streetNameCache.Get(streetNameId.Value) :
+                null;
         }
     }
 }

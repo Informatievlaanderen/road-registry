@@ -9,6 +9,7 @@ namespace RoadRegistry.Wms.Projections
     using RoadRegistry.Framework.Projections;
     using RoadRegistry.Projections;
     using Schema;
+    using Syndication.Schema;
     using Xunit;
 
     public class RoadSegmentRecordProjectionTests
@@ -61,7 +62,7 @@ namespace RoadRegistry.Wms.Projections
 
             var expectedRoadSegment = _testDataHelper.ExpectedRoadSegment(wegSegmentId);
 
-            await new RoadSegmentRecordProjection()
+            await new RoadSegmentRecordProjection(new StreetNameCacheMock())
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new RoadSegmentRecord
@@ -167,10 +168,18 @@ namespace RoadRegistry.Wms.Projections
                 };
             });
 
-            return new RoadSegmentRecordProjection()
+            return new RoadSegmentRecordProjection(new StreetNameCacheMock())
                 .Scenario()
                 .Given(message)
                 .Expect(expectedRecords);
+        }
+    }
+
+    public class StreetNameCacheMock : IStreetNameCache
+    {
+        public Task<StreetNameRecord> Get(int streetNameId)
+        {
+            return Task.FromResult((StreetNameRecord)null);
         }
     }
 }
