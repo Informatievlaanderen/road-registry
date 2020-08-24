@@ -10,5 +10,11 @@ namespace RoadRegistry.Syndication.Projections
         {
             Assert.True(new AtomEntrySerializerMapping().HasSerializerFor("https://data.vlaanderen.be/ns/gemeente"));
         }
+
+        [Fact]
+        public void Has_serializer_for_straatnaam()
+        {
+            Assert.True(new AtomEntrySerializerMapping().HasSerializerFor("https://data.vlaanderen.be/ns/straatnaam"));
+        }
     }
 }
