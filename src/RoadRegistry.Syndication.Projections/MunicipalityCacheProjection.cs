@@ -44,8 +44,6 @@ namespace RoadRegistry.Syndication.Projections
                     case MunicipalityLanguage.English:
                         municipalityRecord.EnglishName = envelope.Message.Name;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
 
@@ -67,8 +65,6 @@ namespace RoadRegistry.Syndication.Projections
                     case MunicipalityLanguage.English:
                         municipalityRecord.EnglishName = null;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
 
@@ -90,8 +86,6 @@ namespace RoadRegistry.Syndication.Projections
                     case MunicipalityLanguage.English:
                         municipalityRecord.EnglishName = envelope.Message.Name;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
 
@@ -113,8 +107,6 @@ namespace RoadRegistry.Syndication.Projections
                     case MunicipalityLanguage.English:
                         municipalityRecord.EnglishName = null;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
 

@@ -57,8 +57,6 @@ namespace RoadRegistry.Syndication.Projections
                     case null:
                         streetNameRecord.HomonymAddition = null;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
             When<Envelope<StreetNameHomonymAdditionWasCorrected>>(async (context, envelope, token) =>
@@ -82,8 +80,6 @@ namespace RoadRegistry.Syndication.Projections
                     case null:
                         streetNameRecord.HomonymAddition = envelope.Message.HomonymAddition;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
             When<Envelope<StreetNameHomonymAdditionWasCorrectedToCleared>>(async (context, envelope, token) =>
@@ -107,8 +103,6 @@ namespace RoadRegistry.Syndication.Projections
                     case null:
                         streetNameRecord.HomonymAddition = null;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
             When<Envelope<StreetNameHomonymAdditionWasDefined>>(async (context, envelope, token) =>
@@ -132,8 +126,6 @@ namespace RoadRegistry.Syndication.Projections
                     case null:
                         streetNameRecord.HomonymAddition = envelope.Message.HomonymAddition;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
 
@@ -158,8 +150,6 @@ namespace RoadRegistry.Syndication.Projections
                     case null:
                         streetNameRecord.Name = null;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
 
@@ -184,8 +174,6 @@ namespace RoadRegistry.Syndication.Projections
                     case null:
                         streetNameRecord.Name = envelope.Message.Name;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
 
@@ -210,8 +198,6 @@ namespace RoadRegistry.Syndication.Projections
                     case null:
                         streetNameRecord.Name = null;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
 
@@ -301,8 +287,6 @@ namespace RoadRegistry.Syndication.Projections
                     case null:
                         streetNameRecord.Name = envelope.Message.Name;
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             });
 
