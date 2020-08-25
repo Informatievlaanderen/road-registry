@@ -62,7 +62,7 @@ namespace RoadRegistry.Wms.Projections
 
             var expectedRoadSegment = _testDataHelper.ExpectedRoadSegment(wegSegmentId);
 
-            await new RoadSegmentRecordProjection(new StreetNameCacheMock())
+            await new RoadSegmentRecordProjection(new StreetNameCacheStub())
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new RoadSegmentRecord
@@ -106,6 +106,71 @@ namespace RoadRegistry.Wms.Projections
                     RightSideMunicipalityId = null,
                     RightSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
                     RightSideStreetName = expectedRoadSegment.linksStraatnaam,
+
+                    RoadSegmentVersion = expectedRoadSegment.wegsegmentversie,
+                    BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,
+                    EndRoadNodeId = expectedRoadSegment.eindWegknoopID,
+                });
+        }
+
+        [Theory]
+        [InlineData(904)]
+        [InlineData(458)]
+        [InlineData(4)]
+        public async Task When_importing_road_segments_with_street_name_in_cache(int wegSegmentId)
+        {
+            var importedRoadSegment = await _testDataHelper.EventFromFileAsync<ImportedRoadSegment>(wegSegmentId);
+
+            var expectedGeometry2D = _testDataHelper.ExpectedGeometry2D(wegSegmentId);
+
+            var expectedRoadSegment = _testDataHelper.ExpectedRoadSegment(wegSegmentId);
+
+            var streetNameRecord = _fixture.Create<StreetNameRecord>();
+
+            await new RoadSegmentRecordProjection(new StreetNameCacheStub(streetNameRecord))
+                .Scenario()
+                .Given(importedRoadSegment)
+                .Expect(new RoadSegmentRecord
+                {
+                    Id = expectedRoadSegment.wegsegmentID,
+                    BeginOperator = expectedRoadSegment.beginoperator,
+                    BeginOrganizationId = expectedRoadSegment.beginorganisatie,
+                    BeginTime = expectedRoadSegment.begintijd,
+                    BeginApplication = expectedRoadSegment.beginapplicatie,
+
+                    MaintainerId = expectedRoadSegment.beheerder,
+                    MaintainerName = expectedRoadSegment.lblBeheerder,
+
+                    MethodId = expectedRoadSegment.methode,
+                    MethodDutchName = expectedRoadSegment.lblMethode,
+
+                    CategoryId = expectedRoadSegment.categorie,
+                    CategoryDutchName = expectedRoadSegment.lblCategorie,
+
+                    Geometry2D = expectedGeometry2D,
+                    GeometryVersion = expectedRoadSegment.geometrieversie,
+
+                    MorphologyId = expectedRoadSegment.morfologie,
+                    MorphologyDutchName = expectedRoadSegment.lblMorfologie,
+
+                    StatusId = expectedRoadSegment.status,
+                    StatusDutchName = expectedRoadSegment.lblStatus,
+
+                    AccessRestrictionId = expectedRoadSegment.toegangsbeperking,
+                    AccessRestrictionDutchName = expectedRoadSegment.lblToegangsbeperking,
+
+                    BeginOrganizationName = expectedRoadSegment.lblOrganisatie,
+                    RecordingDate = expectedRoadSegment.opnamedatum,
+
+                    TransactionId = expectedRoadSegment.transactieID,
+
+                    LeftSideMunicipalityId = null,
+                    LeftSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
+                    LeftSideStreetName = streetNameRecord.DutchNameWithHomonymAddition,
+
+                    RightSideMunicipalityId = null,
+                    RightSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
+                    RightSideStreetName = streetNameRecord.DutchNameWithHomonymAddition,
 
                     RoadSegmentVersion = expectedRoadSegment.wegsegmentversie,
                     BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,
@@ -168,18 +233,25 @@ namespace RoadRegistry.Wms.Projections
                 };
             });
 
-            return new RoadSegmentRecordProjection(new StreetNameCacheMock())
+            return new RoadSegmentRecordProjection(new StreetNameCacheStub())
                 .Scenario()
                 .Given(message)
                 .Expect(expectedRecords);
         }
     }
 
-    public class StreetNameCacheMock : IStreetNameCache
+    public class StreetNameCacheStub : IStreetNameCache
     {
+        private readonly StreetNameRecord _stubbedValue;
+
+        public StreetNameCacheStub(StreetNameRecord stubbedValue = null)
+        {
+            _stubbedValue = stubbedValue;
+        }
+
         public Task<StreetNameRecord> Get(int streetNameId)
         {
-            return Task.FromResult((StreetNameRecord)null);
+            return Task.FromResult(_stubbedValue);
         }
     }
 }
