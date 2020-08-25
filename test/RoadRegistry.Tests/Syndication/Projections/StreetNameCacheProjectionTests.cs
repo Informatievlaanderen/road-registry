@@ -23,14 +23,16 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(@event =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
+                    var events = new object[] {streetNameWasRegistered};
+
                     var expected = new StreetNameRecord
                     {
-                        StreetNameId = @event.StreetNameId,
+                        StreetNameId = streetNameWasRegistered.StreetNameId,
                         PersistentLocalId = null,
-                        MunicipalityId = @event.MunicipalityId,
-                        NisCode = @event.NisCode,
+                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                        NisCode = streetNameWasRegistered.NisCode,
                         Name = null,
                         DutchName = null,
                         FrenchName = null,
@@ -42,18 +44,19 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1
                     };
 
                     return new
                     {
-                        @event,
+                        events,
                         expected
                     };
                 }).ToList();
 
             return new StreetNameCacheProjection()
                 .Scenario()
-                .Given(data.Select(d => d.@event))
+                .Given(data.SelectMany(d => d.events))
                 .Expect(data.Select(d => d.expected));
         }
 
@@ -62,9 +65,11 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+
+                    var events = new object[] {streetNameWasRegistered, streetNameWasNamed};
 
                     var expected = new StreetNameRecord
                     {
@@ -83,11 +88,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1
                     };
 
                     return new
                     {
-                        events = new object[]{ streetNameWasRegistered, streetNameWasNamed },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -103,10 +109,17 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
                     var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameWasNamed,
+                        homonymAdditionWasDefined
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -125,16 +138,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameWasNamed,
-                            homonymAdditionWasDefined
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -150,11 +159,19 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
                     var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
                     var homonymAdditionWasCorrected = CreateStreetNameHomonymAdditionWasCorrected(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameWasNamed,
+                        homonymAdditionWasDefined,
+                        homonymAdditionWasCorrected
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -173,17 +190,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1,
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameWasNamed,
-                            homonymAdditionWasDefined,
-                            homonymAdditionWasCorrected
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -199,11 +211,19 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
                     var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
                     var homonymAdditionWasCleared = CreateStreetNameHomonymAdditionWasCleared(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameWasNamed,
+                        homonymAdditionWasDefined,
+                        homonymAdditionWasCleared
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -222,17 +242,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1,
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameWasNamed,
-                            homonymAdditionWasDefined,
-                            homonymAdditionWasCleared
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -248,11 +263,19 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
                     var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
                     var homonymAdditionWasCorrectedToCleared = CreateStreetNameHomonymAdditionWasCorrectedToCleared(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameWasNamed,
+                        homonymAdditionWasDefined,
+                        homonymAdditionWasCorrectedToCleared
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -271,17 +294,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1,
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameWasNamed,
-                            homonymAdditionWasDefined,
-                            homonymAdditionWasCorrectedToCleared
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -297,9 +315,11 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNamePersistentLocalIdWasAssigned = CreateStreetNamePersistentLocalIdWasAssigned(streetNameWasRegistered);
+
+                    var events = new object[] {streetNameWasRegistered, streetNamePersistentLocalIdWasAssigned};
 
                     var expected = new StreetNameRecord
                     {
@@ -318,11 +338,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1,
                     };
 
                     return new
                     {
-                        events = new object[]{ streetNameWasRegistered, streetNamePersistentLocalIdWasAssigned },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -338,10 +359,17 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameBecameCurrent = CreateStreetNameBecameCurrent(streetNameWasRegistered);
                     var streetNameStatusWasRemoved = CreateStreetNameStatusWasRemoved(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameBecameCurrent,
+                        streetNameStatusWasRemoved
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -360,16 +388,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1,
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameBecameCurrent,
-                            streetNameStatusWasRemoved
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -385,10 +409,17 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameBecameCurrent = CreateStreetNameBecameCurrent(streetNameWasRegistered);
                     var streetNameStatusWasCorrectedToRemoved = CreateStreetNameStatusWasCorrectedToRemoved(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameBecameCurrent,
+                        streetNameStatusWasCorrectedToRemoved
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -407,16 +438,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1,
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameBecameCurrent,
-                            streetNameStatusWasCorrectedToRemoved
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -432,10 +459,17 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
                     var streetNameNameWasCleared = CreateStreetNameNameWasCleared(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameWasNamed,
+                        streetNameNameWasCleared,
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -454,16 +488,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1,
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameWasNamed,
-                            streetNameNameWasCleared,
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -479,10 +509,17 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
                     var streetNameNameWasCorrectedToCleared = CreateStreetNameNameWasCorrectedToCleared(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameWasNamed,
+                        streetNameNameWasCorrectedToCleared,
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -501,16 +538,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1,
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameWasNamed,
-                            streetNameNameWasCorrectedToCleared,
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -526,10 +559,17 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
                     var streetNameNameWasCorrected = CreateStreetNameNameWasCorrected(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameWasNamed,
+                        streetNameNameWasCorrected,
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -548,16 +588,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1,
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameWasNamed,
-                            streetNameNameWasCorrected,
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -573,9 +609,15 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameBecameCurrent = CreateStreetNameBecameCurrent(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameBecameCurrent
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -594,15 +636,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameBecameCurrent
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -618,9 +657,15 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameWasCorrectedToCurrent = CreateStreetNameWasCorrectedToCurrent(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameWasCorrectedToCurrent
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -639,15 +684,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameWasCorrectedToCurrent
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -663,9 +705,15 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameBecameProposed = CreateStreetNameWasProposed(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameBecameProposed
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -684,15 +732,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameBecameProposed
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -708,9 +753,15 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameWasCorrectedToProposed = CreateStreetNameWasCorrectedToProposed(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameWasCorrectedToProposed
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -729,15 +780,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameWasCorrectedToProposed
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -753,9 +801,15 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameBecameRetired = CreateStreetNameBecameRetired(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameBecameRetired
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -774,15 +828,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1,
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameBecameRetired
-                        },
+                        events,
                         expected
                     };
                 }).ToList();
@@ -798,9 +849,15 @@ namespace RoadRegistry.Syndication.Projections
         {
             var data = _fixture
                 .CreateMany<StreetNameWasRegistered>()
-                .Select(streetNameWasRegistered =>
+                .Select((streetNameWasRegistered, counter) =>
                 {
                     var streetNameWasCorrectedToRetired = CreateStreetNameWasCorrectedToRetired(streetNameWasRegistered);
+
+                    var events = new object[]
+                    {
+                        streetNameWasRegistered,
+                        streetNameWasCorrectedToRetired
+                    };
 
                     var expected = new StreetNameRecord
                     {
@@ -819,15 +876,12 @@ namespace RoadRegistry.Syndication.Projections
                         FrenchHomonymAddition = null,
                         GermanHomonymAddition = null,
                         EnglishHomonymAddition = null,
+                        Position = counter * events.Length + events.Length - 1
                     };
 
                     return new
                     {
-                        events = new object[]
-                        {
-                            streetNameWasRegistered,
-                            streetNameWasCorrectedToRetired
-                        },
+                        events,
                         expected
                     };
                 }).ToList();

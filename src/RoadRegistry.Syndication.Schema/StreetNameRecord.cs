@@ -27,5 +27,6 @@ namespace RoadRegistry.Syndication.Schema
         public string EnglishNameWithHomonymAddition { get; set; }
 
         public StreetNameStatus? StreetNameStatus { get; set; }
+        public long Position { get; set; }
     }
 }
