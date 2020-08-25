@@ -50,7 +50,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
                     var metadata = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
                     {
-                        [Envelope.PositionMetadataKey] = atomEntry.FeedEntry.Id,
+                        [Envelope.PositionMetadataKey] = Convert.ToInt64(atomEntry.FeedEntry.Id),
                         [Envelope.EventNameMetadataKey] = atomEntry.FeedEntry.Title,
                         [Envelope.CreatedUtcMetadataKey] = atomEntry.FeedEntry.Published
                     };
