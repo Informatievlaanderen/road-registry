@@ -26,6 +26,8 @@ namespace RoadRegistry.Wms.Schema
         public int? TransactionId { get; set; }
         public int? LeftSideMunicipalityId { get; set; }
         public int? RightSideMunicipalityId { get; set; }
+        public string LeftSideMunicipalityNisCode { get; set; }
+        public string RightSideMunicipalityNisCode { get; set; }
         public string CategoryDutchName { get; set; }
         public string MethodDutchName { get; set; }
         public string MorphologyDutchName { get; set; }

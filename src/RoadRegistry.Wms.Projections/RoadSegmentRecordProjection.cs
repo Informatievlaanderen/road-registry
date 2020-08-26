@@ -58,10 +58,12 @@ namespace RoadRegistry.Wms.Projections
                     TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
 
                     LeftSideMunicipalityId = null,
+                    LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode,
                     LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
                     LeftSideStreetName = leftSideStreetNameRecord?.DutchNameWithHomonymAddition ??
                                          envelope.Message.LeftSide.StreetName,
                     RightSideMunicipalityId = null,
+                    RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode,
                     RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
                     RightSideStreetName = rightSideStreetNameRecord?.DutchNameWithHomonymAddition ??
                                           envelope.Message.RightSide.StreetName,
@@ -132,10 +134,12 @@ namespace RoadRegistry.Wms.Projections
                                 TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
 
                                 LeftSideMunicipalityId = null,
+                                LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode,
                                 LeftSideStreetNameId = m.LeftSide.StreetNameId,
                                 LeftSideStreetName = leftSideStreetNameRecord?.DutchName,
 
                                 RightSideMunicipalityId = null,
+                                RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode,
                                 RightSideStreetNameId = m.RightSide.StreetNameId,
                                 RightSideStreetName = rightSideStreetNameRecord?.DutchName,
 

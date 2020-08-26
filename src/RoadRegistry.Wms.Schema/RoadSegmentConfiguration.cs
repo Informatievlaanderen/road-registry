@@ -54,8 +54,8 @@ namespace RoadRegistry.Wms.Schema
 
             b.Property(p => p.RecordingDate).HasColumnName("opnamedatum");
 
-
-
+            b.Property(p => p.LeftSideMunicipalityNisCode).HasColumnName("linksGemeenteNisCode");
+            b.Property(p => p.RightSideMunicipalityNisCode).HasColumnName("rechtsGemeenteNisCode");
         }
     }
 }
