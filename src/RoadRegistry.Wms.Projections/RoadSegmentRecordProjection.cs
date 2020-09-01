@@ -1,17 +1,48 @@
 namespace RoadRegistry.Wms.Projections
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using BackOffice;
     using BackOffice.Messages;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Schema;
     using Syndication.Schema;
 
+    [EventName("RefreshWms")]
+    [EventDescription("Internal event to refresh the wms projection based on the street name and municipality caches.")]
+    public class RefreshWms
+    {
+        public long Previous { get; set; }
+        public long Desired { get; set; }
+    }
+
     public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
     {
         public RoadSegmentRecordProjection(IStreetNameCache streetNameCache)
         {
+            When<Envelope<RefreshWms>>(async (context, envelope, token) =>
+            {
+                var updatedStreetNames = await streetNameCache.GetBetween(envelope.Message.Previous, envelope.Message.Desired);
+                foreach (var updatedStreetName in updatedStreetNames)
+                {
+                    foreach (var roadSegmentRecord in context.RoadSegments.Where(record =>
+                        record.LeftSideStreetNameId == updatedStreetName.PersistentLocalId &&
+                        record.LeftSideStreetName != updatedStreetName.DutchNameWithHomonymAddition))
+                    {
+                        roadSegmentRecord.LeftSideStreetName = updatedStreetName.DutchNameWithHomonymAddition;
+                    }
+
+                    foreach (var roadSegmentRecord in context.RoadSegments.Where(record =>
+                        record.RightSideStreetNameId == updatedStreetName.PersistentLocalId &&
+                        record.RightSideStreetName != updatedStreetName.DutchNameWithHomonymAddition))
+                    {
+                        roadSegmentRecord.RightSideStreetName = updatedStreetName.DutchNameWithHomonymAddition;
+                    }
+                }
+            });
+
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
                 var method = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);
@@ -158,6 +189,14 @@ namespace RoadRegistry.Wms.Projections
         {
             return streetNameId.HasValue ?
                 await streetNameCache.Get(streetNameId.Value) :
+                null;
+        }
+
+
+        private async Task<MunicipalityRecord> TryGetFromCache(IMunicipalityCache municipalityCache, string leftSideMunicipalityNisCode)
+        {
+            return !string.IsNullOrWhiteSpace(leftSideMunicipalityNisCode) ?
+                await municipalityCache.Get(leftSideMunicipalityNisCode) :
                 null;
         }
     }
