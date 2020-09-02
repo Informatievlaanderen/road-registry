@@ -191,9 +191,9 @@ namespace RoadRegistry.BackOffice.Core
 
             EndNode1Modified = new RoadNodeModified
             {
-                Id = 1,
-                Geometry = AddEndNode1.Geometry,
-                Type = AddEndNode1.Type
+                Id = 2,
+                Geometry = ModifyEndNode1.Geometry,
+                Type = ModifyEndNode1.Type
             };
 
             AddStartNode2 = new Messages.AddRoadNode
@@ -5389,7 +5389,7 @@ namespace RoadRegistry.BackOffice.Core
                                         new Messages.ProblemParameter
                                         {
                                             Name = "Actual",
-                                            Value = AddStartNode1.Type
+                                            Value = ModifyStartNode1.Type
                                         },
                                         new Messages.ProblemParameter
                                         {
@@ -6097,31 +6097,31 @@ namespace RoadRegistry.BackOffice.Core
             {
                 case 0:
                     Segment2Added.Status = new Generator<RoadSegmentStatus>(Fixture)
-                        .First(candidate => candidate != Segment1Added.Status);
+                        .First(candidate => candidate != RoadSegmentStatus.Parse(Segment1Added.Status));
                     break;
                 case 1:
                     Segment2Added.Morphology = new Generator<RoadSegmentMorphology>(Fixture)
-                        .First(candidate => candidate != Segment1Added.Morphology);
+                        .First(candidate => candidate != RoadSegmentMorphology.Parse(Segment1Added.Morphology));
                     break;
                 case 2:
                     Segment2Added.Category = new Generator<RoadSegmentCategory>(Fixture)
-                        .First(candidate => candidate != Segment1Added.Category);
+                        .First(candidate => candidate != RoadSegmentCategory.Parse(Segment1Added.Category));
                     break;
                 case 3:
                     Segment2Added.MaintenanceAuthority.Code = new Generator<OrganizationId>(Fixture)
-                        .First(candidate => candidate != Segment1Added.MaintenanceAuthority.Code);
+                        .First(candidate => candidate != new OrganizationId(Segment1Added.MaintenanceAuthority.Code));
                     break;
                 case 4:
                     Segment2Added.AccessRestriction = new Generator<RoadSegmentAccessRestriction>(Fixture)
-                        .First(candidate => candidate != Segment1Added.AccessRestriction);
+                        .First(candidate => candidate != RoadSegmentAccessRestriction.Parse(Segment1Added.AccessRestriction));
                     break;
                 case 5:
                     Segment2Added.LeftSide.StreetNameId = new Generator<CrabStreetnameId?>(Fixture)
-                        .First(candidate => candidate != Segment1Added.LeftSide.StreetNameId);
+                        .First(candidate => candidate != (Segment1Added.LeftSide.StreetNameId.HasValue ? new CrabStreetnameId(Segment1Added.LeftSide.StreetNameId.Value) : new CrabStreetnameId?()));
                     break;
                 case 6:
                     Segment2Added.RightSide.StreetNameId = new Generator<CrabStreetnameId?>(Fixture)
-                        .First(candidate => candidate != Segment1Added.RightSide.StreetNameId);
+                        .First(candidate => candidate != (Segment1Added.RightSide.StreetNameId.HasValue ? new CrabStreetnameId(Segment1Added.RightSide.StreetNameId.Value) : new CrabStreetnameId?()));
                     break;
             }
 

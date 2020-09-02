@@ -197,18 +197,18 @@ namespace RoadRegistry.BackOffice.Core
             var start = new RoadNodeId(@event.StartNodeId);
             var end = new RoadNodeId(@event.EndNodeId);
 
-            var attributeHash = AttributeHash.None
-                .With(RoadSegmentAccessRestriction.Parse(@event.AccessRestriction))
-                .With(RoadSegmentCategory.Parse(@event.Category))
-                .With(RoadSegmentMorphology.Parse(@event.Morphology))
-                .With(RoadSegmentStatus.Parse(@event.Status))
-                .WithLeftSide(@event.LeftSide.StreetNameId.HasValue
+            var attributeHash = new AttributeHash(
+                RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
+                RoadSegmentCategory.Parse(@event.Category),
+                RoadSegmentMorphology.Parse(@event.Morphology),
+                RoadSegmentStatus.Parse(@event.Status),
+                @event.LeftSide.StreetNameId.HasValue
                     ? new CrabStreetnameId(@event.LeftSide.StreetNameId.Value)
-                    : new CrabStreetnameId?())
-                .WithRightSide(@event.RightSide.StreetNameId.HasValue
+                    : new CrabStreetnameId?(),
+                @event.RightSide.StreetNameId.HasValue
                     ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
-                    : new CrabStreetnameId?())
-                .With(new OrganizationId(@event.MaintenanceAuthority.Code));
+                    : new CrabStreetnameId?(),
+                new OrganizationId(@event.MaintenanceAuthority.Code));
 
             var segment = new RoadSegment(
                 id,
@@ -361,18 +361,18 @@ namespace RoadRegistry.BackOffice.Core
             var start = new RoadNodeId(@event.StartNodeId);
             var end = new RoadNodeId(@event.EndNodeId);
 
-            var attributeHash = AttributeHash.None
-                .With(RoadSegmentAccessRestriction.Parse(@event.AccessRestriction))
-                .With(RoadSegmentCategory.Parse(@event.Category))
-                .With(RoadSegmentMorphology.Parse(@event.Morphology))
-                .With(RoadSegmentStatus.Parse(@event.Status))
-                .WithLeftSide(@event.LeftSide.StreetNameId.HasValue
+            var attributeHash = new AttributeHash(
+                RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
+                RoadSegmentCategory.Parse(@event.Category),
+                RoadSegmentMorphology.Parse(@event.Morphology),
+                RoadSegmentStatus.Parse(@event.Status),
+                @event.LeftSide.StreetNameId.HasValue
                     ? new CrabStreetnameId(@event.LeftSide.StreetNameId.Value)
-                    : new CrabStreetnameId?())
-                .WithRightSide(@event.RightSide.StreetNameId.HasValue
+                    : new CrabStreetnameId?(),
+                @event.RightSide.StreetNameId.HasValue
                     ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
-                    : new CrabStreetnameId?())
-                .With(new OrganizationId(@event.MaintenanceAuthority.Code));
+                    : new CrabStreetnameId?(),
+                new OrganizationId(@event.MaintenanceAuthority.Code));
 
             var segment = new RoadSegment(
                 id,
@@ -555,14 +555,14 @@ namespace RoadRegistry.BackOffice.Core
 
         private ImmutableRoadNetworkView With(AddRoadSegment command)
         {
-            var attributeHash = AttributeHash.None
-                .With(command.AccessRestriction)
-                .With(command.Category)
-                .With(command.Morphology)
-                .With(command.Status)
-                .WithLeftSide(command.LeftSideStreetNameId)
-                .WithRightSide(command.RightSideStreetNameId)
-                .With(command.MaintenanceAuthority);
+            var attributeHash = new AttributeHash(
+                command.AccessRestriction,
+                command.Category,
+                command.Morphology,
+                command.Status,
+                command.LeftSideStreetNameId,
+                command.RightSideStreetNameId,
+                command.MaintenanceAuthority);
 
             return new ImmutableRoadNetworkView(
                 _nodes
@@ -687,7 +687,16 @@ namespace RoadRegistry.BackOffice.Core
                     StartNodeId = segment.Value.Start.ToInt32(),
                     EndNodeId = segment.Value.End.ToInt32(),
                     Geometry = GeometryTranslator.Translate(segment.Value.Geometry),
-                    AttributeHash = segment.Value.AttributeHash.GetHashCode()
+                    AttributeHash = new Messages.RoadNetworkSnapshotSegmentAttributeHash
+                    {
+                        AccessRestriction = segment.Value.AttributeHash.AccessRestriction,
+                        Category = segment.Value.AttributeHash.Category,
+                        Morphology = segment.Value.AttributeHash.Morphology,
+                        Status = segment.Value.AttributeHash.Status,
+                        LeftStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
+                        RightStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
+                        OrganizationId = segment.Value.AttributeHash.OrganizationId
+                    }
                 }).ToArray(),
                 MaximumTransactionId = _maximumTransactionId.ToInt32(),
                 MaximumNodeId = _maximumNodeId.ToInt32(),
@@ -731,7 +740,14 @@ namespace RoadRegistry.BackOffice.Core
                 snapshot.Segments.ToImmutableDictionary(segment => new RoadSegmentId(segment.Id),
                     segment => new RoadSegment(new RoadSegmentId(segment.Id),
                         GeometryTranslator.Translate(segment.Geometry), new RoadNodeId(segment.StartNodeId),
-                        new RoadNodeId(segment.EndNodeId), AttributeHash.FromHashCode(segment.AttributeHash))),
+                        new RoadNodeId(segment.EndNodeId), new AttributeHash(
+                            RoadSegmentAccessRestriction.Parse(segment.AttributeHash.AccessRestriction),
+                            RoadSegmentCategory.Parse(segment.AttributeHash.Category),
+                            RoadSegmentMorphology.Parse(segment.AttributeHash.Morphology),
+                            RoadSegmentStatus.Parse(segment.AttributeHash.Status),
+                            segment.AttributeHash.LeftStreetNameId.HasValue ? new CrabStreetnameId(segment.AttributeHash.LeftStreetNameId.Value) : new CrabStreetnameId?(),
+                            segment.AttributeHash.RightStreetNameId.HasValue ? new CrabStreetnameId(segment.AttributeHash.RightStreetNameId.Value) : new CrabStreetnameId?(),
+                            new OrganizationId(segment.AttributeHash.OrganizationId)))),
                 new TransactionId(snapshot.MaximumTransactionId),
                 new RoadNodeId(snapshot.MaximumNodeId),
                 new RoadSegmentId(snapshot.MaximumSegmentId),
@@ -928,18 +944,18 @@ namespace RoadRegistry.BackOffice.Core
                 var start = new RoadNodeId(@event.StartNodeId);
                 var end = new RoadNodeId(@event.EndNodeId);
 
-                var attributeHash = AttributeHash.None
-                    .With(RoadSegmentAccessRestriction.Parse(@event.AccessRestriction))
-                    .With(RoadSegmentCategory.Parse(@event.Category))
-                    .With(RoadSegmentMorphology.Parse(@event.Morphology))
-                    .With(RoadSegmentStatus.Parse(@event.Status))
-                    .WithLeftSide(@event.LeftSide.StreetNameId.HasValue
+                var attributeHash = new AttributeHash(
+                    RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
+                    RoadSegmentCategory.Parse(@event.Category),
+                    RoadSegmentMorphology.Parse(@event.Morphology),
+                    RoadSegmentStatus.Parse(@event.Status),
+                    @event.LeftSide.StreetNameId.HasValue
                         ? new CrabStreetnameId(@event.LeftSide.StreetNameId.Value)
-                        : new CrabStreetnameId?())
-                    .WithRightSide(@event.RightSide.StreetNameId.HasValue
+                        : new CrabStreetnameId?(),
+                    @event.RightSide.StreetNameId.HasValue
                         ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
-                        : new CrabStreetnameId?())
-                    .With(new OrganizationId(@event.MaintenanceAuthority.Code));
+                        : new CrabStreetnameId?(),
+                    new OrganizationId(@event.MaintenanceAuthority.Code));
 
                 var segment = new RoadSegment(
                     id,
@@ -1048,18 +1064,18 @@ namespace RoadRegistry.BackOffice.Core
                 var start = new RoadNodeId(@event.StartNodeId);
                 var end = new RoadNodeId(@event.EndNodeId);
 
-                var attributeHash = AttributeHash.None
-                    .With(RoadSegmentAccessRestriction.Parse(@event.AccessRestriction))
-                    .With(RoadSegmentCategory.Parse(@event.Category))
-                    .With(RoadSegmentMorphology.Parse(@event.Morphology))
-                    .With(RoadSegmentStatus.Parse(@event.Status))
-                    .WithLeftSide(@event.LeftSide.StreetNameId.HasValue
+                var attributeHash = new AttributeHash(
+                    RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
+                    RoadSegmentCategory.Parse(@event.Category),
+                    RoadSegmentMorphology.Parse(@event.Morphology),
+                    RoadSegmentStatus.Parse(@event.Status),
+                    @event.LeftSide.StreetNameId.HasValue
                         ? new CrabStreetnameId(@event.LeftSide.StreetNameId.Value)
-                        : new CrabStreetnameId?())
-                    .WithRightSide(@event.RightSide.StreetNameId.HasValue
+                        : new CrabStreetnameId?(),
+                    @event.RightSide.StreetNameId.HasValue
                         ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
-                        : new CrabStreetnameId?())
-                    .With(new OrganizationId(@event.MaintenanceAuthority.Code));
+                        : new CrabStreetnameId?(),
+                    new OrganizationId(@event.MaintenanceAuthority.Code));
 
                 var segment = new RoadSegment(
                     id,
@@ -1163,14 +1179,14 @@ namespace RoadRegistry.BackOffice.Core
 
             private void With(AddRoadSegment command)
             {
-                var attributeHash = AttributeHash.None
-                    .With(command.AccessRestriction)
-                    .With(command.Category)
-                    .With(command.Morphology)
-                    .With(command.Status)
-                    .WithLeftSide(command.LeftSideStreetNameId)
-                    .WithRightSide(command.RightSideStreetNameId)
-                    .With(command.MaintenanceAuthority);
+                var attributeHash = new AttributeHash(
+                    command.AccessRestriction,
+                    command.Category,
+                    command.Morphology,
+                    command.Status,
+                    command.LeftSideStreetNameId,
+                    command.RightSideStreetNameId,
+                    command.MaintenanceAuthority);
 
                 _nodes
                     .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
@@ -1224,7 +1240,16 @@ namespace RoadRegistry.BackOffice.Core
                         StartNodeId = segment.Value.Start.ToInt32(),
                         EndNodeId = segment.Value.End.ToInt32(),
                         Geometry = GeometryTranslator.Translate(segment.Value.Geometry),
-                        AttributeHash = segment.Value.AttributeHash.GetHashCode()
+                        AttributeHash = new Messages.RoadNetworkSnapshotSegmentAttributeHash
+                        {
+                            AccessRestriction = segment.Value.AttributeHash.AccessRestriction,
+                            Category = segment.Value.AttributeHash.Category,
+                            Morphology = segment.Value.AttributeHash.Morphology,
+                            Status = segment.Value.AttributeHash.Status,
+                            LeftStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
+                            RightStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
+                            OrganizationId = segment.Value.AttributeHash.OrganizationId
+                        }
                     }).ToArray(),
                     MaximumTransactionId = _maximumTransactionId.ToInt32(),
                     MaximumNodeId = _maximumNodeId.ToInt32(),
@@ -1270,7 +1295,15 @@ namespace RoadRegistry.BackOffice.Core
                     snapshot.Segments.ToImmutableDictionary(segment => new RoadSegmentId(segment.Id),
                         segment => new RoadSegment(new RoadSegmentId(segment.Id),
                             GeometryTranslator.Translate(segment.Geometry), new RoadNodeId(segment.StartNodeId),
-                            new RoadNodeId(segment.EndNodeId), AttributeHash.FromHashCode(segment.AttributeHash))).ToBuilder(),
+                            new RoadNodeId(segment.EndNodeId),
+                            new AttributeHash(
+                                RoadSegmentAccessRestriction.Parse(segment.AttributeHash.AccessRestriction),
+                                RoadSegmentCategory.Parse(segment.AttributeHash.Category),
+                                RoadSegmentMorphology.Parse(segment.AttributeHash.Morphology),
+                                RoadSegmentStatus.Parse(segment.AttributeHash.Status),
+                                segment.AttributeHash.LeftStreetNameId.HasValue ? new CrabStreetnameId(segment.AttributeHash.LeftStreetNameId.Value) : new CrabStreetnameId?(),
+                                segment.AttributeHash.RightStreetNameId.HasValue ? new CrabStreetnameId(segment.AttributeHash.RightStreetNameId.Value) : new CrabStreetnameId?(),
+                                new OrganizationId(segment.AttributeHash.OrganizationId)))).ToBuilder(),
                     new TransactionId(snapshot.MaximumTransactionId),
                     new RoadNodeId(snapshot.MaximumNodeId),
                     new RoadSegmentId(snapshot.MaximumSegmentId),

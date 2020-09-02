@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Core
 {
     using System.Linq;
-    using Albedo;
     using AutoFixture;
     using AutoFixture.Idioms;
     using RoadRegistry.Framework.Assertions;
@@ -25,18 +24,17 @@ namespace RoadRegistry.BackOffice.Core
         [Fact]
         public void VerifyBehavior()
         {
-            var factoryMethod = Methods.Select(() => AttributeHash.FromHashCode(default));
             new CompositeIdiomaticAssertion(
                 new EquatableEqualsSelfAssertion(_fixture),
-                new StaticFactoryMethodBasedEquatableEqualsOtherAssertion(_fixture, factoryMethod),
-                new StaticFactoryMethodBasedEqualityOperatorEqualsSelfAssertion(_fixture, factoryMethod),
-                new StaticFactoryMethodBasedEqualityOperatorEqualsOtherAssertion(_fixture, factoryMethod),
-                new StaticFactoryMethodBasedInequalityOperatorEqualsSelfAssertion(_fixture, factoryMethod),
-                new StaticFactoryMethodBasedInequalityOperatorEqualsOtherAssertion(_fixture, factoryMethod),
+                new EquatableEqualsOtherAssertion(_fixture),
+                new EqualityOperatorEqualsSelfAssertion(_fixture),
+                new EqualityOperatorEqualsOtherAssertion(_fixture),
+                new InequalityOperatorEqualsSelfAssertion(_fixture),
+                new InequalityOperatorEqualsOtherAssertion(_fixture),
                 new EqualsNewObjectAssertion(_fixture),
                 new EqualsNullAssertion(_fixture),
                 new EqualsSelfAssertion(_fixture),
-                new StaticFactoryMethodBasedEqualsOtherAssertion(_fixture, factoryMethod),
+                new EqualsOtherAssertion(_fixture),
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
             ).Verify(typeof(AttributeHash));

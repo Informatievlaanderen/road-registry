@@ -159,7 +159,14 @@ namespace RoadRegistry.BackOffice
                 customization => customization.FromFactory(
                     generator =>
                     {
-                        var result = AttributeHash.None;
+                        var result = new AttributeHash(
+                            fixture.Create<RoadSegmentAccessRestriction>(),
+                            fixture.Create<RoadSegmentCategory>(),
+                            fixture.Create<RoadSegmentMorphology>(),
+                            fixture.Create<RoadSegmentStatus>(),
+                            fixture.Create<CrabStreetnameId?>(),
+                            fixture.Create<CrabStreetnameId?>(),
+                            fixture.Create<OrganizationId>());
                         var times = generator.Next(0, 10);
                         for (var index = 0; index < times; index++)
                         {
