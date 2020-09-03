@@ -65,6 +65,7 @@ namespace RoadRegistry.BackOffice.Core
                         change.AddRoadNode,
                         change.ModifyRoadNode,
                         change.AddRoadSegment,
+                        change.ModifyRoadSegment,
                         change.AddRoadSegmentToEuropeanRoad,
                         change.AddRoadSegmentToNationalRoad,
                         change.AddRoadSegmentToNumberedRoad,
@@ -80,6 +81,11 @@ namespace RoadRegistry.BackOffice.Core
             var identifiers = changes
                 .Where(change => change?.AddRoadNode != null)
                 .Select(change => change.AddRoadNode.TemporaryId)
+                .Union(
+                    changes
+                        .Where(change => change?.ModifyRoadNode != null)
+                        .Select(change => change.ModifyRoadNode.Id)
+                )
                 .ToArray();
             return identifiers.Length == identifiers.Distinct().Count();
         }
@@ -91,6 +97,10 @@ namespace RoadRegistry.BackOffice.Core
             var identifiers = changes
                 .Where(change => change?.AddRoadSegment != null)
                 .Select(change => change.AddRoadSegment.TemporaryId)
+                .Union(
+                    changes
+                        .Where(change => change?.ModifyRoadSegment != null)
+                        .Select(change => change.ModifyRoadSegment.Id))
                 .ToArray();
             return identifiers.Length == identifiers.Distinct().Count();
         }

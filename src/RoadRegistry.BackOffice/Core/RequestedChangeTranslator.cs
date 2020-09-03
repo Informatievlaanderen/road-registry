@@ -75,6 +75,9 @@
                     case Messages.AddRoadSegment command:
                         translated = translated.Append(Translate(command, translated));
                         break;
+                    case Messages.ModifyRoadSegment command:
+                        translated = translated.Append(Translate(command, translated));
+                        break;
                     case Messages.AddRoadSegmentToEuropeanRoad command:
                         translated = translated.Append(Translate(command, translated));
                         break;
@@ -201,6 +204,107 @@
             (
                 permanent,
                 temporary,
+                startNodeId,
+                temporaryStartNodeId,
+                endNodeId,
+                temporaryEndNodeId,
+                geometry,
+                maintainer,
+                geometryDrawMethod,
+                morphology,
+                status,
+                category,
+                accessRestriction,
+                leftSideStreetNameId,
+                rightSideStreetNameId,
+                laneAttributes,
+                widthAttributes,
+                surfaceAttributes
+            );
+        }
+
+        private ModifyRoadSegment Translate(Messages.ModifyRoadSegment command, IRequestedChangeIdentityTranslator translator)
+        {
+            var permanent = new RoadSegmentId(command.Id);
+
+            var startNodeId = new RoadNodeId(command.StartNodeId);
+            RoadNodeId? temporaryStartNodeId;
+            if (translator.TryTranslateToPermanent(startNodeId, out var permanentStartNodeId))
+            {
+                temporaryStartNodeId = startNodeId;
+                startNodeId = permanentStartNodeId;
+            }
+            else
+            {
+                temporaryStartNodeId = null;
+            }
+
+            var endNodeId = new RoadNodeId(command.EndNodeId);
+            RoadNodeId? temporaryEndNodeId;
+            if (translator.TryTranslateToPermanent(endNodeId, out var permanentEndNodeId))
+            {
+                temporaryEndNodeId = endNodeId;
+                endNodeId = permanentEndNodeId;
+            }
+            else
+            {
+                temporaryEndNodeId = null;
+            }
+
+            var geometry = GeometryTranslator.Translate(command.Geometry);
+            var maintainer = new OrganizationId(command.MaintenanceAuthority);
+            var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
+            var morphology = RoadSegmentMorphology.Parse(command.Morphology);
+            var status = RoadSegmentStatus.Parse(command.Status);
+            var category = RoadSegmentCategory.Parse(command.Category);
+            var accessRestriction = RoadSegmentAccessRestriction.Parse(command.AccessRestriction);
+            var leftSideStreetNameId = command.LeftSideStreetNameId.HasValue
+                ? new CrabStreetnameId(command.LeftSideStreetNameId.Value)
+                : new CrabStreetnameId?();
+            var rightSideStreetNameId = command.RightSideStreetNameId.HasValue
+                ? new CrabStreetnameId(command.RightSideStreetNameId.Value)
+                : new CrabStreetnameId?();
+            var nextLaneAttributeId = _nextRoadSegmentLaneAttributeId(permanent);
+            var laneAttributes = Array.ConvertAll(
+                command.Lanes,
+                item => new RoadSegmentLaneAttribute(
+                    nextLaneAttributeId(),
+                    new AttributeId(item.AttributeId),
+                    new RoadSegmentLaneCount(item.Count),
+                    RoadSegmentLaneDirection.Parse(item.Direction),
+                    new RoadSegmentPosition(item.FromPosition),
+                    new RoadSegmentPosition(item.ToPosition),
+                    new GeometryVersion(0)
+                )
+            );
+            var nextWidthAttributeId = _nextRoadSegmentWidthAttributeId(permanent);
+            var widthAttributes = Array.ConvertAll(
+                command.Widths,
+                item => new RoadSegmentWidthAttribute(
+                    nextWidthAttributeId(),
+                    new AttributeId(item.AttributeId),
+                    new RoadSegmentWidth(item.Width),
+                    new RoadSegmentPosition(item.FromPosition),
+                    new RoadSegmentPosition(item.ToPosition),
+                    new GeometryVersion(0)
+                )
+            );
+            var nextSurfaceAttributeId = _nextRoadSegmentSurfaceAttributeId(permanent);
+            var surfaceAttributes = Array.ConvertAll(
+                command.Surfaces,
+                item => new RoadSegmentSurfaceAttribute(
+                    nextSurfaceAttributeId(),
+                    new AttributeId(item.AttributeId),
+                    RoadSegmentSurfaceType.Parse(item.Type),
+                    new RoadSegmentPosition(item.FromPosition),
+                    new RoadSegmentPosition(item.ToPosition),
+                    new GeometryVersion(0)
+                )
+            );
+
+            return new ModifyRoadSegment
+            (
+                permanent,
                 startNodeId,
                 temporaryStartNodeId,
                 endNodeId,

@@ -5,6 +5,7 @@
         public RoadNodeAdded RoadNodeAdded { get; set; }
         public RoadNodeModified RoadNodeModified { get; set; }
         public RoadSegmentAdded RoadSegmentAdded { get; set; }
+        public RoadSegmentModified RoadSegmentModified { get; set; }
         public RoadSegmentAddedToEuropeanRoad RoadSegmentAddedToEuropeanRoad { get; set; }
         public RoadSegmentAddedToNationalRoad RoadSegmentAddedToNationalRoad { get; set; }
         public RoadSegmentAddedToNumberedRoad RoadSegmentAddedToNumberedRoad { get; set; }

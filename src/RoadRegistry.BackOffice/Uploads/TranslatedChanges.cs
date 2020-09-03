@@ -115,9 +115,25 @@ namespace RoadRegistry.BackOffice.Uploads
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId.Add(change.RecordNumber, change.TemporaryId));
         }
 
+        public bool TryFindRoadSegmentChange(RoadSegmentId id, out object change)
+        {
+            change = new ITranslatedChange[]
+            {
+                this.OfType<AddRoadSegment>().SingleOrDefault(_ => _.TemporaryId == id),
+                this.OfType<ModifyRoadSegment>().SingleOrDefault(_ => _.Id == id)
+            }.Flatten();
+            return change != null;
+        }
+
         public bool TryFindAddRoadSegment(RoadSegmentId id, out AddRoadSegment change)
         {
             change = this.OfType<AddRoadSegment>().SingleOrDefault(_ => _.TemporaryId == id);
+            return change != null;
+        }
+
+        public bool TryFindModifyRoadSegment(RoadSegmentId id, out ModifyRoadSegment change)
+        {
+            change = this.OfType<ModifyRoadSegment>().SingleOrDefault(_ => _.Id == id);
             return change != null;
         }
 
@@ -127,6 +143,11 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         public TranslatedChanges Replace(AddRoadSegment before, AddRoadSegment after)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Remove(before).Add(after), _mapToRoadNodeId, _mapToRoadSegmentId);
+        }
+
+        public TranslatedChanges Replace(ModifyRoadSegment before, ModifyRoadSegment after)
         {
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Remove(before).Add(after), _mapToRoadNodeId, _mapToRoadSegmentId);
         }
@@ -150,11 +171,5 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
         }
-    }
-
-    internal static class TranslatedChangesExtensions
-    {
-        public static object Flatten(this IEnumerable<ITranslatedChange> changes) =>
-            changes.SingleOrDefault(_ => !ReferenceEquals(_, null));
     }
 }
