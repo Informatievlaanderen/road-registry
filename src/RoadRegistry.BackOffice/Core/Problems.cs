@@ -37,6 +37,11 @@ namespace RoadRegistry.BackOffice.Core
             );
         }
 
+        public Problems RoadNodeNotFound()
+        {
+            return new Problems(_problems.Add(new Error(nameof(RoadNodeNotFound))));
+        }
+
         public Problems RoadNodeTooClose(RoadSegmentId toOtherSegment)
         {
             return new Problems(_problems.Add(

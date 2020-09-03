@@ -30,6 +30,15 @@ namespace RoadRegistry.BackOffice.Uploads
                                 )
                             );
                             break;
+                        case RecordType.ModifiedIdentifier:
+                            changes = changes.Append(
+                                new ModifyRoadNode(
+                                    recordNumber,
+                                    new RoadNodeId(record.WEGKNOOPID.Value),
+                                    RoadNodeType.ByIdentifier[record.TYPE.Value]
+                                )
+                            );
+                            break;
                     }
                 }
                 recordNumber = recordNumber.Next();

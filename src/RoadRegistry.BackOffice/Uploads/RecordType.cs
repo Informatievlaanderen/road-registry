@@ -6,12 +6,12 @@ namespace RoadRegistry.BackOffice.Uploads
 
     public class RecordType : IEquatable<RecordType>
     {
-        public const int EqualIdentifier = 1;
-        public static readonly RecordType Equal =
+        public const int IdenticalIdentifier = 1;
+        public static readonly RecordType Identical =
             new RecordType(
-                nameof(Equal),
+                nameof(Identical),
                 new DutchTranslation(
-                    EqualIdentifier,
+                    IdenticalIdentifier,
                     "gelijk",
                     "Het record werd niet aangepast."
                 )
@@ -48,7 +48,7 @@ namespace RoadRegistry.BackOffice.Uploads
             );
 
         public static readonly RecordType[] All = {
-            Equal, Added, Modified, Removed
+            Identical, Added, Modified, Removed
         };
 
         public static readonly IReadOnlyDictionary<int, RecordType> ByIdentifier =

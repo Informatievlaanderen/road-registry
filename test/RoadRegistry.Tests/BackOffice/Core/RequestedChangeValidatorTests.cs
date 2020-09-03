@@ -19,6 +19,12 @@ namespace RoadRegistry.BackOffice.Core
         }
 
         [Fact]
+        public void ModifyRoadNodeHasExpectedValidator()
+        {
+            Validator.ShouldHaveChildValidator(c => c.ModifyRoadNode, typeof(ModifyRoadNodeValidator));
+        }
+
+        [Fact]
         public void AddRoadSegmentHasExpectedValidator()
         {
             Validator.ShouldHaveChildValidator(c => c.AddRoadSegment, typeof(AddRoadSegmentValidator));

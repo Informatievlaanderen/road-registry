@@ -14,6 +14,6 @@ namespace RoadRegistry.BackOffice.Messages
         [Key(3)]
         public RoadSegmentGeometry Geometry { get; set; }
         [Key(4)]
-        public int AttributeHash { get; set; }
+        public RoadNetworkSnapshotSegmentAttributeHash AttributeHash { get; set; }
     }
 }

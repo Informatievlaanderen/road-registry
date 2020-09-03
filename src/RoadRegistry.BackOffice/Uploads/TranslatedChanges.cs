@@ -68,6 +68,21 @@ namespace RoadRegistry.BackOffice.Uploads
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId.Add(change.RecordNumber, change.TemporaryId), _mapToRoadSegmentId);
         }
 
+        public TranslatedChanges Append(ModifyRoadNode change)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId.Add(change.RecordNumber, change.Id), _mapToRoadSegmentId);
+        }
+
+        public bool TryFindRoadNodeChange(RoadNodeId id, out object change)
+        {
+            change = new ITranslatedChange[]
+            {
+                this.OfType<AddRoadNode>().SingleOrDefault(_ => _.TemporaryId == id),
+                this.OfType<ModifyRoadNode>().SingleOrDefault(_ => _.Id == id)
+            }.Flatten();
+            return change != null;
+        }
+
         public bool TryFindAddRoadNode(RoadNodeId id, out AddRoadNode change)
         {
             change = this.OfType<AddRoadNode>().SingleOrDefault(_ => _.TemporaryId == id);
@@ -75,6 +90,17 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         public TranslatedChanges Replace(AddRoadNode before, AddRoadNode after)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Remove(before).Add(after), _mapToRoadNodeId, _mapToRoadSegmentId);
+        }
+
+        public bool TryFindModifyRoadNode(RoadNodeId id, out ModifyRoadNode change)
+        {
+            change = this.OfType<ModifyRoadNode>().SingleOrDefault(_ => _.Id == id);
+            return change != null;
+        }
+
+        public TranslatedChanges Replace(ModifyRoadNode before, ModifyRoadNode after)
         {
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Remove(before).Add(after), _mapToRoadNodeId, _mapToRoadSegmentId);
         }
@@ -124,5 +150,11 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
         }
+    }
+
+    internal static class TranslatedChangesExtensions
+    {
+        public static object Flatten(this IEnumerable<ITranslatedChange> changes) =>
+            changes.SingleOrDefault(_ => !ReferenceEquals(_, null));
     }
 }

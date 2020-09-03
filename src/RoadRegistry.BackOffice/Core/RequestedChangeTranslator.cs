@@ -69,6 +69,9 @@
                     case Messages.AddRoadNode command:
                         translated = translated.Append(Translate(command));
                         break;
+                    case Messages.ModifyRoadNode command:
+                        translated = translated.Append(Translate(command));
+                        break;
                     case Messages.AddRoadSegment command:
                         translated = translated.Append(Translate(command, translated));
                         break;
@@ -98,6 +101,17 @@
             (
                 permanent,
                 temporary,
+                RoadNodeType.Parse(command.Type),
+                GeometryTranslator.Translate(command.Geometry)
+            );
+        }
+
+        private ModifyRoadNode Translate(Messages.ModifyRoadNode command)
+        {
+            var permanent = new RoadNodeId(command.Id);
+            return new ModifyRoadNode
+            (
+                permanent,
                 RoadNodeType.Parse(command.Type),
                 GeometryTranslator.Translate(command.Geometry)
             );
@@ -354,7 +368,8 @@
                 typeof(Messages.AddRoadSegmentToEuropeanRoad),
                 typeof(Messages.AddRoadSegmentToNationalRoad),
                 typeof(Messages.AddRoadSegmentToNumberedRoad),
-                typeof(Messages.AddGradeSeparatedJunction)
+                typeof(Messages.AddGradeSeparatedJunction),
+                typeof(Messages.ModifyRoadNode)
             };
 
             public int Compare(SortableChange left, SortableChange right)

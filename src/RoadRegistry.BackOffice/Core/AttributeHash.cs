@@ -5,64 +5,93 @@ namespace RoadRegistry.BackOffice.Core
 
     public readonly struct AttributeHash : IEquatable<AttributeHash>
     {
-        public static readonly AttributeHash None = new AttributeHash(Framework.HashCode.Initial);
+        public RoadSegmentAccessRestriction AccessRestriction { get; }
+        public RoadSegmentCategory Category { get; }
+        public RoadSegmentMorphology Morphology { get; }
+        public RoadSegmentStatus Status { get; }
+        public CrabStreetnameId? LeftStreetNameId { get; }
+        public CrabStreetnameId? RightStreetNameId { get; }
+        public OrganizationId OrganizationId { get; }
 
-        public static AttributeHash FromHashCode(int value) => new AttributeHash(Framework.HashCode.FromHashCode(value));
-
-        private readonly Framework.HashCode _hashCode;
-
-        private AttributeHash(Framework.HashCode hashCode)
+        public AttributeHash(
+            RoadSegmentAccessRestriction accessRestriction,
+            RoadSegmentCategory category,
+            RoadSegmentMorphology morphology,
+            RoadSegmentStatus status,
+            CrabStreetnameId? leftStreetNameId,
+            CrabStreetnameId? rightStreetNameId,
+            OrganizationId organizationId)
         {
-            _hashCode = hashCode;
+            AccessRestriction = accessRestriction;
+            Category = category;
+            Morphology = morphology;
+            Status = status;
+            LeftStreetNameId = leftStreetNameId;
+            RightStreetNameId = rightStreetNameId;
+            OrganizationId = organizationId;
         }
 
         [Pure]
         public AttributeHash With(RoadSegmentAccessRestriction value)
         {
-            return new AttributeHash(_hashCode.Hash(value));
+            return new AttributeHash(value, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId);
         }
 
         [Pure]
         public AttributeHash With(RoadSegmentCategory value)
         {
-            return new AttributeHash(_hashCode.Hash(value));
+            return new AttributeHash(AccessRestriction, value, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId);
         }
 
         [Pure]
         public AttributeHash With(RoadSegmentMorphology value)
         {
-            return new AttributeHash(_hashCode.Hash(value));
+            return new AttributeHash(AccessRestriction, Category, value, Status, LeftStreetNameId, RightStreetNameId, OrganizationId);
         }
 
         [Pure]
         public AttributeHash With(RoadSegmentStatus value)
         {
-            return new AttributeHash(_hashCode.Hash(value));
+            return new AttributeHash(AccessRestriction, Category, Morphology, value, LeftStreetNameId, RightStreetNameId, OrganizationId);
         }
 
         [Pure]
         public AttributeHash WithLeftSide(CrabStreetnameId? value)
         {
-            return new AttributeHash(_hashCode.Hash(value).Hash('L'));
+            return new AttributeHash(AccessRestriction, Category, Morphology, Status, value, RightStreetNameId, OrganizationId);
         }
 
         [Pure]
         public AttributeHash WithRightSide(CrabStreetnameId? value)
         {
-            return new AttributeHash(_hashCode.Hash(value).Hash('R'));
+            return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, value, OrganizationId);
         }
 
         [Pure]
         public AttributeHash With(OrganizationId value)
         {
-            return new AttributeHash(_hashCode.Hash(value));
+            return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, value);
         }
 
         [Pure]
-        public bool Equals(AttributeHash other) => _hashCode.Equals(other._hashCode);
+        public bool Equals(AttributeHash other) =>
+            Equals(AccessRestriction, other.AccessRestriction)
+            && Equals(Category, other.Category)
+            && Equals(Morphology, other.Morphology)
+            && Equals(Status, other.Status)
+            && LeftStreetNameId.Equals(other.LeftStreetNameId)
+            && RightStreetNameId.Equals(other.RightStreetNameId)
+            && OrganizationId.Equals(other.OrganizationId);
         public override bool Equals(object obj) => obj is AttributeHash other && Equals(other);
-        public override int GetHashCode() => _hashCode;
-        public override string ToString() => _hashCode.ToString();
+        public override int GetHashCode() => HashCode.Combine(
+            AccessRestriction,
+            Category,
+            Morphology,
+            Status,
+            HashCode.Combine(LeftStreetNameId, 'L'),
+            HashCode.Combine(RightStreetNameId, 'R'),
+            OrganizationId);
+        public override string ToString() => GetHashCode().ToString();
         public static bool operator ==(AttributeHash left, AttributeHash right) => left.Equals(right);
         public static bool operator !=(AttributeHash left, AttributeHash right) => !left.Equals(right);
     }
