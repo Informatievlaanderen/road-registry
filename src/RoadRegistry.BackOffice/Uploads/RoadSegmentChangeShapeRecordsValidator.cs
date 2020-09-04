@@ -57,11 +57,11 @@ namespace RoadRegistry.BackOffice.Uploads
                                     else
                                     {
                                         var line = lines[0];
-                                        if (LineStringExtensions.SelfOverlaps(line))
+                                        if (line.SelfOverlaps())
                                         {
                                             problems += recordContext.ShapeRecordGeometrySelfOverlaps();
                                         }
-                                        else if (LineStringExtensions.SelfIntersects(line))
+                                        else if (line.SelfIntersects())
                                         {
                                             problems += recordContext.ShapeRecordGeometrySelfIntersects();
                                         }

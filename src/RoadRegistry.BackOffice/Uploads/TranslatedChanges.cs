@@ -115,6 +115,11 @@ namespace RoadRegistry.BackOffice.Uploads
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId.Add(change.RecordNumber, change.TemporaryId));
         }
 
+        public TranslatedChanges Append(ModifyRoadSegment change)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId.Add(change.RecordNumber, change.Id));
+        }
+
         public bool TryFindRoadSegmentChange(RoadSegmentId id, out object change)
         {
             change = new ITranslatedChange[]

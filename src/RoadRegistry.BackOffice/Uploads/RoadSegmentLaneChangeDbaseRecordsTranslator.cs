@@ -24,7 +24,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.AddedIdentifier:
                         case RecordType.ModifiedIdentifier:
                             var segmentId = new RoadSegmentId(record.WS_OIDN.Value);
-                            if (changes.TryFindAddRoadSegment(segmentId, out var change))
+                            if (changes.TryFindRoadSegmentChange(segmentId, out var change))
                             {
                                 var lane = new RoadSegmentLaneAttribute(
                                     new AttributeId(record.RS_OIDN.Value),
@@ -33,7 +33,16 @@ namespace RoadRegistry.BackOffice.Uploads
                                     RoadSegmentPosition.FromDouble(record.VANPOSITIE.Value),
                                     RoadSegmentPosition.FromDouble(record.TOTPOSITIE.Value)
                                 );
-                                changes = changes.Replace(change, change.WithLane(lane));
+
+                                switch (change)
+                                {
+                                    case AddRoadSegment addRoadSegment:
+                                        changes = changes.Replace(addRoadSegment, addRoadSegment.WithLane(lane));
+                                        break;
+                                    case ModifyRoadSegment modifyRoadSegment:
+                                        changes = changes.Replace(modifyRoadSegment, modifyRoadSegment.WithLane(lane));
+                                        break;
+                                }
                             }
                             break;
                     }
