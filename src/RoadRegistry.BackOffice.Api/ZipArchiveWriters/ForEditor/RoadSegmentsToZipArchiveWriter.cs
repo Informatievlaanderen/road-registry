@@ -15,6 +15,8 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
 
     public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
+        private const int RoadSegmentBatchSize = 10000;
+
         private readonly IStreetNameCache _streetNameCache;
         private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
@@ -49,7 +51,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                     .OrderBy(_ => _.Id)
                     .Select(_ => _.DbaseRecord)
                     .AsEnumerable()
-                    .Batch(10000))
+                    .Batch(RoadSegmentBatchSize))
                 {
                     var dbfRecords = batch
                         .Select(x =>
