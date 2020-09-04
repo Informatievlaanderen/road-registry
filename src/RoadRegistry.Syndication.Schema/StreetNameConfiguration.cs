@@ -34,6 +34,8 @@ namespace RoadRegistry.Syndication.Schema
             b.Property(p => p.GermanHomonymAddition);
             b.Property(p => p.EnglishHomonymAddition);
 
+            b.HasIndex(p => p.PersistentLocalId);
+
             b.Property(p => p.NameWithHomonymAddition)
                 .HasComputedColumnSql("COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED");
 

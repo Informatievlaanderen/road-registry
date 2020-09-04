@@ -13,7 +13,10 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
     {
         private readonly IZipArchiveWriter<EditorContext> _writer;
 
-        public RoadNetworkForEditorToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
+        public RoadNetworkForEditorToZipArchiveWriter(
+            IStreetNameCache streetNameCache,
+            RecyclableMemoryStreamManager manager,
+            Encoding encoding)
         {
             if (manager == null) throw new ArgumentNullException(nameof(manager));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
@@ -23,7 +26,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                     new CompositeZipArchiveWriter<EditorContext>(
                         new OrganizationsToZipArchiveWriter(manager, encoding),
                         new RoadNodesToZipArchiveWriter(manager, encoding),
-                        new RoadSegmentsToZipArchiveWriter(manager, encoding),
+                        new RoadSegmentsToZipArchiveWriter(streetNameCache, manager, encoding),
                         new RoadSegmentLaneAttributesToZipArchiveWriter(manager, encoding),
                         new RoadSegmentWidthAttributesToZipArchiveWriter(manager, encoding),
                         new RoadSegmentSurfaceAttributesToZipArchiveWriter(manager, encoding),

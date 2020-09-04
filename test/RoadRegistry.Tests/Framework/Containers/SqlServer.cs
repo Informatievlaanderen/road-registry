@@ -2,6 +2,7 @@ namespace RoadRegistry.Framework.Containers
 {
     using System;
     using System.Threading.Tasks;
+    using BackOffice.Api;
     using Editor.Schema;
     using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
@@ -24,9 +25,11 @@ namespace RoadRegistry.Framework.Containers
             }
 
             MemoryStreamManager = new RecyclableMemoryStreamManager();
+            StreetNameCache = new StreetNameCacheStub();
         }
 
         public RecyclableMemoryStreamManager MemoryStreamManager { get; }
+        public IStreetNameCache StreetNameCache { get; }
 
         public Task InitializeAsync()
         {

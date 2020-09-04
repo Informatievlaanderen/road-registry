@@ -24,7 +24,7 @@
         [Fact]
         public Task ArchiveCanNotBeNull()
         {
-            var sut = new RoadSegmentsToZipArchiveWriter(_fixture.MemoryStreamManager,  Encoding.UTF8);
+            var sut = new RoadSegmentsToZipArchiveWriter(_fixture.StreetNameCache, _fixture.MemoryStreamManager,  Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
                 () => sut.WriteAsync(null, new EditorContext(), default));
         }
@@ -32,7 +32,7 @@
         [Fact]
         public Task ContextCanNotBeNull()
         {
-            var sut = new RoadSegmentsToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+            var sut = new RoadSegmentsToZipArchiveWriter(_fixture.StreetNameCache, _fixture.MemoryStreamManager, Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
                 () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
         }
@@ -46,7 +46,7 @@
         [Fact]
         public async Task WithEmptyRoadNetworkWritesArchiveWithExpectedEntries()
         {
-            var sut = new RoadSegmentsToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+            var sut = new RoadSegmentsToZipArchiveWriter(_fixture.StreetNameCache, _fixture.MemoryStreamManager, Encoding.UTF8);
 
             var db = await _fixture.CreateDatabaseAsync();
             var context = await _fixture.CreateEditorContextAsync(db);
