@@ -15,6 +15,7 @@
             RuleFor(c => c.AddRoadSegmentToNationalRoad).SetValidator(new AddRoadSegmentToNationalRoadValidator());
             RuleFor(c => c.AddRoadSegmentToNumberedRoad).SetValidator(new AddRoadSegmentToNumberedRoadValidator());
             RuleFor(c => c.AddGradeSeparatedJunction).SetValidator(new AddGradeSeparatedJunctionValidator());
+            RuleFor(c => c.ModifyGradeSeparatedJunction).SetValidator(new ModifyGradeSeparatedJunctionValidator());
         }
     }
 }

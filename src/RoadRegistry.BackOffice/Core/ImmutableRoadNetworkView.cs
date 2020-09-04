@@ -312,8 +312,14 @@ namespace RoadRegistry.BackOffice.Core
                     case Messages.RoadNodeAdded roadNodeAdded:
                         result = result.Given(roadNodeAdded);
                         break;
+                    case Messages.RoadNodeModified roadNodeModified:
+                        result = result.Given(roadNodeModified);
+                        break;
                     case Messages.RoadSegmentAdded roadSegmentAdded:
                         result = result.Given(roadSegmentAdded);
+                        break;
+                    case Messages.RoadSegmentModified roadSegmentModified:
+                        result = result.Given(roadSegmentModified);
                         break;
                     case Messages.RoadSegmentAddedToEuropeanRoad roadSegmentAddedToEuropeanRoad:
                         result = result.Given(roadSegmentAddedToEuropeanRoad);
@@ -327,6 +333,9 @@ namespace RoadRegistry.BackOffice.Core
                     case Messages.GradeSeparatedJunctionAdded gradeSeparatedJunctionAdded:
                         result = result.Given(gradeSeparatedJunctionAdded);
                         break;
+                    case Messages.GradeSeparatedJunctionModified gradeSeparatedJunctionModified:
+                        result = result.Given(gradeSeparatedJunctionModified);
+                        break;
                 }
             }
 
@@ -334,6 +343,28 @@ namespace RoadRegistry.BackOffice.Core
         }
 
         private ImmutableRoadNetworkView Given(Messages.RoadNodeAdded @event)
+        {
+            var id = new RoadNodeId(@event.Id);
+            var node = new RoadNode(id, GeometryTranslator.Translate(@event.Geometry));
+            return new ImmutableRoadNetworkView(
+                _nodes.Add(id, node),
+                _segments,
+                _maximumTransactionId,
+                RoadNodeId.Max(id, _maximumNodeId),
+                _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId,
+                _segmentReusableLaneAttributeIdentifiers,
+                _segmentReusableWidthAttributeIdentifiers,
+                _segmentReusableSurfaceAttributeIdentifiers);
+        }
+
+        private ImmutableRoadNetworkView Given(Messages.RoadNodeModified @event)
         {
             var id = new RoadNodeId(@event.Id);
             var node = new RoadNode(id, GeometryTranslator.Translate(@event.Geometry));
@@ -417,7 +448,90 @@ namespace RoadRegistry.BackOffice.Core
             );
         }
 
+        private ImmutableRoadNetworkView Given(Messages.RoadSegmentModified @event)
+        {
+            var id = new RoadSegmentId(@event.Id);
+            var start = new RoadNodeId(@event.StartNodeId);
+            var end = new RoadNodeId(@event.EndNodeId);
+
+            var attributeHash = new AttributeHash(
+                RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
+                RoadSegmentCategory.Parse(@event.Category),
+                RoadSegmentMorphology.Parse(@event.Morphology),
+                RoadSegmentStatus.Parse(@event.Status),
+                @event.LeftSide.StreetNameId.HasValue
+                    ? new CrabStreetnameId(@event.LeftSide.StreetNameId.Value)
+                    : new CrabStreetnameId?(),
+                @event.RightSide.StreetNameId.HasValue
+                    ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
+                    : new CrabStreetnameId?(),
+                new OrganizationId(@event.MaintenanceAuthority.Code));
+
+            var segment = new RoadSegment(
+                id,
+                GeometryTranslator.Translate(@event.Geometry),
+                start,
+                end,
+                attributeHash);
+
+            return new ImmutableRoadNetworkView(
+                _nodes
+                    .TryReplace(start, node => node.ConnectWith(id))
+                    .TryReplace(end, node => node.ConnectWith(id)),
+                _segments.Add(id, segment),
+                _maximumTransactionId,
+                _maximumNodeId,
+                RoadSegmentId.Max(id, _maximumSegmentId),
+                _maximumGradeSeparatedJunctionId,
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
+                @event.Lanes.Length != 0
+                    ? AttributeId.Max(
+                        new AttributeId(@event.Lanes.Max(_ => _.AttributeId)),
+                        _maximumLaneAttributeId)
+                    : _maximumLaneAttributeId,
+                @event.Widths.Length != 0
+                    ? AttributeId.Max(
+                        new AttributeId(@event.Widths.Max(_ => _.AttributeId)),
+                        _maximumWidthAttributeId)
+                    : _maximumWidthAttributeId,
+                @event.Surfaces.Length != 0
+                    ? AttributeId.Max(
+                        new AttributeId(@event.Surfaces.Max(_ => _.AttributeId)),
+                        _maximumSurfaceAttributeId)
+                    : _maximumSurfaceAttributeId,
+                _segmentReusableLaneAttributeIdentifiers.Merge(id,
+                    @event.Lanes.Select(lane => new AttributeId(lane.AttributeId))),
+                _segmentReusableWidthAttributeIdentifiers.Merge(id,
+                    @event.Widths.Select(width => new AttributeId(width.AttributeId))),
+                _segmentReusableSurfaceAttributeIdentifiers.Merge(id,
+                    @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)))
+            );
+        }
+
         private ImmutableRoadNetworkView Given(Messages.GradeSeparatedJunctionAdded @event)
+        {
+            var id = new GradeSeparatedJunctionId(@event.Id);
+            return new ImmutableRoadNetworkView(
+                _nodes,
+                _segments,
+                _maximumTransactionId,
+                _maximumNodeId,
+                _maximumSegmentId,
+                GradeSeparatedJunctionId.Max(id, _maximumGradeSeparatedJunctionId),
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId,
+                _segmentReusableLaneAttributeIdentifiers,
+                _segmentReusableWidthAttributeIdentifiers,
+                _segmentReusableSurfaceAttributeIdentifiers);
+        }
+
+        private ImmutableRoadNetworkView Given(Messages.GradeSeparatedJunctionModified @event)
         {
             var id = new GradeSeparatedJunctionId(@event.Id);
             return new ImmutableRoadNetworkView(
@@ -511,8 +625,14 @@ namespace RoadRegistry.BackOffice.Core
                     case AddRoadNode addRoadNode:
                         result = result.With(addRoadNode);
                         break;
+                    case ModifyRoadNode modifyRoadNode:
+                        result = result.With(modifyRoadNode);
+                        break;
                     case AddRoadSegment addRoadSegment:
                         result = result.With(addRoadSegment);
+                        break;
+                    case ModifyRoadSegment modifyRoadSegment:
+                        result = result.With(modifyRoadSegment);
                         break;
                     case AddRoadSegmentToEuropeanRoad addRoadSegmentToEuropeanRoad:
                         result = result.With(addRoadSegmentToEuropeanRoad);
@@ -525,6 +645,9 @@ namespace RoadRegistry.BackOffice.Core
                         break;
                     case AddGradeSeparatedJunction addGradeSeparatedJunction:
                         result = result.With(addGradeSeparatedJunction);
+                        break;
+                    case ModifyGradeSeparatedJunction modifyGradeSeparatedJunction:
+                        result = result.With(modifyGradeSeparatedJunction);
                         break;
                 }
             }
@@ -540,6 +663,27 @@ namespace RoadRegistry.BackOffice.Core
                 _segments,
                 _maximumTransactionId,
                 RoadNodeId.Max(command.Id, _maximumNodeId),
+                _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId,
+                _segmentReusableLaneAttributeIdentifiers,
+                _segmentReusableWidthAttributeIdentifiers,
+                _segmentReusableSurfaceAttributeIdentifiers);
+        }
+
+        private ImmutableRoadNetworkView With(ModifyRoadNode command)
+        {
+            var node = new RoadNode(command.Id, command.Geometry);
+            return new ImmutableRoadNetworkView(
+                _nodes.Add(command.Id, node),
+                _segments,
+                _maximumTransactionId,
+                _maximumNodeId,
                 _maximumSegmentId,
                 _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
@@ -590,16 +734,77 @@ namespace RoadRegistry.BackOffice.Core
             );
         }
 
+        private ImmutableRoadNetworkView With(ModifyRoadSegment command)
+        {
+            var attributeHash = new AttributeHash(
+                command.AccessRestriction,
+                command.Category,
+                command.Morphology,
+                command.Status,
+                command.LeftSideStreetNameId,
+                command.RightSideStreetNameId,
+                command.MaintenanceAuthority);
+
+            return new ImmutableRoadNetworkView(
+                //TODO: What if you used different start and end nodes
+                //We will want to disconnect those first, no?
+                _nodes
+                    .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
+                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id)),
+                _segments.
+                    TryReplace(command.Id, segment => segment
+                        .WithGeometry(command.Geometry)
+                        .WithStart(command.StartNodeId)
+                        .WithEnd(command.EndNodeId)
+                        .WithAttributeHash(attributeHash)),
+                _maximumTransactionId,
+                _maximumNodeId,
+                _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId,
+                _segmentReusableLaneAttributeIdentifiers.Merge(command.Id,
+                    command.Lanes.Select(lane => new AttributeId(lane.Id))),
+                _segmentReusableWidthAttributeIdentifiers.Merge(command.Id,
+                    command.Widths.Select(width => new AttributeId(width.Id))),
+                _segmentReusableSurfaceAttributeIdentifiers.Merge(command.Id,
+                    command.Surfaces.Select(surface => new AttributeId(surface.Id)))
+            );
+        }
+
         private ImmutableRoadNetworkView With(AddGradeSeparatedJunction command)
         {
-            var id = new GradeSeparatedJunctionId(command.Id);
             return new ImmutableRoadNetworkView(
                 _nodes,
                 _segments,
                 _maximumTransactionId,
                 _maximumNodeId,
                 _maximumSegmentId,
-                GradeSeparatedJunctionId.Max(id, _maximumGradeSeparatedJunctionId),
+                GradeSeparatedJunctionId.Max(command.Id, _maximumGradeSeparatedJunctionId),
+                _maximumEuropeanRoadAttributeId,
+                _maximumNationalRoadAttributeId,
+                _maximumNumberedRoadAttributeId,
+                _maximumLaneAttributeId,
+                _maximumWidthAttributeId,
+                _maximumSurfaceAttributeId,
+                _segmentReusableLaneAttributeIdentifiers,
+                _segmentReusableWidthAttributeIdentifiers,
+                _segmentReusableSurfaceAttributeIdentifiers);
+        }
+
+        private ImmutableRoadNetworkView With(ModifyGradeSeparatedJunction command)
+        {
+            return new ImmutableRoadNetworkView(
+                _nodes,
+                _segments,
+                _maximumTransactionId,
+                _maximumNodeId,
+                _maximumSegmentId,
+                _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
                 _maximumNationalRoadAttributeId,
                 _maximumNumberedRoadAttributeId,
@@ -1031,8 +1236,14 @@ namespace RoadRegistry.BackOffice.Core
                         case Messages.RoadNodeAdded roadNodeAdded:
                             Given(roadNodeAdded);
                             break;
+                        case Messages.RoadNodeModified roadNodeModified:
+                            Given(roadNodeModified);
+                            break;
                         case Messages.RoadSegmentAdded roadSegmentAdded:
                             Given(roadSegmentAdded);
+                            break;
+                        case Messages.RoadSegmentModified roadSegmentModified:
+                            Given(roadSegmentModified);
                             break;
                         case Messages.RoadSegmentAddedToEuropeanRoad roadSegmentAddedToEuropeanRoad:
                             Given(roadSegmentAddedToEuropeanRoad);
@@ -1046,6 +1257,9 @@ namespace RoadRegistry.BackOffice.Core
                         case Messages.GradeSeparatedJunctionAdded gradeSeparatedJunctionAdded:
                             Given(gradeSeparatedJunctionAdded);
                             break;
+                        case Messages.GradeSeparatedJunctionModified gradeSeparatedJunctionModified:
+                            Given(gradeSeparatedJunctionModified);
+                            break;
                     }
                 }
             }
@@ -1056,6 +1270,11 @@ namespace RoadRegistry.BackOffice.Core
                 var node = new RoadNode(id, GeometryTranslator.Translate(@event.Geometry));
                 _nodes.Add(id, node);
                 _maximumNodeId = RoadNodeId.Max(id, _maximumNodeId);
+            }
+
+            private void Given(Messages.RoadNodeModified @event)
+            {
+                // Place holder
             }
 
             private void Given(Messages.RoadSegmentAdded @event)
@@ -1113,10 +1332,67 @@ namespace RoadRegistry.BackOffice.Core
                     @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)));
             }
 
+            private void Given(Messages.RoadSegmentModified @event)
+            {
+                var id = new RoadSegmentId(@event.Id);
+                var start = new RoadNodeId(@event.StartNodeId);
+                var end = new RoadNodeId(@event.EndNodeId);
+
+                var attributeHash = new AttributeHash(
+                    RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
+                    RoadSegmentCategory.Parse(@event.Category),
+                    RoadSegmentMorphology.Parse(@event.Morphology),
+                    RoadSegmentStatus.Parse(@event.Status),
+                    @event.LeftSide.StreetNameId.HasValue
+                        ? new CrabStreetnameId(@event.LeftSide.StreetNameId.Value)
+                        : new CrabStreetnameId?(),
+                    @event.RightSide.StreetNameId.HasValue
+                        ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
+                        : new CrabStreetnameId?(),
+                    new OrganizationId(@event.MaintenanceAuthority.Code));
+
+                _nodes
+                    .TryReplace(start, node => node.ConnectWith(id))
+                    .TryReplace(end, node => node.ConnectWith(id));
+                _segments.TryReplace(id, segment =>
+                    segment
+                        .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
+                        .WithStart(start)
+                        .WithEnd(end)
+                        .WithAttributeHash(attributeHash));
+                _maximumLaneAttributeId =
+                    @event.Lanes.Length != 0
+                        ? AttributeId.Max(
+                            new AttributeId(@event.Lanes.Max(_ => _.AttributeId)),
+                            _maximumLaneAttributeId)
+                        : _maximumLaneAttributeId;
+                _maximumWidthAttributeId = @event.Widths.Length != 0
+                    ? AttributeId.Max(
+                        new AttributeId(@event.Widths.Max(_ => _.AttributeId)),
+                        _maximumWidthAttributeId)
+                    : _maximumWidthAttributeId;
+                _maximumSurfaceAttributeId = @event.Surfaces.Length != 0
+                    ? AttributeId.Max(
+                        new AttributeId(@event.Surfaces.Max(_ => _.AttributeId)),
+                        _maximumSurfaceAttributeId)
+                    : _maximumSurfaceAttributeId;
+                _segmentReusableLaneAttributeIdentifiers.Merge(id,
+                    @event.Lanes.Select(lane => new AttributeId(lane.AttributeId)));
+                _segmentReusableWidthAttributeIdentifiers.Merge(id,
+                    @event.Widths.Select(width => new AttributeId(width.AttributeId)));
+                _segmentReusableSurfaceAttributeIdentifiers.Merge(id,
+                    @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)));
+            }
+
             private void Given(Messages.GradeSeparatedJunctionAdded @event)
             {
                 var id = new GradeSeparatedJunctionId(@event.Id);
                 _maximumGradeSeparatedJunctionId = GradeSeparatedJunctionId.Max(id, _maximumGradeSeparatedJunctionId);
+            }
+
+            private void Given(Messages.GradeSeparatedJunctionModified @event)
+            {
+                // Place holder
             }
 
             private void Given(Messages.RoadSegmentAddedToEuropeanRoad @event)
@@ -1149,8 +1425,14 @@ namespace RoadRegistry.BackOffice.Core
                         case AddRoadNode addRoadNode:
                             With(addRoadNode);
                             break;
+                        case ModifyRoadNode modifyRoadNode:
+                            With(modifyRoadNode);
+                            break;
                         case AddRoadSegment addRoadSegment:
                             With(addRoadSegment);
+                            break;
+                        case ModifyRoadSegment modifyRoadSegment:
+                            With(modifyRoadSegment);
                             break;
                         case AddRoadSegmentToEuropeanRoad addRoadSegmentToEuropeanRoad:
                             With(addRoadSegmentToEuropeanRoad);
@@ -1164,6 +1446,9 @@ namespace RoadRegistry.BackOffice.Core
                         case AddGradeSeparatedJunction addGradeSeparatedJunction:
                             With(addGradeSeparatedJunction);
                             break;
+                        case ModifyGradeSeparatedJunction modifyGradeSeparatedJunction:
+                            With(modifyGradeSeparatedJunction);
+                            break;
                     }
                 }
 
@@ -1175,6 +1460,11 @@ namespace RoadRegistry.BackOffice.Core
                 var node = new RoadNode(command.Id, command.Geometry);
                 _nodes.Add(command.Id, node);
                 _maximumNodeId = RoadNodeId.Max(command.Id, _maximumNodeId);
+            }
+
+            private void With(ModifyRoadNode command)
+            {
+                //Place holder
             }
 
             private void With(AddRoadSegment command)
@@ -1203,10 +1493,45 @@ namespace RoadRegistry.BackOffice.Core
                     command.Surfaces.Select(surface => new AttributeId(surface.Id)));
             }
 
+            private void With(ModifyRoadSegment command)
+            {
+                var attributeHash = new AttributeHash(
+                    command.AccessRestriction,
+                    command.Category,
+                    command.Morphology,
+                    command.Status,
+                    command.LeftSideStreetNameId,
+                    command.RightSideStreetNameId,
+                    command.MaintenanceAuthority);
+
+                //TODO: Disconnect previous nodes first
+                _nodes
+                    .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
+                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id));
+                _segments.TryReplace(command.Id, segment =>
+                    segment
+                        .WithGeometry(command.Geometry)
+                        .WithStart(command.StartNodeId)
+                        .WithEnd(command.EndNodeId)
+                        .WithAttributeHash(attributeHash));
+                _maximumSegmentId = RoadSegmentId.Max(command.Id, _maximumSegmentId);
+                _segmentReusableLaneAttributeIdentifiers.Merge(command.Id,
+                    command.Lanes.Select(lane => new AttributeId(lane.Id)));
+                _segmentReusableWidthAttributeIdentifiers.Merge(command.Id,
+                    command.Widths.Select(width => new AttributeId(width.Id)));
+                _segmentReusableSurfaceAttributeIdentifiers.Merge(command.Id,
+                    command.Surfaces.Select(surface => new AttributeId(surface.Id)));
+            }
+
             private void With(AddGradeSeparatedJunction command)
             {
                 var id = new GradeSeparatedJunctionId(command.Id);
                 _maximumGradeSeparatedJunctionId = GradeSeparatedJunctionId.Max(id, _maximumGradeSeparatedJunctionId);
+            }
+
+            private void With(ModifyGradeSeparatedJunction command)
+            {
+                //Place holder
             }
 
             private void With(AddRoadSegmentToEuropeanRoad command)

@@ -18,7 +18,8 @@ namespace RoadRegistry.BackOffice.Messages
                     change.AddRoadSegmentToEuropeanRoad,
                     change.AddRoadSegmentToNationalRoad,
                     change.AddRoadSegmentToNumberedRoad,
-                    change.AddGradeSeparatedJunction
+                    change.AddGradeSeparatedJunction,
+                    change.ModifyGradeSeparatedJunction
                 }
                 .Single(_ => !ReferenceEquals(_, null));
 
@@ -35,7 +36,8 @@ namespace RoadRegistry.BackOffice.Messages
                     change.RoadSegmentAddedToEuropeanRoad,
                     change.RoadSegmentAddedToNationalRoad,
                     change.RoadSegmentAddedToNumberedRoad,
-                    change.GradeSeparatedJunctionAdded
+                    change.GradeSeparatedJunctionAdded,
+                    change.GradeSeparatedJunctionModified
                 }
                 .Single(_ => !ReferenceEquals(_, null));
 
@@ -52,7 +54,8 @@ namespace RoadRegistry.BackOffice.Messages
                     change.AddRoadSegmentToEuropeanRoad,
                     change.AddRoadSegmentToNationalRoad,
                     change.AddRoadSegmentToNumberedRoad,
-                    change.AddGradeSeparatedJunction
+                    change.AddGradeSeparatedJunction,
+                    change.ModifyGradeSeparatedJunction
                 }
                 .Single(_ => !ReferenceEquals(_, null));
     }

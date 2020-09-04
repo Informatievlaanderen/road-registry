@@ -112,6 +112,11 @@ namespace RoadRegistry.BackOffice.Core
             var identifiers = changes
                 .Where(change => change?.AddGradeSeparatedJunction != null)
                 .Select(change => change.AddGradeSeparatedJunction.TemporaryId)
+                .Union(
+                    changes
+                        .Where(change => change?.ModifyGradeSeparatedJunction != null)
+                        .Select(change => change.ModifyGradeSeparatedJunction.Id)
+                )
                 .ToArray();
             return identifiers.Length == identifiers.Distinct().Count();
         }

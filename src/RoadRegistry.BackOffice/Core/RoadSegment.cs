@@ -47,5 +47,25 @@ namespace RoadRegistry.BackOffice.Core
         }
 
         //public KeyValuePair<RoadSegmentId, RoadSegment> ToKeyValuePair() => new KeyValuePair<RoadSegmentId, RoadSegment>(Id, this);
+        public RoadSegment WithGeometry(MultiLineString geometry)
+        {
+            if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+            return new RoadSegment(Id, geometry, Start, End, AttributeHash);
+        }
+
+        public RoadSegment WithStart(RoadNodeId start)
+        {
+            return new RoadSegment(Id, Geometry, start, End, AttributeHash);
+        }
+
+        public RoadSegment WithEnd(RoadNodeId end)
+        {
+            return new RoadSegment(Id, Geometry, Start, end, AttributeHash);
+        }
+
+        public RoadSegment WithAttributeHash(AttributeHash hash)
+        {
+            return new RoadSegment(Id, Geometry, Start, End, hash);
+        }
     }
 }

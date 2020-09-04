@@ -176,5 +176,10 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
         }
+
+        public TranslatedChanges Append(ModifyGradeSeparatedJunction change)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
+        }
     }
 }

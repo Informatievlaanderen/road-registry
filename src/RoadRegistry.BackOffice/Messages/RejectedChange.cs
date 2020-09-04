@@ -10,6 +10,7 @@ namespace RoadRegistry.BackOffice.Messages
         public AddRoadSegmentToNationalRoad AddRoadSegmentToNationalRoad { get; set; }
         public AddRoadSegmentToNumberedRoad AddRoadSegmentToNumberedRoad { get; set; }
         public AddGradeSeparatedJunction AddGradeSeparatedJunction { get; set; }
+        public ModifyGradeSeparatedJunction ModifyGradeSeparatedJunction { get; set; }
         public Problem[] Problems { get; set; }
     }
 }

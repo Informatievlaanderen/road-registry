@@ -90,6 +90,9 @@
                     case Messages.AddGradeSeparatedJunction command:
                         translated = translated.Append(Translate(command, translated));
                         break;
+                    case Messages.ModifyGradeSeparatedJunction command:
+                        translated = translated.Append(Translate(command, translated));
+                        break;
                 }
             }
 
@@ -444,6 +447,43 @@
             return new AddGradeSeparatedJunction(
                 permanent,
                 temporary,
+                GradeSeparatedJunctionType.Parse(command.Type),
+                upperSegmentId,
+                temporaryUpperSegmentId,
+                lowerSegmentId,
+                temporaryLowerSegmentId);
+        }
+
+        private ModifyGradeSeparatedJunction Translate(Messages.ModifyGradeSeparatedJunction command, IRequestedChangeIdentityTranslator translator)
+        {
+            var permanent = new GradeSeparatedJunctionId(command.Id);
+
+            var upperSegmentId = new RoadSegmentId(command.UpperSegmentId);
+            RoadSegmentId? temporaryUpperSegmentId;
+            if (translator.TryTranslateToPermanent(upperSegmentId, out var permanentUpperSegmentId))
+            {
+                temporaryUpperSegmentId = upperSegmentId;
+                upperSegmentId = permanentUpperSegmentId;
+            }
+            else
+            {
+                temporaryUpperSegmentId = null;
+            }
+
+            var lowerSegmentId = new RoadSegmentId(command.LowerSegmentId);
+            RoadSegmentId? temporaryLowerSegmentId;
+            if (translator.TryTranslateToPermanent(lowerSegmentId, out var permanentLowerSegmentId))
+            {
+                temporaryLowerSegmentId = lowerSegmentId;
+                lowerSegmentId = permanentLowerSegmentId;
+            }
+            else
+            {
+                temporaryLowerSegmentId = null;
+            }
+
+            return new ModifyGradeSeparatedJunction(
+                permanent,
                 GradeSeparatedJunctionType.Parse(command.Type),
                 upperSegmentId,
                 temporaryUpperSegmentId,

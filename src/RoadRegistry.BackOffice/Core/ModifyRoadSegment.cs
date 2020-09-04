@@ -67,6 +67,9 @@ namespace RoadRegistry.BackOffice.Core
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
+            // TODO: We need a before and after verify because
+            // in the before we want to make sure we're dealing with an existing segment
+
             var problems = Problems.None;
             if (Math.Abs(Geometry.Length) <= context.Tolerance)
             {

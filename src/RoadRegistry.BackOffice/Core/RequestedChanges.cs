@@ -165,6 +165,20 @@
                 _mapToTemporaryGradeSeparatedJunctionIdentifiers.Add(change.Id, change.TemporaryId));
         }
 
+        public RequestedChanges Append(ModifyGradeSeparatedJunction change)
+        {
+            if (change == null)
+                throw new ArgumentNullException(nameof(change));
+
+            return new RequestedChanges(_transactionId, _changes.Add(change),
+                _mapToPermanentNodeIdentifiers,
+                _mapToTemporaryNodeIdentifiers,
+                _mapToPermanentSegmentIdentifiers,
+                _mapToTemporarySegmentIdentifiers,
+                _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        }
+
         public bool TryTranslateToPermanent(RoadNodeId id, out RoadNodeId permanent)
         {
             return _mapToPermanentNodeIdentifiers.TryGetValue(id, out permanent);
