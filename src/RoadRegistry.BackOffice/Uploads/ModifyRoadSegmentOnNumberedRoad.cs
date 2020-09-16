@@ -3,18 +3,18 @@ namespace RoadRegistry.BackOffice.Uploads
     using System;
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
-    public class AddRoadSegmentToNumberedRoad : ITranslatedChange
+    public class ModifyRoadSegmentOnNumberedRoad : ITranslatedChange
     {
-        public AddRoadSegmentToNumberedRoad(
+        public ModifyRoadSegmentOnNumberedRoad(
             RecordNumber recordNumber,
-            AttributeId temporaryAttributeId,
+            AttributeId attributeId,
             RoadSegmentId segmentId,
             NumberedRoadNumber number,
             RoadSegmentNumberedRoadDirection direction,
             RoadSegmentNumberedRoadOrdinal ordinal)
         {
             RecordNumber = recordNumber;
-            TemporaryAttributeId = temporaryAttributeId;
+            AttributeId = attributeId;
             SegmentId = segmentId;
             Number = number;
             Direction = direction;
@@ -22,7 +22,7 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         public RecordNumber RecordNumber { get; }
-        public AttributeId TemporaryAttributeId { get; }
+        public AttributeId AttributeId { get; }
         public RoadSegmentId SegmentId { get; }
         public NumberedRoadNumber Number { get; }
         public RoadSegmentNumberedRoadDirection Direction { get; }
@@ -32,9 +32,9 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
 
-            message.AddRoadSegmentToNumberedRoad = new Messages.AddRoadSegmentToNumberedRoad
+            message.ModifyRoadSegmentOnNumberedRoad = new Messages.ModifyRoadSegmentOnNumberedRoad
             {
-                TemporaryAttributeId = TemporaryAttributeId,
+                AttributeId = AttributeId,
                 Ident8 = Number,
                 Direction = Direction,
                 Ordinal = Ordinal,

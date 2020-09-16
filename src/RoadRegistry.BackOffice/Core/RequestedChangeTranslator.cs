@@ -72,19 +72,37 @@
                     case Messages.ModifyRoadNode command:
                         translated = translated.Append(Translate(command));
                         break;
+                    case Messages.RemoveRoadNode command:
+                        translated = translated.Append(Translate(command));
+                        break;
                     case Messages.AddRoadSegment command:
                         translated = translated.Append(Translate(command, translated));
                         break;
                     case Messages.ModifyRoadSegment command:
                         translated = translated.Append(Translate(command, translated));
                         break;
+                    case Messages.RemoveRoadSegment command:
+                        translated = translated.Append(Translate(command));
+                        break;
                     case Messages.AddRoadSegmentToEuropeanRoad command:
                         translated = translated.Append(Translate(command, translated));
+                        break;
+                    case Messages.RemoveRoadSegmentFromEuropeanRoad command:
+                        translated = translated.Append(Translate(command));
                         break;
                     case Messages.AddRoadSegmentToNationalRoad command:
                         translated = translated.Append(Translate(command, translated));
                         break;
+                    case Messages.RemoveRoadSegmentFromNationalRoad command:
+                        translated = translated.Append(Translate(command, translated));
+                        break;
                     case Messages.AddRoadSegmentToNumberedRoad command:
+                        translated = translated.Append(Translate(command, translated));
+                        break;
+                    case Messages.ModifyRoadSegmentOnNumberedRoad command:
+                        translated = translated.Append(Translate(command));
+                        break;
+                    case Messages.RemoveRoadSegmentFromNumberedRoad command:
                         translated = translated.Append(Translate(command, translated));
                         break;
                     case Messages.AddGradeSeparatedJunction command:
@@ -92,6 +110,9 @@
                         break;
                     case Messages.ModifyGradeSeparatedJunction command:
                         translated = translated.Append(Translate(command, translated));
+                        break;
+                    case Messages.RemoveGradeSeparatedJunction command:
+                        translated = translated.Append(Translate(command));
                         break;
                 }
             }
@@ -120,6 +141,15 @@
                 permanent,
                 RoadNodeType.Parse(command.Type),
                 GeometryTranslator.Translate(command.Geometry)
+            );
+        }
+
+        private RemoveRoadNode Translate(Messages.RemoveRoadNode command)
+        {
+            var permanent = new RoadNodeId(command.Id);
+            return new RemoveRoadNode
+            (
+                permanent
             );
         }
 
@@ -327,6 +357,15 @@
             );
         }
 
+        private RemoveRoadSegment Translate(Messages.RemoveRoadSegment command)
+        {
+            var permanent = new RoadSegmentId(command.Id);
+            return new RemoveRoadSegment
+            (
+                permanent
+            );
+        }
+
         private AddRoadSegmentToEuropeanRoad Translate(Messages.AddRoadSegmentToEuropeanRoad command, IRequestedChangeIdentityTranslator translator)
         {
             var permanent = _nextEuropeanRoadAttributeId();
@@ -355,6 +394,20 @@
             );
         }
 
+        private RemoveRoadSegmentFromEuropeanRoad Translate(Messages.RemoveRoadSegmentFromEuropeanRoad command)
+        {
+            var permanent = new AttributeId(command.AttributeId);
+            var segmentId = new RoadSegmentId(command.SegmentId);
+
+            var number = EuropeanRoadNumber.Parse(command.Number);
+            return new RemoveRoadSegmentFromEuropeanRoad
+            (
+                permanent,
+                segmentId,
+                number
+            );
+        }
+
         private AddRoadSegmentToNationalRoad Translate(Messages.AddRoadSegmentToNationalRoad command, IRequestedChangeIdentityTranslator translator)
         {
             var permanent = _nextNationalRoadAttributeId();
@@ -379,6 +432,20 @@
                 temporary,
                 segmentId,
                 temporarySegmentId,
+                number
+            );
+        }
+
+        private RemoveRoadSegmentFromNationalRoad Translate(Messages.RemoveRoadSegmentFromNationalRoad command, IRequestedChangeIdentityTranslator translator)
+        {
+            var permanent = new AttributeId(command.AttributeId);
+            var segmentId = new RoadSegmentId(command.SegmentId);
+            var number = NationalRoadNumber.Parse(command.Ident2);
+
+            return new RemoveRoadSegmentFromNationalRoad
+            (
+                permanent,
+                segmentId,
                 number
             );
         }
@@ -412,6 +479,37 @@
                 number,
                 direction,
                 ordinal
+            );
+        }
+
+        private ModifyRoadSegmentOnNumberedRoad Translate(Messages.ModifyRoadSegmentOnNumberedRoad command)
+        {
+            var permanent = new AttributeId(command.AttributeId);
+            var segmentId = new RoadSegmentId(command.SegmentId);
+            var number = NumberedRoadNumber.Parse(command.Ident8);
+            var direction = RoadSegmentNumberedRoadDirection.Parse(command.Direction);
+            var ordinal = new RoadSegmentNumberedRoadOrdinal(command.Ordinal);
+            return new ModifyRoadSegmentOnNumberedRoad
+            (
+                permanent,
+                segmentId,
+                number,
+                direction,
+                ordinal
+            );
+        }
+
+        private RemoveRoadSegmentFromNumberedRoad Translate(Messages.RemoveRoadSegmentFromNumberedRoad command, IRequestedChangeIdentityTranslator translator)
+        {
+            var permanent = new AttributeId(command.AttributeId);
+            var segmentId = new RoadSegmentId(command.SegmentId);
+            var number = NumberedRoadNumber.Parse(command.Ident8);
+
+            return new RemoveRoadSegmentFromNumberedRoad
+            (
+                permanent,
+                segmentId,
+                number
             );
         }
 
@@ -491,6 +589,13 @@
                 temporaryLowerSegmentId);
         }
 
+        private RemoveGradeSeparatedJunction Translate(Messages.RemoveGradeSeparatedJunction command)
+        {
+            var permanent = new GradeSeparatedJunctionId(command.Id);
+
+            return new RemoveGradeSeparatedJunction(permanent);
+        }
+
         private class SortableChange
         {
             public int Ordinal { get; }
@@ -513,7 +618,15 @@
                 typeof(Messages.AddRoadSegmentToNationalRoad),
                 typeof(Messages.AddRoadSegmentToNumberedRoad),
                 typeof(Messages.AddGradeSeparatedJunction),
-                typeof(Messages.ModifyRoadNode)
+                typeof(Messages.ModifyRoadNode),
+                typeof(Messages.ModifyRoadSegment),
+                typeof(Messages.ModifyGradeSeparatedJunction),
+                typeof(Messages.RemoveRoadSegmentFromEuropeanRoad),
+                typeof(Messages.RemoveRoadSegmentFromNationalRoad),
+                typeof(Messages.RemoveRoadSegmentFromNumberedRoad),
+                typeof(Messages.RemoveRoadNode),
+                typeof(Messages.RemoveRoadSegment),
+                typeof(Messages.RemoveGradeSeparatedJunction)
             };
 
             public int Compare(SortableChange left, SortableChange right)

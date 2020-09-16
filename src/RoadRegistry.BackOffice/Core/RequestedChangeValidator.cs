@@ -9,13 +9,20 @@
         {
             RuleFor(c => c.AddRoadNode).SetValidator(new AddRoadNodeValidator());
             RuleFor(c => c.ModifyRoadNode).SetValidator(new ModifyRoadNodeValidator());
+            RuleFor(c => c.RemoveRoadNode).SetValidator(new RemoveRoadNodeValidator());
             RuleFor(c => c.AddRoadSegment).SetValidator(new AddRoadSegmentValidator());
             RuleFor(c => c.ModifyRoadSegment).SetValidator(new ModifyRoadSegmentValidator());
+            RuleFor(c => c.RemoveRoadSegment).SetValidator(new RemoveRoadSegmentValidator());
             RuleFor(c => c.AddRoadSegmentToEuropeanRoad).SetValidator(new AddRoadSegmentToEuropeanRoadValidator());
+            RuleFor(c => c.RemoveRoadSegmentFromEuropeanRoad).SetValidator(new RemoveRoadSegmentFromEuropeanRoadValidator());
             RuleFor(c => c.AddRoadSegmentToNationalRoad).SetValidator(new AddRoadSegmentToNationalRoadValidator());
+            RuleFor(c => c.RemoveRoadSegmentFromNationalRoad).SetValidator(new RemoveRoadSegmentFromNationalRoadValidator());
             RuleFor(c => c.AddRoadSegmentToNumberedRoad).SetValidator(new AddRoadSegmentToNumberedRoadValidator());
+            RuleFor(c => c.ModifyRoadSegmentOnNumberedRoad).SetValidator(new ModifyRoadSegmentOnNumberedRoadValidator());
+            RuleFor(c => c.RemoveRoadSegmentFromNumberedRoad).SetValidator(new RemoveRoadSegmentFromNumberedRoadValidator());
             RuleFor(c => c.AddGradeSeparatedJunction).SetValidator(new AddGradeSeparatedJunctionValidator());
             RuleFor(c => c.ModifyGradeSeparatedJunction).SetValidator(new ModifyGradeSeparatedJunctionValidator());
+            RuleFor(c => c.RemoveGradeSeparatedJunction).SetValidator(new RemoveGradeSeparatedJunctionValidator());
         }
     }
 }

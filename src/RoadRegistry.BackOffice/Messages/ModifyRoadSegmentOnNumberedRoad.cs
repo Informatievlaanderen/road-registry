@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Messages
 {
-    public class ModifyNumberedRoadSegmentAttributes
+    public class ModifyRoadSegmentOnNumberedRoad
     {
         public int AttributeId { get; set; }
         public string Ident8 { get; set; }

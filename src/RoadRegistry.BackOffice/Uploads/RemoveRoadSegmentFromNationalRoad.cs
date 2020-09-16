@@ -3,34 +3,33 @@ namespace RoadRegistry.BackOffice.Uploads
     using System;
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
-    public class AddRoadSegmentToEuropeanRoad : ITranslatedChange
+    public class RemoveRoadSegmentFromNationalRoad : ITranslatedChange
     {
-        public AddRoadSegmentToEuropeanRoad(
+        public RemoveRoadSegmentFromNationalRoad(
             RecordNumber recordNumber,
-            AttributeId temporaryAttributeId,
+            AttributeId attributeId,
             RoadSegmentId segmentId,
-            EuropeanRoadNumber number)
+            NationalRoadNumber number)
         {
             RecordNumber = recordNumber;
-            TemporaryAttributeId = temporaryAttributeId;
+            AttributeId = attributeId;
             SegmentId = segmentId;
             Number = number;
         }
 
         public RecordNumber RecordNumber { get; }
-        public AttributeId TemporaryAttributeId { get; }
+        public AttributeId AttributeId { get; }
         public RoadSegmentId SegmentId { get; }
-        public EuropeanRoadNumber Number { get; }
-
+        public NationalRoadNumber Number { get; }
 
         public void TranslateTo(Messages.RequestedChange message)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
 
-            message.AddRoadSegmentToEuropeanRoad = new Messages.AddRoadSegmentToEuropeanRoad
+            message.RemoveRoadSegmentFromNationalRoad = new Messages.RemoveRoadSegmentFromNationalRoad
             {
-                TemporaryAttributeId = TemporaryAttributeId,
-                Number = Number,
+                AttributeId = AttributeId,
+                Ident2 = Number,
                 SegmentId = SegmentId
             };
         }

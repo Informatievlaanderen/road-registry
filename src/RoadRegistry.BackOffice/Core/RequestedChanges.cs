@@ -81,6 +81,20 @@
                 _mapToTemporaryGradeSeparatedJunctionIdentifiers);
         }
 
+        public RequestedChanges Append(RemoveRoadNode change)
+        {
+            if (change == null)
+                throw new ArgumentNullException(nameof(change));
+
+            return new RequestedChanges(_transactionId, _changes.Add(change),
+                _mapToPermanentNodeIdentifiers,
+                _mapToTemporaryNodeIdentifiers,
+                _mapToPermanentSegmentIdentifiers,
+                _mapToTemporarySegmentIdentifiers,
+                _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        }
+
         public RequestedChanges Append(AddRoadSegment change)
         {
             if (change == null)
@@ -109,7 +123,35 @@
                 _mapToTemporaryGradeSeparatedJunctionIdentifiers);
         }
 
+        public RequestedChanges Append(RemoveRoadSegment change)
+        {
+            if (change == null)
+                throw new ArgumentNullException(nameof(change));
+
+            return new RequestedChanges(_transactionId, _changes.Add(change),
+                _mapToPermanentNodeIdentifiers,
+                _mapToTemporaryNodeIdentifiers,
+                _mapToPermanentSegmentIdentifiers,
+                _mapToTemporarySegmentIdentifiers,
+                _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        }
+
         public RequestedChanges Append(AddRoadSegmentToEuropeanRoad change)
+        {
+            if (change == null)
+                throw new ArgumentNullException(nameof(change));
+
+            return new RequestedChanges(_transactionId, _changes.Add(change),
+                _mapToPermanentNodeIdentifiers,
+                _mapToTemporaryNodeIdentifiers,
+                _mapToPermanentSegmentIdentifiers,
+                _mapToTemporarySegmentIdentifiers,
+                _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        }
+
+        public RequestedChanges Append(RemoveRoadSegmentFromEuropeanRoad change)
         {
             if (change == null)
                 throw new ArgumentNullException(nameof(change));
@@ -137,7 +179,49 @@
                 _mapToTemporaryGradeSeparatedJunctionIdentifiers);
         }
 
+        public RequestedChanges Append(RemoveRoadSegmentFromNationalRoad change)
+        {
+            if (change == null)
+                throw new ArgumentNullException(nameof(change));
+
+            return new RequestedChanges(_transactionId, _changes.Add(change),
+                _mapToPermanentNodeIdentifiers,
+                _mapToTemporaryNodeIdentifiers,
+                _mapToPermanentSegmentIdentifiers,
+                _mapToTemporarySegmentIdentifiers,
+                _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        }
+
         public RequestedChanges Append(AddRoadSegmentToNumberedRoad change)
+        {
+            if (change == null)
+                throw new ArgumentNullException(nameof(change));
+
+            return new RequestedChanges(_transactionId, _changes.Add(change),
+                _mapToPermanentNodeIdentifiers,
+                _mapToTemporaryNodeIdentifiers,
+                _mapToPermanentSegmentIdentifiers,
+                _mapToTemporarySegmentIdentifiers,
+                _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        }
+
+        public RequestedChanges Append(ModifyRoadSegmentOnNumberedRoad change)
+        {
+            if (change == null)
+                throw new ArgumentNullException(nameof(change));
+
+            return new RequestedChanges(_transactionId, _changes.Add(change),
+                _mapToPermanentNodeIdentifiers,
+                _mapToTemporaryNodeIdentifiers,
+                _mapToPermanentSegmentIdentifiers,
+                _mapToTemporarySegmentIdentifiers,
+                _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        }
+
+        public RequestedChanges Append(RemoveRoadSegmentFromNumberedRoad change)
         {
             if (change == null)
                 throw new ArgumentNullException(nameof(change));
@@ -166,6 +250,20 @@
         }
 
         public RequestedChanges Append(ModifyGradeSeparatedJunction change)
+        {
+            if (change == null)
+                throw new ArgumentNullException(nameof(change));
+
+            return new RequestedChanges(_transactionId, _changes.Add(change),
+                _mapToPermanentNodeIdentifiers,
+                _mapToTemporaryNodeIdentifiers,
+                _mapToPermanentSegmentIdentifiers,
+                _mapToTemporarySegmentIdentifiers,
+                _mapToPermanentGradeSeparatedJunctionIdentifiers,
+                _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        }
+
+        public RequestedChanges Append(RemoveGradeSeparatedJunction change)
         {
             if (change == null)
                 throw new ArgumentNullException(nameof(change));

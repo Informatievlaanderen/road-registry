@@ -73,12 +73,18 @@ namespace RoadRegistry.BackOffice.Uploads
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId.Add(change.RecordNumber, change.Id), _mapToRoadSegmentId);
         }
 
+        public TranslatedChanges Append(RemoveRoadNode change)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId.Add(change.RecordNumber, change.Id), _mapToRoadSegmentId);
+        }
+
         public bool TryFindRoadNodeChange(RoadNodeId id, out object change)
         {
             change = new ITranslatedChange[]
             {
                 this.OfType<AddRoadNode>().SingleOrDefault(_ => _.TemporaryId == id),
-                this.OfType<ModifyRoadNode>().SingleOrDefault(_ => _.Id == id)
+                this.OfType<ModifyRoadNode>().SingleOrDefault(_ => _.Id == id),
+                this.OfType<RemoveRoadNode>().SingleOrDefault(_ => _.Id == id)
             }.Flatten();
             return change != null;
         }
@@ -116,6 +122,11 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         public TranslatedChanges Append(ModifyRoadSegment change)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId.Add(change.RecordNumber, change.Id));
+        }
+
+        public TranslatedChanges Append(RemoveRoadSegment change)
         {
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId.Add(change.RecordNumber, change.Id));
         }
@@ -162,12 +173,32 @@ namespace RoadRegistry.BackOffice.Uploads
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
         }
 
+        public TranslatedChanges Append(RemoveRoadSegmentFromEuropeanRoad change)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
+        }
+
         public TranslatedChanges Append(AddRoadSegmentToNationalRoad change)
         {
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
         }
 
+        public TranslatedChanges Append(RemoveRoadSegmentFromNationalRoad change)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
+        }
+
         public TranslatedChanges Append(AddRoadSegmentToNumberedRoad change)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
+        }
+
+        public TranslatedChanges Append(ModifyRoadSegmentOnNumberedRoad change)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
+        }
+
+        public TranslatedChanges Append(RemoveRoadSegmentFromNumberedRoad change)
         {
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
         }
@@ -178,6 +209,11 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         public TranslatedChanges Append(ModifyGradeSeparatedJunction change)
+        {
+            return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
+        }
+
+        public TranslatedChanges Append(RemoveGradeSeparatedJunction change)
         {
             return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _mapToRoadNodeId, _mapToRoadSegmentId);
         }

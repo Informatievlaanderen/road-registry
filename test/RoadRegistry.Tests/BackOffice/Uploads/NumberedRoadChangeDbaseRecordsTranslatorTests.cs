@@ -103,6 +103,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 TranslatedChanges.Empty,
                 (changes, current) => changes.Append(
                     new Uploads.AddRoadSegmentToNumberedRoad(
+                        new RecordNumber(Array.IndexOf(records, current) + 1),
                         new AttributeId(current.GW_OIDN.Value),
                         new RoadSegmentId(current.WS_OIDN.Value),
                         NumberedRoadNumber.Parse(current.IDENT8.Value),

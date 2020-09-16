@@ -56,6 +56,14 @@ namespace RoadRegistry.BackOffice.Uploads
                                 )
                             );
                             break;
+                        case RecordType.RemovedIdentifier:
+                            changes = changes.Append(
+                                new RemoveRoadSegment(
+                                    records.CurrentRecordNumber,
+                                    new RoadSegmentId(record.WS_OIDN.Value)
+                                )
+                            );
+                            break;
                     }
                 }
             }

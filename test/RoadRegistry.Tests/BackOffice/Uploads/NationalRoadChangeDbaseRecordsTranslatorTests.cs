@@ -99,6 +99,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 TranslatedChanges.Empty,
                 (changes, current) => changes.Append(
                     new Uploads.AddRoadSegmentToNationalRoad(
+                        new RecordNumber(Array.IndexOf(records, current) + 1),
                         new AttributeId(current.NW_OIDN.Value),
                         new RoadSegmentId(current.WS_OIDN.Value),
                         NationalRoadNumber.Parse(current.IDENT2.Value)))

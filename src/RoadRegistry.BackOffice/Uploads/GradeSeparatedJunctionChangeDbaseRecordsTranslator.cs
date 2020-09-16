@@ -23,6 +23,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.AddedIdentifier:
                             changes = changes.Append(
                                 new AddGradeSeparatedJunction(
+                                    records.CurrentRecordNumber,
                                     new GradeSeparatedJunctionId(record.OK_OIDN.Value),
                                     GradeSeparatedJunctionType.ByIdentifier[record.TYPE.Value],
                                     new RoadSegmentId(record.BO_WS_OIDN.Value),
@@ -33,10 +34,19 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.ModifiedIdentifier:
                             changes = changes.Append(
                                 new ModifyGradeSeparatedJunction(
+                                    records.CurrentRecordNumber,
                                     new GradeSeparatedJunctionId(record.OK_OIDN.Value),
                                     GradeSeparatedJunctionType.ByIdentifier[record.TYPE.Value],
                                     new RoadSegmentId(record.BO_WS_OIDN.Value),
                                     new RoadSegmentId(record.ON_WS_OIDN.Value)
+                                )
+                            );
+                            break;
+                        case RecordType.RemovedIdentifier:
+                            changes = changes.Append(
+                                new RemoveGradeSeparatedJunction(
+                                    records.CurrentRecordNumber,
+                                    new GradeSeparatedJunctionId(record.OK_OIDN.Value)
                                 )
                             );
                             break;
