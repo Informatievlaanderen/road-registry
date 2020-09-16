@@ -367,12 +367,11 @@ namespace RoadRegistry.BackOffice.Core
         private ImmutableRoadNetworkView Given(Messages.RoadNodeModified @event)
         {
             var id = new RoadNodeId(@event.Id);
-            var node = new RoadNode(id, GeometryTranslator.Translate(@event.Geometry));
             return new ImmutableRoadNetworkView(
-                _nodes.Add(id, node),
+                _nodes.TryReplace(id, node => node.WithGeometry(GeometryTranslator.Translate(@event.Geometry))),
                 _segments,
                 _maximumTransactionId,
-                RoadNodeId.Max(id, _maximumNodeId),
+                _maximumNodeId,
                 _maximumSegmentId,
                 _maximumGradeSeparatedJunctionId,
                 _maximumEuropeanRoadAttributeId,
@@ -678,9 +677,8 @@ namespace RoadRegistry.BackOffice.Core
 
         private ImmutableRoadNetworkView With(ModifyRoadNode command)
         {
-            var node = new RoadNode(command.Id, command.Geometry);
             return new ImmutableRoadNetworkView(
-                _nodes.Add(command.Id, node),
+                _nodes.TryReplace(command.Id, node => node.WithGeometry(command.Geometry)),
                 _segments,
                 _maximumTransactionId,
                 _maximumNodeId,

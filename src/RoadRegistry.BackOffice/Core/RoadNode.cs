@@ -28,6 +28,11 @@ namespace RoadRegistry.BackOffice.Core
             _segments = segments;
         }
 
+        public RoadNode WithGeometry(Point geometry)
+        {
+            return new RoadNode(Id, geometry, _segments);
+        }
+
         public RoadNode ConnectWith(RoadSegmentId segment)
         {
             return new RoadNode(Id, Geometry, _segments.Add(segment));
@@ -91,5 +96,6 @@ namespace RoadRegistry.BackOffice.Core
 
         //     public RoadNode ToImmutable() => new RoadNode(Id, _segments.ToImmutable());
         // }
+
     }
 }
