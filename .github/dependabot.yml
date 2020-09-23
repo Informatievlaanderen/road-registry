@@ -1,0 +1,52 @@
+version: 2
+
+updates:
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: daily
+
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+
+- package-ecosystem: docker
+  directory: "/src/RoadRegistry.BackOffice.Api"
+  schedule:
+    interval: daily
+
+- package-ecosystem: docker
+  directory: "/src/RoadRegistry.BackOffice.CommandHost"
+  schedule:
+    interval: daily
+
+- package-ecosystem: docker
+  directory: "/src/RoadRegistry.BackOffice.EventHost"
+  schedule:
+    interval: daily
+
+- package-ecosystem: docker
+  directory: "/src/RoadRegistry.Editor.ProjectionHost"
+  schedule:
+    interval: daily
+
+- package-ecosystem: docker
+  directory: "/src/RoadRegistry.Legacy.Extract"
+  schedule:
+    interval: daily
+
+- package-ecosystem: docker
+  directory: "/src/RoadRegistry.Legacy.Import"
+  schedule:
+    interval: daily
+
+- package-ecosystem: docker
+  directory: "/src/RoadRegistry.Product.ProjectionHost"
+  schedule:
+    interval: daily
+
+- package-ecosystem: docker
+  directory: "/src/RoadRegistry.Wms.ProjectionHost"
+  schedule:
+    interval: daily
