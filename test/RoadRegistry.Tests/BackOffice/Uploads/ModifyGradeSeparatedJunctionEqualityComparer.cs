@@ -3,20 +3,20 @@ namespace RoadRegistry.BackOffice.Uploads
     using System;
     using System.Collections.Generic;
 
-    public class AddGradeSeparatedJunctionEqualityComparer : IEqualityComparer<AddGradeSeparatedJunction>
+    public class ModifyGradeSeparatedJunctionEqualityComparer : IEqualityComparer<ModifyGradeSeparatedJunction>
     {
-        public bool Equals(AddGradeSeparatedJunction left, AddGradeSeparatedJunction right)
+        public bool Equals(ModifyGradeSeparatedJunction left, ModifyGradeSeparatedJunction right)
         {
             if (left == null && right == null) return true;
             if (left == null || right == null) return false;
-            return left.TemporaryId.Equals(right.TemporaryId)
+            return left.Id.Equals(right.Id)
                    && left.Type.Equals(right.Type)
                    && left.UpperSegmentId.Equals(right.UpperSegmentId)
                    && left.LowerSegmentId.Equals(right.LowerSegmentId)
                    && left.RecordNumber.Equals(right.RecordNumber);
         }
 
-        public int GetHashCode(AddGradeSeparatedJunction instance)
+        public int GetHashCode(ModifyGradeSeparatedJunction instance)
         {
             throw new NotSupportedException();
         }

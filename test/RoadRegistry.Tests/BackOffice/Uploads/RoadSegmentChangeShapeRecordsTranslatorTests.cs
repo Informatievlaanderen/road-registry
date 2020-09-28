@@ -108,7 +108,7 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         [Fact]
-        public void TranslateWithRecordsReturnsExpectedResult()
+        public void TranslateWithAddRecordsReturnsExpectedResult()
         {
             var segment = _fixture.Create<AddRoadSegment>();
             var record = _fixture.Create<ShapeRecord>().Content.RecordAs(segment.RecordNumber);
@@ -124,6 +124,43 @@ namespace RoadRegistry.BackOffice.Uploads
                     ((PolyLineMShapeContent) record.Content).Shape)
                 )
             );
+
+            Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
+        }
+
+        [Fact]
+        public void TranslateWithModifyRecordsReturnsExpectedResult()
+        {
+            var segment = _fixture.Create<ModifyRoadSegment>();
+            var record = _fixture.Create<ShapeRecord>().Content.RecordAs(segment.RecordNumber);
+            var records = new List<ShapeRecord> { record };
+            var enumerator = records.GetEnumerator();
+            var changes = TranslatedChanges.Empty.Append(segment);
+
+            var result = _sut.Translate(_entry, enumerator, changes);
+
+            var expected = TranslatedChanges.Empty.Append(
+                segment.WithGeometry(
+                    GeometryTranslator.ToGeometryMultiLineString(
+                        ((PolyLineMShapeContent) record.Content).Shape)
+                )
+            );
+
+            Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
+        }
+
+        [Fact]
+        public void TranslateWithRemoveRecordsReturnsExpectedResult()
+        {
+            var segment = _fixture.Create<RemoveRoadSegment>();
+            var record = _fixture.Create<ShapeRecord>().Content.RecordAs(segment.RecordNumber);
+            var records = new List<ShapeRecord> { record };
+            var enumerator = records.GetEnumerator();
+            var changes = TranslatedChanges.Empty.Append(segment);
+
+            var result = _sut.Translate(_entry, enumerator, changes);
+
+            var expected = TranslatedChanges.Empty.Append(segment);
 
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }

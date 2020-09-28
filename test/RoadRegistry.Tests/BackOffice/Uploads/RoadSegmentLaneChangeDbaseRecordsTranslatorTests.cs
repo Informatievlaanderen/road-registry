@@ -92,7 +92,7 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         [Fact]
-        public void TranslateWithRecordsReturnsExpectedResult()
+        public void TranslateWithRecordsForAddRoadSegmentReturnsExpectedResult()
         {
             var segment = _fixture.Create<Uploads.AddRoadSegment>();
             var records = _fixture
@@ -126,6 +126,70 @@ namespace RoadRegistry.BackOffice.Uploads
                             )
                         )
                 );
+
+            Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
+        }
+
+        [Fact]
+        public void TranslateWithRecordsForModifyRoadSegmentReturnsExpectedResult()
+        {
+            var segment = _fixture.Create<Uploads.ModifyRoadSegment>();
+            var records = _fixture
+                .CreateMany<RoadSegmentLaneChangeDbaseRecord>(new Random().Next(1, 5))
+                .Select((record, index) =>
+                {
+                    record.RS_OIDN.Value = index + 1;
+                    record.WS_OIDN.Value = segment.Id;
+                    record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
+                    return record;
+                })
+                .ToArray();
+            var enumerator = records.ToDbaseRecordEnumerator();
+            var changes = TranslatedChanges.Empty.Append(segment);
+
+            var result = _sut.Translate(_entry, enumerator, changes);
+
+            var expected =
+                TranslatedChanges.Empty.Append(
+                    records
+                        .Where(record => record.RECORDTYPE.Value != (short)RecordType.Removed.Translation.Identifier)
+                        .Aggregate(
+                            segment,
+                            (current, record) => current.WithLane(
+                                new Uploads.RoadSegmentLaneAttribute(
+                                    new AttributeId(record.RS_OIDN.Value),
+                                    new RoadSegmentLaneCount(record.AANTAL.Value),
+                                    RoadSegmentLaneDirection.ByIdentifier[record.RICHTING.Value],
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value)))
+                            )
+                        )
+                );
+
+            Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
+        }
+
+
+        [Fact]
+        public void TranslateWithRecordsReturnsExpectedResult()
+        {
+            var segment = _fixture.Create<Uploads.RemoveRoadSegment>();
+            var records = _fixture
+                .CreateMany<RoadSegmentLaneChangeDbaseRecord>(new Random().Next(1, 5))
+                .Select((record, index) =>
+                {
+                    record.RS_OIDN.Value = index + 1;
+                    record.WS_OIDN.Value = segment.Id;
+                    record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
+                    return record;
+                })
+                .ToArray();
+            var enumerator = records.ToDbaseRecordEnumerator();
+            var changes = TranslatedChanges.Empty.Append(segment);
+
+            var result = _sut.Translate(_entry, enumerator, changes);
+
+            var expected = TranslatedChanges.Empty.Append(segment);
 
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }

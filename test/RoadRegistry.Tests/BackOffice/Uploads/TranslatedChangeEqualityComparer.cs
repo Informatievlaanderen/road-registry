@@ -18,9 +18,21 @@ namespace RoadRegistry.BackOffice.Uploads
                     )
                 },
                 {
+                    (typeof(RemoveRoadSegmentFromEuropeanRoad), typeof(RemoveRoadSegmentFromEuropeanRoad)),
+                    new TranslatedChangeEqualityComparer<RemoveRoadSegmentFromEuropeanRoad>(
+                        new RemoveRoadSegmentFromEuropeanRoadEqualityComparer()
+                    )
+                },
+                {
                     (typeof(AddRoadSegmentToNationalRoad), typeof(AddRoadSegmentToNationalRoad)),
                     new TranslatedChangeEqualityComparer<AddRoadSegmentToNationalRoad>(
                         new AddRoadSegmentToNationalRoadEqualityComparer()
+                    )
+                },
+                {
+                    (typeof(RemoveRoadSegmentFromNationalRoad), typeof(RemoveRoadSegmentFromNationalRoad)),
+                    new TranslatedChangeEqualityComparer<RemoveRoadSegmentFromNationalRoad>(
+                        new RemoveRoadSegmentFromNationalRoadEqualityComparer()
                     )
                 },
                 {
@@ -30,9 +42,33 @@ namespace RoadRegistry.BackOffice.Uploads
                     )
                 },
                 {
+                    (typeof(ModifyRoadSegmentOnNumberedRoad), typeof(ModifyRoadSegmentOnNumberedRoad)),
+                    new TranslatedChangeEqualityComparer<ModifyRoadSegmentOnNumberedRoad>(
+                        new ModifyRoadSegmentOnNumberedRoadEqualityComparer()
+                    )
+                },
+                {
+                    (typeof(RemoveRoadSegmentFromNumberedRoad), typeof(RemoveRoadSegmentFromNumberedRoad)),
+                    new TranslatedChangeEqualityComparer<RemoveRoadSegmentFromNumberedRoad>(
+                        new RemoveRoadSegmentFromNumberedRoadEqualityComparer()
+                    )
+                },
+                {
                     (typeof(AddGradeSeparatedJunction), typeof(AddGradeSeparatedJunction)),
                     new TranslatedChangeEqualityComparer<AddGradeSeparatedJunction>(
                         new AddGradeSeparatedJunctionEqualityComparer()
+                    )
+                },
+                {
+                    (typeof(ModifyGradeSeparatedJunction), typeof(ModifyGradeSeparatedJunction)),
+                    new TranslatedChangeEqualityComparer<ModifyGradeSeparatedJunction>(
+                        new ModifyGradeSeparatedJunctionEqualityComparer()
+                    )
+                },
+                {
+                    (typeof(RemoveGradeSeparatedJunction), typeof(RemoveGradeSeparatedJunction)),
+                    new TranslatedChangeEqualityComparer<RemoveGradeSeparatedJunction>(
+                        new RemoveGradeSeparatedJunctionEqualityComparer()
                     )
                 },
                 {
@@ -42,9 +78,33 @@ namespace RoadRegistry.BackOffice.Uploads
                     )
                 },
                 {
+                    (typeof(ModifyRoadNode), typeof(ModifyRoadNode)),
+                    new TranslatedChangeEqualityComparer<ModifyRoadNode>(
+                        new ModifyRoadNodeEqualityComparer()
+                    )
+                },
+                {
+                    (typeof(RemoveRoadNode), typeof(RemoveRoadNode)),
+                    new TranslatedChangeEqualityComparer<RemoveRoadNode>(
+                        new RemoveRoadNodeEqualityComparer()
+                    )
+                },
+                {
                     (typeof(AddRoadSegment), typeof(AddRoadSegment)),
                     new TranslatedChangeEqualityComparer<AddRoadSegment>(
                         new AddRoadSegmentEqualityComparer()
+                    )
+                },
+                {
+                    (typeof(ModifyRoadSegment), typeof(ModifyRoadSegment)),
+                    new TranslatedChangeEqualityComparer<ModifyRoadSegment>(
+                        new ModifyRoadSegmentEqualityComparer()
+                    )
+                },
+                {
+                    (typeof(RemoveRoadSegment), typeof(RemoveRoadSegment)),
+                    new TranslatedChangeEqualityComparer<RemoveRoadSegment>(
+                        new RemoveRoadSegmentEqualityComparer()
                     )
                 }
             };

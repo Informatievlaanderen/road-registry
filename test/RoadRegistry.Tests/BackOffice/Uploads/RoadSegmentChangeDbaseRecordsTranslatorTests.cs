@@ -97,11 +97,22 @@ namespace RoadRegistry.BackOffice.Uploads
         public void TranslateWithRecordsReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<RoadSegmentChangeDbaseRecord>(new Random().Next(1, 5))
+                .CreateMany<RoadSegmentChangeDbaseRecord>(new Random().Next(1, 4))
                 .Select((record, index) =>
                 {
                     record.WS_OIDN.Value = index + 1;
-                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                    switch (index % 3)
+                    {
+                        case 0:
+                            record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                            break;
+                        case 1:
+                            record.RECORDTYPE.Value = (short)RecordType.Modified.Translation.Identifier;
+                            break;
+                        case 2:
+                            record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                            break;
+                    }
                     return record;
                 })
                 .ToArray();
@@ -112,23 +123,66 @@ namespace RoadRegistry.BackOffice.Uploads
 
             var expected = records.Aggregate(
                 TranslatedChanges.Empty,
-                (changes, current) => changes.Append(
-                    new Uploads.AddRoadSegment(
-                        new RecordNumber(Array.IndexOf(records, current) + 1),
-                        new RoadSegmentId(current.WS_OIDN.Value),
-                        new RoadNodeId(current.B_WK_OIDN.Value),
-                        new RoadNodeId(current.E_WK_OIDN.Value),
-                        new OrganizationId(current.BEHEERDER.Value),
-                        RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value],
-                        RoadSegmentMorphology.ByIdentifier[current.MORFOLOGIE.Value],
-                        RoadSegmentStatus.ByIdentifier[current.STATUS.Value],
-                        RoadSegmentCategory.ByIdentifier[current.WEGCAT.Value],
-                        RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
-                        current.LSTRNMID.Value.HasValue ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault()) : default,
-                        current.RSTRNMID.Value.HasValue ? new CrabStreetnameId(current.RSTRNMID.Value.GetValueOrDefault()) : default
-                    )
-                )
-            );
+                (previousChanges, current) =>
+                {
+                    var nextChanges = previousChanges;
+                    switch (Array.IndexOf(records, current) % 3)
+                    {
+                        case 0:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.AddRoadSegment(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new RoadSegmentId(current.WS_OIDN.Value),
+                                    new RoadNodeId(current.B_WK_OIDN.Value),
+                                    new RoadNodeId(current.E_WK_OIDN.Value),
+                                    new OrganizationId(current.BEHEERDER.Value),
+                                    RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value],
+                                    RoadSegmentMorphology.ByIdentifier[current.MORFOLOGIE.Value],
+                                    RoadSegmentStatus.ByIdentifier[current.STATUS.Value],
+                                    RoadSegmentCategory.ByIdentifier[current.WEGCAT.Value],
+                                    RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
+                                    current.LSTRNMID.Value.HasValue
+                                        ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault())
+                                        : default,
+                                    current.RSTRNMID.Value.HasValue
+                                        ? new CrabStreetnameId(current.RSTRNMID.Value.GetValueOrDefault())
+                                        : default
+                                )
+                            );
+                            break;
+                        case 1:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.ModifyRoadSegment(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new RoadSegmentId(current.WS_OIDN.Value),
+                                    new RoadNodeId(current.B_WK_OIDN.Value),
+                                    new RoadNodeId(current.E_WK_OIDN.Value),
+                                    new OrganizationId(current.BEHEERDER.Value),
+                                    RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value],
+                                    RoadSegmentMorphology.ByIdentifier[current.MORFOLOGIE.Value],
+                                    RoadSegmentStatus.ByIdentifier[current.STATUS.Value],
+                                    RoadSegmentCategory.ByIdentifier[current.WEGCAT.Value],
+                                    RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
+                                    current.LSTRNMID.Value.HasValue
+                                        ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault())
+                                        : default,
+                                    current.RSTRNMID.Value.HasValue
+                                        ? new CrabStreetnameId(current.RSTRNMID.Value.GetValueOrDefault())
+                                        : default
+                                )
+                            );
+                            break;
+                        case 2:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.RemoveRoadSegment(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new RoadSegmentId(current.WS_OIDN.Value)
+                                )
+                            );
+                            break;
+                    }
+                    return nextChanges;
+                });
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }
 

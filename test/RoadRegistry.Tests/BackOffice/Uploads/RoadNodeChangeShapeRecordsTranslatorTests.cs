@@ -82,7 +82,7 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         [Fact]
-        public void TranslateWithRecordsReturnsExpectedResult()
+        public void TranslateWithAddRecordsReturnsExpectedResult()
         {
             var node = _fixture.Create<AddRoadNode>();
             var record = _fixture.Create<ShapeRecord>().Content.RecordAs(node.RecordNumber);
@@ -93,6 +93,38 @@ namespace RoadRegistry.BackOffice.Uploads
             var result = _sut.Translate(_entry, enumerator, changes);
 
             var expected = TranslatedChanges.Empty.Append(node.WithGeometry(GeometryTranslator.ToGeometryPoint(((PointShapeContent)record.Content).Shape)));
+
+            Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
+        }
+
+        [Fact]
+        public void TranslateWithModifyRecordsReturnsExpectedResult()
+        {
+            var node = _fixture.Create<ModifyRoadNode>();
+            var record = _fixture.Create<ShapeRecord>().Content.RecordAs(node.RecordNumber);
+            var records = new List<ShapeRecord> { record };
+            var enumerator = records.GetEnumerator();
+            var changes = TranslatedChanges.Empty.Append(node);
+
+            var result = _sut.Translate(_entry, enumerator, changes);
+
+            var expected = TranslatedChanges.Empty.Append(node.WithGeometry(GeometryTranslator.ToGeometryPoint(((PointShapeContent)record.Content).Shape)));
+
+            Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
+        }
+
+        [Fact]
+        public void TranslateWithRemoveRecordsReturnsExpectedResult()
+        {
+            var node = _fixture.Create<RemoveRoadNode>();
+            var record = _fixture.Create<ShapeRecord>().Content.RecordAs(node.RecordNumber);
+            var records = new List<ShapeRecord> { record };
+            var enumerator = records.GetEnumerator();
+            var changes = TranslatedChanges.Empty.Append(node);
+
+            var result = _sut.Translate(_entry, enumerator, changes);
+
+            var expected = TranslatedChanges.Empty.Append(node);
 
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }

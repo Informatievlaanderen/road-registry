@@ -3,21 +3,20 @@ namespace RoadRegistry.BackOffice.Uploads
     using System;
     using System.Collections.Generic;
 
-    public class AddRoadSegmentToNumberedRoadEqualityComparer : IEqualityComparer<AddRoadSegmentToNumberedRoad>
+    public class ModifyRoadSegmentOnNumberedRoadEqualityComparer : IEqualityComparer<ModifyRoadSegmentOnNumberedRoad>
     {
-        public bool Equals(AddRoadSegmentToNumberedRoad left, AddRoadSegmentToNumberedRoad right)
+        public bool Equals(ModifyRoadSegmentOnNumberedRoad left, ModifyRoadSegmentOnNumberedRoad right)
         {
             if (left == null && right == null) return true;
             if (left == null || right == null) return false;
             return left.Number.Equals(right.Number)
                    && left.SegmentId.Equals(right.SegmentId)
-                   && left.TemporaryAttributeId.Equals(right.TemporaryAttributeId)
+                   && left.AttributeId.Equals(right.AttributeId)
                    && left.Ordinal.Equals(right.Ordinal)
-                   && left.Direction.Equals(right.Direction)
-                   && left.RecordNumber.Equals(right.RecordNumber);
+                   && left.Direction.Equals(right.Direction);
         }
 
-        public int GetHashCode(AddRoadSegmentToNumberedRoad instance)
+        public int GetHashCode(ModifyRoadSegmentOnNumberedRoad instance)
         {
             throw new NotSupportedException();
         }

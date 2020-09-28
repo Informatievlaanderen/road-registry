@@ -91,7 +91,7 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         [Fact]
-        public void TranslateWithRecordsReturnsExpectedResult()
+        public void TranslateWithRecordsForAddRoadSegmentReturnsExpectedResult()
         {
             var segment = _fixture.Create<Uploads.AddRoadSegment>();
             var records = _fixture
@@ -124,6 +124,69 @@ namespace RoadRegistry.BackOffice.Uploads
                             )
                         )
                 );
+
+            Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
+        }
+
+        [Fact]
+        public void TranslateWithRecordsForModifyRoadSegmentReturnsExpectedResult()
+        {
+            var segment = _fixture.Create<Uploads.ModifyRoadSegment>();
+            var records = _fixture
+                .CreateMany<RoadSegmentSurfaceChangeDbaseRecord>(new Random().Next(1, 5))
+                .Select((record, index) =>
+                {
+                    record.WV_OIDN.Value = index + 1;
+                    record.WS_OIDN.Value = segment.Id;
+                    record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
+                    return record;
+                })
+                .ToArray();
+            var enumerator = records.ToDbaseRecordEnumerator();
+            var changes = TranslatedChanges.Empty.Append(segment);
+
+            var result = _sut.Translate(_entry, enumerator, changes);
+
+            var expected =
+                TranslatedChanges.Empty.Append(
+                    records
+                        .Where(record => record.RECORDTYPE.Value != (short)RecordType.Removed.Translation.Identifier)
+                        .Aggregate(
+                            segment,
+                            (current, record) => current.WithSurface(
+                                new Uploads.RoadSegmentSurfaceAttribute(
+                                    new AttributeId(record.WV_OIDN.Value),
+                                    RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value],
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value)))
+                            )
+                        )
+                );
+
+            Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
+        }
+
+
+        [Fact]
+        public void TranslateWithRecordsForRemoveRoadSegmentReturnsExpectedResult()
+        {
+            var segment = _fixture.Create<Uploads.RemoveRoadSegment>();
+            var records = _fixture
+                .CreateMany<RoadSegmentSurfaceChangeDbaseRecord>(new Random().Next(1, 5))
+                .Select((record, index) =>
+                {
+                    record.WV_OIDN.Value = index + 1;
+                    record.WS_OIDN.Value = segment.Id;
+                    record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
+                    return record;
+                })
+                .ToArray();
+            var enumerator = records.ToDbaseRecordEnumerator();
+            var changes = TranslatedChanges.Empty.Append(segment);
+
+            var result = _sut.Translate(_entry, enumerator, changes);
+
+            var expected = TranslatedChanges.Empty.Append(segment);
 
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }

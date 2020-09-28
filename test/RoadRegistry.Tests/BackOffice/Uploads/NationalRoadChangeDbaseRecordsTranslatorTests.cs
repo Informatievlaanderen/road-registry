@@ -83,11 +83,22 @@ namespace RoadRegistry.BackOffice.Uploads
         public void TranslateWithRecordsReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<NationalRoadChangeDbaseRecord>(new Random().Next(1, 5))
+                .CreateMany<NationalRoadChangeDbaseRecord>(new Random().Next(1, 4))
                 .Select((record, index) =>
                 {
                     record.NW_OIDN.Value = index + 1;
-                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                    switch (index % 3)
+                    {
+                        case 0:
+                            record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                            break;
+                        case 1:
+                            record.RECORDTYPE.Value = (short)RecordType.Modified.Translation.Identifier;
+                            break;
+                        case 2:
+                            record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                            break;
+                    }
                     return record;
                 })
                 .ToArray();
@@ -97,13 +108,32 @@ namespace RoadRegistry.BackOffice.Uploads
 
             var expected = records.Aggregate(
                 TranslatedChanges.Empty,
-                (changes, current) => changes.Append(
-                    new Uploads.AddRoadSegmentToNationalRoad(
-                        new RecordNumber(Array.IndexOf(records, current) + 1),
-                        new AttributeId(current.NW_OIDN.Value),
-                        new RoadSegmentId(current.WS_OIDN.Value),
-                        NationalRoadNumber.Parse(current.IDENT2.Value)))
-            );
+                (previousChanges, current) =>
+                {
+                    var nextChanges = previousChanges;
+                    switch (Array.IndexOf(records, current) % 3)
+                    {
+                        case 0:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.AddRoadSegmentToNationalRoad(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new AttributeId(current.NW_OIDN.Value),
+                                    new RoadSegmentId(current.WS_OIDN.Value),
+                                    NationalRoadNumber.Parse(current.IDENT2.Value)));
+                            break;
+                        case 1:
+                            break; // modify case is not handled - we need to verify that this does not appear
+                        case 2:
+                            previousChanges.Append(
+                                new Uploads.RemoveRoadSegmentFromNationalRoad(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new AttributeId(current.NW_OIDN.Value),
+                                    new RoadSegmentId(current.WS_OIDN.Value),
+                                    NationalRoadNumber.Parse(current.IDENT2.Value)));
+                            break;
+                    }
+                    return nextChanges;
+                });
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }
 

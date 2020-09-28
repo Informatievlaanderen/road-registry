@@ -81,11 +81,16 @@ namespace RoadRegistry.BackOffice.Uploads
         public void TranslateWithRecordsReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<RoadNodeChangeDbaseRecord>(new Random().Next(1, 5))
+                .CreateMany<RoadNodeChangeDbaseRecord>(new Random().Next(1, 4))
                 .Select((record, index) =>
                 {
                     record.WEGKNOOPID.Value = index + 1;
-                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                    switch (index % 3)
+                    {
+                        case 0: record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier; break;
+                        case 1: record.RECORDTYPE.Value = (short)RecordType.Modified.Translation.Identifier; break;
+                        case 2: record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier; break;
+                    }
                     return record;
                 })
                 .ToArray();
@@ -96,14 +101,41 @@ namespace RoadRegistry.BackOffice.Uploads
 
             var expected = records.Aggregate(
                 TranslatedChanges.Empty,
-                (changes, current) => changes.Append(
-                    new Uploads.AddRoadNode(
-                        new RecordNumber(Array.IndexOf(records, current) + 1),
-                        new RoadNodeId(current.WEGKNOOPID.Value),
-                        RoadNodeType.ByIdentifier[current.TYPE.Value]
-                    )
-                )
-            );
+                (previousChanges, current) =>
+                {
+                    var nextChanges = previousChanges;
+                    switch (Array.IndexOf(records, current) % 3)
+                    {
+                        case 0:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.AddRoadNode(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new RoadNodeId(current.WEGKNOOPID.Value),
+                                    RoadNodeType.ByIdentifier[current.TYPE.Value]
+                                )
+                            );
+                            break;
+                        case 1:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.ModifyRoadNode(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new RoadNodeId(current.WEGKNOOPID.Value),
+                                    RoadNodeType.ByIdentifier[current.TYPE.Value]
+                                )
+                            );
+                            break;
+                        case 2:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.RemoveRoadNode(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new RoadNodeId(current.WEGKNOOPID.Value)
+                                )
+                            );
+                            break;
+                    }
+                    return nextChanges;
+                });
+
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }
 
