@@ -1,45 +1,50 @@
 namespace RoadRegistry.Wms.Projections
 {
     using System.Linq;
+    using System.Net.Mime;
+    using System.Threading;
     using System.Threading.Tasks;
     using BackOffice;
     using BackOffice.Messages;
-    using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Microsoft.EntityFrameworkCore;
     using Schema;
     using Syndication.Schema;
-
-    [EventName("RefreshWms")]
-    [EventDescription("Internal event to refresh the wms projection based on the street name and municipality caches.")]
-    public class RefreshWms
-    {
-        public long Previous { get; set; }
-        public long Desired { get; set; }
-    }
 
     public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
     {
         public RoadSegmentRecordProjection(IStreetNameCache streetNameCache)
         {
-            When<Envelope<RefreshWms>>(async (context, envelope, token) =>
+            When<Envelope<SynchronizeWithStreetNameCache>>(async (context, envelope, token) =>
             {
-                var updatedStreetNames = await streetNameCache.GetBetween(envelope.Message.Previous, envelope.Message.Desired);
-                foreach (var updatedStreetName in updatedStreetNames)
-                {
-                    foreach (var roadSegmentRecord in context.RoadSegments.Where(record =>
-                        record.LeftSideStreetNameId == updatedStreetName.PersistentLocalId &&
-                        record.LeftSideStreetName != updatedStreetName.DutchNameWithHomonymAddition))
-                    {
-                        roadSegmentRecord.LeftSideStreetName = updatedStreetName.DutchNameWithHomonymAddition;
-                    }
+                var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
 
-                    foreach (var roadSegmentRecord in context.RoadSegments.Where(record =>
-                        record.RightSideStreetNameId == updatedStreetName.PersistentLocalId &&
-                        record.RightSideStreetName != updatedStreetName.DutchNameWithHomonymAddition))
-                    {
-                        roadSegmentRecord.RightSideStreetName = updatedStreetName.DutchNameWithHomonymAddition;
-                    }
+                var outdatedRoadSegments = await context.RoadSegments
+                    .Where(record => record.StreetNameCachePosition < streetNameCachePosition)
+                    .OrderBy(record => record.StreetNameCachePosition)
+                    .Take(envelope.Message.BatchSize)
+                    .ToListAsync();
+
+                var outdatedStreetNameIds = outdatedRoadSegments
+                    .Select(record => record.LeftSideStreetNameId)
+                    .Union(outdatedRoadSegments.Select(record => record.RightSideStreetNameId))
+                    .Where(i => i.HasValue)
+                    .Select(i => i.Value);
+
+                var streetNamesById = await streetNameCache.GetStreetNamesByIdAsync(outdatedStreetNameIds, token);
+
+                foreach (var roadSegment in outdatedRoadSegments)
+                {
+                    if (roadSegment.LeftSideStreetNameId.HasValue &&
+                        streetNamesById.ContainsKey(roadSegment.LeftSideStreetNameId.Value))
+                        roadSegment.LeftSideStreetName = streetNamesById[roadSegment.LeftSideStreetNameId.Value];
+
+                    if(roadSegment.RightSideStreetNameId.HasValue &&
+                       streetNamesById.ContainsKey(roadSegment.RightSideStreetNameId.Value))
+                        roadSegment.RightSideStreetName = streetNamesById[roadSegment.RightSideStreetNameId.Value];
+
+                    roadSegment.StreetNameCachePosition = streetNameCachePosition;
                 }
             });
 
@@ -52,8 +57,9 @@ namespace RoadRegistry.Wms.Projections
                 var category = RoadSegmentCategory.Parse(envelope.Message.Category);
                 var transactionId = new TransactionId(envelope.Message.Origin.TransactionId);
 
-                var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.LeftSide.StreetNameId);
-                var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.RightSide.StreetNameId);
+                var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
+                var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.LeftSide.StreetNameId, token);
+                var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.RightSide.StreetNameId, token);
 
                 await context.RoadSegments.AddAsync(new RoadSegmentRecord
                 {
@@ -102,7 +108,8 @@ namespace RoadRegistry.Wms.Projections
                     RoadSegmentVersion = envelope.Message.Version,
 
                     BeginRoadNodeId = envelope.Message.StartNodeId,
-                    EndRoadNodeId = envelope.Message.EndNodeId
+                    EndRoadNodeId = envelope.Message.EndNodeId,
+                    StreetNameCachePosition = streetNameCachePosition,
                 }, token);
             });
 
@@ -128,8 +135,9 @@ namespace RoadRegistry.Wms.Projections
 
                             var category = RoadSegmentCategory.Parse(m.Category);
 
-                            var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, m.LeftSide.StreetNameId);
-                            var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, m.RightSide.StreetNameId);
+                            var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
+                            var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, m.LeftSide.StreetNameId, token);
+                            var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, m.RightSide.StreetNameId, token);
 
                             await context.RoadSegments.AddAsync(new RoadSegmentRecord
                             {
@@ -177,7 +185,8 @@ namespace RoadRegistry.Wms.Projections
                                 RoadSegmentVersion = m.Version,
 
                                 BeginRoadNodeId = m.StartNodeId,
-                                EndRoadNodeId = m.EndNodeId
+                                EndRoadNodeId = m.EndNodeId,
+                                StreetNameCachePosition = streetNameCachePosition,
                             }, token);
                             break;
                     }
@@ -185,15 +194,20 @@ namespace RoadRegistry.Wms.Projections
             });
         }
 
-        private static async Task<StreetNameRecord> TryGetFromCache(IStreetNameCache streetNameCache, int? streetNameId)
+        private static async Task<StreetNameRecord> TryGetFromCache(
+            IStreetNameCache streetNameCache,
+            int? streetNameId,
+            CancellationToken token)
         {
             return streetNameId.HasValue ?
-                await streetNameCache.Get(streetNameId.Value) :
+                await streetNameCache.GetAsync(streetNameId.Value, token) :
                 null;
         }
 
 
-        private async Task<MunicipalityRecord> TryGetFromCache(IMunicipalityCache municipalityCache, string leftSideMunicipalityNisCode)
+        private async Task<MunicipalityRecord> TryGetFromCache(
+            IMunicipalityCache municipalityCache,
+            string leftSideMunicipalityNisCode)
         {
             return !string.IsNullOrWhiteSpace(leftSideMunicipalityNisCode) ?
                 await municipalityCache.Get(leftSideMunicipalityNisCode) :

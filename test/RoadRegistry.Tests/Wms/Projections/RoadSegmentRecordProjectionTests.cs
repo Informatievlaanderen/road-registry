@@ -110,6 +110,8 @@ namespace RoadRegistry.Wms.Projections
                     RoadSegmentVersion = expectedRoadSegment.wegsegmentversie,
                     BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,
                     EndRoadNodeId = expectedRoadSegment.eindWegknoopID,
+
+                    StreetNameCachePosition = -1L
                 });
         }
 
@@ -165,16 +167,20 @@ namespace RoadRegistry.Wms.Projections
                     TransactionId = expectedRoadSegment.transactieID,
 
                     LeftSideMunicipalityId = null,
+                    LeftSideMunicipalityNisCode = streetNameRecord.NisCode,
                     LeftSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
                     LeftSideStreetName = streetNameRecord.DutchNameWithHomonymAddition,
 
                     RightSideMunicipalityId = null,
+                    RightSideMunicipalityNisCode = streetNameRecord.NisCode,
                     RightSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
                     RightSideStreetName = streetNameRecord.DutchNameWithHomonymAddition,
 
                     RoadSegmentVersion = expectedRoadSegment.wegsegmentversie,
                     BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,
                     EndRoadNodeId = expectedRoadSegment.eindWegknoopID,
+
+                    StreetNameCachePosition = -1L
                 });
         }
 
@@ -230,6 +236,8 @@ namespace RoadRegistry.Wms.Projections
                     RoadSegmentVersion = segment.Version,
                     BeginRoadNodeId = segment.StartNodeId,
                     EndRoadNodeId = segment.EndNodeId,
+
+                    StreetNameCachePosition = -1L
                 };
             });
 
@@ -237,21 +245,6 @@ namespace RoadRegistry.Wms.Projections
                 .Scenario()
                 .Given(message)
                 .Expect(expectedRecords);
-        }
-    }
-
-    public class StreetNameCacheStub : IStreetNameCache
-    {
-        private readonly StreetNameRecord _stubbedValue;
-
-        public StreetNameCacheStub(StreetNameRecord stubbedValue = null)
-        {
-            _stubbedValue = stubbedValue;
-        }
-
-        public Task<StreetNameRecord> Get(int streetNameId)
-        {
-            return Task.FromResult(_stubbedValue);
         }
     }
 }

@@ -83,6 +83,7 @@
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
                         .AddSingleton<IStreetNameCache, StreetNameCache>()
+                        .AddSingleton<IMunicipalityCache, MunicipalityCache>()
                         .AddHostedService<EventProcessor>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(new EnvelopeFactory(
@@ -113,7 +114,8 @@
                         )
                         .AddSingleton(sp => new ConnectedProjection<WmsContext>[]
                         {
-                            new RoadSegmentRecordProjection(sp.GetRequiredService<IStreetNameCache>())
+                            new RoadSegmentRecordProjection(
+                                sp.GetRequiredService<IStreetNameCache>())
                         })
                         .AddSingleton(sp =>
                             Resolve

@@ -3,15 +3,16 @@ namespace RoadRegistry.Wms.Projections
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     using Syndication.Schema;
 
     public interface IStreetNameCache
     {
-        Task<StreetNameRecord> Get(int streetNameId);
-        Task<long> GetHighWaterMark();
-        Task<IEnumerable<StreetNameRecord>> GetBetween(long previous, long until);
+        Task<StreetNameRecord> GetAsync(int streetNameId, CancellationToken token);
+        Task<long> GetMaxPositionAsync(CancellationToken token);
+        Task<Dictionary<int, string>> GetStreetNamesByIdAsync(IEnumerable<int> streetNameIds, CancellationToken token);
     }
 
     public class StreetNameCache : IStreetNameCache
@@ -23,30 +24,37 @@ namespace RoadRegistry.Wms.Projections
             _contextFactory = contextFactory;
         }
 
-        public async Task<StreetNameRecord> Get(int streetNameId)
+        public async Task<StreetNameRecord> GetAsync(int streetNameId, CancellationToken token)
         {
             using (var context = _contextFactory())
             {
                 return await context.StreetNames
-                    .SingleOrDefaultAsync(record => record.PersistentLocalId == streetNameId);
+                    .SingleOrDefaultAsync(record => record.PersistentLocalId == streetNameId, token);
             }
         }
 
-        public async Task<long> GetHighWaterMark()
+        public async Task<Dictionary<int, string>> GetStreetNamesByIdAsync(IEnumerable<int> streetNameIds, CancellationToken token)
         {
             using (var context = _contextFactory())
             {
                 return await context.StreetNames
-                    .MaxAsync(record => record.Position);
+                    .Where(record => record.PersistentLocalId.HasValue)
+                    .Where(record => streetNameIds.Contains(record.PersistentLocalId.Value))
+                    .ToDictionaryAsync(
+                        x => x.PersistentLocalId.Value,
+                        x => x.DutchNameWithHomonymAddition,
+                        token);
             }
         }
 
-        public async Task<IEnumerable<StreetNameRecord>> GetBetween(long previous, long until)
+        public async Task<long> GetMaxPositionAsync(CancellationToken token)
         {
             using (var context = _contextFactory())
             {
-                return await context.StreetNames
-                    .Where(record => record.Position > previous && record.Position <= until).ToListAsync();
+                if (!await context.StreetNames.AnyAsync(token))
+                    return -1;
+
+                return await context.StreetNames.MaxAsync(record => record.Position, token);
             }
         }
     }

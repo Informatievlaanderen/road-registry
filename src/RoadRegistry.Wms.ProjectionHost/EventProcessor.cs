@@ -24,7 +24,6 @@ namespace RoadRegistry.Wms.ProjectionHost
     public class EventProcessor : IHostedService
     {
         private const string RoadRegistryWmsProjectionHost = "roadregistry-wms-projectionhost";
-        private const string RoadRegistryWmsProjectionStreetNameHighWatermark = "roadregistry-wms-projection-street-name-high-water-mark";
 
         public static readonly JsonSerializerSettings SerializerSettings =
             EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
@@ -34,11 +33,11 @@ namespace RoadRegistry.Wms.ProjectionHost
                 new List<IReadOnlyDictionary<string, Type>>
                 {
                     EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly),
-                    EventMapping.DiscoverEventNamesInAssembly(typeof(RefreshWms).Assembly)
+                    EventMapping.DiscoverEventNamesInAssembly(typeof(SynchronizeWithStreetNameCache).Assembly)
                 }.SelectMany(dict => dict).ToDictionary(x => x.Key, x => x.Value));
 
         private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
-        private static readonly TimeSpan RefreshAfter = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan SynchronizeWithStreetNameCacheAfter = TimeSpan.FromMinutes(5);
 
         private readonly Channel<object> _messageChannel;
         private readonly CancellationTokenSource _messagePumpCancellation;
@@ -50,6 +49,7 @@ namespace RoadRegistry.Wms.ProjectionHost
         private const int CatchUpThreshold = 1000;
         private const int CatchUpBatchSize = 5000;
         private const int RecordPositionThreshold = 1000;
+        private const int SynchronizeWithCacheBatchSize = 100;
 
         public EventProcessor(
             IStreamStore streamStore,
@@ -89,48 +89,42 @@ namespace RoadRegistry.Wms.ProjectionHost
                         {
                             switch (message)
                             {
-                                case Refresh _:
-                                    logger.LogInformation("Refreshing ...");
-                                    await using (var refreshContext = dbContextFactory())
+                                case SynchronizeWithCache _:
+                                    logger.LogInformation("Syncing with cache ...");
+                                    await using (var syncWithCacheContext = dbContextFactory())
                                     {
-                                        var previousHighWaterMark = (await refreshContext.ProjectionStates
-                                            .SingleOrDefaultAsync(
-                                                item => item.Name == RoadRegistryWmsProjectionStreetNameHighWatermark,
-                                                _messagePumpCancellation.Token)
-                                            .ConfigureAwait(false))?.Position ?? -1;
+                                        var roadSegmentMinStreetNameCachePosition =
+                                            await syncWithCacheContext.RoadSegments
+                                                .MinAsync(
+                                                    item => item.StreetNameCachePosition,
+                                                    _messagePumpCancellation.Token)
+                                                .ConfigureAwait(false);
 
-                                        var currentHighWaterMark = await streetNameCache.GetHighWaterMark();
+                                        var streetNameCacheMaxPosition = await streetNameCache.GetMaxPositionAsync(_messagePumpCancellation.Token);
 
-                                        if (currentHighWaterMark > previousHighWaterMark)
+                                        if (streetNameCacheMaxPosition > roadSegmentMinStreetNameCachePosition)
                                         {
-                                            var desiredHighWaterMark =
-                                                previousHighWaterMark + 10 > currentHighWaterMark
-                                                    ? currentHighWaterMark
-                                                    : previousHighWaterMark + 10;
-
+                                            logger.LogInformation("Street name cache difference: {@Difference}.", streetNameCacheMaxPosition - roadSegmentMinStreetNameCachePosition);
+                                            logger.LogInformation("Street name records out of sync: {@OutOfSync}.", await syncWithCacheContext.RoadSegments.CountAsync(record => record.StreetNameCachePosition != streetNameCacheMaxPosition));
                                             logger.LogInformation("Street name cache updated, scheduling refresh.");
-                                            var streamMessage = new StreamMessage(
-                                                new StreamId(Guid.NewGuid().ToString()),
-                                                Guid.NewGuid(), StreamVersion.Start, Position.Start,
-                                                DateTime.UtcNow, "RefreshWms", "{}",
-                                                $"{{ Previous: {previousHighWaterMark}, Desired: {desiredHighWaterMark} }}");
 
-                                            var envelope = envelopeFactory.Create(streamMessage);
+                                            var envelope = new Envelope(
+                                                    new SynchronizeWithStreetNameCache
+                                                    {
+                                                        BatchSize = SynchronizeWithCacheBatchSize
+                                                    },
+                                                    new Dictionary<string, object>())
+                                                .ToGenericEnvelope();
+
                                             var handlers = resolver(envelope);
                                             foreach (var handler in handlers)
                                             {
                                                 await handler
-                                                    .Handler(refreshContext, envelope, _messagePumpCancellation.Token)
+                                                    .Handler(syncWithCacheContext, envelope, _messagePumpCancellation.Token)
                                                     .ConfigureAwait(false);
                                             }
 
-                                            await refreshContext
-                                                .UpdateProjectionState(
-                                                    RoadRegistryWmsProjectionStreetNameHighWatermark,
-                                                    desiredHighWaterMark,
-                                                    _messagePumpCancellation.Token)
-                                                .ConfigureAwait(false);
-                                            await refreshContext.SaveChangesAsync();
+                                            await syncWithCacheContext.SaveChangesAsync();
                                         }
                                         else
                                         {
@@ -142,9 +136,9 @@ namespace RoadRegistry.Wms.ProjectionHost
                                     {
                                         if (!_messagePumpCancellation.IsCancellationRequested)
                                         {
-                                            await _messageChannel.Writer.WriteAsync(new Refresh(), token).ConfigureAwait(false);
+                                            await _messageChannel.Writer.WriteAsync(new SynchronizeWithCache(), token).ConfigureAwait(false);
                                         }
-                                    }, RefreshAfter).ConfigureAwait(false);
+                                    }, SynchronizeWithStreetNameCacheAfter).ConfigureAwait(false);
 
                                     break;
                                 case Resume _:
@@ -178,9 +172,9 @@ namespace RoadRegistry.Wms.ProjectionHost
                                         {
                                             if (!_messagePumpCancellation.IsCancellationRequested)
                                             {
-                                                await _messageChannel.Writer.WriteAsync(new Refresh(), token).ConfigureAwait(false);
+                                                await _messageChannel.Writer.WriteAsync(new SynchronizeWithCache(), token).ConfigureAwait(false);
                                             }
-                                        }, RefreshAfter).ConfigureAwait(false);
+                                        }, SynchronizeWithStreetNameCacheAfter).ConfigureAwait(false);
                                     }
 
                                     break;
@@ -428,7 +422,7 @@ namespace RoadRegistry.Wms.ProjectionHost
 
         private class Resume { }
 
-        private class Refresh { }
+        private class SynchronizeWithCache { }
 
         private class CatchUp
         {

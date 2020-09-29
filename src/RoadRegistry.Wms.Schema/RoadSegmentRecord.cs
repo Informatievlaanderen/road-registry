@@ -38,5 +38,6 @@ namespace RoadRegistry.Wms.Schema
         public string RightSideStreetName { get; set; }
         public string MaintainerName { get; set; }
         public Geometry Geometry2D { get; set; }
+        public long StreetNameCachePosition { get; set; }
     }
 }
