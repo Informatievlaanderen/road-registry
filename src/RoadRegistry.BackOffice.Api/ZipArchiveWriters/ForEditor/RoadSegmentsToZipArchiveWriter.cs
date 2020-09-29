@@ -64,10 +64,9 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
 
                     var cachedStreetNameIds = dbfRecords
                         .Select(record => record.LSTRNMID.Value)
-                        .Concat(dbfRecords.Select(record => record.RSTRNMID.Value))
+                        .Union(dbfRecords.Select(record => record.RSTRNMID.Value))
                         .Where(streetNameId => streetNameId.HasValue)
-                        .Select(streetNameId => streetNameId.Value)
-                        .Distinct();
+                        .Select(streetNameId => streetNameId.Value);
 
                     var cachedStreetNames = await _streetNameCache.GetStreetNamesById(cachedStreetNameIds);
 
