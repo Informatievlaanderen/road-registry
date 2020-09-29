@@ -64,7 +64,7 @@ namespace RoadRegistry.Editor.Projections
                 .Select(segment =>
                 {
                     segment.PartOfNumberedRoads = _fixture
-                        .CreateMany<ImportedRoadSegmentNumberedRoadAttributes>(random.Next(1, 10))
+                        .CreateMany<ImportedRoadSegmentNumberedRoadAttribute>(random.Next(1, 10))
                         .ToArray();
 
                     var expected = segment
@@ -109,7 +109,7 @@ namespace RoadRegistry.Editor.Projections
         public Task When_importing_a_road_node_without_numbered_road_links()
         {
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-            importedRoadSegment.PartOfNumberedRoads = new ImportedRoadSegmentNumberedRoadAttributes[0];
+            importedRoadSegment.PartOfNumberedRoads = new ImportedRoadSegmentNumberedRoadAttribute[0];
 
             return new RoadSegmentNumberedRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()

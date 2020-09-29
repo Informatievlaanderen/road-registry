@@ -8,6 +8,7 @@ namespace RoadRegistry.BackOffice.Core
         // data
         IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes { get; }
         IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments { get; }
+        IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
         TransactionId MaximumTransactionId { get; }
         RoadNodeId MaximumNodeId { get; }
         RoadSegmentId MaximumSegmentId { get; }

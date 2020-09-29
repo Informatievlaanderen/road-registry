@@ -36,21 +36,28 @@ namespace RoadRegistry.BackOffice.Core
             // in the before we want to make sure we're dealing with an existing junction
 
             var problems = Problems.None;
-            if (!context.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
+            if (!context.View.GradeSeparatedJunctions.ContainsKey(Id))
             {
-                problems = problems.UpperRoadSegmentMissing();
+                problems = problems.GradeSeparatedJunctionNotFound();
             }
-
-            if (!context.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
+            else
             {
-                problems = problems.LowerRoadSegmentMissing();
-            }
-
-            if (upperSegment != null && lowerSegment != null)
-            {
-                if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))
+                if (!context.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
                 {
-                    problems = problems.UpperAndLowerRoadSegmentDoNotIntersect();
+                    problems = problems.UpperRoadSegmentMissing();
+                }
+
+                if (!context.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
+                {
+                    problems = problems.LowerRoadSegmentMissing();
+                }
+
+                if (upperSegment != null && lowerSegment != null)
+                {
+                    if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))
+                    {
+                        problems = problems.UpperAndLowerRoadSegmentDoNotIntersect();
+                    }
                 }
             }
 

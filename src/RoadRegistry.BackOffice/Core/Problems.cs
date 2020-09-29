@@ -131,6 +131,12 @@ namespace RoadRegistry.BackOffice.Core
             );
         }
 
+
+        public Problems RoadSegmentNotFound()
+        {
+            return new Problems(_problems.Add(new Error(nameof(RoadSegmentNotFound))));
+        }
+
         public Problems RoadSegmentLaneAttributeFromPositionNotEqualToZero(AttributeId attributeId,
             RoadSegmentPosition fromPosition)
         {
@@ -264,6 +270,13 @@ namespace RoadRegistry.BackOffice.Core
         }
 
         // Grade Separated Junction Errors
+
+
+        public Problems GradeSeparatedJunctionNotFound()
+        {
+            return new Problems(_problems.Add(new Error(nameof(GradeSeparatedJunctionNotFound))));
+        }
+
         public Problems UpperRoadSegmentMissing() => new Problems(_problems.Add(new Error(nameof(UpperRoadSegmentMissing))));
         public Problems LowerRoadSegmentMissing() => new Problems(_problems.Add(new Error(nameof(LowerRoadSegmentMissing))));
         public Problems UpperAndLowerRoadSegmentDoNotIntersect() => new Problems(_problems.Add(new Error(nameof(UpperAndLowerRoadSegmentDoNotIntersect))));

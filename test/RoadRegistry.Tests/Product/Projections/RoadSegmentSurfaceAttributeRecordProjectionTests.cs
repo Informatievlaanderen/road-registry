@@ -65,7 +65,7 @@ namespace RoadRegistry.Product.Projections
                 .Select(segment =>
                 {
                     segment.Surfaces = _fixture
-                        .CreateMany<ImportedRoadSegmentSurfaceAttributes>(random.Next(1, 10))
+                        .CreateMany<ImportedRoadSegmentSurfaceAttribute>(random.Next(1, 10))
                         .ToArray();
 
                     var expected = segment
@@ -111,7 +111,7 @@ namespace RoadRegistry.Product.Projections
         public Task When_importing_a_road_node_without_surfaces()
         {
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-            importedRoadSegment.Surfaces = new ImportedRoadSegmentSurfaceAttributes[0];
+            importedRoadSegment.Surfaces = new ImportedRoadSegmentSurfaceAttribute[0];
 
             return new RoadRegistry.Product.Projections.RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()

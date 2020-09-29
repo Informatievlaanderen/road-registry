@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Messages
 {
-    public class ImportedRoadSegmentWidthAttributes
+    public class ImportedRoadSegmentWidthAttribute
     {
         public int AttributeId { get; set; }
         public int Width { get; set; }

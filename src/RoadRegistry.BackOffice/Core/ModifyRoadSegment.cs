@@ -71,211 +71,221 @@ namespace RoadRegistry.BackOffice.Core
             // in the before we want to make sure we're dealing with an existing segment
 
             var problems = Problems.None;
-            if (Math.Abs(Geometry.Length) <= context.Tolerance)
-            {
-                problems = problems.RoadSegmentGeometryLengthIsZero();
-            }
 
-            var byOtherSegment =
-                context.View.Segments.Values.FirstOrDefault(segment =>
-                    segment.Id != Id &&
-                    segment.Geometry.EqualsExact(Geometry));
-            if (byOtherSegment != null)
+            if (!context.View.Segments.ContainsKey(Id))
             {
-                problems = problems.RoadSegmentGeometryTaken(
-                    context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
-                );
-            }
-
-            var line = Geometry.Geometries
-                .OfType<LineString>()
-                .Single();
-            if (!context.View.Nodes.TryGetValue(StartNodeId, out var startNode))
-            {
-                problems = problems.RoadSegmentStartNodeMissing();
+                problems = problems.RoadSegmentNotFound();
             }
             else
             {
-                if (line.StartPoint != null && !line.StartPoint.EqualsExact(startNode.Geometry))
+                if (Math.Abs(Geometry.Length) <= context.Tolerance)
                 {
-                    problems = problems.RoadSegmentStartPointDoesNotMatchNodeGeometry();
+                    problems = problems.RoadSegmentGeometryLengthIsZero();
                 }
-            }
 
-            if (!context.View.Nodes.TryGetValue(EndNodeId, out var endNode))
-            {
-                problems = problems.RoadSegmentEndNodeMissing();
-            }
-            else
-            {
-                if (line.EndPoint != null && !line.EndPoint.EqualsExact(endNode.Geometry))
+                var byOtherSegment =
+                    context.View.Segments.Values.FirstOrDefault(segment =>
+                        segment.Id != Id &&
+                        segment.Geometry.EqualsExact(Geometry));
+                if (byOtherSegment != null)
                 {
-                    problems = problems.RoadSegmentEndPointDoesNotMatchNodeGeometry();
+                    problems = problems.RoadSegmentGeometryTaken(
+                        context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
+                    );
                 }
-            }
 
-            if (line.SelfOverlaps())
-            {
-                problems = problems.RoadSegmentGeometrySelfOverlaps();
-            }
-            else if (line.SelfIntersects())
-            {
-                problems = problems.RoadSegmentGeometrySelfIntersects();
-            }
-
-            if (line.NumPoints > 0)
-            {
-                var previousPointMeasure = 0.0;
-                for (var index = 0; index < line.CoordinateSequence.Count; index++)
+                var line = Geometry.Geometries
+                    .OfType<LineString>()
+                    .Single();
+                if (!context.View.Nodes.TryGetValue(StartNodeId, out var startNode))
                 {
-                    var measure = line.CoordinateSequence.GetOrdinate(index, Ordinate.M);
-                    var x = line.CoordinateSequence.GetX(index);
-                    var y = line.CoordinateSequence.GetY(index);
-                    if (index == 0 && Math.Abs(measure) > context.Tolerance)
+                    problems = problems.RoadSegmentStartNodeMissing();
+                }
+                else
+                {
+                    if (line.StartPoint != null && !line.StartPoint.EqualsExact(startNode.Geometry))
                     {
-                        problems =
-                            problems.RoadSegmentStartPointMeasureValueNotEqualToZero(x, y, measure);
+                        problems = problems.RoadSegmentStartPointDoesNotMatchNodeGeometry();
                     }
-                    else if (index == line.CoordinateSequence.Count - 1 && Math.Abs(measure - line.Length) > context.Tolerance)
+                }
+
+                if (!context.View.Nodes.TryGetValue(EndNodeId, out var endNode))
+                {
+                    problems = problems.RoadSegmentEndNodeMissing();
+                }
+                else
+                {
+                    if (line.EndPoint != null && !line.EndPoint.EqualsExact(endNode.Geometry))
                     {
-                        problems =
-                            problems.RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length);
+                        problems = problems.RoadSegmentEndPointDoesNotMatchNodeGeometry();
                     }
-                    else if (measure < 0.0 || measure > line.Length)
+                }
+
+                if (line.SelfOverlaps())
+                {
+                    problems = problems.RoadSegmentGeometrySelfOverlaps();
+                }
+                else if (line.SelfIntersects())
+                {
+                    problems = problems.RoadSegmentGeometrySelfIntersects();
+                }
+
+                if (line.NumPoints > 0)
+                {
+                    var previousPointMeasure = 0.0;
+                    for (var index = 0; index < line.CoordinateSequence.Count; index++)
                     {
-                        problems =
-                            problems.RoadSegmentPointMeasureValueOutOfRange(x, y, measure, 0.0, line.Length);
-                    }
-                    else
-                    {
-                        if (index != 0 && Math.Sign(measure - previousPointMeasure) <= 0)
+                        var measure = line.CoordinateSequence.GetOrdinate(index, Ordinate.M);
+                        var x = line.CoordinateSequence.GetX(index);
+                        var y = line.CoordinateSequence.GetY(index);
+                        if (index == 0 && Math.Abs(measure) > context.Tolerance)
                         {
                             problems =
-                                problems.RoadSegmentPointMeasureValueDoesNotIncrease(x, y, measure,
-                                    previousPointMeasure);
+                                problems.RoadSegmentStartPointMeasureValueNotEqualToZero(x, y, measure);
+                        }
+                        else if (index == line.CoordinateSequence.Count - 1 &&
+                                 Math.Abs(measure - line.Length) > context.Tolerance)
+                        {
+                            problems =
+                                problems.RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length);
+                        }
+                        else if (measure < 0.0 || measure > line.Length)
+                        {
+                            problems =
+                                problems.RoadSegmentPointMeasureValueOutOfRange(x, y, measure, 0.0, line.Length);
                         }
                         else
                         {
-                            previousPointMeasure = measure;
+                            if (index != 0 && Math.Sign(measure - previousPointMeasure) <= 0)
+                            {
+                                problems =
+                                    problems.RoadSegmentPointMeasureValueDoesNotIncrease(x, y, measure,
+                                        previousPointMeasure);
+                            }
+                            else
+                            {
+                                previousPointMeasure = measure;
+                            }
                         }
                     }
                 }
-            }
 
-            RoadSegmentLaneAttribute previousLane = null;
-            foreach (var lane in Lanes)
-            {
-                if (previousLane == null)
+                RoadSegmentLaneAttribute previousLane = null;
+                foreach (var lane in Lanes)
                 {
-                    if (lane.From != RoadSegmentPosition.Zero)
+                    if (previousLane == null)
                     {
-                        problems =
-                            problems.RoadSegmentLaneAttributeFromPositionNotEqualToZero(
-                                lane.TemporaryId,
-                                lane.From);
+                        if (lane.From != RoadSegmentPosition.Zero)
+                        {
+                            problems =
+                                problems.RoadSegmentLaneAttributeFromPositionNotEqualToZero(
+                                    lane.TemporaryId,
+                                    lane.From);
+                        }
                     }
-                }
-                else
-                {
-                    if (lane.From != previousLane.To)
+                    else
                     {
-                        problems =
-                            problems.RoadSegmentLaneAttributesNotAdjacent(
-                                previousLane.TemporaryId,
-                                previousLane.To,
-                                lane.TemporaryId,
-                                lane.From);
+                        if (lane.From != previousLane.To)
+                        {
+                            problems =
+                                problems.RoadSegmentLaneAttributesNotAdjacent(
+                                    previousLane.TemporaryId,
+                                    previousLane.To,
+                                    lane.TemporaryId,
+                                    lane.From);
+                        }
                     }
+
+                    previousLane = lane;
                 }
 
-                previousLane = lane;
-            }
-
-            if (previousLane != null)
-            {
-                if (Math.Abs(previousLane.To.ToDouble() - line.Length) > context.Tolerance)
+                if (previousLane != null)
                 {
-                    problems = problems.RoadSegmentLaneAttributeToPositionNotEqualToLength(
-                        previousLane.TemporaryId,
-                        previousLane.To,
-                        line.Length);
-                }
-            }
-
-            RoadSegmentWidthAttribute previousWidth = null;
-            foreach (var width in Widths)
-            {
-                if (previousWidth == null)
-                {
-                    if (width.From != RoadSegmentPosition.Zero)
+                    if (Math.Abs(previousLane.To.ToDouble() - line.Length) > context.Tolerance)
                     {
-                        problems =
-                            problems.RoadSegmentWidthAttributeFromPositionNotEqualToZero(
-                                width.TemporaryId,
-                                width.From);
-                    }
-                }
-                else
-                {
-                    if (width.From != previousWidth.To)
-                    {
-                        problems =
-                            problems.RoadSegmentWidthAttributesNotAdjacent(
-                                previousWidth.TemporaryId,
-                                previousWidth.To,
-                                width.TemporaryId,
-                                width.From);
+                        problems = problems.RoadSegmentLaneAttributeToPositionNotEqualToLength(
+                            previousLane.TemporaryId,
+                            previousLane.To,
+                            line.Length);
                     }
                 }
 
-                previousWidth = width;
-            }
-
-            if (previousWidth != null)
-            {
-                if (Math.Abs(previousWidth.To.ToDouble() - line.Length) > context.Tolerance)
+                RoadSegmentWidthAttribute previousWidth = null;
+                foreach (var width in Widths)
                 {
-                    problems = problems.RoadSegmentWidthAttributeToPositionNotEqualToLength(
-                        previousWidth.TemporaryId,
-                        previousWidth.To,
-                        line.Length);
-                }
-            }
-
-            RoadSegmentSurfaceAttribute previousSurface = null;
-            foreach (var surface in Surfaces)
-            {
-                if (previousSurface == null)
-                {
-                    if (surface.From != RoadSegmentPosition.Zero)
+                    if (previousWidth == null)
                     {
-                        problems =
-                            problems.RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(
-                                surface.TemporaryId,
-                                surface.From);
+                        if (width.From != RoadSegmentPosition.Zero)
+                        {
+                            problems =
+                                problems.RoadSegmentWidthAttributeFromPositionNotEqualToZero(
+                                    width.TemporaryId,
+                                    width.From);
+                        }
+                    }
+                    else
+                    {
+                        if (width.From != previousWidth.To)
+                        {
+                            problems =
+                                problems.RoadSegmentWidthAttributesNotAdjacent(
+                                    previousWidth.TemporaryId,
+                                    previousWidth.To,
+                                    width.TemporaryId,
+                                    width.From);
+                        }
+                    }
+
+                    previousWidth = width;
+                }
+
+                if (previousWidth != null)
+                {
+                    if (Math.Abs(previousWidth.To.ToDouble() - line.Length) > context.Tolerance)
+                    {
+                        problems = problems.RoadSegmentWidthAttributeToPositionNotEqualToLength(
+                            previousWidth.TemporaryId,
+                            previousWidth.To,
+                            line.Length);
                     }
                 }
-                else
+
+                RoadSegmentSurfaceAttribute previousSurface = null;
+                foreach (var surface in Surfaces)
                 {
-                    if (surface.From != previousSurface.To)
+                    if (previousSurface == null)
                     {
-                        problems =
-                            problems.RoadSegmentSurfaceAttributesNotAdjacent(
-                                previousSurface.TemporaryId,
-                                previousSurface.To,
-                                surface.TemporaryId,
-                                surface.From);
+                        if (surface.From != RoadSegmentPosition.Zero)
+                        {
+                            problems =
+                                problems.RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(
+                                    surface.TemporaryId,
+                                    surface.From);
+                        }
                     }
+                    else
+                    {
+                        if (surface.From != previousSurface.To)
+                        {
+                            problems =
+                                problems.RoadSegmentSurfaceAttributesNotAdjacent(
+                                    previousSurface.TemporaryId,
+                                    previousSurface.To,
+                                    surface.TemporaryId,
+                                    surface.From);
+                        }
+                    }
+
+                    previousSurface = surface;
                 }
 
-                previousSurface = surface;
-            }
-
-            if (previousSurface != null)
-            {
-                if (Math.Abs(previousSurface.To.ToDouble() - line.Length) > context.Tolerance)
+                if (previousSurface != null)
                 {
-                    problems = problems.RoadSegmentSurfaceAttributeToPositionNotEqualToLength(previousSurface.TemporaryId, previousSurface.To, line.Length);
+                    if (Math.Abs(previousSurface.To.ToDouble() - line.Length) > context.Tolerance)
+                    {
+                        problems = problems.RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
+                            previousSurface.TemporaryId, previousSurface.To, line.Length);
+                    }
                 }
             }
 

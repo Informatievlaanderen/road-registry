@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Scenarios
 {
     using System;
     using System.Collections.Generic;
@@ -12,6 +12,7 @@ namespace RoadRegistry.BackOffice.Core
     using NetTopologySuite.Geometries;
     using NetTopologySuite.Geometries.Implementation;
     using NodaTime.Text;
+    using Core;
     using RoadRegistry.Framework.Testing;
     using Xunit;
 
@@ -141,7 +142,7 @@ namespace RoadRegistry.BackOffice.Core
             AddStartNode1 = new Messages.AddRoadNode
             {
                 TemporaryId = Fixture.Create<RoadNodeId>(),
-                Geometry = GeometryTranslator.Translate(StartPoint1),
+                Geometry = Core.GeometryTranslator.Translate(StartPoint1),
                 Type = RoadNodeType.EndNode
             };
 
@@ -156,7 +157,7 @@ namespace RoadRegistry.BackOffice.Core
             ModifyStartNode1 = new Messages.ModifyRoadNode
             {
                 Id = 1,
-                Geometry = GeometryTranslator.Translate(StartPoint1),
+                Geometry = Core.GeometryTranslator.Translate(StartPoint1),
                 Type = RoadNodeType.EndNode
             };
 
@@ -170,7 +171,7 @@ namespace RoadRegistry.BackOffice.Core
             AddEndNode1 = new Messages.AddRoadNode
             {
                 TemporaryId = AddStartNode1.TemporaryId + 1,
-                Geometry = GeometryTranslator.Translate(EndPoint1),
+                Geometry = Core.GeometryTranslator.Translate(EndPoint1),
                 Type = RoadNodeType.EndNode
             };
 
@@ -185,7 +186,7 @@ namespace RoadRegistry.BackOffice.Core
             ModifyEndNode1 = new Messages.ModifyRoadNode
             {
                 Id = 2,
-                Geometry = GeometryTranslator.Translate(StartPoint2),
+                Geometry = Core.GeometryTranslator.Translate(StartPoint2),
                 Type = RoadNodeType.EndNode
             };
 
@@ -199,7 +200,7 @@ namespace RoadRegistry.BackOffice.Core
             AddStartNode2 = new Messages.AddRoadNode
             {
                 TemporaryId = AddEndNode1.TemporaryId + 1,
-                Geometry = GeometryTranslator.Translate(StartPoint2),
+                Geometry = Core.GeometryTranslator.Translate(StartPoint2),
                 Type = RoadNodeType.EndNode
             };
 
@@ -214,7 +215,7 @@ namespace RoadRegistry.BackOffice.Core
             AddEndNode2 = new Messages.AddRoadNode
             {
                 TemporaryId = AddStartNode2.TemporaryId + 1,
-                Geometry = GeometryTranslator.Translate(EndPoint2),
+                Geometry = Core.GeometryTranslator.Translate(EndPoint2),
                 Type = RoadNodeType.EndNode
             };
 
@@ -229,7 +230,7 @@ namespace RoadRegistry.BackOffice.Core
             AddStartNode3 = new Messages.AddRoadNode
             {
                 TemporaryId = AddEndNode2.TemporaryId + 1,
-                Geometry = GeometryTranslator.Translate(StartPoint3),
+                Geometry = Core.GeometryTranslator.Translate(StartPoint3),
                 Type = RoadNodeType.EndNode
             };
 
@@ -244,7 +245,7 @@ namespace RoadRegistry.BackOffice.Core
             AddEndNode3 = new Messages.AddRoadNode
             {
                 TemporaryId = AddStartNode3.TemporaryId + 1,
-                Geometry = GeometryTranslator.Translate(EndPoint3),
+                Geometry = Core.GeometryTranslator.Translate(EndPoint3),
                 Type = RoadNodeType.EndNode
             };
 
@@ -264,7 +265,7 @@ namespace RoadRegistry.BackOffice.Core
                 TemporaryId = Fixture.Create<RoadSegmentId>(),
                 StartNodeId = AddStartNode1.TemporaryId,
                 EndNodeId = AddEndNode1.TemporaryId,
-                Geometry = GeometryTranslator.Translate(MultiLineString1),
+                Geometry = Core.GeometryTranslator.Translate(MultiLineString1),
                 MaintenanceAuthority = Fixture.Create<OrganizationId>(),
                 GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                 Morphology = Fixture.Create<RoadSegmentMorphology>(),
@@ -394,7 +395,7 @@ namespace RoadRegistry.BackOffice.Core
                 TemporaryId = AddSegment1.TemporaryId + 1,
                 StartNodeId = AddStartNode2.TemporaryId,
                 EndNodeId = AddEndNode2.TemporaryId,
-                Geometry = GeometryTranslator.Translate(MultiLineString2),
+                Geometry = Core.GeometryTranslator.Translate(MultiLineString2),
                 MaintenanceAuthority = Fixture.Create<OrganizationId>(),
                 GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                 Morphology = Fixture.Create<RoadSegmentMorphology>(),
@@ -524,7 +525,7 @@ namespace RoadRegistry.BackOffice.Core
                 TemporaryId = AddSegment2.TemporaryId + 1,
                 StartNodeId = AddStartNode3.TemporaryId,
                 EndNodeId = AddEndNode3.TemporaryId,
-                Geometry = GeometryTranslator.Translate(MultiLineString3),
+                Geometry = Core.GeometryTranslator.Translate(MultiLineString3),
                 MaintenanceAuthority = Fixture.Create<OrganizationId>(),
                 GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                 Morphology = Fixture.Create<RoadSegmentMorphology>(),
@@ -967,16 +968,16 @@ namespace RoadRegistry.BackOffice.Core
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint1);
-            AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint2);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint1);
+            AddEndNode2.Geometry = Core.GeometryTranslator.Translate(endPoint2);
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -994,7 +995,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
+            AddSegment2.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1099,16 +1100,16 @@ namespace RoadRegistry.BackOffice.Core
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint1);
-            AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint2);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint1);
+            AddEndNode2.Geometry = Core.GeometryTranslator.Translate(endPoint2);
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1125,7 +1126,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
+            AddSegment2.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1230,11 +1231,11 @@ namespace RoadRegistry.BackOffice.Core
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
             StartNode1Added.Geometry = AddStartNode1.Geometry;
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint1);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint1);
             EndNode1Added.Geometry = AddEndNode1.Geometry;
-            AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint2);
+            AddEndNode2.Geometry = Core.GeometryTranslator.Translate(endPoint2);
             EndNode2Added.Geometry = AddEndNode2.Geometry;
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
@@ -1242,7 +1243,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1260,7 +1261,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
+            AddSegment2.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1420,16 +1421,16 @@ namespace RoadRegistry.BackOffice.Core
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint1);
-            AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint2);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint1);
+            AddStartNode2.Geometry = Core.GeometryTranslator.Translate(startPoint2);
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1447,7 +1448,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
+            AddSegment2.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1560,17 +1561,17 @@ namespace RoadRegistry.BackOffice.Core
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint1);
-            AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint2);
-            AddEndNode3.Geometry = GeometryTranslator.Translate(endPoint3);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint1);
+            AddEndNode2.Geometry = Core.GeometryTranslator.Translate(endPoint2);
+            AddEndNode3.Geometry = Core.GeometryTranslator.Translate(endPoint3);
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1588,7 +1589,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
+            AddSegment2.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1606,7 +1607,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment3Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment3.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment3Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment3.Geometry = GeometryTranslator.Translate(
+            AddSegment3.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1727,17 +1728,17 @@ namespace RoadRegistry.BackOffice.Core
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint1);
-            AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint2);
-            AddStartNode3.Geometry = GeometryTranslator.Translate(startPoint3);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint1);
+            AddStartNode2.Geometry = Core.GeometryTranslator.Translate(startPoint2);
+            AddStartNode3.Geometry = Core.GeometryTranslator.Translate(startPoint3);
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1755,7 +1756,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
+            AddSegment2.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1773,7 +1774,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment3Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment3.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment3Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment3.Geometry = GeometryTranslator.Translate(
+            AddSegment3.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new []
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new []
@@ -1880,7 +1881,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
+            AddSegment2.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(
                     new []
                     {
@@ -1998,7 +1999,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
+            AddSegment2.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(
                     new []
                     {
@@ -2199,7 +2200,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
+            AddSegment2.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(
                     new []
                     {
@@ -2215,7 +2216,7 @@ namespace RoadRegistry.BackOffice.Core
                         )
                     }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
             );
-            AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint);
+            AddStartNode2.Geometry = Core.GeometryTranslator.Translate(startPoint);
             return Run(scenario => scenario
                 .Given(Organizations.StreamNameFactory(ChangedByOrganization),
                     new ImportedOrganization
@@ -2304,7 +2305,7 @@ namespace RoadRegistry.BackOffice.Core
             ));
             AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
+            AddSegment2.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(
                     new []
                     {
@@ -2314,7 +2315,7 @@ namespace RoadRegistry.BackOffice.Core
                         )
                     }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
             );
-            AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint);
+            AddEndNode2.Geometry = Core.GeometryTranslator.Translate(endPoint);
             return Run(scenario => scenario
                 .Given(Organizations.StreamNameFactory(ChangedByOrganization),
                     new ImportedOrganization
@@ -2611,9 +2612,9 @@ namespace RoadRegistry.BackOffice.Core
             MultiLineString multiLineString)
         {
 
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
-            AddSegment1.Geometry = GeometryTranslator.Translate(multiLineString);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(multiLineString);
             AddSegment1.Lanes = AddSegment1.Lanes.Select((part, index) =>
             {
                 part.FromPosition = index * (Convert.ToDecimal(multiLineString.Length) / AddSegment1.Lanes.Length);
@@ -2769,9 +2770,9 @@ namespace RoadRegistry.BackOffice.Core
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
 
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
-            AddSegment1.Geometry = GeometryTranslator.Translate(multiLineString);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(multiLineString);
             AddSegment1.Lanes = AddSegment1.Lanes.Select((part, index) =>
             {
                 part.FromPosition = index * (Convert.ToDecimal(multiLineString.Length) / AddSegment1.Lanes.Length);
@@ -2991,7 +2992,7 @@ namespace RoadRegistry.BackOffice.Core
         [Fact]
         public Task when_adding_a_segment_whose_start_point_does_not_match_its_start_node_geometry()
         {
-            AddStartNode1.Geometry = GeometryTranslator.Translate(MiddlePoint1);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(MiddlePoint1);
 
             return Run(scenario => scenario
                 .Given(Organizations.StreamNameFactory(ChangedByOrganization),
@@ -3114,7 +3115,7 @@ namespace RoadRegistry.BackOffice.Core
         [Fact]
         public Task when_adding_a_segment_whose_end_point_does_not_match_its_end_node_geometry()
         {
-            AddEndNode1.Geometry = GeometryTranslator.Translate(MiddlePoint1);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(MiddlePoint1);
 
             return Run(scenario => scenario
                 .Given(Organizations.StreamNameFactory(ChangedByOrganization),
@@ -3241,7 +3242,7 @@ namespace RoadRegistry.BackOffice.Core
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            AddSegment1.Geometry = GeometryTranslator.Translate(geometry);
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(geometry);
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
@@ -4224,7 +4225,7 @@ namespace RoadRegistry.BackOffice.Core
         [Fact]
         public Task when_adding_a_grade_separated_junction_with_segments_that_intersect()
         {
-            Segment1Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
+            Segment1Added.Geometry = Core.GeometryTranslator.Translate(new MultiLineString(new []
             {
                 new NetTopologySuite.Geometries.LineString(
                     new CoordinateArraySequence(new Coordinate[] {new CoordinateM(0.0, 0.0), new CoordinateM(50.0, 50.0)}),
@@ -4236,7 +4237,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment2Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
+            Segment2Added.Geometry = Core.GeometryTranslator.Translate(new MultiLineString(new []
             {
                 new NetTopologySuite.Geometries.LineString(
                     new CoordinateArraySequence(new Coordinate[] {new CoordinateM(0.0, 50.0), new CoordinateM(50.0, 0.0)}),
@@ -4556,12 +4557,12 @@ namespace RoadRegistry.BackOffice.Core
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(new MultiLineString(new []
             {
                 new NetTopologySuite.Geometries.LineString(
                     new CoordinateArraySequence(new []
@@ -4653,12 +4654,12 @@ namespace RoadRegistry.BackOffice.Core
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(new MultiLineString(new []
             {
                 new NetTopologySuite.Geometries.LineString(
                     new CoordinateArraySequence(new[]
@@ -4755,12 +4756,12 @@ namespace RoadRegistry.BackOffice.Core
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(new MultiLineString(new []
             {
                 new NetTopologySuite.Geometries.LineString(
                     new CoordinateArraySequence(new[]
@@ -4891,12 +4892,12 @@ namespace RoadRegistry.BackOffice.Core
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
-            AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-            AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
+            AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
             AddSegment1.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
-            AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
+            AddSegment1.Geometry = Core.GeometryTranslator.Translate(new MultiLineString(new []
             {
                 new NetTopologySuite.Geometries.LineString(
                     new CoordinateArraySequence(new[]
@@ -5277,20 +5278,20 @@ namespace RoadRegistry.BackOffice.Core
             ModifyStartNode1.Type = new Generator<RoadNodeType>(Fixture)
                 .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
                 .ToString();
-            ModifyStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+            ModifyStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
 
             StartNode1Added.Type = RoadNodeType.FakeNode;
-            StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint);
+            StartNode1Added.Geometry = Core.GeometryTranslator.Translate(startPoint);
             EndNode1Added.Type = RoadNodeType.EndNode;
-            EndNode1Added.Geometry = GeometryTranslator.Translate(endPoint1);
+            EndNode1Added.Geometry = Core.GeometryTranslator.Translate(endPoint1);
             EndNode2Added.Type = RoadNodeType.EndNode;
-            EndNode2Added.Geometry = GeometryTranslator.Translate(endPoint2);
+            EndNode2Added.Geometry = Core.GeometryTranslator.Translate(endPoint2);
             Segment1Added.StartNodeId = StartNode1Added.Id;
             Segment1Added.EndNodeId = EndNode1Added.Id;
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment1Added.Geometry = GeometryTranslator.Translate(
+            Segment1Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
@@ -5306,7 +5307,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment2Added.Geometry = GeometryTranslator.Translate(
+            Segment2Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
@@ -5428,20 +5429,20 @@ namespace RoadRegistry.BackOffice.Core
             };
 
             ModifyStartNode1.Type = RoadNodeType.FakeNode;
-            ModifyStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+            ModifyStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
 
             StartNode1Added.Type = RoadNodeType.FakeNode;
-            StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint);
+            StartNode1Added.Geometry = Core.GeometryTranslator.Translate(startPoint);
             EndNode1Added.Type = RoadNodeType.EndNode;
-            EndNode1Added.Geometry = GeometryTranslator.Translate(endPoint1);
+            EndNode1Added.Geometry = Core.GeometryTranslator.Translate(endPoint1);
             EndNode2Added.Type = RoadNodeType.EndNode;
-            EndNode2Added.Geometry = GeometryTranslator.Translate(endPoint2);
+            EndNode2Added.Geometry = Core.GeometryTranslator.Translate(endPoint2);
             Segment1Added.StartNodeId = StartNode1Added.Id;
             Segment1Added.EndNodeId = EndNode1Added.Id;
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment1Added.Geometry = GeometryTranslator.Translate(
+            Segment1Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
@@ -5457,7 +5458,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment2Added.Geometry = GeometryTranslator.Translate(
+            Segment2Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
@@ -5576,22 +5577,22 @@ namespace RoadRegistry.BackOffice.Core
             };
 
             ModifyStartNode1.Type = RoadNodeType.FakeNode;
-            ModifyStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+            ModifyStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
             StartNode1Modified.Type = RoadNodeType.FakeNode;
-            StartNode1Modified.Geometry = GeometryTranslator.Translate(startPoint);
+            StartNode1Modified.Geometry = Core.GeometryTranslator.Translate(startPoint);
 
             StartNode1Added.Type = RoadNodeType.FakeNode;
-            StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint);
+            StartNode1Added.Geometry = Core.GeometryTranslator.Translate(startPoint);
             EndNode1Added.Type = RoadNodeType.EndNode;
-            EndNode1Added.Geometry = GeometryTranslator.Translate(endPoint1);
+            EndNode1Added.Geometry = Core.GeometryTranslator.Translate(endPoint1);
             EndNode2Added.Type = RoadNodeType.EndNode;
-            EndNode2Added.Geometry = GeometryTranslator.Translate(endPoint2);
+            EndNode2Added.Geometry = Core.GeometryTranslator.Translate(endPoint2);
             Segment1Added.StartNodeId = StartNode1Added.Id;
             Segment1Added.EndNodeId = EndNode1Added.Id;
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment1Added.Geometry = GeometryTranslator.Translate(
+            Segment1Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
@@ -5607,7 +5608,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment2Added.Geometry = GeometryTranslator.Translate(
+            Segment2Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
@@ -5741,21 +5742,21 @@ namespace RoadRegistry.BackOffice.Core
             ModifyEndNode1.Type = new Generator<RoadNodeType>(Fixture)
                 .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
                 .ToString();
-            ModifyEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            ModifyEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
 
             StartNode1Added.Type = RoadNodeType.EndNode;
-            StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint1);
+            StartNode1Added.Geometry = Core.GeometryTranslator.Translate(startPoint1);
             StartNode2Added.Type = RoadNodeType.EndNode;
-            StartNode2Added.Geometry = GeometryTranslator.Translate(startPoint2);
+            StartNode2Added.Geometry = Core.GeometryTranslator.Translate(startPoint2);
             EndNode1Added.Type = RoadNodeType.FakeNode;
-            EndNode1Added.Geometry = GeometryTranslator.Translate(endPoint);
+            EndNode1Added.Geometry = Core.GeometryTranslator.Translate(endPoint);
 
             Segment1Added.StartNodeId = StartNode1Added.Id;
             Segment1Added.EndNodeId = EndNode1Added.Id;
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment1Added.Geometry = GeometryTranslator.Translate(
+            Segment1Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
@@ -5771,7 +5772,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment2Added.Geometry = GeometryTranslator.Translate(
+            Segment2Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
@@ -5893,21 +5894,21 @@ namespace RoadRegistry.BackOffice.Core
             };
 
             ModifyEndNode1.Type = RoadNodeType.FakeNode;
-            ModifyEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            ModifyEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
 
             StartNode1Added.Type = RoadNodeType.EndNode;
-            StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint1);
+            StartNode1Added.Geometry = Core.GeometryTranslator.Translate(startPoint1);
             StartNode2Added.Type = RoadNodeType.EndNode;
-            StartNode2Added.Geometry = GeometryTranslator.Translate(startPoint2);
+            StartNode2Added.Geometry = Core.GeometryTranslator.Translate(startPoint2);
             EndNode1Added.Type = RoadNodeType.FakeNode;
-            EndNode1Added.Geometry = GeometryTranslator.Translate(endPoint);
+            EndNode1Added.Geometry = Core.GeometryTranslator.Translate(endPoint);
 
             Segment1Added.StartNodeId = StartNode1Added.Id;
             Segment1Added.EndNodeId = EndNode1Added.Id;
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment1Added.Geometry = GeometryTranslator.Translate(
+            Segment1Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
@@ -5923,7 +5924,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment2Added.Geometry = GeometryTranslator.Translate(
+            Segment2Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
@@ -6042,23 +6043,23 @@ namespace RoadRegistry.BackOffice.Core
             };
 
             ModifyEndNode1.Type = RoadNodeType.FakeNode;
-            ModifyEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+            ModifyEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
             EndNode1Modified.Type = RoadNodeType.FakeNode;
-            EndNode1Modified.Geometry = GeometryTranslator.Translate(endPoint);
+            EndNode1Modified.Geometry = Core.GeometryTranslator.Translate(endPoint);
 
             StartNode1Added.Type = RoadNodeType.EndNode;
-            StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint1);
+            StartNode1Added.Geometry = Core.GeometryTranslator.Translate(startPoint1);
             StartNode2Added.Type = RoadNodeType.EndNode;
-            StartNode2Added.Geometry = GeometryTranslator.Translate(startPoint2);
+            StartNode2Added.Geometry = Core.GeometryTranslator.Translate(startPoint2);
             EndNode1Added.Type = RoadNodeType.FakeNode;
-            EndNode1Added.Geometry = GeometryTranslator.Translate(endPoint);
+            EndNode1Added.Geometry = Core.GeometryTranslator.Translate(endPoint);
 
             Segment1Added.StartNodeId = StartNode1Added.Id;
             Segment1Added.EndNodeId = EndNode1Added.Id;
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment1Added.Geometry = GeometryTranslator.Translate(
+            Segment1Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
@@ -6074,7 +6075,7 @@ namespace RoadRegistry.BackOffice.Core
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            Segment2Added.Geometry = GeometryTranslator.Translate(
+            Segment2Added.Geometry = Core.GeometryTranslator.Translate(
                 new MultiLineString(new[]
                 {
                     new NetTopologySuite.Geometries.LineString(new CoordinateArraySequence(new[]
