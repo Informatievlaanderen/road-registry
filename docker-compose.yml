@@ -188,7 +188,7 @@ services:
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
 
   streetname-api:
-    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/streetname-registry/api-legacy:2.10.1
+    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/streetname-registry/api-legacy:2.11.0
     depends_on:
       - streetname-mssql
       - seq
