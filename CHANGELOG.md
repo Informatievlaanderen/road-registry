@@ -1,3 +1,16 @@
+# [1.13.0](https://github.com/informatievlaanderen/road-registry/compare/v1.12.2...v1.13.0) (2020-09-30)
+
+
+### Bug Fixes
+
+* move to 3.1.8 ([b7c58e9](https://github.com/informatievlaanderen/road-registry/commit/b7c58e95ee4f61c4d9699429fa1d79540a77439a))
+
+
+### Features
+
+* introduce modify and remove commands ([#51](https://github.com/informatievlaanderen/road-registry/issues/51)) ([36707c3](https://github.com/informatievlaanderen/road-registry/commit/36707c3665b75a7e9f82017da69b152b8b7fcdd2))
+* introduce modify road node ([#50](https://github.com/informatievlaanderen/road-registry/issues/50)) ([2ad2015](https://github.com/informatievlaanderen/road-registry/commit/2ad2015964d61ce1089941cbc7cdd296285cb677))
+
 ## [1.12.2](https://github.com/informatievlaanderen/road-registry/compare/v1.12.1...v1.12.2) (2020-08-11)
 
 ## [1.12.1](https://github.com/informatievlaanderen/road-registry/compare/v1.12.0...v1.12.1) (2020-07-19)
