@@ -59,7 +59,10 @@ namespace RoadRegistry.BackOffice.Api.Downloads
         }
 
         [HttpGet("for-product")]
-        public async Task<IActionResult> Get([FromServices] ProductContext context)
+        public async Task<IActionResult> Get(
+            [FromServices] ProductContext context,
+            [FromServices] ZipArchiveWriterOptions zipArchiveWriterOptions,
+            [FromServices] IStreetNameCache streetNameCache)
         {
             var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
             if (info == null || !info.CompletedImport)
@@ -72,7 +75,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
                 async (stream, actionContext) =>
                 {
                     var encoding = Encoding.GetEncoding(1252);
-                    var writer = new RoadNetworkForProductToZipArchiveWriter(_manager, encoding);
+                    var writer = new RoadNetworkForProductToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, _manager, encoding);
                     using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
                     {
                         await writer.WriteAsync(archive, context, HttpContext.RequestAborted);

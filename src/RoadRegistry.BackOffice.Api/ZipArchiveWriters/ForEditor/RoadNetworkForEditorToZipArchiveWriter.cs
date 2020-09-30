@@ -20,6 +20,8 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
             RecyclableMemoryStreamManager manager,
             Encoding encoding)
         {
+            if (zipArchiveWriterOptions == null) throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
+            if (streetNameCache == null) throw new ArgumentNullException(nameof(streetNameCache));
             if (manager == null) throw new ArgumentNullException(nameof(manager));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
