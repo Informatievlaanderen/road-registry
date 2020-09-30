@@ -9,10 +9,12 @@ namespace RoadRegistry.Wms.Projections
     public class StreetNameCacheStub : IStreetNameCache
     {
         private readonly StreetNameRecord _stubbedValue;
+        private readonly long _position;
 
-        public StreetNameCacheStub(StreetNameRecord stubbedValue = null)
+        public StreetNameCacheStub(StreetNameRecord stubbedValue = null, long position = -1L)
         {
             _stubbedValue = stubbedValue;
+            _position = position;
         }
 
         public Task<StreetNameRecord> GetAsync(int streetNameId, CancellationToken token)
@@ -22,7 +24,7 @@ namespace RoadRegistry.Wms.Projections
 
         public Task<long> GetMaxPositionAsync(CancellationToken token)
         {
-            return Task.FromResult(-1L);
+            return Task.FromResult(_position);
         }
 
         public Task<Dictionary<int, string>> GetStreetNamesByIdAsync(IEnumerable<int> streetNameIds, CancellationToken token)

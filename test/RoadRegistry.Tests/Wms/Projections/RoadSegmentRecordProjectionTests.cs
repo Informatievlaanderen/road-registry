@@ -129,7 +129,10 @@ namespace RoadRegistry.Wms.Projections
 
             var streetNameRecord = _fixture.Create<StreetNameRecord>();
 
-            await new RoadSegmentRecordProjection(new StreetNameCacheStub(streetNameRecord))
+            var streetNameCachePosition = _fixture.Create<long>();
+            var streetNameCacheStub = new StreetNameCacheStub(streetNameRecord, streetNameCachePosition);
+
+            await new RoadSegmentRecordProjection(streetNameCacheStub)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new RoadSegmentRecord
@@ -180,7 +183,7 @@ namespace RoadRegistry.Wms.Projections
                     BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,
                     EndRoadNodeId = expectedRoadSegment.eindWegknoopID,
 
-                    StreetNameCachePosition = -1L
+                    StreetNameCachePosition = streetNameCachePosition
                 });
         }
 
