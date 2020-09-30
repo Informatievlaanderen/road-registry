@@ -55,7 +55,9 @@ namespace RoadRegistry.Syndication.ProjectionHost
             _httpClient.DefaultRequestHeaders.Remove("X-Filtering");
             if (from.HasValue)
             {
-                var filter = string.IsNullOrEmpty(embedString) ? $"{{ position: {from} }}" : $"{{ position: {from}, {embedString} }}";
+                var filter = string.IsNullOrEmpty(embedString)
+                    ? $"{{ position: {from} }}"
+                    : $"{{ position: {from}, {embedString} }}";
                 _httpClient.DefaultRequestHeaders.Add("X-Filtering", filter);
             }
             else
@@ -65,28 +67,21 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
 
             if (!string.IsNullOrEmpty(feedUserName) && !string.IsNullOrEmpty(feedPassword))
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{feedUserName}:{feedPassword}")));
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                    Convert.ToBase64String(Encoding.UTF8.GetBytes($"{feedUserName}:{feedPassword}")));
 
-            try
+            _logger.LogInformation("Performing HTTP request GET {FeedUrl} with headers: {@Params}", feedUrl,
+                _httpClient.DefaultRequestHeaders.ToDictionary(x => x.Key, x => x.Value));
+            using (var response = await _httpClient.GetAsync(feedUrl))
+            using (var responseStream = await response.Content.ReadAsStreamAsync())
+            using (var xmlReader = XmlReader.Create(responseStream, new XmlReaderSettings {Async = true}))
             {
-                _logger.LogInformation("Performing HTTP request GET {FeedUrl} with headers: {@Params}", feedUrl, _httpClient.DefaultRequestHeaders.ToDictionary(x => x.Key, x => x.Value));
-                using (var response = await _httpClient.GetAsync(feedUrl))
-                using (var responseStream = await response.Content.ReadAsStreamAsync())
-                using (var xmlReader = XmlReader.Create(responseStream, new XmlReaderSettings { Async = true }))
+                var atomReader = new AtomFeedReader(xmlReader);
+                while (await atomReader.Read())
                 {
-                    var atomReader = new AtomFeedReader(xmlReader);
-                    while (await atomReader.Read())
-                    {
-                        if (atomReader.ElementType == SyndicationElementType.Item)
-                            entries.Add(await atomReader.ReadEntry());
-                    }
+                    if (atomReader.ElementType == SyndicationElementType.Item)
+                        entries.Add(await atomReader.ReadEntry());
                 }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message, e);
-
-                throw;
             }
 
             return entries;
