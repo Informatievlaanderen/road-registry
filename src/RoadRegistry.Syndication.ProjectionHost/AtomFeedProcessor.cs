@@ -10,7 +10,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Schema;
-    using SqlStreamStore.Streams;
 
     public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedService where TConfiguration : ISyndicationFeedConfiguration
     {
@@ -21,12 +20,13 @@ namespace RoadRegistry.Syndication.ProjectionHost
         private readonly Scheduler _scheduler;
         private readonly ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> _logger;
 
+        private static readonly TimeSpan CatchUpAfter = TimeSpan.FromMinutes(5);
+
         private const int CatchUpBatchSize = 5000;
 
         public AtomFeedProcessor(
             IRegistryAtomFeedReader reader,
             AtomEnvelopeFactory envelopeFactory,
-            // AcceptStreamMessageFilter filter,
             ConnectedProjectionHandlerResolver<SyndicationContext> resolver,
             Func<SyndicationContext> dbContextFactory,
             Scheduler scheduler,
@@ -34,7 +34,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
             ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> logger)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
-            // if (filter == null) throw new ArgumentNullException(nameof(filter));
             if (envelopeFactory == null) throw new ArgumentNullException(nameof(envelopeFactory));
             if (resolver == null) throw new ArgumentNullException(nameof(resolver));
             if (dbContextFactory == null) throw new ArgumentNullException(nameof(dbContextFactory));
@@ -105,17 +104,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
                                         foreach (var atomEntry in entries)
                                         {
-                                            // if (catchUp.AfterPosition.HasValue &&
-                                            //     streamMessage.Position == catchUp.AfterPosition.Value)
-                                            // {
-                                            //     continue; // skip already processed message
-                                            // }
-
-                                            // if (filter(streamMessage))
-                                            if (true) // filter here?
-                                            {
-
-                                                logger.LogInformation("[{Context}] Catching up on {MessageType} at {Position}",
+                                            logger.LogInformation("[{Context}] Catching up on {MessageType} at {Position}",
                                                             typeof(TSyndicationContent).Name, atomEntry.ContentType, atomEntry.Id);
 
                                                 var envelope = envelopeFactory.CreateEnvelope<TSyndicationContent>(atomEntry);
@@ -225,16 +214,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
             public long? AfterPosition { get; }
             public int BatchSize { get; }
-        }
-
-        private class Subscribe
-        {
-            public Subscribe(long? afterPosition)
-            {
-                AfterPosition = afterPosition;
-            }
-
-            public long? AfterPosition { get; }
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
