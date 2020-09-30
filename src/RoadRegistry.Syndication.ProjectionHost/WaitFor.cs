@@ -7,7 +7,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
-    using SqlStreamStore;
 
     internal static class WaitFor
     {
@@ -50,7 +49,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
                         }
                     }
                 }
-
                 Console.WriteLine("Seq became available.");
             }
         }

@@ -86,7 +86,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                     break;
                             }
                         }
-
                     }
                 }
                 catch (TaskCanceledException)

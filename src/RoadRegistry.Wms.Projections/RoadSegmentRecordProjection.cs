@@ -1,7 +1,6 @@
 namespace RoadRegistry.Wms.Projections
 {
     using System.Linq;
-    using System.Net.Mime;
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice;
@@ -201,16 +200,6 @@ namespace RoadRegistry.Wms.Projections
         {
             return streetNameId.HasValue ?
                 await streetNameCache.GetAsync(streetNameId.Value, token) :
-                null;
-        }
-
-
-        private async Task<MunicipalityRecord> TryGetFromCache(
-            IMunicipalityCache municipalityCache,
-            string leftSideMunicipalityNisCode)
-        {
-            return !string.IsNullOrWhiteSpace(leftSideMunicipalityNisCode) ?
-                await municipalityCache.Get(leftSideMunicipalityNisCode) :
                 null;
         }
     }

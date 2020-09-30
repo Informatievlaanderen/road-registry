@@ -33,9 +33,6 @@ namespace RoadRegistry.Syndication.ProjectionHost.Mapping
             throw new KeyNotFoundException($"No serializer for category with name '{categoryName}' was found.");
         }
 
-        public bool TryGetSerializerFor(string categoryName, out DataContractSerializer eventType) =>
-            _atomEntrySerializers.TryGetValue(categoryName, out eventType);
-
         public bool HasSerializerFor(string categoryName) =>
             _atomEntrySerializers.ContainsKey(categoryName);
     }
