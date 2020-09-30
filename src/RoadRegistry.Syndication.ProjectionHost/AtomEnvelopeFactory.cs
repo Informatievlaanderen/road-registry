@@ -10,7 +10,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication;
     using Mapping;
     using Microsoft.SyndicationFeed;
-    using Projections;
+    using Projections.Syndication;
 
     public class AtomEnvelopeFactory
     {

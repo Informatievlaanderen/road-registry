@@ -1,4 +1,4 @@
-namespace RoadRegistry.Syndication.Projections
+namespace RoadRegistry.Syndication.Projections.Syndication
 {
     using System;
     using System.Collections.Generic;

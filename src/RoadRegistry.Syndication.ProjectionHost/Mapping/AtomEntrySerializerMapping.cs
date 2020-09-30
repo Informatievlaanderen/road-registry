@@ -3,7 +3,7 @@ namespace RoadRegistry.Syndication.ProjectionHost.Mapping
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Runtime.Serialization;
-    using Projections;
+    using Projections.Syndication;
 
     public class AtomEntrySerializerMapping
     {

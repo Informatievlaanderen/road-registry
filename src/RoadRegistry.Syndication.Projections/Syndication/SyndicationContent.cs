@@ -1,4 +1,4 @@
-namespace RoadRegistry.Syndication.Projections
+namespace RoadRegistry.Syndication.Projections.Syndication
 {
     using System.Runtime.Serialization;
     using System.Xml;

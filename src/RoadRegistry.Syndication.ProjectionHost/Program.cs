@@ -19,6 +19,7 @@
     using Microsoft.IO;
     using NodaTime;
     using Projections;
+    using Projections.Syndication;
     using Schema;
     using Serilog;
     using SqlStreamStore;
