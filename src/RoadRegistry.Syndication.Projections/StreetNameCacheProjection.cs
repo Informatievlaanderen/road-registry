@@ -267,6 +267,8 @@ namespace RoadRegistry.Syndication.Projections
                     token);
             });
 
+#pragma warning disable 1998
+
             When<Envelope<StreetNamePrimaryLanguageWasCleared>>(async (context, envelope, token) => { });
 
             When<Envelope<StreetNamePrimaryLanguageWasCorrected>>(async (context, envelope, token) => { });
@@ -282,6 +284,13 @@ namespace RoadRegistry.Syndication.Projections
             When<Envelope<StreetNameSecondaryLanguageWasCorrectedToCleared>>(async (context, envelope, token) => { });
 
             When<Envelope<StreetNameSecondaryLanguageWasDefined>>(async (context, envelope, token) => { });
+
+            When<Envelope<StreetNameBecameComplete>>(async (context, envelope, token) => { });
+
+            When<Envelope<StreetNameBecameIncomplete>>(async (context, envelope, token) => { });
+
+#pragma warning restore 1998
+
 
             When<Envelope<StreetNameStatusWasRemoved>>(async (context, envelope, token) =>
             {
@@ -403,10 +412,6 @@ namespace RoadRegistry.Syndication.Projections
                     },
                     token);
             });
-
-            When<Envelope<StreetNameBecameComplete>>(async (context, envelope, token) => { });
-
-            When<Envelope<StreetNameBecameIncomplete>>(async (context, envelope, token) => { });
         }
 
         private static async Task UpdateStreetNameRecord<T>(SyndicationContext context, Envelope<T> envelope, Guid streetNameId, Action<StreetNameRecord> update, CancellationToken token)
