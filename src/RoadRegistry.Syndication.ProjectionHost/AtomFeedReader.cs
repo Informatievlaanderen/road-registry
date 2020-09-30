@@ -18,7 +18,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
         /// Reads the entries of an Atom feed at the provided feedUrl.
         /// </summary>
         /// <returns>A list of <see cref="IAtomEntry "/>.</returns>
-        Task<IEnumerable<IAtomEntry>> ReadEntriesAsync(Uri feedUrl, long? from, string feedUserName = "", string feedPassword = "", bool embedEvent = true, bool embedObject = true);
+        Task<IEnumerable<IAtomEntry>> ReadEntriesAsync(Uri feedUrl, long? after, string feedUserName = "", string feedPassword = "", bool embedEvent = true, bool embedObject = true);
     }
 
     public class RegistryAtomFeedReader : IRegistryAtomFeedReader
@@ -36,7 +36,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
         public async Task<IEnumerable<IAtomEntry>> ReadEntriesAsync(
             Uri feedUrl,
-            long? from,
+            long? after,
             string feedUserName = "",
             string feedPassword = "",
             bool embedEvent = true,
@@ -53,8 +53,9 @@ namespace RoadRegistry.Syndication.ProjectionHost
                 embedString = "embed: \"event\"";
 
             _httpClient.DefaultRequestHeaders.Remove("X-Filtering");
-            if (from.HasValue)
+            if (after.HasValue)
             {
+                var from = after + 1;
                 var filter = string.IsNullOrEmpty(embedString)
                     ? $"{{ position: {from} }}"
                     : $"{{ position: {from}, {embedString} }}";

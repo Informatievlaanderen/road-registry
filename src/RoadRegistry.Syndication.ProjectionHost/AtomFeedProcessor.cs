@@ -74,9 +74,8 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                                     _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
 
-                                        var after = projection?.Position;
                                         await _messageChannel.Writer
-                                                .WriteAsync(new CatchUp(after, CatchUpBatchSize), _messagePumpCancellation.Token)
+                                                .WriteAsync(new CatchUp(projection?.Position, CatchUpBatchSize), _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
                                     }
 
@@ -84,7 +83,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                 case CatchUp catchUp:
                                     logger.LogInformation("[{Context}] Catching up as of {Position}", typeof(TSyndicationContent).Name, catchUp.AfterPosition ?? -1L);
                                     var observedMessageCount = 0;
-                                    var catchUpPosition = catchUp.AfterPosition ?? Position.Start;
+                                    var catchUpPosition = catchUp.AfterPosition ?? -1;
                                     var context = dbContextFactory();
                                     context.ChangeTracker.AutoDetectChangesEnabled = false;
 
@@ -99,29 +98,25 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
                                     while (entries.Any())
                                     {
-                                        if (!long.TryParse(entries.Last().Id, out var lastEntryId))
-                                            break;
-
                                         foreach (var atomEntry in entries)
                                         {
                                             logger.LogInformation("[{Context}] Catching up on {MessageType} at {Position}",
                                                             typeof(TSyndicationContent).Name, atomEntry.ContentType, atomEntry.Id);
 
-                                                var envelope = envelopeFactory.CreateEnvelope<TSyndicationContent>(atomEntry);
-                                                if (envelope != null)
+                                            observedMessageCount++;
+                                            catchUpPosition = Convert.ToInt64(atomEntry.Id);
+
+                                            var envelope = envelopeFactory.CreateEnvelope<TSyndicationContent>(atomEntry);
+                                            if (envelope != null)
+                                            {
+                                                var handlers = resolver(envelope);
+                                                foreach (var handler in handlers)
                                                 {
-                                                    var handlers = resolver(envelope);
-                                                    foreach (var handler in handlers)
-                                                    {
-                                                        await handler
-                                                            .Handler(context, envelope, _messagePumpCancellation.Token)
-                                                            .ConfigureAwait(false);
-                                                    }
+                                                    await handler
+                                                        .Handler(context, envelope, _messagePumpCancellation.Token)
+                                                        .ConfigureAwait(false);
                                                 }
                                             }
-
-                                            observedMessageCount++;
-                                            catchUpPosition = lastEntryId;
 
                                             if (observedMessageCount % CatchUpBatchSize == 0)
                                             {
@@ -144,7 +139,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                             }
                                         }
 
-                                        catchUpPosition = lastEntryId + 1;
                                         entries = (await reader.ReadEntriesAsync(
                                                 feedConfiguration.Uri,
                                                 catchUpPosition,
@@ -172,12 +166,26 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
                                     await context.DisposeAsync().ConfigureAwait(false);
 
-                                    //switch to subscription as of the last page
-                                    // await _messageChannel.Writer
-                                    //     .WriteAsync(
-                                    //         new Subscribe(catchUpPosition),
-                                    //         _messagePumpCancellation.Token)
-                                    //     .ConfigureAwait(false);
+                                    await scheduler.Schedule(async token =>
+                                    {
+                                        if (!_messagePumpCancellation.IsCancellationRequested)
+                                        {
+                                            await using (var resumeContext = dbContextFactory())
+                                            {
+                                                var projection =
+                                                    await resumeContext.ProjectionStates
+                                                        .SingleOrDefaultAsync(
+                                                            item => item.Name == roadRegistrySyndicationProjectionHost,
+                                                            _messagePumpCancellation.Token)
+                                                        .ConfigureAwait(false);
+
+                                                await _messageChannel.Writer
+                                                    .WriteAsync(new CatchUp(projection?.Position, CatchUpBatchSize), _messagePumpCancellation.Token)
+                                                    .ConfigureAwait(false);
+                                            }
+                                        }
+                                    }, CatchUpAfter).ConfigureAwait(false);
+
                                     break;
                             }
                         }
@@ -185,19 +193,15 @@ namespace RoadRegistry.Syndication.ProjectionHost
                 }
                 catch (TaskCanceledException)
                 {
-                    logger.LogInformation("[{Context}] EventProcessor message pump is exiting due to cancellation", typeof(TSyndicationContent).Name);
+                    logger.LogInformation("[{Context}] AtomFeedProcessor message pump is exiting due to cancellation", typeof(TSyndicationContent).Name);
                 }
                 catch (OperationCanceledException)
                 {
-                    logger.LogInformation("[{Context}] EventProcessor message pump is exiting due to cancellation", typeof(TSyndicationContent).Name);
+                    logger.LogInformation("[{Context}] AtomFeedProcessor message pump is exiting due to cancellation", typeof(TSyndicationContent).Name);
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, "[{Context}] EventProcessor message pump is exiting due to a bug", typeof(TSyndicationContent).Name);
-                }
-                finally
-                {
-                    // subscription?.Dispose();
+                    logger.LogError(exception, "[{Context}] AtomFeedProcessor message pump is exiting due to a bug", typeof(TSyndicationContent).Name);
                 }
             }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
         }
