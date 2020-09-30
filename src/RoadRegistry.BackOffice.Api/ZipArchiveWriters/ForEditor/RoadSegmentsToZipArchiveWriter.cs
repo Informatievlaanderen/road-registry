@@ -8,6 +8,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Configuration;
     using Editor.Schema;
     using Editor.Schema.RoadSegments;
     using Microsoft.EntityFrameworkCore;
@@ -15,17 +16,18 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
 
     public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
-        private const int RoadSegmentBatchSize = 10000;
-
+        private readonly ZipArchiveWriterOptions _zipArchiveWriterOptions;
         private readonly IStreetNameCache _streetNameCache;
         private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
         public RoadSegmentsToZipArchiveWriter(
+            ZipArchiveWriterOptions zipArchiveWriterOptions,
             IStreetNameCache streetNameCache,
             RecyclableMemoryStreamManager manager,
             Encoding encoding)
         {
+            _zipArchiveWriterOptions = zipArchiveWriterOptions ?? throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
             _streetNameCache = streetNameCache ?? throw new ArgumentNullException(nameof(streetNameCache));
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
@@ -51,7 +53,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                     .OrderBy(_ => _.Id)
                     .Select(_ => _.DbaseRecord)
                     .AsEnumerable()
-                    .Batch(RoadSegmentBatchSize))
+                    .Batch(_zipArchiveWriterOptions.RoadSegmentBatchSize))
                 {
                     var dbfRecords = batch
                         .Select(x =>

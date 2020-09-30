@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
     using System.Text;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Api;
+    using Configuration;
     using Editor.Schema;
     using Framework;
     using Microsoft.AspNetCore.Http;
@@ -32,6 +33,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
         [HttpGet("for-editor")]
         public async Task<IActionResult> Get(
             [FromServices] EditorContext context,
+            [FromServices] ZipArchiveWriterOptions zipArchiveWriterOptions,
             [FromServices] IStreetNameCache streetNameCache)
         {
             var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
@@ -45,7 +47,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
                 async (stream, actionContext) =>
                 {
                     var encoding = Encoding.GetEncoding(1252);
-                    var writer = new RoadNetworkForEditorToZipArchiveWriter(streetNameCache, _manager, encoding);
+                    var writer = new RoadNetworkForEditorToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, _manager, encoding);
                     using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
                     {
                         await writer.WriteAsync(archive, context, HttpContext.RequestAborted);

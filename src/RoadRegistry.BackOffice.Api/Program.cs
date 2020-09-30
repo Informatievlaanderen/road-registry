@@ -158,7 +158,11 @@ namespace RoadRegistry.BackOffice.Api
                             throw new Exception(blobOptions.BlobClientType + " is not a supported blob client type.");
                     }
 
+                    var zipArchiveWriterOptions = new ZipArchiveWriterOptions();
+                    hostContext.Configuration.GetSection(nameof(ZipArchiveWriterOptions)).Bind(zipArchiveWriterOptions);
+
                     builder
+                        .AddSingleton<ZipArchiveWriterOptions>(zipArchiveWriterOptions)
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(
                                 new MsSqlStreamStoreV3Settings(
