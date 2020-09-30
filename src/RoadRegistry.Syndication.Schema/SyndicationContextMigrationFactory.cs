@@ -18,11 +18,5 @@ namespace RoadRegistry.Syndication.Schema
 
         protected override SyndicationContext CreateContext(DbContextOptions<SyndicationContext> migrationContextOptions)
             => new SyndicationContext(migrationContextOptions);
-
-        protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
-        {
-            sqlServerOptions.UseNetTopologySuite();
-            base.ConfigureSqlServerOptions(sqlServerOptions);
-        }
     }
 }

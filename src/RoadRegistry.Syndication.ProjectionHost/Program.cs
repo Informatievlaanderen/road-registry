@@ -111,7 +111,6 @@
                                             hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
                                             options => options
                                                 .EnableRetryOnFailure()
-                                                .UseNetTopologySuite()
                                         ).Options)
                         )
                         .AddSingleton(sp => new ConnectedProjection<SyndicationContext>[]
