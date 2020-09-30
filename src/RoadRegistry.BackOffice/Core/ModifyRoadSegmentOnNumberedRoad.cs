@@ -31,9 +31,16 @@ namespace RoadRegistry.BackOffice.Core
 
             var problems = Problems.None;
 
-            if (!context.View.Segments.ContainsKey(SegmentId))
+            if (!context.View.Segments.TryGetValue(SegmentId, out var segment))
             {
                 problems = problems.RoadSegmentMissing(SegmentId);
+            }
+            else
+            {
+                if (!segment.PartOfNumberedRoads.Contains(Number))
+                {
+                    problems = problems.NumberedRoadNumberNotFound(Number);
+                }
             }
 
             if (problems.OfType<Error>().Any())
@@ -47,11 +54,13 @@ namespace RoadRegistry.BackOffice.Core
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
 
-            message.RoadSegmentAddedToNumberedRoad = new Messages.RoadSegmentAddedToNumberedRoad
+            message.RoadSegmentOnNumberedRoadModified = new Messages.RoadSegmentOnNumberedRoadModified
             {
                 AttributeId = AttributeId,
                 Ident8 = Number,
-                SegmentId = SegmentId
+                SegmentId = SegmentId,
+                Direction = Direction,
+                Ordinal = Ordinal
             };
         }
 
@@ -59,11 +68,13 @@ namespace RoadRegistry.BackOffice.Core
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
 
-            message.RemoveRoadSegmentFromNumberedRoad = new Messages.RemoveRoadSegmentFromNumberedRoad
+            message.ModifyRoadSegmentOnNumberedRoad = new Messages.ModifyRoadSegmentOnNumberedRoad
             {
                 AttributeId = AttributeId,
                 Ident8 = Number,
-                SegmentId = SegmentId
+                SegmentId = SegmentId,
+                Direction = Direction,
+                Ordinal = Ordinal
             };
         }
     }

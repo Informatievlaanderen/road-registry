@@ -15,5 +15,11 @@ namespace RoadRegistry.BackOffice.Messages
         public RoadSegmentGeometry Geometry { get; set; }
         [Key(4)]
         public RoadNetworkSnapshotSegmentAttributeHash AttributeHash { get; set; }
+        [Key(5)]
+        public string[] PartOfEuropeanRoads { get; set; }
+        [Key(6)]
+        public string[] PartOfNationalRoads { get; set; }
+        [Key(7)]
+        public string[] PartOfNumberedRoads { get; set; }
     }
 }

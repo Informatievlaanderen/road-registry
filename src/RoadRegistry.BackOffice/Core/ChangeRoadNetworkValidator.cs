@@ -85,6 +85,7 @@ namespace RoadRegistry.BackOffice.Core
                         change.AddRoadSegmentToNationalRoad,
                         change.RemoveRoadSegmentFromNationalRoad,
                         change.AddRoadSegmentToNumberedRoad,
+                        change.ModifyRoadSegmentOnNumberedRoad,
                         change.RemoveRoadSegmentFromNumberedRoad,
                         change.AddGradeSeparatedJunction,
                         change.ModifyGradeSeparatedJunction,

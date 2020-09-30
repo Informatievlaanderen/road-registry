@@ -131,6 +131,14 @@ namespace RoadRegistry.BackOffice.Core
             );
         }
 
+        public Problems NumberedRoadNumberNotFound(NumberedRoadNumber number)
+        {
+            return new Problems(
+                _problems.Add(
+                    new Error(nameof(NumberedRoadNumberNotFound),
+                        new ProblemParameter("Number", number.ToString())))
+            );
+        }
 
         public Problems RoadSegmentNotFound()
         {
