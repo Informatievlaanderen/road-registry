@@ -171,7 +171,7 @@ namespace RoadRegistry.BackOffice.Uploads
 
 
         [Fact]
-        public void TranslateWithRecordsReturnsExpectedResult()
+        public void TranslateWithRecordsForRemovedRoadSegmentReturnsExpectedResult()
         {
             var segment = _fixture.Create<Uploads.RemoveRoadSegment>();
             var records = _fixture

@@ -111,9 +111,9 @@ namespace RoadRegistry.BackOffice.Uploads
                 (previousChanges, current) =>
                 {
                     var nextChanges = previousChanges;
-                    switch (Array.IndexOf(records, current) % 3)
+                    switch (current.RECORDTYPE.Value)
                     {
-                        case 0:
+                        case RecordType.AddedIdentifier:
                             nextChanges = previousChanges.Append(
                                 new Uploads.AddRoadSegmentToNationalRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
@@ -121,9 +121,9 @@ namespace RoadRegistry.BackOffice.Uploads
                                     new RoadSegmentId(current.WS_OIDN.Value),
                                     NationalRoadNumber.Parse(current.IDENT2.Value)));
                             break;
-                        case 1:
+                        case RecordType.ModifiedIdentifier:
                             break; // modify case is not handled - we need to verify that this does not appear
-                        case 2:
+                        case RecordType.RemovedIdentifier:
                             previousChanges.Append(
                                 new Uploads.RemoveRoadSegmentFromNationalRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),

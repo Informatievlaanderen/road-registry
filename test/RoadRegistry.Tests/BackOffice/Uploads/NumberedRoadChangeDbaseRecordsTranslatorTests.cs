@@ -116,9 +116,9 @@ namespace RoadRegistry.BackOffice.Uploads
                 (previousChanges, current) =>
                 {
                     var nextChanges = previousChanges;
-                    switch (Array.IndexOf(records, current) % 3)
+                    switch (current.RECORDTYPE.Value)
                     {
-                        case 0:
+                        case RecordType.AddedIdentifier:
                             nextChanges = previousChanges.Append(
                                 new Uploads.AddRoadSegmentToNumberedRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
@@ -128,7 +128,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                     RoadSegmentNumberedRoadDirection.ByIdentifier[current.RICHTING.Value],
                                     new RoadSegmentNumberedRoadOrdinal(current.VOLGNUMMER.Value)));
                             break;
-                        case 1:
+                        case RecordType.ModifiedIdentifier:
                             nextChanges = previousChanges.Append(
                                 new Uploads.ModifyRoadSegmentOnNumberedRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
@@ -138,7 +138,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                     RoadSegmentNumberedRoadDirection.ByIdentifier[current.RICHTING.Value],
                                     new RoadSegmentNumberedRoadOrdinal(current.VOLGNUMMER.Value)));
                             break;
-                        case 2:
+                        case RecordType.RemovedIdentifier:
                             nextChanges = previousChanges.Append(
                                 new Uploads.RemoveRoadSegmentFromNumberedRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),

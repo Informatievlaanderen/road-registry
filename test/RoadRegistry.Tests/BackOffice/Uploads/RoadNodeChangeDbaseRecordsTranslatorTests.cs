@@ -104,9 +104,9 @@ namespace RoadRegistry.BackOffice.Uploads
                 (previousChanges, current) =>
                 {
                     var nextChanges = previousChanges;
-                    switch (Array.IndexOf(records, current) % 3)
+                    switch (current.RECORDTYPE.Value)
                     {
-                        case 0:
+                        case RecordType.AddedIdentifier:
                             nextChanges = previousChanges.Append(
                                 new Uploads.AddRoadNode(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
@@ -115,7 +115,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 )
                             );
                             break;
-                        case 1:
+                        case RecordType.ModifiedIdentifier:
                             nextChanges = previousChanges.Append(
                                 new Uploads.ModifyRoadNode(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
@@ -124,7 +124,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 )
                             );
                             break;
-                        case 2:
+                        case RecordType.RemovedIdentifier:
                             nextChanges = previousChanges.Append(
                                 new Uploads.RemoveRoadNode(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
