@@ -20,9 +20,18 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     if (changes.TryTranslateToRoadSegmentId(record.Header.RecordNumber, out var id))
                     {
-                        if (changes.TryFindAddRoadSegment(id, out var change))
+                        if (changes.TryFindRoadSegmentChange(id, out var change))
                         {
-                            changes = changes.Replace(change, change.WithGeometry(GeometryTranslator.ToGeometryMultiLineString(content.Shape)));
+                            var geometry = GeometryTranslator.ToGeometryMultiLineString(content.Shape);
+                            switch (change)
+                            {
+                                case AddRoadSegment addRoadSegment:
+                                    changes = changes.Replace(addRoadSegment, addRoadSegment.WithGeometry(geometry));
+                                    break;
+                                case ModifyRoadSegment modifyRoadSegment:
+                                    changes = changes.Replace(modifyRoadSegment, modifyRoadSegment.WithGeometry(geometry));
+                                    break;
+                            }
                         }
                     }
                 }

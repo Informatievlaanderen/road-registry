@@ -38,6 +38,32 @@ namespace RoadRegistry.BackOffice.Uploads
                                 )
                             );
                             break;
+                        case RecordType.ModifiedIdentifier:
+                            changes = changes.Append(
+                                new ModifyRoadSegment(
+                                    records.CurrentRecordNumber,
+                                    new RoadSegmentId(record.WS_OIDN.Value),
+                                    new RoadNodeId(record.B_WK_OIDN.Value),
+                                    new RoadNodeId(record.E_WK_OIDN.Value),
+                                    new OrganizationId(record.BEHEERDER.Value),
+                                    RoadSegmentGeometryDrawMethod.ByIdentifier[record.METHODE.Value],
+                                    RoadSegmentMorphology.ByIdentifier[record.MORFOLOGIE.Value],
+                                    RoadSegmentStatus.ByIdentifier[record.STATUS.Value],
+                                    RoadSegmentCategory.ByIdentifier[record.WEGCAT.Value],
+                                    RoadSegmentAccessRestriction.ByIdentifier[record.TGBEP.Value],
+                                    record.LSTRNMID.Value.HasValue ? new CrabStreetnameId(record.LSTRNMID.Value.Value) : new CrabStreetnameId?(),
+                                    record.RSTRNMID.Value.HasValue ? new CrabStreetnameId(record.RSTRNMID.Value.Value) : new CrabStreetnameId?()
+                                )
+                            );
+                            break;
+                        case RecordType.RemovedIdentifier:
+                            changes = changes.Append(
+                                new RemoveRoadSegment(
+                                    records.CurrentRecordNumber,
+                                    new RoadSegmentId(record.WS_OIDN.Value)
+                                )
+                            );
+                            break;
                     }
                 }
             }

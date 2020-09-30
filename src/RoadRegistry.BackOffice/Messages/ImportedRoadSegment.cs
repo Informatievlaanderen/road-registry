@@ -19,14 +19,14 @@ namespace RoadRegistry.BackOffice.Messages
         public string Status { get; set; }
         public string Category { get; set; }
         public string AccessRestriction { get; set; }
-        public ImportedRoadSegmentSideAttributes LeftSide { get; set; }
-        public ImportedRoadSegmentSideAttributes RightSide { get; set; }
-        public ImportedRoadSegmentEuropeanRoadAttributes[] PartOfEuropeanRoads { get; set; }
-        public ImportedRoadSegmentNationalRoadAttributes[] PartOfNationalRoads { get; set; }
-        public ImportedRoadSegmentNumberedRoadAttributes[] PartOfNumberedRoads { get; set; }
-        public ImportedRoadSegmentLaneAttributes[] Lanes { get; set; }
-        public ImportedRoadSegmentWidthAttributes[] Widths { get; set; }
-        public ImportedRoadSegmentSurfaceAttributes[] Surfaces { get; set; }
+        public ImportedRoadSegmentSideAttribute LeftSide { get; set; }
+        public ImportedRoadSegmentSideAttribute RightSide { get; set; }
+        public ImportedRoadSegmentEuropeanRoadAttribute[] PartOfEuropeanRoads { get; set; }
+        public ImportedRoadSegmentNationalRoadAttribute[] PartOfNationalRoads { get; set; }
+        public ImportedRoadSegmentNumberedRoadAttribute[] PartOfNumberedRoads { get; set; }
+        public ImportedRoadSegmentLaneAttribute[] Lanes { get; set; }
+        public ImportedRoadSegmentWidthAttribute[] Widths { get; set; }
+        public ImportedRoadSegmentSurfaceAttribute[] Surfaces { get; set; }
         public DateTime RecordingDate { get; set; }
         public ImportedOriginProperties Origin { get; set; }
         public string When { get; set; }

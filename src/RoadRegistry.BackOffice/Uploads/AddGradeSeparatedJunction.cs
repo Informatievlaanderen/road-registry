@@ -1,20 +1,25 @@
 namespace RoadRegistry.BackOffice.Uploads
 {
     using System;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class AddGradeSeparatedJunction : ITranslatedChange
     {
         public AddGradeSeparatedJunction(
+            RecordNumber recordNumber,
             GradeSeparatedJunctionId temporaryId,
             GradeSeparatedJunctionType type,
             RoadSegmentId upperSegmentId,
             RoadSegmentId lowerSegmentId)
         {
+            RecordNumber = recordNumber;
             TemporaryId = temporaryId;
             Type = type ?? throw new ArgumentNullException(nameof(type));
             UpperSegmentId = upperSegmentId;
             LowerSegmentId = lowerSegmentId;
         }
+
+        public RecordNumber RecordNumber { get; }
         public GradeSeparatedJunctionId TemporaryId { get; }
         public GradeSeparatedJunctionType Type { get; }
         public RoadSegmentId UpperSegmentId { get; }

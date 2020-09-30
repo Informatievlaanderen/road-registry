@@ -10,32 +10,47 @@ namespace RoadRegistry.BackOffice.Core
         private readonly ImmutableHashSet<RoadSegmentId> _segments;
 
         public RoadNodeId Id { get; }
+        public RoadNodeType Type { get; }
         public Point Geometry { get; }
 
         public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
 
-        public RoadNode(RoadNodeId id, Point geometry)
+        public RoadNode(RoadNodeId id, RoadNodeType type, Point geometry)
         {
             Id = id;
+            Type = type ?? throw new ArgumentNullException(nameof(type));
             Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
             _segments = ImmutableHashSet<RoadSegmentId>.Empty;
         }
 
-        private RoadNode(RoadNodeId id, Point geometry, ImmutableHashSet<RoadSegmentId> segments)
+        private RoadNode(RoadNodeId id, RoadNodeType type, Point geometry, ImmutableHashSet<RoadSegmentId> segments)
         {
             Id = id;
+            Type = type;
             Geometry = geometry;
             _segments = segments;
         }
 
+        public RoadNode WithGeometry(Point geometry)
+        {
+            if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+            return new RoadNode(Id, Type, geometry, _segments);
+        }
+
+        public RoadNode WithType(RoadNodeType type)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            return new RoadNode(Id, type, Geometry, _segments);
+        }
+
         public RoadNode ConnectWith(RoadSegmentId segment)
         {
-            return new RoadNode(Id, Geometry, _segments.Add(segment));
+            return new RoadNode(Id, Type, Geometry, _segments.Add(segment));
         }
 
         public RoadNode DisconnectFrom(RoadSegmentId segment)
         {
-            return new RoadNode(Id, Geometry, _segments.Remove(segment));
+            return new RoadNode(Id, Type, Geometry, _segments.Remove(segment));
         }
 
         public IReadOnlyCollection<RoadNodeType> SupportedRoadNodeTypes
@@ -91,5 +106,6 @@ namespace RoadRegistry.BackOffice.Core
 
         //     public RoadNode ToImmutable() => new RoadNode(Id, _segments.ToImmutable());
         // }
+
     }
 }

@@ -144,14 +144,14 @@ namespace RoadRegistry.Legacy.Extract.Readers
                             Status = RoadSegmentStatus.ByIdentifier[reader.GetInt32(10)],
                             Category = RoadSegmentCategory.ByIdentifier[reader.GetString(11)],
                             AccessRestriction = RoadSegmentAccessRestriction.ByIdentifier[reader.GetInt32(12)],
-                            LeftSide = new ImportedRoadSegmentSideAttributes
+                            LeftSide = new ImportedRoadSegmentSideAttribute
                             {
                                 StreetNameId = reader.GetNullableInt32(13),
                                 StreetName = reader.GetNullableString(14),
                                 MunicipalityNISCode = reader.GetNullableString(15),
                                 Municipality = reader.GetNullableString(16)
                             },
-                            RightSide = new ImportedRoadSegmentSideAttributes
+                            RightSide = new ImportedRoadSegmentSideAttribute
                             {
                                 StreetNameId = reader.GetNullableInt32(17),
                                 StreetName = reader.GetNullableString(18),
@@ -168,12 +168,12 @@ namespace RoadRegistry.Legacy.Extract.Readers
                                 Since = reader.GetDateTime(26),
                                 TransactionId = reader.GetNullableInt32(27) ?? TransactionId.Unknown.ToInt32()
                             },
-                            PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
-                            PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),
-                            PartOfNumberedRoads = Array.Empty<ImportedRoadSegmentNumberedRoadAttributes>(),
-                            Lanes = Array.Empty<ImportedRoadSegmentLaneAttributes>(),
-                            Widths = Array.Empty<ImportedRoadSegmentWidthAttributes>(),
-                            Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttributes>(),
+                            PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttribute>(),
+                            PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttribute>(),
+                            PartOfNumberedRoads = Array.Empty<ImportedRoadSegmentNumberedRoadAttribute>(),
+                            Lanes = Array.Empty<ImportedRoadSegmentLaneAttribute>(),
+                            Widths = Array.Empty<ImportedRoadSegmentWidthAttribute>(),
+                            Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttribute>(),
                             When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
                         });
                     });
@@ -275,14 +275,14 @@ namespace RoadRegistry.Legacy.Extract.Readers
                             Status = RoadSegmentStatus.ByIdentifier[reader.GetInt32(10)],
                             Category = RoadSegmentCategory.ByIdentifier[reader.GetString(11)],
                             AccessRestriction = RoadSegmentAccessRestriction.ByIdentifier[reader.GetInt32(12)],
-                            LeftSide = new ImportedRoadSegmentSideAttributes
+                            LeftSide = new ImportedRoadSegmentSideAttribute
                             {
                                 StreetNameId = reader.GetNullableInt32(13),
                                 StreetName = reader.GetNullableString(14),
                                 MunicipalityNISCode = reader.GetNullableString(15),
                                 Municipality = reader.GetNullableString(16)
                             },
-                            RightSide = new ImportedRoadSegmentSideAttributes
+                            RightSide = new ImportedRoadSegmentSideAttribute
                             {
                                 StreetNameId = reader.GetNullableInt32(17),
                                 StreetName = reader.GetNullableString(18),
@@ -299,12 +299,12 @@ namespace RoadRegistry.Legacy.Extract.Readers
                                 Since = reader.GetDateTime(26),
                                 TransactionId = reader.GetNullableInt32(27) ?? TransactionId.Unknown.ToInt32()
                             },
-                            PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttributes>(),
-                            PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttributes>(),
-                            PartOfNumberedRoads = Array.Empty<ImportedRoadSegmentNumberedRoadAttributes>(),
-                            Lanes = Array.Empty<ImportedRoadSegmentLaneAttributes>(),
-                            Widths = Array.Empty<ImportedRoadSegmentWidthAttributes>(),
-                            Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttributes>(),
+                            PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttribute>(),
+                            PartOfNationalRoads = Array.Empty<ImportedRoadSegmentNationalRoadAttribute>(),
+                            PartOfNumberedRoads = Array.Empty<ImportedRoadSegmentNumberedRoadAttribute>(),
+                            Lanes = Array.Empty<ImportedRoadSegmentLaneAttribute>(),
+                            Widths = Array.Empty<ImportedRoadSegmentWidthAttribute>(),
+                            Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttribute>(),
                             When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
                         });
                     });
@@ -474,7 +474,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 if (!lookup.TryGetValue(segment, out var @event))
                     return;
 
-                var attributes = new ImportedRoadSegmentSurfaceAttributes
+                var attributes = new ImportedRoadSegmentSurfaceAttribute
                 {
                     AttributeId = reader.GetInt32(1),
                     Type = RoadSegmentSurfaceType.ByIdentifier[reader.GetInt32(2)],
@@ -489,7 +489,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                     }
                 };
 
-                var copy = new ImportedRoadSegmentSurfaceAttributes[@event.Surfaces.Length + 1];
+                var copy = new ImportedRoadSegmentSurfaceAttribute[@event.Surfaces.Length + 1];
                 @event.Surfaces.CopyTo(copy, 0);
                 copy[@event.Surfaces.Length] = attributes;
                 @event.Surfaces = copy;
@@ -522,7 +522,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 if (!lookup.TryGetValue(segment, out var @event))
                     return;
 
-                var attributes = new ImportedRoadSegmentWidthAttributes
+                var attributes = new ImportedRoadSegmentWidthAttribute
                 {
                     AttributeId = reader.GetInt32(1),
                     Width = reader.GetInt32(2),
@@ -537,7 +537,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                     }
                 };
 
-                var copy = new ImportedRoadSegmentWidthAttributes[@event.Widths.Length + 1];
+                var copy = new ImportedRoadSegmentWidthAttribute[@event.Widths.Length + 1];
                 @event.Widths.CopyTo(copy, 0);
                 copy[@event.Widths.Length] = attributes;
                 @event.Widths = copy;
@@ -572,7 +572,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 if (!lookup.TryGetValue(segment, out var @event))
                     return;
 
-                var attributes = new ImportedRoadSegmentLaneAttributes
+                var attributes = new ImportedRoadSegmentLaneAttribute
                 {
                     AttributeId = reader.GetInt32(1),
                     Count = reader.GetInt32(2),
@@ -588,7 +588,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                     }
                 };
 
-                var copy = new ImportedRoadSegmentLaneAttributes[@event.Lanes.Length + 1];
+                var copy = new ImportedRoadSegmentLaneAttribute[@event.Lanes.Length + 1];
                 @event.Lanes.CopyTo(copy, 0);
                 copy[@event.Lanes.Length] = attributes;
                 @event.Lanes = copy;
@@ -621,7 +621,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 if (!lookup.TryGetValue(segment, out var @event))
                     return;
 
-                var attributes = new ImportedRoadSegmentNumberedRoadAttributes
+                var attributes = new ImportedRoadSegmentNumberedRoadAttribute
                 {
                     AttributeId = reader.GetInt32(1),
                     Ident8 = reader.GetString(2),
@@ -635,7 +635,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                     }
                 };
 
-                var copy = new ImportedRoadSegmentNumberedRoadAttributes[@event.PartOfNumberedRoads.Length + 1];
+                var copy = new ImportedRoadSegmentNumberedRoadAttribute[@event.PartOfNumberedRoads.Length + 1];
                 @event.PartOfNumberedRoads.CopyTo(copy, 0);
                 copy[@event.PartOfNumberedRoads.Length] = attributes;
                 @event.PartOfNumberedRoads = copy;
@@ -665,7 +665,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 if (!lookup.TryGetValue(segment, out var @event))
                     return;
 
-                var attributes = new ImportedRoadSegmentNationalRoadAttributes
+                var attributes = new ImportedRoadSegmentNationalRoadAttribute
                 {
                     AttributeId = reader.GetInt32(1),
                     Ident2 = reader.GetString(2),
@@ -677,7 +677,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                     }
                 };
 
-                var copy = new ImportedRoadSegmentNationalRoadAttributes[@event.PartOfNationalRoads.Length + 1];
+                var copy = new ImportedRoadSegmentNationalRoadAttribute[@event.PartOfNationalRoads.Length + 1];
                 @event.PartOfNationalRoads.CopyTo(copy, 0);
                 copy[@event.PartOfNationalRoads.Length] = attributes;
                 @event.PartOfNationalRoads = copy;
@@ -707,7 +707,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 if (!lookup.TryGetValue(segment, out var @event))
                     return;
 
-                var attributes = new ImportedRoadSegmentEuropeanRoadAttributes
+                var attributes = new ImportedRoadSegmentEuropeanRoadAttribute
                 {
                     AttributeId = reader.GetInt32(1),
                     Number = reader.GetString(2),
@@ -719,7 +719,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                     }
                 };
 
-                var copy = new ImportedRoadSegmentEuropeanRoadAttributes[@event.PartOfEuropeanRoads.Length + 1];
+                var copy = new ImportedRoadSegmentEuropeanRoadAttribute[@event.PartOfEuropeanRoads.Length + 1];
                 @event.PartOfEuropeanRoads.CopyTo(copy, 0);
                 copy[@event.PartOfEuropeanRoads.Length] = attributes;
                 @event.PartOfEuropeanRoads = copy;

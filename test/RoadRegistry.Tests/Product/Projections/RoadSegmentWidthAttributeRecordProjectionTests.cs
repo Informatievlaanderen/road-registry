@@ -64,7 +64,7 @@ namespace RoadRegistry.Product.Projections
                 .Select(segment =>
                 {
                     segment.Widths = _fixture
-                        .CreateMany<ImportedRoadSegmentWidthAttributes>(random.Next(1, 10))
+                        .CreateMany<ImportedRoadSegmentWidthAttribute>(random.Next(1, 10))
                         .ToArray();
 
                     var expected = segment
@@ -109,7 +109,7 @@ namespace RoadRegistry.Product.Projections
         public Task When_importing_a_road_node_without_widths()
         {
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-            importedRoadSegment.Widths = new ImportedRoadSegmentWidthAttributes[0];
+            importedRoadSegment.Widths = new ImportedRoadSegmentWidthAttribute[0];
 
             return new RoadRegistry.Product.Projections.RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()

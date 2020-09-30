@@ -64,7 +64,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 problems += recordContext.RequiredFieldIsNull(record.GW_OIDN.Field);
                             }
 
-                            if (record.IDENT8.Value == null)
+                            if (!record.IDENT8.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.IDENT8.Field);
                             }

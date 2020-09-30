@@ -84,11 +84,22 @@ namespace RoadRegistry.BackOffice.Uploads
         public void TranslateWithRecordsReturnsExpectedResult()
         {
             var records = _fixture
-                .CreateMany<GradeSeparatedJunctionChangeDbaseRecord>(new Random().Next(1, 5))
+                .CreateMany<GradeSeparatedJunctionChangeDbaseRecord>(new Random().Next(1, 4))
                 .Select((record, index) =>
                 {
                     record.OK_OIDN.Value = index + 1;
-                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                    switch (index % 3)
+                    {
+                        case 0:
+                            record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                            break;
+                        case 1:
+                            record.RECORDTYPE.Value = (short)RecordType.Modified.Translation.Identifier;
+                            break;
+                        case 2:
+                            record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                            break;
+                    }
                     return record;
                 })
                 .ToArray();
@@ -98,15 +109,44 @@ namespace RoadRegistry.BackOffice.Uploads
 
             var expected = records.Aggregate(
                 TranslatedChanges.Empty,
-                (changes, current) => changes.Append(
-                    new Uploads.AddGradeSeparatedJunction(
-                        new GradeSeparatedJunctionId(current.OK_OIDN.Value),
-                        GradeSeparatedJunctionType.ByIdentifier[current.TYPE.Value],
-                        new RoadSegmentId(current.BO_WS_OIDN.Value),
-                        new RoadSegmentId(current.ON_WS_OIDN.Value)
-                    )
-                )
-            );
+                (previousChanges, current) =>
+                {
+                    var nextChanges = previousChanges;
+                    switch (current.RECORDTYPE.Value)
+                    {
+                        case RecordType.AddedIdentifier:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.AddGradeSeparatedJunction(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new GradeSeparatedJunctionId(current.OK_OIDN.Value),
+                                    GradeSeparatedJunctionType.ByIdentifier[current.TYPE.Value],
+                                    new RoadSegmentId(current.BO_WS_OIDN.Value),
+                                    new RoadSegmentId(current.ON_WS_OIDN.Value)
+                                )
+                            );
+                            break;
+                        case RecordType.ModifiedIdentifier:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.ModifyGradeSeparatedJunction(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new GradeSeparatedJunctionId(current.OK_OIDN.Value),
+                                    GradeSeparatedJunctionType.ByIdentifier[current.TYPE.Value],
+                                    new RoadSegmentId(current.BO_WS_OIDN.Value),
+                                    new RoadSegmentId(current.ON_WS_OIDN.Value)
+                                )
+                            );
+                            break;
+                        case RecordType.RemovedIdentifier:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.RemoveGradeSeparatedJunction(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new GradeSeparatedJunctionId(current.OK_OIDN.Value)
+                                )
+                            );
+                            break;
+                    }
+                    return nextChanges;
+                });
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }
 

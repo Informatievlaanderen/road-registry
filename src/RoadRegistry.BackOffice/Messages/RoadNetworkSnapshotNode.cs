@@ -11,5 +11,7 @@ namespace RoadRegistry.BackOffice.Messages
         public int[] Segments { get; set; }
         [Key(2)]
         public RoadNodeGeometry Geometry { get; set; }
+        [Key(3)]
+        public string Type { get; set; }
     }
 }

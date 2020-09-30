@@ -61,7 +61,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 problems += recordContext.RequiredFieldIsNull(record.EU_OIDN.Field);
                             }
 
-                            if (record.EUNUMMER.Value == null)
+                            if (!record.EUNUMMER.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.EUNUMMER.Field);
                             }

@@ -1,10 +1,11 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Scenarios
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.EventHandling;
+    using Core;
     using Framework;
     using Messages;
     using Newtonsoft.Json;

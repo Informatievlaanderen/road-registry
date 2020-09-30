@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Messages
 {
-    public class ImportedRoadSegmentSideAttributes
+    public class ImportedRoadSegmentSideAttribute
     {
         public int? StreetNameId { get; set; }
         public string StreetName { get; set; }

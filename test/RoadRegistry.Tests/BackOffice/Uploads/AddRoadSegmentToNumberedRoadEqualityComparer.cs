@@ -13,7 +13,8 @@ namespace RoadRegistry.BackOffice.Uploads
                    && left.SegmentId.Equals(right.SegmentId)
                    && left.TemporaryAttributeId.Equals(right.TemporaryAttributeId)
                    && left.Ordinal.Equals(right.Ordinal)
-                   && left.Direction.Equals(right.Direction);
+                   && left.Direction.Equals(right.Direction)
+                   && left.RecordNumber.Equals(right.RecordNumber);
         }
 
         public int GetHashCode(AddRoadSegmentToNumberedRoad instance)

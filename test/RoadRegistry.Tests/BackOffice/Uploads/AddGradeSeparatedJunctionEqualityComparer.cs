@@ -12,7 +12,8 @@ namespace RoadRegistry.BackOffice.Uploads
             return left.TemporaryId.Equals(right.TemporaryId)
                    && left.Type.Equals(right.Type)
                    && left.UpperSegmentId.Equals(right.UpperSegmentId)
-                   && left.LowerSegmentId.Equals(right.LowerSegmentId);
+                   && left.LowerSegmentId.Equals(right.LowerSegmentId)
+                   && left.RecordNumber.Equals(right.RecordNumber);
         }
 
         public int GetHashCode(AddGradeSeparatedJunction instance)

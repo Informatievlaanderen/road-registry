@@ -498,6 +498,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         .Append(
                             new Uploads.AddRoadSegmentToEuropeanRoad
                             (
+                                new RecordNumber(1),
                                 new AttributeId(europeanRoadChangeDbaseRecord.EU_OIDN.Value),
                                 new RoadSegmentId(europeanRoadChangeDbaseRecord.WS_OIDN.Value),
                                 EuropeanRoadNumber.Parse(europeanRoadChangeDbaseRecord.EUNUMMER.Value)
@@ -506,6 +507,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         .Append(
                             new Uploads.AddRoadSegmentToNationalRoad
                             (
+                                new RecordNumber(1),
                                 new AttributeId(nationalRoadChangeDbaseRecord.NW_OIDN.Value),
                                 new RoadSegmentId(nationalRoadChangeDbaseRecord.WS_OIDN.Value),
                                 NationalRoadNumber.Parse(nationalRoadChangeDbaseRecord.IDENT2.Value)
@@ -514,6 +516,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         .Append(
                             new Uploads.AddRoadSegmentToNumberedRoad
                             (
+                                new RecordNumber(1),
                                 new AttributeId(numberedRoadChangeDbaseRecord.GW_OIDN.Value),
                                 new RoadSegmentId(numberedRoadChangeDbaseRecord.WS_OIDN.Value),
                                 NumberedRoadNumber.Parse(numberedRoadChangeDbaseRecord.IDENT8.Value),
@@ -566,6 +569,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         .Append(
                             new Uploads.AddGradeSeparatedJunction
                             (
+                                new RecordNumber(1),
                                 new GradeSeparatedJunctionId(gradeSeparatedJunctionChangeDbaseRecord.OK_OIDN.Value),
                                 GradeSeparatedJunctionType.ByIdentifier[gradeSeparatedJunctionChangeDbaseRecord.TYPE.Value],
                                 new RoadSegmentId(gradeSeparatedJunctionChangeDbaseRecord.BO_WS_OIDN.Value),

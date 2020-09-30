@@ -39,6 +39,14 @@ namespace RoadRegistry.BackOffice.Uploads
                                 )
                             );
                             break;
+                        case RecordType.RemovedIdentifier:
+                            changes = changes.Append(
+                                new RemoveRoadNode(
+                                    recordNumber,
+                                    new RoadNodeId(record.WEGKNOOPID.Value)
+                                )
+                            );
+                            break;
                     }
                 }
                 recordNumber = recordNumber.Next();

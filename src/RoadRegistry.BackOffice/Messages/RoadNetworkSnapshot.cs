@@ -35,5 +35,7 @@ namespace RoadRegistry.BackOffice.Messages
         public RoadNetworkSnapshotSegmentReusableAttributeIdentifiers[] SegmentReusableSurfaceAttributeIdentifiers { get; set; }
         [Key(14)]
         public int MaximumTransactionId { get; set; }
+        [Key(15)]
+        public RoadNetworkSnapshotGradeSeparatedJunction[] GradeSeparatedJunctions { get; set; }
     }
 }

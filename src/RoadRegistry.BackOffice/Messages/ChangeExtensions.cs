@@ -13,11 +13,20 @@ namespace RoadRegistry.BackOffice.Messages
                 {
                     change.AddRoadNode,
                     change.ModifyRoadNode,
+                    change.RemoveRoadNode,
                     change.AddRoadSegment,
+                    change.ModifyRoadSegment,
+                    change.RemoveRoadSegment,
                     change.AddRoadSegmentToEuropeanRoad,
+                    change.RemoveRoadSegmentFromEuropeanRoad,
                     change.AddRoadSegmentToNationalRoad,
+                    change.RemoveRoadSegmentFromNationalRoad,
                     change.AddRoadSegmentToNumberedRoad,
-                    change.AddGradeSeparatedJunction
+                    change.ModifyRoadSegmentOnNumberedRoad,
+                    change.RemoveRoadSegmentFromNumberedRoad,
+                    change.AddGradeSeparatedJunction,
+                    change.ModifyGradeSeparatedJunction,
+                    change.RemoveGradeSeparatedJunction
                 }
                 .Single(_ => !ReferenceEquals(_, null));
 
@@ -29,11 +38,20 @@ namespace RoadRegistry.BackOffice.Messages
                 {
                     change.RoadNodeAdded,
                     change.RoadNodeModified,
+                    change.RoadNodeRemoved,
                     change.RoadSegmentAdded,
+                    change.RoadSegmentModified,
+                    change.RoadSegmentRemoved,
                     change.RoadSegmentAddedToEuropeanRoad,
+                    change.RoadSegmentRemovedFromEuropeanRoad,
                     change.RoadSegmentAddedToNationalRoad,
+                    change.RoadSegmentRemovedFromNationalRoad,
                     change.RoadSegmentAddedToNumberedRoad,
-                    change.GradeSeparatedJunctionAdded
+                    change.RoadSegmentOnNumberedRoadModified,
+                    change.RoadSegmentRemovedFromNumberedRoad,
+                    change.GradeSeparatedJunctionAdded,
+                    change.GradeSeparatedJunctionModified,
+                    change.GradeSeparatedJunctionRemoved
                 }
                 .Single(_ => !ReferenceEquals(_, null));
 
@@ -45,11 +63,20 @@ namespace RoadRegistry.BackOffice.Messages
                 {
                     change.AddRoadNode,
                     change.ModifyRoadNode,
+                    change.RemoveRoadNode,
                     change.AddRoadSegment,
+                    change.ModifyRoadSegment,
+                    change.RemoveRoadSegment,
                     change.AddRoadSegmentToEuropeanRoad,
+                    change.RemoveRoadSegmentFromEuropeanRoad,
                     change.AddRoadSegmentToNationalRoad,
+                    change.RemoveRoadSegmentFromNationalRoad,
                     change.AddRoadSegmentToNumberedRoad,
-                    change.AddGradeSeparatedJunction
+                    change.ModifyRoadSegmentOnNumberedRoad,
+                    change.RemoveRoadSegmentFromNumberedRoad,
+                    change.AddGradeSeparatedJunction,
+                    change.ModifyGradeSeparatedJunction,
+                    change.RemoveGradeSeparatedJunction
                 }
                 .Single(_ => !ReferenceEquals(_, null));
     }

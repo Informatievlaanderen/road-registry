@@ -91,7 +91,19 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Select((record, index) =>
                 {
                     record.GW_OIDN.Value = index + 1;
-                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                    switch (index % 3)
+                    {
+                        case 0:
+                            record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                            break;
+                        case 1:
+                            record.RECORDTYPE.Value = (short)RecordType.Modified.Translation.Identifier;
+                            break;
+                        case 2:
+                            record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                            break;
+                    }
+
                     return record;
                 })
                 .ToArray();
@@ -101,14 +113,43 @@ namespace RoadRegistry.BackOffice.Uploads
 
             var expected = records.Aggregate(
                 TranslatedChanges.Empty,
-                (changes, current) => changes.Append(
-                    new Uploads.AddRoadSegmentToNumberedRoad(
-                        new AttributeId(current.GW_OIDN.Value),
-                        new RoadSegmentId(current.WS_OIDN.Value),
-                        NumberedRoadNumber.Parse(current.IDENT8.Value),
-                        RoadSegmentNumberedRoadDirection.ByIdentifier[current.RICHTING.Value],
-                        new RoadSegmentNumberedRoadOrdinal(current.VOLGNUMMER.Value)))
-            );
+                (previousChanges, current) =>
+                {
+                    var nextChanges = previousChanges;
+                    switch (current.RECORDTYPE.Value)
+                    {
+                        case RecordType.AddedIdentifier:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.AddRoadSegmentToNumberedRoad(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new AttributeId(current.GW_OIDN.Value),
+                                    new RoadSegmentId(current.WS_OIDN.Value),
+                                    NumberedRoadNumber.Parse(current.IDENT8.Value),
+                                    RoadSegmentNumberedRoadDirection.ByIdentifier[current.RICHTING.Value],
+                                    new RoadSegmentNumberedRoadOrdinal(current.VOLGNUMMER.Value)));
+                            break;
+                        case RecordType.ModifiedIdentifier:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.ModifyRoadSegmentOnNumberedRoad(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new AttributeId(current.GW_OIDN.Value),
+                                    new RoadSegmentId(current.WS_OIDN.Value),
+                                    NumberedRoadNumber.Parse(current.IDENT8.Value),
+                                    RoadSegmentNumberedRoadDirection.ByIdentifier[current.RICHTING.Value],
+                                    new RoadSegmentNumberedRoadOrdinal(current.VOLGNUMMER.Value)));
+                            break;
+                        case RecordType.RemovedIdentifier:
+                            nextChanges = previousChanges.Append(
+                                new Uploads.RemoveRoadSegmentFromNumberedRoad(
+                                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                                    new AttributeId(current.GW_OIDN.Value),
+                                    new RoadSegmentId(current.WS_OIDN.Value),
+                                    NumberedRoadNumber.Parse(current.IDENT8.Value)));
+                            break;
+                    }
+
+                    return nextChanges;
+                });
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }
 
