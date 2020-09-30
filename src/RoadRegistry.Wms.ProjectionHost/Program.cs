@@ -27,8 +27,6 @@
 
     public class Program
     {
-        private static readonly Encoding WindowsAnsiEncoding = Encoding.GetEncoding(1252);
-
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.Wms.ProjectionHost");
@@ -83,7 +81,6 @@
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
                         .AddSingleton<IStreetNameCache, StreetNameCache>()
-                        .AddSingleton<IMunicipalityCache, MunicipalityCache>()
                         .AddHostedService<EventProcessor>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(new EnvelopeFactory(
