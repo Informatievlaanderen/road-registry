@@ -16,7 +16,7 @@ namespace RoadRegistry.Wms.Schema.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.5")
+                .HasAnnotation("ProductVersion", "3.1.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -102,6 +102,10 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnName("linksGemeente")
                         .HasColumnType("int");
 
+                    b.Property<string>("LeftSideMunicipalityNisCode")
+                        .HasColumnName("linksGemeenteNisCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("LeftSideStreetName")
                         .HasColumnName("linksStraatnaam")
                         .HasColumnType("varchar(128)");
@@ -142,6 +146,10 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnName("rechtsGemeente")
                         .HasColumnType("int");
 
+                    b.Property<string>("RightSideMunicipalityNisCode")
+                        .HasColumnName("rechtsGemeenteNisCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("RightSideStreetName")
                         .HasColumnName("rechtsStraatnaam")
                         .HasColumnType("varchar(128)");
@@ -161,6 +169,10 @@ namespace RoadRegistry.Wms.Schema.Migrations
                     b.Property<int?>("StatusId")
                         .HasColumnName("status")
                         .HasColumnType("int");
+
+                    b.Property<long>("StreetNameCachePosition")
+                        .HasColumnName("straatnaamCachePositie")
+                        .HasColumnType("bigint");
 
                     b.Property<int?>("TransactionId")
                         .HasColumnName("transactieID")

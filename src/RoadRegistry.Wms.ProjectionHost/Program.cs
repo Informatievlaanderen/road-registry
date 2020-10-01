@@ -23,11 +23,10 @@
     using Schema;
     using Serilog;
     using SqlStreamStore;
+    using Syndication.Schema;
 
     public class Program
     {
-        private static readonly Encoding WindowsAnsiEncoding = Encoding.GetEncoding(1252);
-
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.Wms.ProjectionHost");
@@ -81,6 +80,7 @@
                     builder
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
+                        .AddSingleton<IStreetNameCache, StreetNameCache>()
                         .AddHostedService<EventProcessor>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(new EnvelopeFactory(
@@ -99,9 +99,20 @@
                                                 .UseNetTopologySuite()
                                         ).Options)
                         )
+                        .AddSingleton<Func<SyndicationContext>>(
+                            () =>
+                                new SyndicationContext(
+                                    new DbContextOptionsBuilder<SyndicationContext>()
+                                        .UseSqlServer(
+                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
+                                            options => options
+                                                .EnableRetryOnFailure()
+                                        ).Options)
+                        )
                         .AddSingleton(sp => new ConnectedProjection<WmsContext>[]
                         {
-                            new RoadSegmentRecordProjection()
+                            new RoadSegmentRecordProjection(
+                                sp.GetRequiredService<IStreetNameCache>())
                         })
                         .AddSingleton(sp =>
                             Resolve

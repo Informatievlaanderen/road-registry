@@ -1,7 +1,9 @@
 ﻿namespace RoadRegistry.BackOffice.Api
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Configuration;
     using Downloads;
     using Framework;
     using Microsoft.AspNetCore.Http;
@@ -28,7 +30,7 @@
             };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.Get(context);
+                var result = await controller.Get(context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
 
                 var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
                 Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
@@ -55,7 +57,7 @@
 
             using (var context = await _fixture.CreateEditorContextAsync(database))
             {
-                var result = await controller.Get(context);
+                var result = await controller.Get(context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
 
                 var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
                 Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
@@ -82,7 +84,7 @@
 
             using (var context = await _fixture.CreateEditorContextAsync(database))
             {
-                var result = await controller.Get(context);
+                var result = await controller.Get(context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
 
                 var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
                 Assert.Equal("wegenregister.zip", fileCallbackResult.FileDownloadName);
@@ -98,7 +100,7 @@
             };
             using (var context = await _fixture.CreateEmptyProductContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.Get(context);
+                var result = await controller.Get(context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
 
                 var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
                 Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
@@ -125,7 +127,7 @@
 
             using (var context = await _fixture.CreateProductContextAsync(database))
             {
-                var result = await controller.Get(context);
+                var result = await controller.Get(context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
 
                 var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
                 Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
@@ -152,11 +154,24 @@
 
             using (var context = await _fixture.CreateProductContextAsync(database))
             {
-                var result = await controller.Get(context);
+                var result = await controller.Get(context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
 
                 var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
                 Assert.Equal("wegenregister.zip", fileCallbackResult.FileDownloadName);
             }
+        }
+    }
+
+    public class StreetNameCacheStub : IStreetNameCache
+    {
+
+        public StreetNameCacheStub()
+        {
+        }
+
+        public Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds)
+        {
+            throw new NotImplementedException();
         }
     }
 }

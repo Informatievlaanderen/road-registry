@@ -29,6 +29,7 @@ namespace RoadRegistry.BackOffice.Api
     using Product.Schema;
     using Serilog;
     using SqlStreamStore;
+    using Syndication.Schema;
 
     public class Program
     {
@@ -157,7 +158,11 @@ namespace RoadRegistry.BackOffice.Api
                             throw new Exception(blobOptions.BlobClientType + " is not a supported blob client type.");
                     }
 
+                    var zipArchiveWriterOptions = new ZipArchiveWriterOptions();
+                    hostContext.Configuration.GetSection(nameof(ZipArchiveWriterOptions)).Bind(zipArchiveWriterOptions);
+
                     builder
+                        .AddSingleton<ZipArchiveWriterOptions>(zipArchiveWriterOptions)
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(
                                 new MsSqlStreamStoreV3Settings(
@@ -196,6 +201,22 @@ namespace RoadRegistry.BackOffice.Api
                         .AddScoped(sp => new TraceDbConnection<EditorContext>(
                             new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EditorProjections)),
                             sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+                        .AddScoped(sp => new TraceDbConnection<SyndicationContext>(
+                            new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections)),
+                            sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+                        .AddSingleton<IStreetNameCache, StreetNameCache>()
+                        .AddSingleton<Func<SyndicationContext>>(sp =>
+                            () =>
+                                new SyndicationContext(
+                                    new DbContextOptionsBuilder<SyndicationContext>()
+                                        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                                        .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                                        .UseSqlServer(
+                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
+                                            options => options
+                                                .EnableRetryOnFailure()
+                                        ).Options)
+                        )
                         .AddDbContext<EditorContext>((sp, options) => options
                             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

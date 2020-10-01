@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Configuration;
     using Microsoft.IO;
     using Product.Schema;
     using Product.Schema.Lists;
@@ -13,8 +14,14 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
     {
         private readonly IZipArchiveWriter<ProductContext> _writer;
 
-        public RoadNetworkForProductToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
+        public RoadNetworkForProductToZipArchiveWriter(
+            ZipArchiveWriterOptions zipArchiveWriterOptions,
+            IStreetNameCache streetNameCache,
+            RecyclableMemoryStreamManager manager,
+            Encoding encoding)
         {
+            if (zipArchiveWriterOptions == null) throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
+            if (streetNameCache == null) throw new ArgumentNullException(nameof(streetNameCache));
             if (manager == null) throw new ArgumentNullException(nameof(manager));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
@@ -23,7 +30,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
                     new CompositeZipArchiveWriter<ProductContext>(
                         new OrganizationsToZipArchiveWriter(manager, encoding),
                         new RoadNodesToZipArchiveWriter(manager, encoding),
-                        new RoadSegmentsToZipArchiveWriter(manager, encoding),
+                        new RoadSegmentsToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding),
                         new RoadSegmentLaneAttributesToZipArchiveWriter(manager, encoding),
                         new RoadSegmentWidthAttributesToZipArchiveWriter(manager, encoding),
                         new RoadSegmentSurfaceAttributesToZipArchiveWriter(manager, encoding),

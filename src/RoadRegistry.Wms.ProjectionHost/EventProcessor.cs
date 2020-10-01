@@ -1,6 +1,8 @@
 namespace RoadRegistry.Wms.ProjectionHost
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Channels;
     using System.Threading.Tasks;
@@ -13,6 +15,7 @@ namespace RoadRegistry.Wms.ProjectionHost
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
+    using Projections;
     using Schema;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
@@ -24,10 +27,17 @@ namespace RoadRegistry.Wms.ProjectionHost
 
         public static readonly JsonSerializerSettings SerializerSettings =
             EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
         public static readonly EventMapping EventMapping =
-            new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+            new EventMapping(
+                new List<IReadOnlyDictionary<string, Type>>
+                {
+                    EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly),
+                    EventMapping.DiscoverEventNamesInAssembly(typeof(SynchronizeWithStreetNameCache).Assembly)
+                }.SelectMany(dict => dict).ToDictionary(x => x.Key, x => x.Value));
 
         private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan SynchronizeWithStreetNameCacheAfter = TimeSpan.FromMinutes(5);
 
         private readonly Channel<object> _messageChannel;
         private readonly CancellationTokenSource _messagePumpCancellation;
@@ -39,6 +49,7 @@ namespace RoadRegistry.Wms.ProjectionHost
         private const int CatchUpThreshold = 1000;
         private const int CatchUpBatchSize = 5000;
         private const int RecordPositionThreshold = 1000;
+        private const int SynchronizeWithCacheBatchSize = 100;
 
         public EventProcessor(
             IStreamStore streamStore,
@@ -46,6 +57,7 @@ namespace RoadRegistry.Wms.ProjectionHost
             EnvelopeFactory envelopeFactory,
             ConnectedProjectionHandlerResolver<WmsContext> resolver,
             Func<WmsContext> dbContextFactory,
+            IStreetNameCache streetNameCache,
             Scheduler scheduler,
             ILogger<EventProcessor> logger)
         {
@@ -77,6 +89,58 @@ namespace RoadRegistry.Wms.ProjectionHost
                         {
                             switch (message)
                             {
+                                case SynchronizeWithCache _:
+                                    logger.LogInformation("Syncing with cache ...");
+                                    await using (var syncWithCacheContext = dbContextFactory())
+                                    {
+                                        var roadSegmentMinStreetNameCachePosition =
+                                            await syncWithCacheContext.RoadSegments
+                                                .MinAsync(
+                                                    item => item.StreetNameCachePosition,
+                                                    _messagePumpCancellation.Token)
+                                                .ConfigureAwait(false);
+
+                                        var streetNameCacheMaxPosition = await streetNameCache.GetMaxPositionAsync(_messagePumpCancellation.Token);
+
+                                        if (streetNameCacheMaxPosition > roadSegmentMinStreetNameCachePosition)
+                                        {
+                                            logger.LogInformation("Street name cache difference: {@Difference}.", streetNameCacheMaxPosition - roadSegmentMinStreetNameCachePosition);
+                                            logger.LogInformation("Street name records out of sync: {@OutOfSync}.", await syncWithCacheContext.RoadSegments.CountAsync(record => record.StreetNameCachePosition != streetNameCacheMaxPosition));
+                                            logger.LogInformation("Street name cache updated, scheduling refresh.");
+
+                                            var envelope = new Envelope(
+                                                    new SynchronizeWithStreetNameCache
+                                                    {
+                                                        BatchSize = SynchronizeWithCacheBatchSize
+                                                    },
+                                                    new Dictionary<string, object>())
+                                                .ToGenericEnvelope();
+
+                                            var handlers = resolver(envelope);
+                                            foreach (var handler in handlers)
+                                            {
+                                                await handler
+                                                    .Handler(syncWithCacheContext, envelope, _messagePumpCancellation.Token)
+                                                    .ConfigureAwait(false);
+                                            }
+
+                                            await syncWithCacheContext.SaveChangesAsync();
+                                        }
+                                        else
+                                        {
+                                            logger.LogInformation("No updates in street name cache, skipping refresh.");
+                                        }
+                                    }
+
+                                    await scheduler.Schedule(async token =>
+                                    {
+                                        if (!_messagePumpCancellation.IsCancellationRequested)
+                                        {
+                                            await _messageChannel.Writer.WriteAsync(new SynchronizeWithCache(), token).ConfigureAwait(false);
+                                        }
+                                    }, SynchronizeWithStreetNameCacheAfter).ConfigureAwait(false);
+
+                                    break;
                                 case Resume _:
                                     logger.LogInformation("Resuming ...");
                                     await using (var resumeContext = dbContextFactory())
@@ -103,6 +167,14 @@ namespace RoadRegistry.Wms.ProjectionHost
                                                 .WriteAsync(new CatchUp(after, CatchUpBatchSize), _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
                                         }
+
+                                        await scheduler.Schedule(async token =>
+                                        {
+                                            if (!_messagePumpCancellation.IsCancellationRequested)
+                                            {
+                                                await _messageChannel.Writer.WriteAsync(new SynchronizeWithCache(), token).ConfigureAwait(false);
+                                            }
+                                        }, SynchronizeWithStreetNameCacheAfter).ConfigureAwait(false);
                                     }
 
                                     break;
@@ -244,6 +316,7 @@ namespace RoadRegistry.Wms.ProjectionHost
                                                     RoadRegistryWmsProjectionHost,
                                                     record.Message.Position, _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
+
                                             await recordContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                         }
                                     }
@@ -274,6 +347,7 @@ namespace RoadRegistry.Wms.ProjectionHost
                                                 RoadRegistryWmsProjectionHost,
                                                 process.Message.Position,
                                                 _messagePumpCancellation.Token).ConfigureAwait(false);
+
                                             await processContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                         }
 
@@ -347,6 +421,8 @@ namespace RoadRegistry.Wms.ProjectionHost
         }
 
         private class Resume { }
+
+        private class SynchronizeWithCache { }
 
         private class CatchUp
         {

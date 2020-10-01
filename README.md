@@ -107,3 +107,28 @@ To test whether the backoffice command host works you can type
 To test whether the backoffice api and ui work you can type
 
 `docker-compose up --build backoffice-api backoffice-ui`
+
+Several projections use a cache called the syndication projections. 
+These are built from the streetname and municipality registries, using their respective syndication feeds.
+You will need a copy of the Municipality Syndication table from the municipality registry
+
+`bcp MunicipalityRegistryLegacy.MunicipalitySyndication out ./syndication.bcp -S<host>,<port> -U <user> -d municipality-registry -n -E`
+
+and a copy of the StreetName Syndication table from the street name registry
+
+`bcp StreetNameRegistryLegacy.StreetNameSyndication out ./syndication.bcp -S<host>,<port> -U <user> -d streetname-registry -n -E`
+
+and copy these to `src/RoadRegistry.MunicipalityDatabase/filled` and `src/RoadRegistry.StreetNameDatabase/filled` respectively.
+
+To seed the database for these syndication feeds you can type
+
+`docker-compose up --build filled-streetname-mssql-seed`
+
+and
+
+`docker-compose up --build filled-municipality-mssql-seed`
+
+To test whether building the syndication projection works you can type
+
+`docker-compose up --build syndication-projection-host`
+

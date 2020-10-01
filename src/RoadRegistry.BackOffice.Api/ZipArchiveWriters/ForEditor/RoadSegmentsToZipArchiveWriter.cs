@@ -8,6 +8,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Configuration;
     using Editor.Schema;
     using Editor.Schema.RoadSegments;
     using Microsoft.EntityFrameworkCore;
@@ -15,11 +16,19 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
 
     public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
+        private readonly ZipArchiveWriterOptions _zipArchiveWriterOptions;
+        private readonly IStreetNameCache _streetNameCache;
         private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
-        public RoadSegmentsToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
+        public RoadSegmentsToZipArchiveWriter(
+            ZipArchiveWriterOptions zipArchiveWriterOptions,
+            IStreetNameCache streetNameCache,
+            RecyclableMemoryStreamManager manager,
+            Encoding encoding)
         {
+            _zipArchiveWriterOptions = zipArchiveWriterOptions ?? throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
+            _streetNameCache = streetNameCache ?? throw new ArgumentNullException(nameof(streetNameCache));
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
@@ -38,16 +47,41 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                 RoadSegmentDbaseRecord.Schema
             );
             await using (var dbfEntryStream = dbfEntry.Open())
-            using (var dbfWriter =
-                new DbaseBinaryWriter(
-                    dbfHeader,
-                    new BinaryWriter(dbfEntryStream, _encoding, true)))
+            using (var dbfWriter = new DbaseBinaryWriter(dbfHeader, new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
-                var dbfRecord = new RoadSegmentDbaseRecord();
-                foreach (var data in context.RoadSegments.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+                foreach (var batch in context.RoadSegments
+                    .OrderBy(_ => _.Id)
+                    .Select(_ => _.DbaseRecord)
+                    .AsEnumerable()
+                    .Batch(_zipArchiveWriterOptions.RoadSegmentBatchSize))
                 {
-                    dbfRecord.FromBytes(data, _manager, _encoding);
-                    dbfWriter.Write(dbfRecord);
+                    var dbfRecords = batch
+                        .Select(x =>
+                        {
+                            var dbfRecord = new RoadSegmentDbaseRecord();
+                            dbfRecord.FromBytes(x, _manager, _encoding);
+                            return dbfRecord;
+                        })
+                        .ToList();
+
+                    var cachedStreetNameIds = dbfRecords
+                        .Select(record => record.LSTRNMID.Value)
+                        .Union(dbfRecords.Select(record => record.RSTRNMID.Value))
+                        .Where(streetNameId => streetNameId.HasValue)
+                        .Select(streetNameId => streetNameId.Value);
+
+                    var cachedStreetNames = await _streetNameCache.GetStreetNamesById(cachedStreetNameIds);
+
+                    foreach (var dbfRecord in dbfRecords)
+                    {
+                        if (dbfRecord.LSTRNMID.Value.HasValue && cachedStreetNames.ContainsKey(dbfRecord.LSTRNMID.Value.Value))
+                            dbfRecord.LSTRNM.Value = cachedStreetNames[dbfRecord.LSTRNMID.Value.Value];
+
+                        if (dbfRecord.RSTRNMID.Value.HasValue && cachedStreetNames.ContainsKey(dbfRecord.RSTRNMID.Value.Value))
+                            dbfRecord.RSTRNM.Value = cachedStreetNames[dbfRecord.RSTRNMID.Value.Value];
+
+                        dbfWriter.Write(dbfRecord);
+                    }
                 }
                 dbfWriter.Writer.Flush();
                 await dbfEntryStream.FlushAsync(cancellationToken);
