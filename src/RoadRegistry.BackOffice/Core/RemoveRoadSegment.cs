@@ -20,9 +20,12 @@ namespace RoadRegistry.BackOffice.Core
             // in the before we want to make sure we're dealing with an existing segment
 
             var problems = Problems.None;
-            
-            //TODO: Verify the segment actually exists
-            
+
+            if (!context.View.Segments.ContainsKey(Id))
+            {
+                problems = problems.RoadSegmentNotFound();
+            }
+
             if (problems.OfType<Error>().Any())
             {
                 return new RejectedChange(this, problems);

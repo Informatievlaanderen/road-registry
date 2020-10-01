@@ -20,8 +20,11 @@ namespace RoadRegistry.BackOffice.Core
             // in the before we want to make sure we're dealing with an existing junction
 
             var problems = Problems.None;
-            
-            //TODO: Verify the GSJ actually exists
+
+            if (!context.View.GradeSeparatedJunctions.ContainsKey(Id))
+            {
+                problems = problems.GradeSeparatedJunctionNotFound();
+            }
 
             if (problems.OfType<Error>().Any())
             {

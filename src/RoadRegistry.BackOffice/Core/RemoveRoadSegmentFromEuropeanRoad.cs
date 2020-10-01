@@ -25,9 +25,16 @@ namespace RoadRegistry.BackOffice.Core
 
             var problems = Problems.None;
 
-            if (!context.View.Segments.ContainsKey(SegmentId))
+            if (!context.View.Segments.TryGetValue(SegmentId, out var segment))
             {
                 problems = problems.RoadSegmentMissing(SegmentId);
+            }
+            else
+            {
+                if (!segment.PartOfEuropeanRoads.Contains(Number))
+                {
+                    problems = problems.EuropeanRoadNumberNotFound(Number);
+                }
             }
 
             if (problems.OfType<Error>().Any())

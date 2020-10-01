@@ -131,6 +131,24 @@ namespace RoadRegistry.BackOffice.Core
             );
         }
 
+        public Problems EuropeanRoadNumberNotFound(EuropeanRoadNumber number)
+        {
+            return new Problems(
+                _problems.Add(
+                    new Error(nameof(EuropeanRoadNumberNotFound),
+                        new ProblemParameter("Number", number.ToString())))
+            );
+        }
+
+        public Problems NationalRoadNumberNotFound(NationalRoadNumber number)
+        {
+            return new Problems(
+                _problems.Add(
+                    new Error(nameof(NationalRoadNumberNotFound),
+                        new ProblemParameter("Number", number.ToString())))
+            );
+        }
+
         public Problems NumberedRoadNumberNotFound(NumberedRoadNumber number)
         {
             return new Problems(
