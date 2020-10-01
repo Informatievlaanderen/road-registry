@@ -170,19 +170,9 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                     {
                                         if (!_messagePumpCancellation.IsCancellationRequested)
                                         {
-                                            await using (var resumeContext = dbContextFactory())
-                                            {
-                                                var projection =
-                                                    await resumeContext.ProjectionStates
-                                                        .SingleOrDefaultAsync(
-                                                            item => item.Name == roadRegistrySyndicationProjectionHost,
-                                                            _messagePumpCancellation.Token)
-                                                        .ConfigureAwait(false);
-
-                                                await _messageChannel.Writer
-                                                    .WriteAsync(new CatchUp(projection?.Position, CatchUpBatchSize), _messagePumpCancellation.Token)
-                                                    .ConfigureAwait(false);
-                                            }
+                                            await _messageChannel.Writer
+                                                .WriteAsync(new CatchUp(catchUpPosition, CatchUpBatchSize), _messagePumpCancellation.Token)
+                                                .ConfigureAwait(false);
                                         }
                                     }, CatchUpAfter).ConfigureAwait(false);
 
