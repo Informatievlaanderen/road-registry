@@ -25,6 +25,8 @@ namespace RoadRegistry.BackOffice.Core
             // in the before we want to make sure we're dealing with an existing node
 
             var problems = Problems.None;
+
+            // After
             var byOtherNode =
                 context.View.Nodes.Values.FirstOrDefault(n =>
                     n.Id != Id &&
@@ -36,12 +38,14 @@ namespace RoadRegistry.BackOffice.Core
                 );
             }
 
+            // Before
             if (!context.View.Nodes.TryGetValue(Id, out var node))
             {
                 problems = problems.RoadNodeNotFound();
             }
             else
             {
+                // After
                 problems = context.View.Segments.Values
                     .Where(s =>
                         !node.Segments.Contains(s.Id) &&
@@ -52,6 +56,7 @@ namespace RoadRegistry.BackOffice.Core
                         (current, segment) =>
                             current.RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id)));
 
+                // After
                 var connectedSegmentCount = node.Segments.Count;
                 if (connectedSegmentCount == 0)
                 {

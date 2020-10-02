@@ -36,6 +36,7 @@ namespace RoadRegistry.BackOffice.Core
 
             var problems = Problems.None;
 
+            // After
             if (!context.View.Segments.ContainsKey(SegmentId))
             {
                 problems = problems.RoadSegmentMissing(TemporarySegmentId ?? SegmentId);

@@ -36,16 +36,20 @@ namespace RoadRegistry.BackOffice.Core
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
+
+            // After
             if (!context.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
             {
                 problems = problems.UpperRoadSegmentMissing();
             }
 
+            // After
             if (!context.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
             {
                 problems = problems.LowerRoadSegmentMissing();
             }
 
+            // After
             if (upperSegment != null && lowerSegment != null)
             {
                 if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))

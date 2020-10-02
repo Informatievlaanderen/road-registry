@@ -624,9 +624,9 @@
                 typeof(Messages.RemoveRoadSegmentFromEuropeanRoad),
                 typeof(Messages.RemoveRoadSegmentFromNationalRoad),
                 typeof(Messages.RemoveRoadSegmentFromNumberedRoad),
-                typeof(Messages.RemoveRoadNode),
+                typeof(Messages.RemoveGradeSeparatedJunction),
                 typeof(Messages.RemoveRoadSegment),
-                typeof(Messages.RemoveGradeSeparatedJunction)
+                typeof(Messages.RemoveRoadNode)
             };
 
             public int Compare(SortableChange left, SortableChange right)

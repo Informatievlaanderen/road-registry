@@ -21,6 +21,7 @@ namespace RoadRegistry.BackOffice.Core
 
             var problems = Problems.None;
 
+            // Before
             if (!context.View.Segments.ContainsKey(Id))
             {
                 problems = problems.RoadSegmentNotFound();

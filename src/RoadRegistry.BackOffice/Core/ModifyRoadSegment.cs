@@ -72,17 +72,20 @@ namespace RoadRegistry.BackOffice.Core
 
             var problems = Problems.None;
 
+            // Before
             if (!context.View.Segments.ContainsKey(Id))
             {
                 problems = problems.RoadSegmentNotFound();
             }
             else
             {
+                // Before
                 if (Math.Abs(Geometry.Length) <= context.Tolerance)
                 {
                     problems = problems.RoadSegmentGeometryLengthIsZero();
                 }
 
+                // After
                 var byOtherSegment =
                     context.View.Segments.Values.FirstOrDefault(segment =>
                         segment.Id != Id &&
@@ -97,6 +100,7 @@ namespace RoadRegistry.BackOffice.Core
                 var line = Geometry.Geometries
                     .OfType<LineString>()
                     .Single();
+                // After
                 if (!context.View.Nodes.TryGetValue(StartNodeId, out var startNode))
                 {
                     problems = problems.RoadSegmentStartNodeMissing();
@@ -109,6 +113,7 @@ namespace RoadRegistry.BackOffice.Core
                     }
                 }
 
+                // After
                 if (!context.View.Nodes.TryGetValue(EndNodeId, out var endNode))
                 {
                     problems = problems.RoadSegmentEndNodeMissing();
@@ -121,15 +126,18 @@ namespace RoadRegistry.BackOffice.Core
                     }
                 }
 
+                // Before
                 if (line.SelfOverlaps())
                 {
                     problems = problems.RoadSegmentGeometrySelfOverlaps();
                 }
+                // Before
                 else if (line.SelfIntersects())
                 {
                     problems = problems.RoadSegmentGeometrySelfIntersects();
                 }
 
+                // Before
                 if (line.NumPoints > 0)
                 {
                     var previousPointMeasure = 0.0;
@@ -170,6 +178,7 @@ namespace RoadRegistry.BackOffice.Core
                     }
                 }
 
+                // Before
                 RoadSegmentLaneAttribute previousLane = null;
                 foreach (var lane in Lanes)
                 {
@@ -210,6 +219,7 @@ namespace RoadRegistry.BackOffice.Core
                     }
                 }
 
+                // Before
                 RoadSegmentWidthAttribute previousWidth = null;
                 foreach (var width in Widths)
                 {
@@ -250,6 +260,7 @@ namespace RoadRegistry.BackOffice.Core
                     }
                 }
 
+                // Before
                 RoadSegmentSurfaceAttribute previousSurface = null;
                 foreach (var surface in Surfaces)
                 {

@@ -24,6 +24,8 @@ namespace RoadRegistry.BackOffice.Core
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
+
+            // after
             var byOtherNode =
                 context.View.Nodes.Values.FirstOrDefault(n =>
                     n.Id != Id &&
@@ -37,6 +39,7 @@ namespace RoadRegistry.BackOffice.Core
 
             var node = context.View.Nodes[Id];
 
+            // after
             problems = context.View.Segments.Values
                 .Where(s =>
                     !node.Segments.Contains(s.Id) &&
@@ -47,6 +50,7 @@ namespace RoadRegistry.BackOffice.Core
                     (current, segment) =>
                         current.RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id)));
 
+            // after
             var connectedSegmentCount = node.Segments.Count;
             if (connectedSegmentCount == 0)
             {
