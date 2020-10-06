@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/informatievlaanderen/road-registry/compare/v1.13.0...v1.14.0) (2020-10-06)
+
+
+### Features
+
+* don't use basic auth for syndication feeds ([#63](https://github.com/informatievlaanderen/road-registry/issues/63)) ([a1d4537](https://github.com/informatievlaanderen/road-registry/commit/a1d453792ef125bfa2be4deff2530fe723c43eba))
+
 # [1.13.0](https://github.com/informatievlaanderen/road-registry/compare/v1.12.2...v1.13.0) (2020-09-30)
 
 
