@@ -18,6 +18,7 @@
     using Microsoft.Extensions.Logging;
     using Microsoft.IO;
     using NodaTime;
+    using Polly;
     using Projections;
     using Projections.Syndication;
     using Schema;
@@ -81,7 +82,15 @@
                         .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(StreetNameFeedConfiguration.Section).Get<StreetNameFeedConfiguration>())
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
-                        .AddHttpClient()
+                        .AddHttpClient(RegistryAtomFeedReader.HttpClientName)
+                        .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(new[]
+                        {
+                            TimeSpan.FromSeconds(2),
+                            TimeSpan.FromSeconds(5),
+                            TimeSpan.FromSeconds(10),
+                            TimeSpan.FromSeconds(30)
+                        }))
+                        .Services
                         .AddTransient<IRegistryAtomFeedReader, RegistryAtomFeedReader>()
                         .AddHostedService(serviceProvider => new AtomFeedProcessor<MunicipalityFeedConfiguration, Gemeente>(
                             serviceProvider.GetRequiredService<IRegistryAtomFeedReader>(),

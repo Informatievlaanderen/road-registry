@@ -6,6 +6,7 @@ Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication
 Microsoft.Data.SqlClient
 Microsoft.Extensions.Logging
 Microsoft.Extensions.Hosting
+Microsoft.Extensions.Http.Polly
 
 SqlStreamStore
 SqlStreamStore.MsSql
