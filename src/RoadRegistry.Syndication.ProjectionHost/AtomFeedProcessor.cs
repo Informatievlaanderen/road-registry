@@ -90,8 +90,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                     var entries = (await reader.ReadEntriesAsync(
                                             feedConfiguration.Uri,
                                             catchUpPosition,
-                                            feedConfiguration.UserName,
-                                            feedConfiguration.Password,
                                             true,
                                             false))
                                         .ToList();
@@ -142,8 +140,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                         entries = (await reader.ReadEntriesAsync(
                                                 feedConfiguration.Uri,
                                                 catchUpPosition,
-                                                feedConfiguration.UserName,
-                                                feedConfiguration.Password,
                                                 true,
                                                 false))
                                             .ToList();

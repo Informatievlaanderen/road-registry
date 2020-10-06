@@ -18,7 +18,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
         /// Reads the entries of an Atom feed at the provided feedUrl.
         /// </summary>
         /// <returns>A list of <see cref="IAtomEntry "/>.</returns>
-        Task<IEnumerable<IAtomEntry>> ReadEntriesAsync(Uri feedUrl, long? after, string feedUserName = "", string feedPassword = "", bool embedEvent = true, bool embedObject = true);
+        Task<IEnumerable<IAtomEntry>> ReadEntriesAsync(Uri feedUrl, long? after, bool embedEvent = true, bool embedObject = true);
     }
 
     public class RegistryAtomFeedReader : IRegistryAtomFeedReader
@@ -37,8 +37,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
         public async Task<IEnumerable<IAtomEntry>> ReadEntriesAsync(
             Uri feedUrl,
             long? after,
-            string feedUserName = "",
-            string feedPassword = "",
             bool embedEvent = true,
             bool embedObject = true)
         {
@@ -65,11 +63,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
             {
                 _httpClient.DefaultRequestHeaders.Add("X-Filtering", $"{{ {embedString} }}");
             }
-
-
-            if (!string.IsNullOrEmpty(feedUserName) && !string.IsNullOrEmpty(feedPassword))
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                    Convert.ToBase64String(Encoding.UTF8.GetBytes($"{feedUserName}:{feedPassword}")));
 
             _logger.LogInformation("Performing HTTP request GET {FeedUrl} with headers: {@Params}", feedUrl,
                 _httpClient.DefaultRequestHeaders.ToDictionary(x => x.Key, x => x.Value));
