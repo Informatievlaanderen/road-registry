@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/informatievlaanderen/road-registry/compare/v1.14.0...v1.15.0) (2020-10-07)
+
+
+### Features
+
+* make atom feed processor more resilient ([#64](https://github.com/informatievlaanderen/road-registry/issues/64)) ([0ac8024](https://github.com/informatievlaanderen/road-registry/commit/0ac8024c5406cbf97cb2960e23736b0e4e0ad9e4))
+
 # [1.14.0](https://github.com/informatievlaanderen/road-registry/compare/v1.13.0...v1.14.0) (2020-10-06)
 
 
