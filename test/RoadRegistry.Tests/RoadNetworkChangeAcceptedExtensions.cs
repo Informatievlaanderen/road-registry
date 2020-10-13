@@ -1,15 +1,23 @@
 namespace RoadRegistry
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using BackOffice.Messages;
 
     public static class RoadNetworkChangeAcceptedExtensions
     {
+        public static RoadNetworkChangesAccepted WithAcceptedChanges(this RoadNetworkChangesAccepted source, IEnumerable<object> changes)
+        {
+            return source.WithAcceptedChanges(changes.ToArray());
+        }
+
         public static RoadNetworkChangesAccepted WithAcceptedChanges(this RoadNetworkChangesAccepted source, params object[] changes)
         {
-            var acceptedChange = new AcceptedChange();
+            var acceptedChanges = new List<AcceptedChange>();
             foreach (var change in changes)
             {
+                var acceptedChange = new AcceptedChange();
                 switch (change)
                 {
                     case RoadNodeAdded roadNodeAdded:
@@ -66,9 +74,10 @@ namespace RoadRegistry
                     default:
                         throw new ArgumentException($"{change.GetType()} is not supported.");
                 }
+                acceptedChanges.Add(acceptedChange);
             }
 
-            source.Changes = new[] {acceptedChange};
+            source.Changes = acceptedChanges.ToArray();
 
             return source;
         }
