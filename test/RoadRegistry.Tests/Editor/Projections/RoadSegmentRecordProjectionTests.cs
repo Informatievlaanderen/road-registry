@@ -123,7 +123,7 @@ namespace RoadRegistry.Editor.Projections
         {
             var message = _fixture
                 .Create<RoadNetworkChangesAccepted>()
-                .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+                .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
 
             var expectedRecords = Array.ConvertAll(message.Changes, change =>
             {
