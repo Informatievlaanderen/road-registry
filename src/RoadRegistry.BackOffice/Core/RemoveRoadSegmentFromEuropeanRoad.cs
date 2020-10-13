@@ -19,13 +19,12 @@ namespace RoadRegistry.BackOffice.Core
             Number = number;
         }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(VerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            // Before
             if (!context.View.Segments.TryGetValue(SegmentId, out var segment))
             {
                 problems = problems.RoadSegmentMissing(SegmentId);
@@ -38,11 +37,14 @@ namespace RoadRegistry.BackOffice.Core
                 }
             }
 
-            if (problems.OfType<Error>().Any())
-            {
-                return new RejectedChange(this, problems);
-            }
-            return new AcceptedChange(this, problems);
+            return problems;
+        }
+
+        public Problems VerifyAfter(VerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            return Problems.None;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

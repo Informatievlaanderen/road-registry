@@ -18,6 +18,35 @@ namespace RoadRegistry.BackOffice.Core
             _changes = changes;
         }
 
+        //TODO: Is it normal for a rejected change to be able to turn into an accepted change this way?
+        public VerifiedChanges Accept(IRequestedChange change, Problems problems)
+        {
+            var foundChange = _changes.Find(verifiedChange => verifiedChange.RequestedChange == change);
+            if (foundChange != null)
+            {
+                return new VerifiedChanges(
+                    _changes.Replace(foundChange, new AcceptedChange(change, foundChange.Problems.AddRange(problems)))
+                );
+            }
+
+            return new VerifiedChanges(_changes.Add(new AcceptedChange(change, problems)));
+        }
+
+        public VerifiedChanges Reject(IRequestedChange change, Problems problems)
+        {
+            var foundChange = _changes.Find(verifiedChange => verifiedChange.RequestedChange == change);
+            if (foundChange != null)
+            {
+                return new VerifiedChanges(
+                    _changes.Replace(foundChange, new RejectedChange(change, foundChange.Problems.AddRange(problems)))
+                );
+            }
+
+            return new VerifiedChanges(_changes.Add(new RejectedChange(change, problems)));
+        }
+
+        [Obsolete("Please use the Accept and Reject methods")]
+
         public VerifiedChanges Append(IVerifiedChange change)
         {
             if (change == null) throw new ArgumentNullException(nameof(change));

@@ -436,12 +436,10 @@
                 : id;
         }
 
-        public VerifiedChanges VerifyWith(IRoadNetworkView view)
+        public VerificationContext CreateVerificationContext(IRoadNetworkView view)
         {
-            var context = new VerificationContext(view, this);
-            return _changes.Aggregate(
-                VerifiedChanges.Empty,
-                (verifiedChanges, requestedChange) => verifiedChanges.Append(requestedChange.Verify(context)));
+            if (view == null) throw new ArgumentNullException(nameof(view));
+            return new VerificationContext(view, this);
         }
     }
 }

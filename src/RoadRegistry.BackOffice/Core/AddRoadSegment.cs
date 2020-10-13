@@ -65,72 +65,30 @@ namespace RoadRegistry.BackOffice.Core
         public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
         public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(VerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
-            // Before
+
             if (Math.Abs(Geometry.Length) <= context.Tolerance)
             {
                 problems = problems.RoadSegmentGeometryLengthIsZero();
             }
 
-            // After
-            var byOtherSegment =
-                context.View.Segments.Values.FirstOrDefault(segment =>
-                    segment.Id != Id &&
-                    segment.Geometry.EqualsExact(Geometry));
-            if (byOtherSegment != null)
-            {
-                problems = problems.RoadSegmentGeometryTaken(
-                    context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
-                );
-            }
-
             var line = Geometry.Geometries
                 .OfType<LineString>()
                 .Single();
-            // After
-            if (!context.View.Nodes.TryGetValue(StartNodeId, out var startNode))
-            {
-                problems = problems.RoadSegmentStartNodeMissing();
-            }
-            else
-            {
-                // After
-                if (line.StartPoint != null && !line.StartPoint.EqualsExact(startNode.Geometry))
-                {
-                    problems = problems.RoadSegmentStartPointDoesNotMatchNodeGeometry();
-                }
-            }
 
-            // After
-            if (!context.View.Nodes.TryGetValue(EndNodeId, out var endNode))
-            {
-                problems = problems.RoadSegmentEndNodeMissing();
-            }
-            else
-            {
-                // After
-                if (line.EndPoint != null && !line.EndPoint.EqualsExact(endNode.Geometry))
-                {
-                    problems = problems.RoadSegmentEndPointDoesNotMatchNodeGeometry();
-                }
-            }
-
-            // Before
             if (line.SelfOverlaps())
             {
                 problems = problems.RoadSegmentGeometrySelfOverlaps();
             }
-            // Before
             else if (line.SelfIntersects())
             {
                 problems = problems.RoadSegmentGeometrySelfIntersects();
             }
 
-            // Before
             if (line.NumPoints > 0)
             {
                 var previousPointMeasure = 0.0;
@@ -170,7 +128,6 @@ namespace RoadRegistry.BackOffice.Core
                 }
             }
 
-            // Before
             RoadSegmentLaneAttribute previousLane = null;
             foreach (var lane in Lanes)
             {
@@ -211,7 +168,6 @@ namespace RoadRegistry.BackOffice.Core
                 }
             }
 
-            // Before
             RoadSegmentWidthAttribute previousWidth = null;
             foreach (var width in Widths)
             {
@@ -252,7 +208,6 @@ namespace RoadRegistry.BackOffice.Core
                 }
             }
 
-            // Before
             RoadSegmentSurfaceAttribute previousSurface = null;
             foreach (var surface in Surfaces)
             {
@@ -290,12 +245,53 @@ namespace RoadRegistry.BackOffice.Core
                 }
             }
 
-            if (problems.OfType<Error>().Any())
+            return problems;
+        }
+
+        public Problems VerifyAfter(VerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            var problems = Problems.None;
+
+            var byOtherSegment =
+                context.View.Segments.Values.FirstOrDefault(segment =>
+                    segment.Id != Id &&
+                    segment.Geometry.EqualsExact(Geometry));
+            if (byOtherSegment != null)
             {
-                return new RejectedChange(this, problems);
+                problems = problems.RoadSegmentGeometryTaken(
+                    context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
+                );
             }
 
-            return new AcceptedChange(this, problems);
+            var line = Geometry.Geometries
+                .OfType<LineString>()
+                .Single();
+            if (!context.View.Nodes.TryGetValue(StartNodeId, out var startNode))
+            {
+                problems = problems.RoadSegmentStartNodeMissing();
+            }
+            else
+            {
+                if (line.StartPoint != null && !line.StartPoint.EqualsExact(startNode.Geometry))
+                {
+                    problems = problems.RoadSegmentStartPointDoesNotMatchNodeGeometry();
+                }
+            }
+
+            if (!context.View.Nodes.TryGetValue(EndNodeId, out var endNode))
+            {
+                problems = problems.RoadSegmentEndNodeMissing();
+            }
+            else
+            {
+                if (line.EndPoint != null && !line.EndPoint.EqualsExact(endNode.Geometry))
+                {
+                    problems = problems.RoadSegmentEndPointDoesNotMatchNodeGeometry();
+                }
+            }
+
+            return problems;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

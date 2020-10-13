@@ -46,7 +46,29 @@ namespace RoadRegistry.BackOffice.Core
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
-            var verifiedChanges = requestedChanges.VerifyWith(_view.With(requestedChanges));
+            var beforeContext = requestedChanges.CreateVerificationContext(_view);
+
+            var verifiedChanges = VerifiedChanges.Empty;
+            foreach (var requestedChange in requestedChanges)
+            {
+                var problems = requestedChange.VerifyBefore(beforeContext);
+                verifiedChanges = problems.OfType<Error>().Any()
+                    ? verifiedChanges.Reject(requestedChange, problems)
+                    : verifiedChanges.Accept(requestedChange, problems);
+            }
+
+            if (!verifiedChanges.OfType<RejectedChange>().Any())
+            {
+                var afterContext = requestedChanges.CreateVerificationContext(_view.With(requestedChanges));
+
+                foreach (var requestedChange in requestedChanges)
+                {
+                    var problems = requestedChange.VerifyAfter(afterContext);
+                    verifiedChanges = problems.OfType<Error>().Any()
+                        ? verifiedChanges.Reject(requestedChange, problems)
+                        : verifiedChanges.Accept(requestedChange, problems);
+                }
+            }
 
             if (verifiedChanges.Count == 0) return;
 

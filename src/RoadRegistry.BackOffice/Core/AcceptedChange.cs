@@ -6,22 +6,22 @@ namespace RoadRegistry.BackOffice.Core
 
     public class AcceptedChange : IVerifiedChange
     {
-        private readonly IRequestedChange _change;
-        private readonly IReadOnlyCollection<Problem> _problems;
-
-        public AcceptedChange(IRequestedChange change, IReadOnlyCollection<Problem> problems)
+        public AcceptedChange(IRequestedChange change, Problems problems)
         {
-            _change = change ?? throw new ArgumentNullException(nameof(change));
-            _problems = problems ?? throw new ArgumentNullException(nameof(problems));
+            RequestedChange = change ?? throw new ArgumentNullException(nameof(change));
+            Problems = problems ?? throw new ArgumentNullException(nameof(problems));
         }
+
+        public IRequestedChange RequestedChange { get; }
+        public Problems Problems { get; }
 
         public Messages.AcceptedChange Translate()
         {
             var message = new Messages.AcceptedChange
             {
-                Problems = _problems.Select(warning => warning.Translate()).ToArray()
+                Problems = Problems.Select(warning => warning.Translate()).ToArray()
             };
-            _change.TranslateTo(message);
+            RequestedChange.TranslateTo(message);
             return message;
         }
     }

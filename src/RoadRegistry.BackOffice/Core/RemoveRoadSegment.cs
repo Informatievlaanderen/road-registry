@@ -12,27 +12,25 @@ namespace RoadRegistry.BackOffice.Core
 
         public RoadSegmentId Id { get; }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(VerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            // TODO: We need a before and after verify because
-            // in the before we want to make sure we're dealing with an existing segment
-
             var problems = Problems.None;
 
-            // Before
             if (!context.View.Segments.ContainsKey(Id))
             {
                 problems = problems.RoadSegmentNotFound();
             }
 
-            if (problems.OfType<Error>().Any())
-            {
-                return new RejectedChange(this, problems);
-            }
+            return problems;
+        }
 
-            return new AcceptedChange(this, problems);
+        public Problems VerifyAfter(VerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            return Problems.None;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

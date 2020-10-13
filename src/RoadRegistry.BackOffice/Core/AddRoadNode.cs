@@ -19,13 +19,18 @@ namespace RoadRegistry.BackOffice.Core
         public RoadNodeType Type { get; }
         public Point Geometry { get; }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(VerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            return Problems.None;
+        }
+
+        public Problems VerifyAfter(VerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            // after
             var byOtherNode =
                 context.View.Nodes.Values.FirstOrDefault(n =>
                     n.Id != Id &&
@@ -39,7 +44,6 @@ namespace RoadRegistry.BackOffice.Core
 
             var node = context.View.Nodes[Id];
 
-            // after
             problems = context.View.Segments.Values
                 .Where(s =>
                     !node.Segments.Contains(s.Id) &&
@@ -50,7 +54,6 @@ namespace RoadRegistry.BackOffice.Core
                     (current, segment) =>
                         current.RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id)));
 
-            // after
             var connectedSegmentCount = node.Segments.Count;
             if (connectedSegmentCount == 0)
             {
@@ -86,11 +89,7 @@ namespace RoadRegistry.BackOffice.Core
                 problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type, new []{RoadNodeType.RealNode, RoadNodeType.MiniRoundabout});
             }
 
-            if (problems.OfType<Error>().Any())
-            {
-                return new RejectedChange(this, problems);
-            }
-            return new AcceptedChange(this, problems);
+            return problems;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

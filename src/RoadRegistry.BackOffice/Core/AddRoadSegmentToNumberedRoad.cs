@@ -30,23 +30,24 @@ namespace RoadRegistry.BackOffice.Core
             Ordinal = ordinal;
         }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(VerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            return Problems.None;
+        }
+
+        public Problems VerifyAfter(VerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            // After
             if (!context.View.Segments.ContainsKey(SegmentId))
             {
                 problems = problems.RoadSegmentMissing(TemporarySegmentId ?? SegmentId);
             }
 
-            if (problems.OfType<Error>().Any())
-            {
-                return new RejectedChange(this, problems);
-            }
-            return new AcceptedChange(this, problems);
+            return problems;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

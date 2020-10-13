@@ -2,7 +2,8 @@
 {
     public interface IRequestedChange
     {
-        IVerifiedChange Verify(VerificationContext context);
+        Problems VerifyBefore(VerificationContext context);
+        Problems VerifyAfter(VerificationContext context);
 
         void TranslateTo(Messages.AcceptedChange message);
         void TranslateTo(Messages.RejectedChange message);

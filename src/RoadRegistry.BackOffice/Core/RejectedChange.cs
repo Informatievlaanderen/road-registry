@@ -1,27 +1,27 @@
 namespace RoadRegistry.BackOffice.Core
 {
-    using System.Collections.Generic;
+    using System;
     using System.Linq;
 
     public class RejectedChange : IVerifiedChange
     {
-        private readonly IRequestedChange _change;
-        private readonly IReadOnlyCollection<Problem> _problems;
-
-        public RejectedChange(IRequestedChange change, IReadOnlyCollection<Problem> problems)
+        public RejectedChange(IRequestedChange change, Problems problems)
         {
-            _change = change;
-            _problems = problems;
+            RequestedChange = change ?? throw new ArgumentNullException(nameof(change));
+            Problems = problems ?? throw new ArgumentNullException(nameof(problems));
         }
 
         public Messages.RejectedChange Translate()
         {
             var message = new Messages.RejectedChange
             {
-                Problems = _problems.Select(problem => problem.Translate()).ToArray()
+                Problems = Problems.Select(problem => problem.Translate()).ToArray()
             };
-            _change.TranslateTo(message);
+            RequestedChange.TranslateTo(message);
             return message;
         }
+
+        public IRequestedChange RequestedChange { get; }
+        public Problems Problems { get; }
     }
 }

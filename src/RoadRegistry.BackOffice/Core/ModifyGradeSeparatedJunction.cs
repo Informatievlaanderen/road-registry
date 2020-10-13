@@ -28,44 +28,44 @@ namespace RoadRegistry.BackOffice.Core
         public RoadSegmentId LowerSegmentId { get; }
         public RoadSegmentId? TemporaryLowerSegmentId { get; }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(VerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
-
-            // TODO: We need a before and after verify because
-            // in the before we want to make sure we're dealing with an existing junction
-
             var problems = Problems.None;
+
             if (!context.View.GradeSeparatedJunctions.ContainsKey(Id))
             {
                 problems = problems.GradeSeparatedJunctionNotFound();
             }
-            else
+
+            return problems;
+        }
+
+        public Problems VerifyAfter(VerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            var problems = Problems.None;
+
+            if (!context.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
             {
-                if (!context.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
-                {
-                    problems = problems.UpperRoadSegmentMissing();
-                }
+                problems = problems.UpperRoadSegmentMissing();
+            }
 
-                if (!context.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
-                {
-                    problems = problems.LowerRoadSegmentMissing();
-                }
+            if (!context.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
+            {
+                problems = problems.LowerRoadSegmentMissing();
+            }
 
-                if (upperSegment != null && lowerSegment != null)
+            if (upperSegment != null && lowerSegment != null)
+            {
+                if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))
                 {
-                    if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))
-                    {
-                        problems = problems.UpperAndLowerRoadSegmentDoNotIntersect();
-                    }
+                    problems = problems.UpperAndLowerRoadSegmentDoNotIntersect();
                 }
             }
 
-            if (problems.OfType<Error>().Any())
-            {
-                return new RejectedChange(this, problems);
-            }
-            return new AcceptedChange(this, problems);
+            return problems;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)
