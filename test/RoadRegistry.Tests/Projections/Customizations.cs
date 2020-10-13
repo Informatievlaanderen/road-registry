@@ -253,40 +253,89 @@ namespace RoadRegistry.Projections
 
         public static void CustomizeRoadSegmentAdded(this IFixture fixture)
         {
-            fixture.Customize<BackOffice.Messages.AcceptedChange>(customization =>
+            fixture.Customize<RoadSegmentAdded>(customization =>
                 customization
                     .FromFactory(generator =>
-                        new BackOffice.Messages.AcceptedChange
+                        new RoadSegmentAdded
                         {
-                            RoadSegmentAdded = new RoadSegmentAdded
+                            Id = fixture.Create<RoadSegmentId>(),
+                            TemporaryId = fixture.Create<RoadSegmentId>(),
+                            Category = fixture.Create<RoadSegmentCategory>(),
+                            Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
+                            Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>(generator.Next(1, 5)).ToArray(),
+                            Morphology = fixture.Create<RoadSegmentMorphology>(),
+                            Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>(generator.Next(1, 5)).ToArray(),
+                            Version = fixture.Create<int>(),
+                            Widths = fixture.CreateMany<RoadSegmentWidthAttributes>(generator.Next(1, 5)).ToArray(),
+                            LeftSide = fixture.Create<RoadSegmentSideAttributes>(),
+                            RightSide = fixture.Create<RoadSegmentSideAttributes>(),
+                            MaintenanceAuthority = new MaintenanceAuthority
                             {
-                                Id = fixture.Create<RoadSegmentId>(),
-                                TemporaryId = fixture.Create<RoadSegmentId>(),
-                                Category = fixture.Create<RoadSegmentCategory>(),
-                                Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
-                                Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>(generator.Next(1,5)).ToArray(),
-                                Morphology = fixture.Create<RoadSegmentMorphology>(),
-                                Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>(generator.Next(1,5)).ToArray(),
-                                Version = fixture.Create<int>(),
-                                Widths = fixture.CreateMany<RoadSegmentWidthAttributes>(generator.Next(1,5)).ToArray(),
-                                LeftSide = fixture.Create<RoadSegmentSideAttributes>(),
-                                RightSide = fixture.Create<RoadSegmentSideAttributes>(),
-                                MaintenanceAuthority = new MaintenanceAuthority
-                                {
-                                    Code = fixture.Create<OrganizationId>(),
-                                    Name = fixture.Create<OrganizationName>()
-                                },
-                                GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
-                                GeometryVersion = fixture.Create<GeometryVersion>(),
-                                Status = fixture.Create<RoadSegmentStatus>(),
-                                AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
-                                StartNodeId = fixture.Create<RoadNodeId>(),
-                                EndNodeId = fixture.Create<RoadNodeId>()
-                            }
+                                Code = fixture.Create<OrganizationId>(),
+                                Name = fixture.Create<OrganizationName>()
+                            },
+                            GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                            GeometryVersion = fixture.Create<GeometryVersion>(),
+                            Status = fixture.Create<RoadSegmentStatus>(),
+                            AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
+                            StartNodeId = fixture.Create<RoadNodeId>(),
+                            EndNodeId = fixture.Create<RoadNodeId>()
                         }
                     )
                     .OmitAutoProperties()
-                );
+            );
+        }
+
+        public static void CustomizeRoadSegmentModified(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentModified>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadSegmentModified
+                        {
+                            Id = fixture.Create<RoadSegmentId>(),
+                            Category = fixture.Create<RoadSegmentCategory>(),
+                            Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
+                            Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>(generator.Next(1, 5)).ToArray(),
+                            Morphology = fixture.Create<RoadSegmentMorphology>(),
+                            Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>(generator.Next(1, 5)).ToArray(),
+                            Version = fixture.Create<int>(),
+                            Widths = fixture.CreateMany<RoadSegmentWidthAttributes>(generator.Next(1, 5)).ToArray(),
+                            LeftSide = fixture.Create<RoadSegmentSideAttributes>(),
+                            RightSide = fixture.Create<RoadSegmentSideAttributes>(),
+                            MaintenanceAuthority = new MaintenanceAuthority
+                            {
+                                Code = fixture.Create<OrganizationId>(),
+                                Name = fixture.Create<OrganizationName>()
+                            },
+                            GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                            GeometryVersion = fixture.Create<GeometryVersion>(),
+                            Status = fixture.Create<RoadSegmentStatus>(),
+                            AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
+                            StartNodeId = fixture.Create<RoadNodeId>(),
+                            EndNodeId = fixture.Create<RoadNodeId>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeRoadSegmentRemoved(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentRemoved>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadSegmentRemoved
+                        {
+                            Id = fixture.Create<RoadSegmentId>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeRoadNetworkChangesAccepted(this IFixture fixture)
+        {
             fixture.Customize<RoadNetworkChangesAccepted>(customization =>
                 customization
                     .FromFactory(generator =>
