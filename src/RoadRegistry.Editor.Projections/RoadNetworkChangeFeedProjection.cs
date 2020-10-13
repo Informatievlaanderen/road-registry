@@ -288,20 +288,50 @@ namespace RoadRegistry.Editor.Projections
                     case RoadNodeAdded m:
                         translation = $"Wegknoop {m.TemporaryId} toegevoegd.";
                         break;
+                    case RoadNodeModified m:
+                        translation = $"Wegknoop {m.Id} gewijzigd.";
+                        break;
+                    case RoadNodeRemoved m:
+                        translation = $"Wegknoop {m.Id} verwijderd.";
+                        break;
                     case RoadSegmentAdded m:
                         translation = $"Wegsegment {m.TemporaryId} toegevoegd.";
+                        break;
+                    case RoadSegmentModified m:
+                        translation = $"Wegsegment {m.Id} gewijzigd.";
+                        break;
+                    case RoadSegmentRemoved m:
+                        translation = $"Wegsegment {m.Id} verwijderd.";
                         break;
                     case RoadSegmentAddedToEuropeanRoad m:
                         translation = $"Wegsegment {m.SegmentId} toegevoegd aan europese weg {m.Number}.";
                         break;
+                    case RoadSegmentRemovedFromEuropeanRoad m:
+                        translation = $"Wegsegment {m.SegmentId} verwijderd van europese weg {m.Number}.";
+                        break;
                     case RoadSegmentAddedToNationalRoad m:
                         translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Number}.";
+                        break;
+                    case RoadSegmentRemovedFromNationalRoad m:
+                        translation = $"Wegsegment {m.SegmentId} verwijderd van nationale weg {m.Ident2}.";
                         break;
                     case RoadSegmentAddedToNumberedRoad m:
                         translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Number}.";
                         break;
+                    case RoadSegmentOnNumberedRoadModified m:
+                        translation = $"Wegsegment {m.SegmentId} gewijzigd op genummerde weg {m.Ident8}.";
+                        break;
+                    case RoadSegmentRemovedFromNumberedRoad m:
+                        translation = $"Wegsegment {m.SegmentId} verwijderd van genummerde weg {m.Ident8}.";
+                        break;
                     case GradeSeparatedJunctionAdded m:
                         translation = $"Ongelijkgrondse kruising {m.TemporaryId} toegevoegd.";
+                        break;
+                    case GradeSeparatedJunctionModified m:
+                        translation = $"Ongelijkgrondse kruising {m.Id} gewijzigd.";
+                        break;
+                    case GradeSeparatedJunctionRemoved m:
+                        translation = $"Ongelijkgrondse kruising {m.Id} verwijderd.";
                         break;
 
                     default:
