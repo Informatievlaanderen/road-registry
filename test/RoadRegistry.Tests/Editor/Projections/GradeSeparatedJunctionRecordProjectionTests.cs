@@ -33,7 +33,12 @@ namespace RoadRegistry.Editor.Projections
             _fixture.CustomizeArchiveId();
             _fixture.CustomizeOriginProperties();
             _fixture.CustomizeImportedGradeSeparatedJunction();
+
+            _fixture.CustomizeRoadNetworkChangesAccepted();
+
             _fixture.CustomizeGradeSeparatedJunctionAdded();
+            _fixture.CustomizeGradeSeparatedJunctionModified();
+            _fixture.CustomizeGradeSeparatedJunctionRemoved();
         }
 
         [Fact]
@@ -75,7 +80,10 @@ namespace RoadRegistry.Editor.Projections
         [Fact]
         public Task When_adding_grade_separated_junctions()
         {
-            var message = _fixture.Create<BackOffice.Messages.RoadNetworkChangesAccepted>();
+            var message = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.CreateMany<GradeSeparatedJunctionAdded>());
+
             var expectedRecords = Array.ConvertAll(message.Changes, change =>
             {
                 var junction = change.GradeSeparatedJunctionAdded;
@@ -100,6 +108,64 @@ namespace RoadRegistry.Editor.Projections
                 .Scenario()
                 .Given(message)
                 .Expect(expectedRecords);
+        }
+
+        [Fact]
+        public Task When_modifying_grade_separated_junctions()
+        {
+            _fixture.Freeze<GradeSeparatedJunctionId>();
+
+            var acceptedGradeSeparatedJunctionAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<GradeSeparatedJunctionAdded>());
+
+            var acceptedGradeSeparatedJunctionModified = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<GradeSeparatedJunctionModified>());
+
+            var expectedRecords = Array.ConvertAll(acceptedGradeSeparatedJunctionModified.Changes, change =>
+            {
+                var junction = change.GradeSeparatedJunctionModified;
+                return (object)new GradeSeparatedJunctionRecord
+                {
+                    Id = junction.Id,
+                    DbaseRecord = new GradeSeparatedJunctionDbaseRecord
+                    {
+                        OK_OIDN = {Value = junction.Id},
+                        TYPE = {Value = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Identifier},
+                        LBLTYPE = {Value = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name},
+                        BO_WS_OIDN = {Value = junction.UpperRoadSegmentId},
+                        ON_WS_OIDN = {Value = junction.LowerRoadSegmentId},
+                        BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionModified.When)},
+                        BEGINORG = {Value = acceptedGradeSeparatedJunctionModified.OrganizationId},
+                        LBLBGNORG = {Value = acceptedGradeSeparatedJunctionModified.Organization}
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                };
+            });
+
+            return new GradeSeparatedJunctionRecordProjection(_services.MemoryStreamManager,  Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedGradeSeparatedJunctionAdded, acceptedGradeSeparatedJunctionModified)
+                .Expect(expectedRecords);
+        }
+
+        [Fact]
+        public Task When_removing_grade_separated_junctions()
+        {
+            _fixture.Freeze<GradeSeparatedJunctionId>();
+
+            var acceptedGradeSeparatedJunctionAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<GradeSeparatedJunctionAdded>());
+
+            var acceptedGradeSeparatedJunctionRemoved = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<GradeSeparatedJunctionRemoved>());
+
+            return new GradeSeparatedJunctionRecordProjection(_services.MemoryStreamManager,  Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedGradeSeparatedJunctionAdded, acceptedGradeSeparatedJunctionRemoved)
+                .ExpectNone();
         }
     }
 }
