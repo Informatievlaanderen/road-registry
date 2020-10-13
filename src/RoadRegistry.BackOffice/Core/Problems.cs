@@ -5,7 +5,6 @@ namespace RoadRegistry.BackOffice.Core
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Globalization;
-    using System.Linq;
 
     public class Problems : IReadOnlyCollection<Problem>
     {
@@ -70,74 +69,7 @@ namespace RoadRegistry.BackOffice.Core
         public static Problems operator +(Problems left, Problems right)
             => left.AddRange(right);
 
-        // Road Node Errors
-
-        //public Errors RoadNodeIdTaken() => new Errors(_errors.Add(new Error(nameof(RoadNodeIdTaken))));
-
-        public Problems RoadNodeGeometryTaken(RoadNodeId byOtherNode)
-        {
-            return new Problems(_problems.Add(
-                new Error(
-                    nameof(RoadNodeGeometryTaken),
-                    new ProblemParameter(
-                        "ByOtherNode",
-                        byOtherNode.ToInt32().ToString())))
-            );
-        }
-
-        public Problems RoadNodeNotFound()
-        {
-            return new Problems(_problems.Add(new Error(nameof(RoadNodeNotFound))));
-        }
-
-        public Problems RoadNodeTooClose(RoadSegmentId toOtherSegment)
-        {
-            return new Problems(_problems.Add(
-                    new Error(
-                        nameof(RoadNodeTooClose),
-                        new ProblemParameter(
-                            "ToOtherSegment",
-                            toOtherSegment.ToInt32().ToString())))
-            );
-        }
-
-        public Problems RoadNodeNotConnectedToAnySegment() => new Problems(_problems.Add(new Error(nameof(RoadNodeNotConnectedToAnySegment))));
-
-        public Problems RoadNodeTypeMismatch(int connectedSegmentCount, RoadNodeType actualType, RoadNodeType[] expectedTypes)
-        {
-            if (expectedTypes == null)
-                throw new ArgumentNullException(nameof(expectedTypes));
-            if (expectedTypes.Length == 0)
-                throw new ArgumentException("The expected road node types must contain at least one.", nameof(expectedTypes));
-
-            var parameters = new List<ProblemParameter>
-            {
-                new ProblemParameter("ConnectedSegmentCount",
-                    connectedSegmentCount.ToString(CultureInfo.InvariantCulture)),
-                new ProblemParameter("Actual", actualType.ToString())
-            };
-            parameters.AddRange(expectedTypes.Select(type => new ProblemParameter("Expected", type.ToString())));
-
-            return new Problems(_problems.Add(new Error(nameof(RoadNodeTypeMismatch), parameters.ToArray())));
-        }
-
-        public Problems FakeRoadNodeConnectedSegmentsDoNotDiffer(RoadSegmentId segment1, RoadSegmentId segment2)
-        {
-            return new Problems(
-                _problems.Add(
-                    new Error(nameof(FakeRoadNodeConnectedSegmentsDoNotDiffer),
-                        new ProblemParameter(
-                            "SegmentId",
-                            segment1.ToInt32().ToString()),
-                        new ProblemParameter(
-                            "SegmentId",
-                            segment2.ToInt32().ToString())))
-            );
-        }
-
         // Road Segment Errors
-
-        //public Errors RoadSegmentIdTaken() => new Errors(_errors.Add(new Error(nameof(RoadSegmentIdTaken))));
 
         public Problems RoadSegmentGeometryTaken(RoadSegmentId byOtherSegment)
         {
@@ -342,17 +274,5 @@ namespace RoadRegistry.BackOffice.Core
                     new ProblemParameter("Measure", measure.ToString(CultureInfo.InvariantCulture)),
                     new ProblemParameter("PreviousMeasure", previousMeasure.ToString(CultureInfo.InvariantCulture)))));
         }
-
-        // Grade Separated Junction Errors
-
-
-        public Problems GradeSeparatedJunctionNotFound()
-        {
-            return new Problems(_problems.Add(new Error(nameof(GradeSeparatedJunctionNotFound))));
-        }
-
-        public Problems UpperRoadSegmentMissing() => new Problems(_problems.Add(new Error(nameof(UpperRoadSegmentMissing))));
-        public Problems LowerRoadSegmentMissing() => new Problems(_problems.Add(new Error(nameof(LowerRoadSegmentMissing))));
-        public Problems UpperAndLowerRoadSegmentDoNotIntersect() => new Problems(_problems.Add(new Error(nameof(UpperAndLowerRoadSegmentDoNotIntersect))));
     }
 }

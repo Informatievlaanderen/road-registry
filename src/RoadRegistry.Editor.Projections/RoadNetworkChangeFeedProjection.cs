@@ -318,20 +318,19 @@ namespace RoadRegistry.Editor.Projections
                 string translation;
                 switch (problem.Reason)
                 {
-                    case nameof(Problems.RoadNodeGeometryTaken):
+                    case nameof(RoadNodeGeometryTaken):
                         translation = $"De geometrie werd reeds ingenomen door een andere wegknoop met id {problem.Parameters[0].Value}.";
                         break;
-                    case nameof(Problems.RoadNodeTooClose):
+                    case nameof(RoadNodeTooClose):
                         translation = $"De geometrie ligt te dicht bij wegsegment met id {problem.Parameters[0].Value}.";
                         break;
-                    case nameof(Problems.RoadNodeNotConnectedToAnySegment):
+                    case nameof(RoadNodeNotConnectedToAnySegment):
                         translation = "De wegknoop is met geen enkel wegsegment verbonden.";
                         break;
-                    case nameof(Problems.RoadNodeTypeMismatch):
+                    case nameof(RoadNodeTypeMismatch):
                         translation = $"Het opgegeven wegknoop type {RoadNodeType.Parse(problem.Parameters[1].Value).Translation.Name} komt niet overeen met een van de verwachte wegknoop types:{string.Join(',', problem.Parameters.Skip(2).Select(parameter => RoadNodeType.Parse(parameter.Value).Translation.Name))}. De wegknoop is verbonden met {problem.Parameters[0].Value} wegsegment(-en).";
                         break;
-                    case nameof(Problems.FakeRoadNodeConnectedSegmentsDoNotDiffer):
-                        // todo : translate road node types back to dutch
+                    case nameof(FakeRoadNodeConnectedSegmentsDoNotDiffer):
                         translation = $"De attributen van de verbonden wegsegmenten ({problem.Parameters[0].Value} en {problem.Parameters[1].Value}) verschillen onvoldoende voor deze schijnknoop.";
                         break;
                     case nameof(Problems.RoadSegmentGeometryTaken):
@@ -400,13 +399,16 @@ namespace RoadRegistry.Editor.Projections
                     case nameof(Problems.RoadSegmentPointMeasureValueDoesNotIncrease):
                         translation = $"De meting ({problem.Parameters[2].Value}) op het punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet groter dan de meting ({problem.Parameters[3].Value}) op het vorige punt.";
                         break;
-                    case nameof(Problems.UpperRoadSegmentMissing):
+                    case nameof(GradeSeparatedJunctionNotFound):
+                        translation = "De ongelijkgrondse kruising kon niet worden gevonden.";
+                        break;
+                    case nameof(UpperRoadSegmentMissing):
                         translation = "Het bovenste wegsegment ontbreekt.";
                         break;
-                    case nameof(Problems.LowerRoadSegmentMissing):
+                    case nameof(LowerRoadSegmentMissing):
                         translation = "Het onderste wegsegment ontbreekt.";
                         break;
-                    case nameof(Problems.UpperAndLowerRoadSegmentDoNotIntersect):
+                    case nameof(UpperAndLowerRoadSegmentDoNotIntersect):
                         translation = "Het bovenste en onderste wegsegment kruisen elkaar niet.";
                         break;
                     default:

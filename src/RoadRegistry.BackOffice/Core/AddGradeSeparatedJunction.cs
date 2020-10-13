@@ -45,19 +45,19 @@ namespace RoadRegistry.BackOffice.Core
 
             if (!context.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
             {
-                problems = problems.UpperRoadSegmentMissing();
+                problems = problems.Add(new UpperRoadSegmentMissing());
             }
 
             if (!context.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
             {
-                problems = problems.LowerRoadSegmentMissing();
+                problems = problems.Add(new LowerRoadSegmentMissing());
             }
 
             if (upperSegment != null && lowerSegment != null)
             {
                 if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))
                 {
-                    problems = problems.UpperAndLowerRoadSegmentDoNotIntersect();
+                    problems = problems.Add(new UpperAndLowerRoadSegmentDoNotIntersect());
                 }
             }
 
