@@ -216,12 +216,10 @@ namespace RoadRegistry.Projections
 
         public static void CustomizeGradeSeparatedJunctionAdded(this IFixture fixture)
         {
-            fixture.Customize<BackOffice.Messages.AcceptedChange>(customization =>
+            fixture.Customize<GradeSeparatedJunctionAdded>(customization =>
                 customization
                     .FromFactory(generator =>
-                        new BackOffice.Messages.AcceptedChange
-                        {
-                            GradeSeparatedJunctionAdded = new GradeSeparatedJunctionAdded
+                            new GradeSeparatedJunctionAdded
                             {
                                 Id = fixture.Create<GradeSeparatedJunctionId>(),
                                 TemporaryId = fixture.Create<GradeSeparatedJunctionId>(),
@@ -229,22 +227,36 @@ namespace RoadRegistry.Projections
                                 LowerRoadSegmentId = fixture.Create<RoadSegmentId>(),
                                 UpperRoadSegmentId = fixture.Create<RoadSegmentId>()
                             }
-                        }
                     )
                     .OmitAutoProperties()
                 );
-            fixture.Customize<RoadNetworkChangesAccepted>(customization =>
+        }
+
+        public static void CustomizeGradeSeparatedJunctionModified(this IFixture fixture)
+        {
+            fixture.Customize<GradeSeparatedJunctionModified>(customization =>
                 customization
                     .FromFactory(generator =>
-                        new RoadNetworkChangesAccepted
+                        new GradeSeparatedJunctionModified
                         {
-                            RequestId = fixture.Create<ArchiveId>(),
-                            Reason = fixture.Create<Reason>(),
-                            Operator = fixture.Create<OperatorName>(),
-                            OrganizationId = fixture.Create<OrganizationId>(),
-                            Organization = fixture.Create<OrganizationName>(),
-                            Changes = fixture.CreateMany<BackOffice.Messages.AcceptedChange>(generator.Next(1,5)).ToArray(),
-                            When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                            Id = fixture.Create<GradeSeparatedJunctionId>(),
+                            Type = fixture.Create<GradeSeparatedJunctionType>(),
+                            LowerRoadSegmentId = fixture.Create<RoadSegmentId>(),
+                            UpperRoadSegmentId = fixture.Create<RoadSegmentId>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeGradeSeparatedJunctionRemoved(this IFixture fixture)
+        {
+            fixture.Customize<GradeSeparatedJunctionRemoved>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new GradeSeparatedJunctionRemoved
+                        {
+                            Id = fixture.Create<GradeSeparatedJunctionId>(),
                         }
                     )
                     .OmitAutoProperties()
