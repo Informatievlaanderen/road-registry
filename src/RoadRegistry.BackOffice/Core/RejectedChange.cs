@@ -5,23 +5,23 @@ namespace RoadRegistry.BackOffice.Core
 
     public class RejectedChange : IVerifiedChange
     {
+        private readonly IRequestedChange _requestedChange;
+        private readonly Problems _problems;
+
         public RejectedChange(IRequestedChange change, Problems problems)
         {
-            RequestedChange = change ?? throw new ArgumentNullException(nameof(change));
-            Problems = problems ?? throw new ArgumentNullException(nameof(problems));
+            _requestedChange = change ?? throw new ArgumentNullException(nameof(change));
+            _problems = problems ?? throw new ArgumentNullException(nameof(problems));
         }
 
         public Messages.RejectedChange Translate()
         {
             var message = new Messages.RejectedChange
             {
-                Problems = Problems.Select(problem => problem.Translate()).ToArray()
+                Problems = _problems.Select(problem => problem.Translate()).ToArray()
             };
-            RequestedChange.TranslateTo(message);
+            _requestedChange.TranslateTo(message);
             return message;
         }
-
-        public IRequestedChange RequestedChange { get; }
-        public Problems Problems { get; }
     }
 }
