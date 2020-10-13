@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Core
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.Linq;
     using Framework;
 
@@ -46,29 +47,29 @@ namespace RoadRegistry.BackOffice.Core
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
-            var beforeContext = requestedChanges.CreateVerificationContext(_view);
+            var verifiableChanges =
+                requestedChanges
+                    .Select(requestedChange => new VerifiableChange(requestedChange))
+                    .ToImmutableList();
 
-            var verifiedChanges = VerifiedChanges.Empty;
-            foreach (var requestedChange in requestedChanges)
+            var beforeContext = requestedChanges.CreateVerificationContext(_view);
+            foreach (var verifiableChange in verifiableChanges)
             {
-                var problems = requestedChange.VerifyBefore(beforeContext);
-                verifiedChanges = problems.OfType<Error>().Any()
-                    ? verifiedChanges.Reject(requestedChange, problems)
-                    : verifiedChanges.Accept(requestedChange, problems);
+                verifiableChanges = verifiableChanges
+                    .Replace(verifiableChange, verifiableChange.VerifyBefore(beforeContext));
             }
 
-            if (!verifiedChanges.OfType<RejectedChange>().Any())
+            if (!verifiableChanges.Any(change => change.HasErrors))
             {
                 var afterContext = requestedChanges.CreateVerificationContext(_view.With(requestedChanges));
-
-                foreach (var requestedChange in requestedChanges)
+                foreach (var verifiableChange in verifiableChanges)
                 {
-                    var problems = requestedChange.VerifyAfter(afterContext);
-                    verifiedChanges = problems.OfType<Error>().Any()
-                        ? verifiedChanges.Reject(requestedChange, problems)
-                        : verifiedChanges.Accept(requestedChange, problems);
+                    verifiableChanges = verifiableChanges
+                        .Replace(verifiableChange, verifiableChange.VerifyAfter(afterContext));
                 }
             }
+
+            var verifiedChanges = verifiableChanges.ConvertAll(change => change.AsVerifiedChange());
 
             if (verifiedChanges.Count == 0) return;
 
