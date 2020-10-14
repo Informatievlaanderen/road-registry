@@ -27,13 +27,13 @@ namespace RoadRegistry.BackOffice.Core
 
             if (!context.View.Segments.TryGetValue(SegmentId, out var segment))
             {
-                problems = problems.RoadSegmentMissing(SegmentId);
+                problems = problems.Add(new RoadSegmentMissing(SegmentId));
             }
             else
             {
                 if (!segment.PartOfEuropeanRoads.Contains(Number))
                 {
-                    problems = problems.EuropeanRoadNumberNotFound(Number);
+                    problems = problems.Add(new EuropeanRoadNumberNotFound(Number));
                 }
             }
 

@@ -71,12 +71,12 @@ namespace RoadRegistry.BackOffice.Core
 
             if (!context.View.Segments.ContainsKey(Id))
             {
-                problems = problems.RoadSegmentNotFound();
+                problems = problems.Add(new RoadSegmentNotFound());
             }
 
             if (Math.Abs(Geometry.Length) <= context.Tolerance)
             {
-                problems = problems.RoadSegmentGeometryLengthIsZero();
+                problems = problems.Add(new RoadSegmentGeometryLengthIsZero());
             }
 
             var line = Geometry.Geometries
@@ -85,11 +85,11 @@ namespace RoadRegistry.BackOffice.Core
 
             if (line.SelfOverlaps())
             {
-                problems = problems.RoadSegmentGeometrySelfOverlaps();
+                problems = problems.Add(new RoadSegmentGeometrySelfOverlaps());
             }
             else if (line.SelfIntersects())
             {
-                problems = problems.RoadSegmentGeometrySelfIntersects();
+                problems = problems.Add(new RoadSegmentGeometrySelfIntersects());
             }
 
             if (line.NumPoints > 0)
@@ -103,26 +103,26 @@ namespace RoadRegistry.BackOffice.Core
                     if (index == 0 && Math.Abs(measure) > context.Tolerance)
                     {
                         problems =
-                            problems.RoadSegmentStartPointMeasureValueNotEqualToZero(x, y, measure);
+                            problems.Add(new RoadSegmentStartPointMeasureValueNotEqualToZero(x, y, measure));
                     }
                     else if (index == line.CoordinateSequence.Count - 1 &&
                              Math.Abs(measure - line.Length) > context.Tolerance)
                     {
                         problems =
-                            problems.RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length);
+                            problems.Add(new RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length));
                     }
                     else if (measure < 0.0 || measure > line.Length)
                     {
                         problems =
-                            problems.RoadSegmentPointMeasureValueOutOfRange(x, y, measure, 0.0, line.Length);
+                            problems.Add(new RoadSegmentPointMeasureValueOutOfRange(x, y, measure, 0.0, line.Length));
                     }
                     else
                     {
                         if (index != 0 && Math.Sign(measure - previousPointMeasure) <= 0)
                         {
                             problems =
-                                problems.RoadSegmentPointMeasureValueDoesNotIncrease(x, y, measure,
-                                    previousPointMeasure);
+                                problems.Add(new RoadSegmentPointMeasureValueDoesNotIncrease(x, y, measure,
+                                    previousPointMeasure));
                         }
                         else
                         {
@@ -140,9 +140,9 @@ namespace RoadRegistry.BackOffice.Core
                     if (lane.From != RoadSegmentPosition.Zero)
                     {
                         problems =
-                            problems.RoadSegmentLaneAttributeFromPositionNotEqualToZero(
+                            problems.Add(new RoadSegmentLaneAttributeFromPositionNotEqualToZero(
                                 lane.TemporaryId,
-                                lane.From);
+                                lane.From));
                     }
                 }
                 else
@@ -150,11 +150,11 @@ namespace RoadRegistry.BackOffice.Core
                     if (lane.From != previousLane.To)
                     {
                         problems =
-                            problems.RoadSegmentLaneAttributesNotAdjacent(
+                            problems.Add(new RoadSegmentLaneAttributesNotAdjacent(
                                 previousLane.TemporaryId,
                                 previousLane.To,
                                 lane.TemporaryId,
-                                lane.From);
+                                lane.From));
                     }
                 }
 
@@ -165,10 +165,10 @@ namespace RoadRegistry.BackOffice.Core
             {
                 if (Math.Abs(previousLane.To.ToDouble() - line.Length) > context.Tolerance)
                 {
-                    problems = problems.RoadSegmentLaneAttributeToPositionNotEqualToLength(
+                    problems = problems.Add(new RoadSegmentLaneAttributeToPositionNotEqualToLength(
                         previousLane.TemporaryId,
                         previousLane.To,
-                        line.Length);
+                        line.Length));
                 }
             }
 
@@ -180,9 +180,9 @@ namespace RoadRegistry.BackOffice.Core
                     if (width.From != RoadSegmentPosition.Zero)
                     {
                         problems =
-                            problems.RoadSegmentWidthAttributeFromPositionNotEqualToZero(
+                            problems.Add(new RoadSegmentWidthAttributeFromPositionNotEqualToZero(
                                 width.TemporaryId,
-                                width.From);
+                                width.From));
                     }
                 }
                 else
@@ -190,11 +190,11 @@ namespace RoadRegistry.BackOffice.Core
                     if (width.From != previousWidth.To)
                     {
                         problems =
-                            problems.RoadSegmentWidthAttributesNotAdjacent(
+                            problems.Add(new RoadSegmentWidthAttributesNotAdjacent(
                                 previousWidth.TemporaryId,
                                 previousWidth.To,
                                 width.TemporaryId,
-                                width.From);
+                                width.From));
                     }
                 }
 
@@ -205,10 +205,10 @@ namespace RoadRegistry.BackOffice.Core
             {
                 if (Math.Abs(previousWidth.To.ToDouble() - line.Length) > context.Tolerance)
                 {
-                    problems = problems.RoadSegmentWidthAttributeToPositionNotEqualToLength(
+                    problems = problems.Add(new RoadSegmentWidthAttributeToPositionNotEqualToLength(
                         previousWidth.TemporaryId,
                         previousWidth.To,
-                        line.Length);
+                        line.Length));
                 }
             }
 
@@ -220,9 +220,9 @@ namespace RoadRegistry.BackOffice.Core
                     if (surface.From != RoadSegmentPosition.Zero)
                     {
                         problems =
-                            problems.RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(
+                            problems.Add(new RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(
                                 surface.TemporaryId,
-                                surface.From);
+                                surface.From));
                     }
                 }
                 else
@@ -230,11 +230,11 @@ namespace RoadRegistry.BackOffice.Core
                     if (surface.From != previousSurface.To)
                     {
                         problems =
-                            problems.RoadSegmentSurfaceAttributesNotAdjacent(
+                            problems.Add(new RoadSegmentSurfaceAttributesNotAdjacent(
                                 previousSurface.TemporaryId,
                                 previousSurface.To,
                                 surface.TemporaryId,
-                                surface.From);
+                                surface.From));
                     }
                 }
 
@@ -245,8 +245,8 @@ namespace RoadRegistry.BackOffice.Core
             {
                 if (Math.Abs(previousSurface.To.ToDouble() - line.Length) > context.Tolerance)
                 {
-                    problems = problems.RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
-                        previousSurface.TemporaryId, previousSurface.To, line.Length);
+                    problems = problems.Add(new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
+                        previousSurface.TemporaryId, previousSurface.To, line.Length));
                 }
             }
 
@@ -265,9 +265,9 @@ namespace RoadRegistry.BackOffice.Core
                     segment.Geometry.EqualsExact(Geometry));
             if (byOtherSegment != null)
             {
-                problems = problems.RoadSegmentGeometryTaken(
+                problems = problems.Add(new RoadSegmentGeometryTaken(
                     context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
-                );
+                ));
             }
 
             var line = Geometry.Geometries
@@ -276,25 +276,25 @@ namespace RoadRegistry.BackOffice.Core
 
             if (!context.View.Nodes.TryGetValue(StartNodeId, out var startNode))
             {
-                problems = problems.RoadSegmentStartNodeMissing();
+                problems = problems.Add(new RoadSegmentStartNodeMissing());
             }
             else
             {
                 if (line.StartPoint != null && !line.StartPoint.EqualsExact(startNode.Geometry))
                 {
-                    problems = problems.RoadSegmentStartPointDoesNotMatchNodeGeometry();
+                    problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry());
                 }
             }
 
             if (!context.View.Nodes.TryGetValue(EndNodeId, out var endNode))
             {
-                problems = problems.RoadSegmentEndNodeMissing();
+                problems = problems.Add(new RoadSegmentEndNodeMissing());
             }
             else
             {
                 if (line.EndPoint != null && !line.EndPoint.EqualsExact(endNode.Geometry))
                 {
-                    problems = problems.RoadSegmentEndPointDoesNotMatchNodeGeometry();
+                    problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry());
                 }
             }
 

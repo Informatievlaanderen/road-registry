@@ -33,7 +33,7 @@ namespace RoadRegistry.BackOffice.Core
 
             if (!context.View.Segments.ContainsKey(SegmentId))
             {
-                problems = problems.RoadSegmentMissing(SegmentId);
+                problems = problems.Add(new RoadSegmentMissing(SegmentId));
             }
 
             return problems;
@@ -48,7 +48,7 @@ namespace RoadRegistry.BackOffice.Core
             var segment = context.View.Segments[SegmentId];
             if (!segment.PartOfNumberedRoads.Contains(Number))
             {
-                problems = problems.NumberedRoadNumberNotFound(Number);
+                problems = problems.Add(new NumberedRoadNumberNotFound(Number));
             }
 
             return problems;

@@ -333,70 +333,70 @@ namespace RoadRegistry.Editor.Projections
                     case nameof(FakeRoadNodeConnectedSegmentsDoNotDiffer):
                         translation = $"De attributen van de verbonden wegsegmenten ({problem.Parameters[0].Value} en {problem.Parameters[1].Value}) verschillen onvoldoende voor deze schijnknoop.";
                         break;
-                    case nameof(Problems.RoadSegmentGeometryTaken):
+                    case nameof(RoadSegmentGeometryTaken):
                         translation = $"De geometrie werd reeds ingenomen door een ander wegsegment met id {problem.Parameters[0].Value}.";
                         break;
-                    case nameof(Problems.RoadSegmentStartNodeMissing):
+                    case nameof(RoadSegmentStartNodeMissing):
                         translation = "De start wegknoop van het wegsegment ontbreekt.";
                         break;
-                    case nameof(Problems.RoadSegmentEndNodeMissing):
+                    case nameof(RoadSegmentEndNodeMissing):
                         translation = "De eind wegknoop van het wegsegment ontbreekt.";
                         break;
-                    case nameof(Problems.RoadSegmentGeometryLengthIsZero):
+                    case nameof(RoadSegmentGeometryLengthIsZero):
                         translation = "De lengte van het wegsegment is 0.";
                         break;
-                    case nameof(Problems.RoadSegmentStartPointDoesNotMatchNodeGeometry):
+                    case nameof(RoadSegmentStartPointDoesNotMatchNodeGeometry):
                         translation = "De positie van het start punt van het wegsegment stemt niet overeen met de geometrie van de start wegknoop.";
                         break;
-                    case nameof(Problems.RoadSegmentEndPointDoesNotMatchNodeGeometry):
+                    case nameof(RoadSegmentEndPointDoesNotMatchNodeGeometry):
                         translation = "De positie van het eind punt van het wegsegment stemt niet overeen met de geometrie van de eind wegknoop.";
                         break;
-                    case nameof(Problems.RoadSegmentGeometrySelfOverlaps):
+                    case nameof(RoadSegmentGeometrySelfOverlaps):
                         translation = "De geometrie van het wegsegment overlapt zichzelf.";
                         break;
-                    case nameof(Problems.RoadSegmentGeometrySelfIntersects):
+                    case nameof(RoadSegmentGeometrySelfIntersects):
                         translation = "De geometrie van het wegsegment kruist zichzelf.";
                         break;
-                    case nameof(Problems.RoadSegmentMissing):
+                    case nameof(RoadSegmentMissing):
                         translation = $"Het wegsegment met id {problem.Parameters[0].Value} ontbreekt.";
                         break;
-                    case nameof(Problems.RoadSegmentLaneAttributeFromPositionNotEqualToZero):
+                    case nameof(RoadSegmentLaneAttributeFromPositionNotEqualToZero):
                         translation = $"De van positie ({problem.Parameters[2].Value}) van het eerste rijstroken attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
                         break;
-                    case nameof(Problems.RoadSegmentLaneAttributesNotAdjacent):
+                    case nameof(RoadSegmentLaneAttributesNotAdjacent):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het rijstroken attribuut met id {problem.Parameters[0].Value} sluit niet aan op de van positie ({problem.Parameters[3].Value}) van het rijstroken attribuut met id {problem.Parameters[2].Value}.";
                         break;
-                    case nameof(Problems.RoadSegmentLaneAttributeToPositionNotEqualToLength):
+                    case nameof(RoadSegmentLaneAttributeToPositionNotEqualToLength):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het laatste rijstroken attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).";
                         break;
-                    case nameof(Problems.RoadSegmentWidthAttributeFromPositionNotEqualToZero):
+                    case nameof(RoadSegmentWidthAttributeFromPositionNotEqualToZero):
                         translation = $"De van positie ({problem.Parameters[2].Value}) van het eerste wegbreedte attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
                         break;
-                    case nameof(Problems.RoadSegmentWidthAttributesNotAdjacent):
+                    case nameof(RoadSegmentWidthAttributesNotAdjacent):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het wegbreedte attribuut met id {problem.Parameters[0].Value} sluit niet aan op de van positie ({problem.Parameters[3].Value}) van het rijstroken attribuut met id {problem.Parameters[2].Value}.";
                         break;
-                    case nameof(Problems.RoadSegmentWidthAttributeToPositionNotEqualToLength):
+                    case nameof(RoadSegmentWidthAttributeToPositionNotEqualToLength):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het laatste wegbreedte attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).";
                         break;
-                    case nameof(Problems.RoadSegmentSurfaceAttributeFromPositionNotEqualToZero):
+                    case nameof(RoadSegmentSurfaceAttributeFromPositionNotEqualToZero):
                         translation = $"De van positie ({problem.Parameters[2].Value}) van het eerste wegverharding attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
                         break;
-                    case nameof(Problems.RoadSegmentSurfaceAttributesNotAdjacent):
+                    case nameof(RoadSegmentSurfaceAttributesNotAdjacent):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het wegverharding attribuut met id {problem.Parameters[0].Value} sluit niet aan op de van positie ({problem.Parameters[3].Value}) van het rijstroken attribuut met id {problem.Parameters[2].Value}.";
                         break;
-                    case nameof(Problems.RoadSegmentSurfaceAttributeToPositionNotEqualToLength):
+                    case nameof(RoadSegmentSurfaceAttributeToPositionNotEqualToLength):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het laatste wegverharding attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).";
                         break;
-                    case nameof(Problems.RoadSegmentPointMeasureValueOutOfRange):
+                    case nameof(RoadSegmentPointMeasureValueOutOfRange):
                         translation = $"De meting ({problem.Parameters[2].Value}) op het punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] ligt niet binnen de verwachte grenzen [{problem.Parameters[2].Value}-{problem.Parameters[2].Value}].";
                         break;
-                    case nameof(Problems.RoadSegmentStartPointMeasureValueNotEqualToZero):
+                    case nameof(RoadSegmentStartPointMeasureValueNotEqualToZero):
                         translation = $"De meting ({problem.Parameters[2].Value}) op het start punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet 0.0.";
                         break;
-                    case nameof(Problems.RoadSegmentEndPointMeasureValueNotEqualToLength):
+                    case nameof(RoadSegmentEndPointMeasureValueNotEqualToLength):
                         translation = $"De meting ({problem.Parameters[2].Value}) op het eind punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet gelijk aan de lengte ({problem.Parameters[3].Value}).";
                         break;
-                    case nameof(Problems.RoadSegmentPointMeasureValueDoesNotIncrease):
+                    case nameof(RoadSegmentPointMeasureValueDoesNotIncrease):
                         translation = $"De meting ({problem.Parameters[2].Value}) op het punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet groter dan de meting ({problem.Parameters[3].Value}) op het vorige punt.";
                         break;
                     case nameof(GradeSeparatedJunctionNotFound):
