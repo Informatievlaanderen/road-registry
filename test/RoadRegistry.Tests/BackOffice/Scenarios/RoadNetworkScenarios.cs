@@ -4984,49 +4984,6 @@ namespace RoadRegistry.BackOffice.Scenarios
         }
 
         [Fact]
-        public Task when_modifying_an_unknown_node()
-        {
-            return Run(scenario => scenario
-                .Given(Organizations.StreamNameFactory(ChangedByOrganization),
-                    new ImportedOrganization
-                    {
-                        Code = ChangedByOrganization,
-                        Name = ChangedByOrganizationName,
-                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                    }
-                )
-                .When(TheOperator.ChangesTheRoadNetwork(
-                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
-                    new RequestedChange
-                    {
-                        ModifyRoadNode = ModifyStartNode1
-                    }
-                ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-                {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                    TransactionId = new TransactionId(1),
-                    Changes = new[]
-                    {
-                        new Messages.RejectedChange
-                        {
-                            ModifyRoadNode = ModifyStartNode1,
-                            Problems = new []
-                            {
-                                new Messages.Problem
-                                {
-                                    Reason = "RoadNodeNotFound",
-                                    Severity = Messages.ProblemSeverity.Error,
-                                    Parameters = new Messages.ProblemParameter[0]
-                                }
-                            }
-                        }
-                    },
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                }));
-        }
-
-        [Fact]
         public Task when_modifying_a_node_with_the_same_values()
         {
             return Run(scenario => scenario

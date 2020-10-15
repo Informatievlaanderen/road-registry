@@ -6,7 +6,7 @@ namespace RoadRegistry.BackOffice.Core
     {
         public AddRoadNodeValidator()
         {
-            RuleFor(c => c.TemporaryId).GreaterThanOrEqualTo(0);
+            RuleFor(c => c.TemporaryId).GreaterThanOrEqualTo(1);
             RuleFor(c => c.Type)
                 .NotEmpty()
                 .Must(RoadNodeType.CanParse)

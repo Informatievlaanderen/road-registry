@@ -6,7 +6,7 @@ namespace RoadRegistry.BackOffice.Core
     {
         public RemoveRoadNodeValidator()
         {
-            RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
+            RuleFor(c => c.Id).GreaterThanOrEqualTo(1);
         }
     }
 }
