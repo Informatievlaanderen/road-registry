@@ -24,7 +24,7 @@
         [Fact]
         public Task ArchiveCanNotBeNull()
         {
-            var sut = new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(_fixture.MemoryStreamManager,  Encoding.UTF8);
+            var sut = new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
                 () => sut.WriteAsync(null, new EditorContext(), default));
         }

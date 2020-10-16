@@ -71,7 +71,7 @@ namespace RoadRegistry.Editor.Projections
                     };
                 }).ToList();
 
-            return new GradeSeparatedJunctionRecordProjection(new RecyclableMemoryStreamManager(),  Encoding.UTF8)
+            return new GradeSeparatedJunctionRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.junction))
                 .Expect(data.Select(d => d.expected));
@@ -104,7 +104,7 @@ namespace RoadRegistry.Editor.Projections
                 };
             });
 
-            return new GradeSeparatedJunctionRecordProjection(_services.MemoryStreamManager,  Encoding.UTF8)
+            return new GradeSeparatedJunctionRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(message)
                 .Expect(expectedRecords);
@@ -143,7 +143,7 @@ namespace RoadRegistry.Editor.Projections
                 };
             });
 
-            return new GradeSeparatedJunctionRecordProjection(_services.MemoryStreamManager,  Encoding.UTF8)
+            return new GradeSeparatedJunctionRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(acceptedGradeSeparatedJunctionAdded, acceptedGradeSeparatedJunctionModified)
                 .Expect(expectedRecords);
@@ -162,7 +162,7 @@ namespace RoadRegistry.Editor.Projections
                 .Create<RoadNetworkChangesAccepted>()
                 .WithAcceptedChanges(_fixture.Create<GradeSeparatedJunctionRemoved>());
 
-            return new GradeSeparatedJunctionRecordProjection(_services.MemoryStreamManager,  Encoding.UTF8)
+            return new GradeSeparatedJunctionRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(acceptedGradeSeparatedJunctionAdded, acceptedGradeSeparatedJunctionRemoved)
                 .ExpectNone();
