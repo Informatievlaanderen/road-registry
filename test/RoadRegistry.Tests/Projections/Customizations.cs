@@ -418,6 +418,41 @@ namespace RoadRegistry.Projections
                         new RoadSegmentRemovedFromEuropeanRoad
                         {
                             AttributeId = fixture.Create<AttributeId>(),
+                            SegmentId = fixture.Create<RoadSegmentId>(),
+                            Number = fixture.Create<EuropeanRoadNumber>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeRoadSegmentAddedToNationalRoad(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentAddedToNationalRoad>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadSegmentAddedToNationalRoad
+                        {
+                            AttributeId = fixture.Create<AttributeId>(),
+                            TemporaryAttributeId = fixture.Create<AttributeId>(),
+                            SegmentId = fixture.Create<RoadSegmentId>(),
+                            Ident2 = fixture.Create<NationalRoadNumber>(),
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeRoadSegmentRemovedFromNationalRoad(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentRemovedFromNationalRoad>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadSegmentRemovedFromNationalRoad
+                        {
+                            AttributeId = fixture.Create<AttributeId>(),
+                            SegmentId = fixture.Create<RoadSegmentId>(),
+                            Ident2 = fixture.Create<NationalRoadNumber>()
                         }
                     )
                     .OmitAutoProperties()
