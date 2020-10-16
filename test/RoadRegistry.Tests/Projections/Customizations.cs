@@ -459,6 +459,59 @@ namespace RoadRegistry.Projections
             );
         }
 
+        public static void CustomizeRoadSegmentAddedToNumberedRoad(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentAddedToNumberedRoad>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadSegmentAddedToNumberedRoad
+                        {
+                            AttributeId = fixture.Create<AttributeId>(),
+                            TemporaryAttributeId = fixture.Create<AttributeId>(),
+                            SegmentId = fixture.Create<RoadSegmentId>(),
+                            Ident8 = fixture.Create<NumberedRoadNumber>(),
+                            Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
+                            Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeRoadSegmentOnNumberedRoadModified(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentOnNumberedRoadModified>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadSegmentOnNumberedRoadModified
+                        {
+                            AttributeId = fixture.Create<AttributeId>(),
+                            SegmentId = fixture.Create<RoadSegmentId>(),
+                            Ident8 = fixture.Create<NumberedRoadNumber>(),
+                            Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
+                            Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeRoadSegmentRemovedFromNumberedRoad(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentRemovedFromNumberedRoad>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadSegmentRemovedFromNumberedRoad
+                        {
+                            AttributeId = fixture.Create<AttributeId>(),
+                            SegmentId = fixture.Create<RoadSegmentId>(),
+                            Ident8 = fixture.Create<NationalRoadNumber>()
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
         public static void CustomizeRoadNetworkChangesAccepted(this IFixture fixture)
         {
             fixture.Customize<RoadNetworkChangesAccepted>(customization =>
