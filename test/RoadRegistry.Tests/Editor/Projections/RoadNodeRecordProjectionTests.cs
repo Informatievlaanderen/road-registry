@@ -87,7 +87,6 @@ namespace RoadRegistry.Editor.Projections
                 .Scenario()
                 .Given(data.Select(d => d.ImportedRoadNode))
                 .Expect(data.Select(d => d.ExpectedRecord));
-
         }
 
         [Fact]
@@ -200,6 +199,5 @@ namespace RoadRegistry.Editor.Projections
                 .Given(acceptedRoadNodeAdded, acceptedRoadNodeRemoved)
                 .ExpectNone();
         }
-
     }
 }

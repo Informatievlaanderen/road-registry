@@ -23,6 +23,7 @@ namespace RoadRegistry.Editor.Projections
             _services = services ?? throw new ArgumentNullException(nameof(services));
 
             _fixture = new Fixture();
+            _fixture.CustomizeArchiveId();
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeRoadNodeId();
@@ -54,6 +55,11 @@ namespace RoadRegistry.Editor.Projections
             _fixture.CustomizeImportedRoadSegmentSurfaceAttributes();
             _fixture.CustomizeImportedRoadSegmentSideAttributes();
             _fixture.CustomizeOriginProperties();
+
+            _fixture.CustomizeRoadNetworkChangesAccepted();
+
+            _fixture.CustomizeRoadSegmentAddedToEuropeanRoad();
+            _fixture.CustomizeRoadSegmentRemovedFromEuropeanRoad();
         }
 
         [Fact]
@@ -113,6 +119,59 @@ namespace RoadRegistry.Editor.Projections
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new object[0]);
+        }
+
+
+        [Fact]
+        public Task When_adding_road_nodes()
+        {
+            var message = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAddedToEuropeanRoad>());
+
+            var expectedRecords = Array.ConvertAll(message.Changes, change =>
+            {
+                var europeanRoad = change.RoadSegmentAddedToEuropeanRoad;
+
+                return (object)new RoadSegmentEuropeanRoadAttributeRecord
+                {
+                    Id = europeanRoad.AttributeId,
+                    RoadSegmentId = europeanRoad.SegmentId,
+                    DbaseRecord = Editor.Projections.DbaseRecordExtensions.ToBytes(new RoadSegmentEuropeanRoadAttributeDbaseRecord
+                    {
+                        EU_OIDN = { Value = europeanRoad.AttributeId },
+                        WS_OIDN = { Value = europeanRoad.SegmentId },
+                        EUNUMMER = { Value = europeanRoad.Number },
+                        BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
+                        BEGINORG = { Value = message.OrganizationId },
+                        LBLBGNORG = { Value = message.Organization }
+                    }, _services.MemoryStreamManager, Encoding.UTF8)
+                };
+            });
+
+            return new RoadSegmentEuropeanRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(message)
+                .Expect(expectedRecords);
+        }
+
+        [Fact]
+        public Task When_removing_road_nodes()
+        {
+            _fixture.Freeze<AttributeId>();
+
+            var acceptedRoadNodeAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToEuropeanRoad>());
+
+            var acceptedRoadNodeRemoved = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromEuropeanRoad>());
+
+            return new RoadSegmentEuropeanRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedRoadNodeAdded, acceptedRoadNodeRemoved)
+                .ExpectNone();
         }
     }
 }
