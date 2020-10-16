@@ -262,10 +262,10 @@ namespace RoadRegistry.Editor.Projections
                         translation = $"Voeg wegsegment {m.SegmentId} toe aan europese weg {m.Number}.";
                         break;
                     case AddRoadSegmentToNationalRoad m:
-                        translation = $"Voeg wegsegment {m.SegmentId} toe aan nationale weg {m.Ident2}.";
+                        translation = $"Voeg wegsegment {m.SegmentId} toe aan nationale weg {m.Number}.";
                         break;
                     case AddRoadSegmentToNumberedRoad m:
-                        translation = $"Voeg wegsegment {m.SegmentId} toe aan nationale weg {m.Ident8}.";
+                        translation = $"Voeg wegsegment {m.SegmentId} toe aan nationale weg {m.Number}.";
                         break;
                     case AddGradeSeparatedJunction m:
                         translation = $"Voeg ongelijkgrondse kruising {m.TemporaryId} toe.";
@@ -295,10 +295,10 @@ namespace RoadRegistry.Editor.Projections
                         translation = $"Wegsegment {m.SegmentId} toegevoegd aan europese weg {m.Number}.";
                         break;
                     case RoadSegmentAddedToNationalRoad m:
-                        translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Ident2}.";
+                        translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Number}.";
                         break;
                     case RoadSegmentAddedToNumberedRoad m:
-                        translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Ident8}.";
+                        translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Number}.";
                         break;
                     case GradeSeparatedJunctionAdded m:
                         translation = $"Ongelijkgrondse kruising {m.TemporaryId} toegevoegd.";

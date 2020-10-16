@@ -60,7 +60,7 @@ namespace RoadRegistry.BackOffice.Core
             message.RoadSegmentOnNumberedRoadModified = new Messages.RoadSegmentOnNumberedRoadModified
             {
                 AttributeId = AttributeId,
-                Ident8 = Number,
+                Number = Number,
                 SegmentId = SegmentId,
                 Direction = Direction,
                 Ordinal = Ordinal
@@ -74,7 +74,7 @@ namespace RoadRegistry.BackOffice.Core
             message.ModifyRoadSegmentOnNumberedRoad = new Messages.ModifyRoadSegmentOnNumberedRoad
             {
                 AttributeId = AttributeId,
-                Ident8 = Number,
+                Number = Number,
                 SegmentId = SegmentId,
                 Direction = Direction,
                 Ordinal = Ordinal

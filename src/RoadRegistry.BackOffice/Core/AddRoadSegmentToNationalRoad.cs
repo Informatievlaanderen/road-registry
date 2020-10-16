@@ -51,7 +51,7 @@ namespace RoadRegistry.BackOffice.Core
             message.RoadSegmentAddedToNationalRoad = new Messages.RoadSegmentAddedToNationalRoad
             {
                 AttributeId = AttributeId,
-                Ident2 = Number,
+                Number = Number,
                 SegmentId = SegmentId,
                 TemporaryAttributeId = TemporaryAttributeId
             };
@@ -64,7 +64,7 @@ namespace RoadRegistry.BackOffice.Core
             message.AddRoadSegmentToNationalRoad = new Messages.AddRoadSegmentToNationalRoad
             {
                 TemporaryAttributeId = TemporaryAttributeId,
-                Ident2 = Number,
+                Number = Number,
                 SegmentId = SegmentId
             };
         }

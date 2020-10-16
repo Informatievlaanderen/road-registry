@@ -14,9 +14,9 @@ namespace RoadRegistry.BackOffice.Messages
         [Key(3)]
         public string Status { get; set; }
         [Key(4)]
-        public int? LeftStreetNameId { get; set; }
+        public int? LeftSideStreetNameId { get; set; }
         [Key(5)]
-        public int? RightStreetNameId { get; set; }
+        public int? RightSideStreetNameId { get; set; }
         [Key(6)]
         public string OrganizationId { get; set; }
     }

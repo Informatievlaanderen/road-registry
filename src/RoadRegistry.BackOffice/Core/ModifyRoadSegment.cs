@@ -274,6 +274,20 @@ namespace RoadRegistry.BackOffice.Core
                 .OfType<LineString>()
                 .Single();
 
+            var segmentBefore = context.BeforeView.Segments[Id];
+
+            if (segmentBefore.Start != StartNodeId && context.AfterView.Nodes.TryGetValue(segmentBefore.Start, out var beforeStartNode))
+            {
+                problems = problems.AddRange(
+                    beforeStartNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView, context.Translator));
+            }
+
+            if (segmentBefore.End != EndNodeId && context.AfterView.Nodes.TryGetValue(segmentBefore.End, out var beforeEndNode))
+            {
+                problems = problems.AddRange(
+                    beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView, context.Translator));
+            }
+
             if (!context.AfterView.Nodes.TryGetValue(StartNodeId, out var startNode))
             {
                 problems = problems.Add(new RoadSegmentStartNodeMissing());

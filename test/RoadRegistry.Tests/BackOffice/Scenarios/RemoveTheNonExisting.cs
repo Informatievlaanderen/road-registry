@@ -57,14 +57,14 @@ namespace RoadRegistry.BackOffice.Scenarios
                 composer.Do(instance =>
                     {
                         instance.AttributeId = Fixture.Create<AttributeId>();
-                        instance.Ident2 = Fixture.Create<NationalRoadNumber>();
+                        instance.Number = Fixture.Create<NationalRoadNumber>();
                     })
                     .OmitAutoProperties());
             Fixture.Customize<Messages.RoadSegmentNumberedRoadAttributes>(composer =>
                 composer.Do(instance =>
                 {
                     instance.AttributeId = Fixture.Create<AttributeId>();
-                    instance.Ident8 = Fixture.Create<NumberedRoadNumber>();
+                    instance.Number = Fixture.Create<NumberedRoadNumber>();
                     instance.Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>();
                     instance.Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>();
                 }).OmitAutoProperties());
@@ -901,7 +901,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     {
                                         AttributeId = 1,
                                         SegmentId = 1,
-                                        Ident2 = nationalRoadNumber
+                                        Number = nationalRoadNumber
                                     }
                                 }
                             }))
@@ -918,7 +918,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                                 {
                                     AttributeId = 1,
                                     SegmentId = 1,
-                                    Ident2 = nationalRoadNumber
+                                    Number = nationalRoadNumber
                                 },
                                 Problems = new Messages.Problem[]
                                 {
@@ -1084,7 +1084,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     {
                                         AttributeId = 1,
                                         SegmentId = 1,
-                                        Ident8 = numberedRoadNumber
+                                        Number = numberedRoadNumber
                                     }
                                 }
                             }))
@@ -1101,7 +1101,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                                 {
                                     AttributeId = 1,
                                     SegmentId = 1,
-                                    Ident8 = numberedRoadNumber
+                                    Number = numberedRoadNumber
                                 },
                                 Problems = new Messages.Problem[]
                                 {

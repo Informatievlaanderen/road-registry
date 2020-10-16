@@ -63,14 +63,14 @@ namespace RoadRegistry.BackOffice.Scenarios
                 composer.Do(instance =>
                     {
                         instance.AttributeId = Fixture.Create<AttributeId>();
-                        instance.Ident2 = Fixture.Create<NationalRoadNumber>();
+                        instance.Number = Fixture.Create<NationalRoadNumber>();
                     })
                     .OmitAutoProperties());
             Fixture.Customize<RoadSegmentNumberedRoadAttributes>(composer =>
                 composer.Do(instance =>
                 {
                     instance.AttributeId = Fixture.Create<AttributeId>();
-                    instance.Ident8 = Fixture.Create<NumberedRoadNumber>();
+                    instance.Number = Fixture.Create<NumberedRoadNumber>();
                     instance.Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>();
                     instance.Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>();
                 }).OmitAutoProperties());
@@ -3964,7 +3964,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             var addRoadSegmentToNationalRoad = new Messages.AddRoadSegmentToNationalRoad
             {
                 TemporaryAttributeId = Fixture.Create<AttributeId>(),
-                Ident2 = Fixture.Create<NationalRoadNumber>(),
+                Number = Fixture.Create<NationalRoadNumber>(),
                 SegmentId = AddSegment1.TemporaryId
             };
             return Run(scenario => scenario
@@ -4022,7 +4022,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                             {
                                 AttributeId = 1,
                                 TemporaryAttributeId = addRoadSegmentToNationalRoad.TemporaryAttributeId,
-                                Ident2 = addRoadSegmentToNationalRoad.Ident2,
+                                Number = addRoadSegmentToNationalRoad.Number,
                                 SegmentId = Segment1Added.Id
                             },
                             Problems = new Messages.Problem[0]
@@ -4038,7 +4038,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             var addRoadSegmentToNationalRoad = new Messages.AddRoadSegmentToNationalRoad
             {
                 TemporaryAttributeId = Fixture.Create<AttributeId>(),
-                Ident2 = Fixture.Create<NationalRoadNumber>(),
+                Number = Fixture.Create<NationalRoadNumber>(),
                 SegmentId = AddSegment1.TemporaryId
             };
             return Run(scenario => scenario
@@ -4093,7 +4093,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             var addRoadSegmentToNumberedRoad = new Messages.AddRoadSegmentToNumberedRoad
             {
                 TemporaryAttributeId = Fixture.Create<AttributeId>(),
-                Ident8 = Fixture.Create<NumberedRoadNumber>(),
+                Number = Fixture.Create<NumberedRoadNumber>(),
                 Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
                 Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
                 SegmentId = AddSegment1.TemporaryId
@@ -4153,7 +4153,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                             {
                                 AttributeId = 1,
                                 TemporaryAttributeId = addRoadSegmentToNumberedRoad.TemporaryAttributeId,
-                                Ident8 = addRoadSegmentToNumberedRoad.Ident8,
+                                Number = addRoadSegmentToNumberedRoad.Number,
                                 Direction = addRoadSegmentToNumberedRoad.Direction,
                                 Ordinal = addRoadSegmentToNumberedRoad.Ordinal,
                                 SegmentId = Segment1Added.Id
@@ -4171,7 +4171,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             var addRoadSegmentToNumberedRoad = new Messages.AddRoadSegmentToNumberedRoad
             {
                 TemporaryAttributeId = Fixture.Create<AttributeId>(),
-                Ident8 = Fixture.Create<NumberedRoadNumber>(),
+                Number = Fixture.Create<NumberedRoadNumber>(),
                 Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
                 Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
                 SegmentId = AddSegment1.TemporaryId

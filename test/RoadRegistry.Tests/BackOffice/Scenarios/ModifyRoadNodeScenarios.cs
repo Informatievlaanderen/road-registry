@@ -14,9 +14,9 @@ namespace RoadRegistry.BackOffice.Scenarios
     using RoadRegistry.Framework.Testing;
     using Xunit;
 
-    public class ModifyingRoadNodeScenarios : RoadRegistryFixture
+    public class ModifyRoadNodeScenarios : RoadRegistryFixture
     {
-        public ModifyingRoadNodeScenarios()
+        public ModifyRoadNodeScenarios()
         {
             Fixture.CustomizePoint();
             Fixture.CustomizePolylineM();
@@ -61,14 +61,14 @@ namespace RoadRegistry.BackOffice.Scenarios
                 composer.Do(instance =>
                     {
                         instance.AttributeId = Fixture.Create<AttributeId>();
-                        instance.Ident2 = Fixture.Create<NationalRoadNumber>();
+                        instance.Number = Fixture.Create<NationalRoadNumber>();
                     })
                     .OmitAutoProperties());
             Fixture.Customize<RoadSegmentNumberedRoadAttributes>(composer =>
                 composer.Do(instance =>
                 {
                     instance.AttributeId = Fixture.Create<AttributeId>();
-                    instance.Ident8 = Fixture.Create<NumberedRoadNumber>();
+                    instance.Number = Fixture.Create<NumberedRoadNumber>();
                     instance.Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>();
                     instance.Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>();
                 }).OmitAutoProperties());

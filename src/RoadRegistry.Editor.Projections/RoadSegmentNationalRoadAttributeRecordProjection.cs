@@ -35,7 +35,7 @@ namespace RoadRegistry.Editor.Projections
                         {
                             NW_OIDN = {Value = nationalRoad.AttributeId},
                             WS_OIDN = {Value = envelope.Message.Id},
-                            IDENT2 = {Value = nationalRoad.Ident2},
+                            IDENT2 = {Value = nationalRoad.Number},
                             BEGINTIJD = {Value = nationalRoad.Origin.Since},
                             BEGINORG = {Value = nationalRoad.Origin.OrganizationId},
                             LBLBGNORG = {Value = nationalRoad.Origin.Organization},
@@ -60,7 +60,7 @@ namespace RoadRegistry.Editor.Projections
                                 {
                                     NW_OIDN = {Value = nationalRoad.AttributeId},
                                     WS_OIDN = {Value = nationalRoad.SegmentId},
-                                    IDENT2 = {Value = nationalRoad.Ident2},
+                                    IDENT2 = {Value = nationalRoad.Number},
                                     BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
                                     BEGINORG = {Value = envelope.Message.OrganizationId},
                                     LBLBGNORG = {Value = envelope.Message.Organization}

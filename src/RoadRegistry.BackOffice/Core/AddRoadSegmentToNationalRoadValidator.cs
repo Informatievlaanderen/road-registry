@@ -8,10 +8,10 @@ namespace RoadRegistry.BackOffice.Core
         {
             RuleFor(c => c.TemporaryAttributeId).GreaterThanOrEqualTo(0);
             RuleFor(c => c.SegmentId).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.Ident2)
+            RuleFor(c => c.Number)
                 .NotEmpty()
                 .Must(NationalRoadNumber.CanParse)
-                .When(c => c.Ident2 != null, ApplyConditionTo.CurrentValidator);
+                .When(c => c.Number != null, ApplyConditionTo.CurrentValidator);
         }
     }
 }

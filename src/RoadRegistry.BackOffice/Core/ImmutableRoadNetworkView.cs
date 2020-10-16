@@ -524,18 +524,17 @@ namespace RoadRegistry.BackOffice.Core
                     : new CrabStreetnameId?(),
                 new OrganizationId(@event.MaintenanceAuthority.Code));
 
-            var segment = new RoadSegment(
-                id,
-                GeometryTranslator.Translate(@event.Geometry),
-                start,
-                end,
-                attributeHash);
-
             return new ImmutableRoadNetworkView(
                 _nodes
                     .TryReplace(start, node => node.ConnectWith(id))
                     .TryReplace(end, node => node.ConnectWith(id)),
-                _segments.Add(id, segment),
+                _segments
+                    .TryReplace(id, segment => segment
+                        .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
+                        .WithStart(start)
+                        .WithEnd(end)
+                        .WithAttributeHash(attributeHash)
+                    ),
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
                 _maximumNodeId,
@@ -1000,12 +999,14 @@ namespace RoadRegistry.BackOffice.Core
                 command.RightSideStreetNameId,
                 command.MaintenanceAuthority);
 
+            var segmentBefore = _segments[command.Id];
+
             return new ImmutableRoadNetworkView(
-                //TODO: What if you used different start and end nodes
-                //We will want to disconnect those first, no?
                 _nodes
                     .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
-                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id)),
+                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id))
+                    .TryReplace(segmentBefore.Start, node => node.DisconnectFrom(command.Id))
+                    .TryReplace(segmentBefore.End, node => node.DisconnectFrom(command.Id)),
                 _segments.
                     TryReplace(command.Id, segment => segment
                         .WithGeometry(command.Geometry)
@@ -1303,8 +1304,8 @@ namespace RoadRegistry.BackOffice.Core
                         Category = segment.Value.AttributeHash.Category,
                         Morphology = segment.Value.AttributeHash.Morphology,
                         Status = segment.Value.AttributeHash.Status,
-                        LeftStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
-                        RightStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
+                        LeftSideStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
+                        RightSideStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
                         OrganizationId = segment.Value.AttributeHash.OrganizationId
                     },
                     PartOfEuropeanRoads = segment.Value.PartOfEuropeanRoads.Select(number => number.ToString()).ToArray(),
@@ -1373,11 +1374,11 @@ namespace RoadRegistry.BackOffice.Core
                                 RoadSegmentCategory.Parse(segment.AttributeHash.Category),
                                 RoadSegmentMorphology.Parse(segment.AttributeHash.Morphology),
                                 RoadSegmentStatus.Parse(segment.AttributeHash.Status),
-                                segment.AttributeHash.LeftStreetNameId.HasValue
-                                    ? new CrabStreetnameId(segment.AttributeHash.LeftStreetNameId.Value)
+                                segment.AttributeHash.LeftSideStreetNameId.HasValue
+                                    ? new CrabStreetnameId(segment.AttributeHash.LeftSideStreetNameId.Value)
                                     : new CrabStreetnameId?(),
-                                segment.AttributeHash.RightStreetNameId.HasValue
-                                    ? new CrabStreetnameId(segment.AttributeHash.RightStreetNameId.Value)
+                                segment.AttributeHash.RightSideStreetNameId.HasValue
+                                    ? new CrabStreetnameId(segment.AttributeHash.RightSideStreetNameId.Value)
                                     : new CrabStreetnameId?(),
                                 new OrganizationId(segment.AttributeHash.OrganizationId)));
                         roadSegment = segment.PartOfEuropeanRoads.Aggregate(roadSegment, (current, number) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(number)));
@@ -2169,8 +2170,8 @@ namespace RoadRegistry.BackOffice.Core
                             Category = segment.Value.AttributeHash.Category,
                             Morphology = segment.Value.AttributeHash.Morphology,
                             Status = segment.Value.AttributeHash.Status,
-                            LeftStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
-                            RightStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
+                            LeftSideStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
+                            RightSideStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
                             OrganizationId = segment.Value.AttributeHash.OrganizationId
                         },
                         PartOfEuropeanRoads = segment.Value.PartOfEuropeanRoads.Select(number => number.ToString()).ToArray(),
@@ -2244,11 +2245,11 @@ namespace RoadRegistry.BackOffice.Core
                                     RoadSegmentCategory.Parse(segment.AttributeHash.Category),
                                     RoadSegmentMorphology.Parse(segment.AttributeHash.Morphology),
                                     RoadSegmentStatus.Parse(segment.AttributeHash.Status),
-                                    segment.AttributeHash.LeftStreetNameId.HasValue
-                                        ? new CrabStreetnameId(segment.AttributeHash.LeftStreetNameId.Value)
+                                    segment.AttributeHash.LeftSideStreetNameId.HasValue
+                                        ? new CrabStreetnameId(segment.AttributeHash.LeftSideStreetNameId.Value)
                                         : new CrabStreetnameId?(),
-                                    segment.AttributeHash.RightStreetNameId.HasValue
-                                        ? new CrabStreetnameId(segment.AttributeHash.RightStreetNameId.Value)
+                                    segment.AttributeHash.RightSideStreetNameId.HasValue
+                                        ? new CrabStreetnameId(segment.AttributeHash.RightSideStreetNameId.Value)
                                         : new CrabStreetnameId?(),
                                     new OrganizationId(segment.AttributeHash.OrganizationId)));
                             roadSegment = segment.PartOfEuropeanRoads.Aggregate(roadSegment, (current, number) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(number)));

@@ -29,7 +29,7 @@ namespace RoadRegistry.BackOffice.Uploads
             message.AddRoadSegmentToNationalRoad = new Messages.AddRoadSegmentToNationalRoad
             {
                 TemporaryAttributeId = TemporaryAttributeId,
-                Ident2 = Number,
+                Number = Number,
                 SegmentId = SegmentId
             };
         }

@@ -8,10 +8,10 @@ namespace RoadRegistry.BackOffice.Core
         {
             RuleFor(c => c.TemporaryAttributeId).GreaterThanOrEqualTo(0);
             RuleFor(c => c.SegmentId).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.Ident8)
+            RuleFor(c => c.Number)
                 .NotEmpty()
                 .Must(NumberedRoadNumber.CanParse)
-                .When(c => c.Ident8 != null, ApplyConditionTo.CurrentValidator);
+                .When(c => c.Number != null, ApplyConditionTo.CurrentValidator);
             RuleFor(c => c.Direction)
                 .NotEmpty()
                 .Must(RoadSegmentNumberedRoadDirection.CanParse)

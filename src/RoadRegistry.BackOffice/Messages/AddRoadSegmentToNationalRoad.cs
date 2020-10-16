@@ -4,6 +4,6 @@
     {
         public int TemporaryAttributeId { get; set; }
         public int SegmentId { get; set; }
-        public string Ident2 { get; set; }
+        public string Number { get; set; }
     }
 }

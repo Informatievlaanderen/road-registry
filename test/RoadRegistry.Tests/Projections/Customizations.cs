@@ -132,7 +132,7 @@ namespace RoadRegistry.Projections
                         new ImportedRoadSegmentNationalRoadAttribute
                         {
                             AttributeId = fixture.Create<int>(),
-                            Ident2 = fixture.Create<NationalRoadNumber>(),
+                            Number = fixture.Create<NationalRoadNumber>(),
                             Origin = fixture.Create<ImportedOriginProperties>()
                         }
                     )
@@ -148,7 +148,7 @@ namespace RoadRegistry.Projections
                         new ImportedRoadSegmentNumberedRoadAttribute
                         {
                             AttributeId = fixture.Create<int>(),
-                            Ident8 = fixture.Create<NumberedRoadNumber>(),
+                            Number = fixture.Create<NumberedRoadNumber>(),
                             Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
                             Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
                             Origin = fixture.Create<ImportedOriginProperties>()

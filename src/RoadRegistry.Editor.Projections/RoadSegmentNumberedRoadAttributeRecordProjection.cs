@@ -39,7 +39,7 @@ namespace RoadRegistry.Editor.Projections
                             {
                                 GW_OIDN = {Value = numberedRoad.AttributeId},
                                 WS_OIDN = {Value = envelope.Message.Id},
-                                IDENT8 = {Value = numberedRoad.Ident8},
+                                IDENT8 = {Value = numberedRoad.Number},
                                 RICHTING = {Value = directionTranslation.Identifier},
                                 LBLRICHT = {Value = directionTranslation.Name},
                                 VOLGNUMMER = {Value = numberedRoad.Ordinal},
@@ -69,7 +69,7 @@ namespace RoadRegistry.Editor.Projections
                                 {
                                     GW_OIDN = {Value = numberedRoad.AttributeId},
                                     WS_OIDN = {Value = numberedRoad.SegmentId},
-                                    IDENT8 = {Value = numberedRoad.Ident8},
+                                    IDENT8 = {Value = numberedRoad.Number},
                                     RICHTING = {Value = directionTranslation.Identifier},
                                     LBLRICHT = {Value = directionTranslation.Name},
                                     VOLGNUMMER = {Value = numberedRoad.Ordinal},

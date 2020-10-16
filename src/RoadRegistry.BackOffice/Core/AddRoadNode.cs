@@ -54,40 +54,7 @@ namespace RoadRegistry.BackOffice.Core
                     (current, segment) =>
                         current.Add(new RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id))));
 
-            var connectedSegmentCount = node.Segments.Count;
-            if (connectedSegmentCount == 0)
-            {
-                problems = problems.Add(new RoadNodeNotConnectedToAnySegment());
-            }
-            else if (connectedSegmentCount == 1 && Type != RoadNodeType.EndNode)
-            {
-                problems = problems.Add(RoadNodeTypeMismatch.New(connectedSegmentCount, Type, new []{RoadNodeType.EndNode}));
-            }
-            else if (connectedSegmentCount == 2)
-            {
-                if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
-                {
-                    problems = problems.Add(RoadNodeTypeMismatch.New(connectedSegmentCount, Type, new []{RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode}));
-                }
-                else if (Type == RoadNodeType.FakeNode)
-                {
-                    var segments = node.Segments.Select(segmentId => context.AfterView.Segments[segmentId])
-                        .ToArray();
-                    var segment1 = segments[0];
-                    var segment2 = segments[1];
-                    if (segment1.AttributeHash.Equals(segment2.AttributeHash))
-                    {
-                        problems = problems.Add(new FakeRoadNodeConnectedSegmentsDoNotDiffer(
-                            context.Translator.TranslateToTemporaryOrId(segment1.Id),
-                            context.Translator.TranslateToTemporaryOrId(segment2.Id)
-                        ));
-                    }
-                }
-            }
-            else if (connectedSegmentCount > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
-            {
-                problems = problems.Add(RoadNodeTypeMismatch.New(connectedSegmentCount, Type, new []{RoadNodeType.RealNode, RoadNodeType.MiniRoundabout}));
-            }
+            problems = problems.AddRange(node.VerifyTypeMatchesConnectedSegmentCount(context.AfterView, context.Translator));
 
             return problems;
         }

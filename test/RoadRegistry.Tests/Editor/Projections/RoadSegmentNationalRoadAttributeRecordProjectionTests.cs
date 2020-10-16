@@ -77,7 +77,7 @@ namespace RoadRegistry.Editor.Projections
                             {
                                 NW_OIDN = { Value = nationalRoad.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
-                                IDENT2 = { Value = nationalRoad.Ident2 },
+                                IDENT2 = { Value = nationalRoad.Number },
                                 BEGINTIJD = { Value = nationalRoad.Origin.Since },
                                 BEGINORG = { Value = nationalRoad.Origin.OrganizationId },
                                 LBLBGNORG = { Value = nationalRoad.Origin.Organization }

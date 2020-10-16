@@ -64,8 +64,8 @@ namespace RoadRegistry.BackOffice.Core
                     Morphology = _fixture.Create<RoadSegmentMorphology>(),
                     Status = _fixture.Create<RoadSegmentStatus>(),
                     OrganizationId = _fixture.Create<OrganizationId>(),
-                    LeftStreetNameId = _fixture.Create<CrabStreetnameId>().ToInt32(),
-                    RightStreetNameId = _fixture.Create<CrabStreetnameId>().ToInt32()
+                    LeftSideStreetNameId = _fixture.Create<CrabStreetnameId>().ToInt32(),
+                    RightSideStreetNameId = _fixture.Create<CrabStreetnameId>().ToInt32()
                 }).OmitAutoProperties());
 
             _fixture.Customize<RoadNetworkSnapshotSegment>(customizer =>

@@ -51,10 +51,10 @@ namespace RoadRegistry.BackOffice.Core
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
 
-            message.RoadSegmentAddedToNationalRoad = new Messages.RoadSegmentAddedToNationalRoad
+            message.RoadSegmentRemovedFromNationalRoad = new Messages.RoadSegmentRemovedFromNationalRoad
             {
                 AttributeId = AttributeId,
-                Ident2 = Number,
+                Number = Number,
                 SegmentId = SegmentId
             };
         }
@@ -66,7 +66,7 @@ namespace RoadRegistry.BackOffice.Core
             message.RemoveRoadSegmentFromNationalRoad = new Messages.RemoveRoadSegmentFromNationalRoad
             {
                 AttributeId = AttributeId,
-                Ident2 = Number,
+                Number = Number,
                 SegmentId = SegmentId
             };
         }

@@ -11,8 +11,7 @@ namespace RoadRegistry.BackOffice.Core
         {
         }
 
-        public static RoadNodeTypeMismatch New(
-            int connectedSegmentCount,
+        public static RoadNodeTypeMismatch New(RoadNodeId node, int connectedSegmentCount,
             RoadNodeType actualType,
             RoadNodeType[] expectedTypes)
         {
@@ -23,6 +22,8 @@ namespace RoadRegistry.BackOffice.Core
 
             var parameters = new List<ProblemParameter>
             {
+                new ProblemParameter("RoadNodeId",
+                    node.ToInt32().ToString()),
                 new ProblemParameter("ConnectedSegmentCount",
                     connectedSegmentCount.ToString(CultureInfo.InvariantCulture)),
                 new ProblemParameter("Actual", actualType.ToString())
