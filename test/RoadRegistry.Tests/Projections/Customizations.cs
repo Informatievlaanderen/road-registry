@@ -263,6 +263,53 @@ namespace RoadRegistry.Projections
             );
         }
 
+        public static void CustomizeRoadNodeAdded(this IFixture fixture)
+        {
+            fixture.Customize<RoadNodeAdded>(customization =>
+                customization
+                    .FromFactory(generator =>
+                            new RoadNodeAdded
+                            {
+                                Id = fixture.Create<RoadNodeId>(),
+                                TemporaryId = fixture.Create<RoadNodeId>(),
+                                Type = fixture.Create<RoadNodeType>(),
+                                Geometry = GeometryTranslator.Translate(fixture.Create<NetTopologySuite.Geometries.Point>()),
+                            }
+                    )
+                    .OmitAutoProperties()
+                );
+        }
+
+        public static void CustomizeRoadNodeModified(this IFixture fixture)
+        {
+            fixture.Customize<RoadNodeModified>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadNodeModified
+                        {
+                            Id = fixture.Create<RoadNodeId>(),
+                            Type = fixture.Create<RoadNodeType>(),
+                            Geometry = GeometryTranslator.Translate(fixture.Create<NetTopologySuite.Geometries.Point>()),
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeRoadNodeRemoved(this IFixture fixture)
+        {
+            fixture.Customize<RoadNodeRemoved>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadNodeRemoved
+                        {
+                            Id = fixture.Create<RoadNodeId>(),
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
         public static void CustomizeRoadSegmentAdded(this IFixture fixture)
         {
             fixture.Customize<RoadSegmentAdded>(customization =>
