@@ -19,13 +19,13 @@ namespace RoadRegistry.BackOffice.Core
             Number = number;
         }
 
-        public Problems VerifyBefore(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            if (!context.View.Segments.TryGetValue(SegmentId, out var segment))
+            if (!context.BeforeView.Segments.TryGetValue(SegmentId, out var segment))
             {
                 problems = problems.Add(new RoadSegmentMissing(SegmentId));
             }
@@ -40,7 +40,7 @@ namespace RoadRegistry.BackOffice.Core
             return problems;
         }
 
-        public Problems VerifyAfter(VerificationContext context)
+        public Problems VerifyAfter(AfterVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 

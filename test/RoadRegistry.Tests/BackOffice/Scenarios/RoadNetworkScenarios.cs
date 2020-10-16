@@ -2191,8 +2191,8 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var random = new Random();
             var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(
-                StartPoint1.X + random.Next(1, 1000) / 1000.0 * VerificationContext.TooCloseDistance,
-                StartPoint1.Y + random.Next(1, 1000) / 1000.0 * VerificationContext.TooCloseDistance
+                StartPoint1.X + random.Next(1, 1000) / 1000.0 * Distances.TooClose,
+                StartPoint1.Y + random.Next(1, 1000) / 1000.0 * Distances.TooClose
             )) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()};
             AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
@@ -2300,8 +2300,8 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var random = new Random();
             var endPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(
-                EndPoint1.X + random.NextDouble() / 2.0 * VerificationContext.TooCloseDistance,
-                EndPoint1.Y + random.NextDouble() / 2.0 * VerificationContext.TooCloseDistance
+                EndPoint1.X + random.NextDouble() / 2.0 * Distances.TooClose,
+                EndPoint1.Y + random.NextDouble() / 2.0 * Distances.TooClose
             ));
             AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];

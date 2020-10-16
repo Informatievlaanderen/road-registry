@@ -19,20 +19,20 @@ namespace RoadRegistry.BackOffice.Core
         public RoadNodeType Type { get; }
         public Point Geometry { get; }
 
-        public Problems VerifyBefore(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             return Problems.None;
         }
 
-        public Problems VerifyAfter(VerificationContext context)
+        public Problems VerifyAfter(AfterVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
             var byOtherNode =
-                context.View.Nodes.Values.FirstOrDefault(n =>
+                context.AfterView.Nodes.Values.FirstOrDefault(n =>
                     n.Id != Id &&
                     n.Geometry.EqualsExact(Geometry));
             if (byOtherNode != null)
@@ -42,12 +42,12 @@ namespace RoadRegistry.BackOffice.Core
                 ));
             }
 
-            var node = context.View.Nodes[Id];
+            var node = context.AfterView.Nodes[Id];
 
-            problems = context.View.Segments.Values
+            problems = context.AfterView.Segments.Values
                 .Where(s =>
                     !node.Segments.Contains(s.Id) &&
-                    s.Geometry.IsWithinDistance(Geometry, VerificationContext.TooCloseDistance)
+                    s.Geometry.IsWithinDistance(Geometry, Distances.TooClose)
                 )
                 .Aggregate(
                     problems,
@@ -71,7 +71,7 @@ namespace RoadRegistry.BackOffice.Core
                 }
                 else if (Type == RoadNodeType.FakeNode)
                 {
-                    var segments = node.Segments.Select(segmentId => context.View.Segments[segmentId])
+                    var segments = node.Segments.Select(segmentId => context.AfterView.Segments[segmentId])
                         .ToArray();
                     var segment1 = segments[0];
                     var segment2 = segments[1];

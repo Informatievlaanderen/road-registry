@@ -52,7 +52,7 @@ namespace RoadRegistry.BackOffice.Core
                     .Select(requestedChange => new VerifiableChange(requestedChange))
                     .ToImmutableList();
 
-            var beforeContext = requestedChanges.CreateVerificationContext(_view);
+            var beforeContext = requestedChanges.CreateBeforeVerificationContext(_view);
             foreach (var verifiableChange in verifiableChanges)
             {
                 verifiableChanges = verifiableChanges
@@ -61,7 +61,7 @@ namespace RoadRegistry.BackOffice.Core
 
             if (!verifiableChanges.Any(change => change.HasErrors))
             {
-                var afterContext = requestedChanges.CreateVerificationContext(_view.With(requestedChanges));
+                var afterContext = beforeContext.CreateAfterVerificationContext(_view.With(requestedChanges));
                 foreach (var verifiableChange in verifiableChanges)
                 {
                     verifiableChanges = verifiableChanges

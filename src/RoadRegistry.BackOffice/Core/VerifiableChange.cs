@@ -23,7 +23,7 @@ namespace RoadRegistry.BackOffice.Core
         public bool HasErrors => _problems.OfType<Error>().Any();
         public bool HasWarnings => _problems.OfType<Warning>().Any();
 
-        public VerifiableChange VerifyBefore(VerificationContext context)
+        public VerifiableChange VerifyBefore(BeforeVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             return new VerifiableChange(
@@ -31,7 +31,7 @@ namespace RoadRegistry.BackOffice.Core
                 _problems.AddRange(_requestedChange.VerifyBefore(context)));
         }
 
-        public VerifiableChange VerifyAfter(VerificationContext context)
+        public VerifiableChange VerifyAfter(AfterVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             return new VerifiableChange(

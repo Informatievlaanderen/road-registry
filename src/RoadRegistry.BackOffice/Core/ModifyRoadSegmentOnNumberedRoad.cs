@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Core
 {
     using System;
-    using System.Linq;
 
     public class ModifyRoadSegmentOnNumberedRoad : IRequestedChange
     {
@@ -25,13 +24,13 @@ namespace RoadRegistry.BackOffice.Core
             Ordinal = ordinal;
         }
 
-        public Problems VerifyBefore(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            if (!context.View.Segments.ContainsKey(SegmentId))
+            if (!context.BeforeView.Segments.ContainsKey(SegmentId))
             {
                 problems = problems.Add(new RoadSegmentMissing(SegmentId));
             }
@@ -39,13 +38,13 @@ namespace RoadRegistry.BackOffice.Core
             return problems;
         }
 
-        public Problems VerifyAfter(VerificationContext context)
+        public Problems VerifyAfter(AfterVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            var segment = context.View.Segments[SegmentId];
+            var segment = context.AfterView.Segments[SegmentId];
             if (!segment.PartOfNumberedRoads.Contains(Number))
             {
                 problems = problems.Add(new NumberedRoadNumberNotFound(Number));

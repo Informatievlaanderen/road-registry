@@ -12,13 +12,13 @@ namespace RoadRegistry.BackOffice.Core
 
         public GradeSeparatedJunctionId Id { get; }
 
-        public Problems VerifyBefore(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            if (!context.View.GradeSeparatedJunctions.ContainsKey(Id))
+            if (!context.BeforeView.GradeSeparatedJunctions.ContainsKey(Id))
             {
                 problems = problems.Add(new GradeSeparatedJunctionNotFound());
             }
@@ -26,7 +26,7 @@ namespace RoadRegistry.BackOffice.Core
             return problems;
         }
 
-        public Problems VerifyAfter(VerificationContext context)
+        public Problems VerifyAfter(AfterVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 

@@ -436,10 +436,10 @@
                 : id;
         }
 
-        public VerificationContext CreateVerificationContext(IRoadNetworkView view)
+        public BeforeVerificationContext CreateBeforeVerificationContext(IRoadNetworkView view)
         {
             if (view == null) throw new ArgumentNullException(nameof(view));
-            return new VerificationContext(view, this);
+            return new BeforeVerificationContext(view, this, Tolerances.OneMillimeter);
         }
     }
 }

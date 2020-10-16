@@ -31,24 +31,24 @@ namespace RoadRegistry.BackOffice.Core
         public RoadSegmentId LowerSegmentId { get; }
         public RoadSegmentId? TemporaryLowerSegmentId { get; }
 
-        public Problems VerifyBefore(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             return Problems.None;
         }
 
-        public Problems VerifyAfter(VerificationContext context)
+        public Problems VerifyAfter(AfterVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            if (!context.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
+            if (!context.AfterView.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
             {
                 problems = problems.Add(new UpperRoadSegmentMissing());
             }
 
-            if (!context.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
+            if (!context.AfterView.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
             {
                 problems = problems.Add(new LowerRoadSegmentMissing());
             }

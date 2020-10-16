@@ -63,13 +63,13 @@ namespace RoadRegistry.BackOffice.Core
         public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
         public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
 
-        public Problems VerifyBefore(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            if (!context.View.Segments.ContainsKey(Id))
+            if (!context.BeforeView.Segments.ContainsKey(Id))
             {
                 problems = problems.Add(new RoadSegmentNotFound());
             }
@@ -253,14 +253,14 @@ namespace RoadRegistry.BackOffice.Core
             return problems;
         }
 
-        public Problems VerifyAfter(VerificationContext context)
+        public Problems VerifyAfter(AfterVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
             var byOtherSegment =
-                context.View.Segments.Values.FirstOrDefault(segment =>
+                context.AfterView.Segments.Values.FirstOrDefault(segment =>
                     segment.Id != Id &&
                     segment.Geometry.EqualsExact(Geometry));
             if (byOtherSegment != null)
@@ -274,7 +274,7 @@ namespace RoadRegistry.BackOffice.Core
                 .OfType<LineString>()
                 .Single();
 
-            if (!context.View.Nodes.TryGetValue(StartNodeId, out var startNode))
+            if (!context.AfterView.Nodes.TryGetValue(StartNodeId, out var startNode))
             {
                 problems = problems.Add(new RoadSegmentStartNodeMissing());
             }
@@ -286,7 +286,7 @@ namespace RoadRegistry.BackOffice.Core
                 }
             }
 
-            if (!context.View.Nodes.TryGetValue(EndNodeId, out var endNode))
+            if (!context.AfterView.Nodes.TryGetValue(EndNodeId, out var endNode))
             {
                 problems = problems.Add(new RoadSegmentEndNodeMissing());
             }
