@@ -393,6 +393,37 @@ namespace RoadRegistry.Projections
             );
         }
 
+        public static void CustomizeRoadSegmentAddedToEuropeanRoad(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentAddedToEuropeanRoad>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadSegmentAddedToEuropeanRoad
+                        {
+                            AttributeId = fixture.Create<AttributeId>(),
+                            TemporaryAttributeId = fixture.Create<AttributeId>(),
+                            SegmentId = fixture.Create<RoadSegmentId>(),
+                            Number = fixture.Create<EuropeanRoadNumber>(),
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeRoadSegmentRemovedFromEuropeanRoad(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentRemovedFromEuropeanRoad>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadSegmentRemovedFromEuropeanRoad
+                        {
+                            AttributeId = fixture.Create<AttributeId>(),
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
         public static void CustomizeRoadNetworkChangesAccepted(this IFixture fixture)
         {
             fixture.Customize<RoadNetworkChangesAccepted>(customization =>

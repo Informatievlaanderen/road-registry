@@ -88,7 +88,6 @@ namespace RoadRegistry.Product.Projections
                 .Scenario()
                 .Given(data.Select(d => d.ImportedRoadNode))
                 .Expect(data.Select(d => d.ExpectedRecord));
-
         }
 
         [Fact]
