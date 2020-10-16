@@ -67,6 +67,12 @@ namespace RoadRegistry.Editor.Projections
                                 }.ToBytes(manager, encoding)
                             });
                             break;
+                        case RoadSegmentRemovedFromNationalRoad nationalRoad:
+                            var roadSegmentNationalRoadAttributeRecord =
+                                await context.RoadSegmentNationalRoadAttributes.FindAsync(nationalRoad.AttributeId);
+
+                            context.RoadSegmentNationalRoadAttributes.Remove(roadSegmentNationalRoadAttributeRecord);
+                            break;
                     }
                 }
             });
