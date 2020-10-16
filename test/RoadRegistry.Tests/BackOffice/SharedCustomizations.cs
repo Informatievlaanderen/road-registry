@@ -162,7 +162,7 @@ namespace RoadRegistry.BackOffice
         public static void CustomizeNationalRoadNumber(this IFixture fixture)
         {
             fixture.Customize<NationalRoadNumber>(composer =>
-                composer.FromFactory<int>(value => NationalRoadNumber.All[Math.Abs(value) % NationalRoadNumber.All.Length]));
+                composer.FromFactory<int>(value => NationalRoadNumbers.All[Math.Abs(value) % NationalRoadNumbers.All.Length]));
         }
 
         public static void CustomizeNumberedRoadNumber(this IFixture fixture)

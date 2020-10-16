@@ -82,7 +82,7 @@ namespace RoadRegistry.BackOffice
                     new Generator<char>(_fixture)
                         .First(
                             candidate =>
-                                !NumberedRoadNumber.RoadTypes.Any(letter => letter.Equals(candidate))),
+                                !RoadTypes.All.Any(letter => letter.Equals(candidate))),
                     '1', '1', '1', '1', '1', '1', '1'
                 });
 
@@ -96,7 +96,7 @@ namespace RoadRegistry.BackOffice
             var roadType = generator
                 .First(
                     candidate =>
-                        NumberedRoadNumber.RoadTypes.Any(
+                        RoadTypes.All.Any(
                             letter => letter.Equals(candidate)));
             var not_a_digit_position = _fixture.Create<int>() % 6;
             var all_digits_except_for_one = new char[6];
@@ -124,7 +124,7 @@ namespace RoadRegistry.BackOffice
             var roadType = generator
                 .First(
                     candidate =>
-                        NumberedRoadNumber.RoadTypes.Any(
+                        RoadTypes.All.Any(
                             letter => letter.Equals(candidate)));
             var all_digits = new char[6];
             for (var index = 0; index < 6; index++)
@@ -176,7 +176,7 @@ namespace RoadRegistry.BackOffice
                     new Generator<char>(_fixture)
                         .First(
                             candidate =>
-                                !NumberedRoadNumber.RoadTypes.Any(
+                                !RoadTypes.All.Any(
                                     letter => letter.Equals(candidate))),
                     '1', '1', '1', '1', '1', '1', '1'
                 });
@@ -193,7 +193,7 @@ namespace RoadRegistry.BackOffice
             var roadType = generator
                 .First(
                     candidate =>
-                        NumberedRoadNumber.RoadTypes.Any(
+                        RoadTypes.All.Any(
                             letter => letter.Equals(candidate)));
             var not_a_digit_position = _fixture.Create<int>() % 6;
             var all_digits_except_for_one = new char[6];
@@ -223,7 +223,7 @@ namespace RoadRegistry.BackOffice
             var roadType = generator
                 .First(
                     candidate =>
-                        NumberedRoadNumber.RoadTypes.Any(
+                        RoadTypes.All.Any(
                             letter => letter.Equals(candidate)));
             var all_digits = new char[6];
             for (var index = 0; index < 6; index++)
@@ -275,7 +275,7 @@ namespace RoadRegistry.BackOffice
                     new Generator<char>(_fixture)
                         .First(
                             candidate =>
-                                !NumberedRoadNumber.RoadTypes.Any(
+                                !RoadTypes.All.Any(
                                     letter => letter.Equals(candidate))),
                     '1', '1', '1', '1', '1', '1', '1'
                 });
@@ -291,7 +291,7 @@ namespace RoadRegistry.BackOffice
             var roadType = generator
                 .First(
                     candidate =>
-                        NumberedRoadNumber.RoadTypes.Any(
+                        RoadTypes.All.Any(
                             letter => letter.Equals(candidate)));
             var not_a_digit_position = _fixture.Create<int>() % 6;
             var all_digits_except_for_one = new char[6];
@@ -320,7 +320,7 @@ namespace RoadRegistry.BackOffice
             var roadType = generator
                 .First(
                     candidate =>
-                        NumberedRoadNumber.RoadTypes.Any(
+                        RoadTypes.All.Any(
                             letter => letter.Equals(candidate)));
             var all_digits = new char[6];
             for (var index = 0; index < 6; index++)

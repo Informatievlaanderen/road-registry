@@ -214,7 +214,7 @@ namespace RoadRegistry.BackOffice.Simulator
             var nationalRoadRecord = new NationalRoadChangeDbaseRecord();
             nationalRoadRecord.NW_OIDN.Value = 1;
             nationalRoadRecord.WS_OIDN.Value = 1;
-            nationalRoadRecord.IDENT2.Value = NationalRoadNumber.All[5].ToString();
+            nationalRoadRecord.IDENT2.Value = NationalRoadNumber.Parse("R0").ToString();
             nationalRoadRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
 
             var nationalDbaseHeader = new DbaseFileHeader(

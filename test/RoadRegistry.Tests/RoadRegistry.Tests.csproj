@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="BackOffice\Api\empty.zip" />
+    <EmbeddedResource Include="BackOffice\ident2.txt" />
     <EmbeddedResource Include="BackOffice\ident8.txt" />
   </ItemGroup>
 

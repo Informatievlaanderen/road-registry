@@ -830,6 +830,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     {
                                         new Messages.ProblemParameter
                                         {
+                                            Name = "RoadNodeId",
+                                            Value = ModifyStartNode1.Id.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
                                             Name = "ConnectedSegmentCount",
                                             Value = "1"
                                         },
@@ -914,6 +919,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     Reason = "RoadNodeTypeMismatch",
                                     Parameters = new []
                                     {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = ModifyEndNode1.Id.ToString()
+                                        },
                                         new Messages.ProblemParameter
                                         {
                                             Name = "ConnectedSegmentCount",
@@ -1061,6 +1071,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     Reason = "RoadNodeTypeMismatch",
                                     Parameters = new[]
                                     {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = ModifyStartNode1.Id.ToString()
+                                        },
                                         new Messages.ProblemParameter
                                         {
                                             Name = "ConnectedSegmentCount",
@@ -1219,6 +1234,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     Reason = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
                                     Parameters = new []
                                     {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = ModifyStartNode1.Id.ToString()
+                                        },
                                         new Messages.ProblemParameter
                                         {
                                             Name = "SegmentId",
@@ -1533,6 +1553,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     {
                                         new Messages.ProblemParameter
                                         {
+                                            Name = "RoadNodeId",
+                                            Value = ModifyEndNode1.Id.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
                                             Name = "ConnectedSegmentCount",
                                             Value = "2"
                                         },
@@ -1690,6 +1715,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     Reason = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
                                     Parameters = new []
                                     {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = ModifyEndNode1.Id.ToString()
+                                        },
                                         new Messages.ProblemParameter
                                         {
                                             Name = "SegmentId",

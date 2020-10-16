@@ -795,7 +795,14 @@ namespace RoadRegistry.BackOffice.Scenarios
                                 new Messages.Problem
                                 {
                                     Reason = "RoadNodeNotConnectedToAnySegment",
-                                    Parameters = new Messages.ProblemParameter[0]
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -852,6 +859,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     Reason = "RoadNodeTypeMismatch",
                                     Parameters = new []
                                     {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
                                         new Messages.ProblemParameter
                                         {
                                             Name = "ConnectedSegmentCount",
@@ -924,6 +936,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     Reason = "RoadNodeTypeMismatch",
                                     Parameters = new []
                                     {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddEndNode1.TemporaryId.ToString()
+                                        },
                                         new Messages.ProblemParameter
                                         {
                                             Name = "ConnectedSegmentCount",
@@ -1055,6 +1072,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     Reason = "RoadNodeTypeMismatch",
                                     Parameters = new []
                                     {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
                                         new Messages.ProblemParameter
                                         {
                                             Name = "ConnectedSegmentCount",
@@ -1196,6 +1218,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     Reason = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
                                     Parameters = new []
                                     {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
                                         new Messages.ProblemParameter
                                         {
                                             Name = "SegmentId",
@@ -1510,6 +1537,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     {
                                         new Messages.ProblemParameter
                                         {
+                                            Name = "RoadNodeId",
+                                            Value = AddEndNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
                                             Name = "ConnectedSegmentCount",
                                             Value = "2"
                                         },
@@ -1677,6 +1709,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     {
                                         new Messages.ProblemParameter
                                         {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
                                             Name = "ConnectedSegmentCount",
                                             Value = "3"
                                         },
@@ -1842,6 +1879,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     Reason = "RoadNodeTypeMismatch",
                                     Parameters = new []
                                     {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddEndNode1.TemporaryId.ToString()
+                                        },
                                         new Messages.ProblemParameter
                                         {
                                             Name = "ConnectedSegmentCount",

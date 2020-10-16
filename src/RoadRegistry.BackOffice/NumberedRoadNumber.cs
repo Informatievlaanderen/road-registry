@@ -1,21 +1,11 @@
 namespace RoadRegistry.BackOffice
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
 
     public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>
     {
         private readonly char[] _value;
-
-        public static readonly IReadOnlyCollection<char> RoadTypes = new []
-        {
-            'A',
-            'B',
-            'N',
-            'R',
-            'T'
-        };
 
         private NumberedRoadNumber(char[] value)
         {
@@ -27,7 +17,7 @@ namespace RoadRegistry.BackOffice
             if (value == null) throw new ArgumentNullException(nameof(value));
 
             return value.Length == 8
-                   && RoadTypes.Any(candidate => candidate.Equals(value[0]))
+                   && RoadTypes.All.Any(candidate => candidate.Equals(value[0]))
                    && Enumerable.Range(1, 7).All(position => char.IsDigit(value[position]))
                    && (value[7] == '1' || value[7] == '2');
         }
@@ -42,7 +32,7 @@ namespace RoadRegistry.BackOffice
                 return false;
             }
 
-            if (!RoadTypes.Any(candidate => candidate.Equals(value[0])))
+            if (!RoadTypes.All.Any(candidate => candidate.Equals(value[0])))
             {
                 parsed = default;
                 return false;
@@ -73,9 +63,9 @@ namespace RoadRegistry.BackOffice
                 throw new FormatException($"The numbered road number value must be exactly 8 characters long. Actual value was {value}.");
             }
 
-            if (!RoadTypes.Any(candidate => candidate.Equals(value[0])))
+            if (!RoadTypes.All.Any(candidate => candidate.Equals(value[0])))
             {
-                throw new FormatException($"The numbered road number value must have a road type of {string.Join(',', RoadTypes)}. Actual value was {value}.");
+                throw new FormatException($"The numbered road number value must have a road type of {string.Join(',', RoadTypes.All)}. Actual value was {value}.");
             }
 
             if (!Enumerable.Range(1, 7).All(position => char.IsDigit(value[position])))

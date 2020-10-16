@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="ident2.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
   </ItemGroup>
 
