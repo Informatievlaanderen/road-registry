@@ -116,17 +116,17 @@ namespace RoadRegistry.BackOffice.Core
 
             if (Segments.Count == 0)
             {
-                problems = problems.Add(new RoadNodeNotConnectedToAnySegment(Id));
+                problems = problems.Add(new RoadNodeNotConnectedToAnySegment(translator.TranslateToTemporaryOrId(Id)));
             }
             else if (Segments.Count == 1 && Type != RoadNodeType.EndNode)
             {
-                problems = problems.Add(RoadNodeTypeMismatch.New(Id, Segments.Count, Type, new []{RoadNodeType.EndNode}));
+                problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Count, Type, new []{RoadNodeType.EndNode}));
             }
             else if (Segments.Count == 2)
             {
                 if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
                 {
-                    problems = problems.Add(RoadNodeTypeMismatch.New(Id, Segments.Count, Type, new []{RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode}));
+                    problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Count, Type, new []{RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode}));
                 }
                 else if (Type == RoadNodeType.FakeNode)
                 {
@@ -136,7 +136,8 @@ namespace RoadRegistry.BackOffice.Core
                     var segment2 = segments[1];
                     if (segment1.AttributeHash.Equals(segment2.AttributeHash))
                     {
-                        problems = problems.Add(new FakeRoadNodeConnectedSegmentsDoNotDiffer(Id,
+                        problems = problems.Add(new FakeRoadNodeConnectedSegmentsDoNotDiffer(
+                            translator.TranslateToTemporaryOrId(Id),
                             translator.TranslateToTemporaryOrId(segment1.Id),
                             translator.TranslateToTemporaryOrId(segment2.Id)
                         ));
@@ -145,7 +146,7 @@ namespace RoadRegistry.BackOffice.Core
             }
             else if (Segments.Count > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
             {
-                problems = problems.Add(RoadNodeTypeMismatch.New(Id, Segments.Count, Type, new []{RoadNodeType.RealNode, RoadNodeType.MiniRoundabout}));
+                problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Count, Type, new []{RoadNodeType.RealNode, RoadNodeType.MiniRoundabout}));
             }
 
             return problems;

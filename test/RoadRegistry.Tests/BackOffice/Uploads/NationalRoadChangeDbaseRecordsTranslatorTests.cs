@@ -124,7 +124,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.ModifiedIdentifier:
                             break; // modify case is not handled - we need to verify that this does not appear
                         case RecordType.RemovedIdentifier:
-                            previousChanges.Append(
+                            nextChanges = previousChanges.Append(
                                 new Uploads.RemoveRoadSegmentFromNationalRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new AttributeId(current.NW_OIDN.Value),

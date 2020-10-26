@@ -22,6 +22,22 @@ namespace RoadRegistry.BackOffice.Core
             return dictionary;
         }
 
+        public static ImmutableDictionary<TKey, TValue> TryReplaceIf<TKey, TValue>(
+            this ImmutableDictionary<TKey, TValue> dictionary,
+            TKey key,
+            Predicate<TValue> predicate,
+            Converter<TValue, TValue> replacer
+        )
+        {
+            if(dictionary.TryGetValue(key, out var value) && predicate(value))
+            {
+                return dictionary
+                    .Remove(key)
+                    .Add(key, replacer(value));
+            }
+            return dictionary;
+        }
+
         public static ImmutableDictionary<TKey, TValue>.Builder TryReplace<TKey, TValue>(
             this ImmutableDictionary<TKey, TValue>.Builder dictionary,
             TKey key,
@@ -29,6 +45,21 @@ namespace RoadRegistry.BackOffice.Core
         )
         {
             if(dictionary.TryGetValue(key, out var value))
+            {
+                dictionary[key] = replacer(value);
+            }
+
+            return dictionary;
+        }
+
+        public static ImmutableDictionary<TKey, TValue>.Builder TryReplaceIf<TKey, TValue>(
+            this ImmutableDictionary<TKey, TValue>.Builder dictionary,
+            TKey key,
+            Predicate<TValue> predicate,
+            Converter<TValue, TValue> replacer
+        )
+        {
+            if(dictionary.TryGetValue(key, out var value) && predicate(value))
             {
                 dictionary[key] = replacer(value);
             }

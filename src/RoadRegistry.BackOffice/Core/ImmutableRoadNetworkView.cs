@@ -911,7 +911,7 @@ namespace RoadRegistry.BackOffice.Core
         private ImmutableRoadNetworkView With(ModifyRoadNode command)
         {
             return new ImmutableRoadNetworkView(
-                _nodes.TryReplace(command.Id, node => node.WithGeometry(command.Geometry)),
+                _nodes.TryReplace(command.Id, node => node.WithGeometry(command.Geometry).WithType(command.Type)),
                 _segments,
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
@@ -1005,8 +1005,8 @@ namespace RoadRegistry.BackOffice.Core
                 _nodes
                     .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
                     .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id))
-                    .TryReplace(segmentBefore.Start, node => node.DisconnectFrom(command.Id))
-                    .TryReplace(segmentBefore.End, node => node.DisconnectFrom(command.Id)),
+                    .TryReplaceIf(segmentBefore.Start, node => node.Id != command.StartNodeId, node => node.DisconnectFrom(command.Id))
+                    .TryReplaceIf(segmentBefore.End, node => node.Id != command.EndNodeId, node => node.DisconnectFrom(command.Id)),
                 _segments.
                     TryReplace(command.Id, segment => segment
                         .WithGeometry(command.Geometry)
@@ -2013,7 +2013,7 @@ namespace RoadRegistry.BackOffice.Core
 
             private void With(ModifyRoadNode command)
             {
-                //Place holder
+                _nodes[command.Id] = _nodes[command.Id].WithGeometry(command.Geometry).WithType(command.Type);
             }
 
             private void With(RemoveRoadNode command)
@@ -2058,10 +2058,13 @@ namespace RoadRegistry.BackOffice.Core
                     command.RightSideStreetNameId,
                     command.MaintenanceAuthority);
 
-                //TODO: Disconnect previous nodes first
+                var segmentBefore = _segments[command.Id];
+
                 _nodes
                     .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
-                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id));
+                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id))
+                    .TryReplaceIf(segmentBefore.Start, node => node.Id != command.StartNodeId, node => node.DisconnectFrom(command.Id))
+                    .TryReplaceIf(segmentBefore.End, node => node.Id != command.EndNodeId, node => node.DisconnectFrom(command.Id));
                 _segments.TryReplace(command.Id, segment =>
                     segment
                         .WithGeometry(command.Geometry)
