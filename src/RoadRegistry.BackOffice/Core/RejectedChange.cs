@@ -1,17 +1,17 @@
 namespace RoadRegistry.BackOffice.Core
 {
-    using System.Collections.Generic;
+    using System;
     using System.Linq;
 
     public class RejectedChange : IVerifiedChange
     {
-        private readonly IRequestedChange _change;
-        private readonly IReadOnlyCollection<Problem> _problems;
+        private readonly IRequestedChange _requestedChange;
+        private readonly Problems _problems;
 
-        public RejectedChange(IRequestedChange change, IReadOnlyCollection<Problem> problems)
+        public RejectedChange(IRequestedChange change, Problems problems)
         {
-            _change = change;
-            _problems = problems;
+            _requestedChange = change ?? throw new ArgumentNullException(nameof(change));
+            _problems = problems ?? throw new ArgumentNullException(nameof(problems));
         }
 
         public Messages.RejectedChange Translate()
@@ -20,7 +20,7 @@ namespace RoadRegistry.BackOffice.Core
             {
                 Problems = _problems.Select(problem => problem.Translate()).ToArray()
             };
-            _change.TranslateTo(message);
+            _requestedChange.TranslateTo(message);
             return message;
         }
     }

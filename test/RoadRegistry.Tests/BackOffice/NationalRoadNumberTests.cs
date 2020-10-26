@@ -15,7 +15,7 @@ namespace RoadRegistry.BackOffice
         public NationalRoadNumberTests()
         {
             _fixture = new Fixture();
-            _knownValues = Array.ConvertAll(NationalRoadNumber.All, type => type.ToString());
+            _knownValues = Array.ConvertAll(NationalRoadNumbers.All, type => type.ToString());
         }
 
         [Fact]
@@ -41,14 +41,6 @@ namespace RoadRegistry.BackOffice
         }
 
         [Fact]
-        public void AllReturnsExpectedResult()
-        {
-            Assert.Equal(
-                747,
-                NationalRoadNumber.All.Length);
-        }
-
-        [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = _knownValues[new Random().Next(0, _knownValues.Length)];
@@ -65,18 +57,95 @@ namespace RoadRegistry.BackOffice
         }
 
         [Fact]
-        public void ParseReturnsExpectedResultWhenValueIsWellKnown()
+        public void ParseReturnsExpectedResultWhenValueIsWellFormed()
         {
-            _fixture.Customizations.Add(
-                new FiniteSequenceGenerator<string>(_knownValues));
-            var value = _fixture.Create<string>();
-            Assert.NotNull(NationalRoadNumber.Parse(value));
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+            Assert.Equal(value, NationalRoadNumber.Parse(value).ToString());
         }
 
         [Fact]
-        public void ParseReturnsExpectedResultWhenValueIsUnknown()
+        public void ParseThrowsWhenValueIsNotBetween2And5CharactersLong()
         {
-            var value = _fixture.Create<string>();
+            var value =
+                new Generator<string>(_fixture)
+                    .First(candidate => candidate.Length < 2 || candidate.Length > 5);
+
+            Assert.Throws<FormatException>(() => NationalRoadNumber.Parse(value));
+        }
+
+        [Fact]
+        public void ParseThrowsWhenValueDoesNotStartWithAcceptableRoadType()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                !RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    '2'
+                });
+
+            Assert.Throws<FormatException>(() => NationalRoadNumber.Parse(value));
+        }
+
+        [Fact]
+        public void ParseThrowsWhenValueDoesNotHaveDigitAsSecondCharacter()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    new Generator<char>(_fixture)
+                        .First(candidate => !char.IsDigit(candidate))
+                });
+
+            Assert.Throws<FormatException>(() => NationalRoadNumber.Parse(value));
+        }
+
+        [Fact]
+        public void ParseThrowsWhenValueLongerThan3CharactersDoesNotHaveDigitFromTheThirdUntilTheSecondLastCharacter()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    new Generator<char>(_fixture)
+                        .First(char.IsDigit)
+                })
+                + new string(new Generator<char>(_fixture)
+                    .First(candidate => !char.IsDigit(candidate)),
+                    new Random().Next(1, 3)
+                )
+                + new string(new Generator<char>(_fixture).First(char.IsLetter), 1);
+
+            Assert.Throws<FormatException>(() => NationalRoadNumber.Parse(value));
+        }
+
+        [Fact]
+        public void ParseThrowsWhenValueLongerThan2CharactersDoesNotHaveDigitOrLetterAsLastCharacter()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    new Generator<char>(_fixture)
+                        .First(char.IsDigit)
+                })
+                + new string(new Generator<char>(_fixture)
+                        .First(candidate => !char.IsDigit(candidate) && !char.IsLetter(candidate)),
+                    1
+                );
+
             Assert.Throws<FormatException>(() => NationalRoadNumber.Parse(value));
         }
 
@@ -87,23 +156,110 @@ namespace RoadRegistry.BackOffice
         }
 
         [Fact]
-        public void TryParseReturnsExpectedResultWhenValueIsWellKnown()
+        public void TryParseReturnsExpectedResultWhenValueIsWellFormed()
         {
             var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-            var result = NationalRoadNumber.TryParse(value, out NationalRoadNumber parsed);
+            var result = NationalRoadNumber.TryParse(value, out var parsed);
             Assert.True(result);
-            Assert.NotNull(parsed);
             Assert.Equal(value, parsed.ToString());
         }
 
         [Fact]
-        public void TryParseReturnsExpectedResultWhenValueIsUnknown()
+        public void TryParseReturnsExpectedResultWhenValueIsNotBetween2And5CharactersLong()
         {
-            var value = new Generator<string>(_fixture).First(candidate => !_knownValues.Contains(candidate));
-            var result = NationalRoadNumber.TryParse(value, out NationalRoadNumber parsed);
+            var value =
+                new Generator<string>(_fixture)
+                    .First(candidate => candidate.Length < 2 || candidate.Length > 5);
+            var result = NationalRoadNumber.TryParse(value, out var parsed);
             Assert.False(result);
-            Assert.Null(parsed);
+            Assert.Equal(default, parsed);
         }
+
+        [Fact]
+        public void TryParseReturnsExpectedResultWhenValueDoesNotStartWithAcceptableRoadType()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                !RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    '2'
+                });
+
+            var result = NationalRoadNumber.TryParse(value, out var parsed);
+            Assert.False(result);
+            Assert.Equal(default, parsed);
+        }
+
+        [Fact]
+        public void TryParseReturnsExpectedResultWhenValueDoesNotHaveDigitAsSecondCharacter()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    new Generator<char>(_fixture)
+                        .First(candidate => !char.IsDigit(candidate))
+                });
+
+            var result = NationalRoadNumber.TryParse(value, out var parsed);
+            Assert.False(result);
+            Assert.Equal(default, parsed);
+        }
+
+        [Fact]
+        public void TryParseReturnsExpectedResultWhenValueLongerThan3CharactersDoesNotHaveDigitFromTheThirdUntilTheSecondLastCharacter()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    new Generator<char>(_fixture)
+                        .First(char.IsDigit)
+                })
+                + new string(new Generator<char>(_fixture)
+                    .First(candidate => !char.IsDigit(candidate)),
+                    new Random().Next(1, 3)
+                )
+                + new string(new Generator<char>(_fixture).First(char.IsLetter), 1);
+
+            var result = NationalRoadNumber.TryParse(value, out var parsed);
+            Assert.False(result);
+            Assert.Equal(default, parsed);
+        }
+
+        [Fact]
+        public void TryParseReturnsExpectedResultWhenValueLongerThan2CharactersDoesNotHaveDigitOrLetterAsLastCharacter()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    new Generator<char>(_fixture)
+                        .First(char.IsDigit)
+                })
+                + new string(new Generator<char>(_fixture)
+                        .First(candidate => !char.IsDigit(candidate) && !char.IsLetter(candidate)),
+                    1
+                );
+
+            var result = NationalRoadNumber.TryParse(value, out var parsed);
+            Assert.False(result);
+            Assert.Equal(default, parsed);
+        }
+
+        // --
 
         [Fact]
         public void CanParseValueCanNotBeNull()
@@ -112,19 +268,101 @@ namespace RoadRegistry.BackOffice
         }
 
         [Fact]
-        public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+        public void CanParseReturnsExpectedResultWhenValueIsWellFormed()
         {
-            var value = _fixture.Create<string>();
+            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+            var result = NationalRoadNumber.CanParse(value);
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueIsNotBetween2And5CharactersLong()
+        {
+            var value =
+                new Generator<string>(_fixture)
+                    .First(candidate => candidate.Length < 2 || candidate.Length > 5);
             var result = NationalRoadNumber.CanParse(value);
             Assert.False(result);
         }
 
         [Fact]
-        public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+        public void CanParseReturnsExpectedResultWhenValueDoesNotStartWithAcceptableRoadType()
         {
-            var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                !RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    '2'
+                });
+
             var result = NationalRoadNumber.CanParse(value);
-            Assert.True(result);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueDoesNotHaveDigitAsSecondCharacter()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    new Generator<char>(_fixture)
+                        .First(candidate => !char.IsDigit(candidate))
+                });
+
+            var result = NationalRoadNumber.CanParse(value);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueLongerThan3CharactersDoesNotHaveDigitFromTheThirdUntilTheSecondLastCharacter()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    new Generator<char>(_fixture)
+                        .First(char.IsDigit)
+                })
+                + new string(new Generator<char>(_fixture)
+                    .First(candidate => !char.IsDigit(candidate)),
+                    new Random().Next(1, 3)
+                )
+                + new string(new Generator<char>(_fixture).First(char.IsLetter), 1);
+
+            var result = NationalRoadNumber.CanParse(value);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void CanParseReturnsExpectedResultWhenValueLongerThan2CharactersDoesNotHaveDigitOrLetterAsLastCharacter()
+        {
+            var value =
+                new string(new []
+                {
+                    new Generator<char>(_fixture)
+                        .First(
+                            candidate =>
+                                RoadTypes.All.Any(letter => letter.Equals(candidate))),
+                    new Generator<char>(_fixture)
+                        .First(char.IsDigit)
+                })
+                + new string(new Generator<char>(_fixture)
+                        .First(candidate => !char.IsDigit(candidate) && !char.IsLetter(candidate)),
+                    1
+                );
+
+            var result = NationalRoadNumber.CanParse(value);
+            Assert.False(result);
         }
     }
 }

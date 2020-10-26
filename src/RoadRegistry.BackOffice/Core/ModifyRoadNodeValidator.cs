@@ -6,7 +6,7 @@ namespace RoadRegistry.BackOffice.Core
     {
         public ModifyRoadNodeValidator()
         {
-            RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
+            RuleFor(c => c.Id).GreaterThanOrEqualTo(1);
             RuleFor(c => c.Type)
                 .NotEmpty()
                 .Must(RoadNodeType.CanParse)

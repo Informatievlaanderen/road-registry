@@ -77,7 +77,7 @@ namespace RoadRegistry.Editor.Projections
                             {
                                 GW_OIDN = { Value = numberedRoad.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
-                                IDENT8 = { Value = numberedRoad.Ident8 },
+                                IDENT8 = { Value = numberedRoad.Number },
                                 RICHTING = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Identifier },
                                 LBLRICHT = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Name },
                                 VOLGNUMMER = { Value = numberedRoad.Ordinal },

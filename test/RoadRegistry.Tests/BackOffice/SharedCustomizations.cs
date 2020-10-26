@@ -53,6 +53,24 @@ namespace RoadRegistry.BackOffice
             );
         }
 
+        public static void CustomizeCrabStreetnameId(this IFixture fixture)
+        {
+            fixture.Customize<CrabStreetnameId>(composer =>
+                composer.FromFactory(generator =>
+                {
+                    switch (generator.Next() % 3)
+                    {
+                        case 0:
+                            return new CrabStreetnameId(CrabStreetnameId.Unknown);
+                        case 1:
+                            return new CrabStreetnameId(CrabStreetnameId.NotApplicable);
+                        default:
+                            return new CrabStreetnameId(generator.Next(0, int.MaxValue));
+                    }
+                })
+            );
+        }
+
         public static void CustomizeArchiveId(this IFixture fixture)
         {
             fixture.Customize<ArchiveId>(composer =>
@@ -144,7 +162,7 @@ namespace RoadRegistry.BackOffice
         public static void CustomizeNationalRoadNumber(this IFixture fixture)
         {
             fixture.Customize<NationalRoadNumber>(composer =>
-                composer.FromFactory<int>(value => NationalRoadNumber.All[Math.Abs(value) % NationalRoadNumber.All.Length]));
+                composer.FromFactory<int>(value => NationalRoadNumbers.All[Math.Abs(value) % NationalRoadNumbers.All.Length]));
         }
 
         public static void CustomizeNumberedRoadNumber(this IFixture fixture)

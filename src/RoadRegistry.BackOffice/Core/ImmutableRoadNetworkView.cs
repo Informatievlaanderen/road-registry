@@ -524,18 +524,17 @@ namespace RoadRegistry.BackOffice.Core
                     : new CrabStreetnameId?(),
                 new OrganizationId(@event.MaintenanceAuthority.Code));
 
-            var segment = new RoadSegment(
-                id,
-                GeometryTranslator.Translate(@event.Geometry),
-                start,
-                end,
-                attributeHash);
-
             return new ImmutableRoadNetworkView(
                 _nodes
                     .TryReplace(start, node => node.ConnectWith(id))
                     .TryReplace(end, node => node.ConnectWith(id)),
-                _segments.Add(id, segment),
+                _segments
+                    .TryReplace(id, segment => segment
+                        .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
+                        .WithStart(start)
+                        .WithEnd(end)
+                        .WithAttributeHash(attributeHash)
+                    ),
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
                 _maximumNodeId,
@@ -571,11 +570,12 @@ namespace RoadRegistry.BackOffice.Core
         private ImmutableRoadNetworkView Given(Messages.RoadSegmentRemoved @event)
         {
             var id = new RoadSegmentId(@event.Id);
-            var segment = _segments[id];
             return new ImmutableRoadNetworkView(
-                _nodes
+                _segments.TryGetValue(id, out var segment)
+                ? _nodes
                     .TryReplace(segment.Start, node => node.DisconnectFrom(id))
-                    .TryReplace(segment.End, node => node.DisconnectFrom(id)),
+                    .TryReplace(segment.End, node => node.DisconnectFrom(id))
+                : _nodes,
                 _segments.Remove(id),
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
@@ -911,7 +911,7 @@ namespace RoadRegistry.BackOffice.Core
         private ImmutableRoadNetworkView With(ModifyRoadNode command)
         {
             return new ImmutableRoadNetworkView(
-                _nodes.TryReplace(command.Id, node => node.WithGeometry(command.Geometry)),
+                _nodes.TryReplace(command.Id, node => node.WithGeometry(command.Geometry).WithType(command.Type)),
                 _segments,
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
@@ -999,12 +999,14 @@ namespace RoadRegistry.BackOffice.Core
                 command.RightSideStreetNameId,
                 command.MaintenanceAuthority);
 
+            var segmentBefore = _segments[command.Id];
+
             return new ImmutableRoadNetworkView(
-                //TODO: What if you used different start and end nodes
-                //We will want to disconnect those first, no?
                 _nodes
                     .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
-                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id)),
+                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id))
+                    .TryReplaceIf(segmentBefore.Start, node => node.Id != command.StartNodeId, node => node.DisconnectFrom(command.Id))
+                    .TryReplaceIf(segmentBefore.End, node => node.Id != command.EndNodeId, node => node.DisconnectFrom(command.Id)),
                 _segments.
                     TryReplace(command.Id, segment => segment
                         .WithGeometry(command.Geometry)
@@ -1033,11 +1035,12 @@ namespace RoadRegistry.BackOffice.Core
 
         private ImmutableRoadNetworkView With(RemoveRoadSegment command)
         {
-            var segment = _segments[command.Id];
             return new ImmutableRoadNetworkView(
-                _nodes
-                    .TryReplace(segment.Start, node => node.DisconnectFrom(command.Id))
-                    .TryReplace(segment.End, node => node.DisconnectFrom(command.Id)),
+                _segments.TryGetValue(command.Id, out var segment)
+                    ? _nodes
+                        .TryReplace(segment.Start, node => node.DisconnectFrom(command.Id))
+                        .TryReplace(segment.End, node => node.DisconnectFrom(command.Id))
+                    : _nodes,
                 _segments.Remove(command.Id),
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
@@ -1301,13 +1304,20 @@ namespace RoadRegistry.BackOffice.Core
                         Category = segment.Value.AttributeHash.Category,
                         Morphology = segment.Value.AttributeHash.Morphology,
                         Status = segment.Value.AttributeHash.Status,
-                        LeftStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
-                        RightStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
+                        LeftSideStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
+                        RightSideStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
                         OrganizationId = segment.Value.AttributeHash.OrganizationId
                     },
                     PartOfEuropeanRoads = segment.Value.PartOfEuropeanRoads.Select(number => number.ToString()).ToArray(),
                     PartOfNationalRoads = segment.Value.PartOfNationalRoads.Select(number => number.ToString()).ToArray(),
                     PartOfNumberedRoads = segment.Value.PartOfNumberedRoads.Select(number => number.ToString()).ToArray()
+                }).ToArray(),
+                GradeSeparatedJunctions = _gradeSeparatedJunctions.Select(gradeSeparatedJunction => new Messages.RoadNetworkSnapshotGradeSeparatedJunction
+                {
+                    Id = gradeSeparatedJunction.Value.Id,
+                    Type = gradeSeparatedJunction.Value.Type,
+                    UpperSegmentId = gradeSeparatedJunction.Value.UpperSegment,
+                    LowerSegmentId = gradeSeparatedJunction.Value.LowerSegment
                 }).ToArray(),
                 MaximumTransactionId = _maximumTransactionId.ToInt32(),
                 MaximumNodeId = _maximumNodeId.ToInt32(),
@@ -1347,7 +1357,13 @@ namespace RoadRegistry.BackOffice.Core
 
             return new ImmutableRoadNetworkView(
                 snapshot.Nodes.ToImmutableDictionary(node => new RoadNodeId(node.Id),
-                    node => new RoadNode(new RoadNodeId(node.Id), RoadNodeType.Parse(node.Type), GeometryTranslator.Translate(node.Geometry))),
+                    node =>
+                    {
+                        var roadNode = new RoadNode(new RoadNodeId(node.Id), RoadNodeType.Parse(node.Type),
+                            GeometryTranslator.Translate(node.Geometry));
+
+                        return node.Segments.Aggregate(roadNode, (current, segment) => current.ConnectWith(new RoadSegmentId(segment)));
+                    }),
                 snapshot.Segments.ToImmutableDictionary(segment => new RoadSegmentId(segment.Id),
                     segment =>
                     {
@@ -1358,16 +1374,16 @@ namespace RoadRegistry.BackOffice.Core
                                 RoadSegmentCategory.Parse(segment.AttributeHash.Category),
                                 RoadSegmentMorphology.Parse(segment.AttributeHash.Morphology),
                                 RoadSegmentStatus.Parse(segment.AttributeHash.Status),
-                                segment.AttributeHash.LeftStreetNameId.HasValue
-                                    ? new CrabStreetnameId(segment.AttributeHash.LeftStreetNameId.Value)
+                                segment.AttributeHash.LeftSideStreetNameId.HasValue
+                                    ? new CrabStreetnameId(segment.AttributeHash.LeftSideStreetNameId.Value)
                                     : new CrabStreetnameId?(),
-                                segment.AttributeHash.RightStreetNameId.HasValue
-                                    ? new CrabStreetnameId(segment.AttributeHash.RightStreetNameId.Value)
+                                segment.AttributeHash.RightSideStreetNameId.HasValue
+                                    ? new CrabStreetnameId(segment.AttributeHash.RightSideStreetNameId.Value)
                                     : new CrabStreetnameId?(),
                                 new OrganizationId(segment.AttributeHash.OrganizationId)));
                         roadSegment = segment.PartOfEuropeanRoads.Aggregate(roadSegment, (current, number) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(number)));
                         roadSegment = segment.PartOfNationalRoads.Aggregate(roadSegment, (current, number) => current.PartOfNationalRoad(NationalRoadNumber.Parse(number)));
-                        roadSegment = segment.PartOfNationalRoads.Aggregate(roadSegment, (current, number) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(number)));
+                        roadSegment = segment.PartOfNumberedRoads.Aggregate(roadSegment, (current, number) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(number)));
                         return roadSegment;
                     }),
                 snapshot.GradeSeparatedJunctions.ToImmutableDictionary(gradeSeparatedJunction => new GradeSeparatedJunctionId(gradeSeparatedJunction.Id),
@@ -1844,9 +1860,12 @@ namespace RoadRegistry.BackOffice.Core
             private void Given(Messages.RoadSegmentRemoved @event)
             {
                 var id = new RoadSegmentId(@event.Id);
-                var segment = _segments[id];
-                _nodes.TryReplace(segment.Start, node => node.DisconnectFrom(id));
-                _nodes.TryReplace(segment.End, node => node.DisconnectFrom(id));
+                if (_segments.TryGetValue(id, out var segment))
+                {
+                    _nodes.TryReplace(segment.Start, node => node.DisconnectFrom(id));
+                    _nodes.TryReplace(segment.End, node => node.DisconnectFrom(id));
+                }
+
                 _segments.Remove(id);
             }
 
@@ -1994,7 +2013,7 @@ namespace RoadRegistry.BackOffice.Core
 
             private void With(ModifyRoadNode command)
             {
-                //Place holder
+                _nodes[command.Id] = _nodes[command.Id].WithGeometry(command.Geometry).WithType(command.Type);
             }
 
             private void With(RemoveRoadNode command)
@@ -2039,10 +2058,13 @@ namespace RoadRegistry.BackOffice.Core
                     command.RightSideStreetNameId,
                     command.MaintenanceAuthority);
 
-                //TODO: Disconnect previous nodes first
+                var segmentBefore = _segments[command.Id];
+
                 _nodes
                     .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
-                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id));
+                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id))
+                    .TryReplaceIf(segmentBefore.Start, node => node.Id != command.StartNodeId, node => node.DisconnectFrom(command.Id))
+                    .TryReplaceIf(segmentBefore.End, node => node.Id != command.EndNodeId, node => node.DisconnectFrom(command.Id));
                 _segments.TryReplace(command.Id, segment =>
                     segment
                         .WithGeometry(command.Geometry)
@@ -2060,9 +2082,12 @@ namespace RoadRegistry.BackOffice.Core
 
             private void With(RemoveRoadSegment command)
             {
-                var segment = _segments[command.Id];
-                _nodes.TryReplace(segment.Start, node => node.DisconnectFrom(command.Id));
-                _nodes.TryReplace(segment.End, node => node.DisconnectFrom(command.Id));
+                if (_segments.TryGetValue(command.Id, out var segment))
+                {
+                    _nodes.TryReplace(segment.Start, node => node.DisconnectFrom(command.Id));
+                    _nodes.TryReplace(segment.End, node => node.DisconnectFrom(command.Id));
+                }
+
                 _segments.Remove(command.Id);
             }
 
@@ -2148,8 +2173,8 @@ namespace RoadRegistry.BackOffice.Core
                             Category = segment.Value.AttributeHash.Category,
                             Morphology = segment.Value.AttributeHash.Morphology,
                             Status = segment.Value.AttributeHash.Status,
-                            LeftStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
-                            RightStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
+                            LeftSideStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
+                            RightSideStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
                             OrganizationId = segment.Value.AttributeHash.OrganizationId
                         },
                         PartOfEuropeanRoads = segment.Value.PartOfEuropeanRoads.Select(number => number.ToString()).ToArray(),
@@ -2204,7 +2229,13 @@ namespace RoadRegistry.BackOffice.Core
                 return new Builder(
                     snapshot.Nodes.ToImmutableDictionary(
                         node => new RoadNodeId(node.Id),
-                        node => new RoadNode(new RoadNodeId(node.Id), RoadNodeType.Parse(node.Type), GeometryTranslator.Translate(node.Geometry))).ToBuilder(),
+                        node =>
+                        {
+                            var roadNode = new RoadNode(new RoadNodeId(node.Id), RoadNodeType.Parse(node.Type),
+                                GeometryTranslator.Translate(node.Geometry));
+
+                            return node.Segments.Aggregate(roadNode, (current, segment) => current.ConnectWith(new RoadSegmentId(segment)));
+                        }).ToBuilder(),
                     snapshot.Segments.ToImmutableDictionary(
                         segment => new RoadSegmentId(segment.Id),
                         segment =>
@@ -2217,16 +2248,16 @@ namespace RoadRegistry.BackOffice.Core
                                     RoadSegmentCategory.Parse(segment.AttributeHash.Category),
                                     RoadSegmentMorphology.Parse(segment.AttributeHash.Morphology),
                                     RoadSegmentStatus.Parse(segment.AttributeHash.Status),
-                                    segment.AttributeHash.LeftStreetNameId.HasValue
-                                        ? new CrabStreetnameId(segment.AttributeHash.LeftStreetNameId.Value)
+                                    segment.AttributeHash.LeftSideStreetNameId.HasValue
+                                        ? new CrabStreetnameId(segment.AttributeHash.LeftSideStreetNameId.Value)
                                         : new CrabStreetnameId?(),
-                                    segment.AttributeHash.RightStreetNameId.HasValue
-                                        ? new CrabStreetnameId(segment.AttributeHash.RightStreetNameId.Value)
+                                    segment.AttributeHash.RightSideStreetNameId.HasValue
+                                        ? new CrabStreetnameId(segment.AttributeHash.RightSideStreetNameId.Value)
                                         : new CrabStreetnameId?(),
                                     new OrganizationId(segment.AttributeHash.OrganizationId)));
                             roadSegment = segment.PartOfEuropeanRoads.Aggregate(roadSegment, (current, number) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(number)));
                             roadSegment = segment.PartOfNationalRoads.Aggregate(roadSegment, (current, number) => current.PartOfNationalRoad(NationalRoadNumber.Parse(number)));
-                            roadSegment = segment.PartOfNationalRoads.Aggregate(roadSegment, (current, number) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(number)));
+                            roadSegment = segment.PartOfNumberedRoads.Aggregate(roadSegment, (current, number) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(number)));
                             return roadSegment;
                         }).ToBuilder(),
                     snapshot.GradeSeparatedJunctions.ToImmutableDictionary(gradeSeparatedJunction => new GradeSeparatedJunctionId(gradeSeparatedJunction.Id),

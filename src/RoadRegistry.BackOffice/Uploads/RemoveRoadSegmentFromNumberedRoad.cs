@@ -29,7 +29,7 @@ namespace RoadRegistry.BackOffice.Uploads
             message.RemoveRoadSegmentFromNumberedRoad = new Messages.RemoveRoadSegmentFromNumberedRoad
             {
                 AttributeId = AttributeId,
-                Ident8 = Number,
+                Number = Number,
                 SegmentId = SegmentId
             };
         }

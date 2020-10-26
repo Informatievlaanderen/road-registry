@@ -30,7 +30,7 @@ namespace RoadRegistry.BackOffice.Core
         [Fact]
         public void Ident2MustBeWithinDomain()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Ident2, Fixture.Create<string>());
+            Validator.ShouldHaveValidationErrorFor(c => c.Number, Fixture.Create<string>());
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace RoadRegistry.BackOffice.Core
             var data = new Messages.AddRoadSegmentToNationalRoad
             {
                 TemporaryAttributeId = Fixture.Create<AttributeId>(),
-                Ident2 = Fixture.Create<NationalRoadNumber>()
+                Number = Fixture.Create<NationalRoadNumber>()
             };
 
             Validator.ValidateAndThrow(data);

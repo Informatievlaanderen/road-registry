@@ -19,32 +19,42 @@ namespace RoadRegistry.BackOffice.Core
             Number = number;
         }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            if (!context.View.Segments.ContainsKey(SegmentId))
+            if (!context.BeforeView.Segments.TryGetValue(SegmentId, out var segment))
             {
-                problems = problems.RoadSegmentMissing(SegmentId);
+                problems = problems.Add(new RoadSegmentMissing(SegmentId));
+            }
+            else
+            {
+                if (!segment.PartOfNumberedRoads.Contains(Number))
+                {
+                    problems = problems.Add(new NumberedRoadNumberNotFound(Number));
+                }
             }
 
-            if (problems.OfType<Error>().Any())
-            {
-                return new RejectedChange(this, problems);
-            }
-            return new AcceptedChange(this, problems);
+            return problems;
+        }
+
+        public Problems VerifyAfter(AfterVerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            return Problems.None;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
 
-            message.RoadSegmentAddedToNumberedRoad = new Messages.RoadSegmentAddedToNumberedRoad
+            message.RoadSegmentRemovedFromNumberedRoad = new Messages.RoadSegmentRemovedFromNumberedRoad
             {
                 AttributeId = AttributeId,
-                Ident8 = Number,
+                Number = Number,
                 SegmentId = SegmentId
             };
         }
@@ -56,7 +66,7 @@ namespace RoadRegistry.BackOffice.Core
             message.RemoveRoadSegmentFromNumberedRoad = new Messages.RemoveRoadSegmentFromNumberedRoad
             {
                 AttributeId = AttributeId,
-                Ident8 = Number,
+                Number = Number,
                 SegmentId = SegmentId
             };
         }

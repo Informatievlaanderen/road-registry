@@ -31,34 +31,37 @@ namespace RoadRegistry.BackOffice.Core
         public RoadSegmentId LowerSegmentId { get; }
         public RoadSegmentId? TemporaryLowerSegmentId { get; }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            return Problems.None;
+        }
+
+        public Problems VerifyAfter(AfterVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
-            if (!context.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
+
+            if (!context.AfterView.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
             {
-                problems = problems.UpperRoadSegmentMissing();
+                problems = problems.Add(new UpperRoadSegmentMissing());
             }
 
-            if (!context.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
+            if (!context.AfterView.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
             {
-                problems = problems.LowerRoadSegmentMissing();
+                problems = problems.Add(new LowerRoadSegmentMissing());
             }
 
             if (upperSegment != null && lowerSegment != null)
             {
                 if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))
                 {
-                    problems = problems.UpperAndLowerRoadSegmentDoNotIntersect();
+                    problems = problems.Add(new UpperAndLowerRoadSegmentDoNotIntersect());
                 }
             }
 
-            if (problems.OfType<Error>().Any())
-            {
-                return new RejectedChange(this, problems);
-            }
-            return new AcceptedChange(this, problems);
+            return problems;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

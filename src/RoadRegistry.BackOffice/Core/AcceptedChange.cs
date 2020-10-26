@@ -6,12 +6,12 @@ namespace RoadRegistry.BackOffice.Core
 
     public class AcceptedChange : IVerifiedChange
     {
-        private readonly IRequestedChange _change;
-        private readonly IReadOnlyCollection<Problem> _problems;
+        private readonly IRequestedChange _requestedChange;
+        private readonly Problems _problems;
 
-        public AcceptedChange(IRequestedChange change, IReadOnlyCollection<Problem> problems)
+        public AcceptedChange(IRequestedChange change, Problems problems)
         {
-            _change = change ?? throw new ArgumentNullException(nameof(change));
+            _requestedChange = change ?? throw new ArgumentNullException(nameof(change));
             _problems = problems ?? throw new ArgumentNullException(nameof(problems));
         }
 
@@ -21,7 +21,7 @@ namespace RoadRegistry.BackOffice.Core
             {
                 Problems = _problems.Select(warning => warning.Translate()).ToArray()
             };
-            _change.TranslateTo(message);
+            _requestedChange.TranslateTo(message);
             return message;
         }
     }

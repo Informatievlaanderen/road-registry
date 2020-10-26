@@ -23,6 +23,7 @@ namespace RoadRegistry.BackOffice.Core
         [Theory]
         [InlineData(int.MinValue)]
         [InlineData(-1)]
+        [InlineData(0)]
         public void TemporaryIdMustBeGreaterThan(int value)
         {
             Validator.ShouldHaveValidationErrorFor(c => c.TemporaryId, value);

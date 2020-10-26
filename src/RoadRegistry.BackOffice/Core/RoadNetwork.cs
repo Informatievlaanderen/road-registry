@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Core
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.Linq;
     using Framework;
 
@@ -46,7 +47,29 @@ namespace RoadRegistry.BackOffice.Core
         {
             //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
 
-            var verifiedChanges = requestedChanges.VerifyWith(_view.With(requestedChanges));
+            var verifiableChanges =
+                requestedChanges
+                    .Select(requestedChange => new VerifiableChange(requestedChange))
+                    .ToImmutableList();
+
+            var beforeContext = requestedChanges.CreateBeforeVerificationContext(_view);
+            foreach (var verifiableChange in verifiableChanges)
+            {
+                verifiableChanges = verifiableChanges
+                    .Replace(verifiableChange, verifiableChange.VerifyBefore(beforeContext));
+            }
+
+            if (!verifiableChanges.Any(change => change.HasErrors))
+            {
+                var afterContext = beforeContext.CreateAfterVerificationContext(_view.With(requestedChanges));
+                foreach (var verifiableChange in verifiableChanges)
+                {
+                    verifiableChanges = verifiableChanges
+                        .Replace(verifiableChange, verifiableChange.VerifyAfter(afterContext));
+                }
+            }
+
+            var verifiedChanges = verifiableChanges.ConvertAll(change => change.AsVerifiedChange());
 
             if (verifiedChanges.Count == 0) return;
 

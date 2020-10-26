@@ -12,25 +12,25 @@ namespace RoadRegistry.BackOffice.Core
 
         public RoadNodeId Id { get; }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            // TODO: We need a before and after verify because
-            // in the before we want to make sure we're dealing with an existing node
-
             var problems = Problems.None;
 
-            if (!context.View.Nodes.ContainsKey(Id))
+            if (!context.BeforeView.Nodes.ContainsKey(Id))
             {
-                problems = problems.RoadNodeNotFound();
+                problems = problems.Add(new RoadNodeNotFound());
             }
 
-            if (problems.OfType<Error>().Any())
-            {
-                return new RejectedChange(this, problems);
-            }
-            return new AcceptedChange(this, problems);
+            return problems;
+        }
+
+        public Problems VerifyAfter(AfterVerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            return Problems.None;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

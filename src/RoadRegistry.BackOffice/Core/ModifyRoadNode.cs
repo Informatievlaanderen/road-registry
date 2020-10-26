@@ -17,84 +17,50 @@ namespace RoadRegistry.BackOffice.Core
         public RoadNodeType Type { get; }
         public Point Geometry { get; }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
-
-            // TODO: We need a before and after verify because
-            // in the before we want to make sure we're dealing with an existing node
-
             var problems = Problems.None;
+
+            if (!context.BeforeView.Nodes.ContainsKey(Id))
+            {
+                problems = problems.Add(new RoadNodeNotFound());
+            }
+
+            return problems;
+        }
+
+        public Problems VerifyAfter(AfterVerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            var problems = Problems.None;
+
             var byOtherNode =
-                context.View.Nodes.Values.FirstOrDefault(n =>
+                context.AfterView.Nodes.Values.FirstOrDefault(n =>
                     n.Id != Id &&
                     n.Geometry.EqualsExact(Geometry));
             if (byOtherNode != null)
             {
-                problems = problems.RoadNodeGeometryTaken(
+                problems = problems.Add(new RoadNodeGeometryTaken(
                     context.Translator.TranslateToTemporaryOrId(byOtherNode.Id)
-                );
+                ));
             }
 
-            if (!context.View.Nodes.TryGetValue(Id, out var node))
-            {
-                problems = problems.RoadNodeNotFound();
-            }
-            else
-            {
-                problems = context.View.Segments.Values
-                    .Where(s =>
-                        !node.Segments.Contains(s.Id) &&
-                        s.Geometry.IsWithinDistance(Geometry, VerificationContext.TooCloseDistance)
-                    )
-                    .Aggregate(
-                        problems,
-                        (current, segment) =>
-                            current.RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id)));
+            var node = context.AfterView.Nodes[Id];
 
-                var connectedSegmentCount = node.Segments.Count;
-                if (connectedSegmentCount == 0)
-                {
-                    problems = problems.RoadNodeNotConnectedToAnySegment();
-                }
-                else if (connectedSegmentCount == 1 && Type != RoadNodeType.EndNode)
-                {
-                    problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type, new[] {RoadNodeType.EndNode});
-                }
-                else if (connectedSegmentCount == 2)
-                {
-                    if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
-                    {
-                        problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type,
-                            new[] {RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode});
-                    }
-                    else if (Type == RoadNodeType.FakeNode)
-                    {
-                        var segments = node.Segments.Select(segmentId => context.View.Segments[segmentId])
-                            .ToArray();
-                        var segment1 = segments[0];
-                        var segment2 = segments[1];
-                        if (segment1.AttributeHash.Equals(segment2.AttributeHash))
-                        {
-                            problems = problems.FakeRoadNodeConnectedSegmentsDoNotDiffer(
-                                context.Translator.TranslateToTemporaryOrId(segment1.Id),
-                                context.Translator.TranslateToTemporaryOrId(segment2.Id)
-                            );
-                        }
-                    }
-                }
-                else if (connectedSegmentCount > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
-                {
-                    problems = problems.RoadNodeTypeMismatch(connectedSegmentCount, Type,
-                        new[] {RoadNodeType.RealNode, RoadNodeType.MiniRoundabout});
-                }
-            }
+            problems = context.AfterView.Segments.Values
+                .Where(s =>
+                    !node.Segments.Contains(s.Id) &&
+                    s.Geometry.IsWithinDistance(Geometry, Distances.TooClose)
+                )
+                .Aggregate(
+                    problems,
+                    (current, segment) =>
+                        current.Add(new RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id))));
 
-            if (problems.OfType<Error>().Any())
-            {
-                return new RejectedChange(this, problems);
-            }
-            return new AcceptedChange(this, problems);
+            problems = problems.AddRange(node.VerifyTypeMatchesConnectedSegmentCount(context.AfterView, context.Translator));
+
+            return problems;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

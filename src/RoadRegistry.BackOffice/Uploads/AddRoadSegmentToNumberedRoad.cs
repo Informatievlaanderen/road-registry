@@ -35,7 +35,7 @@ namespace RoadRegistry.BackOffice.Uploads
             message.AddRoadSegmentToNumberedRoad = new Messages.AddRoadSegmentToNumberedRoad
             {
                 TemporaryAttributeId = TemporaryAttributeId,
-                Ident8 = Number,
+                Number = Number,
                 Direction = Direction,
                 Ordinal = Ordinal,
                 SegmentId = SegmentId

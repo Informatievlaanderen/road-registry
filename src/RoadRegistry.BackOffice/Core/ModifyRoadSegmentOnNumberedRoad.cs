@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Core
 {
     using System;
-    using System.Linq;
 
     public class ModifyRoadSegmentOnNumberedRoad : IRequestedChange
     {
@@ -25,29 +24,33 @@ namespace RoadRegistry.BackOffice.Core
             Ordinal = ordinal;
         }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            if (!context.View.Segments.TryGetValue(SegmentId, out var segment))
+            if (!context.BeforeView.Segments.ContainsKey(SegmentId))
             {
-                problems = problems.RoadSegmentMissing(SegmentId);
-            }
-            else
-            {
-                if (!segment.PartOfNumberedRoads.Contains(Number))
-                {
-                    problems = problems.NumberedRoadNumberNotFound(Number);
-                }
+                problems = problems.Add(new RoadSegmentMissing(SegmentId));
             }
 
-            if (problems.OfType<Error>().Any())
+            return problems;
+        }
+
+        public Problems VerifyAfter(AfterVerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            var problems = Problems.None;
+
+            var segment = context.AfterView.Segments[SegmentId];
+            if (!segment.PartOfNumberedRoads.Contains(Number))
             {
-                return new RejectedChange(this, problems);
+                problems = problems.Add(new NumberedRoadNumberNotFound(Number));
             }
-            return new AcceptedChange(this, problems);
+
+            return problems;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)
@@ -57,7 +60,7 @@ namespace RoadRegistry.BackOffice.Core
             message.RoadSegmentOnNumberedRoadModified = new Messages.RoadSegmentOnNumberedRoadModified
             {
                 AttributeId = AttributeId,
-                Ident8 = Number,
+                Number = Number,
                 SegmentId = SegmentId,
                 Direction = Direction,
                 Ordinal = Ordinal
@@ -71,7 +74,7 @@ namespace RoadRegistry.BackOffice.Core
             message.ModifyRoadSegmentOnNumberedRoad = new Messages.ModifyRoadSegmentOnNumberedRoad
             {
                 AttributeId = AttributeId,
-                Ident8 = Number,
+                Number = Number,
                 SegmentId = SegmentId,
                 Direction = Direction,
                 Ordinal = Ordinal

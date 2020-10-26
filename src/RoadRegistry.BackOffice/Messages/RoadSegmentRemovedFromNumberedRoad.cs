@@ -3,7 +3,7 @@
     public class RoadSegmentRemovedFromNumberedRoad
     {
         public int AttributeId { get; set; }
-        public string Ident8 { get; set; }
+        public string Number { get; set; }
         public int SegmentId { get; set; }
     }
 }

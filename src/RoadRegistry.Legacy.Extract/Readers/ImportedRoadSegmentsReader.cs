@@ -624,7 +624,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 var attributes = new ImportedRoadSegmentNumberedRoadAttribute
                 {
                     AttributeId = reader.GetInt32(1),
-                    Ident8 = reader.GetString(2),
+                    Number = reader.GetString(2),
                     Direction = RoadSegmentNumberedRoadDirection.ByIdentifier[reader.GetInt32(3)],
                     Ordinal = reader.GetInt32(4),
                     Origin = new ImportedOriginProperties
@@ -668,7 +668,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 var attributes = new ImportedRoadSegmentNationalRoadAttribute
                 {
                     AttributeId = reader.GetInt32(1),
-                    Ident2 = reader.GetString(2),
+                    Number = reader.GetString(2),
                     Origin = new ImportedOriginProperties
                     {
                         OrganizationId = reader.GetNullableString(3),

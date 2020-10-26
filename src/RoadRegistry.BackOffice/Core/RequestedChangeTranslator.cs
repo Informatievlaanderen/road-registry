@@ -425,7 +425,7 @@
                 temporarySegmentId = null;
             }
 
-            var number = NationalRoadNumber.Parse(command.Ident2);
+            var number = NationalRoadNumber.Parse(command.Number);
             return new AddRoadSegmentToNationalRoad
             (
                 permanent,
@@ -440,7 +440,7 @@
         {
             var permanent = new AttributeId(command.AttributeId);
             var segmentId = new RoadSegmentId(command.SegmentId);
-            var number = NationalRoadNumber.Parse(command.Ident2);
+            var number = NationalRoadNumber.Parse(command.Number);
 
             return new RemoveRoadSegmentFromNationalRoad
             (
@@ -467,7 +467,7 @@
                 temporarySegmentId = null;
             }
 
-            var number = NumberedRoadNumber.Parse(command.Ident8);
+            var number = NumberedRoadNumber.Parse(command.Number);
             var direction = RoadSegmentNumberedRoadDirection.Parse(command.Direction);
             var ordinal = new RoadSegmentNumberedRoadOrdinal(command.Ordinal);
             return new AddRoadSegmentToNumberedRoad
@@ -486,7 +486,7 @@
         {
             var permanent = new AttributeId(command.AttributeId);
             var segmentId = new RoadSegmentId(command.SegmentId);
-            var number = NumberedRoadNumber.Parse(command.Ident8);
+            var number = NumberedRoadNumber.Parse(command.Number);
             var direction = RoadSegmentNumberedRoadDirection.Parse(command.Direction);
             var ordinal = new RoadSegmentNumberedRoadOrdinal(command.Ordinal);
             return new ModifyRoadSegmentOnNumberedRoad
@@ -503,7 +503,7 @@
         {
             var permanent = new AttributeId(command.AttributeId);
             var segmentId = new RoadSegmentId(command.SegmentId);
-            var number = NumberedRoadNumber.Parse(command.Ident8);
+            var number = NumberedRoadNumber.Parse(command.Number);
 
             return new RemoveRoadSegmentFromNumberedRoad
             (
@@ -624,9 +624,9 @@
                 typeof(Messages.RemoveRoadSegmentFromEuropeanRoad),
                 typeof(Messages.RemoveRoadSegmentFromNationalRoad),
                 typeof(Messages.RemoveRoadSegmentFromNumberedRoad),
-                typeof(Messages.RemoveRoadNode),
+                typeof(Messages.RemoveGradeSeparatedJunction),
                 typeof(Messages.RemoveRoadSegment),
-                typeof(Messages.RemoveGradeSeparatedJunction)
+                typeof(Messages.RemoveRoadNode)
             };
 
             public int Compare(SortableChange left, SortableChange right)

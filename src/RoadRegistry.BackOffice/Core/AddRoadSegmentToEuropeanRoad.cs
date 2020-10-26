@@ -24,22 +24,24 @@ namespace RoadRegistry.BackOffice.Core
             Number = number;
         }
 
-        public IVerifiedChange Verify(VerificationContext context)
+        public Problems VerifyBefore(BeforeVerificationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            return Problems.None;
+        }
+
+        public Problems VerifyAfter(AfterVerificationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = Problems.None;
 
-            if (!context.View.Segments.ContainsKey(SegmentId))
+            if (!context.AfterView.Segments.ContainsKey(SegmentId))
             {
-                problems = problems.RoadSegmentMissing(TemporarySegmentId ?? SegmentId);
+                problems = problems.Add(new RoadSegmentMissing(TemporarySegmentId ?? SegmentId));
             }
 
-            if (problems.OfType<Error>().Any())
-            {
-                return new RejectedChange(this, problems);
-            }
-            return new AcceptedChange(this, problems);
+            return problems;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

@@ -32,7 +32,7 @@ namespace RoadRegistry.BackOffice.Core
         [Fact]
         public void Ident8MustBeWithinDomain()
         {
-            Validator.ShouldHaveValidationErrorFor(c => c.Ident8, Fixture.Create<string>());
+            Validator.ShouldHaveValidationErrorFor(c => c.Number, Fixture.Create<string>());
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace RoadRegistry.BackOffice.Core
             var data = new Messages.AddRoadSegmentToNumberedRoad
             {
                 TemporaryAttributeId = Fixture.Create<AttributeId>(),
-                Ident8 = Fixture.Create<NumberedRoadNumber>(),
+                Number = Fixture.Create<NumberedRoadNumber>(),
                 Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
                 Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>()
             };

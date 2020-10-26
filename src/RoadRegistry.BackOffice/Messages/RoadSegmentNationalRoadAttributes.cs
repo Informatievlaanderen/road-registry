@@ -3,6 +3,6 @@
     public class RoadSegmentNationalRoadAttributes
     {
         public int AttributeId { get; set; }
-        public string Ident2 { get; set; }
+        public string Number { get; set; }
     }
 }
