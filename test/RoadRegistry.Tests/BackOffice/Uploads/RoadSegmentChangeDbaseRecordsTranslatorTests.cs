@@ -42,7 +42,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         BEHEERDER = { Value = _fixture.Create<OrganizationId>() },
                         MORFOLOGIE = { Value = (short)_fixture.Create<RoadSegmentMorphology>().Translation.Identifier },
                         STATUS = { Value = _fixture.Create<RoadSegmentStatus>().Translation.Identifier },
-                        WEGCAT = { Value = _fixture.Create<RoadSegmentCategory>().Translation.Identifier },
+                        CATEGORIE = { Value = _fixture.Create<RoadSegmentCategory>().Translation.Identifier },
                         B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         LSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue))},
@@ -139,7 +139,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                     RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value],
                                     RoadSegmentMorphology.ByIdentifier[current.MORFOLOGIE.Value],
                                     RoadSegmentStatus.ByIdentifier[current.STATUS.Value],
-                                    RoadSegmentCategory.ByIdentifier[current.WEGCAT.Value],
+                                    RoadSegmentCategory.ByIdentifier[current.CATEGORIE.Value],
                                     RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
                                     current.LSTRNMID.Value.HasValue
                                         ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault())
@@ -161,7 +161,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                     RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value],
                                     RoadSegmentMorphology.ByIdentifier[current.MORFOLOGIE.Value],
                                     RoadSegmentStatus.ByIdentifier[current.STATUS.Value],
-                                    RoadSegmentCategory.ByIdentifier[current.WEGCAT.Value],
+                                    RoadSegmentCategory.ByIdentifier[current.CATEGORIE.Value],
                                     RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
                                     current.LSTRNMID.Value.HasValue
                                         ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault())

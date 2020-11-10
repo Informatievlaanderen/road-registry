@@ -22,13 +22,13 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(VANPOSITIE)),
-                        new DbaseFieldLength(7),
+                        new DbaseFieldLength(8),
                         new DbaseDecimalCount(3)),
 
                 DbaseField
                     .CreateNumberField(
                         new DbaseFieldName(nameof(TOTPOSITIE)),
-                        new DbaseFieldLength(7),
+                        new DbaseFieldLength(8),
                         new DbaseDecimalCount(3)),
 
                 DbaseField

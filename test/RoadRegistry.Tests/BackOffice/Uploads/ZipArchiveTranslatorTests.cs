@@ -489,7 +489,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentChangeDbaseRecord2.METHODE.Value],
                                 RoadSegmentMorphology.ByIdentifier[roadSegmentChangeDbaseRecord2.MORFOLOGIE.Value],
                                 RoadSegmentStatus.ByIdentifier[roadSegmentChangeDbaseRecord2.STATUS.Value],
-                                RoadSegmentCategory.ByIdentifier[roadSegmentChangeDbaseRecord2.WEGCAT.Value],
+                                RoadSegmentCategory.ByIdentifier[roadSegmentChangeDbaseRecord2.CATEGORIE.Value],
                                 RoadSegmentAccessRestriction.ByIdentifier[roadSegmentChangeDbaseRecord2.TGBEP.Value],
                                 roadSegmentChangeDbaseRecord2.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord2.LSTRNMID.Value.GetValueOrDefault()) : default,
                                 roadSegmentChangeDbaseRecord2.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord2.RSTRNMID.Value.GetValueOrDefault()) : default
@@ -534,7 +534,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                     RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentChangeDbaseRecord1.METHODE.Value],
                                     RoadSegmentMorphology.ByIdentifier[roadSegmentChangeDbaseRecord1.MORFOLOGIE.Value],
                                     RoadSegmentStatus.ByIdentifier[roadSegmentChangeDbaseRecord1.STATUS.Value],
-                                    RoadSegmentCategory.ByIdentifier[roadSegmentChangeDbaseRecord1.WEGCAT.Value],
+                                    RoadSegmentCategory.ByIdentifier[roadSegmentChangeDbaseRecord1.CATEGORIE.Value],
                                     RoadSegmentAccessRestriction.ByIdentifier[roadSegmentChangeDbaseRecord1.TGBEP.Value],
                                     roadSegmentChangeDbaseRecord1.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.LSTRNMID.Value.GetValueOrDefault()) : default,
                                     roadSegmentChangeDbaseRecord1.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.RSTRNMID.Value.GetValueOrDefault()) : default
@@ -735,7 +735,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         MORFOLOGIE =
                             {Value = (short) fixture.Create<RoadSegmentMorphology>().Translation.Identifier},
                         STATUS = {Value = fixture.Create<RoadSegmentStatus>().Translation.Identifier},
-                        WEGCAT = {Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier},
+                        CATEGORIE = {Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier},
                         B_WK_OIDN = {Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         E_WK_OIDN = {Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         LSTRNMID = {Value = new CrabStreetnameId(random.Next(1, int.MaxValue))},

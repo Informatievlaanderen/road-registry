@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Simulator
             segment1Record.E_WK_OIDN.Value = 2;
             segment1Record.TGBEP.Value = (short) RoadSegmentAccessRestriction.PublicRoad.Translation.Identifier;
             segment1Record.STATUS.Value = RoadSegmentStatus.InUse.Translation.Identifier;
-            segment1Record.WEGCAT.Value = RoadSegmentCategory.SecondaryRoad.Translation.Identifier;
+            segment1Record.CATEGORIE.Value = RoadSegmentCategory.SecondaryRoad.Translation.Identifier;
             segment1Record.METHODE.Value = (short)RoadSegmentGeometryDrawMethod.Measured.Translation.Identifier;
             segment1Record.MORFOLOGIE.Value = (short)RoadSegmentMorphology.Motorway.Translation.Identifier;
             segment1Record.LSTRNMID.Value = 123;

@@ -7,7 +7,6 @@ namespace RoadRegistry.BackOffice.Messages
     public class RoadNetworkChangesArchiveRejected
     {
         public string ArchiveId { get; set; }
-        public string FutureRequestId { get; set; }
         public FileProblem[] Problems { get; set; }
         public string When { get; set; }
     }

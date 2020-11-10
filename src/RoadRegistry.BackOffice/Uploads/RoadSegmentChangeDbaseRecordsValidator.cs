@@ -82,13 +82,13 @@ namespace RoadRegistry.BackOffice.Uploads
                                 problems += recordContext.RoadSegmentStatusMismatch(record.STATUS.Value);
                             }
 
-                            if (!record.WEGCAT.HasValue)
+                            if (!record.CATEGORIE.HasValue)
                             {
-                                problems += recordContext.RequiredFieldIsNull(record.WEGCAT.Field);
+                                problems += recordContext.RequiredFieldIsNull(record.CATEGORIE.Field);
                             }
-                            else if (!RoadSegmentCategory.ByIdentifier.ContainsKey(record.WEGCAT.Value))
+                            else if (!RoadSegmentCategory.ByIdentifier.ContainsKey(record.CATEGORIE.Value))
                             {
-                                problems += recordContext.RoadSegmentCategoryMismatch(record.WEGCAT.Value);
+                                problems += recordContext.RoadSegmentCategoryMismatch(record.CATEGORIE.Value);
                             }
 
                             if (!record.METHODE.HasValue)

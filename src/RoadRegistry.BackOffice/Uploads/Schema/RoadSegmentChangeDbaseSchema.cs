@@ -38,7 +38,7 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
                 DbaseField
                     .CreateCharacterField(
-                        new DbaseFieldName(nameof(WEGCAT)),
+                        new DbaseFieldName(nameof(CATEGORIE)),
                         new DbaseFieldLength(10)),
 
                 DbaseField
@@ -101,7 +101,7 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public DbaseField STATUS => Fields[4];
 
-        public DbaseField WEGCAT => Fields[5];
+        public DbaseField CATEGORIE => Fields[5];
 
         public DbaseField B_WK_OIDN => Fields[6];
 

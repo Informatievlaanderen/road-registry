@@ -13,7 +13,7 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             BEHEERDER = new DbaseString(Schema.BEHEERDER);
             MORFOLOGIE = new DbaseInt16(Schema.MORFOLOGIE);
             STATUS = new DbaseInt32(Schema.STATUS);
-            WEGCAT = new DbaseString(Schema.WEGCAT);
+            CATEGORIE = new DbaseString(Schema.CATEGORIE);
             B_WK_OIDN = new DbaseInt32(Schema.B_WK_OIDN);
             E_WK_OIDN = new DbaseInt32(Schema.E_WK_OIDN);
             LSTRNMID = new DbaseNullableInt32(Schema.LSTRNMID);
@@ -30,7 +30,7 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
                 BEHEERDER,
                 MORFOLOGIE,
                 STATUS,
-                WEGCAT,
+                CATEGORIE,
                 B_WK_OIDN,
                 E_WK_OIDN,
                 LSTRNMID,
@@ -52,7 +52,7 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public DbaseInt32 STATUS { get; }
 
-        public DbaseString WEGCAT { get; }
+        public DbaseString CATEGORIE { get; }
 
         public DbaseInt32 B_WK_OIDN { get; }
 

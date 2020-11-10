@@ -528,7 +528,7 @@ namespace RoadRegistry.Editor.Projections
 
                     case nameof(DbaseFileProblems.RoadSegmentCategoryMismatch):
                         translation =
-                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige wegcategorie in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.WEGCAT)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}.";
+                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige wegcategorie in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.CATEGORIE)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}.";
                         break;
 
                     case nameof(DbaseFileProblems.RoadSegmentGeometryDrawMethodMismatch):

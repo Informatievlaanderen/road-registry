@@ -31,7 +31,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                     RoadSegmentGeometryDrawMethod.ByIdentifier[record.METHODE.Value],
                                     RoadSegmentMorphology.ByIdentifier[record.MORFOLOGIE.Value],
                                     RoadSegmentStatus.ByIdentifier[record.STATUS.Value],
-                                    RoadSegmentCategory.ByIdentifier[record.WEGCAT.Value],
+                                    RoadSegmentCategory.ByIdentifier[record.CATEGORIE.Value],
                                     RoadSegmentAccessRestriction.ByIdentifier[record.TGBEP.Value],
                                     record.LSTRNMID.Value.HasValue ? new CrabStreetnameId(record.LSTRNMID.Value.Value) : new CrabStreetnameId?(),
                                     record.RSTRNMID.Value.HasValue ? new CrabStreetnameId(record.RSTRNMID.Value.Value) : new CrabStreetnameId?()
@@ -49,7 +49,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                     RoadSegmentGeometryDrawMethod.ByIdentifier[record.METHODE.Value],
                                     RoadSegmentMorphology.ByIdentifier[record.MORFOLOGIE.Value],
                                     RoadSegmentStatus.ByIdentifier[record.STATUS.Value],
-                                    RoadSegmentCategory.ByIdentifier[record.WEGCAT.Value],
+                                    RoadSegmentCategory.ByIdentifier[record.CATEGORIE.Value],
                                     RoadSegmentAccessRestriction.ByIdentifier[record.TGBEP.Value],
                                     record.LSTRNMID.Value.HasValue ? new CrabStreetnameId(record.LSTRNMID.Value.Value) : new CrabStreetnameId?(),
                                     record.RSTRNMID.Value.HasValue ? new CrabStreetnameId(record.RSTRNMID.Value.Value) : new CrabStreetnameId?()

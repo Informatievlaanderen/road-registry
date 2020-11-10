@@ -654,7 +654,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         MORFOLOGIE =
                             {Value = (short) fixture.Create<RoadSegmentMorphology>().Translation.Identifier},
                         STATUS = {Value = fixture.Create<RoadSegmentStatus>().Translation.Identifier},
-                        WEGCAT = {Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier},
+                        CATEGORIE = {Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier},
                         B_WK_OIDN = {Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         E_WK_OIDN = {Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         LSTRNMID = {Value = new CrabStreetnameId(random.Next(1, int.MaxValue))},
