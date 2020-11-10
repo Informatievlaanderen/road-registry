@@ -70,6 +70,25 @@ namespace RoadRegistry.Projections
             );
         }
 
+        public static void CustomizeRoadSegmentLaneAttributes(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentLaneAttributes>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadSegmentLaneAttributes
+                        {
+                            AttributeId = fixture.Create<int>(),
+                            Count = fixture.Create<RoadSegmentLaneCount>(),
+                            Direction = fixture.Create<RoadSegmentLaneDirection>(),
+                            FromPosition = fixture.Create<RoadSegmentPosition>(),
+                            ToPosition = fixture.Create<RoadSegmentPosition>(),
+                            AsOfGeometryVersion = fixture.Create<int>(),
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
         public static void CustomizeImportedRoadSegmentWidthAttributes(this IFixture fixture)
         {
             fixture.Customize<ImportedRoadSegmentWidthAttribute>(customization =>

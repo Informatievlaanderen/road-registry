@@ -142,6 +142,57 @@ namespace RoadRegistry.Framework.Projections
             }
         }
 
+        public static Task ExpectInAnyOrder(
+            this ConnectedProjectionScenario<EditorContext> scenario,
+            IEnumerable<object> records)
+        {
+            return scenario.ExpectInAnyOrder(records.ToArray());
+        }
+
+        public static async Task ExpectInAnyOrder(
+            this ConnectedProjectionScenario<EditorContext> scenario,
+            params object[] records)
+        {
+            var database = Guid.NewGuid().ToString("N");
+
+            var specification = scenario.Verify(async context =>
+            {
+                var comparisonConfig = new ComparisonConfig { MaxDifferences = 5, IgnoreCollectionOrder = true};
+                var comparer = new CompareLogic(comparisonConfig);
+                var actualRecords = await context.AllRecords();
+                var result = comparer.Compare(
+                    actualRecords,
+                    records
+                );
+
+                return result.AreEqual
+                    ? VerificationResult.Pass()
+                    : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, records));
+            });
+
+            using (var context = CreateContextFor(database))
+            {
+                var projector = new ConnectedProjector<EditorContext>(specification.Resolver);
+                var position = 0L;
+                foreach (var message in specification.Messages)
+                {
+                    var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position }}).ToGenericEnvelope();
+                    await projector.ProjectAsync(context, envelope);
+                    position++;
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = CreateContextFor(database))
+            {
+                var result = await specification.Verification(context, CancellationToken.None);
+
+                if (result.Failed)
+                    throw specification.CreateFailedScenarioExceptionFor(result);
+            }
+        }
+
         private static async Task<object[]> AllRecords(this EditorContext context)
         {
             var records = new List<object>();
