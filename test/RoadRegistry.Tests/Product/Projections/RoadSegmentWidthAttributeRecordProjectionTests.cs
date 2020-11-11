@@ -22,6 +22,7 @@ namespace RoadRegistry.Product.Projections
             _services = services ?? throw new ArgumentNullException(nameof(services));
 
             _fixture = new Fixture();
+            _fixture.CustomizeArchiveId();
             _fixture.CustomizeAttributeId();
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeRoadNodeId();
