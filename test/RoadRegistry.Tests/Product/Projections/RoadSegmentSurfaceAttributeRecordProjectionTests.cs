@@ -104,7 +104,7 @@ namespace RoadRegistry.Product.Projections
 
                 }).ToList();
 
-            return new RoadRegistry.Product.Projections.RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            return new RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -120,7 +120,7 @@ namespace RoadRegistry.Product.Projections
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.Surfaces = new ImportedRoadSegmentSurfaceAttribute[0];
 
-            return new RoadRegistry.Product.Projections.RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            return new RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new object[0]);

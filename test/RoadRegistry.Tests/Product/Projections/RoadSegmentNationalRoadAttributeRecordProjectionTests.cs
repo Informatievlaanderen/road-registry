@@ -79,7 +79,7 @@ namespace RoadRegistry.Product.Projections
                         {
                             Id = nationalRoad.AttributeId,
                             RoadSegmentId = segment.Id,
-                            DbaseRecord = Editor.Projections.DbaseRecordExtensions.ToBytes(new RoadSegmentNationalRoadAttributeDbaseRecord
+                            DbaseRecord = new RoadSegmentNationalRoadAttributeDbaseRecord
                             {
                                 NW_OIDN = { Value = nationalRoad.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
@@ -87,7 +87,7 @@ namespace RoadRegistry.Product.Projections
                                 BEGINTIJD = { Value = nationalRoad.Origin.Since },
                                 BEGINORG = { Value = nationalRoad.Origin.OrganizationId },
                                 LBLBGNORG = { Value = nationalRoad.Origin.Organization }
-                            }, _services.MemoryStreamManager, Encoding.UTF8)
+                            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
                         });
 
                     return new
@@ -98,7 +98,7 @@ namespace RoadRegistry.Product.Projections
 
                 }).ToList();
 
-            return new RoadRegistry.Product.Projections.RoadSegmentNationalRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            return new RoadSegmentNationalRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -114,10 +114,10 @@ namespace RoadRegistry.Product.Projections
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.PartOfNationalRoads = new ImportedRoadSegmentNationalRoadAttribute[0];
 
-            return new RoadRegistry.Product.Projections.RoadSegmentNationalRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            return new RoadSegmentNationalRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
-                .Expect(new object[0]);
+                .ExpectNone();
         }
 
 

@@ -80,7 +80,7 @@ namespace RoadRegistry.Product.Projections
                         {
                             Id = europeanRoad.AttributeId,
                             RoadSegmentId = segment.Id,
-                            DbaseRecord = Editor.Projections.DbaseRecordExtensions.ToBytes(new RoadSegmentEuropeanRoadAttributeDbaseRecord
+                            DbaseRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord
                             {
                                 EU_OIDN = { Value = europeanRoad.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
@@ -88,7 +88,7 @@ namespace RoadRegistry.Product.Projections
                                 BEGINTIJD = { Value = europeanRoad.Origin.Since },
                                 BEGINORG = { Value = europeanRoad.Origin.OrganizationId },
                                 LBLBGNORG = { Value = europeanRoad.Origin.Organization }
-                            }, _services.MemoryStreamManager, Encoding.UTF8)
+                            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
                         });
 
                     return new
@@ -136,7 +136,7 @@ namespace RoadRegistry.Product.Projections
                 {
                     Id = europeanRoad.AttributeId,
                     RoadSegmentId = europeanRoad.SegmentId,
-                    DbaseRecord = Editor.Projections.DbaseRecordExtensions.ToBytes(new RoadSegmentEuropeanRoadAttributeDbaseRecord
+                    DbaseRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord
                     {
                         EU_OIDN = { Value = europeanRoad.AttributeId },
                         WS_OIDN = { Value = europeanRoad.SegmentId },
@@ -144,7 +144,7 @@ namespace RoadRegistry.Product.Projections
                         BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
                         BEGINORG = { Value = message.OrganizationId },
                         LBLBGNORG = { Value = message.Organization }
-                    }, _services.MemoryStreamManager, Encoding.UTF8)
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
                 };
             });
 
