@@ -74,7 +74,7 @@ namespace RoadRegistry.Product.Projections
         [Fact]
         public Task When_nothing_happened()
         {
-            return new RoadRegistry.Product.Projections.RoadNetworkInfoProjection()
+            return new RoadNetworkInfoProjection()
             .Scenario()
             .ExpectNone();
         }
@@ -82,7 +82,7 @@ namespace RoadRegistry.Product.Projections
         [Fact]
         public Task When_the_import_began()
         {
-            return new RoadRegistry.Product.Projections.RoadNetworkInfoProjection()
+            return new RoadNetworkInfoProjection()
             .Scenario()
             .Given(new BeganRoadNetworkImport())
             .Expect(
@@ -108,7 +108,7 @@ namespace RoadRegistry.Product.Projections
         [Fact]
         public Task When_the_import_completed()
         {
-            return new RoadRegistry.Product.Projections.RoadNetworkInfoProjection()
+            return new RoadNetworkInfoProjection()
             .Scenario()
             .Given(
                     new BeganRoadNetworkImport(),
@@ -137,7 +137,7 @@ namespace RoadRegistry.Product.Projections
         [Fact]
         public Task When_an_organization_was_imported()
         {
-            return new RoadRegistry.Product.Projections.RoadNetworkInfoProjection()
+            return new RoadNetworkInfoProjection()
                 .Scenario()
                 .Given(
                     new BeganRoadNetworkImport(),
@@ -179,7 +179,7 @@ namespace RoadRegistry.Product.Projections
                 })
                 .Cast<object>()
                 .ToArray();
-            return new RoadRegistry.Product.Projections.RoadNetworkInfoProjection()
+            return new RoadNetworkInfoProjection()
                 .Scenario()
                 .Given(
                     new BeganRoadNetworkImport()
@@ -208,7 +208,7 @@ namespace RoadRegistry.Product.Projections
         [Fact]
         public Task When_a_grade_separated_junction_was_imported()
         {
-            return new RoadRegistry.Product.Projections.RoadNetworkInfoProjection()
+            return new RoadNetworkInfoProjection()
                 .Scenario()
                 .Given(
                     new BeganRoadNetworkImport(),
@@ -256,7 +256,7 @@ namespace RoadRegistry.Product.Projections
                 })
                 .Cast<object>()
                 .ToArray();
-            return new RoadRegistry.Product.Projections.RoadNetworkInfoProjection()
+            return new RoadNetworkInfoProjection()
                 .Scenario()
                 .Given(
                     new BeganRoadNetworkImport()
@@ -286,7 +286,7 @@ namespace RoadRegistry.Product.Projections
         public Task When_a_road_node_was_imported()
         {
             var geometry = _fixture.Create<NetTopologySuite.Geometries.Point>();
-            return new RoadRegistry.Product.Projections.RoadNetworkInfoProjection()
+            return new RoadNetworkInfoProjection()
                 .Scenario()
                 .Given(
                     new BeganRoadNetworkImport(),
@@ -334,7 +334,7 @@ namespace RoadRegistry.Product.Projections
                 })
                 .ToArray();
             var givens = Array.ConvertAll(imported_nodes, imported => (object) imported);
-            return new RoadRegistry.Product.Projections.RoadNetworkInfoProjection()
+            return new RoadNetworkInfoProjection()
                 .Scenario()
                 .Given(
                     new BeganRoadNetworkImport()
@@ -380,7 +380,7 @@ namespace RoadRegistry.Product.Projections
             var widths = _fixture.CreateMany<ImportedRoadSegmentWidthAttribute>().ToArray();
             var hardenings = _fixture.CreateMany<ImportedRoadSegmentSurfaceAttribute>().ToArray();
             var content = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
-            return new RoadRegistry.Product.Projections.RoadNetworkInfoProjection()
+            return new RoadNetworkInfoProjection()
                 .Scenario()
                 .Given(
                     new BeganRoadNetworkImport(),
@@ -463,7 +463,7 @@ namespace RoadRegistry.Product.Projections
                 .ToArray();
             var givens = Array.ConvertAll(imported_segments, imported => (object) imported);
             var reader = new WellKnownBinaryReader();
-            return new RoadRegistry.Product.Projections.RoadNetworkInfoProjection()
+            return new RoadNetworkInfoProjection()
                 .Scenario()
                 .Given(
                     new BeganRoadNetworkImport()

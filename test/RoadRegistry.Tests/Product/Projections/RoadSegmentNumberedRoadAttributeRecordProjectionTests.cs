@@ -7,7 +7,6 @@ namespace RoadRegistry.Product.Projections
     using AutoFixture;
     using BackOffice;
     using BackOffice.Messages;
-    using Editor.Projections;
     using Framework.Projections;
     using RoadRegistry.Projections;
     using Schema.RoadSegments;
@@ -103,7 +102,7 @@ namespace RoadRegistry.Product.Projections
 
                 }).ToList();
 
-            return new RoadRegistry.Product.Projections.RoadSegmentNumberedRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            return new RoadSegmentNumberedRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -119,7 +118,7 @@ namespace RoadRegistry.Product.Projections
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.PartOfNumberedRoads = new ImportedRoadSegmentNumberedRoadAttribute[0];
 
-            return new RoadRegistry.Product.Projections.RoadSegmentNumberedRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            return new RoadSegmentNumberedRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
                 .Expect(new object[0]);
