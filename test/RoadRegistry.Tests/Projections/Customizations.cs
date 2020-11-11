@@ -108,6 +108,24 @@ namespace RoadRegistry.Projections
             );
         }
 
+        public static void CustomizeRoadSegmentWidthAttributes(this IFixture fixture)
+        {
+            fixture.Customize<RoadSegmentWidthAttributes>(customization =>
+                customization
+                    .FromFactory(generator =>
+                        new RoadSegmentWidthAttributes
+                        {
+                            AttributeId = fixture.Create<int>(),
+                            Width = fixture.Create<RoadSegmentWidth>(),
+                            FromPosition = fixture.Create<RoadSegmentPosition>(),
+                            ToPosition = fixture.Create<RoadSegmentPosition>(),
+                            AsOfGeometryVersion = fixture.Create<int>(),
+                        }
+                    )
+                    .OmitAutoProperties()
+            );
+        }
+
         public static void CustomizeImportedRoadSegmentSurfaceAttributes(this IFixture fixture)
         {
             fixture.Customize<ImportedRoadSegmentSurfaceAttribute>(customization =>

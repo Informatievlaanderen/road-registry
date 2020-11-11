@@ -53,6 +53,13 @@ namespace RoadRegistry.Product.Projections
             _fixture.CustomizeImportedRoadSegmentSurfaceAttributes();
             _fixture.CustomizeImportedRoadSegmentSideAttributes();
             _fixture.CustomizeOriginProperties();
+
+            _fixture.CustomizeImportedRoadSegmentWidthAttributes();
+            _fixture.CustomizeRoadSegmentWidthAttributes();
+            _fixture.CustomizeRoadSegmentAdded();
+            _fixture.CustomizeRoadSegmentModified();
+            _fixture.CustomizeRoadSegmentRemoved();
+            _fixture.CustomizeRoadNetworkChangesAccepted();
         }
 
         [Fact]
@@ -73,7 +80,7 @@ namespace RoadRegistry.Product.Projections
                         {
                             Id = width.AttributeId,
                             RoadSegmentId = segment.Id,
-                            DbaseRecord = Editor.Projections.DbaseRecordExtensions.ToBytes(new RoadSegmentWidthAttributeDbaseRecord
+                            DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
                             {
                                 WB_OIDN = { Value = width.AttributeId },
                                 WS_OIDN = { Value = segment.Id },
@@ -84,7 +91,7 @@ namespace RoadRegistry.Product.Projections
                                 BEGINTIJD = { Value = width.Origin.Since },
                                 BEGINORG = { Value = width.Origin.OrganizationId },
                                 LBLBGNORG = { Value = width.Origin.Organization }
-                            }, _services.MemoryStreamManager, Encoding.UTF8)
+                            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
                         });
 
                     return new
@@ -95,7 +102,7 @@ namespace RoadRegistry.Product.Projections
 
                 }).ToList();
 
-            return new RoadRegistry.Product.Projections.RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.importedRoadSegment))
                 .Expect(data
@@ -111,9 +118,334 @@ namespace RoadRegistry.Product.Projections
             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
             importedRoadSegment.Widths = new ImportedRoadSegmentWidthAttribute[0];
 
-            return new RoadRegistry.Product.Projections.RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
                 .Given(importedRoadSegment)
+                .ExpectNone();
+        }
+
+        [Fact]
+        public Task When_adding_road_node_with_widths()
+        {
+            var message = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
+
+            var expectedRecords = Array.ConvertAll(message.Changes, change =>
+            {
+                var segment = change.RoadSegmentAdded;
+
+                return segment.Widths.Select(width => (object) new RoadSegmentWidthAttributeRecord
+                {
+                    Id = width.AttributeId,
+                    RoadSegmentId = segment.Id,
+                    DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
+                    {
+                        WB_OIDN = {Value = width.AttributeId},
+                        WS_OIDN = {Value = segment.Id},
+                        WS_GIDN = {Value = $"{segment.Id}_{width.AsOfGeometryVersion}"},
+                        BREEDTE = {Value = width.Width},
+                        VANPOS = {Value = (double) width.FromPosition},
+                        TOTPOS = {Value = (double) width.ToPosition},
+                        BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
+                        BEGINORG = {Value = message.OrganizationId},
+                        LBLBGNORG = {Value = message.Organization}
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                });
+            }).SelectMany(x => x);
+
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(message)
+                .Expect(expectedRecords);
+        }
+
+        [Fact]
+        public Task When_modifying_road_segments_with_new_widths_only()
+        {
+            _fixture.Freeze<RoadSegmentId>();
+
+            var acceptedRoadSegmentAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+            var acceptedRoadSegmentModified = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
+
+            var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
+            {
+                var segment = change.RoadSegmentModified;
+
+                return segment.Widths.Select(width => (object) new RoadSegmentWidthAttributeRecord
+                {
+                    Id = width.AttributeId,
+                    RoadSegmentId = segment.Id,
+                    DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
+                    {
+                        WB_OIDN = {Value = width.AttributeId},
+                        WS_OIDN = {Value = segment.Id},
+                        WS_GIDN = {Value = $"{segment.Id}_{width.AsOfGeometryVersion}"},
+                        BREEDTE = {Value = width.Width},
+                        VANPOS = {Value = (double) width.FromPosition},
+                        TOTPOS = {Value = (double) width.ToPosition},                        BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
+                        BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
+                        LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                });
+            }).SelectMany(x => x);
+
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
+                .ExpectInAnyOrder(expectedRecords);
+        }
+
+        [Fact]
+        public Task When_modifying_road_nodes_with_modified_widths_only()
+        {
+            _fixture.Freeze<RoadSegmentId>();
+
+            var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
+            var acceptedRoadSegmentAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(roadSegmentAdded);
+
+            var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
+            roadSegmentModified.Widths = roadSegmentAdded.Widths
+                .Select(attributes =>
+                {
+                    var roadSegmentWidthAttributes = _fixture.Create<RoadSegmentWidthAttributes>();
+                    roadSegmentWidthAttributes.AttributeId = attributes.AttributeId;
+                    return roadSegmentWidthAttributes;
+                })
+                .ToArray();
+
+            var acceptedRoadSegmentModified = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(roadSegmentModified);
+
+            var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
+            {
+                var segment = change.RoadSegmentModified;
+
+                return segment.Widths.Select(width => (object) new RoadSegmentWidthAttributeRecord
+                {
+                    Id = width.AttributeId,
+                    RoadSegmentId = segment.Id,
+                    DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
+                    {
+                        WB_OIDN = {Value = width.AttributeId},
+                        WS_OIDN = {Value = segment.Id},
+                        WS_GIDN = {Value = $"{segment.Id}_{width.AsOfGeometryVersion}"},
+                        BREEDTE = {Value = width.Width},
+                        VANPOS = {Value = (double) width.FromPosition},
+                        TOTPOS = {Value = (double) width.ToPosition},
+                        BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
+                        BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
+                        LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                });
+            }).SelectMany(x => x);
+
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
+                .Expect(expectedRecords);
+        }
+
+        [Fact]
+        public Task When_modifying_road_nodes_with_removed_widths_only()
+        {
+            _fixture.Freeze<RoadSegmentId>();
+
+            var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
+            var acceptedRoadSegmentAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(roadSegmentAdded);
+
+            var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
+            roadSegmentModified.Widths = new RoadSegmentWidthAttributes[0];
+
+            var acceptedRoadSegmentModified = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(roadSegmentModified);
+
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
+                .ExpectNone();
+        }
+
+        [Fact]
+        public Task When_modifying_road_nodes_with_some_removed_widths()
+        {
+            _fixture.Freeze<RoadSegmentId>();
+
+            var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
+            var acceptedRoadSegmentAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(roadSegmentAdded);
+
+            var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
+            roadSegmentModified.Widths = roadSegmentAdded.Widths
+                .Take(roadSegmentAdded.Widths.Length - 1)
+                .ToArray();
+
+            var acceptedRoadSegmentModified = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(roadSegmentModified);
+
+            var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
+            {
+                var segment = change.RoadSegmentModified;
+
+                return segment.Widths.Select(width => (object) new RoadSegmentWidthAttributeRecord
+                {
+                    Id = width.AttributeId,
+                    RoadSegmentId = segment.Id,
+                    DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
+                    {
+                        WB_OIDN = {Value = width.AttributeId},
+                        WS_OIDN = {Value = segment.Id},
+                        WS_GIDN = {Value = $"{segment.Id}_{width.AsOfGeometryVersion}"},
+                        BREEDTE = {Value = width.Width},
+                        VANPOS = {Value = (double) width.FromPosition},
+                        TOTPOS = {Value = (double) width.ToPosition},
+                        BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
+                        BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
+                        LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                });
+            }).SelectMany(x => x);
+
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
+                .Expect(expectedRecords);
+        }
+
+        [Fact]
+        public Task When_modifying_road_nodes_with_some_added_widths()
+        {
+            _fixture.Freeze<RoadSegmentId>();
+
+            var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
+            var acceptedRoadSegmentAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(roadSegmentAdded);
+
+            var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
+            roadSegmentModified.Widths = roadSegmentAdded.Widths
+                .Append(_fixture.Create<RoadSegmentWidthAttributes>())
+                .ToArray();
+
+            var acceptedRoadSegmentModified = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(roadSegmentModified);
+
+            var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
+            {
+                var segment = change.RoadSegmentModified;
+
+                return segment.Widths.Select(width => (object) new RoadSegmentWidthAttributeRecord
+                {
+                    Id = width.AttributeId,
+                    RoadSegmentId = segment.Id,
+                    DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
+                    {
+                        WB_OIDN = {Value = width.AttributeId},
+                        WS_OIDN = {Value = segment.Id},
+                        WS_GIDN = {Value = $"{segment.Id}_{width.AsOfGeometryVersion}"},
+                        BREEDTE = {Value = width.Width},
+                        VANPOS = {Value = (double) width.FromPosition},
+                        TOTPOS = {Value = (double) width.ToPosition},
+                        BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
+                        BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
+                        LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                });
+            }).SelectMany(x => x);
+
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
+                .Expect(expectedRecords);
+        }
+
+        [Fact]
+        public Task When_modifying_road_nodes_with_some_modified_widths()
+        {
+            _fixture.Freeze<RoadSegmentId>();
+
+            var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
+            var acceptedRoadSegmentAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(roadSegmentAdded);
+
+            var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
+            roadSegmentModified.Widths = roadSegmentAdded.Widths
+                .Select((attributes, i) =>
+                {
+                    if (i % 2 == 0)
+                    {
+                        var roadSegmentWidthAttributes = _fixture.Create<RoadSegmentWidthAttributes>();
+                        roadSegmentWidthAttributes.AttributeId = attributes.AttributeId;
+                        return roadSegmentWidthAttributes;
+                    }
+                    return attributes;
+                })
+                .ToArray();
+
+            var acceptedRoadSegmentModified = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(roadSegmentModified);
+
+            var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
+            {
+                var segment = change.RoadSegmentModified;
+
+                return segment.Widths.Select(width => (object) new RoadSegmentWidthAttributeRecord
+                {
+                    Id = width.AttributeId,
+                    RoadSegmentId = segment.Id,
+                    DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
+                    {
+                        WB_OIDN = {Value = width.AttributeId},
+                        WS_OIDN = {Value = segment.Id},
+                        WS_GIDN = {Value = $"{segment.Id}_{width.AsOfGeometryVersion}"},
+                        BREEDTE = {Value = width.Width},
+                        VANPOS = {Value = (double) width.FromPosition},
+                        TOTPOS = {Value = (double) width.ToPosition},
+                        BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
+                        BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
+                        LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                });
+            }).SelectMany(x => x);
+
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
+                .Expect(expectedRecords);
+        }
+
+        [Fact]
+        public Task When_removing_road_nodes()
+        {
+            _fixture.Freeze<RoadSegmentId>();
+
+            var acceptedRoadNodeAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+            var acceptedRoadNodeRemoved = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<RoadSegmentRemoved>());
+
+            return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedRoadNodeAdded, acceptedRoadNodeRemoved)
                 .ExpectNone();
         }
     }
