@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice
 {
     using System;
     using System.Diagnostics.Contracts;
+    using System.Globalization;
 
     public readonly struct CrabStreetnameId : IEquatable<CrabStreetnameId>
     {
@@ -33,7 +34,7 @@ namespace RoadRegistry.BackOffice
         public bool Equals(CrabStreetnameId other) => _value == other._value;
         public override bool Equals(object other) => other is CrabStreetnameId id && Equals(id);
         public override int GetHashCode() => _value.GetHashCode();
-        public override string ToString() => _value.ToString();
+        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
         public static bool operator ==(CrabStreetnameId left, CrabStreetnameId right) => left.Equals(right);
         public static bool operator !=(CrabStreetnameId left, CrabStreetnameId right) => !left.Equals(right);
         public static implicit operator int(CrabStreetnameId instance) => instance._value;

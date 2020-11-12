@@ -11,11 +11,17 @@ namespace RoadRegistry.BackOffice.Uploads
     {
         private readonly Encoding _encoding;
         private readonly DbaseSchema _schema;
+        private readonly DbaseFileHeaderReadBehavior _readBehavior;
         private readonly IZipArchiveDbaseRecordsValidator<TDbaseRecord> _recordValidator;
 
-        public ZipArchiveDbaseEntryValidator(Encoding encoding, DbaseSchema schema, IZipArchiveDbaseRecordsValidator<TDbaseRecord> recordValidator)
+        public ZipArchiveDbaseEntryValidator(
+            Encoding encoding,
+            DbaseFileHeaderReadBehavior readBehavior,
+            DbaseSchema schema,
+            IZipArchiveDbaseRecordsValidator<TDbaseRecord> recordValidator)
         {
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
+            _readBehavior = readBehavior ?? throw new ArgumentNullException(nameof(readBehavior));
             _schema = schema ?? throw new ArgumentNullException(nameof(schema));
             _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
         }
@@ -32,7 +38,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 DbaseFileHeader header = null;
                 try
                 {
-                    header = DbaseFileHeader.Read(reader);
+                    header = DbaseFileHeader.Read(reader, _readBehavior);
                 }
                 catch (Exception exception)
                 {

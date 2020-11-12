@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.IO.Compression;
     using System.Linq;
     using System.Text;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Schema;
 
     public class ZipArchiveTranslator : IZipArchiveTranslator
@@ -21,7 +22,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "WEGKNOOP_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<RoadNodeChangeDbaseRecord>(
-                            encoding,
+                            encoding, DbaseFileHeaderReadBehavior.Default,
                             new RoadNodeChangeDbaseRecordsTranslator()
                         )
                     },
@@ -35,7 +36,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "WEGSEGMENT_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<RoadSegmentChangeDbaseRecord>(
-                            encoding,
+                            encoding, DbaseFileHeaderReadBehavior.Default,
                             new RoadSegmentChangeDbaseRecordsTranslator()
                         )
                     },
@@ -49,56 +50,56 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "ATTEUROPWEG_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<EuropeanRoadChangeDbaseRecord>(
-                            encoding,
+                            encoding, DbaseFileHeaderReadBehavior.Default,
                             new EuropeanRoadChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "ATTNATIONWEG_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<NationalRoadChangeDbaseRecord>(
-                            encoding,
+                            encoding, DbaseFileHeaderReadBehavior.Default,
                             new NationalRoadChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "ATTGENUMWEG_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<NumberedRoadChangeDbaseRecord>(
-                            encoding,
+                            encoding, DbaseFileHeaderReadBehavior.Default,
                             new NumberedRoadChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "ATTRIJSTROKEN_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<RoadSegmentLaneChangeDbaseRecord>(
-                            encoding,
+                            encoding, DbaseFileHeaderReadBehavior.Default,
                             new RoadSegmentLaneChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "ATTWEGBREEDTE_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<RoadSegmentWidthChangeDbaseRecord>(
-                            encoding,
+                            encoding, DbaseFileHeaderReadBehavior.Default,
                             new RoadSegmentWidthChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "ATTWEGVERHARDING_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<RoadSegmentSurfaceChangeDbaseRecord>(
-                            encoding,
+                            encoding, DbaseFileHeaderReadBehavior.Default,
                             new RoadSegmentSurfaceChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "RLTOGKRUISING_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<GradeSeparatedJunctionChangeDbaseRecord>(
-                            encoding,
+                            encoding, DbaseFileHeaderReadBehavior.Default,
                             new GradeSeparatedJunctionChangeDbaseRecordsTranslator()
                         )
                     },
                     {
-                        "TRANSACTIEZONE.DBF",
+                        "TRANSACTIEZONES.DBF",
                         new ZipArchiveDbaseEntryTranslator<TransactionZoneDbaseRecord>(
-                            encoding,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             new TransactionZoneDbaseRecordsTranslator()
                         )
                     }
@@ -106,7 +107,7 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         private static readonly string[] TranslationOrder = {
-            "TRANSACTIEZONE.DBF",
+            "TRANSACTIEZONES.DBF",
             "WEGKNOOP_ALL.DBF",
             "WEGKNOOP_ALL.SHP",
             "WEGSEGMENT_ALL.DBF",

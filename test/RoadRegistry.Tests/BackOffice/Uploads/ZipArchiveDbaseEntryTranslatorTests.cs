@@ -15,7 +15,7 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             Assert.Throws<ArgumentNullException>(
                 () => new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
-                    null,
+                    null, DbaseFileHeaderReadBehavior.Default,
                     new FakeDbaseRecordTranslator()));
         }
 
@@ -24,7 +24,7 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             Assert.Throws<ArgumentNullException>(
                 () => new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
-                    Encoding.Default,
+                    Encoding.Default, DbaseFileHeaderReadBehavior.Default,
                     null));
         }
 
@@ -32,7 +32,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public void TranslateEntryCanNotBeNull()
         {
             var sut = new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
-                Encoding.Default,
+                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
                 new FakeDbaseRecordTranslator());
 
             Assert.Throws<ArgumentNullException>(() => sut.Translate(null, TranslatedChanges.Empty));
@@ -42,7 +42,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public void TranslateChangesCanNotBeNull()
         {
             var sut = new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
-                Encoding.Default,
+                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
                 new FakeDbaseRecordTranslator());
 
             using (var stream = new MemoryStream())
@@ -60,7 +60,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Append(new Uploads.AddRoadNode(new RecordNumber(1), new RoadNodeId(1), RoadNodeType.FakeNode))
                 .Append(new Uploads.AddRoadNode(new RecordNumber(2), new RoadNodeId(2), RoadNodeType.FakeNode));
             var sut = new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
-                Encoding.UTF8,
+                Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
                 new FakeDbaseRecordTranslator(ignored => changes));
             var date = DateTime.Today;
             var header = new DbaseFileHeader(
@@ -104,7 +104,7 @@ namespace RoadRegistry.BackOffice.Uploads
             var schema = new FakeDbaseSchema();
             var translator = new CollectDbaseRecordTranslator();
             var sut = new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
-                Encoding.UTF8,
+                Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
                 translator);
             var records = new []
             {

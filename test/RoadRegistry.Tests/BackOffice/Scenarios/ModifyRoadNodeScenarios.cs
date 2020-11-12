@@ -1166,7 +1166,8 @@ namespace RoadRegistry.BackOffice.Scenarios
             Segment2Added.Status = Segment1Added.Status;
             Segment2Added.Morphology = Segment1Added.Morphology;
             Segment2Added.Category = Segment1Added.Category;
-            Segment2Added.MaintenanceAuthority = Segment1Added.MaintenanceAuthority;
+            Segment2Added.MaintenanceAuthority.Code = Segment1Added.MaintenanceAuthority.Code;
+            Segment2Added.MaintenanceAuthority.Name = Segment1Added.MaintenanceAuthority.Name;
             Segment2Added.AccessRestriction = Segment1Added.AccessRestriction;
             Segment2Added.LeftSide.StreetNameId = Segment1Added.LeftSide.StreetNameId;
             Segment2Added.RightSide.StreetNameId = Segment1Added.RightSide.StreetNameId;
@@ -1321,7 +1322,8 @@ namespace RoadRegistry.BackOffice.Scenarios
             Segment2Added.Status = Segment1Added.Status;
             Segment2Added.Morphology = Segment1Added.Morphology;
             Segment2Added.Category = Segment1Added.Category;
-            Segment2Added.MaintenanceAuthority = Segment1Added.MaintenanceAuthority;
+            Segment2Added.MaintenanceAuthority.Code = Segment1Added.MaintenanceAuthority.Code;
+            Segment2Added.MaintenanceAuthority.Name = Segment1Added.MaintenanceAuthority.Name;
             Segment2Added.AccessRestriction = Segment1Added.AccessRestriction;
             Segment2Added.LeftSide.StreetNameId = Segment1Added.LeftSide.StreetNameId;
             Segment2Added.RightSide.StreetNameId = Segment1Added.RightSide.StreetNameId;
@@ -1647,7 +1649,8 @@ namespace RoadRegistry.BackOffice.Scenarios
             Segment2Added.Status = Segment1Added.Status;
             Segment2Added.Morphology = Segment1Added.Morphology;
             Segment2Added.Category = Segment1Added.Category;
-            Segment2Added.MaintenanceAuthority = Segment1Added.MaintenanceAuthority;
+            Segment2Added.MaintenanceAuthority.Code = Segment1Added.MaintenanceAuthority.Code;
+            Segment2Added.MaintenanceAuthority.Name = Segment1Added.MaintenanceAuthority.Name;
             Segment2Added.AccessRestriction = Segment1Added.AccessRestriction;
             Segment2Added.LeftSide.StreetNameId = Segment1Added.LeftSide.StreetNameId;
             Segment2Added.RightSide.StreetNameId = Segment1Added.RightSide.StreetNameId;
@@ -1803,7 +1806,8 @@ namespace RoadRegistry.BackOffice.Scenarios
             Segment2Added.Status = Segment1Added.Status;
             Segment2Added.Morphology = Segment1Added.Morphology;
             Segment2Added.Category = Segment1Added.Category;
-            Segment2Added.MaintenanceAuthority = Segment1Added.MaintenanceAuthority;
+            Segment2Added.MaintenanceAuthority.Code = Segment1Added.MaintenanceAuthority.Code;
+            Segment2Added.MaintenanceAuthority.Name = Segment1Added.MaintenanceAuthority.Name;
             Segment2Added.AccessRestriction = Segment1Added.AccessRestriction;
             Segment2Added.LeftSide.StreetNameId = Segment1Added.LeftSide.StreetNameId;
             Segment2Added.RightSide.StreetNameId = Segment1Added.RightSide.StreetNameId;

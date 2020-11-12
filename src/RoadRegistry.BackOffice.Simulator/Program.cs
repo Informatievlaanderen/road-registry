@@ -276,7 +276,7 @@ namespace RoadRegistry.BackOffice.Simulator
             transactionZoneRecord.ORG.Value = "11053";
             transactionZoneRecord.OPERATOR.Value = "Yves Reynhout";
             transactionZoneRecord.TYPE.Value = 1;
-            transactionZoneRecord.SOURCE_ID.Value = 1;
+            transactionZoneRecord.SOURCEID.Value = 1;
             transactionZoneRecord.BESCHRIJV.Value = "Nieuwe wijk";
             transactionZoneRecord.APPLICATIE.Value = "Wegenregister BLL";
 

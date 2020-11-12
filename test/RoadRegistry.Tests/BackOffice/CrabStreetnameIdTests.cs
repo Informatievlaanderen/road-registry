@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice
 {
+    using System.Globalization;
     using Albedo;
     using AutoFixture;
     using AutoFixture.Idioms;
@@ -49,7 +50,7 @@ namespace RoadRegistry.BackOffice
             var value = _fixture.Create<int>();
             var sut = new CrabStreetnameId(value);
 
-            Assert.Equal(value.ToString(), sut.ToString());
+            Assert.Equal(value.ToString(CultureInfo.InvariantCulture), sut.ToString());
         }
     }
 }

@@ -65,6 +65,11 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public DutchTranslation Translation => _dutchTranslation;
 
+        public bool IsAnyOf(params RecordType[] these)
+        {
+            return Array.Exists(these, candidate => candidate == this);
+        }
+
         public static bool CanParse(string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));

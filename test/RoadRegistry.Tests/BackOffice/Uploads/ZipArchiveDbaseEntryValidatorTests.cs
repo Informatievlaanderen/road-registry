@@ -16,7 +16,7 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             Assert.Throws<ArgumentNullException>(
                 () => new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                    null,
+                    null, DbaseFileHeaderReadBehavior.Default,
                     new FakeDbaseSchema(),
                     new FakeDbaseRecordValidator()));
         }
@@ -26,7 +26,7 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             Assert.Throws<ArgumentNullException>(
                 () => new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                    Encoding.Default,
+                    Encoding.Default, DbaseFileHeaderReadBehavior.Default,
                     null,
                     new FakeDbaseRecordValidator()));
         }
@@ -36,7 +36,7 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             Assert.Throws<ArgumentNullException>(
                 () => new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                    Encoding.Default,
+                    Encoding.Default, DbaseFileHeaderReadBehavior.Default,
                     new FakeDbaseSchema(),
                     null));
         }
@@ -45,7 +45,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public void ValidateEntryCanNotBeNull()
         {
             var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.Default,
+                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
                 new FakeDbaseSchema(),
                 new FakeDbaseRecordValidator());
 
@@ -56,7 +56,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public void ValidateReturnsExpectedResultWhenEntryStreamIsEmpty()
         {
             var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.Default,
+                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
                 new FakeDbaseSchema(),
                 new FakeDbaseRecordValidator());
 
@@ -89,7 +89,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public void ValidateReturnsExpectedResultWhenEntryStreamContainsMalformedDbaseHeader()
         {
             var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.Default,
+                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
                 new FakeDbaseSchema(),
                 new FakeDbaseRecordValidator());
 
@@ -127,7 +127,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public void ValidateReturnsExpectedResultWhenDbaseFileHeaderDoesNotMatch()
         {
             var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.UTF8,
+                Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
                 new FakeDbaseSchema(),
                 new FakeDbaseRecordValidator());
             var date = DateTime.Today;
@@ -178,7 +178,7 @@ namespace RoadRegistry.BackOffice.Uploads
             };
             var schema = new FakeDbaseSchema();
             var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.UTF8,
+                Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
                 schema,
                 new FakeDbaseRecordValidator(problems));
             var date = DateTime.Today;
@@ -222,7 +222,7 @@ namespace RoadRegistry.BackOffice.Uploads
             var schema = new FakeDbaseSchema();
             var validator = new CollectDbaseRecordValidator();
             var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.UTF8,
+                Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
                 schema,
                 validator);
             var records = new []

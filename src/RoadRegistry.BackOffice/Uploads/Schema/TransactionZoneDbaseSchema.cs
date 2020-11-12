@@ -9,12 +9,12 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             Fields = new []
             {
                 DbaseField.CreateNumberField(
-                    new DbaseFieldName(nameof(SOURCE_ID)),
-                    new DbaseFieldLength(4),
+                    new DbaseFieldName(nameof(SOURCEID)),
+                    new DbaseFieldLength(5),
                     new DbaseDecimalCount(0)),
                 DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(TYPE)),
-                    new DbaseFieldLength(4),
+                    new DbaseFieldLength(5),
                     new DbaseDecimalCount(0)),
                 DbaseField.CreateCharacterField(
                     new DbaseFieldName(nameof(BESCHRIJV)),
@@ -31,7 +31,7 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             };
         }
 
-        public DbaseField SOURCE_ID => Fields[0];
+        public DbaseField SOURCEID => Fields[0];
         public DbaseField TYPE => Fields[1];
         public DbaseField BESCHRIJV => Fields[2];
         public DbaseField OPERATOR => Fields[3];

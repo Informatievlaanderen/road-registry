@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Uploads
 {
     using System;
+    using System.Linq;
     using AutoFixture;
     using AutoFixture.Idioms;
     using Framework;
@@ -101,6 +102,26 @@ namespace RoadRegistry.BackOffice.Uploads
                     RecordType.Removed
                 },
                 RecordType.All);
+        }
+
+        [Fact]
+        public void IsAnyOfReturnsExpectedResultIfItIsAnyOfThese()
+        {
+            _fixture.CustomizeRecordType();
+            var these = _fixture.CreateMany<RecordType>(3).Distinct().ToArray();
+            var sut = these[new Random().Next(0, these.Length)];
+
+            Assert.True(sut.IsAnyOf(these));
+        }
+
+        [Fact]
+        public void IsAnyOfReturnsExpectedResultIfItIsNotAnyOfThese()
+        {
+            _fixture.CustomizeRecordType();
+            var these = _fixture.CreateMany<RecordType>(3).Distinct().ToArray();
+            var sut = new Generator<RecordType>(_fixture).First(candidate => Array.IndexOf(these, candidate) == -1);
+
+            Assert.False(sut.IsAnyOf(these));
         }
 
         [Fact]

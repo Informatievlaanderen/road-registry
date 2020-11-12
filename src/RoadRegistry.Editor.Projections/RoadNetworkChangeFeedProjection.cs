@@ -2,6 +2,7 @@ namespace RoadRegistry.Editor.Projections
 {
     using System;
     using System.Linq;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice;
@@ -457,7 +458,7 @@ namespace RoadRegistry.Editor.Projections
 
                     case nameof(DbaseFileProblems.IdentifierNotUnique):
                         translation =
-                            $"De dbase record {problem.Parameters[0].Value} bevat dezelfde identifier {problem.Parameters[1].Value} als dbase record {problem.Parameters[2].Value}.";
+                            $"De dbase record {problem.Parameters[0].Value} bevat dezelfde identifier {problem.Parameters[1].Value} als dbase record(s) {string.Join(", ", problem.Parameters.Skip(2).Select(parameter => parameter.Value))}.";
                         break;
 
                     case nameof(DbaseFileProblems.RoadSegmentIdOutOfRange):
@@ -572,6 +573,11 @@ namespace RoadRegistry.Editor.Projections
                     case nameof(DbaseFileProblems.RecordTypeMismatch):
                         translation =
                             $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig record type in veld RECORDTYPE: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}.";
+                        break;
+
+                    case nameof(DbaseFileProblems.RecordTypeNotSupported):
+                        translation =
+                            $"De dbase record {problem.Parameters[0].Value} bevat een niet ondersteund record type in veld RECORDTYPE: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}.";
                         break;
 
                     case nameof(ShapeFileProblems.HasNoShapeRecords):
