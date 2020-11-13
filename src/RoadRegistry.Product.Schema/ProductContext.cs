@@ -27,6 +27,7 @@ namespace RoadRegistry.Product.Schema
         public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
         public DbSet<OrganizationRecord> Organizations { get; set; }
         public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }
+        public DbSet<RoadNetworkInfoSegmentCache> RoadNetworkInfoSegmentCache { get; set; }
 
         public DbSet<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
         public DbSet<RoadSegmentBoundingBox3D> RoadSegmentBoundingBox { get; set; }
