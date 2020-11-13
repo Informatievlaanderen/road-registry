@@ -523,7 +523,7 @@ namespace RoadRegistry.Editor.Projections
              {
                  Id = 0,
                  CompletedImport = false,
-                 OrganizationCount = 1,
+                 OrganizationCount = 0,
                  RoadNodeCount = 0,
                  TotalRoadNodeShapeLength = 0,
                  RoadSegmentCount = 0,
@@ -556,7 +556,7 @@ namespace RoadRegistry.Editor.Projections
              {
                  Id = 0,
                  CompletedImport = false,
-                 OrganizationCount = 1,
+                 OrganizationCount = 0,
                  RoadNodeCount = 0,
                  TotalRoadNodeShapeLength = 0,
                  RoadSegmentCount = 0,
@@ -589,7 +589,7 @@ namespace RoadRegistry.Editor.Projections
              {
                  Id = 0,
                  CompletedImport = false,
-                 OrganizationCount = 1,
+                 OrganizationCount = 0,
                  RoadNodeCount = 0,
                  TotalRoadNodeShapeLength = 0,
                  RoadSegmentCount = 0,
@@ -622,7 +622,7 @@ namespace RoadRegistry.Editor.Projections
              {
                  Id = 0,
                  CompletedImport = false,
-                 OrganizationCount = 1,
+                 OrganizationCount = 0,
                  RoadNodeCount = 0,
                  TotalRoadNodeShapeLength = 0,
                  RoadSegmentCount = 0,
@@ -656,7 +656,7 @@ namespace RoadRegistry.Editor.Projections
              {
                  Id = 0,
                  CompletedImport = false,
-                 OrganizationCount = 1,
+                 OrganizationCount = 0,
                  RoadNodeCount = 1,
                  TotalRoadNodeShapeLength = new PointShapeContent(
                          GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(roadNodeAdded.Geometry))
@@ -700,7 +700,7 @@ namespace RoadRegistry.Editor.Projections
              {
                  Id = 0,
                  CompletedImport = false,
-                 OrganizationCount = 2,
+                 OrganizationCount = 0,
                  RoadNodeCount = 1,
                  TotalRoadNodeShapeLength = new PointShapeContent(
                          GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(roadNodeAdded.Geometry))
@@ -745,7 +745,7 @@ namespace RoadRegistry.Editor.Projections
              {
                  Id = 0,
                  CompletedImport = false,
-                 OrganizationCount = 2,
+                 OrganizationCount = 0,
                  RoadNodeCount = 0,
                  TotalRoadNodeShapeLength = 0,
                  RoadSegmentCount = 0,
@@ -780,7 +780,7 @@ namespace RoadRegistry.Editor.Projections
              {
                  Id = 0,
                  CompletedImport = false,
-                 OrganizationCount = 1,
+                 OrganizationCount = 0,
                  RoadNodeCount = 0,
                  TotalRoadNodeShapeLength = 0,
                  RoadSegmentCount = 1,
@@ -830,7 +830,7 @@ namespace RoadRegistry.Editor.Projections
              {
                  Id = 0,
                  CompletedImport = false,
-                 OrganizationCount = 3,
+                 OrganizationCount = 0,
                  RoadNodeCount = 0,
                  TotalRoadNodeShapeLength = 0,
                  RoadSegmentCount = 2,
@@ -895,7 +895,7 @@ namespace RoadRegistry.Editor.Projections
              {
                  Id = 0,
                  CompletedImport = false,
-                 OrganizationCount = 4,
+                 OrganizationCount = 0,
                  RoadNodeCount = 0,
                  TotalRoadNodeShapeLength = 0,
                  RoadSegmentCount = 2,
