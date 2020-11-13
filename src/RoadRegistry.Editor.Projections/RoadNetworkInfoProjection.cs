@@ -32,18 +32,34 @@
             {
                 var info = await context.GetRoadNetworkInfo(token);
                 info.RoadSegmentCount += 1;
-                info.TotalRoadSegmentShapeLength +=
-                    new PolyLineMShapeContent(
-                        GeometryTranslator.FromGeometryMultiLineString(BackOffice.Core.GeometryTranslator.Translate(envelope.Message.Geometry))
-                    )
-                    .ContentLength.Plus(ShapeRecord.HeaderLength)
-                    .ToInt32();
-                info.RoadSegmentSurfaceAttributeCount += envelope.Message.Surfaces.Length;
-                info.RoadSegmentLaneAttributeCount += envelope.Message.Lanes.Length;
-                info.RoadSegmentWidthAttributeCount += envelope.Message.Widths.Length;
-                info.RoadSegmentEuropeanRoadAttributeCount += envelope.Message.PartOfEuropeanRoads.Length;
-                info.RoadSegmentNationalRoadAttributeCount += envelope.Message.PartOfNationalRoads.Length;
-                info.RoadSegmentNumberedRoadAttributeCount += envelope.Message.PartOfNumberedRoads.Length;
+
+                var roadNetworkInfoSegmentCache = new RoadNetworkInfoSegmentCache
+                {
+                    RoadSegmentId = envelope.Message.Id,
+                    ShapeLength = new PolyLineMShapeContent(
+                            GeometryTranslator.FromGeometryMultiLineString(
+                                BackOffice.Core.GeometryTranslator.Translate(envelope.Message.Geometry)))
+                        .ContentLength.Plus(ShapeRecord.HeaderLength)
+                        .ToInt32(),
+                    SurfacesLength = envelope.Message.Surfaces.Length,
+                    LanesLength = envelope.Message.Lanes.Length,
+                    WidthsLength = envelope.Message.Widths.Length,
+                    PartOfEuropeanRoadsLength = envelope.Message.PartOfEuropeanRoads.Length,
+                    PartOfNationalRoadsLength = envelope.Message.PartOfNationalRoads.Length,
+                    PartOfNumberedRoadsLength = envelope.Message.PartOfNumberedRoads.Length,
+                };
+
+                info.TotalRoadSegmentShapeLength += roadNetworkInfoSegmentCache.ShapeLength;
+
+                info.RoadSegmentSurfaceAttributeCount += roadNetworkInfoSegmentCache.SurfacesLength;
+                info.RoadSegmentLaneAttributeCount += roadNetworkInfoSegmentCache.LanesLength;
+                info.RoadSegmentWidthAttributeCount += roadNetworkInfoSegmentCache.WidthsLength;
+
+                info.RoadSegmentEuropeanRoadAttributeCount += roadNetworkInfoSegmentCache.PartOfEuropeanRoadsLength;
+                info.RoadSegmentNationalRoadAttributeCount += roadNetworkInfoSegmentCache.PartOfNationalRoadsLength;
+                info.RoadSegmentNumberedRoadAttributeCount += roadNetworkInfoSegmentCache.PartOfNumberedRoadsLength;
+
+                await context.RoadNetworkInfoSegmentCache.AddAsync(roadNetworkInfoSegmentCache);
             });
             When<Envelope<ImportedGradeSeparatedJunction>>(async (context, envelope, token) =>
             {
@@ -160,9 +176,14 @@
             var segmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id);
 
             info.TotalRoadSegmentShapeLength -= segmentCache.ShapeLength;
+
             info.RoadSegmentSurfaceAttributeCount -= segmentCache.SurfacesLength;
             info.RoadSegmentLaneAttributeCount -= segmentCache.LanesLength;
             info.RoadSegmentWidthAttributeCount -= segmentCache.WidthsLength;
+
+            info.RoadSegmentEuropeanRoadAttributeCount -= segmentCache.PartOfEuropeanRoadsLength;
+            info.RoadSegmentNationalRoadAttributeCount -= segmentCache.PartOfNationalRoadsLength;
+            info.RoadSegmentNumberedRoadAttributeCount -= segmentCache.PartOfNumberedRoadsLength;
 
             context.RoadNetworkInfoSegmentCache.Remove(segmentCache);
         }

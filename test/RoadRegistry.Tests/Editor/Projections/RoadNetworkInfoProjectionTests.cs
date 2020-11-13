@@ -867,7 +867,7 @@ namespace RoadRegistry.Editor.Projections
                  .Expect(expectedRecords);
          }
 
-                  [Fact]
+         [Fact]
          public Task When_road_segment_was_removed()
          {
              var unrelatedRoadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
@@ -920,6 +920,118 @@ namespace RoadRegistry.Editor.Projections
                      new BeganRoadNetworkImport(),
                      unrelatedRoadSegmentAddedChangesAccepted,
                      roadSegmentAddedChangesAccepted,
+                     roadSegmentModifiedChangesAccepted,
+                     roadSegmentRemovedChangesAccepted)
+                 .Expect(expectedRecords);
+         }
+
+         [Fact]
+         public Task When_an_imported_road_segment_was_modified()
+         {
+             var unrelatedRoadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
+             var unrelatedRoadSegmentAddedChangesAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(unrelatedRoadSegmentAdded);
+
+             _fixture.Freeze<RoadSegmentId>();
+
+             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
+
+             var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
+             var roadSegmentModifiedChangesAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(roadSegmentModified);
+
+             var expectedRecords = new RoadNetworkInfo
+             {
+                 Id = 0,
+                 CompletedImport = false,
+                 OrganizationCount = 0,
+                 RoadNodeCount = 0,
+                 TotalRoadNodeShapeLength = 0,
+                 RoadSegmentCount = 2,
+                 RoadSegmentSurfaceAttributeCount =
+                     roadSegmentModified.Surfaces.Length + unrelatedRoadSegmentAdded.Surfaces.Length,
+                 RoadSegmentLaneAttributeCount =
+                     roadSegmentModified.Lanes.Length + unrelatedRoadSegmentAdded.Lanes.Length,
+                 RoadSegmentWidthAttributeCount =
+                     roadSegmentModified.Widths.Length + unrelatedRoadSegmentAdded.Widths.Length,
+                 RoadSegmentEuropeanRoadAttributeCount = importedRoadSegment.PartOfEuropeanRoads.Length,
+                 RoadSegmentNationalRoadAttributeCount = importedRoadSegment.PartOfNationalRoads.Length,
+                 RoadSegmentNumberedRoadAttributeCount = importedRoadSegment.PartOfNumberedRoads.Length,
+                 TotalRoadSegmentShapeLength =
+                     new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(
+                             BackOffice.Core.GeometryTranslator.Translate(importedRoadSegment.Geometry)))
+                         .ContentLength.Plus(ShapeRecord.HeaderLength)
+                         .ToInt32()
+                     +
+                     new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(
+                             BackOffice.Core.GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
+                         .ContentLength.Plus(ShapeRecord.HeaderLength)
+                         .ToInt32(),
+                 GradeSeparatedJunctionCount = 0
+             };
+
+             return new RoadNetworkInfoProjection()
+                 .Scenario()
+                 .Given(
+                     new BeganRoadNetworkImport(),
+                     unrelatedRoadSegmentAddedChangesAccepted,
+                     importedRoadSegment,
+                     roadSegmentModifiedChangesAccepted)
+                 .Expect(expectedRecords);
+         }
+
+                  [Fact]
+         public Task When_an_imported_road_segment_was_removed()
+         {
+             var unrelatedRoadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
+             var unrelatedRoadSegmentAddedChangesAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(unrelatedRoadSegmentAdded);
+
+             _fixture.Freeze<RoadSegmentId>();
+
+             var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
+
+             var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
+             var roadSegmentModifiedChangesAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(roadSegmentModified);
+
+             var roadSegmentRemoved = _fixture.Create<RoadSegmentRemoved>();
+             var roadSegmentRemovedChangesAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(roadSegmentRemoved);
+
+             var expectedRecords = new RoadNetworkInfo
+             {
+                 Id = 0,
+                 CompletedImport = false,
+                 OrganizationCount = 0,
+                 RoadNodeCount = 0,
+                 TotalRoadNodeShapeLength = 0,
+                 RoadSegmentCount = 2,
+                 RoadSegmentSurfaceAttributeCount = unrelatedRoadSegmentAdded.Surfaces.Length,
+                 RoadSegmentLaneAttributeCount = unrelatedRoadSegmentAdded.Lanes.Length,
+                 RoadSegmentWidthAttributeCount = unrelatedRoadSegmentAdded.Widths.Length,
+                 RoadSegmentEuropeanRoadAttributeCount = 0,
+                 RoadSegmentNationalRoadAttributeCount = 0,
+                 RoadSegmentNumberedRoadAttributeCount = 0,
+                 TotalRoadSegmentShapeLength =
+                     new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(
+                             BackOffice.Core.GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
+                         .ContentLength.Plus(ShapeRecord.HeaderLength)
+                         .ToInt32(),
+                 GradeSeparatedJunctionCount = 0
+             };
+
+             return new RoadNetworkInfoProjection()
+                 .Scenario()
+                 .Given(
+                     new BeganRoadNetworkImport(),
+                     unrelatedRoadSegmentAddedChangesAccepted,
+                     importedRoadSegment,
                      roadSegmentModifiedChangesAccepted,
                      roadSegmentRemovedChangesAccepted)
                  .Expect(expectedRecords);
