@@ -546,6 +546,44 @@ namespace RoadRegistry.Editor.Projections
         }
 
          [Fact]
+         public Task When_grade_separated_junctions_were_removed()
+         {
+             var gradeSeparatedJunctionAddedAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(_fixture.Create<GradeSeparatedJunctionAdded>());
+
+             var gradeSeparatedJunctionRemovedAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(_fixture.Create<GradeSeparatedJunctionRemoved>());
+
+             var expectedRecords = new RoadNetworkInfo
+             {
+                 Id = 0,
+                 CompletedImport = false,
+                 OrganizationCount = 0,
+                 RoadNodeCount = 0,
+                 TotalRoadNodeShapeLength = 0,
+                 RoadSegmentCount = 0,
+                 RoadSegmentSurfaceAttributeCount = 0,
+                 RoadSegmentLaneAttributeCount = 0,
+                 RoadSegmentWidthAttributeCount = 0,
+                 RoadSegmentEuropeanRoadAttributeCount = 0,
+                 RoadSegmentNationalRoadAttributeCount = 0,
+                 RoadSegmentNumberedRoadAttributeCount = 0,
+                 TotalRoadSegmentShapeLength = 0,
+                 GradeSeparatedJunctionCount = 0
+             };
+
+             return new RoadNetworkInfoProjection()
+                 .Scenario()
+                 .Given(
+                     new BeganRoadNetworkImport(),
+                     gradeSeparatedJunctionAddedAccepted,
+                     gradeSeparatedJunctionRemovedAccepted)
+                 .Expect(expectedRecords);
+         }
+
+         [Fact]
          public Task When_road_segments_were_added_to_european_roads()
          {
              var roadNetworkChangesAccepted = _fixture
@@ -575,6 +613,45 @@ namespace RoadRegistry.Editor.Projections
                  .Given(
                      new BeganRoadNetworkImport(),
                      roadNetworkChangesAccepted)
+                 .Expect(expectedRecords);
+         }
+
+         [Fact]
+         public Task When_road_segments_were_removed_from_european_roads()
+         {
+             var roadSegmentAddedToEuRoadAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToEuropeanRoad>());
+
+             var roadSegmentRemovedFromEuRoadAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromEuropeanRoad>());
+
+             var expectedRecords = new RoadNetworkInfo
+             {
+                 Id = 0,
+                 CompletedImport = false,
+                 OrganizationCount = 0,
+                 RoadNodeCount = 0,
+                 TotalRoadNodeShapeLength = 0,
+                 RoadSegmentCount = 0,
+                 RoadSegmentSurfaceAttributeCount = 0,
+                 RoadSegmentLaneAttributeCount = 0,
+                 RoadSegmentWidthAttributeCount = 0,
+                 RoadSegmentEuropeanRoadAttributeCount = 0,
+                 RoadSegmentNationalRoadAttributeCount = 0,
+                 RoadSegmentNumberedRoadAttributeCount = 0,
+                 TotalRoadSegmentShapeLength = 0,
+                 GradeSeparatedJunctionCount = 0
+             };
+
+             return new RoadNetworkInfoProjection()
+                 .Scenario()
+                 .Given(
+                     new BeganRoadNetworkImport(),
+                     roadSegmentAddedToEuRoadAccepted,
+                     roadSegmentRemovedFromEuRoadAccepted
+                     )
                  .Expect(expectedRecords);
          }
 
@@ -612,6 +689,44 @@ namespace RoadRegistry.Editor.Projections
          }
 
          [Fact]
+         public Task When_road_segments_were_removed_from_numbered_roads()
+         {
+             var roadSegmentAddedToNumberedRoadAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNumberedRoad>());
+
+             var roadSegmentRemovedFromNumberedRoadAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromNumberedRoad>());
+
+             var expectedRecords = new RoadNetworkInfo
+             {
+                 Id = 0,
+                 CompletedImport = false,
+                 OrganizationCount = 0,
+                 RoadNodeCount = 0,
+                 TotalRoadNodeShapeLength = 0,
+                 RoadSegmentCount = 0,
+                 RoadSegmentSurfaceAttributeCount = 0,
+                 RoadSegmentLaneAttributeCount = 0,
+                 RoadSegmentWidthAttributeCount = 0,
+                 RoadSegmentEuropeanRoadAttributeCount = 0,
+                 RoadSegmentNationalRoadAttributeCount = 0,
+                 RoadSegmentNumberedRoadAttributeCount = 0,
+                 TotalRoadSegmentShapeLength = 0,
+                 GradeSeparatedJunctionCount = 0
+             };
+
+             return new RoadNetworkInfoProjection()
+                 .Scenario()
+                 .Given(
+                     new BeganRoadNetworkImport(),
+                     roadSegmentAddedToNumberedRoadAccepted,
+                     roadSegmentRemovedFromNumberedRoadAccepted)
+                 .Expect(expectedRecords);
+         }
+
+         [Fact]
          public Task When_road_segments_were_added_to_national_roads()
          {
              var roadNetworkChangesAccepted = _fixture
@@ -641,6 +756,44 @@ namespace RoadRegistry.Editor.Projections
                  .Given(
                      new BeganRoadNetworkImport(),
                      roadNetworkChangesAccepted)
+                 .Expect(expectedRecords);
+         }
+
+         [Fact]
+         public Task When_road_segments_were_removed_from_national_roads()
+         {
+             var roadSegmentAddedToNationalRoadAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNationalRoad>());
+
+             var roadSegmentRemovedFromNationalRoadAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromNationalRoad>());
+
+             var expectedRecords = new RoadNetworkInfo
+             {
+                 Id = 0,
+                 CompletedImport = false,
+                 OrganizationCount = 0,
+                 RoadNodeCount = 0,
+                 TotalRoadNodeShapeLength = 0,
+                 RoadSegmentCount = 0,
+                 RoadSegmentSurfaceAttributeCount = 0,
+                 RoadSegmentLaneAttributeCount = 0,
+                 RoadSegmentWidthAttributeCount = 0,
+                 RoadSegmentEuropeanRoadAttributeCount = 0,
+                 RoadSegmentNationalRoadAttributeCount = 0,
+                 RoadSegmentNumberedRoadAttributeCount = 0,
+                 TotalRoadSegmentShapeLength = 0,
+                 GradeSeparatedJunctionCount = 0
+             };
+
+             return new RoadNetworkInfoProjection()
+                 .Scenario()
+                 .Given(
+                     new BeganRoadNetworkImport(),
+                     roadSegmentAddedToNationalRoadAccepted,
+                     roadSegmentRemovedFromNationalRoadAccepted)
                  .Expect(expectedRecords);
          }
 

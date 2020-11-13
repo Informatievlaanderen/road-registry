@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.Editor.Projections
 {
-    using System.Linq;
     using System.Threading.Tasks;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -106,14 +105,33 @@
                         case RoadSegmentAddedToEuropeanRoad _:
                             info.RoadSegmentEuropeanRoadAttributeCount += 1;
                             break;
+
+                        case RoadSegmentRemovedFromEuropeanRoad _:
+                            info.RoadSegmentEuropeanRoadAttributeCount -= 1;
+                            break;
+
                         case RoadSegmentAddedToNationalRoad _:
                             info.RoadSegmentNationalRoadAttributeCount += 1;
                             break;
+
+                        case RoadSegmentRemovedFromNationalRoad _:
+                            info.RoadSegmentNationalRoadAttributeCount -= 1;
+                            break;
+
                         case RoadSegmentAddedToNumberedRoad _:
                             info.RoadSegmentNumberedRoadAttributeCount += 1;
                             break;
+
+                        case RoadSegmentRemovedFromNumberedRoad _:
+                            info.RoadSegmentNumberedRoadAttributeCount -= 1;
+                            break;
+
                         case GradeSeparatedJunctionAdded _:
                             info.GradeSeparatedJunctionCount += 1;
+                            break;
+
+                        case GradeSeparatedJunctionRemoved _:
+                            info.GradeSeparatedJunctionCount -= 1;
                             break;
                     }
                 }
