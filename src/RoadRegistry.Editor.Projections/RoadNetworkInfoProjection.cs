@@ -105,8 +105,6 @@
                             break;
                     }
                 }
-
-                info.OrganizationCount += 1;
             });
         }
 
