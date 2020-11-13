@@ -770,6 +770,87 @@ namespace RoadRegistry.Editor.Projections
          }
 
          [Fact]
+         public Task When_an_imported_road_node_was_modified_nothing_is_altered()
+         {
+             _fixture.Freeze<RoadNodeId>();
+
+             var importedRoadNode = _fixture.Create<ImportedRoadNode>();
+
+             var roadNodeModifiedChangesAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(_fixture.Create<RoadNodeModified>());
+
+             var expectedRecords = new RoadNetworkInfo
+             {
+                 Id = 0,
+                 CompletedImport = false,
+                 OrganizationCount = 0,
+                 RoadNodeCount = 1,
+                 TotalRoadNodeShapeLength = new PointShapeContent(
+                         GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(importedRoadNode.Geometry))
+                     )
+                     .ContentLength.Plus(ShapeRecord.HeaderLength)
+                     .ToInt32(),
+                 RoadSegmentCount = 0,
+                 RoadSegmentSurfaceAttributeCount = 0,
+                 RoadSegmentLaneAttributeCount = 0,
+                 RoadSegmentWidthAttributeCount = 0,
+                 RoadSegmentEuropeanRoadAttributeCount = 0,
+                 RoadSegmentNationalRoadAttributeCount = 0,
+                 RoadSegmentNumberedRoadAttributeCount = 0,
+                 TotalRoadSegmentShapeLength = 0,
+                 GradeSeparatedJunctionCount = 0
+             };
+
+             return new RoadNetworkInfoProjection()
+                 .Scenario()
+                 .Given(
+                     new BeganRoadNetworkImport(),
+                     importedRoadNode,
+                     roadNodeModifiedChangesAccepted)
+                 .Expect(expectedRecords);
+         }
+
+         [Fact]
+         public Task When_an_imported_road_node_was_removed()
+         {
+             _fixture.Freeze<RoadNodeId>();
+
+             var importedRoadNode = _fixture.Create<ImportedRoadNode>();
+
+             var roadNodeRemovedChangesAccepted = _fixture
+                 .Create<RoadNetworkChangesAccepted>()
+                 .WithAcceptedChanges(_fixture.Create<RoadNodeRemoved>());
+
+             var expectedRecords = new RoadNetworkInfo
+             {
+                 Id = 0,
+                 CompletedImport = false,
+                 OrganizationCount = 0,
+                 RoadNodeCount = 0,
+                 TotalRoadNodeShapeLength = 0,
+                 RoadSegmentCount = 0,
+                 RoadSegmentSurfaceAttributeCount = 0,
+                 RoadSegmentLaneAttributeCount = 0,
+                 RoadSegmentWidthAttributeCount = 0,
+                 RoadSegmentEuropeanRoadAttributeCount = 0,
+                 RoadSegmentNationalRoadAttributeCount = 0,
+                 RoadSegmentNumberedRoadAttributeCount = 0,
+                 TotalRoadSegmentShapeLength = 0,
+                 GradeSeparatedJunctionCount = 0
+             };
+
+             return new RoadNetworkInfoProjection()
+                 .Scenario()
+                 .Given(
+                     new BeganRoadNetworkImport(),
+                     importedRoadNode,
+                     roadNodeRemovedChangesAccepted)
+                 .Expect(expectedRecords);
+         }
+
+
+         [Fact]
          public Task When_road_segment_was_added()
          {
              var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
