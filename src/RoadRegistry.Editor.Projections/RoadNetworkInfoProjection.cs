@@ -26,11 +26,7 @@
                 var info = await context.GetRoadNetworkInfo(token);
                 info.RoadNodeCount += 1;
                 info.TotalRoadNodeShapeLength +=
-                    new PointShapeContent(
-                        GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(envelope.Message.Geometry))
-                    )
-                    .ContentLength.Plus(ShapeRecord.HeaderLength)
-                    .ToInt32();
+                    PointShapeContent.Length.Plus(ShapeRecord.HeaderLength).ToInt32();
             });
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
