@@ -32,7 +32,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new NumberedRoadChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short)_fixture.Create<RecordType>().Translation.Identifier},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(_fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         GW_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
@@ -91,15 +91,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Select((record, index) =>
                 {
                     record.GW_OIDN.Value = index + 1;
-                    switch (index % 3)
+                    switch (index % 2)
                     {
                         case 0:
                             record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                             break;
                         case 1:
-                            record.RECORDTYPE.Value = (short)RecordType.Modified.Translation.Identifier;
-                            break;
-                        case 2:
                             record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
                             break;
                     }
@@ -121,16 +118,6 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.AddedIdentifier:
                             nextChanges = previousChanges.Append(
                                 new Uploads.AddRoadSegmentToNumberedRoad(
-                                    new RecordNumber(Array.IndexOf(records, current) + 1),
-                                    new AttributeId(current.GW_OIDN.Value),
-                                    new RoadSegmentId(current.WS_OIDN.Value),
-                                    NumberedRoadNumber.Parse(current.IDENT8.Value),
-                                    RoadSegmentNumberedRoadDirection.ByIdentifier[current.RICHTING.Value],
-                                    new RoadSegmentNumberedRoadOrdinal(current.VOLGNUMMER.Value)));
-                            break;
-                        case RecordType.ModifiedIdentifier:
-                            nextChanges = previousChanges.Append(
-                                new Uploads.ModifyRoadSegmentOnNumberedRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new AttributeId(current.GW_OIDN.Value),
                                     new RoadSegmentId(current.WS_OIDN.Value),

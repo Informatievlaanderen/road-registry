@@ -140,16 +140,13 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public static FileError IdentifierNotUnique(this IDbaseFileRecordProblemBuilder builder,
             AttributeId identifier,
-            params RecordNumber[] takenByRecordNumbers)
+            RecordNumber takenByRecordNumber)
         {
             return builder
                 .Error(nameof(IdentifierNotUnique))
-                .WithParameter(new ProblemParameter("Identifier", identifier.ToString()))
                 .WithParameters(
-                    takenByRecordNumbers
-                        .Select(takenByRecordNumber => new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
-                        .ToArray()
-                )
+                    new ProblemParameter("Identifier", identifier.ToString()),
+                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
                 .Build();
         }
 

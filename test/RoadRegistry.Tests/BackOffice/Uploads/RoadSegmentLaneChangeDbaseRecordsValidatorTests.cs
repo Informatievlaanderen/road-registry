@@ -149,9 +149,9 @@ namespace RoadRegistry.BackOffice.Uploads
 
             Assert.Equal(
                 ZipArchiveProblems.Single(
-                    _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierNotUnique(
+                    _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierNotUnique(
                         new AttributeId(1),
-                        new RecordNumber(2))
+                        new RecordNumber(1))
                 ),
                 result);
         }

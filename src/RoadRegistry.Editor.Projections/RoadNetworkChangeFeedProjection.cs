@@ -458,7 +458,7 @@ namespace RoadRegistry.Editor.Projections
 
                     case nameof(DbaseFileProblems.IdentifierNotUnique):
                         translation =
-                            $"De dbase record {problem.Parameters[0].Value} bevat dezelfde identifier {problem.Parameters[1].Value} als dbase record(s) {string.Join(", ", problem.Parameters.Skip(2).Select(parameter => parameter.Value))}.";
+                            $"De dbase record {problem.Parameters[0].Value} bevat dezelfde identifier {problem.Parameters[1].Value} als dbase record {problem.Parameters[2].Value}.";
                         break;
 
                     case nameof(DbaseFileProblems.RoadSegmentIdOutOfRange):

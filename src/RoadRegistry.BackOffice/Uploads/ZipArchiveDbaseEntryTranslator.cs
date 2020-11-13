@@ -32,8 +32,10 @@ namespace RoadRegistry.BackOffice.Uploads
             using (var reader = new BinaryReader(stream, _encoding))
             {
                 var header = DbaseFileHeader.Read(reader, _readBehavior);
-                var enumerator = header.CreateDbaseRecordEnumerator<TRecord>(reader);
-                return _translator.Translate(entry, enumerator, changes);
+                using (var enumerator = header.CreateDbaseRecordEnumerator<TRecord>(reader))
+                {
+                    return _translator.Translate(entry, enumerator, changes);
+                }
             }
         }
     }

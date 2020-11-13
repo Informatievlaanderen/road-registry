@@ -30,11 +30,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 )
                             );
                             break;
-                        case RecordType.ModifiedIdentifier:
-                            // TODO: What would this even mean? There are no meaningful attributes to change.
-                            break;
                         case RecordType.RemovedIdentifier:
-                            //TODO: This will only work if WS_OIDN remains stable (is this a fair assumption)
                             changes = changes.Append(
                                 new RemoveRoadSegmentFromNationalRoad(
                                     records.CurrentRecordNumber,

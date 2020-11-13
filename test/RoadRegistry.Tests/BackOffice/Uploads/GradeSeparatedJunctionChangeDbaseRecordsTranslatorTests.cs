@@ -30,7 +30,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new GradeSeparatedJunctionChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short)_fixture.Create<RecordType>().Translation.Identifier},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(_fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         OK_OIDN = {Value = new GradeSeparatedJunctionId(random.Next(1, int.MaxValue))},
                         TYPE = { Value = (short)_fixture.Create<GradeSeparatedJunctionType>().Translation.Identifier },
@@ -88,15 +88,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Select((record, index) =>
                 {
                     record.OK_OIDN.Value = index + 1;
-                    switch (index % 3)
+                    switch (index % 2)
                     {
                         case 0:
                             record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                             break;
                         case 1:
-                            record.RECORDTYPE.Value = (short)RecordType.Modified.Translation.Identifier;
-                            break;
-                        case 2:
                             record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
                             break;
                     }
@@ -117,17 +114,6 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.AddedIdentifier:
                             nextChanges = previousChanges.Append(
                                 new Uploads.AddGradeSeparatedJunction(
-                                    new RecordNumber(Array.IndexOf(records, current) + 1),
-                                    new GradeSeparatedJunctionId(current.OK_OIDN.Value),
-                                    GradeSeparatedJunctionType.ByIdentifier[current.TYPE.Value],
-                                    new RoadSegmentId(current.BO_WS_OIDN.Value),
-                                    new RoadSegmentId(current.ON_WS_OIDN.Value)
-                                )
-                            );
-                            break;
-                        case RecordType.ModifiedIdentifier:
-                            nextChanges = previousChanges.Append(
-                                new Uploads.ModifyGradeSeparatedJunction(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new GradeSeparatedJunctionId(current.OK_OIDN.Value),
                                     GradeSeparatedJunctionType.ByIdentifier[current.TYPE.Value],

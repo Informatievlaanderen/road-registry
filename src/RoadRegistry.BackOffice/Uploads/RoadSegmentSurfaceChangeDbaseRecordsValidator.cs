@@ -18,7 +18,7 @@ namespace RoadRegistry.BackOffice.Uploads
 
             try
             {
-                var allAttributeRecords = new List<DynamicRoadSegmentAttributeRecord>();
+                var identifiers = new Dictionary<AttributeId, RecordNumber>();
                 var moved = records.MoveNext();
                 if (moved)
                 {
@@ -51,8 +51,18 @@ namespace RoadRegistry.BackOffice.Uploads
                                 }
                                 else
                                 {
-                                    var identifier = new AttributeId(record.WV_OIDN.Value);
-                                    allAttributeRecords.Add(new DynamicRoadSegmentAttributeRecord(identifier, recordType, records.CurrentRecordNumber));
+                                    if (recordType != RecordType.Added)
+                                    {
+                                        var identifier = new AttributeId(record.WV_OIDN.Value);
+                                        if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
+                                        {
+                                            problems += recordContext.IdentifierNotUnique(identifier, takenByRecordNumber);
+                                        }
+                                        else
+                                        {
+                                            identifiers.Add(identifier, records.CurrentRecordNumber);
+                                        }
+                                    }
                                 }
                             }
                             else
@@ -97,38 +107,6 @@ namespace RoadRegistry.BackOffice.Uploads
                             }
                         }
                         moved = records.MoveNext();
-                    }
-
-                    foreach (var attributeRecordsOfIdentifier in allAttributeRecords.GroupBy(record => record.Identifier))
-                    {
-                        var attributeRecords = attributeRecordsOfIdentifier.ToArray();
-                        if (attributeRecords.Length > 2)
-                        {
-                            var recordContext = entry.AtDbaseRecord(attributeRecords[0].Number);
-                            var takenBy = attributeRecords
-                                .Skip(1)
-                                .Select(attributeRecord => attributeRecord.Number)
-                                .ToArray();
-                            problems += recordContext.IdentifierNotUnique(
-                                attributeRecords[0].Identifier,
-                                takenBy
-                            );
-                        }
-                        else if (attributeRecords.Length == 2)
-                        {
-                            if (!(attributeRecords[0].RecordType == RecordType.Added &&
-                                  attributeRecords[1].RecordType == RecordType.Removed
-                                  ||
-                                  attributeRecords[0].RecordType == RecordType.Removed &&
-                                  attributeRecords[1].RecordType == RecordType.Added))
-                            {
-                                var recordContext = entry.AtDbaseRecord(attributeRecords[0].Number);
-                                problems += recordContext.IdentifierNotUnique(
-                                    attributeRecords[0].Identifier,
-                                    attributeRecords[1].Number
-                                );
-                            }
-                        }
                     }
                 }
                 else
