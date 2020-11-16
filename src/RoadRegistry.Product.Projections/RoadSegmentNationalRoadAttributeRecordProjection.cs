@@ -73,6 +73,17 @@ namespace RoadRegistry.Product.Projections
 
                             context.RoadSegmentNationalRoadAttributes.Remove(roadSegmentNationalRoadAttributeRecord);
                             break;
+
+                        case RoadSegmentRemoved roadSegmentRemoved:
+                            var segmentNationalRoadAttributeRecords =
+                                context.RoadSegmentNationalRoadAttributes
+                                    .Local
+                                    .Where(x => x.RoadSegmentId == roadSegmentRemoved.Id)
+                                    .Concat(context.RoadSegmentNationalRoadAttributes
+                                        .Where(x => x.RoadSegmentId == roadSegmentRemoved.Id));
+
+                            context.RoadSegmentNationalRoadAttributes.RemoveRange(segmentNationalRoadAttributeRecords);
+                            break;
                     }
                 }
             });

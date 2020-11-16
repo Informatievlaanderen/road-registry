@@ -65,7 +65,10 @@ namespace RoadRegistry.Product.Projections
                             await RoadSegmentModified(manager, encoding, context, envelope, numberedRoad);
                             break;
                         case RoadSegmentRemovedFromNumberedRoad numberedRoad:
-                            await RoadSegmentRemoved(context, numberedRoad);
+                            await RoadSegmentRemovedFromNumberedRoad(context, numberedRoad);
+                            break;
+                        case RoadSegmentRemoved roadSegmentRemoved:
+                            RoadSegmentRemoved(context, roadSegmentRemoved);
                             break;
                     }
                 }
@@ -127,13 +130,25 @@ namespace RoadRegistry.Product.Projections
             }.ToBytes(manager, encoding);
         }
 
-        private static async Task RoadSegmentRemoved(ProductContext context,
+        private static async Task RoadSegmentRemovedFromNumberedRoad(ProductContext context,
             RoadSegmentRemovedFromNumberedRoad numberedRoad)
         {
             var roadSegment =
                 await context.RoadSegmentNumberedRoadAttributes.FindAsync(numberedRoad.AttributeId);
 
             context.RoadSegmentNumberedRoadAttributes.Remove(roadSegment);
+        }
+
+        private static void RoadSegmentRemoved(ProductContext context, RoadSegmentRemoved roadSegmentRemoved)
+        {
+            var segmentNumberedRoadAttributeRecords =
+                context.RoadSegmentNumberedRoadAttributes
+                    .Local
+                    .Where(x => x.RoadSegmentId == roadSegmentRemoved.Id)
+                    .Concat(context.RoadSegmentNumberedRoadAttributes
+                        .Where(x => x.RoadSegmentId == roadSegmentRemoved.Id));
+
+            context.RoadSegmentNumberedRoadAttributes.RemoveRange(segmentNumberedRoadAttributeRecords);
         }
     }
 }

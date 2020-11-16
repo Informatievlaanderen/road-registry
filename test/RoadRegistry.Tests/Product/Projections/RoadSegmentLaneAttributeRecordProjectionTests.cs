@@ -447,21 +447,21 @@ namespace RoadRegistry.Product.Projections
         }
 
         [Fact]
-        public Task When_removing_road_nodes()
+        public Task When_removing_road_segments()
         {
             _fixture.Freeze<RoadSegmentId>();
 
-            var acceptedRoadNodeAdded = _fixture
+            var acceptedRoadSegmentAdded = _fixture
                 .Create<RoadNetworkChangesAccepted>()
                 .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
 
-            var acceptedRoadNodeRemoved = _fixture
+            var acceptedRoadSegmentRemoved = _fixture
                 .Create<RoadNetworkChangesAccepted>()
                 .WithAcceptedChanges(_fixture.Create<RoadSegmentRemoved>());
 
             return new RoadSegmentLaneAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
                 .Scenario()
-                .Given(acceptedRoadNodeAdded, acceptedRoadNodeRemoved)
+                .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved)
                 .ExpectNone();
         }
     }

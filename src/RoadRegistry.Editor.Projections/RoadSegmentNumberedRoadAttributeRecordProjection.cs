@@ -67,6 +67,9 @@ namespace RoadRegistry.Editor.Projections
                         case RoadSegmentRemovedFromNumberedRoad numberedRoad:
                             await RoadSegmentRemoved(context, numberedRoad);
                             break;
+                        case RoadSegmentRemoved roadSegmentRemoved:
+                            RoadSegmentRemoved(context, roadSegmentRemoved);
+                            break;
                     }
                 }
             });
@@ -134,6 +137,18 @@ namespace RoadRegistry.Editor.Projections
                 await context.RoadSegmentNumberedRoadAttributes.FindAsync(numberedRoad.AttributeId);
 
             context.RoadSegmentNumberedRoadAttributes.Remove(roadSegment);
+        }
+
+        private static void RoadSegmentRemoved(EditorContext context, RoadSegmentRemoved roadSegmentRemoved)
+        {
+            var segmentNumberedRoadAttributeRecords =
+                context.RoadSegmentNumberedRoadAttributes
+                    .Local
+                    .Where(x => x.RoadSegmentId == roadSegmentRemoved.Id)
+                    .Concat(context.RoadSegmentNumberedRoadAttributes
+                        .Where(x => x.RoadSegmentId == roadSegmentRemoved.Id));
+
+            context.RoadSegmentNumberedRoadAttributes.RemoveRange(segmentNumberedRoadAttributeRecords);
         }
     }
 }
