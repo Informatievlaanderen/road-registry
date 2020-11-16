@@ -59,6 +59,7 @@ namespace RoadRegistry.Editor.Projections
 
             _fixture.CustomizeRoadSegmentAddedToNationalRoad();
             _fixture.CustomizeRoadSegmentRemovedFromNationalRoad();
+            _fixture.CustomizeRoadSegmentRemoved();
         }
 
         [Fact]
@@ -154,7 +155,7 @@ namespace RoadRegistry.Editor.Projections
         }
 
         [Fact]
-        public Task When_removing_road_segments()
+        public Task When_removing_road_segments_from_national_roads()
         {
             _fixture.Freeze<AttributeId>();
 
@@ -170,6 +171,44 @@ namespace RoadRegistry.Editor.Projections
                 .Scenario()
                 .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved)
                 .ExpectNone();
+        }
+
+        [Fact]
+        public Task When_removing_road_segments()
+        {
+            var roadSegmentAddedToNationalRoad = _fixture.Create<RoadSegmentAddedToNationalRoad>();
+            var anotherRoadSegmentAddedToNationalRoad = _fixture.Create<RoadSegmentAddedToNationalRoad>();
+
+            var acceptedRoadSegmentsAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(
+                    roadSegmentAddedToNationalRoad,
+                    anotherRoadSegmentAddedToNationalRoad);
+
+            var acceptedRoadSegmentRemoved = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(new RoadSegmentRemoved()
+                {
+                    Id = anotherRoadSegmentAddedToNationalRoad.SegmentId
+                });
+
+            return new RoadSegmentNationalRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedRoadSegmentsAdded, acceptedRoadSegmentRemoved)
+                .Expect((object)new RoadSegmentNationalRoadAttributeRecord
+                {
+                    Id = roadSegmentAddedToNationalRoad.AttributeId,
+                    RoadSegmentId = roadSegmentAddedToNationalRoad.SegmentId,
+                    DbaseRecord = new RoadSegmentNationalRoadAttributeDbaseRecord
+                    {
+                        NW_OIDN = { Value = roadSegmentAddedToNationalRoad.AttributeId },
+                        WS_OIDN = { Value = roadSegmentAddedToNationalRoad.SegmentId },
+                        IDENT2 = { Value = roadSegmentAddedToNationalRoad.Ident2 },
+                        BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentsAdded.When) },
+                        BEGINORG = { Value = acceptedRoadSegmentsAdded.OrganizationId },
+                        LBLBGNORG = { Value = acceptedRoadSegmentsAdded.Organization }
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                });
         }
     }
 }
