@@ -140,7 +140,7 @@ namespace RoadRegistry.Product.Projections
                     {
                         NW_OIDN = { Value = nationalRoad.AttributeId },
                         WS_OIDN = { Value = nationalRoad.SegmentId },
-                        IDENT2 = { Value = nationalRoad.Ident2 },
+                        IDENT2 = { Value = nationalRoad.Number },
                         BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
                         BEGINORG = { Value = message.OrganizationId },
                         LBLBGNORG = { Value = message.Organization }
@@ -203,7 +203,7 @@ namespace RoadRegistry.Product.Projections
                     {
                         NW_OIDN = { Value = roadSegmentAddedToNationalRoad.AttributeId },
                         WS_OIDN = { Value = roadSegmentAddedToNationalRoad.SegmentId },
-                        IDENT2 = { Value = roadSegmentAddedToNationalRoad.Ident2 },
+                        IDENT2 = { Value = roadSegmentAddedToNationalRoad.Number },
                         BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentsAdded.When) },
                         BEGINORG = { Value = acceptedRoadSegmentsAdded.OrganizationId },
                         LBLBGNORG = { Value = acceptedRoadSegmentsAdded.Organization }

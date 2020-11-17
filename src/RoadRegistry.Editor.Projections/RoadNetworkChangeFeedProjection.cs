@@ -313,16 +313,16 @@ namespace RoadRegistry.Editor.Projections
                         translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Number}.";
                         break;
                     case RoadSegmentRemovedFromNationalRoad m:
-                        translation = $"Wegsegment {m.SegmentId} verwijderd van nationale weg {m.Ident2}.";
+                        translation = $"Wegsegment {m.SegmentId} verwijderd van nationale weg {m.Number}.";
                         break;
                     case RoadSegmentAddedToNumberedRoad m:
                         translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Number}.";
                         break;
                     case RoadSegmentOnNumberedRoadModified m:
-                        translation = $"Wegsegment {m.SegmentId} gewijzigd op genummerde weg {m.Ident8}.";
+                        translation = $"Wegsegment {m.SegmentId} gewijzigd op genummerde weg {m.Number}.";
                         break;
                     case RoadSegmentRemovedFromNumberedRoad m:
-                        translation = $"Wegsegment {m.SegmentId} verwijderd van genummerde weg {m.Ident8}.";
+                        translation = $"Wegsegment {m.SegmentId} verwijderd van genummerde weg {m.Number}.";
                         break;
                     case GradeSeparatedJunctionAdded m:
                         translation = $"Ongelijkgrondse kruising {m.TemporaryId} toegevoegd.";

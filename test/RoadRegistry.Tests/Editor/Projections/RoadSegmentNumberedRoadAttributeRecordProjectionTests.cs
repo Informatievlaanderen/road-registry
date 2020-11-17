@@ -143,7 +143,7 @@ namespace RoadRegistry.Editor.Projections
                     {
                         GW_OIDN = { Value = numberedRoad.AttributeId },
                         WS_OIDN = { Value = numberedRoad.SegmentId },
-                        IDENT8 = { Value = numberedRoad.Ident8 },
+                        IDENT8 = { Value = numberedRoad.Number },
                         RICHTING = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Identifier },
                         LBLRICHT = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Name },
                         VOLGNUMMER = { Value = numberedRoad.Ordinal },
@@ -185,7 +185,7 @@ namespace RoadRegistry.Editor.Projections
                     {
                         GW_OIDN = { Value = numberedRoad.AttributeId },
                         WS_OIDN = { Value = numberedRoad.SegmentId },
-                        IDENT8 = { Value = numberedRoad.Ident8 },
+                        IDENT8 = { Value = numberedRoad.Number },
                         RICHTING = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Identifier },
                         LBLRICHT = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Name },
                         VOLGNUMMER = { Value = numberedRoad.Ordinal },
@@ -251,7 +251,7 @@ namespace RoadRegistry.Editor.Projections
                     {
                         GW_OIDN = { Value = roadSegmentAddedToNationalRoad.AttributeId },
                         WS_OIDN = { Value = roadSegmentAddedToNationalRoad.SegmentId },
-                        IDENT8 = { Value = roadSegmentAddedToNationalRoad.Ident8 },
+                        IDENT8 = { Value = roadSegmentAddedToNationalRoad.Number },
                         RICHTING = { Value = RoadSegmentNumberedRoadDirection.Parse(roadSegmentAddedToNationalRoad.Direction).Translation.Identifier },
                         LBLRICHT = { Value = RoadSegmentNumberedRoadDirection.Parse(roadSegmentAddedToNationalRoad.Direction).Translation.Name },
                         VOLGNUMMER = { Value = roadSegmentAddedToNationalRoad.Ordinal },
