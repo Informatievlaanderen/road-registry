@@ -491,7 +491,7 @@ namespace RoadRegistry.Projections
                             AttributeId = fixture.Create<AttributeId>(),
                             TemporaryAttributeId = fixture.Create<AttributeId>(),
                             SegmentId = fixture.Create<RoadSegmentId>(),
-                            Ident2 = fixture.Create<NationalRoadNumber>(),
+                            Number = fixture.Create<NationalRoadNumber>(),
                         }
                     )
                     .OmitAutoProperties()
@@ -507,7 +507,7 @@ namespace RoadRegistry.Projections
                         {
                             AttributeId = fixture.Create<AttributeId>(),
                             SegmentId = fixture.Create<RoadSegmentId>(),
-                            Ident2 = fixture.Create<NationalRoadNumber>()
+                            Number = fixture.Create<NationalRoadNumber>()
                         }
                     )
                     .OmitAutoProperties()
@@ -524,7 +524,7 @@ namespace RoadRegistry.Projections
                             AttributeId = fixture.Create<AttributeId>(),
                             TemporaryAttributeId = fixture.Create<AttributeId>(),
                             SegmentId = fixture.Create<RoadSegmentId>(),
-                            Ident8 = fixture.Create<NumberedRoadNumber>(),
+                            Number = fixture.Create<NumberedRoadNumber>(),
                             Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
                             Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
                         }
@@ -542,7 +542,7 @@ namespace RoadRegistry.Projections
                         {
                             AttributeId = fixture.Create<AttributeId>(),
                             SegmentId = fixture.Create<RoadSegmentId>(),
-                            Ident8 = fixture.Create<NumberedRoadNumber>(),
+                            Number = fixture.Create<NumberedRoadNumber>(),
                             Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
                             Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
                         }
@@ -560,7 +560,7 @@ namespace RoadRegistry.Projections
                         {
                             AttributeId = fixture.Create<AttributeId>(),
                             SegmentId = fixture.Create<RoadSegmentId>(),
-                            Ident8 = fixture.Create<NationalRoadNumber>()
+                            Number = fixture.Create<NationalRoadNumber>()
                         }
                     )
                     .OmitAutoProperties()
