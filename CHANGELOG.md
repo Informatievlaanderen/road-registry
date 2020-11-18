@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/informatievlaanderen/road-registry/compare/v1.15.0...v1.15.1) (2020-11-18)
+
+
+### Bug Fixes
+
+* remove set-env usage in gh-actions ([b20e3d0](https://github.com/informatievlaanderen/road-registry/commit/b20e3d0aa8487ace958ca3c32224fc2076bb672a))
+
 # [1.15.0](https://github.com/informatievlaanderen/road-registry/compare/v1.14.0...v1.15.0) (2020-10-07)
 
 
