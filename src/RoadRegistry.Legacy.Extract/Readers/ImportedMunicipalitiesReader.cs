@@ -2,21 +2,29 @@ namespace RoadRegistry.Legacy.Extract.Readers
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using BackOffice.Framework;
     using BackOffice.Messages;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Logging;
     using NodaTime;
     using NodaTime.Text;
+    using Point = BackOffice.Messages.Point;
 
     public class ImportedMunicipalitiesReader : IEventReader
     {
         private readonly IClock _clock;
+        private readonly WellKnownBinaryReader _wkbReader;
         private readonly ILogger<ImportedMunicipalitiesReader> _logger;
 
-        public ImportedMunicipalitiesReader(IClock clock, ILogger<ImportedMunicipalitiesReader> logger)
+        public ImportedMunicipalitiesReader(IClock clock,
+            WellKnownBinaryReader wkbReader,
+            ILogger<ImportedMunicipalitiesReader> logger)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+            _wkbReader = wkbReader;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -28,19 +36,30 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 @"SELECT
                    muni.[naam]
                   ,muni.[NIScode]
-                  ,muni.[geometrie]
+                  ,muni.[geometrie].AsBinaryZM()
                 FROM [dbo].[gemeenteNIS] muni", connection
             ).YieldEachDataRecord(reader =>
             {
                 var name = reader.GetString(0);
                 var nisCode = reader.GetString(1);
+                var wellKnownBinary = reader.GetAllBytes(2);
+                var multiPolygon = _wkbReader
+                    .TryReadAs(wellKnownBinary, out NetTopologySuite.Geometries.Polygon polygon)
+                    ? new NetTopologySuite.Geometries.MultiPolygon(new[] {polygon})
+                    : _wkbReader.ReadAs<NetTopologySuite.Geometries.MultiPolygon>(wellKnownBinary);
+
                 _logger.LogDebug("Reading organization with NIS code {0}", nisCode);
                 return new StreamEvent(new StreamName("municipality-" + nisCode), new ImportedMunicipality()
                 {
-                    Geometry = new MunicipalityGeometry()
+                    Geometry = new MunicipalityGeometry
                     {
-                        Polygon = new Ring[0],
-                        SpatialReferenceSystemIdentifier = -1,
+                        Polygon = Array.ConvertAll(multiPolygon.Geometries, geometry =>
+                            new Ring
+                            {
+                                Points = Array.ConvertAll(geometry.Coordinates, coordinate =>
+                                    new Point {X = coordinate.X, Y = coordinate.Y})
+                            }),
+                        SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
                     },
                     DutchName = name,
                     NISCode = nisCode,
