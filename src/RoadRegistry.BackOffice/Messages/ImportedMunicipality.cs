@@ -1,5 +1,9 @@
 namespace RoadRegistry.BackOffice.Messages
 {
+    using Be.Vlaanderen.Basisregisters.EventHandling;
+
+    [EventName("ImportedMunicipality")]
+    [EventDescription("Indicates a municipality was imported.")]
     public class ImportedMunicipality
     {
         public string NISCode { get; set; }
