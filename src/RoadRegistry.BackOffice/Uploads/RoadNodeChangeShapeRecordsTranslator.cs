@@ -25,10 +25,10 @@ namespace RoadRegistry.BackOffice.Uploads
                             switch (change)
                             {
                                 case AddRoadNode addition:
-                                    changes = changes.Replace(addition, addition.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
+                                    changes = changes.ReplaceChange(addition, addition.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
                                     break;
                                 case ModifyRoadNode modification:
-                                    changes = changes.Replace(modification, modification.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
+                                    changes = changes.ReplaceChange(modification, modification.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
                                     break;
                             }
                         }

@@ -111,7 +111,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     switch (current.RECORDTYPE.Value)
                     {
                         case RecordType.AddedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.AddRoadSegmentToNationalRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new AttributeId(current.NW_OIDN.Value),
@@ -119,7 +119,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                     NationalRoadNumber.Parse(current.IDENT2.Value)));
                             break;
                         case RecordType.RemovedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.RemoveRoadSegmentFromNationalRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new AttributeId(current.NW_OIDN.Value),

@@ -114,11 +114,11 @@ namespace RoadRegistry.BackOffice.Uploads
             var record = _fixture.Create<ShapeRecord>().Content.RecordAs(segment.RecordNumber);
             var records = new List<ShapeRecord> { record };
             var enumerator = records.GetEnumerator();
-            var changes = TranslatedChanges.Empty.Append(segment);
+            var changes = TranslatedChanges.Empty.AppendChange(segment);
 
             var result = _sut.Translate(_entry, enumerator, changes);
 
-            var expected = TranslatedChanges.Empty.Append(
+            var expected = TranslatedChanges.Empty.AppendChange(
                 segment.WithGeometry(
                 GeometryTranslator.ToGeometryMultiLineString(
                     ((PolyLineMShapeContent) record.Content).Shape)
@@ -135,11 +135,11 @@ namespace RoadRegistry.BackOffice.Uploads
             var record = _fixture.Create<ShapeRecord>().Content.RecordAs(segment.RecordNumber);
             var records = new List<ShapeRecord> { record };
             var enumerator = records.GetEnumerator();
-            var changes = TranslatedChanges.Empty.Append(segment);
+            var changes = TranslatedChanges.Empty.AppendChange(segment);
 
             var result = _sut.Translate(_entry, enumerator, changes);
 
-            var expected = TranslatedChanges.Empty.Append(
+            var expected = TranslatedChanges.Empty.AppendChange(
                 segment.WithGeometry(
                     GeometryTranslator.ToGeometryMultiLineString(
                         ((PolyLineMShapeContent) record.Content).Shape)
@@ -156,11 +156,11 @@ namespace RoadRegistry.BackOffice.Uploads
             var record = _fixture.Create<ShapeRecord>().Content.RecordAs(segment.RecordNumber);
             var records = new List<ShapeRecord> { record };
             var enumerator = records.GetEnumerator();
-            var changes = TranslatedChanges.Empty.Append(segment);
+            var changes = TranslatedChanges.Empty.AppendChange(segment);
 
             var result = _sut.Translate(_entry, enumerator, changes);
 
-            var expected = TranslatedChanges.Empty.Append(segment);
+            var expected = TranslatedChanges.Empty.AppendChange(segment);
 
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }

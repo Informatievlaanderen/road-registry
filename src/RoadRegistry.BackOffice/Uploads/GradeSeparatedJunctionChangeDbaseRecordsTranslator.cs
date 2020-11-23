@@ -21,7 +21,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     switch (record.RECORDTYPE.Value)
                     {
                         case RecordType.AddedIdentifier:
-                            changes = changes.Append(
+                            changes = changes.AppendChange(
                                 new AddGradeSeparatedJunction(
                                     records.CurrentRecordNumber,
                                     new GradeSeparatedJunctionId(record.OK_OIDN.Value),
@@ -32,7 +32,7 @@ namespace RoadRegistry.BackOffice.Uploads
                             );
                             break;
                         case RecordType.RemovedIdentifier:
-                            changes = changes.Append(
+                            changes = changes.AppendChange(
                                 new RemoveGradeSeparatedJunction(
                                     records.CurrentRecordNumber,
                                     new GradeSeparatedJunctionId(record.OK_OIDN.Value)

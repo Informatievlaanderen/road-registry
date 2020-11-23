@@ -34,10 +34,10 @@ namespace RoadRegistry.BackOffice.Uploads
                                 switch (change)
                                 {
                                     case AddRoadSegment addRoadSegment:
-                                        changes = changes.Replace(addRoadSegment, addRoadSegment.WithWidth(width));
+                                        changes = changes.ReplaceChange(addRoadSegment, addRoadSegment.WithWidth(width));
                                         break;
                                     case ModifyRoadSegment modifyRoadSegment:
-                                        changes = changes.Replace(modifyRoadSegment, modifyRoadSegment.WithWidth(width));
+                                        changes = changes.ReplaceChange(modifyRoadSegment, modifyRoadSegment.WithWidth(width));
                                         break;
                                 }
                             }

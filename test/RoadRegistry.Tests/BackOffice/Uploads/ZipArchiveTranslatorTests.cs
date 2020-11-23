@@ -451,35 +451,35 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     new ZipArchive(archiveStream, ZipArchiveMode.Read, false, Encoding.UTF8),
                     TranslatedChanges.Empty
-                        .Append(
+                        .AppendChange(
                             new Uploads.AddRoadNode(
                                 new RecordNumber(1),
                                 new RoadNodeId(roadNodeChangeDbaseRecord1.WEGKNOOPID.Value),
                                 RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord1.TYPE.Value]
                             ).WithGeometry(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord1.Content).Shape))
                         )
-                        .Append(
+                        .AppendChange(
                             new Uploads.AddRoadNode(
                                 new RecordNumber(2),
                                 new RoadNodeId(roadNodeChangeDbaseRecord2.WEGKNOOPID.Value),
                                 RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord2.TYPE.Value]
                             ).WithGeometry(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord2.Content).Shape))
                         )
-                        .Append(
+                        .AppendChange(
                             new Uploads.AddRoadNode(
                                 new RecordNumber(3),
                                 new RoadNodeId(roadNodeChangeDbaseRecord3.WEGKNOOPID.Value),
                                 RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord3.TYPE.Value]
                             ).WithGeometry(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord3.Content).Shape))
                         )
-                        .Append(
+                        .AppendChange(
                             new Uploads.AddRoadNode(
                                 new RecordNumber(4),
                                 new RoadNodeId(roadNodeChangeDbaseRecord4.WEGKNOOPID.Value),
                                 RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord4.TYPE.Value]
                             ).WithGeometry(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord4.Content).Shape))
                         )
-                        .Append(
+                        .AppendChange(
                             new Uploads.AddRoadSegment(
                                 new RecordNumber(2),
                                 new RoadSegmentId(roadSegmentChangeDbaseRecord2.WS_OIDN.Value),
@@ -495,7 +495,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 roadSegmentChangeDbaseRecord2.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord2.RSTRNMID.Value.GetValueOrDefault()) : default
                             ).WithGeometry(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord2.Content).Shape))
                         )
-                        .Append(
+                        .AppendChange(
                             new Uploads.AddRoadSegmentToEuropeanRoad
                             (
                                 new RecordNumber(1),
@@ -504,7 +504,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 EuropeanRoadNumber.Parse(europeanRoadChangeDbaseRecord.EUNUMMER.Value)
                             )
                         )
-                        .Append(
+                        .AppendChange(
                             new Uploads.AddRoadSegmentToNationalRoad
                             (
                                 new RecordNumber(1),
@@ -513,7 +513,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 NationalRoadNumber.Parse(nationalRoadChangeDbaseRecord.IDENT2.Value)
                             )
                         )
-                        .Append(
+                        .AppendChange(
                             new Uploads.AddRoadSegmentToNumberedRoad
                             (
                                 new RecordNumber(1),
@@ -524,7 +524,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 new RoadSegmentNumberedRoadOrdinal(numberedRoadChangeDbaseRecord.VOLGNUMMER.Value)
                             )
                         )
-                        .Append(
+                        .AppendChange(
                             new Uploads.AddRoadSegment(
                                     new RecordNumber(1),
                                     new RoadSegmentId(roadSegmentChangeDbaseRecord1.WS_OIDN.Value),
@@ -566,7 +566,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                     )
                                 )
                         )
-                        .Append(
+                        .AppendChange(
                             new Uploads.AddGradeSeparatedJunction
                             (
                                 new RecordNumber(1),

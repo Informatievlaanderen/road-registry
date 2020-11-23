@@ -112,7 +112,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     switch (current.RECORDTYPE.Value)
                     {
                         case RecordType.AddedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.AddGradeSeparatedJunction(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new GradeSeparatedJunctionId(current.OK_OIDN.Value),
@@ -123,7 +123,7 @@ namespace RoadRegistry.BackOffice.Uploads
                             );
                             break;
                         case RecordType.RemovedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.RemoveGradeSeparatedJunction(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new GradeSeparatedJunctionId(current.OK_OIDN.Value)

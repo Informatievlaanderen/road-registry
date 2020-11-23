@@ -88,11 +88,11 @@ namespace RoadRegistry.BackOffice.Uploads
             var record = _fixture.Create<ShapeRecord>().Content.RecordAs(node.RecordNumber);
             var records = new List<ShapeRecord> { record };
             var enumerator = records.GetEnumerator();
-            var changes = TranslatedChanges.Empty.Append(node);
+            var changes = TranslatedChanges.Empty.AppendChange(node);
 
             var result = _sut.Translate(_entry, enumerator, changes);
 
-            var expected = TranslatedChanges.Empty.Append(node.WithGeometry(GeometryTranslator.ToGeometryPoint(((PointShapeContent)record.Content).Shape)));
+            var expected = TranslatedChanges.Empty.AppendChange(node.WithGeometry(GeometryTranslator.ToGeometryPoint(((PointShapeContent)record.Content).Shape)));
 
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }
@@ -104,11 +104,11 @@ namespace RoadRegistry.BackOffice.Uploads
             var record = _fixture.Create<ShapeRecord>().Content.RecordAs(node.RecordNumber);
             var records = new List<ShapeRecord> { record };
             var enumerator = records.GetEnumerator();
-            var changes = TranslatedChanges.Empty.Append(node);
+            var changes = TranslatedChanges.Empty.AppendChange(node);
 
             var result = _sut.Translate(_entry, enumerator, changes);
 
-            var expected = TranslatedChanges.Empty.Append(node.WithGeometry(GeometryTranslator.ToGeometryPoint(((PointShapeContent)record.Content).Shape)));
+            var expected = TranslatedChanges.Empty.AppendChange(node.WithGeometry(GeometryTranslator.ToGeometryPoint(((PointShapeContent)record.Content).Shape)));
 
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }
@@ -120,11 +120,11 @@ namespace RoadRegistry.BackOffice.Uploads
             var record = _fixture.Create<ShapeRecord>().Content.RecordAs(node.RecordNumber);
             var records = new List<ShapeRecord> { record };
             var enumerator = records.GetEnumerator();
-            var changes = TranslatedChanges.Empty.Append(node);
+            var changes = TranslatedChanges.Empty.AppendChange(node);
 
             var result = _sut.Translate(_entry, enumerator, changes);
 
-            var expected = TranslatedChanges.Empty.Append(node);
+            var expected = TranslatedChanges.Empty.AppendChange(node);
 
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }

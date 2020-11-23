@@ -120,7 +120,6 @@ namespace RoadRegistry.BackOffice.Uploads
 
             var result = _sut.Translate(_entry, enumerator, TranslatedChanges.Empty);
 
-
             var expected = records.Aggregate(
                 TranslatedChanges.Empty,
                 (previousChanges, current) =>
@@ -129,7 +128,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     switch (current.RECORDTYPE.Value)
                     {
                         case RecordType.AddedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.AddRoadSegment(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new RoadSegmentId(current.WS_OIDN.Value),
@@ -151,7 +150,7 @@ namespace RoadRegistry.BackOffice.Uploads
                             );
                             break;
                         case RecordType.ModifiedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.ModifyRoadSegment(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new RoadSegmentId(current.WS_OIDN.Value),
@@ -173,7 +172,7 @@ namespace RoadRegistry.BackOffice.Uploads
                             );
                             break;
                         case RecordType.RemovedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.RemoveRoadSegment(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new RoadSegmentId(current.WS_OIDN.Value)
@@ -184,6 +183,51 @@ namespace RoadRegistry.BackOffice.Uploads
                     return nextChanges;
                 });
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
+        }
+
+        [Fact]
+        public void TranslateWithIdenticalRecordsReturnsExpectedResult()
+        {
+            var records = _fixture
+                .CreateMany<RoadSegmentChangeDbaseRecord>(1)
+                .Select((record, index) =>
+                {
+                    record.WS_OIDN.Value = index + 1;
+                    record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
+                    return record;
+                })
+                .ToArray();
+            var enumerator = records.ToDbaseRecordEnumerator();
+
+            var result = _sut.Translate(_entry, enumerator, TranslatedChanges.Empty);
+
+            foreach (var current in records)
+            {
+                var id = new RoadSegmentId(current.WS_OIDN.Value);
+                Assert.True(result.TryFindRoadSegmentChange(id, out var foundChange));
+                Assert.NotNull(foundChange);
+                var actual = Assert.IsAssignableFrom<ITranslatedChange>(foundChange);
+                ITranslatedChange expected = new Uploads.ModifyRoadSegment(
+                    new RecordNumber(Array.IndexOf(records, current) + 1),
+                    new RoadSegmentId(current.WS_OIDN.Value),
+                    new RoadNodeId(current.B_WK_OIDN.Value),
+                    new RoadNodeId(current.E_WK_OIDN.Value),
+                    new OrganizationId(current.BEHEERDER.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value],
+                    RoadSegmentMorphology.ByIdentifier[current.MORFOLOGIE.Value],
+                    RoadSegmentStatus.ByIdentifier[current.STATUS.Value],
+                    RoadSegmentCategory.ByIdentifier[current.CATEGORIE.Value],
+                    RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
+                    current.LSTRNMID.Value.HasValue
+                        ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault())
+                        : default,
+                    current.RSTRNMID.Value.HasValue
+                        ? new CrabStreetnameId(current.RSTRNMID.Value.GetValueOrDefault())
+                        : default
+                );
+
+                Assert.Equal(expected, actual, new TranslatedChangeEqualityComparer());
+            }
         }
 
         public void Dispose()
