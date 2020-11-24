@@ -49,7 +49,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                     : _wkbReader.ReadAs<NetTopologySuite.Geometries.MultiPolygon>(wellKnownBinary);
 
                 _logger.LogDebug("Reading organization with NIS code {0}", nisCode);
-                return new StreamEvent(new StreamName("municipality-" + nisCode), new ImportedMunicipality()
+                return new StreamEvent(new StreamName("municipality-" + nisCode), new ImportedMunicipality
                 {
                     Geometry = new MunicipalityGeometry
                     {

@@ -72,7 +72,7 @@ namespace RoadRegistry.Framework.Projections
                     MaxDifferences = 10,
                     CustomComparers = new List<BaseTypeComparer>
                     {
-                        new GeometryComparer(RootComparerFactory.GetRootComparer())
+                        new GeometryLineStringComparer(RootComparerFactory.GetRootComparer())
                     }
                 };
                 var comparer = new CompareLogic(comparisonConfig);
