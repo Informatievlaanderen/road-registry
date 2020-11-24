@@ -32,6 +32,7 @@ namespace RoadRegistry.Editor.Schema
         public DbSet<RoadSegmentBoundingBox3D> RoadSegmentBoundingBox { get; set; }
         public DbSet<RoadNetworkChange> RoadNetworkChanges { get; set; }
         public DbSet<RoadNetworkChangeRequestBasedOnArchive> RoadNetworkChangeRequestsBasedOnArchive { get; set; }
+        public DbSet<MunicipalityGeometryRecord> MunicipalityGeometries { get; set; }
 
         public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken token)
         {

@@ -11,6 +11,7 @@ namespace RoadRegistry.Framework.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Editor.Schema;
     using KellermanSoftware.CompareNetObjects;
+    using KellermanSoftware.CompareNetObjects.TypeComparers;
     using Microsoft.EntityFrameworkCore;
     using Xunit.Sdk;
 
@@ -106,7 +107,14 @@ namespace RoadRegistry.Framework.Projections
 
             var specification = scenario.Verify(async context =>
             {
-                var comparisonConfig = new ComparisonConfig { MaxDifferences = 5};
+                var comparisonConfig = new ComparisonConfig
+                {
+                    MaxDifferences = 10,
+                    CustomComparers = new List<BaseTypeComparer>
+                    {
+                        new GeometryMultiPolygonComparer(RootComparerFactory.GetRootComparer())
+                    }
+                };
                 var comparer = new CompareLogic(comparisonConfig);
                 var actualRecords = await context.AllRecords();
                 var result = comparer.Compare(
@@ -157,7 +165,16 @@ namespace RoadRegistry.Framework.Projections
 
             var specification = scenario.Verify(async context =>
             {
-                var comparisonConfig = new ComparisonConfig { MaxDifferences = 5, IgnoreCollectionOrder = true};
+                var comparisonConfig = new ComparisonConfig
+                {
+                    IgnoreCollectionOrder = true,
+                    MaxDifferences = 10,
+                    CustomComparers = new List<BaseTypeComparer>
+                    {
+                        new GeometryLineStringComparer(RootComparerFactory.GetRootComparer())
+                    }
+                };
+
                 var comparer = new CompareLogic(comparisonConfig);
                 var actualRecords = await context.AllRecords();
                 var result = comparer.Compare(
@@ -208,6 +225,7 @@ namespace RoadRegistry.Framework.Projections
             records.AddRange(await context.Organizations.ToArrayAsync());
             records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
             records.AddRange(await context.RoadNetworkChanges.ToArrayAsync());
+            records.AddRange(await context.MunicipalityGeometries.ToArrayAsync());
             return records.ToArray();
         }
 

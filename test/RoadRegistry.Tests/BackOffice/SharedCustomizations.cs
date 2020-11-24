@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice
     using System.Linq;
     using AutoFixture;
     using AutoFixture.Dsl;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Core;
     using Messages;
@@ -256,6 +257,34 @@ namespace RoadRegistry.BackOffice
                         fixture.CreateMany<NetTopologySuite.Geometries.LineString>(1).ToArray(),
                         GeometryConfiguration.GeometryFactory)
                 ).OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeMunicipalityGeometry(this IFixture fixture)
+        {
+            fixture.Customize<Ring>(customization =>
+                customization.FromFactory(generator =>
+                {
+                    var ring = new Ring
+                    {
+                        Points = fixture.CreateMany<Messages.Point>().ToArray()
+                    };
+
+                    ring.Points = ring.Points.Append(ring.Points[0]).ToArray();
+
+                    return ring;
+                }).OmitAutoProperties());
+
+            fixture.Customize<MunicipalityGeometry>(customization =>
+                customization.FromFactory(generator =>
+                {
+                    var municipalityGeometry = new MunicipalityGeometry
+                    {
+                        Polygon = new[] {fixture.Create<Ring>()},
+                        SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                    };
+                    return municipalityGeometry;
+                }).OmitAutoProperties()
             );
         }
 

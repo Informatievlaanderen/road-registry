@@ -94,5 +94,16 @@ namespace RoadRegistry.BackOffice.Core
                 MultiLineString = toMultiLineString
             };
         }
+
+        public static NetTopologySuite.Geometries.MultiPolygon Translate(Messages.MunicipalityGeometry geometry)
+        {
+            if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+
+            return new NetTopologySuite.Geometries.MultiPolygon(
+                Array.ConvertAll(geometry.Polygon, ring =>
+                    new NetTopologySuite.Geometries.Polygon(
+                        new NetTopologySuite.Geometries.LinearRing(Array.ConvertAll(ring.Points, point =>
+                            new NetTopologySuite.Geometries.Coordinate(point.X, point.Y))))));
+        }
     }
 }
