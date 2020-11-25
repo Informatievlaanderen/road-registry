@@ -11,6 +11,7 @@ namespace RoadRegistry.BackOffice
     using NetTopologySuite.Geometries;
     using NetTopologySuite.Geometries.Implementation;
     using Uploads;
+    using Polygon = Messages.Polygon;
     using RoadSegmentLaneAttribute = Core.RoadSegmentLaneAttribute;
     using RoadSegmentSurfaceAttribute = Core.RoadSegmentSurfaceAttribute;
     using RoadSegmentWidthAttribute = Core.RoadSegmentWidthAttribute;
@@ -275,12 +276,19 @@ namespace RoadRegistry.BackOffice
                     return ring;
                 }).OmitAutoProperties());
 
+            fixture.Customize<Polygon>(customization =>
+                customization.FromFactory(generator => new Polygon
+                {
+                    Ring = fixture.Create<Ring>(),
+                    Holes = new Ring[0]
+                }).OmitAutoProperties());
+
             fixture.Customize<MunicipalityGeometry>(customization =>
                 customization.FromFactory(generator =>
                 {
                     var municipalityGeometry = new MunicipalityGeometry
                     {
-                        Polygon = new[] {fixture.Create<Ring>()},
+                        MultiPolygon = new []{fixture.Create<Polygon>()},
                         SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                     };
                     return municipalityGeometry;

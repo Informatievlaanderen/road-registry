@@ -187,6 +187,7 @@
                         .AddSingleton(sp => new ConnectedProjection<EditorContext>[]
                         {
                             new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
+                            new MunicipalityGeometryRecordProjection(),
                             new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
                             new RoadNetworkChangeFeedProjection(sp.GetRequiredService<IBlobClient>()),
                             new RoadNetworkInfoProjection(),
