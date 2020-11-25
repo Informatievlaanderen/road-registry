@@ -179,7 +179,9 @@
                                     new DbContextOptionsBuilder<EditorContext>()
                                         .UseSqlServer(
                                             hostContext.Configuration.GetConnectionString(WellknownConnectionNames.EditorProjections),
-                                            options => options.EnableRetryOnFailure()
+                                            options => options
+                                                .EnableRetryOnFailure()
+                                                .UseNetTopologySuite()
                                         ).Options)
                         )
                         .AddSingleton(sp => new ConnectedProjection<EditorContext>[]

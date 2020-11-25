@@ -221,7 +221,9 @@ namespace RoadRegistry.BackOffice.Api
                             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                             .UseSqlServer(
-                                sp.GetRequiredService<TraceDbConnection<EditorContext>>())
+                                sp.GetRequiredService<TraceDbConnection<EditorContext>>(),
+                                options => options
+                                    .UseNetTopologySuite())
                         )
                         .AddScoped(sp => new TraceDbConnection<ProductContext>(
                             new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ProductProjections)),
