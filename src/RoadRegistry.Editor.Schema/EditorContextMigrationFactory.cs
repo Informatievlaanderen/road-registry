@@ -2,6 +2,7 @@ namespace RoadRegistry.Editor.Schema
 {
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Infrastructure;
 
     public class EditorContextMigrationFactory : RunnerDbContextMigrationFactory<EditorContext>
     {
@@ -18,5 +19,11 @@ namespace RoadRegistry.Editor.Schema
 
         protected override EditorContext CreateContext(DbContextOptions<EditorContext> migrationContextOptions)
             => new EditorContext(migrationContextOptions);
+
+        protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
+        {
+            sqlServerOptions.UseNetTopologySuite();
+            base.ConfigureSqlServerOptions(sqlServerOptions);
+        }
     }
 }

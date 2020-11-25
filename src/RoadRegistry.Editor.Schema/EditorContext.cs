@@ -45,10 +45,13 @@ namespace RoadRegistry.Editor.Schema
 
         // This needs to be DbContextOptions<T> for Autofac!
         public EditorContext(DbContextOptions<EditorContext> options)
-            : base(options) { }
+            : base(options)
+        {
+        }
 
         protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
+            => optionsBuilder
+                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
