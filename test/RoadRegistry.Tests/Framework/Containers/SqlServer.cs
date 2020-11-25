@@ -49,7 +49,8 @@ namespace RoadRegistry.Framework.Containers
         public async Task<EditorContext> CreateEditorContextAsync(SqlConnectionStringBuilder builder)
         {
             var options = new DbContextOptionsBuilder<EditorContext>()
-                .UseSqlServer(builder.ConnectionString)
+                .UseSqlServer(builder.ConnectionString,
+                    dbContextOptionsBuilder => dbContextOptionsBuilder.UseNetTopologySuite())
                 .EnableSensitiveDataLogging()
                 .Options;
 
