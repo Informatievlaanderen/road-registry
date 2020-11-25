@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Editor.Schema;
@@ -10,13 +11,14 @@ using RoadRegistry.Editor.Schema;
 namespace RoadRegistry.Editor.Schema.Migrations
 {
     [DbContext(typeof(EditorContext))]
-    partial class EditorContextModelSnapshot : ModelSnapshot
+    [Migration("20201124103846_AddMunicipalityGeometry")]
+    partial class AddMunicipalityGeometry
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.4")
+                .HasAnnotation("ProductVersion", "3.1.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -216,6 +218,40 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("RoadNetworkInfo","RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNetworkInfoSegmentCache", b =>
+                {
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LanesLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartOfEuropeanRoadsLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartOfNationalRoadsLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartOfNumberedRoadsLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShapeLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SurfacesLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WidthsLength")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoadSegmentId");
+
+                    b.HasIndex("RoadSegmentId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RoadNetworkInfoSegmentCache","RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNodes.RoadNodeRecord", b =>

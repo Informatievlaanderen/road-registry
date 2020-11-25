@@ -6,9 +6,9 @@
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Schema;
 
-    public class MunicipalityGeometryProjection : ConnectedProjection<EditorContext>
+    public class MunicipalityGeometryRecordProjection : ConnectedProjection<EditorContext>
     {
-        public MunicipalityGeometryProjection()
+        public MunicipalityGeometryRecordProjection()
         {
             When<Envelope<ImportedMunicipality>>(async (context, envelope, token) =>
             {
