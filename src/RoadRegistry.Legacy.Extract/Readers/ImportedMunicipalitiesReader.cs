@@ -12,6 +12,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
     using NodaTime;
     using NodaTime.Text;
     using Point = BackOffice.Messages.Point;
+    using Polygon = BackOffice.Messages.Polygon;
 
     public class ImportedMunicipalitiesReader : IEventReader
     {
@@ -53,12 +54,33 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 {
                     Geometry = new MunicipalityGeometry
                     {
-                        Polygon = Array.ConvertAll(multiPolygon.Geometries, geometry =>
-                            new Ring
+                        MultiPolygon = Array.ConvertAll(multiPolygon.Geometries, geometry =>
+                        {
+                            var polygonGeometry = (NetTopologySuite.Geometries.Polygon) geometry;
+                            return new Polygon
                             {
-                                Points = Array.ConvertAll(geometry.Coordinates, coordinate =>
-                                    new Point {X = coordinate.X, Y = coordinate.Y})
-                            }),
+                                Ring = new Ring
+                                {
+                                    Points = Array.ConvertAll(polygonGeometry.ExteriorRing.Coordinates,
+                                        coordinate =>
+                                            new Point
+                                            {
+                                                X = coordinate.X,
+                                                Y = coordinate.Y
+                                            })
+                                },
+                                Holes = Array.ConvertAll(polygonGeometry.Holes, hole =>
+                                    new Ring
+                                    {
+                                        Points = Array.ConvertAll(hole.Coordinates, coordinate =>
+                                            new Point
+                                            {
+                                                X = coordinate.X,
+                                                Y = coordinate.Y
+                                            })
+                                    })
+                            };
+                        }),
                         SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
                     },
                     DutchName = name,

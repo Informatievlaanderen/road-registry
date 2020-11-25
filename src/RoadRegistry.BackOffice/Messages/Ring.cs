@@ -4,4 +4,10 @@ namespace RoadRegistry.BackOffice.Messages
     {
         public Point[] Points { get; set; }
     }
+
+    public class Polygon
+    {
+        public Ring Ring { get; set; }
+        public Ring[] Holes { get; set; }
+    }
 }

@@ -40,7 +40,7 @@ namespace RoadRegistry.Editor.Projections
                     };
                 }).ToList();
 
-            return new MunicipalityGeometryProjection()
+            return new MunicipalityGeometryRecordProjection()
                 .Scenario()
                 .Given(data.Select(d => d.ImportedMunicipality))
                 .Expect(data.Select(d => d.Expected));
