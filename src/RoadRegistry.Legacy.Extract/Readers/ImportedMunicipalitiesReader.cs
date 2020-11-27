@@ -2,7 +2,6 @@ namespace RoadRegistry.Legacy.Extract.Readers
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.Shaperon;
