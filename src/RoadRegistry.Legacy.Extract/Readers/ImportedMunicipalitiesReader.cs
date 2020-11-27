@@ -58,7 +58,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                             var polygonGeometry = (NetTopologySuite.Geometries.Polygon) geometry;
                             return new Polygon
                             {
-                                Ring = new Ring
+                                Shell = new Ring
                                 {
                                     Points = Array.ConvertAll(polygonGeometry.ExteriorRing.Coordinates,
                                         coordinate =>

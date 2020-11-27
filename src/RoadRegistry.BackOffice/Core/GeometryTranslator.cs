@@ -4,8 +4,6 @@ namespace RoadRegistry.BackOffice.Core
     using System.Collections.Generic;
     using System.Linq;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using Messages;
-    using NetTopologySuite.Geometries;
 
     public static class GeometryTranslator
     {
@@ -103,10 +101,10 @@ namespace RoadRegistry.BackOffice.Core
 
             return new NetTopologySuite.Geometries.MultiPolygon(
                 polygons: Array.ConvertAll(geometry.MultiPolygon, polygon => new NetTopologySuite.Geometries.Polygon(
-                    shell: new LinearRing(
-                        points: Array.ConvertAll(polygon.Ring.Points, point => new Coordinate(point.X, point.Y))),
-                    holes: Array.ConvertAll(polygon.Holes, hole => new LinearRing(
-                        points: Array.ConvertAll(hole.Points, point => new Coordinate(point.X, point.Y)))))));
+                    shell: new NetTopologySuite.Geometries.LinearRing(
+                        points: Array.ConvertAll(polygon.Shell.Points, point => new NetTopologySuite.Geometries.Coordinate(point.X, point.Y))),
+                    holes: Array.ConvertAll(polygon.Holes, hole => new NetTopologySuite.Geometries.LinearRing(
+                        points: Array.ConvertAll(hole.Points, point => new NetTopologySuite.Geometries.Coordinate(point.X, point.Y)))))));
         }
     }
 }

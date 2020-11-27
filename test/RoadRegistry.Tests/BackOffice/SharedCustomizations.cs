@@ -279,7 +279,7 @@ namespace RoadRegistry.BackOffice
             fixture.Customize<Polygon>(customization =>
                 customization.FromFactory(generator => new Polygon
                 {
-                    Ring = fixture.Create<Ring>(),
+                    Shell = fixture.Create<Ring>(),
                     Holes = new Ring[0]
                 }).OmitAutoProperties());
 
