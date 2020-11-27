@@ -3,11 +3,11 @@ namespace RoadRegistry.Editor.Schema
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-    public class MunicipalityGeometryConfiguration : IEntityTypeConfiguration<MunicipalityGeometryRecord>
+    public class MunicipalityGeometryConfiguration : IEntityTypeConfiguration<MunicipalityGeometry>
     {
         public const string TableName = "MunicipalityGeometry";
 
-        public void Configure(EntityTypeBuilder<MunicipalityGeometryRecord> b)
+        public void Configure(EntityTypeBuilder<MunicipalityGeometry> b)
         {
             b.ToTable(TableName, WellknownSchemas.EditorSchema)
                 .HasKey(p => p.NisCode)

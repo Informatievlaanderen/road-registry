@@ -8,14 +8,13 @@ namespace RoadRegistry.Editor.Projections
     using BackOffice.Core;
     using BackOffice.Messages;
     using Framework.Projections;
-    using Schema;
     using Xunit;
 
-    public class MunicipalityGeometryRecordProjectionTests : IClassFixture<ProjectionTestServices>
+    public class MunicipalityGeometryProjectionTests : IClassFixture<ProjectionTestServices>
     {
         private readonly Fixture _fixture;
 
-        public MunicipalityGeometryRecordProjectionTests()
+        public MunicipalityGeometryProjectionTests()
         {
             _fixture = new Fixture();
             _fixture.CustomizeMunicipalityGeometry();
@@ -28,7 +27,7 @@ namespace RoadRegistry.Editor.Projections
                 .CreateMany<ImportedMunicipality>(new Random().Next(1, 1))
                 .Select((@event, i) =>
                 {
-                    var expected = new MunicipalityGeometryRecord
+                    var expected = new Schema.MunicipalityGeometry
                     {
                         NisCode = @event.NISCode,
                         Geometry = GeometryTranslator.Translate(@event.Geometry),
@@ -40,7 +39,7 @@ namespace RoadRegistry.Editor.Projections
                     };
                 }).ToList();
 
-            return new MunicipalityGeometryRecordProjection()
+            return new MunicipalityGeometryProjection()
                 .Scenario()
                 .Given(data.Select(d => d.ImportedMunicipality))
                 .Expect(data.Select(d => d.Expected));

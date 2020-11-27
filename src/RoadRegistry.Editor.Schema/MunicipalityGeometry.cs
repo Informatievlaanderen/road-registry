@@ -2,7 +2,7 @@ namespace RoadRegistry.Editor.Schema
 {
     using NetTopologySuite.Geometries;
 
-    public class MunicipalityGeometryRecord
+    public class MunicipalityGeometry
     {
         public string NisCode { get; set; }
 

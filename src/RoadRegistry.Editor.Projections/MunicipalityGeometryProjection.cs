@@ -5,14 +5,15 @@
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Schema;
+    using MunicipalityGeometry = Schema.MunicipalityGeometry;
 
-    public class MunicipalityGeometryRecordProjection : ConnectedProjection<EditorContext>
+    public class MunicipalityGeometryProjection : ConnectedProjection<EditorContext>
     {
-        public MunicipalityGeometryRecordProjection()
+        public MunicipalityGeometryProjection()
         {
             When<Envelope<ImportedMunicipality>>(async (context, envelope, token) =>
             {
-                await context.MunicipalityGeometries.AddAsync(new MunicipalityGeometryRecord
+                await context.MunicipalityGeometries.AddAsync(new MunicipalityGeometry
                 {
                     NisCode = envelope.Message.NISCode,
                     Geometry = GeometryTranslator.Translate(envelope.Message.Geometry)
