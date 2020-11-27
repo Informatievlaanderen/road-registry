@@ -10,8 +10,6 @@ namespace RoadRegistry.Legacy.Extract.Readers
     using Microsoft.Extensions.Logging;
     using NodaTime;
     using NodaTime.Text;
-    using Point = BackOffice.Messages.Point;
-    using Polygon = BackOffice.Messages.Polygon;
 
     public class ImportedMunicipalitiesReader : IEventReader
     {
@@ -56,13 +54,13 @@ namespace RoadRegistry.Legacy.Extract.Readers
                         MultiPolygon = Array.ConvertAll(multiPolygon.Geometries, geometry =>
                         {
                             var polygonGeometry = (NetTopologySuite.Geometries.Polygon) geometry;
-                            return new Polygon
+                            return new BackOffice.Messages.Polygon
                             {
                                 Shell = new Ring
                                 {
                                     Points = Array.ConvertAll(polygonGeometry.ExteriorRing.Coordinates,
                                         coordinate =>
-                                            new Point
+                                            new BackOffice.Messages.Point
                                             {
                                                 X = coordinate.X,
                                                 Y = coordinate.Y
@@ -72,7 +70,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                                     new Ring
                                     {
                                         Points = Array.ConvertAll(hole.Coordinates, coordinate =>
-                                            new Point
+                                            new BackOffice.Messages.Point
                                             {
                                                 X = coordinate.X,
                                                 Y = coordinate.Y
