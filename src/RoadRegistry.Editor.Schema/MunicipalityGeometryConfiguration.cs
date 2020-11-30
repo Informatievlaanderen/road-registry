@@ -11,9 +11,9 @@ namespace RoadRegistry.Editor.Schema
         {
             b.ToTable(TableName, WellknownSchemas.EditorSchema)
                 .HasKey(p => p.NisCode)
-                .IsClustered(false);
+                .IsClustered();
 
-            b.Property(p => p.NisCode).ValueGeneratedNever().IsRequired();
+            b.Property(p => p.NisCode).ValueGeneratedNever().IsRequired().HasMaxLength(5).IsFixedLength();
             b.Property(p => p.Geometry).HasColumnType("Geometry").IsRequired();
         }
     }
