@@ -1226,12 +1226,12 @@ namespace RoadRegistry.BackOffice.Scenarios
                                         new Messages.ProblemParameter
                                         {
                                             Name = "SegmentId",
-                                            Value = AddSegment1.TemporaryId.ToString()
+                                            //Value = AddSegment1.TemporaryId.ToString()
                                         },
                                         new Messages.ProblemParameter
                                         {
                                             Name = "SegmentId",
-                                            Value = AddSegment2.TemporaryId.ToString()
+                                            //Value = AddSegment2.TemporaryId.ToString()
                                         }
                                     }
                                 }

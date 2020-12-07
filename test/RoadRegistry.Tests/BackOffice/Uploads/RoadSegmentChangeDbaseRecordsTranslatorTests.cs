@@ -131,7 +131,9 @@ namespace RoadRegistry.BackOffice.Uploads
                             nextChanges = previousChanges.AppendChange(
                                 new Uploads.AddRoadSegment(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
-                                    new RoadSegmentId(current.WS_OIDN.Value),
+                                    current.EVENTIDN.HasValue && current.EVENTIDN.Value != 0
+                                        ? new RoadSegmentId(current.EVENTIDN.Value)
+                                        : new RoadSegmentId(current.WS_OIDN.Value),
                                     new RoadNodeId(current.B_WK_OIDN.Value),
                                     new RoadNodeId(current.E_WK_OIDN.Value),
                                     new OrganizationId(current.BEHEERDER.Value),
@@ -204,7 +206,7 @@ namespace RoadRegistry.BackOffice.Uploads
             foreach (var current in records)
             {
                 var id = new RoadSegmentId(current.WS_OIDN.Value);
-                Assert.True(result.TryFindRoadSegmentChange(id, out var foundChange));
+                Assert.True(result.TryFindRoadSegmentChangeOfDynamicAttributeRecord(id, out var foundChange));
                 Assert.NotNull(foundChange);
                 var actual = Assert.IsAssignableFrom<ITranslatedChange>(foundChange);
                 ITranslatedChange expected = new Uploads.ModifyRoadSegment(

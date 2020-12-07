@@ -111,13 +111,13 @@ namespace RoadRegistry.BackOffice.Uploads
             "WEGKNOOP_ALL.DBF",
             "WEGKNOOP_ALL.SHP",
             "WEGSEGMENT_ALL.DBF",
+            "ATTRIJSTROKEN_ALL.DBF",
+            "ATTWEGBREEDTE_ALL.DBF",
+            "ATTWEGVERHARDING_ALL.DBF",
             "WEGSEGMENT_ALL.SHP",
             "ATTEUROPWEG_ALL.DBF",
             "ATTNATIONWEG_ALL.DBF",
             "ATTGENUMWEG_ALL.DBF",
-            "ATTRIJSTROKEN_ALL.DBF",
-            "ATTWEGBREEDTE_ALL.DBF",
-            "ATTWEGVERHARDING_ALL.DBF",
             "RLTOGKRUISING_ALL.DBF"
         };
 

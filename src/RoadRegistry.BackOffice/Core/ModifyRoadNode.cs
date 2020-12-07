@@ -38,7 +38,7 @@ namespace RoadRegistry.BackOffice.Core
             var byOtherNode =
                 context.AfterView.Nodes.Values.FirstOrDefault(n =>
                     n.Id != Id &&
-                    n.Geometry.EqualsExact(Geometry));
+                    n.Geometry.EqualsWithinTolerance(Geometry, context.Tolerances.GeometryTolerance));
             if (byOtherNode != null)
             {
                 problems = problems.Add(new RoadNodeGeometryTaken(

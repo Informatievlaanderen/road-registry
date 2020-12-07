@@ -105,56 +105,35 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public AddRoadSegment WithLane(RoadSegmentLaneAttribute lane)
         {
+            var lanes = new List<RoadSegmentLaneAttribute>(Lanes) {lane};
+            lanes.Sort((left, right) => left.TemporaryId.CompareTo(right.TemporaryId));
             return new AddRoadSegment(
                 RecordNumber, TemporaryId, StartNodeId, EndNodeId, Geometry,
                 MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
                 LeftSideStreetNameId, RightSideStreetNameId,
-                new List<RoadSegmentLaneAttribute>(Lanes) {lane}, Widths, Surfaces);
-        }
-
-        public AddRoadSegment WithLanes(RoadSegmentLaneAttribute[] lanes)
-        {
-            if (lanes == null) throw new ArgumentNullException(nameof(lanes));
-            return new AddRoadSegment(
-                RecordNumber, TemporaryId, StartNodeId, EndNodeId, Geometry,
-                MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
-                LeftSideStreetNameId, RightSideStreetNameId, lanes, Widths, Surfaces);
+                lanes, Widths, Surfaces);
         }
 
         public AddRoadSegment WithWidth(RoadSegmentWidthAttribute width)
         {
+            var widths = new List<RoadSegmentWidthAttribute>(Widths) { width };
+            widths.Sort((left, right) => left.TemporaryId.CompareTo(right.TemporaryId));
             return new AddRoadSegment(
                 RecordNumber, TemporaryId, StartNodeId, EndNodeId, Geometry,
                 MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
                 LeftSideStreetNameId, RightSideStreetNameId,
-                Lanes, new List<RoadSegmentWidthAttribute>(Widths) { width }, Surfaces);
-        }
-
-        public AddRoadSegment WithWidths(RoadSegmentWidthAttribute[] widths)
-        {
-            if (widths == null) throw new ArgumentNullException(nameof(widths));
-            return new AddRoadSegment(
-                RecordNumber, TemporaryId, StartNodeId, EndNodeId, Geometry,
-                MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
-                LeftSideStreetNameId, RightSideStreetNameId, Lanes, widths, Surfaces);
+                Lanes, widths, Surfaces);
         }
 
         public AddRoadSegment WithSurface(RoadSegmentSurfaceAttribute surface)
         {
+            var surfaces = new List<RoadSegmentSurfaceAttribute>(Surfaces) { surface };
+            surfaces.Sort((left, right) => left.TemporaryId.CompareTo(right.TemporaryId));
             return new AddRoadSegment(
                 RecordNumber, TemporaryId, StartNodeId, EndNodeId, Geometry,
                 MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
                 LeftSideStreetNameId, RightSideStreetNameId,
-                Lanes, Widths, new List<RoadSegmentSurfaceAttribute>(Surfaces) { surface });
-        }
-
-        public AddRoadSegment WithSurfaces(RoadSegmentSurfaceAttribute[] surfaces)
-        {
-            if (surfaces == null) throw new ArgumentNullException(nameof(surfaces));
-            return new AddRoadSegment(
-                RecordNumber, TemporaryId, StartNodeId, EndNodeId, Geometry,
-                MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
-                LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, surfaces);
+                Lanes, Widths, surfaces);
         }
 
         public void TranslateTo(Messages.RequestedChange message)

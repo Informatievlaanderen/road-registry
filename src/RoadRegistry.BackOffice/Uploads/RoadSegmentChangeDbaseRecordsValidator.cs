@@ -27,14 +27,20 @@ namespace RoadRegistry.BackOffice.Uploads
                         var record = records.Current;
                         if (record != null)
                         {
+                            RecordType recordType = default;
                             if (!record.RECORDTYPE.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.RECORDTYPE.Field);
-                            } else
+                            }
+                            else
                             {
-                                if (!RecordType.ByIdentifier.ContainsKey(record.RECORDTYPE.Value))
+                                if (!RecordType.ByIdentifier.TryGetValue(record.RECORDTYPE.Value, out recordType))
                                 {
                                     problems += recordContext.RecordTypeMismatch(record.RECORDTYPE.Value);
+                                }
+                                else if (!recordType.IsAnyOf(RecordType.Identical, RecordType.Added, RecordType.Modified, RecordType.Removed))
+                                {
+                                    problems += recordContext.RecordTypeNotSupported(record.RECORDTYPE.Value, RecordType.Identical.Translation.Identifier, RecordType.Added.Translation.Identifier, RecordType.Modified.Translation.Identifier, RecordType.Removed.Translation.Identifier);
                                 }
                             }
                             if (record.WS_OIDN.HasValue)
@@ -45,17 +51,20 @@ namespace RoadRegistry.BackOffice.Uploads
                                 }
                                 else
                                 {
-                                    var identifier = new RoadSegmentId(record.WS_OIDN.Value);
-                                    if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
+                                    if (recordType != RecordType.Added)
                                     {
-                                        problems += recordContext.IdentifierNotUnique(
-                                            identifier,
-                                            takenByRecordNumber
-                                        );
-                                    }
-                                    else
-                                    {
-                                        identifiers.Add(identifier, records.CurrentRecordNumber);
+                                        var identifier = new RoadSegmentId(record.WS_OIDN.Value);
+                                        if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
+                                        {
+                                            problems += recordContext.IdentifierNotUnique(
+                                                identifier,
+                                                takenByRecordNumber
+                                            );
+                                        }
+                                        else
+                                        {
+                                            identifiers.Add(identifier, records.CurrentRecordNumber);
+                                        }
                                     }
                                 }
                             }

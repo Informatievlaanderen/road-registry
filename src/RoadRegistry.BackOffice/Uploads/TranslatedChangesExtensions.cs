@@ -5,7 +5,7 @@ namespace RoadRegistry.BackOffice.Uploads
 
     internal static class TranslatedChangesExtensions
     {
-        public static object Flatten(this IEnumerable<ITranslatedChange> changes) =>
+        public static ITranslatedChange Flatten(this IEnumerable<ITranslatedChange> changes) =>
             changes.SingleOrDefault(_ => !ReferenceEquals(_, null));
     }
 }

@@ -11,6 +11,7 @@ namespace RoadRegistry.BackOffice.Scenarios
     using NetTopologySuite.Geometries.Implementation;
     using NodaTime.Text;
     using Core;
+    using NetTopologySuite.Index.HPRtree;
     using RoadRegistry.Framework.Testing;
     using Xunit;
 

@@ -222,8 +222,8 @@ decodeEntry =
             , when decodeEntryContentType (is "RoadNetworkChangesArchiveAccepted") decodeRoadNetworkChangesArchiveAccepted
             , when decodeEntryContentType (is "RoadNetworkChangesArchiveRejected") decodeRoadNetworkChangesArchiveRejected
             , when decodeEntryContentType (is "RoadNetworkChangesArchiveUploaded") decodeRoadNetworkChangesArchiveUploaded
-            , when decodeEntryContentType (is "RoadNetworkChangesBasedOnArchiveAccepted") decodeRoadNetworkChangesBasedOnArchiveAccepted
-            , when decodeEntryContentType (is "RoadNetworkChangesBasedOnArchiveRejected") decodeRoadNetworkChangesBasedOnArchiveRejected
+            , when decodeEntryContentType (is "RoadNetworkChangesAccepted") decodeRoadNetworkChangesBasedOnArchiveAccepted
+            , when decodeEntryContentType (is "RoadNetworkChangesRejected") decodeRoadNetworkChangesBasedOnArchiveRejected
             ]
         )
 

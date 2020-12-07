@@ -23,7 +23,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.IdenticalIdentifier:
                         case RecordType.AddedIdentifier:
                             var segmentId = new RoadSegmentId(record.WS_OIDN.Value);
-                            if (changes.TryFindRoadSegmentChange(segmentId, out var change))
+                            if (changes.TryFindRoadSegmentChangeOfDynamicAttributeRecord(segmentId, out var change))
                             {
                                 var lane = new RoadSegmentLaneAttribute(
                                     new AttributeId(record.RS_OIDN.Value),

@@ -280,7 +280,15 @@ namespace RoadRegistry.BackOffice.Core
             return new ImmutableRoadNetworkView(
                 _nodes,
                 _segments,
-                _gradeSeparatedJunctions,
+                _gradeSeparatedJunctions.Add(
+                    id,
+                    new GradeSeparatedJunction(
+                        id,
+                        GradeSeparatedJunctionType.Parse(@event.Type),
+                        new RoadSegmentId(@event.UpperRoadSegmentId),
+                        new RoadSegmentId(@event.LowerRoadSegmentId)
+                    )
+                ),
                 TransactionId.Max(new TransactionId(@event.Origin.TransactionId), _maximumTransactionId),
                 _maximumNodeId,
                 _maximumSegmentId,
@@ -1666,6 +1674,15 @@ namespace RoadRegistry.BackOffice.Core
                 _maximumTransactionId =
                     TransactionId.Max(new TransactionId(@event.Origin.TransactionId), _maximumTransactionId);
                 _maximumGradeSeparatedJunctionId = GradeSeparatedJunctionId.Max(id, _maximumGradeSeparatedJunctionId);
+                _gradeSeparatedJunctions.Add(
+                    id,
+                    new GradeSeparatedJunction(
+                        id,
+                        GradeSeparatedJunctionType.Parse(@event.Type),
+                        new RoadSegmentId(@event.UpperRoadSegmentId),
+                        new RoadSegmentId(@event.LowerRoadSegmentId)
+                    )
+                );
             }
 
             private void Given(Messages.RoadNetworkChangesAccepted @event)

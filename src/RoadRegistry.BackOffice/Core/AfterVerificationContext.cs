@@ -7,15 +7,14 @@ namespace RoadRegistry.BackOffice.Core
         public IRoadNetworkView BeforeView { get; }
         public IRoadNetworkView AfterView { get; }
         public IRequestedChangeIdentityTranslator Translator { get; }
-        public double Tolerance { get; }
+        public VerificationContextTolerances Tolerances { get; }
 
-        internal AfterVerificationContext(IRoadNetworkView beforeView, IRoadNetworkView afterView, IRequestedChangeIdentityTranslator translator, double tolerance)
+        internal AfterVerificationContext(IRoadNetworkView beforeView, IRoadNetworkView afterView, IRequestedChangeIdentityTranslator translator, VerificationContextTolerances tolerances)
         {
             BeforeView = beforeView ?? throw new ArgumentNullException(nameof(beforeView));
-            AfterView = afterView ?? throw new ArgumentNullException(nameof(afterView));
+            AfterView  = afterView ?? throw new ArgumentNullException(nameof(afterView));
             Translator = translator ?? throw new ArgumentNullException(nameof(translator));
-            if (tolerance <= 0.0) throw new ArgumentOutOfRangeException(nameof(tolerance),"The tolerance must be greater than 0.");
-            Tolerance = tolerance;
+            Tolerances = tolerances ?? throw new ArgumentNullException(nameof(tolerances));
         }
     }
 }

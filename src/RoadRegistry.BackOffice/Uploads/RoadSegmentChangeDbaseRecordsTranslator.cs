@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.Uploads
 {
     using System;
+    using System.Collections.Generic;
     using System.IO.Compression;
-    using System.Linq;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Schema;
 
@@ -27,7 +27,9 @@ namespace RoadRegistry.BackOffice.Uploads
                             changes = changes.AppendChange(
                                 new AddRoadSegment(
                                     records.CurrentRecordNumber,
-                                    new RoadSegmentId(record.WS_OIDN.Value),
+                                    record.EVENTIDN.HasValue && record.EVENTIDN.Value != 0
+                                        ? new RoadSegmentId(record.EVENTIDN.Value)
+                                        : new RoadSegmentId(record.WS_OIDN.Value),
                                     new RoadNodeId(record.B_WK_OIDN.Value),
                                     new RoadNodeId(record.E_WK_OIDN.Value),
                                     new OrganizationId(record.BEHEERDER.Value),
