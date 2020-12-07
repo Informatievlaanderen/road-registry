@@ -11,6 +11,7 @@ namespace RoadRegistry.Framework.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Editor.Schema;
     using KellermanSoftware.CompareNetObjects;
+    using KellermanSoftware.CompareNetObjects.TypeComparers;
     using Microsoft.EntityFrameworkCore;
     using Xunit.Sdk;
 
@@ -106,7 +107,74 @@ namespace RoadRegistry.Framework.Projections
 
             var specification = scenario.Verify(async context =>
             {
-                var comparisonConfig = new ComparisonConfig { MaxDifferences = 5};
+                var comparisonConfig = new ComparisonConfig
+                {
+                    MaxDifferences = 10,
+                    CustomComparers = new List<BaseTypeComparer>
+                    {
+                        new GeometryMultiPolygonComparer(RootComparerFactory.GetRootComparer())
+                    }
+                };
+                var comparer = new CompareLogic(comparisonConfig);
+                var actualRecords = await context.AllRecords();
+                var result = comparer.Compare(
+                    actualRecords,
+                    records
+                );
+
+                return result.AreEqual
+                    ? VerificationResult.Pass()
+                    : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, records));
+            });
+
+            using (var context = CreateContextFor(database))
+            {
+                var projector = new ConnectedProjector<EditorContext>(specification.Resolver);
+                var position = 0L;
+                foreach (var message in specification.Messages)
+                {
+                    var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position }}).ToGenericEnvelope();
+                    await projector.ProjectAsync(context, envelope);
+                    position++;
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = CreateContextFor(database))
+            {
+                var result = await specification.Verification(context, CancellationToken.None);
+
+                if (result.Failed)
+                    throw specification.CreateFailedScenarioExceptionFor(result);
+            }
+        }
+
+        public static Task ExpectInAnyOrder(
+            this ConnectedProjectionScenario<EditorContext> scenario,
+            IEnumerable<object> records)
+        {
+            return scenario.ExpectInAnyOrder(records.ToArray());
+        }
+
+        public static async Task ExpectInAnyOrder(
+            this ConnectedProjectionScenario<EditorContext> scenario,
+            params object[] records)
+        {
+            var database = Guid.NewGuid().ToString("N");
+
+            var specification = scenario.Verify(async context =>
+            {
+                var comparisonConfig = new ComparisonConfig
+                {
+                    IgnoreCollectionOrder = true,
+                    MaxDifferences = 10,
+                    CustomComparers = new List<BaseTypeComparer>
+                    {
+                        new GeometryLineStringComparer(RootComparerFactory.GetRootComparer())
+                    }
+                };
+
                 var comparer = new CompareLogic(comparisonConfig);
                 var actualRecords = await context.AllRecords();
                 var result = comparer.Compare(
@@ -157,6 +225,7 @@ namespace RoadRegistry.Framework.Projections
             records.AddRange(await context.Organizations.ToArrayAsync());
             records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
             records.AddRange(await context.RoadNetworkChanges.ToArrayAsync());
+            records.AddRange(await context.MunicipalityGeometries.ToArrayAsync());
             return records.ToArray();
         }
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Editor.Schema;
@@ -10,9 +11,10 @@ using RoadRegistry.Editor.Schema;
 namespace RoadRegistry.Editor.Schema.Migrations
 {
     [DbContext(typeof(EditorContext))]
-    partial class EditorContextModelSnapshot : ModelSnapshot
+    [Migration("20201124103846_AddMunicipalityGeometry")]
+    partial class AddMunicipalityGeometry
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,19 +57,17 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.ToTable("GradeSeparatedJunction","RoadRegistryEditor");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Editor.Schema.MunicipalityGeometry", b =>
+            modelBuilder.Entity("RoadRegistry.Editor.Schema.MunicipalityGeometryRecord", b =>
                 {
                     b.Property<string>("NisCode")
-                        .HasColumnType("nchar(5)")
-                        .IsFixedLength(true)
-                        .HasMaxLength(5);
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<Geometry>("Geometry")
                         .IsRequired()
                         .HasColumnType("Geometry");
 
                     b.HasKey("NisCode")
-                        .HasAnnotation("SqlServer:Clustered", true);
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("MunicipalityGeometry","RoadRegistryEditor");
                 });
@@ -218,6 +218,40 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("RoadNetworkInfo","RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNetworkInfoSegmentCache", b =>
+                {
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LanesLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartOfEuropeanRoadsLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartOfNationalRoadsLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartOfNumberedRoadsLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShapeLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SurfacesLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WidthsLength")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoadSegmentId");
+
+                    b.HasIndex("RoadSegmentId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RoadNetworkInfoSegmentCache","RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNodes.RoadNodeRecord", b =>

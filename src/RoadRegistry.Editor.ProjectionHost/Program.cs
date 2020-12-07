@@ -179,12 +179,15 @@
                                     new DbContextOptionsBuilder<EditorContext>()
                                         .UseSqlServer(
                                             hostContext.Configuration.GetConnectionString(WellknownConnectionNames.EditorProjections),
-                                            options => options.EnableRetryOnFailure()
+                                            options => options
+                                                .EnableRetryOnFailure()
+                                                .UseNetTopologySuite()
                                         ).Options)
                         )
                         .AddSingleton(sp => new ConnectedProjection<EditorContext>[]
                         {
                             new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
+                            new MunicipalityGeometryProjection(),
                             new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
                             new RoadNetworkChangeFeedProjection(sp.GetRequiredService<IBlobClient>()),
                             new RoadNetworkInfoProjection(),

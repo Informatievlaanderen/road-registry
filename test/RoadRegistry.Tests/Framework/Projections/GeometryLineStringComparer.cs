@@ -5,9 +5,9 @@ namespace RoadRegistry.Framework.Projections
     using KellermanSoftware.CompareNetObjects.TypeComparers;
     using NetTopologySuite.Geometries;
 
-    public class GeometryComparer : BaseTypeComparer
+    public class GeometryLineStringComparer : BaseTypeComparer
     {
-        public GeometryComparer(RootComparer rootComparer) : base(rootComparer)
+        public GeometryLineStringComparer(RootComparer rootComparer) : base(rootComparer)
         {
         }
 

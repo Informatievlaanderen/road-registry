@@ -24,6 +24,12 @@ namespace RoadRegistry.Legacy.Extract.Readers
             _clock = clock;
             _reader = new CompositeEventReader(
                 new TimedEventReader(
+                    new ImportedMunicipalitiesReader(clock, wkbReader,
+                        loggerFactory.CreateLogger<ImportedMunicipalitiesReader>()),
+                    TimedEventReader.DefaultThreshold,
+                    loggerFactory.CreateLogger<TimedEventReader>()
+                ),
+                new TimedEventReader(
                     new ImportedOrganizationsReader(clock, loggerFactory.CreateLogger<ImportedOrganizationsReader>()),
                     100,
                     loggerFactory.CreateLogger<TimedEventReader>()
@@ -45,7 +51,8 @@ namespace RoadRegistry.Legacy.Extract.Readers
                         loggerFactory.CreateLogger<ImportedGradeSeparatedJunctionsReader>()),
                     100,
                     loggerFactory.CreateLogger<TimedEventReader>()
-                ));
+                )
+            );
         }
 
         public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)

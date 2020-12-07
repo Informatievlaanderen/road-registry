@@ -44,6 +44,12 @@ namespace RoadRegistry.Legacy.Import
                             reader.Read(); // PropertyName = TypeOfEvent
                             switch (reader.Value)
                             {
+                                case nameof(ImportedMunicipality):
+                                    reader.Read(); // StartObject (move to content for deserializer to work)
+                                    yield return new StreamEvent(new StreamName(stream),
+                                        serializer.Deserialize<ImportedMunicipality>(reader));
+                                    break;
+
                                 case nameof(ImportedOrganization):
                                     reader.Read(); // StartObject (move to content for deserializer to work)
                                     yield return new StreamEvent(new StreamName(stream),

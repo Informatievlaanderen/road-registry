@@ -5,5 +5,7 @@ Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 Be.Vlaanderen.Basisregisters.Shaperon
 
+Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+
 Serilog.Formatting.Compact
 Serilog.Sinks.Seq
