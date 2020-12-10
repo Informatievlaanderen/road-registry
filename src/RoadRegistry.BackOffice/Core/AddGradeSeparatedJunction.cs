@@ -43,12 +43,12 @@ namespace RoadRegistry.BackOffice.Core
 
             var problems = Problems.None;
 
-            if (!context.AfterView.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
+            if (!context.AfterView.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
             {
                 problems = problems.Add(new UpperRoadSegmentMissing());
             }
 
-            if (!context.AfterView.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
+            if (!context.AfterView.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
             {
                 problems = problems.Add(new LowerRoadSegmentMissing());
             }

@@ -37,5 +37,8 @@ namespace RoadRegistry.BackOffice.Core
         // im-/mutable support
         IRoadNetworkView ToBuilder();
         IRoadNetworkView ToImmutable();
+
+        // scoping
+        IScopedRoadNetworkView CreateScopedView(NetTopologySuite.Geometries.Envelope envelope);
     }
 }

@@ -14,7 +14,8 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public bool Equals(ITranslatedChange left, ITranslatedChange right)
         {
-            return _comparer.Equals((T)left, (T)right);
+            var result = _comparer.Equals((T)left, (T)right);
+            return result;
         }
 
         public int GetHashCode(ITranslatedChange instance)

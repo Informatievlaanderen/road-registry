@@ -107,8 +107,8 @@ nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore 4.5.4
 
 nuget Be.Vlaanderen.Basisregisters.BlobStore 2.2.8
 
-nuget Be.Vlaanderen.Basisregisters.Shaperon 8.0.3
-nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 8.0.3
+nuget Be.Vlaanderen.Basisregisters.Shaperon 8.1.0
+nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 8.1.0
 
 nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 15.6.2
 

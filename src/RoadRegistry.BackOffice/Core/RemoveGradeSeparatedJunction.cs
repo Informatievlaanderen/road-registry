@@ -18,7 +18,7 @@ namespace RoadRegistry.BackOffice.Core
 
             var problems = Problems.None;
 
-            if (!context.BeforeView.GradeSeparatedJunctions.ContainsKey(Id))
+            if (!context.BeforeView.View.GradeSeparatedJunctions.ContainsKey(Id))
             {
                 problems = problems.Add(new GradeSeparatedJunctionNotFound());
             }

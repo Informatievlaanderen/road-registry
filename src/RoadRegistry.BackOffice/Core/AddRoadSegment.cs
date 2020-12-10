@@ -267,7 +267,7 @@ namespace RoadRegistry.BackOffice.Core
             var line = Geometry.Geometries
                 .OfType<LineString>()
                 .Single();
-            if (!context.AfterView.Nodes.TryGetValue(StartNodeId, out var startNode))
+            if (!context.AfterView.View.Nodes.TryGetValue(StartNodeId, out var startNode))
             {
                 problems = problems.Add(new RoadSegmentStartNodeMissing());
             }
@@ -279,7 +279,7 @@ namespace RoadRegistry.BackOffice.Core
                 }
             }
 
-            if (!context.AfterView.Nodes.TryGetValue(EndNodeId, out var endNode))
+            if (!context.AfterView.View.Nodes.TryGetValue(EndNodeId, out var endNode))
             {
                 problems = problems.Add(new RoadSegmentEndNodeMissing());
             }

@@ -25,7 +25,7 @@ namespace RoadRegistry.BackOffice.Core
 
             var problems = Problems.None;
 
-            if (!context.BeforeView.Segments.TryGetValue(SegmentId, out var segment))
+            if (!context.BeforeView.View.Segments.TryGetValue(SegmentId, out var segment))
             {
                 problems = problems.Add(new RoadSegmentMissing(SegmentId));
             }

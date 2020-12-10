@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Diagnostics;
     using System.Linq;
     using NetTopologySuite.Geometries;
 
@@ -12,7 +13,6 @@
         public static RequestedChanges Start(TransactionId transactionId) =>
             new RequestedChanges(
                 transactionId,
-                new Envelope(0.0,0.0,0.0,0.0),
                 ImmutableList<IRequestedChange>.Empty,
                 ImmutableDictionary<RoadNodeId, RoadNodeId>.Empty,
                 ImmutableDictionary<RoadNodeId, RoadNodeId>.Empty,
@@ -22,7 +22,6 @@
                 ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty);
 
         private readonly TransactionId _transactionId;
-        private readonly Envelope _envelope;
         private readonly ImmutableList<IRequestedChange> _changes;
         private readonly ImmutableDictionary<RoadNodeId, RoadNodeId> _mapToPermanentNodeIdentifiers;
         private readonly ImmutableDictionary<RoadNodeId, RoadNodeId> _mapToTemporaryNodeIdentifiers;
@@ -33,17 +32,17 @@
 
         private RequestedChanges(
             TransactionId transactionId,
-            Envelope envelope,
             ImmutableList<IRequestedChange> changes,
             ImmutableDictionary<RoadNodeId, RoadNodeId> mapToPermanentNodeIdentifiers,
             ImmutableDictionary<RoadNodeId, RoadNodeId> mapToTemporaryNodeIdentifiers,
             ImmutableDictionary<RoadSegmentId, RoadSegmentId> mapToPermanentSegmentIdentifiers,
             ImmutableDictionary<RoadSegmentId, RoadSegmentId> mapToTemporarySegmentIdentifiers,
-            ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId> mapToPermanentGradeSeparatedJunctionIdentifiers,
-            ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId> mapToTemporaryGradeSeparatedJunctionIdentifiers)
+            ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>
+                mapToPermanentGradeSeparatedJunctionIdentifiers,
+            ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>
+                mapToTemporaryGradeSeparatedJunctionIdentifiers)
         {
             _transactionId = transactionId;
-            _envelope = envelope;
             _changes = changes;
             _mapToPermanentNodeIdentifiers = mapToPermanentNodeIdentifiers;
             _mapToTemporaryNodeIdentifiers = mapToTemporaryNodeIdentifiers;
@@ -57,7 +56,6 @@
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         public int Count => _changes.Count;
         public TransactionId TransactionId => _transactionId;
-        public Envelope Envelope => _envelope;
 
         public RequestedChanges Append(AddRoadNode change)
         {
@@ -65,7 +63,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope.ExpandWith(change.Geometry.EnvelopeInternal),
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers.Add(change.TemporaryId, change.Id),
                 _mapToTemporaryNodeIdentifiers.Add(change.Id, change.TemporaryId),
@@ -81,7 +78,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope.ExpandWith(change.Geometry.EnvelopeInternal),
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -97,7 +93,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -113,7 +108,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope.ExpandWith(change.Geometry.EnvelopeInternal),
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -129,7 +123,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope.ExpandWith(change.Geometry.EnvelopeInternal),
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -145,7 +138,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -161,7 +153,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -177,7 +168,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -193,7 +183,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -209,7 +198,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -225,7 +213,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -241,7 +228,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -257,7 +243,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -273,7 +258,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -289,7 +273,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -305,7 +288,6 @@
                 throw new ArgumentNullException(nameof(change));
 
             return new RequestedChanges(_transactionId,
-                _envelope,
                 _changes.Add(change),
                 _mapToPermanentNodeIdentifiers,
                 _mapToTemporaryNodeIdentifiers,
@@ -477,11 +459,74 @@
         public BeforeVerificationContext CreateBeforeVerificationContext(IRoadNetworkView view)
         {
             if (view == null) throw new ArgumentNullException(nameof(view));
+
             var tolerances = new VerificationContextTolerances(
                 DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance,
                 DefaultTolerances.MeasurementTolerance,
                 DefaultTolerances.GeometryTolerance);
-            return new BeforeVerificationContext(view, this, tolerances);
+
+            return new BeforeVerificationContext(
+                view.CreateScopedView(DeriveScopeFromChanges(view)),
+                this,
+                tolerances);
+        }
+
+        private Envelope DeriveScopeFromChanges(IRoadNetworkView view)
+        {
+            var envelope = new Envelope();
+
+            foreach (var change in this)
+            {
+                switch (change)
+                {
+                    case AddRoadNode addRoadNode:
+                        // the geometry to add
+                        envelope.ExpandToInclude(addRoadNode.Geometry.Coordinate);
+                        break;
+                    case ModifyRoadNode modifyRoadNode:
+                        // the geometry to modify it to
+                        envelope.ExpandToInclude(modifyRoadNode.Geometry.Coordinate);
+                        // if we still know this node, include the geometry as we know it now
+                        if (view.Nodes.TryGetValue(modifyRoadNode.Id, out var nodeToModify))
+                        {
+                            envelope.ExpandToInclude(nodeToModify.Geometry.Coordinate);
+                        }
+
+                        break;
+                    case RemoveRoadNode removeRoadNode:
+                        // if we still know this node, include the geometry as we know it now
+                        if (view.Nodes.TryGetValue(removeRoadNode.Id, out var nodeToRemove))
+                        {
+                            envelope.ExpandToInclude(nodeToRemove.Geometry.Coordinate);
+                        }
+
+                        break;
+                    case AddRoadSegment addRoadSegment:
+                        // the geometry to add
+                        envelope.ExpandToInclude(addRoadSegment.Geometry.EnvelopeInternal);
+                        break;
+                    case ModifyRoadSegment modifyRoadSegment:
+                        // the geometry to modify it to
+                        envelope.ExpandToInclude(modifyRoadSegment.Geometry.EnvelopeInternal);
+                        // if we still know this segment, include the geometry as we know it now
+                        if (view.Segments.TryGetValue(modifyRoadSegment.Id, out var segmentToModify))
+                        {
+                            envelope.ExpandToInclude(segmentToModify.Geometry.EnvelopeInternal);
+                        }
+
+                        break;
+                    case RemoveRoadSegment removeRoadSegment:
+                        // if we still know this segment, include the geometry as we know it now
+                        if (view.Segments.TryGetValue(removeRoadSegment.Id, out var segmentToRemove))
+                        {
+                            envelope.ExpandToInclude(segmentToRemove.Geometry.EnvelopeInternal);
+                        }
+
+                        break;
+                }
+            }
+
+            return envelope;
         }
     }
 }

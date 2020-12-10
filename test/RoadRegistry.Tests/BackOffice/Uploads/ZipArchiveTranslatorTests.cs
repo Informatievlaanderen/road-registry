@@ -118,7 +118,9 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
 
                 var europeanRoadChangeDbaseRecord = fixture.Create<EuropeanRoadChangeDbaseRecord>();
-                europeanRoadChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
+                europeanRoadChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.EVENTIDN.HasValue && roadSegmentChangeDbaseRecord1.EVENTIDN.Value != 0
+                    ? roadSegmentChangeDbaseRecord1.EVENTIDN.Value
+                    : roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
                 europeanRoadChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var europeanRoadChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
@@ -136,7 +138,9 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
 
                 var nationalRoadChangeDbaseRecord = fixture.Create<NationalRoadChangeDbaseRecord>();
-                nationalRoadChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
+                nationalRoadChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.EVENTIDN.HasValue && roadSegmentChangeDbaseRecord1.EVENTIDN.Value != 0
+                    ? roadSegmentChangeDbaseRecord1.EVENTIDN.Value
+                    : roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
                 nationalRoadChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var nationalRoadChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
@@ -154,7 +158,9 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
 
                 var numberedRoadChangeDbaseRecord = fixture.Create<NumberedRoadChangeDbaseRecord>();
-                numberedRoadChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
+                numberedRoadChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.EVENTIDN.HasValue && roadSegmentChangeDbaseRecord1.EVENTIDN.Value != 0
+                    ? roadSegmentChangeDbaseRecord1.EVENTIDN.Value
+                    : roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
                 numberedRoadChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var numberedRoadChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
@@ -172,7 +178,9 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
 
                 var laneChangeDbaseRecord = fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
-                laneChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
+                laneChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.EVENTIDN.HasValue && roadSegmentChangeDbaseRecord1.EVENTIDN.Value != 0
+                    ? roadSegmentChangeDbaseRecord1.EVENTIDN.Value
+                    : roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
                 laneChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 laneChangeDbaseRecord.TOTPOSITIE.Value = laneChangeDbaseRecord.VANPOSITIE.Value + 1.0;
                 var laneChangeStream = new MemoryStream();
@@ -191,7 +199,9 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
 
                 var widthChangeDbaseRecord = fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
-                widthChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
+                widthChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.EVENTIDN.HasValue && roadSegmentChangeDbaseRecord1.EVENTIDN.Value != 0
+                    ? roadSegmentChangeDbaseRecord1.EVENTIDN.Value
+                    : roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
                 widthChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 widthChangeDbaseRecord.TOTPOSITIE.Value = widthChangeDbaseRecord.VANPOSITIE.Value + 1.0;
                 var widthChangeStream = new MemoryStream();
@@ -210,7 +220,9 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
 
                 var surfaceChangeDbaseRecord = fixture.Create<RoadSegmentSurfaceChangeDbaseRecord>();
-                surfaceChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
+                surfaceChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord1.EVENTIDN.HasValue && roadSegmentChangeDbaseRecord1.EVENTIDN.Value != 0
+                    ? roadSegmentChangeDbaseRecord1.EVENTIDN.Value
+                    : roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
                 surfaceChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 surfaceChangeDbaseRecord.TOTPOSITIE.Value = surfaceChangeDbaseRecord.VANPOSITIE.Value + 1.0;
                 var surfaceChangeStream = new MemoryStream();
@@ -297,8 +309,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
 
                 var gradeSeparatedJunctionChangeDbaseRecord = fixture.Create<GradeSeparatedJunctionChangeDbaseRecord>();
-                gradeSeparatedJunctionChangeDbaseRecord.BO_WS_OIDN.Value = roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
-                gradeSeparatedJunctionChangeDbaseRecord.ON_WS_OIDN.Value = roadSegmentChangeDbaseRecord2.WS_OIDN.Value;
+                gradeSeparatedJunctionChangeDbaseRecord.BO_WS_OIDN.Value = roadSegmentChangeDbaseRecord1.EVENTIDN.HasValue && roadSegmentChangeDbaseRecord1.EVENTIDN.Value != 0
+                    ? roadSegmentChangeDbaseRecord1.EVENTIDN.Value
+                    : roadSegmentChangeDbaseRecord1.WS_OIDN.Value;
+                gradeSeparatedJunctionChangeDbaseRecord.ON_WS_OIDN.Value = roadSegmentChangeDbaseRecord2.EVENTIDN.HasValue && roadSegmentChangeDbaseRecord2.EVENTIDN.Value != 0
+                    ? roadSegmentChangeDbaseRecord2.EVENTIDN.Value
+                    : roadSegmentChangeDbaseRecord2.WS_OIDN.Value;
                 gradeSeparatedJunctionChangeDbaseRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 var gradeSeparatedJunctionChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
@@ -328,7 +344,8 @@ namespace RoadRegistry.BackOffice.Uploads
                         "ATTWEGVERHARDING_ALL.DBF",
                         "RLTOGKRUISING_ALL.DBF",
                         "WEGSEGMENT_ALL.DBF",
-                        "WEGKNOOP_ALL.DBF"
+                        "WEGKNOOP_ALL.DBF",
+                        //"TRANSACTIONZONES.DBF"
                     }
                     .OrderBy(_ => random.Next()) // sort randomly
                     .ToArray();

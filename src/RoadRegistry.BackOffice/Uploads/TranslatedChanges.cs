@@ -6,7 +6,6 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Collections.Immutable;
     using System.Linq;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Core;
 
     public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
     {

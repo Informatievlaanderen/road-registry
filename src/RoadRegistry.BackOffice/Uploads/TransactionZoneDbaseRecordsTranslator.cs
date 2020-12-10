@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Uploads
     using System;
     using System.IO.Compression;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Core;
     using Schema;
 
     public class TransactionZoneDbaseRecordsTranslator : IZipArchiveDbaseRecordsTranslator<TransactionZoneDbaseRecord>

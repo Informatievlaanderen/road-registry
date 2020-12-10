@@ -1,14 +1,18 @@
 namespace RoadRegistry.BackOffice.Core
 {
     using System;
+    using NetTopologySuite.Geometries;
 
     public class BeforeVerificationContext
     {
-        public IRoadNetworkView BeforeView { get; }
+        public IScopedRoadNetworkView BeforeView { get; }
         public IRequestedChangeIdentityTranslator Translator { get; }
         public VerificationContextTolerances Tolerances { get; }
 
-        internal BeforeVerificationContext(IRoadNetworkView view, IRequestedChangeIdentityTranslator translator, VerificationContextTolerances tolerances)
+        internal BeforeVerificationContext(
+            IScopedRoadNetworkView view,
+            IRequestedChangeIdentityTranslator translator,
+            VerificationContextTolerances tolerances)
         {
             BeforeView = view ?? throw new ArgumentNullException(nameof(view));
             Translator = translator ?? throw new ArgumentNullException(nameof(translator));
@@ -17,7 +21,7 @@ namespace RoadRegistry.BackOffice.Core
 
         public AfterVerificationContext CreateAfterVerificationContext(IRoadNetworkView afterView)
         {
-            return new AfterVerificationContext(BeforeView, afterView, Translator, Tolerances);
+            return new AfterVerificationContext(BeforeView, afterView.CreateScopedView(BeforeView.Scope), Translator, Tolerances);
         }
     }
 }

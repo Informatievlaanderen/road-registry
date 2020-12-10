@@ -42,7 +42,7 @@ namespace RoadRegistry.BackOffice.Core
                 ));
             }
 
-            var node = context.AfterView.Nodes[Id];
+            var node = context.AfterView.View.Nodes[Id];
 
             problems = context.AfterView.Segments.Values
                 .Where(s =>
@@ -54,7 +54,7 @@ namespace RoadRegistry.BackOffice.Core
                     (current, segment) =>
                         current.Add(new RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id))));
 
-            problems = problems.AddRange(node.VerifyTypeMatchesConnectedSegmentCount(context.AfterView, context.Translator));
+            problems = problems.AddRange(node.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
 
             return problems;
         }

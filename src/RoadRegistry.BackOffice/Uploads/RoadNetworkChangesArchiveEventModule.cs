@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Collections.Generic;
     using System.IO.Compression;
     using Be.Vlaanderen.Basisregisters.BlobStore;
+    using Core;
     using Framework;
     using SqlStreamStore;
 

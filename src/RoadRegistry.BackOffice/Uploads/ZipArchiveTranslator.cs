@@ -106,7 +106,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 };
         }
 
-        private static readonly string[] TranslationOrder = {
+        private static readonly string[] TranslationOrder = { // MC Hammer Style
             "TRANSACTIEZONES.DBF",
             "WEGKNOOP_ALL.DBF",
             "WEGKNOOP_ALL.SHP",

@@ -42,7 +42,7 @@ namespace RoadRegistry.BackOffice.Core
 
             var problems = Problems.None;
 
-            if (!context.AfterView.Segments.ContainsKey(SegmentId))
+            if (!context.AfterView.View.Segments.ContainsKey(SegmentId))
             {
                 problems = problems.Add(new RoadSegmentMissing(TemporarySegmentId ?? SegmentId));
             }
