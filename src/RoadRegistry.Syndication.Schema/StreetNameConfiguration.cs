@@ -36,6 +36,8 @@ namespace RoadRegistry.Syndication.Schema
 
             b.HasIndex(p => p.PersistentLocalId);
 
+            b.HasIndex(p => p.Position);
+
             b.Property(p => p.NameWithHomonymAddition)
                 .HasComputedColumnSql("COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED");
 

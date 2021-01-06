@@ -5,7 +5,6 @@ namespace RoadRegistry.BackOffice.Scenarios
     using System.Threading.Tasks;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using NetTopologySuite.Geometries;
     using NodaTime.Text;
     using Core;
     using RoadRegistry.Framework.Testing;
@@ -116,13 +115,13 @@ namespace RoadRegistry.BackOffice.Scenarios
         [Fact]
         public Task move_segment()
         {
-            var pointA = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var pointA = new NetTopologySuite.Geometries.Point(new NetTopologySuite.Geometries.CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             var nodeA = Fixture.Create<RoadNodeId>();
-            var pointB = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 0.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var pointB = new NetTopologySuite.Geometries.Point(new NetTopologySuite.Geometries.CoordinateM(10.0, 0.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             var nodeB = Fixture.Create<RoadNodeId>();
-            var pointC = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 10.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var pointC = new NetTopologySuite.Geometries.Point(new NetTopologySuite.Geometries.CoordinateM(0.0, 10.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             var nodeC = Fixture.Create<RoadNodeId>();
-            var pointD = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 10.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var pointD = new NetTopologySuite.Geometries.Point(new NetTopologySuite.Geometries.CoordinateM(10.0, 10.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             var nodeD = Fixture.Create<RoadNodeId>();
             var segment = Fixture.Create<RoadSegmentId>();
             var lineBefore = new NetTopologySuite.Geometries.MultiLineString(

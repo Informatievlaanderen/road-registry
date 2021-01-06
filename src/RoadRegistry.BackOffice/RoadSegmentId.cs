@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice
 {
     using System;
+    using System.Globalization;
 
     public readonly struct RoadSegmentId : IEquatable<RoadSegmentId>, IComparable<RoadSegmentId>
     {
@@ -38,7 +39,7 @@ namespace RoadRegistry.BackOffice
         public bool Equals(RoadSegmentId other) => _value == other._value;
         public override bool Equals(object other) => other is RoadSegmentId id && Equals(id);
         public override int GetHashCode() => _value.GetHashCode();
-        public override string ToString() => "RS-" + _value;
+        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
         public int CompareTo(RoadSegmentId other) => _value.CompareTo(other._value);
         public static bool operator ==(RoadSegmentId left, RoadSegmentId right) => left.Equals(right);
         public static bool operator !=(RoadSegmentId left, RoadSegmentId right) => !left.Equals(right);

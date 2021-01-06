@@ -285,8 +285,8 @@ NUGET
       Microsoft.Data.SqlClient (>= 2.0.1)
       Polly (>= 7.2.1)
       System.Threading.Tasks.Dataflow (>= 4.11.1)
-    Be.Vlaanderen.Basisregisters.Shaperon (8.0.3)
-    Be.Vlaanderen.Basisregisters.Shaperon.Geometries (8.0.3)
+    Be.Vlaanderen.Basisregisters.Shaperon (8.1)
+    Be.Vlaanderen.Basisregisters.Shaperon.Geometries (8.1)
     Be.Vlaanderen.Basisregisters.Testing.Infrastructure.Events (2.2.6) - copy_local: true, copy_content_to_output_dir: always, content: true
       Be.Vlaanderen.Basisregisters.AggregateSource (>= 5.0.9)
       Be.Vlaanderen.Basisregisters.EventHandling (>= 2.2.6)

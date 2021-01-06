@@ -38,7 +38,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new RoadSegmentWidthChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short)_fixture.Create<RecordType>().Translation.Identifier},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(_fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         WB_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
@@ -105,12 +105,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToArray();
             var enumerator = records.ToDbaseRecordEnumerator();
-            var changes = TranslatedChanges.Empty.Append(segment);
+            var changes = TranslatedChanges.Empty.AppendChange(segment);
 
             var result = _sut.Translate(_entry, enumerator, changes);
 
             var expected =
-                TranslatedChanges.Empty.Append(
+                TranslatedChanges.Empty.AppendChange(
                     records
                         .Where(record => record.RECORDTYPE.Value != (short)RecordType.Removed.Translation.Identifier)
                         .Aggregate(
@@ -143,12 +143,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToArray();
             var enumerator = records.ToDbaseRecordEnumerator();
-            var changes = TranslatedChanges.Empty.Append(segment);
+            var changes = TranslatedChanges.Empty.AppendChange(segment);
 
             var result = _sut.Translate(_entry, enumerator, changes);
 
             var expected =
-                TranslatedChanges.Empty.Append(
+                TranslatedChanges.Empty.AppendChange(
                     records
                         .Where(record => record.RECORDTYPE.Value != (short)RecordType.Removed.Translation.Identifier)
                         .Aggregate(
@@ -181,11 +181,11 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToArray();
             var enumerator = records.ToDbaseRecordEnumerator();
-            var changes = TranslatedChanges.Empty.Append(segment);
+            var changes = TranslatedChanges.Empty.AppendChange(segment);
 
             var result = _sut.Translate(_entry, enumerator, changes);
 
-            var expected = TranslatedChanges.Empty.Append(segment);
+            var expected = TranslatedChanges.Empty.AppendChange(segment);
 
             Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
         }

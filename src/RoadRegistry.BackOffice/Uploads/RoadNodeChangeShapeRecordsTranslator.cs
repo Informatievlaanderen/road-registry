@@ -18,19 +18,16 @@ namespace RoadRegistry.BackOffice.Uploads
                 var record = records.Current;
                 if (record != null && record.Content is PointShapeContent content)
                 {
-                    if (changes.TryTranslateToRoadNodeId(record.Header.RecordNumber, out var id))
+                    if(changes.TryFindRoadNodeChangeOfShapeRecord(record.Header.RecordNumber, out var change))
                     {
-                        if(changes.TryFindRoadNodeChange(id, out var change))
+                        switch (change)
                         {
-                            switch (change)
-                            {
-                                case AddRoadNode addition:
-                                    changes = changes.Replace(addition, addition.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
-                                    break;
-                                case ModifyRoadNode modification:
-                                    changes = changes.Replace(modification, modification.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
-                                    break;
-                            }
+                            case AddRoadNode addition:
+                                changes = changes.ReplaceChange(addition, addition.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
+                                break;
+                            case ModifyRoadNode modification:
+                                changes = changes.ReplaceChange(modification, modification.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
+                                break;
                         }
                     }
                 }

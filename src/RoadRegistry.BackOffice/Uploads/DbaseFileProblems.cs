@@ -58,7 +58,7 @@ namespace RoadRegistry.BackOffice.Uploads
             var index = 0;
             foreach (var field in schema.Fields)
             {
-                if (index > 0) builder.Append(",");
+                if (index > 0) builder.Append(", ");
                 builder.Append(field.Name.ToString());
                 builder.Append("[");
                 builder.Append(field.FieldType.ToString());
@@ -146,8 +146,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Error(nameof(IdentifierNotUnique))
                 .WithParameters(
                     new ProblemParameter("Identifier", identifier.ToString()),
-                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
-                )
+                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
                 .Build();
         }
 
@@ -264,6 +263,20 @@ namespace RoadRegistry.BackOffice.Uploads
                     new ProblemParameter(
                         "ExpectedOneOf",
                         string.Join(",", RecordType.ByIdentifier.Keys.Select(key => key.ToString()))
+                    )
+                )
+                .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+                .Build();
+        }
+
+        public static FileError RecordTypeNotSupported(this IDbaseFileRecordProblemBuilder builder, int actual, params int[] expected)
+        {
+            return builder
+                .Error(nameof(RecordTypeNotSupported))
+                .WithParameter(
+                    new ProblemParameter(
+                        "ExpectedOneOf",
+                        string.Join(",", expected.Select(key => key.ToString()))
                     )
                 )
                 .WithParameter(new ProblemParameter("Actual", actual.ToString()))

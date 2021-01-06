@@ -30,7 +30,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new NationalRoadChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short)_fixture.Create<RecordType>().Translation.Identifier},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(_fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         NW_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
@@ -87,15 +87,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Select((record, index) =>
                 {
                     record.NW_OIDN.Value = index + 1;
-                    switch (index % 3)
+                    switch (index % 2)
                     {
                         case 0:
                             record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                             break;
                         case 1:
-                            record.RECORDTYPE.Value = (short)RecordType.Modified.Translation.Identifier;
-                            break;
-                        case 2:
                             record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
                             break;
                     }
@@ -114,17 +111,15 @@ namespace RoadRegistry.BackOffice.Uploads
                     switch (current.RECORDTYPE.Value)
                     {
                         case RecordType.AddedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.AddRoadSegmentToNationalRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new AttributeId(current.NW_OIDN.Value),
                                     new RoadSegmentId(current.WS_OIDN.Value),
                                     NationalRoadNumber.Parse(current.IDENT2.Value)));
                             break;
-                        case RecordType.ModifiedIdentifier:
-                            break; // modify case is not handled - we need to verify that this does not appear
                         case RecordType.RemovedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.RemoveRoadSegmentFromNationalRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new AttributeId(current.NW_OIDN.Value),

@@ -272,7 +272,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     "ATTWEGBREEDTE_ALL.DBF",
                     "ATTWEGVERHARDING_ALL.DBF",
                     "RLTOGKRUISING_ALL.DBF",
-                    "TRANSACTIEZONE.DBF"
+                    "TRANSACTIEZONES.DBF"
                 };
 
                 for (var index = 0; index < requiredFiles.Length; index++)
@@ -464,15 +464,15 @@ namespace RoadRegistry.BackOffice.Uploads
                                     }
 
                                     break;
-                                case "TRANSACTIEZONE.DBF":
-                                    if (requiredFiles[index] == "TRANSACTIEZONE.DBF")
+                                case "TRANSACTIEZONES.DBF":
+                                    if (requiredFiles[index] == "TRANSACTIEZONES.DBF")
                                     {
-                                        errors = errors.RequiredFileMissing("TRANSACTIEZONE.DBF");
+                                        errors = errors.RequiredFileMissing("TRANSACTIEZONES.DBF");
                                     }
                                     else
                                     {
                                         using (var entryStream =
-                                            createArchive.CreateEntry("TRANSACTIEZONE.DBF").Open())
+                                            createArchive.CreateEntry("TRANSACTIEZONES.DBF").Open())
                                         {
                                             transactionZoneStream.CopyTo(entryStream);
                                         }
@@ -498,6 +498,7 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             var fixture = new Fixture();
 
+            fixture.CustomizeRecordType();
             fixture.CustomizeAttributeId();
             fixture.CustomizeRoadSegmentId();
             fixture.CustomizeEuropeanRoadNumber();
@@ -530,7 +531,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new EuropeanRoadChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short) random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short) random.Next(1, 9999)},
                         EU_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = fixture.Create<RoadSegmentId>().ToInt32()},
@@ -542,7 +543,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new GradeSeparatedJunctionChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short) random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short) random.Next(1, 9999)},
                         OK_OIDN = {Value = new GradeSeparatedJunctionId(random.Next(1, int.MaxValue))},
                         TYPE =
@@ -556,7 +557,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new NationalRoadChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short) random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short) random.Next(1, 9999)},
                         NW_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = fixture.Create<RoadSegmentId>().ToInt32()},
@@ -568,7 +569,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new NumberedRoadChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short) random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short) random.Next(1, 9999)},
                         GW_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = fixture.Create<RoadSegmentId>().ToInt32()},
@@ -654,7 +655,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         MORFOLOGIE =
                             {Value = (short) fixture.Create<RoadSegmentMorphology>().Translation.Identifier},
                         STATUS = {Value = fixture.Create<RoadSegmentStatus>().Translation.Identifier},
-                        WEGCAT = {Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier},
+                        CATEGORIE = {Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier},
                         B_WK_OIDN = {Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         E_WK_OIDN = {Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         LSTRNMID = {Value = new CrabStreetnameId(random.Next(1, int.MaxValue))},
@@ -671,7 +672,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new RoadSegmentLaneChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short) random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short) random.Next(1, 9999)},
                         RS_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = fixture.Create<RoadSegmentId>().ToInt32()},
@@ -689,7 +690,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new RoadSegmentSurfaceChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short) random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short) random.Next(1, 9999)},
                         WV_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = fixture.Create<RoadSegmentId>().ToInt32()},
@@ -702,7 +703,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new RoadSegmentWidthChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short) random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short) random.Next(1, 9999)},
                         WB_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
                         WS_OIDN = {Value = fixture.Create<RoadSegmentId>().ToInt32()},
@@ -716,7 +717,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new TransactionZoneDbaseRecord
                     {
-                        SOURCE_ID = {Value = random.Next(1, 5)},
+                        SOURCEID = {Value = random.Next(1, 5)},
                         TYPE = {Value = random.Next(1, 9999)},
                         BESCHRIJV = {Value = fixture.Create<Reason>().ToString()},
                         OPERATOR = {Value = fixture.Create<OperatorName>().ToString()},
@@ -999,7 +1000,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
 
                 using (var entryStream =
-                    createArchive.CreateEntry("TRANSACTIEZONE.DBF").Open())
+                    createArchive.CreateEntry("TRANSACTIEZONES.DBF").Open())
                 {
                     transactionZoneStream.CopyTo(entryStream);
                 }

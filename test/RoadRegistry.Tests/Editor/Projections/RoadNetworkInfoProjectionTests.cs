@@ -461,7 +461,6 @@ namespace RoadRegistry.Editor.Projections
                 })
                 .ToArray();
             var givens = Array.ConvertAll(imported_segments, imported => (object) imported);
-            var reader = new WellKnownBinaryReader();
             return new RoadNetworkInfoProjection()
                 .Scenario()
                 .Given(
@@ -506,39 +505,5 @@ namespace RoadRegistry.Editor.Projections
                     }
                 );
         }
-
-        // [Fact]
-        // public Task When_grade_separated_junctions_were_added()
-        // {
-        //     _fixture.CustomizeGradeSeparatedJunctionAdded();
-        //
-        //     var roadNetworkChangesBasedOnArchiveAccepted = _fixture.Create<RoadNetworkChangesBasedOnArchiveAccepted>();
-        //     var expectedRecords = roadNetworkChangesBasedOnArchiveAccepted.Changes.Select(change =>
-        //     {
-        //         var junction = change.GradeSeparatedJunctionAdded;
-        //         return (object)new GradeSeparatedJunctionRecord
-        //         {
-        //             Id = junction.Id,
-        //             DbaseRecord = new GradeSeparatedJunctionDbaseRecord
-        //             {
-        //                 OK_OIDN = {Value = junction.Id},
-        //                 TYPE = {Value = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Identifier},
-        //                 LBLTYPE = {Value = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name},
-        //                 BO_WS_OIDN = {Value = junction.UpperRoadSegmentId},
-        //                 ON_WS_OIDN = {Value = junction.LowerRoadSegmentId},
-        //                 BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(roadNetworkChangesBasedOnArchiveAccepted.When)},
-        //                 BEGINORG = {Value = roadNetworkChangesBasedOnArchiveAccepted.OrganizationId},
-        //                 LBLBGNORG = {Value = roadNetworkChangesBasedOnArchiveAccepted.Organization}
-        //             }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-        //         };
-        //     }).ToArray();
-        //
-        //     return new RoadNetworkInfoProjection()
-        //         .Scenario()
-        //         .Given(
-        //             new BeganRoadNetworkImport(),
-        //             roadNetworkChangesBasedOnArchiveAccepted)
-        //         .Expect(expectedRecords);
-        //}
     }
 }

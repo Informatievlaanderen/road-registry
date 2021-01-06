@@ -6,6 +6,7 @@ namespace RoadRegistry.BackOffice.Core
     using FluentValidation.TestHelper;
     using Messages;
     using NetTopologySuite.Geometries;
+    using NetTopologySuite.Index.HPRtree;
     using Xunit;
 
     public class ChangeRoadNetworkValidatorTests

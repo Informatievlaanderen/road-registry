@@ -5,7 +5,6 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.IO.Compression;
     using System.Threading;
     using System.Threading.Tasks;
-    using Editor.Schema;
     using Microsoft.EntityFrameworkCore;
 
     public class ReadCommittedZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext: DbContext

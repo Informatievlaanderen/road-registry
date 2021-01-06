@@ -22,6 +22,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public RoadSegmentChangeDbaseRecordsValidatorTests()
         {
             _fixture = new Fixture();
+            _fixture.CustomizeRecordType();
             _fixture.CustomizeRoadNodeId();
             _fixture.CustomizeRoadSegmentId();
             _fixture.CustomizeRoadSegmentGeometryDrawMethod();
@@ -34,14 +35,14 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new RoadSegmentChangeDbaseRecord
                     {
-                        RECORDTYPE = {Value = (short)random.Next(1, 5)},
+                        RECORDTYPE = {Value = (short)new Generator<RecordType>(_fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                         TRANSACTID = {Value = (short)random.Next(1, 9999)},
                         WS_OIDN = { Value = new RoadSegmentId(random.Next(1, int.MaxValue))},
                         METHODE = { Value = (short)_fixture.Create<RoadSegmentGeometryDrawMethod>().Translation.Identifier },
                         BEHEERDER = { Value = _fixture.Create<OrganizationId>() },
                         MORFOLOGIE = { Value = (short)_fixture.Create<RoadSegmentMorphology>().Translation.Identifier },
                         STATUS = { Value = _fixture.Create<RoadSegmentStatus>().Translation.Identifier },
-                        WEGCAT = { Value = _fixture.Create<RoadSegmentCategory>().Translation.Identifier },
+                        CATEGORIE = { Value = _fixture.Create<RoadSegmentCategory>().Translation.Identifier },
                         B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue))},
                         LSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue))},
@@ -137,9 +138,17 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             var records = _fixture
                 .CreateMany<RoadSegmentChangeDbaseRecord>(2)
-                .Select(record =>
+                .Select((record, index) =>
                 {
                     record.WS_OIDN.Value = 1;
+                    if (index == 0)
+                    {
+                        record.RECORDTYPE.Value = (short) RecordType.Identical.Translation.Identifier;
+                    }
+                    else if(index == 1)
+                    {
+                        record.RECORDTYPE.Value = (short) RecordType.Removed.Translation.Identifier;
+                    }
                     return record;
                 })
                 .ToDbaseRecordEnumerator();
@@ -154,6 +163,35 @@ namespace RoadRegistry.BackOffice.Uploads
                 ),
                 result);
         }
+
+        [Fact]
+        public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierAndHaveAddedAndRemovedAsRecordTypeReturnsExpectedResult()
+        {
+            var records = _fixture
+                .CreateMany<RoadSegmentChangeDbaseRecord>(2)
+                .Select((record, index) =>
+                {
+                    record.WS_OIDN.Value = 1;
+                    if (index == 0)
+                    {
+                        record.RECORDTYPE.Value = (short) RecordType.Added.Translation.Identifier;
+                    }
+                    else if(index == 1)
+                    {
+                        record.RECORDTYPE.Value = (short) RecordType.Removed.Translation.Identifier;
+                    }
+
+                    return record;
+                })
+                .ToDbaseRecordEnumerator();
+
+            var result = _sut.Validate(_entry, records);
+
+            Assert.Equal(
+                ZipArchiveProblems.None,
+                result);
+        }
+
 
         [Fact]
         public void ValidateWithRecordsThatHaveZeroAsRoadSegmentIdentifierReturnsExpectedResult()
@@ -233,8 +271,8 @@ namespace RoadRegistry.BackOffice.Uploads
 
                 yield return new object[]
                 {
-                    new Action<RoadSegmentChangeDbaseRecord>(r => r.WEGCAT.Reset()),
-                    RoadSegmentChangeDbaseRecord.Schema.WEGCAT
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.CATEGORIE.Reset()),
+                    RoadSegmentChangeDbaseRecord.Schema.CATEGORIE
                 };
 
                 yield return new object[]
@@ -363,7 +401,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public void ValidateWithRecordThatHasInvalidCategoryReturnsExpectedResult()
         {
             var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
-            record.WEGCAT.Value = "-1";
+            record.CATEGORIE.Value = "-1";
             var records = new [] { record }.ToDbaseRecordEnumerator();
 
             var result = _sut.Validate(_entry, records);

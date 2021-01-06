@@ -7,7 +7,6 @@ namespace RoadRegistry.BackOffice.Messages
     public class RoadNetworkChangesArchiveUploaded
     {
         public string ArchiveId { get; set; }
-        public string FutureRequestId { get; set; }
         public string When { get; set; }
     }
 }

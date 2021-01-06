@@ -30,7 +30,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 composer => composer
                     .FromFactory(random => new TransactionZoneDbaseRecord
                     {
-                        SOURCE_ID = { Value = random.Next(1, 9999) },
+                        SOURCEID = { Value = random.Next(1, 9999) },
                         TYPE = {Value = random.Next(1, 9999)},
                         BESCHRIJV = { Value = _fixture.Create<Reason>().ToString() },
                         OPERATOR = { Value = _fixture.Create<OperatorName>().ToString() },

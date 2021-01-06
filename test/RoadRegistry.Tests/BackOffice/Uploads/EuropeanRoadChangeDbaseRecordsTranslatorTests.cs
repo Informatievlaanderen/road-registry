@@ -114,7 +114,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     switch (current.RECORDTYPE.Value)
                     {
                         case RecordType.AddedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.AddRoadSegmentToEuropeanRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new AttributeId(current.EU_OIDN.Value),
@@ -124,7 +124,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         case RecordType.ModifiedIdentifier:
                             break; // modify case is not handled - we need to verify that this does not appear
                         case RecordType.RemovedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.RemoveRoadSegmentFromEuropeanRoad(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new AttributeId(current.EU_OIDN.Value),

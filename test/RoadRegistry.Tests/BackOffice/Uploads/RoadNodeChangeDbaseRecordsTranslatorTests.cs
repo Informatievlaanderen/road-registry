@@ -107,7 +107,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     switch (current.RECORDTYPE.Value)
                     {
                         case RecordType.AddedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.AddRoadNode(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new RoadNodeId(current.WEGKNOOPID.Value),
@@ -116,7 +116,7 @@ namespace RoadRegistry.BackOffice.Uploads
                             );
                             break;
                         case RecordType.ModifiedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.ModifyRoadNode(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new RoadNodeId(current.WEGKNOOPID.Value),
@@ -125,7 +125,7 @@ namespace RoadRegistry.BackOffice.Uploads
                             );
                             break;
                         case RecordType.RemovedIdentifier:
-                            nextChanges = previousChanges.Append(
+                            nextChanges = previousChanges.AppendChange(
                                 new Uploads.RemoveRoadNode(
                                     new RecordNumber(Array.IndexOf(records, current) + 1),
                                     new RoadNodeId(current.WEGKNOOPID.Value)

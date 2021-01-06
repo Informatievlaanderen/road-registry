@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using Albedo;
     using AutoFixture;
@@ -48,7 +49,7 @@ namespace RoadRegistry.BackOffice
             var value = _fixture.Create<int>();
             var sut = new RoadNodeId(value);
 
-            Assert.Equal("RN-" + value, sut.ToString());
+            Assert.Equal(value.ToString(CultureInfo.InvariantCulture), sut.ToString());
         }
 
         [Theory]

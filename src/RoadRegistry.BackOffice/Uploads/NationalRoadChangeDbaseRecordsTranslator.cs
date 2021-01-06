@@ -21,7 +21,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     switch (record.RECORDTYPE.Value)
                     {
                         case RecordType.AddedIdentifier:
-                            changes = changes.Append(
+                            changes = changes.AppendChange(
                                 new AddRoadSegmentToNationalRoad(
                                     records.CurrentRecordNumber,
                                     new AttributeId(record.NW_OIDN.Value),
@@ -30,12 +30,8 @@ namespace RoadRegistry.BackOffice.Uploads
                                 )
                             );
                             break;
-                        case RecordType.ModifiedIdentifier:
-                            // TODO: What would this even mean? There are no meaningful attributes to change.
-                            break;
                         case RecordType.RemovedIdentifier:
-                            //TODO: This will only work if WS_OIDN remains stable (is this a fair assumption)
-                            changes = changes.Append(
+                            changes = changes.AppendChange(
                                 new RemoveRoadSegmentFromNationalRoad(
                                     records.CurrentRecordNumber,
                                     new AttributeId(record.NW_OIDN.Value),

@@ -28,6 +28,8 @@ src/RoadRegistry.LegacyDatabase/filled/*.bak
 src/RoadRegistry.LegacyDatabase/*.bcp
 src/RoadRegistry.LegacyDatabase/*.cmd
 src/RoadRegistry.LegacyDatabase/*.sh
+src/RoadRegistry.MunicipalityDatabase/filled/*.bcp
+src/RoadRegistry.StreetNameDatabase/filled/*.bcp
 SolutionInfo.cs
 
 *.suo

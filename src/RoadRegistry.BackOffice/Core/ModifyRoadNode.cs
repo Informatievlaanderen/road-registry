@@ -38,7 +38,7 @@ namespace RoadRegistry.BackOffice.Core
             var byOtherNode =
                 context.AfterView.Nodes.Values.FirstOrDefault(n =>
                     n.Id != Id &&
-                    n.Geometry.EqualsExact(Geometry));
+                    n.Geometry.EqualsWithinTolerance(Geometry, context.Tolerances.GeometryTolerance));
             if (byOtherNode != null)
             {
                 problems = problems.Add(new RoadNodeGeometryTaken(
@@ -58,7 +58,7 @@ namespace RoadRegistry.BackOffice.Core
                     (current, segment) =>
                         current.Add(new RoadNodeTooClose(context.Translator.TranslateToTemporaryOrId(segment.Id))));
 
-            problems = problems.AddRange(node.VerifyTypeMatchesConnectedSegmentCount(context.AfterView, context.Translator));
+            problems = problems.AddRange(node.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
 
             return problems;
         }

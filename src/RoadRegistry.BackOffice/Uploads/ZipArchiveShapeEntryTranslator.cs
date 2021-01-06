@@ -26,8 +26,10 @@ namespace RoadRegistry.BackOffice.Uploads
             using (var reader = new BinaryReader(stream, _encoding))
             {
                 var header = ShapeFileHeader.Read(reader);
-                var enumerator = header.CreateShapeRecordEnumerator(reader);
-                return _recordTranslator.Translate(entry, enumerator, changes);
+                using (var enumerator = header.CreateShapeRecordEnumerator(reader))
+                {
+                    return _recordTranslator.Translate(entry, enumerator, changes);
+                }
             }
         }
     }

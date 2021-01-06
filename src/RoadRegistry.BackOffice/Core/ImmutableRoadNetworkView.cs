@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Core
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
+    using NetTopologySuite.Geometries;
 
     public class ImmutableRoadNetworkView : IRoadNetworkView
     {
@@ -224,6 +225,9 @@ namespace RoadRegistry.BackOffice.Core
                 start,
                 end,
                 attributeHash);
+            segment = @event.PartOfEuropeanRoads.Aggregate(segment, (current, europeanRoad) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(europeanRoad.Number)));
+            segment = @event.PartOfNationalRoads.Aggregate(segment, (current, nationalRoad) => current.PartOfNationalRoad(NationalRoadNumber.Parse(nationalRoad.Number)));
+            segment = @event.PartOfNumberedRoads.Aggregate(segment, (current, numberedRoad) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(numberedRoad.Number)));
 
             return new ImmutableRoadNetworkView(
                 _nodes
@@ -280,7 +284,15 @@ namespace RoadRegistry.BackOffice.Core
             return new ImmutableRoadNetworkView(
                 _nodes,
                 _segments,
-                _gradeSeparatedJunctions,
+                _gradeSeparatedJunctions.Add(
+                    id,
+                    new GradeSeparatedJunction(
+                        id,
+                        GradeSeparatedJunctionType.Parse(@event.Type),
+                        new RoadSegmentId(@event.UpperRoadSegmentId),
+                        new RoadSegmentId(@event.LowerRoadSegmentId)
+                    )
+                ),
                 TransactionId.Max(new TransactionId(@event.Origin.TransactionId), _maximumTransactionId),
                 _maximumNodeId,
                 _maximumSegmentId,
@@ -1417,6 +1429,34 @@ namespace RoadRegistry.BackOffice.Core
             );
         }
 
+        public IScopedRoadNetworkView CreateScopedView(Envelope scope)
+        {
+            if (scope == null) throw new ArgumentNullException(nameof(scope));
+
+            // Any nodes that the envelope contains
+            var nodes = Nodes
+                .Where(pair => scope.Contains(pair.Value.Geometry.Coordinate))
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+            // Any segments that intersect the envelope
+            var segments = Segments
+                .Where(pair => scope.Intersects(pair.Value.Geometry.EnvelopeInternal))
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+            // Any junctions for which either the lower or the upper segment intersects the envelope
+            var junctions = GradeSeparatedJunctions
+                .Where(pair =>
+                    Segments.TryGetValue(pair.Value.LowerSegment, out var lowerSegment) && scope.Intersects(lowerSegment.Geometry.EnvelopeInternal)
+                    ||
+                    Segments.TryGetValue(pair.Value.UpperSegment, out var upperSegment) && scope.Intersects(upperSegment.Geometry.EnvelopeInternal))
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+            return new ImmutableScopedRoadNetworkView(
+                scope,
+                nodes,
+                segments,
+                junctions,
+                this);
+        }
+
         private class Builder : IRoadNetworkView
         {
             private readonly ImmutableDictionary<RoadNodeId, RoadNode>.Builder _nodes;
@@ -1613,6 +1653,9 @@ namespace RoadRegistry.BackOffice.Core
                     start,
                     end,
                     attributeHash);
+                segment = @event.PartOfEuropeanRoads.Aggregate(segment, (current, europeanRoad) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(europeanRoad.Number)));
+                segment = @event.PartOfNationalRoads.Aggregate(segment, (current, nationalRoad) => current.PartOfNationalRoad(NationalRoadNumber.Parse(nationalRoad.Number)));
+                segment = @event.PartOfNumberedRoads.Aggregate(segment, (current, numberedRoad) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(numberedRoad.Number)));
 
                 _nodes
                     .TryReplace(start, node => node.ConnectWith(id))
@@ -1666,6 +1709,15 @@ namespace RoadRegistry.BackOffice.Core
                 _maximumTransactionId =
                     TransactionId.Max(new TransactionId(@event.Origin.TransactionId), _maximumTransactionId);
                 _maximumGradeSeparatedJunctionId = GradeSeparatedJunctionId.Max(id, _maximumGradeSeparatedJunctionId);
+                _gradeSeparatedJunctions.Add(
+                    id,
+                    new GradeSeparatedJunction(
+                        id,
+                        GradeSeparatedJunctionType.Parse(@event.Type),
+                        new RoadSegmentId(@event.UpperRoadSegmentId),
+                        new RoadSegmentId(@event.LowerRoadSegmentId)
+                    )
+                );
             }
 
             private void Given(Messages.RoadNetworkChangesAccepted @event)
@@ -2289,6 +2341,31 @@ namespace RoadRegistry.BackOffice.Core
                         segment => (IReadOnlyList<AttributeId>) segment.ReusableAttributeIdentifiers
                             .Select(identifier => new AttributeId(identifier)).ToArray()).ToBuilder()
                 );
+            }
+
+            public IScopedRoadNetworkView CreateScopedView(Envelope scope)
+            {
+                if (scope == null) throw new ArgumentNullException(nameof(scope));
+
+                // Any nodes that the envelope contains
+                var nodes = Nodes
+                    .Where(pair => scope.Contains(pair.Value.Geometry.Coordinate))
+                    .ToDictionary(pair => pair.Key, pair => pair.Value);
+                // Any segments that intersect the envelope
+                var segments = Segments
+                    .Where(pair => scope.Intersects(pair.Value.Geometry.EnvelopeInternal))
+                    .ToDictionary(pair => pair.Key, pair => pair.Value);
+                // Any junctions for which either the lower or the upper segment intersects the envelope
+                var junctions = GradeSeparatedJunctions
+                    .Where(pair => scope.Intersects(Segments[pair.Value.LowerSegment].Geometry.EnvelopeInternal) || scope.Intersects(Segments[pair.Value.UpperSegment].Geometry.EnvelopeInternal))
+                    .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+                return new ImmutableScopedRoadNetworkView(
+                    scope,
+                    nodes,
+                    segments,
+                    junctions,
+                    this);
             }
         }
     }

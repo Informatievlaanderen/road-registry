@@ -74,7 +74,7 @@ namespace RoadRegistry.BackOffice.Core
                 problems = problems.Add(new RoadSegmentNotFound());
             }
 
-            if (Math.Abs(Geometry.Length) <= context.Tolerance)
+            if (Math.Abs(Geometry.Length) <= context.Tolerances.GeometryTolerance)
             {
                 problems = problems.Add(new RoadSegmentGeometryLengthIsZero());
             }
@@ -100,13 +100,13 @@ namespace RoadRegistry.BackOffice.Core
                     var measure = line.CoordinateSequence.GetOrdinate(index, Ordinate.M);
                     var x = line.CoordinateSequence.GetX(index);
                     var y = line.CoordinateSequence.GetY(index);
-                    if (index == 0 && Math.Abs(measure) > context.Tolerance)
+                    if (index == 0 && Math.Abs(measure) > context.Tolerances.MeasurementTolerance)
                     {
                         problems =
                             problems.Add(new RoadSegmentStartPointMeasureValueNotEqualToZero(x, y, measure));
                     }
                     else if (index == line.CoordinateSequence.Count - 1 &&
-                             Math.Abs(measure - line.Length) > context.Tolerance)
+                             Math.Abs(measure - line.Length) > context.Tolerances.MeasurementTolerance)
                     {
                         problems =
                             problems.Add(new RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length));
@@ -163,7 +163,7 @@ namespace RoadRegistry.BackOffice.Core
 
             if (previousLane != null)
             {
-                if (Math.Abs(previousLane.To.ToDouble() - line.Length) > context.Tolerance)
+                if (Math.Abs(previousLane.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
                 {
                     problems = problems.Add(new RoadSegmentLaneAttributeToPositionNotEqualToLength(
                         previousLane.TemporaryId,
@@ -203,7 +203,7 @@ namespace RoadRegistry.BackOffice.Core
 
             if (previousWidth != null)
             {
-                if (Math.Abs(previousWidth.To.ToDouble() - line.Length) > context.Tolerance)
+                if (Math.Abs(previousWidth.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
                 {
                     problems = problems.Add(new RoadSegmentWidthAttributeToPositionNotEqualToLength(
                         previousWidth.TemporaryId,
@@ -243,7 +243,7 @@ namespace RoadRegistry.BackOffice.Core
 
             if (previousSurface != null)
             {
-                if (Math.Abs(previousSurface.To.ToDouble() - line.Length) > context.Tolerance)
+                if (Math.Abs(previousSurface.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
                 {
                     problems = problems.Add(new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
                         previousSurface.TemporaryId, previousSurface.To, line.Length));
@@ -262,7 +262,7 @@ namespace RoadRegistry.BackOffice.Core
             var byOtherSegment =
                 context.AfterView.Segments.Values.FirstOrDefault(segment =>
                     segment.Id != Id &&
-                    segment.Geometry.EqualsExact(Geometry));
+                    segment.Geometry.EqualsWithinTolerance(Geometry, context.Tolerances.GeometryTolerance));
             if (byOtherSegment != null)
             {
                 problems = problems.Add(new RoadSegmentGeometryTaken(
@@ -279,34 +279,34 @@ namespace RoadRegistry.BackOffice.Core
             if (segmentBefore.Start != StartNodeId && context.AfterView.Nodes.TryGetValue(segmentBefore.Start, out var beforeStartNode))
             {
                 problems = problems.AddRange(
-                    beforeStartNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView, context.Translator));
+                    beforeStartNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
             }
 
             if (segmentBefore.End != EndNodeId && context.AfterView.Nodes.TryGetValue(segmentBefore.End, out var beforeEndNode))
             {
                 problems = problems.AddRange(
-                    beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView, context.Translator));
+                    beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
             }
 
-            if (!context.AfterView.Nodes.TryGetValue(StartNodeId, out var startNode))
+            if (!context.AfterView.View.Nodes.TryGetValue(StartNodeId, out var startNode))
             {
                 problems = problems.Add(new RoadSegmentStartNodeMissing());
             }
             else
             {
-                if (line.StartPoint != null && !line.StartPoint.EqualsExact(startNode.Geometry))
+                if (line.StartPoint != null && !line.StartPoint.EqualsWithinTolerance(startNode.Geometry, context.Tolerances.GeometryTolerance))
                 {
                     problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry());
                 }
             }
 
-            if (!context.AfterView.Nodes.TryGetValue(EndNodeId, out var endNode))
+            if (!context.AfterView.View.Nodes.TryGetValue(EndNodeId, out var endNode))
             {
                 problems = problems.Add(new RoadSegmentEndNodeMissing());
             }
             else
             {
-                if (line.EndPoint != null && !line.EndPoint.EqualsExact(endNode.Geometry))
+                if (line.EndPoint != null && !line.EndPoint.EqualsWithinTolerance(endNode.Geometry, context.Tolerances.GeometryTolerance))
                 {
                     problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry());
                 }

@@ -81,8 +81,8 @@ namespace RoadRegistry.BackOffice.Uploads
         public void TranslateReturnsExpectedResultWhenShapeRecordTranslatorReturnsChanges()
         {
             var changes = TranslatedChanges.Empty
-                .Append(new Uploads.AddRoadNode(new RecordNumber(1), new RoadNodeId(1), RoadNodeType.RealNode))
-                .Append(new Uploads.AddRoadNode(new RecordNumber(1), new RoadNodeId(1), RoadNodeType.RealNode));
+                .AppendChange(new Uploads.AddRoadNode(new RecordNumber(1), new RoadNodeId(1), RoadNodeType.RealNode))
+                .AppendChange(new Uploads.AddRoadNode(new RecordNumber(1), new RoadNodeId(1), RoadNodeType.RealNode));
             var sut = new ZipArchiveShapeEntryTranslator(
                 Encoding.UTF8,
                 new FakeShapeRecordTranslator(ignored => changes));
