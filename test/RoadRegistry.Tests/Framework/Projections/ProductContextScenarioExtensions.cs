@@ -24,7 +24,7 @@ namespace RoadRegistry.Framework.Projections
             builder
                 .Entity<RoadNodeBoundingBox2D>()
                 .HasNoKey()
-                .ToQuery(() =>
+                .ToInMemoryQuery(() =>
                     from node in RoadNodes
                     group node by node.Id
                     into nodes
@@ -39,7 +39,7 @@ namespace RoadRegistry.Framework.Projections
             builder
                 .Entity<RoadSegmentBoundingBox3D>()
                 .HasNoKey()
-                .ToQuery(() =>
+                .ToInMemoryQuery(() =>
                     from segment in RoadSegments
                     group segment by segment.Id
                     into segments

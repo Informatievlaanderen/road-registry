@@ -16,9 +16,9 @@ namespace RoadRegistry.Editor.Schema.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.8")
+                .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "5.0.1");
 
             modelBuilder.Entity("Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates.ProjectionStateItem", b =>
                 {
@@ -31,13 +31,16 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<DateTimeOffset?>("DesiredStateChangedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long>("Position")
                         .HasColumnType("bigint");
 
                     b.HasKey("Name")
-                        .HasAnnotation("SqlServer:Clustered", true);
+                        .IsClustered();
 
-                    b.ToTable("ProjectionStates","RoadRegistryEditorMeta");
+                    b.ToTable("ProjectionStates", "RoadRegistryEditorMeta");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.GradeSeparatedJunctions.GradeSeparatedJunctionRecord", b =>
@@ -50,26 +53,26 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
-                    b.ToTable("GradeSeparatedJunction","RoadRegistryEditor");
+                    b.ToTable("GradeSeparatedJunction", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.MunicipalityGeometry", b =>
                 {
                     b.Property<string>("NisCode")
+                        .HasMaxLength(5)
                         .HasColumnType("nchar(5)")
-                        .IsFixedLength(true)
-                        .HasMaxLength(5);
+                        .IsFixedLength(true);
 
                     b.Property<Geometry>("Geometry")
                         .IsRequired()
                         .HasColumnType("Geometry");
 
                     b.HasKey("NisCode")
-                        .HasAnnotation("SqlServer:Clustered", true);
+                        .IsClustered();
 
-                    b.ToTable("MunicipalityGeometry","RoadRegistryEditor");
+                    b.ToTable("MunicipalityGeometry", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.Organizations.OrganizationRecord", b =>
@@ -77,7 +80,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -94,9 +97,9 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
-                    b.ToTable("Organization","RoadRegistryEditor");
+                    b.ToTable("Organization", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNetworkChange", b =>
@@ -122,16 +125,16 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
-                    b.ToTable("RoadNetworkChange","RoadRegistryEditor");
+                    b.ToTable("RoadNetworkChange", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNetworkChangeRequestBasedOnArchive", b =>
                 {
                     b.Property<byte[]>("ChangeRequestId")
-                        .HasColumnType("varbinary(32)")
-                        .HasMaxLength(32);
+                        .HasMaxLength(32)
+                        .HasColumnType("varbinary(32)");
 
                     b.Property<string>("ArchiveId")
                         .IsRequired()
@@ -140,9 +143,9 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.HasKey("ChangeRequestId");
 
                     b.HasIndex("ChangeRequestId")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
-                    b.ToTable("RoadNetworkChangeRequestBasedOnArchive","RoadRegistryEditor");
+                    b.ToTable("RoadNetworkChangeRequestBasedOnArchive", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNetworkInfo", b =>
@@ -215,9 +218,26 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
-                    b.ToTable("RoadNetworkInfo","RoadRegistryEditor");
+                    b.ToTable("RoadNetworkInfo", "RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNodeBoundingBox2D", b =>
+                {
+                    b.Property<double>("MaximumX")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MaximumY")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MinimumX")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MinimumY")
+                        .HasColumnType("float");
+
+                    b.ToTable("RoadNodeBoundingBox");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNodes.RoadNodeRecord", b =>
@@ -237,9 +257,32 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
-                    b.ToTable("RoadNode","RoadRegistryEditor");
+                    b.ToTable("RoadNode", "RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegmentBoundingBox3D", b =>
+                {
+                    b.Property<double>("MaximumM")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MaximumX")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MaximumY")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MinimumM")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MinimumX")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MinimumY")
+                        .HasColumnType("float");
+
+                    b.ToTable("RoadSegmentBoundingBox");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentEuropeanRoadAttributeRecord", b =>
@@ -255,11 +298,11 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentEuropeanRoadAttribute","RoadRegistryEditor");
+                    b.ToTable("RoadSegmentEuropeanRoadAttribute", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentLaneAttributeRecord", b =>
@@ -275,11 +318,11 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentLaneAttribute","RoadRegistryEditor");
+                    b.ToTable("RoadSegmentLaneAttribute", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentNationalRoadAttributeRecord", b =>
@@ -295,11 +338,11 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentNationalRoadAttribute","RoadRegistryEditor");
+                    b.ToTable("RoadSegmentNationalRoadAttribute", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentNumberedRoadAttributeRecord", b =>
@@ -315,11 +358,11 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentNumberedRoadAttribute","RoadRegistryEditor");
+                    b.ToTable("RoadSegmentNumberedRoadAttribute", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentRecord", b =>
@@ -339,9 +382,9 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
-                    b.ToTable("RoadSegment","RoadRegistryEditor");
+                    b.ToTable("RoadSegment", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentSurfaceAttributeRecord", b =>
@@ -357,11 +400,11 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentSurfaceAttribute","RoadRegistryEditor");
+                    b.ToTable("RoadSegmentSurfaceAttribute", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentWidthAttributeRecord", b =>
@@ -377,11 +420,11 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
                     b.HasIndex("RoadSegmentId");
 
-                    b.ToTable("RoadSegmentWidthAttribute","RoadRegistryEditor");
+                    b.ToTable("RoadSegmentWidthAttribute", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNodes.RoadNodeRecord", b =>
@@ -410,6 +453,8 @@ namespace RoadRegistry.Editor.Schema.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("RoadNodeRecordId");
                         });
+
+                    b.Navigation("BoundingBox");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentRecord", b =>
@@ -444,6 +489,8 @@ namespace RoadRegistry.Editor.Schema.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("RoadSegmentRecordId");
                         });
+
+                    b.Navigation("BoundingBox");
                 });
 #pragma warning restore 612, 618
         }
