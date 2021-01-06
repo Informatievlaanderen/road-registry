@@ -106,7 +106,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public ModifyRoadSegment WithLane(RoadSegmentLaneAttribute lane)
         {
             var lanes = new List<RoadSegmentLaneAttribute>(Lanes) {lane};
-            lanes.Sort((left, right) => left.TemporaryId.CompareTo(right.TemporaryId));
+            lanes.Sort((left, right) => left.From.CompareTo(right.From));
             return new ModifyRoadSegment(
                 RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
                 MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
@@ -117,7 +117,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public ModifyRoadSegment WithWidth(RoadSegmentWidthAttribute width)
         {
             var widths = new List<RoadSegmentWidthAttribute>(Widths) { width };
-            widths.Sort((left, right) => left.TemporaryId.CompareTo(right.TemporaryId));
+            widths.Sort((left, right) => left.From.CompareTo(right.From));
             return new ModifyRoadSegment(
                 RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
                 MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
@@ -128,7 +128,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public ModifyRoadSegment WithSurface(RoadSegmentSurfaceAttribute surface)
         {
             var surfaces = new List<RoadSegmentSurfaceAttribute>(Surfaces) { surface };
-            surfaces.Sort((left, right) => left.TemporaryId.CompareTo(right.TemporaryId));
+            surfaces.Sort((left, right) => left.From.CompareTo(right.From));
             return new ModifyRoadSegment(
                 RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
                 MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,

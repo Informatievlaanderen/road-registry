@@ -384,7 +384,7 @@ namespace RoadRegistry.Editor.Projections
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het laatste rijstroken attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).";
                         break;
                     case nameof(RoadSegmentWidthAttributeFromPositionNotEqualToZero):
-                        translation = $"De van positie ({problem.Parameters[2].Value}) van het eerste wegbreedte attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
+                        translation = $"De van positie ({problem.Parameters[1].Value}) van het eerste wegbreedte attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
                         break;
                     case nameof(RoadSegmentWidthAttributesNotAdjacent):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het wegbreedte attribuut met id {problem.Parameters[0].Value} sluit niet aan op de van positie ({problem.Parameters[3].Value}) van het wegbreedte attribuut met id {problem.Parameters[2].Value}.";

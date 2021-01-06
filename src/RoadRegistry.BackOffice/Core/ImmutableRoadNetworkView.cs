@@ -225,6 +225,9 @@ namespace RoadRegistry.BackOffice.Core
                 start,
                 end,
                 attributeHash);
+            segment = @event.PartOfEuropeanRoads.Aggregate(segment, (current, europeanRoad) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(europeanRoad.Number)));
+            segment = @event.PartOfNationalRoads.Aggregate(segment, (current, nationalRoad) => current.PartOfNationalRoad(NationalRoadNumber.Parse(nationalRoad.Number)));
+            segment = @event.PartOfNumberedRoads.Aggregate(segment, (current, numberedRoad) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(numberedRoad.Number)));
 
             return new ImmutableRoadNetworkView(
                 _nodes
@@ -1650,6 +1653,9 @@ namespace RoadRegistry.BackOffice.Core
                     start,
                     end,
                     attributeHash);
+                segment = @event.PartOfEuropeanRoads.Aggregate(segment, (current, europeanRoad) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(europeanRoad.Number)));
+                segment = @event.PartOfNationalRoads.Aggregate(segment, (current, nationalRoad) => current.PartOfNationalRoad(NationalRoadNumber.Parse(nationalRoad.Number)));
+                segment = @event.PartOfNumberedRoads.Aggregate(segment, (current, numberedRoad) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(numberedRoad.Number)));
 
                 _nodes
                     .TryReplace(start, node => node.ConnectWith(id))
