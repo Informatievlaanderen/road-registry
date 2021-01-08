@@ -70,6 +70,8 @@ Target.create "Build_Solution" (fun _ ->
   buildSource "RoadRegistry.BackOffice.CommandHost"
   buildSource "RoadRegistry.BackOffice.EventHost"
   buildSource "RoadRegistry.BackOffice.Api"
+  buildSource "RoadRegistry.Legacy.Extract"
+  buildSource "RoadRegistry.Legacy.Import"
   buildTest "RoadRegistry.Tests"
 )
 
