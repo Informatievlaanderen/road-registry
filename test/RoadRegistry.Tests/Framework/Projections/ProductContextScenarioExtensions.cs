@@ -13,8 +13,6 @@ namespace RoadRegistry.Framework.Projections
     using Microsoft.EntityFrameworkCore;
     using Product.Schema;
     using Xunit.Sdk;
-    using RoadNodeBoundingBox2D = Product.Schema.RoadNodeBoundingBox2D;
-    using RoadSegmentBoundingBox3D = Product.Schema.RoadSegmentBoundingBox3D;
 
     internal class MemoryProductContext : ProductContext {
         public MemoryProductContext(DbContextOptions<ProductContext> options) : base(options) { }

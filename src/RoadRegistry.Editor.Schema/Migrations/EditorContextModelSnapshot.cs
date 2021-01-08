@@ -237,7 +237,8 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<double>("MinimumY")
                         .HasColumnType("float");
 
-                    b.ToTable("RoadNodeBoundingBox");
+                    b
+                        .HasAnnotation("Relational:SqlQuery", "SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [RoadRegistryEditor].[RoadNode]");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNodes.RoadNodeRecord", b =>
@@ -282,7 +283,8 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<double>("MinimumY")
                         .HasColumnType("float");
 
-                    b.ToTable("RoadSegmentBoundingBox");
+                    b
+                        .HasAnnotation("Relational:SqlQuery", "SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [RoadRegistryEditor].[RoadSegment]");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentEuropeanRoadAttributeRecord", b =>
