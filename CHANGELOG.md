@@ -1,3 +1,16 @@
+# [1.16.0](https://github.com/informatievlaanderen/road-registry/compare/v1.15.1...v1.16.0) (2021-01-08)
+
+
+### Bug Fixes
+
+* move to net 5.0.1 ([#110](https://github.com/informatievlaanderen/road-registry/issues/110)) ([8387532](https://github.com/informatievlaanderen/road-registry/commit/8387532aeb55c98fc89a0abd106a2ce07f9b62e0))
+* various upon testing with real data ([#82](https://github.com/informatievlaanderen/road-registry/issues/82)) ([2fcba09](https://github.com/informatievlaanderen/road-registry/commit/2fcba092e93f4728780e4ee505287d5822fcd629))
+
+
+### Features
+
+* extract import municipalities ([#101](https://github.com/informatievlaanderen/road-registry/issues/101)) ([fd6a5a8](https://github.com/informatievlaanderen/road-registry/commit/fd6a5a8fe1200a245cece53d7355af2967d093a8))
+
 ## [1.15.1](https://github.com/informatievlaanderen/road-registry/compare/v1.15.0...v1.15.1) (2020-11-18)
 
 
