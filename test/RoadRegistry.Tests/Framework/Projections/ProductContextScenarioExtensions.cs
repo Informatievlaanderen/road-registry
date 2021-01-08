@@ -13,8 +13,6 @@ namespace RoadRegistry.Framework.Projections
     using Microsoft.EntityFrameworkCore;
     using Product.Schema;
     using Xunit.Sdk;
-    using RoadNodeBoundingBox2D = Product.Schema.RoadNodeBoundingBox2D;
-    using RoadSegmentBoundingBox3D = Product.Schema.RoadSegmentBoundingBox3D;
 
     internal class MemoryProductContext : ProductContext {
         public MemoryProductContext(DbContextOptions<ProductContext> options) : base(options) { }
@@ -24,7 +22,7 @@ namespace RoadRegistry.Framework.Projections
             builder
                 .Entity<RoadNodeBoundingBox2D>()
                 .HasNoKey()
-                .ToQuery(() =>
+                .ToInMemoryQuery(() =>
                     from node in RoadNodes
                     group node by node.Id
                     into nodes
@@ -39,7 +37,7 @@ namespace RoadRegistry.Framework.Projections
             builder
                 .Entity<RoadSegmentBoundingBox3D>()
                 .HasNoKey()
-                .ToQuery(() =>
+                .ToInMemoryQuery(() =>
                     from segment in RoadSegments
                     group segment by segment.Id
                     into segments

@@ -1,8 +1,8 @@
 #r "paket:
-version 5.241.6
+version 6.0.0-beta8
 framework: netstandard20
 source https://api.nuget.org/v3/index.json
-nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 4.2.3 //"
+nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 5.0.1 //"
 
 #load "packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/build-generic.fsx"
 
@@ -22,10 +22,11 @@ let dockerRepository = "road-registry"
 let assemblyVersionNumber = (sprintf "2.%s")
 let nugetVersionNumber = (sprintf "%s")
 
-let build = buildSolution assemblyVersionNumber
+let buildSource = build assemblyVersionNumber
+let buildTest = buildTest assemblyVersionNumber
 let setVersions = (setSolutionVersions assemblyVersionNumber product copyright company)
 let test = testSolution
-let publish = publish assemblyVersionNumber
+let publishSource = publish assemblyVersionNumber
 let pack = pack nugetVersionNumber
 let containerize = containerize dockerRepository
 let push = push dockerRepository
@@ -53,10 +54,32 @@ Target.create "Build_Solution" (fun _ ->
   )
 
   setVersions "SolutionInfo.cs"
-  build "RoadRegistry"
+  buildSource "RoadRegistry.BackOffice"
+  buildSource "RoadRegistry.Editor.Schema"
+  buildSource "RoadRegistry.Editor.Projections"
+  buildSource "RoadRegistry.Product.Schema"
+  buildSource "RoadRegistry.Product.Projections"
+  buildSource "RoadRegistry.Syndication.Schema"
+  buildSource "RoadRegistry.Syndication.Projections"
+  buildSource "RoadRegistry.Wms.Schema"
+  buildSource "RoadRegistry.Wms.Projections"
+  buildSource "RoadRegistry.Editor.ProjectionHost"
+  buildSource "RoadRegistry.Product.ProjectionHost"
+  buildSource "RoadRegistry.Syndication.ProjectionHost"
+  buildSource "RoadRegistry.Wms.ProjectionHost"
+  buildSource "RoadRegistry.BackOffice.CommandHost"
+  buildSource "RoadRegistry.BackOffice.EventHost"
+  buildSource "RoadRegistry.BackOffice.Api"
+  buildSource "RoadRegistry.Legacy.Extract"
+  buildSource "RoadRegistry.Legacy.Import"
+  buildTest "RoadRegistry.Tests"
 )
 
-Target.create "Test_Solution" (fun _ -> test "RoadRegistry")
+Target.create "Test_Solution" (fun _ ->
+  [
+    "test" @@ "RoadRegistry.Tests"
+  ] |> List.iter testWithDotNet
+)
 
 Target.create "Publish_Solution" (fun _ ->
   [
@@ -69,7 +92,7 @@ Target.create "Publish_Solution" (fun _ ->
     "RoadRegistry.Legacy.Extract"
     "RoadRegistry.Legacy.Import"
     "RoadRegistry.BackOffice.Api"
-  ] |> List.iter publish
+  ] |> List.iter publishSource
 
   let dist = (buildDir @@ "RoadRegistry.BackOffice.UI" @@ "linux")
   let source = "src" @@ "RoadRegistry.BackOffice.UI"

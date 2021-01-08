@@ -65,12 +65,14 @@ namespace RoadRegistry.Editor.Schema
             builder
                 .Entity<RoadNodeBoundingBox2D>()
                 .HasNoKey()
-                .ToQuery(() => RoadNodeBoundingBox.FromSqlRaw("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [" + WellknownSchemas.EditorSchema + "].[RoadNode]"));
+                .ToTable(null)
+                .ToSqlQuery("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [" + WellknownSchemas.EditorSchema + "].[RoadNode]");
 
             builder
                 .Entity<RoadSegmentBoundingBox3D>()
                 .HasNoKey()
-                .ToQuery(() => RoadSegmentBoundingBox.FromSqlRaw("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [" + WellknownSchemas.EditorSchema + "].[RoadSegment]"));
+                .ToTable(null)
+                .ToSqlQuery("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [" + WellknownSchemas.EditorSchema + "].[RoadSegment]");
         }
     }
 }
