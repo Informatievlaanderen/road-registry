@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api
 {
     using System;
+    using System.Globalization;
     using System.Threading.Tasks;
     using Changes;
     using Editor.Schema;
@@ -159,6 +160,7 @@ namespace RoadRegistry.BackOffice.Api
                 // YR: Different versions of libicu use different casing
                 Assert.Equal("jan.", item.Month.ToLowerInvariant());
                 Assert.Equal("01:00", item.TimeOfDay);
+                Assert.Equal("/entry/0/content", item.ContentLink);
             }
         }
     }

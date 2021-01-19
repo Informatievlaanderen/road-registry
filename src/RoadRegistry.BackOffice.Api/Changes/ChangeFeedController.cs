@@ -68,7 +68,8 @@ namespace RoadRegistry.BackOffice.Api.Changes
                         Type = change.Type,
                         Day = localWhen.Day.ToString("00"),
                         Month = _localMonthPattern.Format(localWhen.Date),
-                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay)
+                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay),
+                        ContentLink = $"/entry/{ change.Id.ToString(CultureInfo.InvariantCulture)}/content"
                     };
 
                     entries.Add(item);
@@ -140,15 +141,15 @@ namespace RoadRegistry.BackOffice.Api.Changes
                         Type = change.Type,
                         Day = localWhen.Day.ToString("00"),
                         Month = _localMonthPattern.Format(localWhen.Date),
-                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay)
+                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay),
+                        ContentLink = $"/entry/{ change.Id.ToString(CultureInfo.InvariantCulture)}/content"
                     };
                     entries.Add(item);
                 }, HttpContext.RequestAborted);
 
-            entries.Sort((left, right) => right.Id.CompareTo(left.Id));
             return new JsonResult(new ChangeFeedResponse
             {
-                Entries = entries.ToArray()
+                Entries = entries.OrderByDescending(entry => entry.Id).ToArray()
             })
             {
                 StatusCode = StatusCodes.Status200OK
@@ -212,14 +213,15 @@ namespace RoadRegistry.BackOffice.Api.Changes
                         Type = change.Type,
                         Day = localWhen.Day.ToString("00"),
                         Month = _localMonthPattern.Format(localWhen.Date),
-                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay)
+                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay),
+                        ContentLink = $"/entry/{ change.Id.ToString(CultureInfo.InvariantCulture)}/content"
                     };
                     entries.Add(item);
                 }, HttpContext.RequestAborted);
 
             return new JsonResult(new ChangeFeedResponse
             {
-                Entries = entries.ToArray()
+                Entries = entries.OrderByDescending(entry => entry.Id).ToArray()
             })
             {
                 StatusCode = StatusCodes.Status200OK
