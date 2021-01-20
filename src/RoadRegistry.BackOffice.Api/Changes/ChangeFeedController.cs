@@ -255,6 +255,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
             };
             return new JsonResult(new ChangeFeedEntryContent
             {
+                Id = entry.Id,
                 Type = entry.Type,
                 Content = content
             })

@@ -79,6 +79,7 @@ namespace RoadRegistry.BackOffice.Api
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
                 var response = Assert.IsType<ChangeFeedEntryContent>(jsonResult.Value);
+                Assert.Equal(0, response.Id);
                 Assert.Equal(nameof(RoadNetworkChangesArchiveUploaded), response.Type);
                 var content = Assert.IsType<RoadNetworkChangesArchiveUploadedEntry>(response.Content);
                 Assert.Equal(archiveId.ToString(), content.Archive.Id);

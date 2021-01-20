@@ -1,4 +1,4 @@
-module Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showError, showSuccess, viewAlert)
+module Alert exposing (AlertKind(..), Model, Message(..), init, hide, showError, showSuccess, update, view)
 
 import Html exposing (Html, a, div, section, span, text)
 import Html.Attributes exposing (class, classList, href)
@@ -14,7 +14,7 @@ type AlertKind
     | CallToAction
 
 
-type alias AlertModel =
+type alias Model =
     { title : String
     , kind : AlertKind
     , hasIcon : Bool
@@ -22,23 +22,36 @@ type alias AlertModel =
     , visible : Bool
     }
 
-
-type AlertMsg
+type Message
     = CloseAlert
 
+init : () -> Model
+init () =
+  { title = ""
+  , kind = Error
+  , visible = False
+  , closeable = True
+  , hasIcon = True
+  }
 
-showError : AlertModel -> String -> AlertModel
+update : Message -> Model -> ( Model, Cmd Message)
+update message model =
+  case message of
+    CloseAlert ->
+      (hide model, Cmd.none)
+
+showError : Model -> String -> Model
 showError model title =
     { model | title = title, kind = Error, visible = True }
 
 
-showSuccess : AlertModel -> String -> AlertModel
+showSuccess : Model -> String -> Model
 showSuccess model title =
     { model | title = title, kind = Success, visible = True }
 
 
-hideAlert : AlertModel -> AlertModel
-hideAlert model =
+hide : Model -> Model
+hide model =
     { model | visible = False }
 
 
@@ -47,8 +60,8 @@ onClickNoBubble message =
     Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = True, preventDefault = True })
 
 
-viewAlert : AlertModel -> Html AlertMsg
-viewAlert model =
+view : Model -> Html Message
+view model =
     if model.visible then
         section [ class "region" ]
             [ div

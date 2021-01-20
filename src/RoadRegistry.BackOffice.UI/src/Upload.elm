@@ -1,6 +1,6 @@
 module Upload exposing (Msg(..), init, main, subscriptions, update, view)
 
-import Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showError, showSuccess, viewAlert)
+import Alert
 import Browser
 import File exposing (File)
 import File.Select as Select
@@ -29,7 +29,7 @@ type alias UploadModel =
 type alias Model =
     { header : HeaderModel
     , upload : UploadModel
-    , alert : AlertModel
+    , alert : Alert.Model
     }
 
 
@@ -43,13 +43,7 @@ init url =
             , progressing = False
             , progress = ""
             }
-      , alert =
-            { title = ""
-            , kind = Error
-            , visible = False
-            , closeable = True
-            , hasIcon = True
-            }
+      , alert = Alert.init()
       }
     , Cmd.none
     )
@@ -59,7 +53,7 @@ type Msg
     = SelectFile
     | FileSelected File
     | GotUploadProgress Http.Progress
-    | GotAlertMsg AlertMsg
+    | GotAlertMessage Alert.Message
     | FileUploaded (Result Http.Error ())
 
 
@@ -67,7 +61,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SelectFile ->
-            ( { model | alert = hideAlert model.alert }
+            ( { model | alert = Alert.hide model.alert }
             , Select.file [ "application/zip" ] FileSelected
             )
 
@@ -108,12 +102,12 @@ update msg model =
                 Http.Receiving _ ->
                     ( model, Cmd.none )
 
-        GotAlertMsg alertMsg ->
-            case alertMsg of
-                CloseAlert ->
-                    ( { model | alert = hideAlert model.alert }
-                    , Cmd.none
-                    )
+        GotAlertMessage alertMessage ->
+            let
+              (alertModel, alertCommand) = Alert.update alertMessage model.alert
+            in
+              ( { model | alert = alertModel }
+              , Cmd.map GotAlertMessage alertCommand )
 
         FileUploaded result ->
             case result of
@@ -125,7 +119,7 @@ update msg model =
                         newUpload =
                             { oldUpload | uploading = False, progressing = False, progress = "" }
                     in
-                    ( { model | upload = newUpload, alert = showSuccess model.alert "Oplading is gelukt. We gaan nu het bestand inhoudelijk controleren en daarna de wijzigingen toepassen. U kan de vooruitgang volgen via Activiteit." }
+                    ( { model | upload = newUpload, alert = Alert.showSuccess model.alert "Oplading is gelukt. We gaan nu het bestand inhoudelijk controleren en daarna de wijzigingen toepassen. U kan de vooruitgang volgen via Activiteit." }
                     , Cmd.none
                     )
 
@@ -139,39 +133,39 @@ update msg model =
                     in
                     case error of
                         Http.BadUrl _ ->
-                            ( { model | upload = newUpload, alert = showError model.alert "Er was een probleem bij het opladen - de url blijkt foutief te zijn." }
+                            ( { model | upload = newUpload, alert = Alert.showError model.alert "Er was een probleem bij het opladen - de url blijkt foutief te zijn." }
                             , Cmd.none
                             )
 
                         Http.Timeout ->
-                            ( { model | upload = newUpload, alert = showError model.alert "Er was een probleem bij het opladen - de operatie nam teveel tijd in beslag." }
+                            ( { model | upload = newUpload, alert = Alert.showError model.alert "Er was een probleem bij het opladen - de operatie nam teveel tijd in beslag." }
                             , Cmd.none
                             )
 
                         Http.NetworkError ->
-                            ( { model | upload = newUpload, alert = showError model.alert "Er was een probleem bij het opladen - een netwerk fout ligt aan de basis." }
+                            ( { model | upload = newUpload, alert = Alert.showError model.alert "Er was een probleem bij het opladen - een netwerk fout ligt aan de basis." }
                             , Cmd.none
                             )
 
                         Http.BadStatus statusCode ->
                             case statusCode of
                                 503 ->
-                                    ( { model | upload = newUpload, alert = showError model.alert "Opladen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
+                                    ( { model | upload = newUpload, alert = Alert.showError model.alert "Opladen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
                                     , Cmd.none
                                     )
 
                                 415 ->
-                                    ( { model | upload = newUpload, alert = showError model.alert "Opladen is enkel mogelijk op basis van zip bestanden. Probeer het opnieuw met een correct bestand." }
+                                    ( { model | upload = newUpload, alert = Alert.showError model.alert "Opladen is enkel mogelijk op basis van zip bestanden. Probeer het opnieuw met een correct bestand." }
                                     , Cmd.none
                                     )
 
                                 _ ->
-                                    ( { model | upload = newUpload, alert = showError model.alert "Er was een probleem bij het opladen - dit kan duiden op een probleem met de website." }
+                                    ( { model | upload = newUpload, alert = Alert.showError model.alert "Er was een probleem bij het opladen - dit kan duiden op een probleem met de website." }
                                     , Cmd.none
                                     )
 
                         Http.BadBody _ ->
-                            ( { model | upload = newUpload, alert = showError model.alert "Er was een probleem bij het opladen - dit kan duiden op een probleem met de website." }
+                            ( { model | upload = newUpload, alert = Alert.showError model.alert "Er was een probleem bij het opladen - dit kan duiden op een probleem met de website." }
                             , Cmd.none
                             )
 
@@ -222,7 +216,7 @@ viewUpload model =
 viewMain : Model -> Html Msg
 viewMain model =
     main_ [ id "main" ]
-        [ viewAlert model.alert |> Html.map GotAlertMsg
+        [ Alert.view model.alert |> Html.map GotAlertMessage
         , viewUpload model.upload
         ]
 
