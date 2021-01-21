@@ -8,6 +8,8 @@ import Html.Attributes.Aria exposing (ariaHidden)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Extra exposing (when)
+import Html.Events exposing (onClick)
+import List.Extra
 
 -- models
 
@@ -220,8 +222,16 @@ update message model =
 
 
     GetEntryContent entry ->
-      (model
-      , Http.get { url = buildEntryContentUrl entry model, expect = Http.expectJson GotEntryContent decodeChangeFeedEntryContentResponse })
+      case List.Extra.find (\candidate -> candidate.id == entry) model.entries of
+        Just found ->
+          case found.content of
+            Just _ ->
+              (model, Cmd.none)
+            Nothing ->
+              (model
+              , Http.get { url = buildEntryContentUrl entry model, expect = Http.expectJson GotEntryContent decodeChangeFeedEntryContentResponse })
+        Nothing ->
+          (model, Cmd.none)
 
 
     GotHead result ->
@@ -432,17 +442,25 @@ viewChangeFeedEntryContent url content =
                 , viewArchiveLinkContent url rejected.archive
                 ]
 
+onClickNoBubble : msg -> Html.Attribute msg
+onClickNoBubble message =
+    Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = True, preventDefault = True })
+
 viewChangeFeedEntry : String -> ChangeFeedEntry -> Html Message
 viewChangeFeedEntry url entry =
     li
-        [ classList [ ( "step", True ), ( "js-accordion", True ) ] ]
+        [ classList [ ( "step", True), ( "js-accordion", True ) ] ]
         [ div [ class "step__icon" ]
             [ text entry.day
             , span [ class "step__icon__sub" ] [ text entry.month ]
             , span [ class "step__icon__sub" ] [ text entry.timeOfDay ]
             ]
-        , div [ class "step__wrapper" ]
-            [ a [ href "#", class "step__header js-accordion__toggle" ]
+        , div
+            [ class "step__wrapper" ]
+            [
+              a [ href ""
+                , class "step__header js-accordion__toggle"
+                , onClickNoBubble (GetEntryContent entry.id) ]
                 [ div [ class "step__header__titles" ]
                     [ h3 [ class "step__title" ]
                         [ text entry.title ]
@@ -451,12 +469,10 @@ viewChangeFeedEntry url entry =
                     Just content ->
                       case content of
                         BeganRoadNetworkImport ->
-                            div [ class "step__header__info" ]
-                                []
+                            text ""
 
                         CompletedRoadNetworkImport ->
-                            div [ class "step__header__info" ]
-                                []
+                            text ""
 
                         RoadNetworkChangesArchiveAccepted _ ->
                             div [ class "step__header__info" ]

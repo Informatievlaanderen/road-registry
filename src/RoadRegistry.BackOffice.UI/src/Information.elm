@@ -133,7 +133,11 @@ update msg model =
 
                         Http.BadStatus statusCode ->
                             case statusCode of
-                                _ ->
+                              503 ->
+                                    ( { model | alert = Alert.showError model.alert "Activiteiten opvragen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
+                                    , Cmd.none
+                                    )
+                              _ ->
                                     ( { model | alert = Alert.showError model.alert "Er was een probleem bij het downloaden van de informatie - dit kan duiden op een probleem met de website." }
                                     , Cmd.none
                                     )

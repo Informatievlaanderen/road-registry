@@ -34,7 +34,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
             _localTimeOfDayPattern = LocalTimePattern.CreateWithInvariantCulture("HH':'mm");
         }
 
-        [HttpGet("/head")]
+        [HttpGet("head")]
         public async Task<IActionResult> GetHead([FromServices] EditorContext context)
         {
             if (!HttpContext.Request.Query.TryGetValue("MaxEntryCount", out var maxEntryCountValue))
@@ -55,6 +55,13 @@ namespace RoadRegistry.BackOffice.Api.Changes
             var entries = new List<ChangeFeedEntry>();
             await context
                 .RoadNetworkChanges
+                .Select(change => new
+                {
+                    change.Id,
+                    change.Title,
+                    change.Type,
+                    change.When
+                })
                 .Take(maxEntryCount)
                 .OrderByDescending(_ => _.Id)
                 .ForEachAsync(change =>
@@ -84,7 +91,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
             };
         }
 
-        [HttpGet("/next")]
+        [HttpGet("next")]
         public async Task<IActionResult> GetNext([FromServices] EditorContext context)
         {
             if(!HttpContext.Request.Query.TryGetValue("AfterEntry", out var afterEntryValue))
@@ -156,7 +163,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
             };
         }
 
-        [HttpGet("/previous")]
+        [HttpGet("previous")]
         public async Task<IActionResult> GetPrevious([FromServices] EditorContext context)
         {
             if(!HttpContext.Request.Query.TryGetValue("BeforeEntry", out var beforeEntryValue))
@@ -228,7 +235,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
             };
         }
 
-        [HttpGet("/entry/{id}/content")]
+        [HttpGet("entry/{id}/content")]
         public async Task<IActionResult> GetContent([FromServices] EditorContext context, long id)
         {
             var entry = await context
