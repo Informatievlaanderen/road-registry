@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/informatievlaanderen/road-registry/compare/v1.16.0...v1.17.0) (2021-02-02)
+
+
+### Features
+
+* basic diagrams to explain information flow ([#129](https://github.com/informatievlaanderen/road-registry/issues/129)) ([713a56f](https://github.com/informatievlaanderen/road-registry/commit/713a56fbbb2900c4b89ddc1a5ca228d5db20dd87))
+
 # [1.16.0](https://github.com/informatievlaanderen/road-registry/compare/v1.15.1...v1.16.0) (2021-01-08)
 
 
