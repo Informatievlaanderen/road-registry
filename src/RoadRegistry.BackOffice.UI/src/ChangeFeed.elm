@@ -704,7 +704,7 @@ view model =
                       else
                         text "Meer ..."
                     , if model.loading then
-                        div [ class "throbber" ] []
+                        div [ class "loader" ] []
                       else
                         text ""
                     ]
