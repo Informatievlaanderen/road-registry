@@ -14,6 +14,7 @@ main : Program String Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
+
 type alias Model =
     { header : HeaderModel
     , changeFeed : ChangeFeed.Model
@@ -23,13 +24,14 @@ type alias Model =
 init : String -> ( Model, Cmd Msg )
 init url =
     let
-      (changeFeedModel, changeFeedCommand) = ChangeFeed.init url
+        ( changeFeedModel, changeFeedCommand ) =
+            ChangeFeed.init 5 url
     in
-      ( { header = Header.init |> Header.activityBecameActive
-        , changeFeed = changeFeedModel
-        }
-      , Cmd.map GotChangeFeedMessage changeFeedCommand
-      )
+    ( { header = Header.init |> Header.activityBecameActive
+      , changeFeed = changeFeedModel
+      }
+    , Cmd.map GotChangeFeedMessage changeFeedCommand
+    )
 
 
 type Msg
@@ -46,21 +48,28 @@ update msg model =
 
         Tick _ ->
             case ChangeFeed.getNextEntry model.changeFeed of
-              Just entry ->
-                let
-                    changeFeedMessage = ChangeFeed.GetNext entry
-                    (changeFeedModel, changeFeedCommand) = ChangeFeed.update changeFeedMessage model.changeFeed
-                in
-                  ( { model | changeFeed = changeFeedModel }, Cmd.map GotChangeFeedMessage changeFeedCommand )
-              Nothing ->
-                  ( model, Cmd.none )
+                Just entry ->
+                    let
+                        changeFeedMessage =
+                            ChangeFeed.GetNext entry
+
+                        ( changeFeedModel, changeFeedCommand ) =
+                            ChangeFeed.update changeFeedMessage model.changeFeed
+                    in
+                    ( { model | changeFeed = changeFeedModel }, Cmd.map GotChangeFeedMessage changeFeedCommand )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
         GotChangeFeedMessage changeFeedMessage ->
             let
-              (changeFeedModel, changeFeedCommand) = ChangeFeed.update changeFeedMessage model.changeFeed
+                ( changeFeedModel, changeFeedCommand ) =
+                    ChangeFeed.update changeFeedMessage model.changeFeed
             in
-              ( { model | changeFeed = changeFeedModel }
-              , Cmd.map GotChangeFeedMessage changeFeedCommand )
+            ( { model | changeFeed = changeFeedModel }
+            , Cmd.map GotChangeFeedMessage changeFeedCommand
+            )
+
 
 viewMain : Model -> Html Msg
 viewMain model =

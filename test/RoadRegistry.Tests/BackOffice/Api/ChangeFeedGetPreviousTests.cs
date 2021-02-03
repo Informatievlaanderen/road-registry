@@ -274,7 +274,6 @@ namespace RoadRegistry.BackOffice.Api
                 // YR: Different versions of libicu use different casing
                 Assert.Equal("jan.", item1.Month.ToLowerInvariant());
                 Assert.Equal("01:00", item1.TimeOfDay);
-                Assert.Equal("/entry/1/content", item1.ContentLink);
 
                 var item2 = response.Entries[1];
                 Assert.NotNull(item2);
@@ -285,7 +284,6 @@ namespace RoadRegistry.BackOffice.Api
                 // YR: Different versions of libicu use different casing
                 Assert.Equal("jan.", item2.Month.ToLowerInvariant());
                 Assert.Equal("01:00", item2.TimeOfDay);
-                Assert.Equal("/entry/0/content", item2.ContentLink);
             }
         }
     }

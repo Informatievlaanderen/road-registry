@@ -1,4 +1,4 @@
-module Alert exposing (AlertKind(..), Model, Message(..), init, hide, showError, showSuccess, update, view)
+module Alert exposing (AlertKind(..), Message(..), Model, hide, init, showError, showSuccess, update, view)
 
 import Html exposing (Html, a, div, section, span, text)
 import Html.Attributes exposing (class, classList, href)
@@ -22,23 +22,27 @@ type alias Model =
     , visible : Bool
     }
 
+
 type Message
     = CloseAlert
 
+
 init : () -> Model
 init () =
-  { title = ""
-  , kind = Error
-  , visible = False
-  , closeable = True
-  , hasIcon = True
-  }
+    { title = ""
+    , kind = Error
+    , visible = False
+    , closeable = True
+    , hasIcon = True
+    }
 
-update : Message -> Model -> ( Model, Cmd Message)
+
+update : Message -> Model -> ( Model, Cmd Message )
 update message model =
-  case message of
-    CloseAlert ->
-      (hide model, Cmd.none)
+    case message of
+        CloseAlert ->
+            ( hide model, Cmd.none )
+
 
 showError : Model -> String -> Model
 showError model title =

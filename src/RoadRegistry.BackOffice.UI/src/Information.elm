@@ -10,7 +10,8 @@ import Http
 import Json.Decode as D
 import Time exposing (Posix, every)
 
-main: Program String Model Msg
+
+main : Program String Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -54,16 +55,26 @@ init url =
     ( { header = Header.init |> Header.informationBecameActive
       , information =
             { title = "Register dump"
-            , url = if String.endsWith "/" url then String.concat [ url, "v1/information" ] else String.concat [ url, "/v1/information" ]
+            , url =
+                if String.endsWith "/" url then
+                    String.concat [ url, "v1/information" ]
+
+                else
+                    String.concat [ url, "/v1/information" ]
             , organizationCount = ""
             , roadNodeCount = ""
             , roadSegmentCount = ""
             , gradeSeparatedJunctionCount = ""
             }
-      , alert = Alert.init()
+      , alert = Alert.init ()
       }
     , Http.get
-        { url = if String.endsWith "/" url then String.concat [ url, "v1/information" ] else String.concat [ url, "/v1/information" ]
+        { url =
+            if String.endsWith "/" url then
+                String.concat [ url, "v1/information" ]
+
+            else
+                String.concat [ url, "/v1/information" ]
         , expect = Http.expectJson GotInformation informationDecoder
         }
     )
@@ -133,11 +144,12 @@ update msg model =
 
                         Http.BadStatus statusCode ->
                             case statusCode of
-                              503 ->
+                                503 ->
                                     ( { model | alert = Alert.showError model.alert "Activiteiten opvragen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
                                     , Cmd.none
                                     )
-                              _ ->
+
+                                _ ->
                                     ( { model | alert = Alert.showError model.alert "Er was een probleem bij het downloaden van de informatie - dit kan duiden op een probleem met de website." }
                                     , Cmd.none
                                     )
@@ -149,10 +161,13 @@ update msg model =
 
         GotAlertMessage alertMessage ->
             let
-              (alertModel, alertCommand) = Alert.update alertMessage model.alert
+                ( alertModel, alertCommand ) =
+                    Alert.update alertMessage model.alert
             in
-              ( { model | alert = alertModel }
-              , Cmd.map GotAlertMessage alertCommand )
+            ( { model | alert = alertModel }
+            , Cmd.map GotAlertMessage alertCommand
+            )
+
 
 viewInformation : InformationModel -> Html Msg
 viewInformation model =

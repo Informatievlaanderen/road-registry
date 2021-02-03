@@ -12,7 +12,8 @@ import Html.Attributes exposing (class, classList, id, style)
 import Html.Events exposing (onClick)
 import Http
 
-main: Program String Model Msg
+
+main : Program String Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -38,12 +39,17 @@ init url =
     ( { header = Header.init |> Header.uploadBecameActive
       , upload =
             { title = "Feature compare"
-            , url = if String.endsWith "/" url then String.concat [ url, "v1/upload" ] else String.concat [ url, "/v1/upload" ]
+            , url =
+                if String.endsWith "/" url then
+                    String.concat [ url, "v1/upload" ]
+
+                else
+                    String.concat [ url, "/v1/upload" ]
             , uploading = False
             , progressing = False
             , progress = ""
             }
-      , alert = Alert.init()
+      , alert = Alert.init ()
       }
     , Cmd.none
     )
@@ -104,10 +110,12 @@ update msg model =
 
         GotAlertMessage alertMessage ->
             let
-              (alertModel, alertCommand) = Alert.update alertMessage model.alert
+                ( alertModel, alertCommand ) =
+                    Alert.update alertMessage model.alert
             in
-              ( { model | alert = alertModel }
-              , Cmd.map GotAlertMessage alertCommand )
+            ( { model | alert = alertModel }
+            , Cmd.map GotAlertMessage alertCommand
+            )
 
         FileUploaded result ->
             case result of

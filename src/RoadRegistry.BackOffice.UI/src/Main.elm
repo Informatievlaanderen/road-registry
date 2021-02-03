@@ -6,12 +6,15 @@ import Header exposing (HeaderModel)
 import Html exposing (Html, div, main_, section)
 import Html.Attributes exposing (class, classList, id)
 
-main: Program () Model ()
+
+main : Program () Model ()
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
-type alias Model = HeaderModel
+type alias Model =
+    HeaderModel
+
 
 init : () -> ( Model, Cmd () )
 init () =

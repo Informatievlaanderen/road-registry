@@ -75,8 +75,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
                         Type = change.Type,
                         Day = localWhen.Day.ToString("00"),
                         Month = _localMonthPattern.Format(localWhen.Date),
-                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay),
-                        ContentLink = $"/entry/{ change.Id.ToString(CultureInfo.InvariantCulture)}/content"
+                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay)
                     };
 
                     entries.Add(item);
@@ -148,8 +147,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
                         Type = change.Type,
                         Day = localWhen.Day.ToString("00"),
                         Month = _localMonthPattern.Format(localWhen.Date),
-                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay),
-                        ContentLink = $"/entry/{ change.Id.ToString(CultureInfo.InvariantCulture)}/content"
+                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay)
                     };
                     entries.Add(item);
                 }, HttpContext.RequestAborted);
@@ -220,8 +218,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
                         Type = change.Type,
                         Day = localWhen.Day.ToString("00"),
                         Month = _localMonthPattern.Format(localWhen.Date),
-                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay),
-                        ContentLink = $"/entry/{ change.Id.ToString(CultureInfo.InvariantCulture)}/content"
+                        TimeOfDay = _localTimeOfDayPattern.Format(localWhen.TimeOfDay)
                     };
                     entries.Add(item);
                 }, HttpContext.RequestAborted);
