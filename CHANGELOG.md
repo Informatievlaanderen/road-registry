@@ -1,3 +1,11 @@
+## [1.17.1](https://github.com/informatievlaanderen/road-registry/compare/v1.17.0...v1.17.1) (2021-02-03)
+
+
+### Bug Fixes
+
+* move to 5.0.2 ([f09ca4f](https://github.com/informatievlaanderen/road-registry/commit/f09ca4f07acbb12a379beb2ded7f038e96aa70ed))
+* upgrade to latest csvhelper ([1a305ad](https://github.com/informatievlaanderen/road-registry/commit/1a305ade1b0b66b131a5b737de1554e9e8543de5))
+
 # [1.17.0](https://github.com/informatievlaanderen/road-registry/compare/v1.16.0...v1.17.0) (2021-02-02)
 
 
