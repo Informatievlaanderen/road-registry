@@ -25,7 +25,7 @@ init : String -> ( Model, Cmd Msg )
 init url =
     let
         ( changeFeedModel, changeFeedCommand ) =
-            ChangeFeed.init 5 url
+            ChangeFeed.init 25 url
     in
     ( { header = Header.init |> Header.activityBecameActive
       , changeFeed = changeFeedModel
