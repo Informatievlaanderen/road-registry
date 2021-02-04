@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/informatievlaanderen/road-registry/compare/v1.17.1...v1.18.0) (2021-02-04)
+
+
+### Features
+
+* apply new events ([#130](https://github.com/informatievlaanderen/road-registry/issues/130)) ([3277ea6](https://github.com/informatievlaanderen/road-registry/commit/3277ea607da97a1a981c54ecf03d911ac41e86e4))
+
 ## [1.17.1](https://github.com/informatievlaanderen/road-registry/compare/v1.17.0...v1.17.1) (2021-02-03)
 
 
