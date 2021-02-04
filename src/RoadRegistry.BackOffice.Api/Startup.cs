@@ -138,12 +138,12 @@ namespace RoadRegistry.BackOffice.Api
                         Info = groupName => $"Basisregisters Vlaanderen - Road Registry API {groupName}",
                         CSharpClientOptions =
                         {
-                            ClassName = "AddressRegistry",
+                            ClassName = "RoadRegistry",
                             Namespace = "Be.Vlaanderen.Basisregisters"
                         },
                         TypeScriptClientOptions =
                         {
-                            ClassName = "AddressRegistry"
+                            ClassName = "RoadRegistry"
                         }
                     },
                     Server =

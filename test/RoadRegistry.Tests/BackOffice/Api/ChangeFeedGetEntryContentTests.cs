@@ -15,43 +15,53 @@ namespace RoadRegistry.BackOffice.Api
     using Xunit;
 
     [Collection(nameof(SqlServerCollection))]
-    public class ChangeFeedControllerTests
+    public class ChangeFeedGetEntryContentTests
     {
         private readonly SqlServer _fixture;
 
-        public ChangeFeedControllerTests(SqlServer fixture)
+        public ChangeFeedGetEntryContentTests(SqlServer fixture)
         {
             _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }
 
         [Fact]
-        public async Task When_downloading_activities_of_empty_registry()
+        public async Task When_downloading_entry_content_of_a_non_existing_entry()
         {
             var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-                {ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
+            {ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.Get(context);
+                var result = await controller.GetContent(context, 0);
 
-                var jsonResult = Assert.IsType<JsonResult>(result);
-                Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
-                var response = Assert.IsType<ChangeFeedResponse>(jsonResult.Value);
-                Assert.Empty(response.Entries);
+                Assert.IsType<NotFoundResult>(result);
             }
         }
 
         [Fact]
-        public async Task When_downloading_activities_of_filled_registry()
+        public async Task When_downloading_entry_content_of_an_existing_entry()
         {
             var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-                {ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}};
+            {ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Request =
+                    {
+                        QueryString = new QueryString("?beforeEntry=1&maxEntryCount=5")
+                    }
+                }
+            }};
             var database = await _fixture.CreateDatabaseAsync();
             var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
             using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
             {
                 context.RoadNetworkChanges.Add(new RoadNetworkChange
                 {
-                    Title = "De oplading werd ontvangen.",
+                    Id = 0,
+                    Title = "Het opladings archief werd ontvangen.",
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
@@ -64,24 +74,17 @@ namespace RoadRegistry.BackOffice.Api
 
             using (var context = await _fixture.CreateEditorContextAsync(database))
             {
-                var result = await controller.Get(context);
+                var result = await controller.GetContent(context, 0);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
-                var response = Assert.IsType<ChangeFeedResponse>(jsonResult.Value);
-                var item = Assert.Single(response.Entries);
-                Assert.NotNull(item);
-                Assert.Equal(0, item.Id);
-                Assert.Equal("De oplading werd ontvangen.", item.Title);
-                Assert.Equal(nameof(RoadNetworkChangesArchiveUploaded), item.Type);
-                var content = Assert.IsType<RoadNetworkChangesArchiveUploadedEntry>(item.Content);
+                var response = Assert.IsType<ChangeFeedEntryContent>(jsonResult.Value);
+                Assert.Equal(0, response.Id);
+                Assert.Equal(nameof(RoadNetworkChangesArchiveUploaded), response.Type);
+                var content = Assert.IsType<RoadNetworkChangesArchiveUploadedEntry>(response.Content);
                 Assert.Equal(archiveId.ToString(), content.Archive.Id);
                 Assert.True(content.Archive.Available);
                 Assert.Equal("file.zip", content.Archive.Filename);
-                Assert.Equal("01", item.Day);
-                // YR: Different versions of libicu use different casing
-                Assert.Equal("jan.", item.Month.ToLowerInvariant());
-                Assert.Equal("01:00", item.TimeOfDay);
             }
         }
     }

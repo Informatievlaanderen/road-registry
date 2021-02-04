@@ -23,6 +23,14 @@ namespace RoadRegistry.BackOffice.Core
                     var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
                     await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
                 });
+
+            // For<RoadNetworkChangesAccepted>()
+            //     .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
+            //     .Handle(async (context, message, ct) =>
+            //     {
+            //         var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
+            //         await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
+            //     });
         }
     }
 }

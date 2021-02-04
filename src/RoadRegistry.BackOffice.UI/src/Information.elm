@@ -1,6 +1,6 @@
 module Information exposing (Msg(..), init, main, subscriptions, update, view)
 
-import Alert exposing (AlertKind(..), AlertModel, AlertMsg(..), hideAlert, showError, viewAlert)
+import Alert
 import Browser
 import Footer
 import Header exposing (HeaderModel)
@@ -10,7 +10,8 @@ import Http
 import Json.Decode as D
 import Time exposing (Posix, every)
 
-main: Program String Model Msg
+
+main : Program String Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -45,7 +46,7 @@ type alias InformationModel =
 type alias Model =
     { header : HeaderModel
     , information : InformationModel
-    , alert : AlertModel
+    , alert : Alert.Model
     }
 
 
@@ -54,22 +55,26 @@ init url =
     ( { header = Header.init |> Header.informationBecameActive
       , information =
             { title = "Register dump"
-            , url = if String.endsWith "/" url then String.concat [ url, "v1/information" ] else String.concat [ url, "/v1/information" ]
+            , url =
+                if String.endsWith "/" url then
+                    String.concat [ url, "v1/information" ]
+
+                else
+                    String.concat [ url, "/v1/information" ]
             , organizationCount = ""
             , roadNodeCount = ""
             , roadSegmentCount = ""
             , gradeSeparatedJunctionCount = ""
             }
-      , alert =
-            { title = ""
-            , kind = Error
-            , visible = False
-            , closeable = True
-            , hasIcon = True
-            }
+      , alert = Alert.init ()
       }
     , Http.get
-        { url = if String.endsWith "/" url then String.concat [ url, "v1/information" ] else String.concat [ url, "/v1/information" ]
+        { url =
+            if String.endsWith "/" url then
+                String.concat [ url, "v1/information" ]
+
+            else
+                String.concat [ url, "/v1/information" ]
         , expect = Http.expectJson GotInformation informationDecoder
         }
     )
@@ -78,7 +83,7 @@ init url =
 type Msg
     = DownloadInformation
     | GotInformation (Result Http.Error RoadNetworkInfo)
-    | GotAlertMsg AlertMsg
+    | GotAlertMessage Alert.Message
     | Tick Posix
 
 
@@ -116,45 +121,53 @@ update msg model =
                                 , gradeSeparatedJunctionCount = String.fromInt info.gradeSeparatedJunctionCount
                             }
                     in
-                    ( { model | information = newInformation, alert = hideAlert model.alert }
+                    ( { model | information = newInformation, alert = Alert.hide model.alert }
                     , Cmd.none
                     )
 
                 Err error ->
                     case error of
                         Http.BadUrl _ ->
-                            ( { model | alert = showError model.alert "Er was een probleem bij het downloaden van de informatie - de url blijkt foutief te zijn." }
+                            ( { model | alert = Alert.showError model.alert "Er was een probleem bij het downloaden van de informatie - de url blijkt foutief te zijn." }
                             , Cmd.none
                             )
 
                         Http.Timeout ->
-                            ( { model | alert = showError model.alert "Er was een probleem bij het downloaden van de informatie - de operatie nam teveel tijd in beslag." }
+                            ( { model | alert = Alert.showError model.alert "Er was een probleem bij het downloaden van de informatie - de operatie nam teveel tijd in beslag." }
                             , Cmd.none
                             )
 
                         Http.NetworkError ->
-                            ( { model | alert = showError model.alert "Er was een probleem bij het downloaden van de informatie - een netwerk fout ligt aan de basis." }
+                            ( { model | alert = Alert.showError model.alert "Er was een probleem bij het downloaden van de informatie - een netwerk fout ligt aan de basis." }
                             , Cmd.none
                             )
 
                         Http.BadStatus statusCode ->
                             case statusCode of
+                                503 ->
+                                    ( { model | alert = Alert.showError model.alert "Activiteiten opvragen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
+                                    , Cmd.none
+                                    )
+
                                 _ ->
-                                    ( { model | alert = showError model.alert "Er was een probleem bij het downloaden van de informatie - dit kan duiden op een probleem met de website." }
+                                    ( { model | alert = Alert.showError model.alert "Er was een probleem bij het downloaden van de informatie - dit kan duiden op een probleem met de website." }
                                     , Cmd.none
                                     )
 
                         Http.BadBody _ ->
-                            ( { model | alert = showError model.alert "Er was een probleem bij het downloaden van de informatie - dit kan duiden op een probleem met de website." }
+                            ( { model | alert = Alert.showError model.alert "Er was een probleem bij het downloaden van de informatie - dit kan duiden op een probleem met de website." }
                             , Cmd.none
                             )
 
-        GotAlertMsg alertMsg ->
-            case alertMsg of
-                CloseAlert ->
-                    ( { model | alert = hideAlert model.alert }
-                    , Cmd.none
-                    )
+        GotAlertMessage alertMessage ->
+            let
+                ( alertModel, alertCommand ) =
+                    Alert.update alertMessage model.alert
+            in
+            ( { model | alert = alertModel }
+            , Cmd.map GotAlertMessage alertCommand
+            )
+
 
 viewInformation : InformationModel -> Html Msg
 viewInformation model =
@@ -206,7 +219,7 @@ viewInformation model =
 viewMain : Model -> Html Msg
 viewMain model =
     main_ [ id "main" ]
-        [ viewAlert model.alert |> Html.map GotAlertMsg
+        [ Alert.view model.alert |> Html.map GotAlertMessage
         , viewInformation model.information
         ]
 

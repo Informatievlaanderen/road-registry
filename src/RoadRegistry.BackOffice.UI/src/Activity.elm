@@ -1,16 +1,12 @@
 module Activity exposing (Msg(..), init, main, subscriptions, update, view)
 
-import Alert as Alert
+import Alert
 import Browser
-import FontAwesome as FA
+import ChangeFeed
 import Footer
 import Header exposing (HeaderModel)
-import Html exposing (Html, a, br, div, h1, h3, i, li, main_, section, span, text, ul)
-import Html.Attributes exposing (class, classList, href, id, style)
-import Html.Attributes.Aria exposing (ariaHidden)
-import Http
-import Json.Decode as Decode
-import Json.Decode.Extra exposing (when)
+import Html exposing (Html, div, main_)
+import Html.Attributes exposing (class, id)
 import Time exposing (Posix, every)
 
 
@@ -19,248 +15,29 @@ main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
-type ProblemSeverity
-    = Warning
-    | Error
-
-
-type alias FileProblem =
-    { problem : String
-    , severity : ProblemSeverity
-    }
-
-
-type alias FileProblems =
-    { file : String
-    , problems : List FileProblem
-    }
-
-
-type alias ChangeProblem =
-    { problem : String
-    , severity : ProblemSeverity
-    }
-
-
-type alias ChangeProblems =
-    { change : String
-    , problems : List ChangeProblem
-    }
-
-
-type alias Archive =
-    { id : String
-    , available : Bool
-    , filename : String
-    }
-
-
-type ChangeFeedEntryContent
-    = BeganRoadNetworkImport
-    | CompletedRoadNetworkImport
-    | RoadNetworkChangesArchiveAccepted { archive : Archive, problems : List FileProblems }
-    | RoadNetworkChangesArchiveRejected { archive : Archive, problems : List FileProblems }
-    | RoadNetworkChangesArchiveUploaded { archive : Archive }
-    | RoadNetworkChangesBasedOnArchiveAccepted { archive : Archive, problems : List ChangeProblems }
-    | RoadNetworkChangesBasedOnArchiveRejected { archive : Archive, problems : List ChangeProblems }
-
-
-type alias ChangeFeedEntry =
-    { id : String
-    , title : String
-    , day : String
-    , month : String
-    , timeOfDay : String
-    , content : ChangeFeedEntryContent
-    }
-
-
-type alias ActivityModel =
-    { feedUrl : String
-    , archiveUrl : String
-    , entries : List ChangeFeedEntry
-    }
-
-
 type alias Model =
     { header : HeaderModel
-    , activity : ActivityModel
-    , alert : Alert.AlertModel
+    , changeFeed : ChangeFeed.Model
     }
-
-
-decodeEntryContentType : Decode.Decoder String
-decodeEntryContentType =
-    Decode.field "type" Decode.string
-
-
-is : a -> a -> Bool
-is a b =
-    a == b
-
-
-decodeFileProblem : Decode.Decoder FileProblem
-decodeFileProblem =
-    Decode.map2 FileProblem
-        (Decode.field "text" Decode.string)
-        (Decode.field "severity" Decode.string
-            |> Decode.andThen
-                (\value ->
-                    case value of
-                        "Warning" ->
-                            Decode.succeed Warning
-
-                        "Error" ->
-                            Decode.succeed Error
-
-                        other ->
-                            Decode.fail <| "Unknown severity: " ++ other
-                )
-        )
-
-
-decodeChangeProblem : Decode.Decoder ChangeProblem
-decodeChangeProblem =
-    Decode.map2 ChangeProblem
-        (Decode.field "text" Decode.string)
-        (Decode.field "severity" Decode.string
-            |> Decode.andThen
-                (\value ->
-                    case value of
-                        "Warning" ->
-                            Decode.succeed Warning
-
-                        "Error" ->
-                            Decode.succeed Error
-
-                        other ->
-                            Decode.fail <| "Unknown severity: " ++ other
-                )
-        )
-
-
-decodeFileProblems : Decode.Decoder FileProblems
-decodeFileProblems =
-    Decode.map2 FileProblems
-        (Decode.field "file" Decode.string)
-        (Decode.field "problems" (Decode.list decodeFileProblem))
-
-
-decodeChangeProblems : Decode.Decoder ChangeProblems
-decodeChangeProblems =
-    Decode.map2 ChangeProblems
-        (Decode.field "change" Decode.string)
-        (Decode.field "problems" (Decode.list decodeChangeProblem))
-
-
-decodeArchive : Decode.Decoder Archive
-decodeArchive =
-    Decode.map3 Archive
-        (Decode.field "id" Decode.string)
-        (Decode.field "available" Decode.bool)
-        (Decode.field "filename" Decode.string)
-
-
-decodeRoadNetworkChangesArchiveUploaded : Decode.Decoder ChangeFeedEntryContent
-decodeRoadNetworkChangesArchiveUploaded =
-    Decode.field "content"
-        (Decode.map
-            (\archive -> RoadNetworkChangesArchiveUploaded { archive = archive })
-            (Decode.field "archive" decodeArchive)
-        )
-
-
-decodeRoadNetworkChangesArchiveAccepted : Decode.Decoder ChangeFeedEntryContent
-decodeRoadNetworkChangesArchiveAccepted =
-    Decode.field "content"
-        (Decode.map2
-            (\archive problems -> RoadNetworkChangesArchiveAccepted { archive = archive, problems = problems })
-            (Decode.field "archive" decodeArchive)
-            (Decode.field "files" (Decode.list decodeFileProblems))
-        )
-
-
-decodeRoadNetworkChangesArchiveRejected : Decode.Decoder ChangeFeedEntryContent
-decodeRoadNetworkChangesArchiveRejected =
-    Decode.field "content"
-        (Decode.map2
-            (\archive problems -> RoadNetworkChangesArchiveRejected { archive = archive, problems = problems })
-            (Decode.field "archive" decodeArchive)
-            (Decode.field "files" (Decode.list decodeFileProblems))
-        )
-
-decodeRoadNetworkChangesBasedOnArchiveAccepted : Decode.Decoder ChangeFeedEntryContent
-decodeRoadNetworkChangesBasedOnArchiveAccepted =
-    Decode.field "content"
-        (Decode.map2
-            (\archive problems -> RoadNetworkChangesBasedOnArchiveAccepted { archive = archive, problems = problems })
-            (Decode.field "archive" decodeArchive)
-            (Decode.field "changes" (Decode.list decodeChangeProblems))
-        )
-
-decodeRoadNetworkChangesBasedOnArchiveRejected : Decode.Decoder ChangeFeedEntryContent
-decodeRoadNetworkChangesBasedOnArchiveRejected =
-    Decode.field "content"
-        (Decode.map2
-            (\archive problems -> RoadNetworkChangesBasedOnArchiveRejected { archive = archive, problems = problems })
-            (Decode.field "archive" decodeArchive)
-            (Decode.field "changes" (Decode.list decodeChangeProblems))
-        )
-
-
-decodeEntry : Decode.Decoder ChangeFeedEntry
-decodeEntry =
-    Decode.map6 ChangeFeedEntry
-        (Decode.field "id" Decode.int |> Decode.map String.fromInt)
-        (Decode.field "title" Decode.string)
-        (Decode.field "day" Decode.string)
-        (Decode.field "month" Decode.string)
-        (Decode.field "timeOfDay" Decode.string)
-        (Decode.oneOf
-            [ when decodeEntryContentType (is "BeganRoadNetworkImport") (Decode.succeed BeganRoadNetworkImport)
-            , when decodeEntryContentType (is "CompletedRoadNetworkImport") (Decode.succeed CompletedRoadNetworkImport)
-            , when decodeEntryContentType (is "RoadNetworkChangesArchiveAccepted") decodeRoadNetworkChangesArchiveAccepted
-            , when decodeEntryContentType (is "RoadNetworkChangesArchiveRejected") decodeRoadNetworkChangesArchiveRejected
-            , when decodeEntryContentType (is "RoadNetworkChangesArchiveUploaded") decodeRoadNetworkChangesArchiveUploaded
-            , when decodeEntryContentType (is "RoadNetworkChangesAccepted") decodeRoadNetworkChangesBasedOnArchiveAccepted
-            , when decodeEntryContentType (is "RoadNetworkChangesRejected") decodeRoadNetworkChangesBasedOnArchiveRejected
-            ]
-        )
-
-
-decodeResponse : Decode.Decoder (List ChangeFeedEntry)
-decodeResponse =
-    Decode.field "entries" (Decode.list decodeEntry)
 
 
 init : String -> ( Model, Cmd Msg )
 init url =
+    let
+        ( changeFeedModel, changeFeedCommand ) =
+            ChangeFeed.init 25 url
+    in
     ( { header = Header.init |> Header.activityBecameActive
-      , activity =
-            { feedUrl = if String.endsWith "/" url then String.concat [ url, "v1/changefeed" ] else String.concat [ url, "/v1/changefeed" ]
-            , archiveUrl = String.concat [ url, "/v1/upload/"]
-            , entries = []
-            }
-      , alert =
-            { title = ""
-            , kind = Alert.Error
-            , visible = False
-            , closeable = True
-            , hasIcon = True
-            }
+      , changeFeed = changeFeedModel
       }
-    , Http.get
-        { url = if String.endsWith "/" url then String.concat [ url, "v1/changefeed" ] else String.concat [ url, "/v1/changefeed" ]
-        , expect = Http.expectJson GotActivity decodeResponse
-        }
+    , Cmd.map GotChangeFeedMessage changeFeedCommand
     )
 
 
 type Msg
     = ToggleExpandEntry String
-    | GotAlertMsg Alert.AlertMsg
     | Tick Posix
-    | GotActivity (Result Http.Error (List ChangeFeedEntry))
+    | GotChangeFeedMessage ChangeFeed.Message
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -269,330 +46,37 @@ update msg model =
         ToggleExpandEntry _ ->
             ( model, Cmd.none )
 
-        GotAlertMsg alertMsg ->
-            case alertMsg of
-                Alert.CloseAlert ->
-                    ( { model | alert = Alert.hideAlert model.alert }
-                    , Cmd.none
-                    )
-
         Tick _ ->
-            ( model
-            , Http.get
-                { url = model.activity.feedUrl
-                , expect = Http.expectJson GotActivity decodeResponse
-                }
-            )
-
-        GotActivity result ->
-            case result of
-                Ok entries ->
+            case ChangeFeed.getNextEntry model.changeFeed of
+                Just entry ->
                     let
-                        oldActivity =
-                            model.activity
+                        changeFeedMessage =
+                            ChangeFeed.GetNext entry
 
-                        newActivity =
-                            { oldActivity | entries = entries }
+                        ( changeFeedModel, changeFeedCommand ) =
+                            ChangeFeed.update changeFeedMessage model.changeFeed
                     in
-                    ( { model | activity = newActivity }, Cmd.none )
+                    ( { model | changeFeed = changeFeedModel }, Cmd.map GotChangeFeedMessage changeFeedCommand )
 
-                Err error ->
-                    case error of
-                        Http.BadUrl _ ->
-                            ( { model | alert = Alert.showError model.alert "Er was een probleem bij het opvragen van de activiteiten - de url blijkt foutief te zijn." }
-                            , Cmd.none
-                            )
+                Nothing ->
+                    ( model, Cmd.none )
 
-                        Http.Timeout ->
-                            ( { model | alert = Alert.showError model.alert "Er was een probleem bij het opvragen van de activiteiten - de operatie nam teveel tijd in beslag." }
-                            , Cmd.none
-                            )
-
-                        Http.NetworkError ->
-                            ( { model | alert = Alert.showError model.alert "Er was een probleem bij het opvragen van de activiteiten - een netwerk fout ligt aan de basis." }
-                            , Cmd.none
-                            )
-
-                        Http.BadStatus statusCode ->
-                            case statusCode of
-                                503 ->
-                                    ( { model | alert = Alert.showError model.alert "Activiteiten opvragen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw." }
-                                    , Cmd.none
-                                    )
-
-                                _ ->
-                                    ( { model | alert = Alert.showError model.alert "Er was een probleem bij het opvragen van de activiteiten - dit kan duiden op een probleem met de website." }
-                                    , Cmd.none
-                                    )
-
-                        Http.BadBody bodyProblem ->
-                            ( { model | alert = Alert.showError model.alert ("Er was een probleem bij het interpreteren van de activiteiten - dit kan duiden op een probleem met de website." ++ bodyProblem) }
-                            , Cmd.none
-                            )
-
-
-viewArchiveLinkContent: String -> Archive -> Html Msg
-viewArchiveLinkContent url archive =
-    if not archive.available then
-      text archive.filename
-    else
-      a [ href (String.concat [ url, archive.id ]), class "link--icon link--icon--inline" ]
-      [ i [ class "vi vi-paperclip", ariaHidden True ]
-          []
-      , text archive.filename
-      ]
-
-
-
-viewActivityEntryContent : String -> ChangeFeedEntryContent -> Html Msg
-viewActivityEntryContent url content =
-    case content of
-        BeganRoadNetworkImport ->
-            div [ class "step__content" ]
-                []
-
-        CompletedRoadNetworkImport ->
-            div [ class "step__content" ]
-                []
-
-        RoadNetworkChangesArchiveUploaded uploaded ->
-            div [ class "step__content" ]
-                [ text "Archief: "
-                , viewArchiveLinkContent url uploaded.archive
-                ]
-
-        RoadNetworkChangesArchiveRejected rejected ->
-            div [ class "step__content" ]
-                [ ul
-                    []
-                    (List.map
-                        (\fileProblems ->
-                            li
-                                [ style "padding-top" "5px" ]
-                                [ span [ style "font-weight" "bold" ] [ text fileProblems.file ]
-                                , ul
-                                    []
-                                    (List.map
-                                        (\problem ->
-                                            case problem.severity of
-                                                Warning ->
-                                                    li
-                                                        []
-                                                        [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
-                                                        , text "\u{00A0}"
-                                                        , text problem.problem
-                                                        ]
-
-                                                Error ->
-                                                    li
-                                                        []
-                                                        [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
-                                                        , text "\u{00A0}"
-                                                        , text problem.problem
-                                                        ]
-                                        )
-                                        fileProblems.problems
-                                    )
-                                ]
-                        )
-                        rejected.problems
-                    )
-                , br [] []
-                , text "Archief: "
-                , viewArchiveLinkContent url rejected.archive
-                ]
-
-        RoadNetworkChangesArchiveAccepted accepted ->
-            div [ class "step__content" ]
-                [ ul []
-                    (List.map (\problem -> li [] [ text problem.file ]) accepted.problems)
-                ]
-
-        RoadNetworkChangesBasedOnArchiveAccepted accepted ->
-                    div [ class "step__content" ]
-                        [ ul
-                            []
-                            (List.map
-                                (\changeProblems ->
-                                    li
-                                        [ style "padding-top" "5px" ]
-                                        [ span [ style "font-weight" "bold" ] [ text changeProblems.change ]
-                                        , ul
-                                            []
-                                            (List.map
-                                                (\problem ->
-                                                    case problem.severity of
-                                                        Warning ->
-                                                            li
-                                                                []
-                                                                [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
-                                                                , text "\u{00A0}"
-                                                                , text problem.problem
-                                                                ]
-
-                                                        Error ->
-                                                            li
-                                                                []
-                                                                [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
-                                                                , text "\u{00A0}"
-                                                                , text problem.problem
-                                                                ]
-                                                )
-                                                changeProblems.problems
-                                            )
-                                        ]
-                                )
-                                accepted.problems
-                            )
-                        , br [] []
-                        , text "Archief: "
-                        , viewArchiveLinkContent url accepted.archive
-                        ]
-
-        RoadNetworkChangesBasedOnArchiveRejected rejected ->
-            div [ class "step__content" ]
-                [ ul
-                    []
-                    (List.map
-                        (\changeProblems ->
-                            li
-                                [ style "padding-top" "5px" ]
-                                [ span [ style "font-weight" "bold" ] [ text changeProblems.change ]
-                                , ul
-                                    []
-                                    (List.map
-                                        (\problem ->
-                                            case problem.severity of
-                                                Warning ->
-                                                    li
-                                                        []
-                                                        [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
-                                                        , text "\u{00A0}"
-                                                        , text problem.problem
-                                                        ]
-
-                                                Error ->
-                                                    li
-                                                        []
-                                                        [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
-                                                        , text "\u{00A0}"
-                                                        , text problem.problem
-                                                        ]
-                                        )
-                                        changeProblems.problems
-                                    )
-                                ]
-                        )
-                        rejected.problems
-                    )
-                , br [] []
-                , text "Archief: "
-                , viewArchiveLinkContent url rejected.archive
-                ]
-
-viewActivityEntry : String -> ChangeFeedEntry -> Html Msg
-viewActivityEntry url entry =
-    li
-        [ classList [ ( "step", True ), ( "js-accordion", True ) ] ]
-        [ div [ class "step__icon" ]
-            [ text entry.day
-            , span [ class "step__icon__sub" ] [ text entry.month ]
-            , span [ class "step__icon__sub" ] [ text entry.timeOfDay ]
-            ]
-        , div [ class "step__wrapper" ]
-            [ a [ href "#", class "step__header js-accordion__toggle" ]
-                [ div [ class "step__header__titles" ]
-                    [ h3 [ class "step__title" ]
-                        [ text entry.title ]
-                    ]
-                , case entry.content of
-                    BeganRoadNetworkImport ->
-                        div [ class "step__header__info" ]
-                            []
-
-                    CompletedRoadNetworkImport ->
-                        div [ class "step__header__info" ]
-                            []
-
-                    RoadNetworkChangesArchiveAccepted _ ->
-                        div [ class "step__header__info" ]
-                            [ i [ class "vi vi-paperclip vi-u-s" ]
-                                []
-                            , i [ class "step__accordion-toggle" ]
-                                []
-                            ]
-
-                    RoadNetworkChangesArchiveRejected _ ->
-                        div [ class "step__header__info" ]
-                            [ i [ class "vi vi-paperclip vi-u-s" ]
-                                []
-                            , i [ class "step__accordion-toggle" ]
-                                []
-                            ]
-
-                    RoadNetworkChangesArchiveUploaded _ ->
-                        div [ class "step__header__info" ]
-                            [ i [ class "vi vi-paperclip vi-u-s" ]
-                                []
-                            , i [ class "step__accordion-toggle" ]
-                                []
-                            ]
-
-                    RoadNetworkChangesBasedOnArchiveAccepted _ ->
-                        div [ class "step__header__info" ]
-                            [ i [ class "vi vi-paperclip vi-u-s" ]
-                                []
-                            , i [ class "step__accordion-toggle" ]
-                                []
-                            ]
-
-                    RoadNetworkChangesBasedOnArchiveRejected _ ->
-                        div [ class "step__header__info" ]
-                            [ i [ class "vi vi-paperclip vi-u-s" ]
-                                []
-                            , i [ class "step__accordion-toggle" ]
-                                []
-                            ]
-                ]
-            , div
-                [ class "step__content-wrapper" ]
-                [ viewActivityEntryContent url entry.content
-                ]
-            ]
-        ]
-
-
-viewActivityTitle : ActivityModel -> Html Msg
-viewActivityTitle _ =
-    section [ class "region" ]
-        [ div
-            [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
-            [ div []
-                [ h1 [ class "h2 cta-title__title" ]
-                    [ text "Activiteit" ]
-                ]
-            ]
-        ]
-
-
-viewActivity : ActivityModel -> Html Msg
-viewActivity model =
-    section [ class "region" ]
-        [ div
-            [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
-            [ ul
-                [ class "steps steps--timeline" ]
-                (List.map (viewActivityEntry model.archiveUrl) model.entries)
-            ]
-        ]
+        GotChangeFeedMessage changeFeedMessage ->
+            let
+                ( changeFeedModel, changeFeedCommand ) =
+                    ChangeFeed.update changeFeedMessage model.changeFeed
+            in
+            ( { model | changeFeed = changeFeedModel }
+            , Cmd.map GotChangeFeedMessage changeFeedCommand
+            )
 
 
 viewMain : Model -> Html Msg
 viewMain model =
     main_ [ id "main" ]
-        [ Alert.viewAlert model.alert |> Html.map GotAlertMsg
-        , viewActivityTitle model.activity
-        , viewActivity model.activity
+        [ Alert.view model.changeFeed.alert |> Html.map ChangeFeed.GotAlertMessage |> Html.map GotChangeFeedMessage
+        , ChangeFeed.viewChangeFeedTitle model.changeFeed |> Html.map GotChangeFeedMessage
+        , ChangeFeed.view model.changeFeed |> Html.map GotChangeFeedMessage
         ]
 
 
