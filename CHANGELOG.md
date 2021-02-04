@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/informatievlaanderen/road-registry/compare/v1.19.0...v1.20.0) (2021-02-04)
+
+
+### Features
+
+* support paging thru the change feed ([#125](https://github.com/informatievlaanderen/road-registry/issues/125)) ([9e8d140](https://github.com/informatievlaanderen/road-registry/commit/9e8d140a2532f81690b528d63093131903e3f06e))
+
 # [1.19.0](https://github.com/informatievlaanderen/road-registry/compare/v1.18.0...v1.19.0) (2021-02-04)
 
 
