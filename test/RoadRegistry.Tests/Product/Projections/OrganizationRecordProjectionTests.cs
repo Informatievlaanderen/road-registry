@@ -7,7 +7,6 @@ namespace RoadRegistry.Product.Projections
     using AutoFixture;
     using BackOffice;
     using BackOffice.Messages;
-    using Editor.Projections;
     using Framework.Projections;
     using Microsoft.IO;
     using Schema.Organizations;
@@ -48,7 +47,7 @@ namespace RoadRegistry.Product.Projections
                     {
                         Id = i + 1,
                         Code = @event.Code,
-                        SortableCode = Editor.Projections.OrganizationRecordProjection.GetSortableCodeFor(@event.Code),
+                        SortableCode = OrganizationRecordProjection.GetSortableCodeFor(@event.Code),
                         DbaseRecord = new OrganizationDbaseRecord
                         {
                             ORG = { Value = @event.Code },
@@ -62,7 +61,7 @@ namespace RoadRegistry.Product.Projections
                     };
                 }).ToList();
 
-            return new RoadRegistry.Product.Projections.OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.ImportedOrganization))
                 .Expect(data.Select(d => d.Expected));

@@ -59,29 +59,96 @@ namespace RoadRegistry.Product.Projections
                     switch (change)
                     {
                         case RoadSegmentAddedToNumberedRoad numberedRoad:
-                            var directionTranslation =
-                                RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
-                            await context.RoadSegmentNumberedRoadAttributes.AddAsync(new RoadSegmentNumberedRoadAttributeRecord
-                            {
-                                Id = numberedRoad.AttributeId,
-                                RoadSegmentId = numberedRoad.SegmentId,
-                                DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
-                                {
-                                    GW_OIDN = {Value = numberedRoad.AttributeId},
-                                    WS_OIDN = {Value = numberedRoad.SegmentId},
-                                    IDENT8 = {Value = numberedRoad.Number},
-                                    RICHTING = {Value = directionTranslation.Identifier},
-                                    LBLRICHT = {Value = directionTranslation.Name},
-                                    VOLGNUMMER = {Value = numberedRoad.Ordinal},
-                                    BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
-                                    BEGINORG = {Value = envelope.Message.OrganizationId},
-                                    LBLBGNORG = {Value = envelope.Message.Organization}
-                                }.ToBytes(manager, encoding)
-                            });
+                            await RoadSegmentAdded(manager, encoding, context, envelope, numberedRoad);
+                            break;
+                        case RoadSegmentOnNumberedRoadModified numberedRoad:
+                            await RoadSegmentModified(manager, encoding, context, envelope, numberedRoad);
+                            break;
+                        case RoadSegmentRemovedFromNumberedRoad numberedRoad:
+                            await RoadSegmentRemovedFromNumberedRoad(context, numberedRoad);
+                            break;
+                        case RoadSegmentRemoved roadSegmentRemoved:
+                            RoadSegmentRemoved(context, roadSegmentRemoved);
                             break;
                     }
                 }
             });
+        }
+
+        private static async Task RoadSegmentAdded(RecyclableMemoryStreamManager manager,
+            Encoding encoding,
+            ProductContext context,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            RoadSegmentAddedToNumberedRoad numberedRoad)
+        {
+            var directionTranslation =
+                RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
+            await context.RoadSegmentNumberedRoadAttributes.AddAsync(new RoadSegmentNumberedRoadAttributeRecord
+            {
+                Id = numberedRoad.AttributeId,
+                RoadSegmentId = numberedRoad.SegmentId,
+                DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
+                {
+                    GW_OIDN = {Value = numberedRoad.AttributeId},
+                    WS_OIDN = {Value = numberedRoad.SegmentId},
+                    IDENT8 = {Value = numberedRoad.Number},
+                    RICHTING = {Value = directionTranslation.Identifier},
+                    LBLRICHT = {Value = directionTranslation.Name},
+                    VOLGNUMMER = {Value = numberedRoad.Ordinal},
+                    BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)},
+                    BEGINORG = {Value = envelope.Message.OrganizationId},
+                    LBLBGNORG = {Value = envelope.Message.Organization}
+                }.ToBytes(manager, encoding)
+            });
+        }
+
+        private static async Task RoadSegmentModified(RecyclableMemoryStreamManager manager,
+            Encoding encoding,
+            ProductContext context,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            RoadSegmentOnNumberedRoadModified numberedRoad)
+        {
+            var directionTranslation =
+                RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
+
+            var roadSegment =
+                await context.RoadSegmentNumberedRoadAttributes.FindAsync(numberedRoad.AttributeId);
+
+            roadSegment.Id = numberedRoad.AttributeId;
+            roadSegment.RoadSegmentId = numberedRoad.SegmentId;
+            roadSegment.DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
+            {
+                GW_OIDN = {Value = numberedRoad.AttributeId},
+                WS_OIDN = {Value = numberedRoad.SegmentId},
+                IDENT8 = {Value = numberedRoad.Number},
+                RICHTING = {Value = directionTranslation.Identifier},
+                LBLRICHT = {Value = directionTranslation.Name},
+                VOLGNUMMER = {Value = numberedRoad.Ordinal},
+                BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)},
+                BEGINORG = {Value = envelope.Message.OrganizationId},
+                LBLBGNORG = {Value = envelope.Message.Organization}
+            }.ToBytes(manager, encoding);
+        }
+
+        private static async Task RoadSegmentRemovedFromNumberedRoad(ProductContext context,
+            RoadSegmentRemovedFromNumberedRoad numberedRoad)
+        {
+            var roadSegment =
+                await context.RoadSegmentNumberedRoadAttributes.FindAsync(numberedRoad.AttributeId);
+
+            context.RoadSegmentNumberedRoadAttributes.Remove(roadSegment);
+        }
+
+        private static void RoadSegmentRemoved(ProductContext context, RoadSegmentRemoved roadSegmentRemoved)
+        {
+            var segmentNumberedRoadAttributeRecords =
+                context.RoadSegmentNumberedRoadAttributes
+                    .Local
+                    .Where(x => x.RoadSegmentId == roadSegmentRemoved.Id)
+                    .Concat(context.RoadSegmentNumberedRoadAttributes
+                        .Where(x => x.RoadSegmentId == roadSegmentRemoved.Id));
+
+            context.RoadSegmentNumberedRoadAttributes.RemoveRange(segmentNumberedRoadAttributeRecords);
         }
     }
 }

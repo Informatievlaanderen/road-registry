@@ -27,6 +27,7 @@ namespace RoadRegistry.Product.Projections
 
             _fixture = new Fixture();
 
+            _fixture.CustomizeArchiveId();
             _fixture.CustomizeRoadNodeId();
             _fixture.CustomizeRoadNodeType();
             _fixture.CustomizeOrganizationId();
@@ -34,6 +35,12 @@ namespace RoadRegistry.Product.Projections
             _fixture.CustomizePoint();
             _fixture.CustomizeOriginProperties();
             _fixture.CustomizeImportedRoadNode();
+
+            _fixture.CustomizeRoadNetworkChangesAccepted();
+
+            _fixture.CustomizeRoadNodeAdded();
+            _fixture.CustomizeRoadNodeModified();
+            _fixture.CustomizeRoadNodeRemoved();
         }
 
         [Fact]
@@ -77,11 +84,121 @@ namespace RoadRegistry.Product.Projections
                     };
                 }).ToList();
 
-            return new RoadRegistry.Product.Projections.RoadNodeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            return new RoadNodeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
                 .Scenario()
                 .Given(data.Select(d => d.ImportedRoadNode))
                 .Expect(data.Select(d => d.ExpectedRecord));
+        }
 
+        [Fact]
+        public Task When_adding_road_nodes()
+        {
+            var message = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.CreateMany<RoadNodeAdded>());
+
+            var expectedRecords = Array.ConvertAll(message.Changes, change =>
+            {
+                var roadNodeAdded = change.RoadNodeAdded;
+                var point = GeometryTranslator.Translate(roadNodeAdded.Geometry);
+                var pointShapeContent = new PointShapeContent(
+                    Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(
+                        new NetTopologySuite.Geometries.Point(point.X, point.Y)));
+
+                return (object)new RoadNodeRecord
+                {
+                    Id = roadNodeAdded.Id,
+                    DbaseRecord = new RoadNodeDbaseRecord
+                    {
+                        WK_OIDN = {Value = roadNodeAdded.Id},
+                        WK_UIDN = {Value = roadNodeAdded.Id + "_0"},
+                        TYPE = {Value = RoadNodeType.Parse(roadNodeAdded.Type).Translation.Identifier},
+                        LBLTYPE =
+                        {
+                            Value = RoadNodeType.Parse(roadNodeAdded.Type).Translation.Name
+                        },
+                        BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(message.When)},
+                        BEGINORG = {Value = message.OrganizationId},
+                        LBLBGNORG = {Value = message.Organization}
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
+                    ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
+                    ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
+                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
+                };
+            });
+
+            return new RoadNodeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(message)
+                .Expect(expectedRecords);
+        }
+
+        [Fact]
+        public Task When_modifying_road_nodes()
+        {
+            _fixture.Freeze<RoadNodeId>();
+
+            var acceptedRoadNodeAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<RoadNodeAdded>());
+
+            var acceptedRoadNodeModified = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<RoadNodeModified>());
+
+            var expectedRecords = Array.ConvertAll(acceptedRoadNodeModified.Changes, change =>
+            {
+                var roadNodeAdded = change.RoadNodeModified;
+                var point = GeometryTranslator.Translate(roadNodeAdded.Geometry);
+                var pointShapeContent = new PointShapeContent(
+                    Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(
+                        new NetTopologySuite.Geometries.Point(point.X, point.Y)));
+
+                return (object)new RoadNodeRecord
+                {
+                    Id = roadNodeAdded.Id,
+                    DbaseRecord = new RoadNodeDbaseRecord
+                    {
+                        WK_OIDN = {Value = roadNodeAdded.Id},
+                        WK_UIDN = {Value = roadNodeAdded.Id + "_0"},
+                        TYPE = {Value = RoadNodeType.Parse(roadNodeAdded.Type).Translation.Identifier},
+                        LBLTYPE =
+                        {
+                            Value = RoadNodeType.Parse(roadNodeAdded.Type).Translation.Name
+                        },
+                        BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadNodeModified.When)},
+                        BEGINORG = {Value = acceptedRoadNodeModified.OrganizationId},
+                        LBLBGNORG = {Value = acceptedRoadNodeModified.Organization}
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
+                    ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
+                    ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
+                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
+                };
+            });
+
+            return new RoadNodeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedRoadNodeAdded, acceptedRoadNodeModified)
+                .Expect(expectedRecords);
+        }
+
+        [Fact]
+        public Task When_removing_road_nodes()
+        {
+            _fixture.Freeze<RoadNodeId>();
+
+            var acceptedRoadNodeAdded = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<RoadNodeAdded>());
+
+            var acceptedRoadNodeRemoved = _fixture
+                .Create<RoadNetworkChangesAccepted>()
+                .WithAcceptedChanges(_fixture.Create<RoadNodeRemoved>());
+
+            return new RoadNodeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+                .Scenario()
+                .Given(acceptedRoadNodeAdded, acceptedRoadNodeRemoved)
+                .ExpectNone();
         }
     }
 }

@@ -177,6 +177,40 @@ namespace RoadRegistry.Product.Schema.Migrations
                         .HasAnnotation("Relational:SqlQuery", "SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [RoadRegistryProduct].[RoadNode]");
                 });
 
+            modelBuilder.Entity("RoadRegistry.Product.Schema.RoadNetworkInfoSegmentCache", b =>
+                {
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LanesLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartOfEuropeanRoadsLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartOfNationalRoadsLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartOfNumberedRoadsLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShapeLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SurfacesLength")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WidthsLength")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoadSegmentId");
+
+                    b.HasIndex("RoadSegmentId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RoadNetworkInfoSegmentCache","RoadRegistryProduct");
+                });
+
             modelBuilder.Entity("RoadRegistry.Product.Schema.RoadNodes.RoadNodeRecord", b =>
                 {
                     b.Property<int>("Id")
