@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/informatievlaanderen/road-registry/compare/v1.18.0...v1.19.0) (2021-02-04)
+
+
+### Features
+
+* update syndication images ([c525e5a](https://github.com/informatievlaanderen/road-registry/commit/c525e5a792d48773a3933a8f3a8ea4563f744f77))
+
 # [1.18.0](https://github.com/informatievlaanderen/road-registry/compare/v1.17.1...v1.18.0) (2021-02-04)
 
 
