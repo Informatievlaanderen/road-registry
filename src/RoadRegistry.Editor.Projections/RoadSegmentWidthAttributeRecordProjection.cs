@@ -127,14 +127,15 @@ namespace RoadRegistry.Editor.Projections
             }
             else
             {
+                //Causes all attributes to be loaded into Local
+                await context
+                    .RoadSegmentWidthAttributes
+                    .Where(a => a.RoadSegmentId == segment.Id)
+                    .ToArrayAsync(token);
                 var currentSet = context
                     .RoadSegmentWidthAttributes
                     .Local.Where(a => a.RoadSegmentId == segment.Id)
-                    .Concat(await context
-                        .RoadSegmentWidthAttributes
-                        .Where(a => a.RoadSegmentId == segment.Id)
-                        .ToArrayAsync(token)
-                    ).ToDictionary(a => a.Id);
+                    .ToDictionary(a => a.Id);
                 var nextSet = segment
                     .Widths
                     .Select(width => new RoadSegmentWidthAttributeRecord
