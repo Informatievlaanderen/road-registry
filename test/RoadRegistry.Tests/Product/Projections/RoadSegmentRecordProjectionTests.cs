@@ -153,9 +153,9 @@ namespace RoadRegistry.Product.Projections
                             WEGCAT = { Value = RoadSegmentCategory.Parse(segment.Category).Translation.Identifier },
                             LBLWEGCAT = { Value = RoadSegmentCategory.Parse(segment.Category).Translation.Name },
                             LSTRNMID = { Value = segment.LeftSide.StreetNameId },
-                            LSTRNM = { Value = null },
+                            LSTRNM = { Value = null }, // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
                             RSTRNMID = { Value = segment.RightSide.StreetNameId },
-                            RSTRNM = { Value = null },
+                            RSTRNM = { Value = null }, // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
                             BEHEER = { Value = segment.MaintenanceAuthority.Code },
                             LBLBEHEER = { Value = segment.MaintenanceAuthority.Name },
                             METHODE = { Value = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Identifier },
@@ -215,9 +215,9 @@ namespace RoadRegistry.Product.Projections
                             WEGCAT = { Value = RoadSegmentCategory.Parse(segment.Category).Translation.Identifier },
                             LBLWEGCAT = { Value = RoadSegmentCategory.Parse(segment.Category).Translation.Name },
                             LSTRNMID = { Value = segment.LeftSide.StreetNameId },
-                            LSTRNM = { Value = null },
+                            LSTRNM = { Value = null }, // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
                             RSTRNMID = { Value = segment.RightSide.StreetNameId },
-                            RSTRNM = { Value = null },
+                            RSTRNM = { Value = null }, // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
                             BEHEER = { Value = segment.MaintenanceAuthority.Code },
                             LBLBEHEER = { Value = segment.MaintenanceAuthority.Name },
                             METHODE = { Value = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Identifier },
