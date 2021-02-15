@@ -14,8 +14,8 @@ It stores its output into a blob called `import-streams.zip`, where the blob cou
 The blob contains one file called `streams.json`. This file is a (very long) array of `(stream, event)` tuples.
 The order in which events appear in the file is the order they must be appended into the target event store.
 Typically, it will start with a `BeganRoadNetworkImport` and end with a `CompletedRoadNetworkImport` on the `roadnetwork` stream.
-In between all organizations, road nodes, road segments, and grade separated junctions will be imported as well.
-Each `organization` gets a stream of its own. Road nodes, segments, and grade separated junctions go into the `roadnetwork` stream.
+In between all organizations, municipalities, road nodes, road segments, and grade separated junctions will be imported as well.
+Each `organization` gets a stream of its own. Each `municipality` gets a stream of its own. Road nodes, segments, and grade separated junctions go into the `roadnetwork` stream.
 
 ### Import Legacy
 
