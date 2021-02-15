@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/informatievlaanderen/road-registry/compare/v1.20.0...v1.21.0) (2021-02-15)
+
+
+### Features
+
+* emit projection format files ([08620ab](https://github.com/informatievlaanderen/road-registry/commit/08620aba4f9dcb24fb74d617018e8dc08c6bb0a6))
+
 # [1.20.0](https://github.com/informatievlaanderen/road-registry/compare/v1.19.0...v1.20.0) (2021-02-04)
 
 
