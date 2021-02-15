@@ -128,11 +128,10 @@ namespace RoadRegistry.Editor.Projections
                         WEGCAT = {Value = categoryTranslation.Identifier},
                         LBLWEGCAT = {Value = categoryTranslation.Name},
                         LSTRNMID = {Value = segment.LeftSide.StreetNameId},
-                        // TODO: Where does this come from?
-                        LSTRNM = {Value = null},
+                        LSTRNM = {Value = null}, // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
                         RSTRNMID = {Value = segment.RightSide.StreetNameId},
                         // TODO: Where does this come from?
-                        RSTRNM = {Value = null},
+                        RSTRNM = {Value = null}, // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
                         BEHEER = {Value = segment.MaintenanceAuthority.Code},
                         LBLBEHEER = {Value = segment.MaintenanceAuthority.Name},
                         METHODE = {Value = geometryDrawMethodTranslation.Identifier},
@@ -183,11 +182,9 @@ namespace RoadRegistry.Editor.Projections
                 WEGCAT = {Value = categoryTranslation.Identifier},
                 LBLWEGCAT = {Value = categoryTranslation.Name},
                 LSTRNMID = {Value = roadSegmentModified.LeftSide.StreetNameId},
-                // TODO: Where does this come from?
-                LSTRNM = {Value = null},
+                LSTRNM = {Value = null}, // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
                 RSTRNMID = {Value = roadSegmentModified.RightSide.StreetNameId},
-                // TODO: Where does this come from?
-                RSTRNM = {Value = null},
+                RSTRNM = {Value = null}, // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
                 BEHEER = {Value = roadSegmentModified.MaintenanceAuthority.Code},
                 LBLBEHEER = {Value = roadSegmentModified.MaintenanceAuthority.Name},
                 METHODE = {Value = geometryDrawMethodTranslation.Identifier},
