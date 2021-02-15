@@ -6,17 +6,18 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.IO;
     using RoadRegistry.Framework.Containers;
 
     public class ZipArchiveScenario<TContext> where TContext : DbContext
     {
-        private readonly SqlServer _fixture;
+        private readonly RecyclableMemoryStreamManager _manager;
         private readonly IZipArchiveWriter<TContext> _writer;
         private TContext _context;
 
-        public ZipArchiveScenario(SqlServer fixture, IZipArchiveWriter<TContext> writer)
+        public ZipArchiveScenario(RecyclableMemoryStreamManager manager, IZipArchiveWriter<TContext> writer)
         {
-            _fixture = fixture;
+            _manager = manager;
             _writer = writer;
         }
 
@@ -28,7 +29,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
 
         public async Task Assert(Action<ZipArchive> assert)
         {
-            using (var memoryStream = _fixture.MemoryStreamManager.GetStream())
+            using (var memoryStream = _manager.GetStream())
             {
                 using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true, Encoding.UTF8))
                 {

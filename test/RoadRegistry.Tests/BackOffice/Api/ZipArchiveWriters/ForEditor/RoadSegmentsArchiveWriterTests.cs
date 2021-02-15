@@ -58,7 +58,7 @@
             });
             await context.SaveChangesAsync();
 
-            await new ZipArchiveScenario<EditorContext>(_fixture, sut)
+            await new ZipArchiveScenario<EditorContext>(_fixture.MemoryStreamManager, sut)
                 .WithContext(context)
                 .Assert(readArchive =>
                 {

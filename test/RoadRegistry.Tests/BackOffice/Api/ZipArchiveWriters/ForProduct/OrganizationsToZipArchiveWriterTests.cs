@@ -46,7 +46,7 @@
             var db = await _fixture.CreateDatabaseAsync();
             var context = await _fixture.CreateProductContextAsync(db);
 
-            await new ZipArchiveScenario<ProductContext>(_fixture, sut)
+            await new ZipArchiveScenario<ProductContext>(_fixture.MemoryStreamManager, sut)
                 .WithContext(context)
                 .Assert(readArchive =>
                 {
