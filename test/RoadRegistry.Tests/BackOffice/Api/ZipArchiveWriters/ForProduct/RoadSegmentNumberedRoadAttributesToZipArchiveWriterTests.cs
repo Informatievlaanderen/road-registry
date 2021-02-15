@@ -46,7 +46,7 @@
             var context = await _fixture.CreateProductContextAsync(db);
             await context.SaveChangesAsync();
 
-            await new ZipArchiveScenario<ProductContext>(_fixture, sut)
+            await new ZipArchiveScenario<ProductContext>(_fixture.MemoryStreamManager, sut)
                 .WithContext(context)
                 .Assert(readArchive =>
                 {

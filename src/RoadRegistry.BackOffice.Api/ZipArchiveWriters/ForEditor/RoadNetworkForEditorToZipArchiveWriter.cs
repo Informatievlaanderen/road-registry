@@ -49,7 +49,9 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
                 new DbaseFileArchiveWriter<EditorContext>("WegsegmentLktMorf.dbf", RoadSegmentMorphologyDbaseRecord.Schema, Lists.AllRoadSegmentMorphologyDbaseRecords, encoding),
                 new DbaseFileArchiveWriter<EditorContext>("WegsegmentLktStatus.dbf", RoadSegmentStatusDbaseRecord.Schema, Lists.AllRoadSegmentStatusDbaseRecords, encoding),
                 new DbaseFileArchiveWriter<EditorContext>("OgkruisingLktType.dbf", GradeSeparatedJunctionTypeDbaseRecord.Schema, Lists.AllGradeSeparatedJunctionTypeDbaseRecords, encoding),
-                new DbaseFileArchiveWriter<EditorContext>("RijstrokenLktRichting.dbf", LaneDirectionDbaseRecord.Schema, Lists.AllLaneDirectionDbaseRecords, encoding)
+                new DbaseFileArchiveWriter<EditorContext>("RijstrokenLktRichting.dbf", LaneDirectionDbaseRecord.Schema, Lists.AllLaneDirectionDbaseRecords, encoding),
+                new ProjectionFormatFileZipArchiveWriter<EditorContext>("Wegsegment.prj", encoding),
+                new ProjectionFormatFileZipArchiveWriter<EditorContext>("Wegknoop.prj", encoding)
             );
         }
 
