@@ -1,4 +1,4 @@
-namespace RoadRegistry.Editor.Projections
+namespace RoadRegistry.Product.Projections
 {
     using System;
     using System.Collections.Generic;

@@ -174,7 +174,7 @@ namespace RoadRegistry.Editor.Projections
                         };
                     })
                     .ToDictionary(a => a.Id);
-                await context.RoadSegmentLaneAttributes.Synchronize(currentSet, nextSet,
+                context.RoadSegmentLaneAttributes.Synchronize(currentSet, nextSet,
                     (current, next) => { current.DbaseRecord = next.DbaseRecord; });
             }
         }
