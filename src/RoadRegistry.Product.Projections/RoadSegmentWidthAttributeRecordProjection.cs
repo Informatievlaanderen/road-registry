@@ -154,7 +154,7 @@ namespace RoadRegistry.Product.Projections
                         }.ToBytes(manager, encoding)
                     })
                     .ToDictionary(a => a.Id);
-                await context.RoadSegmentWidthAttributes.Synchronize(currentSet, nextSet,
+                context.RoadSegmentWidthAttributes.Synchronize(currentSet, nextSet,
                     (current, next) => { current.DbaseRecord = next.DbaseRecord; });
             }
         }

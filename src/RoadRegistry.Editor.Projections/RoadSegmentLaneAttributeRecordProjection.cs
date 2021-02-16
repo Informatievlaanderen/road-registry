@@ -139,14 +139,15 @@ namespace RoadRegistry.Editor.Projections
             }
             else
             {
+                //Causes all attributes to be loaded into Local
+                await context
+                    .RoadSegmentLaneAttributes
+                    .Where(a => a.RoadSegmentId == segment.Id)
+                    .ToArrayAsync(token);
                 var currentSet = context
                     .RoadSegmentLaneAttributes
                     .Local.Where(a => a.RoadSegmentId == segment.Id)
-                    .Concat(await context
-                        .RoadSegmentLaneAttributes
-                        .Where(a => a.RoadSegmentId == segment.Id)
-                        .ToArrayAsync(token)
-                    ).ToDictionary(a => a.Id);
+                    .ToDictionary(a => a.Id);
                 var nextSet = segment
                     .Lanes
                     .Select(lane =>
@@ -173,7 +174,7 @@ namespace RoadRegistry.Editor.Projections
                         };
                     })
                     .ToDictionary(a => a.Id);
-                await context.RoadSegmentLaneAttributes.Synchronize(currentSet, nextSet,
+                context.RoadSegmentLaneAttributes.Synchronize(currentSet, nextSet,
                     (current, next) => { current.DbaseRecord = next.DbaseRecord; });
             }
         }
