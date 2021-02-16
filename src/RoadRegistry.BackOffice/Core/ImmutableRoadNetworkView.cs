@@ -1539,7 +1539,7 @@ namespace RoadRegistry.BackOffice.Core
                 _maximumSurfaceAttributeId,
                 _segmentReusableLaneAttributeIdentifiers.ToImmutable(),
                 _segmentReusableWidthAttributeIdentifiers.ToImmutable(),
-                _segmentReusableWidthAttributeIdentifiers.ToImmutable());
+                _segmentReusableSurfaceAttributeIdentifiers.ToImmutable());
 
             public IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes => _nodes.ToImmutable();
             public IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments => _segments.ToImmutable();
