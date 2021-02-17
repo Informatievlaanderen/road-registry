@@ -1,3 +1,10 @@
+## [1.21.2](https://github.com/informatievlaanderen/road-registry/compare/v1.21.1...v1.21.2) (2021-02-17)
+
+
+### Bug Fixes
+
+* data corruption bug ([#151](https://github.com/informatievlaanderen/road-registry/issues/151)) ([af5147d](https://github.com/informatievlaanderen/road-registry/commit/af5147d150326cc832d7d4bfb142c2447ef20ef0))
+
 ## [1.21.1](https://github.com/informatievlaanderen/road-registry/compare/v1.21.0...v1.21.1) (2021-02-16)
 
 # [1.21.0](https://github.com/informatievlaanderen/road-registry/compare/v1.20.0...v1.21.0) (2021-02-15)
