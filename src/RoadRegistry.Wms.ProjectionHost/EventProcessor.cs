@@ -336,6 +336,8 @@ namespace RoadRegistry.Wms.ProjectionHost
                                         var handlers = resolver(envelope);
                                         await using (var processContext = dbContextFactory())
                                         {
+                                            processContext.ChangeTracker.AutoDetectChangesEnabled = false;
+
                                             foreach (var handler in handlers)
                                             {
                                                 await handler
@@ -347,7 +349,7 @@ namespace RoadRegistry.Wms.ProjectionHost
                                                 RoadRegistryWmsProjectionHost,
                                                 process.Message.Position,
                                                 _messagePumpCancellation.Token).ConfigureAwait(false);
-
+                                            processContext.ChangeTracker.DetectChanges();
                                             await processContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                         }
 
