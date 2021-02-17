@@ -264,6 +264,7 @@ namespace RoadRegistry.Editor.ProjectionHost
                                         await using (var processContext = dbContextFactory())
                                         {
                                             processContext.ChangeTracker.AutoDetectChangesEnabled = false;
+
                                             foreach (var handler in handlers)
                                             {
                                                 await handler
