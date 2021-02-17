@@ -136,14 +136,14 @@ namespace RoadRegistry.Product.Projections
             }
             else
             {
+                await context
+                    .RoadSegmentSurfaceAttributes
+                    .Where(a => a.RoadSegmentId == segment.Id)
+                    .ToArrayAsync(token);
                 var currentSet = context
                     .RoadSegmentSurfaceAttributes
                     .Local.Where(a => a.RoadSegmentId == segment.Id)
-                    .Concat(await context
-                        .RoadSegmentSurfaceAttributes
-                        .Where(a => a.RoadSegmentId == segment.Id)
-                        .ToArrayAsync(token)
-                    ).ToDictionary(a => a.Id);
+                    .ToDictionary(a => a.Id);
                 var nextSet = segment
                     .Surfaces
                     .Select(surface =>
