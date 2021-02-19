@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/informatievlaanderen/road-registry/compare/v1.21.2...v1.22.0) (2021-02-19)
+
+
+### Features
+
+* prepare release ([#154](https://github.com/informatievlaanderen/road-registry/issues/154)) ([53152bb](https://github.com/informatievlaanderen/road-registry/commit/53152bbb35c8e384c8b8245e46a0bf187b77e0e8))
+
 ## [1.21.2](https://github.com/informatievlaanderen/road-registry/compare/v1.21.1...v1.21.2) (2021-02-17)
 
 
