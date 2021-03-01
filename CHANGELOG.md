@@ -1,3 +1,15 @@
+# [1.23.0](https://github.com/informatievlaanderen/road-registry/compare/v1.22.0...v1.23.0) (2021-03-01)
+
+
+### Bug Fixes
+
+* organization id tests ([#164](https://github.com/informatievlaanderen/road-registry/issues/164)) ([dcbe301](https://github.com/informatievlaanderen/road-registry/commit/dcbe301a8fb8bccded8589fb1299f072e970484b))
+
+
+### Features
+
+* alpha release ([#163](https://github.com/informatievlaanderen/road-registry/issues/163)) ([5bff316](https://github.com/informatievlaanderen/road-registry/commit/5bff316b775a5db765a259e1d4057a2ae3ef5ada))
+
 # [1.22.0](https://github.com/informatievlaanderen/road-registry/compare/v1.21.2...v1.22.0) (2021-02-19)
 
 
