@@ -29,19 +29,20 @@ namespace RoadRegistry.BackOffice
                         generator.Next(1, OrganizationId.MaxLength + 1)
                     )
                 ));
+            var fixture = new CompositeSpecimenBuilder(customizedString, _fixture);
+            var constructor = Constructors.Select(() => new OrganizationId(null));
             new CompositeIdiomaticAssertion(
-                new ImplicitConversionOperatorAssertion<string>(
-                    new CompositeSpecimenBuilder(customizedString, _fixture)),
+                new ImplicitConversionOperatorAssertion<string>(fixture),
                 new EquatableEqualsSelfAssertion(_fixture),
-                new EquatableEqualsOtherAssertion(_fixture),
+                new ConstructorBasedEquatableEqualsOtherAssertion(fixture, constructor),
                 new EqualityOperatorEqualsSelfAssertion(_fixture),
-                new EqualityOperatorEqualsOtherAssertion(_fixture),
+                new ConstructorBasedEqualityOperatorEqualsOtherAssertion(fixture, constructor),
                 new InequalityOperatorEqualsSelfAssertion(_fixture),
-                new InequalityOperatorEqualsOtherAssertion(_fixture),
+                new ConstructorBasedInequalityOperatorEqualsOtherAssertion(fixture, constructor),
                 new EqualsNewObjectAssertion(_fixture),
                 new EqualsNullAssertion(_fixture),
                 new EqualsSelfAssertion(_fixture),
-                new EqualsOtherAssertion(_fixture),
+                new ConstructorBasedEqualsOtherAssertion(fixture, constructor),
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
             ).Verify(typeof(OrganizationId));
