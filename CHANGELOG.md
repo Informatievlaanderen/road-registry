@@ -1,3 +1,10 @@
+# [1.25.0](https://github.com/informatievlaanderen/road-registry/compare/v1.24.0...v1.25.0) (2021-03-02)
+
+
+### Features
+
+* push syndication docker image ([#168](https://github.com/informatievlaanderen/road-registry/issues/168)) ([3804d57](https://github.com/informatievlaanderen/road-registry/commit/3804d579811b7d124b013f04a36b184a181aab9d))
+
 # [1.24.0](https://github.com/informatievlaanderen/road-registry/compare/v1.23.0...v1.24.0) (2021-03-02)
 
 
