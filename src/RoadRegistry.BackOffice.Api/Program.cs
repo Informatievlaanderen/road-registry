@@ -42,8 +42,12 @@ namespace RoadRegistry.BackOffice.Api
             try
             {
                 await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
-
                 await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EditorProjections);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProductProjections);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SyndicationProjections);
 
                 await host.RunAsync().ConfigureAwait(false);
             }
@@ -136,7 +140,7 @@ namespace RoadRegistry.BackOffice.Api
 
                             builder.AddSingleton<IBlobClient>(sp =>
                                 new S3BlobClient(
-                                    sp.GetService<AmazonS3Client>(),
+                                    sp.GetRequiredService<AmazonS3Client>(),
                                     s3Options.Buckets[WellknownBuckets.UploadsBucket]
                                 )
                             );
@@ -222,7 +226,7 @@ namespace RoadRegistry.BackOffice.Api
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                             .UseSqlServer(
                                 sp.GetRequiredService<TraceDbConnection<EditorContext>>(),
-                                options => options
+                                sqlOptions => sqlOptions
                                     .UseNetTopologySuite())
                         )
                         .AddScoped(sp => new TraceDbConnection<ProductContext>(
