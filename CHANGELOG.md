@@ -1,3 +1,10 @@
+# [1.24.0](https://github.com/informatievlaanderen/road-registry/compare/v1.23.0...v1.24.0) (2021-03-02)
+
+
+### Features
+
+* log connectionstring upon api startup ([#167](https://github.com/informatievlaanderen/road-registry/issues/167)) ([706c945](https://github.com/informatievlaanderen/road-registry/commit/706c945067342dc8ee964e15bdf28dae7da474b5))
+
 # [1.23.0](https://github.com/informatievlaanderen/road-registry/compare/v1.22.0...v1.23.0) (2021-03-01)
 
 
