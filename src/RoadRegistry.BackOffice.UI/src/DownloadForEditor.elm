@@ -25,6 +25,7 @@ type alias DownloadModel =
     , downloading : Bool
     , progressing : Bool
     , progress : String
+    , count: Int
     }
 
 
@@ -49,6 +50,7 @@ init url =
             , downloading = False
             , progressing = False
             , progress = ""
+            , count = 0
             }
       , alert = Alert.init ()
       }
@@ -72,18 +74,22 @@ update msg model =
                     model.download
 
                 newDownload =
-                    { oldDownload | downloading = True }
+                    { oldDownload | downloading = True, count = oldDownload.count + 1 }
             in
             ( { model | download = newDownload, alert = Alert.hide model.alert }
-            , Http.request
-                { method = "GET"
-                , headers = []
-                , url = model.download.url
-                , body = Http.emptyBody
-                , expect = HttpBytes.expect FileDownloaded
-                , timeout = Nothing
-                , tracker = Just "download"
-                }
+            , Cmd.batch
+                [
+                  Http.cancel ("download-" ++ String.fromInt oldDownload.count)
+                  , Http.request
+                    { method = "GET"
+                    , headers = []
+                    , url = model.download.url
+                    , body = Http.emptyBody
+                    , expect = HttpBytes.expect FileDownloaded
+                    , timeout = Nothing
+                    , tracker = Just ("download-" ++ String.fromInt newDownload.count)
+                    }
+                ]
             )
 
         GotAlertMessage alertMessage ->
@@ -230,5 +236,5 @@ view model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Http.track "download" GotDownloadProgress
+subscriptions model =
+    Http.track ("download-" ++ String.fromInt model.download.count) GotDownloadProgress
