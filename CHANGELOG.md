@@ -1,3 +1,10 @@
+# [1.26.0](https://github.com/informatievlaanderen/road-registry/compare/v1.25.0...v1.26.0) (2021-03-03)
+
+
+### Features
+
+* auto cancel previous download ([#169](https://github.com/informatievlaanderen/road-registry/issues/169)) ([9ce3a97](https://github.com/informatievlaanderen/road-registry/commit/9ce3a97601f57b9793f421828cdfdd17643245ce))
+
 # [1.25.0](https://github.com/informatievlaanderen/road-registry/compare/v1.24.0...v1.25.0) (2021-03-02)
 
 
