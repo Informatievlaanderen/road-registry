@@ -78,7 +78,7 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
 
                     case nameof(DbaseFileProblems.GradeSeparatedJunctionTypeMismatch):
                         translation =
-                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig type ongelijkgrondse kruising in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.MORFOLOGIE)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}.";
+                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig type ongelijkgrondse kruising in veld {nameof(GradeSeparatedJunctionChangeDbaseRecord.Schema.TYPE)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}.";
                         break;
 
                     case nameof(DbaseFileProblems.UpperRoadSegmentIdOutOfRange):
