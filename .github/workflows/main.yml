@@ -135,6 +135,7 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
@@ -174,6 +175,9 @@ jobs:
 
         docker tag  $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
+
+        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
 
         docker tag  $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
