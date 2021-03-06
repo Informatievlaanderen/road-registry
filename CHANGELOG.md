@@ -1,3 +1,10 @@
+# [1.27.0](https://github.com/informatievlaanderen/road-registry/compare/v1.26.0...v1.27.0) (2021-03-06)
+
+
+### Features
+
+* push wms host ([#171](https://github.com/informatievlaanderen/road-registry/issues/171)) ([56ef246](https://github.com/informatievlaanderen/road-registry/commit/56ef2468864957bbb435cb4a34fbd086e171b696))
+
 # [1.26.0](https://github.com/informatievlaanderen/road-registry/compare/v1.25.0...v1.26.0) (2021-03-03)
 
 
