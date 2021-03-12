@@ -253,6 +253,8 @@ namespace RoadRegistry.BackOffice.Api.Changes
                     typeof(RoadNetworkChangesArchiveRejectedEntry)),
                 nameof(RoadNetworkChangesAccepted) => JsonConvert.DeserializeObject(entry.Content,
                     typeof(RoadNetworkChangesBasedOnArchiveAcceptedEntry)),
+                nameof(RoadNetworkChangesAccepted) + ":v2" => JsonConvert.DeserializeObject(entry.Content,
+                    typeof(RoadNetworkChangesBasedOnArchiveAcceptedEntry)),
                 nameof(RoadNetworkChangesRejected) => JsonConvert.DeserializeObject(entry.Content,
                     typeof(RoadNetworkChangesBasedOnArchiveRejectedEntry)),
                 _ => null

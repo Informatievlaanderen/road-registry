@@ -52,6 +52,16 @@ type alias Archive =
     , filename : String
     }
 
+type alias Counters =
+    { added: Int
+    , modified: Int
+    , removed: Int }
+
+type alias Summary =
+    { roadNodes: Counters
+    , roadSegments: Counters
+    , gradeSeparatedJunctions: Counters
+    }
 
 type ChangeFeedEntryContent
     = BeganRoadNetworkImport
@@ -59,7 +69,7 @@ type ChangeFeedEntryContent
     | RoadNetworkChangesArchiveAccepted { archive : Archive, problems : List FileProblems }
     | RoadNetworkChangesArchiveRejected { archive : Archive, problems : List FileProblems }
     | RoadNetworkChangesArchiveUploaded { archive : Archive }
-    | RoadNetworkChangesBasedOnArchiveAccepted { archive : Archive, problems : List ChangeProblems }
+    | RoadNetworkChangesBasedOnArchiveAccepted { archive : Archive, summary: Maybe Summary, problems : List ChangeProblems }
     | RoadNetworkChangesBasedOnArchiveRejected { archive : Archive, problems : List ChangeProblems }
 
 
@@ -478,11 +488,99 @@ viewChangeFeedEntryContent url content =
             div [ class "step__content" ]
                 [ ul []
                     (List.map (\problem -> li [] [ text problem.file ]) accepted.problems)
+                , br [] []
+                , text "Archief: "
+                , viewArchiveLinkContent url accepted.archive
                 ]
 
         RoadNetworkChangesBasedOnArchiveAccepted accepted ->
             div [ class "step__content" ]
-                [ ul
+                [
+                  case accepted.summary of
+                    Just summary ->
+                      div
+                        [ class "grid"
+                        , style "background-color" "#e8ebee"
+                        , style "margin-bottom" "5px"
+                        , style "margin-left" "0px"
+                        , style "padding-bottom" "10px"]
+                        [
+                          div [ class "col--4-12"]
+                          [
+                            div [ class "infotext"]
+                            [
+                              div [ class "infotext__value"] [ text (String.fromInt summary.roadNodes.added) ]
+                            , div [ class "infotext__text"] [ text "Toegevoegde wegknopen" ]
+                            ]
+                          ]
+                        , div [ class "col--4-12"]
+                          [
+                            div [ class "infotext"]
+                            [
+                              div [ class "infotext__value"] [ text (String.fromInt summary.roadNodes.modified) ]
+                            , div [ class "infotext__text"] [ text "Gewijzigde wegknopen" ]
+                            ]
+                          ]
+                        , div [ class "col--4-12"]
+                          [
+                            div [ class "infotext"]
+                            [
+                              div [ class "infotext__value"] [ text (String.fromInt summary.roadNodes.removed) ]
+                            , div [ class "infotext__text"] [ text "Verwijderde wegknopen" ]
+                            ]
+                          ]
+                        , div [ class "col--4-12"]
+                          [
+                            div [ class "infotext"]
+                            [
+                              div [ class "infotext__value"] [ text (String.fromInt summary.roadSegments.added) ]
+                            , div [ class "infotext__text"] [ text "Toegevoegde wegsegmenten" ]
+                            ]
+                          ]
+                        , div [ class "col--4-12"]
+                          [
+                            div [ class "infotext"]
+                            [
+                              div [ class "infotext__value"] [ text (String.fromInt summary.roadSegments.modified) ]
+                            , div [ class "infotext__text"] [ text "Gewijzigde wegsegmenten" ]
+                            ]
+                          ]
+                        , div [ class "col--4-12"]
+                          [
+                            div [ class "infotext"]
+                            [
+                              div [ class "infotext__value"] [ text (String.fromInt summary.roadSegments.removed) ]
+                            , div [ class "infotext__text"] [ text "Verwijderde wegsegmenten" ]
+                            ]
+                          ]
+                        , div [ class "col--4-12"]
+                          [
+                            div [ class "infotext"]
+                            [
+                              div [ class "infotext__value"] [ text (String.fromInt summary.gradeSeparatedJunctions.added) ]
+                            , div [ class "infotext__text"] [ text "Toegevoegde ongelijkgrondse kruisingen" ]
+                            ]
+                          ]
+                        , div [ class "col--4-12"]
+                          [
+                            div [ class "infotext"]
+                            [
+                              div [ class "infotext__value"] [ text (String.fromInt summary.gradeSeparatedJunctions.modified) ]
+                            , div [ class "infotext__text"] [ text "Gewijzigde ongelijkgrondse kruisingen" ]
+                            ]
+                          ]
+                        , div [ class "col--4-12"]
+                          [
+                            div [ class "infotext"]
+                            [
+                              div [ class "infotext__value"] [ text (String.fromInt summary.gradeSeparatedJunctions.removed) ]
+                            , div [ class "infotext__text"] [ text "Verwijderde ongelijkgrondse kruisingen" ]
+                            ]
+                          ]
+                        ]
+                    Nothing ->
+                      text ""
+                , ul
                     []
                     (List.map
                         (\changeProblems ->
@@ -629,6 +727,17 @@ viewChangeFeedEntry url entry =
                             ]
 
                     "RoadNetworkChangesAccepted" ->
+                        div [ class "step__header__info" ]
+                            [ i [ classList [ ( "vi", True ), ( "vi-plus", entry.state == RequiresLoading ), ( "vi-minus", entry.state == Loaded ) ] ]
+                                []
+                            , if entry.state == Loading then
+                                div [ class "loader" ] []
+
+                              else
+                                text ""
+                            ]
+
+                    "RoadNetworkChangesAccepted:v2" ->
                         div [ class "step__header__info" ]
                             [ i [ classList [ ( "vi", True ), ( "vi-plus", entry.state == RequiresLoading ), ( "vi-minus", entry.state == Loaded ) ] ]
                                 []
@@ -822,8 +931,35 @@ decodeRoadNetworkChangesAccepted : Decode.Decoder ChangeFeedEntryContent
 decodeRoadNetworkChangesAccepted =
     Decode.field "content"
         (Decode.map2
-            (\archive problems -> RoadNetworkChangesBasedOnArchiveAccepted { archive = archive, problems = problems })
+            (\archive problems -> RoadNetworkChangesBasedOnArchiveAccepted { archive = archive, summary = Nothing, problems = problems })
             (Decode.field "archive" decodeArchive)
+            (Decode.field "changes" (Decode.list decodeChangeProblems))
+        )
+
+
+decodeCounters : Decode.Decoder Counters
+decodeCounters =
+    Decode.map3 Counters
+      (Decode.field "added" Decode.int)
+      (Decode.field "modified" Decode.int)
+      (Decode.field "removed" Decode.int)
+
+
+decodeSummary : Decode.Decoder Summary
+decodeSummary =
+    Decode.map3 Summary
+      (Decode.field "roadNodes" decodeCounters)
+      (Decode.field "roadSegments" decodeCounters)
+      (Decode.field "gradeSeparatedJunctions" decodeCounters)
+
+
+decodeRoadNetworkChangesAcceptedV2 : Decode.Decoder ChangeFeedEntryContent
+decodeRoadNetworkChangesAcceptedV2 =
+    Decode.field "content"
+        (Decode.map3
+            (\archive summary problems -> RoadNetworkChangesBasedOnArchiveAccepted { archive = archive, summary = Just summary, problems = problems })
+            (Decode.field "archive" decodeArchive)
+            (Decode.field "summary" decodeSummary)
             (Decode.field "changes" (Decode.list decodeChangeProblems))
         )
 
@@ -868,6 +1004,7 @@ decodeChangeFeedEntryContentResponse =
             , when decodeEntryContentType (is "RoadNetworkChangesArchiveRejected") decodeRoadNetworkChangesArchiveRejected
             , when decodeEntryContentType (is "RoadNetworkChangesArchiveUploaded") decodeRoadNetworkChangesArchiveUploaded
             , when decodeEntryContentType (is "RoadNetworkChangesAccepted") decodeRoadNetworkChangesAccepted
+            , when decodeEntryContentType (is "RoadNetworkChangesAccepted:v2") decodeRoadNetworkChangesAcceptedV2
             , when decodeEntryContentType (is "RoadNetworkChangesRejected") decodeRoadNetworkChangesRejected
             ]
         )
