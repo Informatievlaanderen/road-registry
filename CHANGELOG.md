@@ -1,3 +1,10 @@
+# [1.28.0](https://github.com/informatievlaanderen/road-registry/compare/v1.27.0...v1.28.0) (2021-03-16)
+
+
+### Features
+
+* various improvements ([#170](https://github.com/informatievlaanderen/road-registry/issues/170)) ([5f6e4cc](https://github.com/informatievlaanderen/road-registry/commit/5f6e4cc13d5ea5a976bf00c21f2cc79f31929174))
+
 # [1.27.0](https://github.com/informatievlaanderen/road-registry/compare/v1.26.0...v1.27.0) (2021-03-06)
 
 
