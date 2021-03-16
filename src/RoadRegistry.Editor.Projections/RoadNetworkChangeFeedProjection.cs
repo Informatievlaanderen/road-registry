@@ -148,6 +148,7 @@ namespace RoadRegistry.Editor.Projections
                 var content = new RoadNetworkChangesBasedOnArchiveAcceptedEntry
                 {
                     Archive = new RoadNetworkChangesArchiveInfo { Id = request.ArchiveId },
+                    Summary = DutchTranslations.AcceptedChanges.Summarize(envelope.Message.Changes),
                     Changes = envelope.Message.Changes
                         .Select(change => new RoadNetworkAcceptedChange
                         {
@@ -170,7 +171,7 @@ namespace RoadRegistry.Editor.Projections
                     {
                         Id = envelope.Position,
                         Title = $"Oplading \"{envelope.Message.Reason}\" door {envelope.Message.Organization} ({envelope.Message.Operator}) werd aanvaard",
-                        Type = nameof(RoadNetworkChangesAccepted),
+                        Type = nameof(RoadNetworkChangesAccepted) + ":v2",
                         Content = JsonConvert.SerializeObject(content),
                         When = envelope.Message.When
                     }, ct);

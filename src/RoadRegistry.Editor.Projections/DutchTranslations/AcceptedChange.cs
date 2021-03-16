@@ -12,7 +12,7 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                 switch (change.Flatten())
                 {
                     case RoadNodeAdded m:
-                        translation = $"Wegknoop {m.TemporaryId} toegevoegd.";
+                        translation = $"Wegknoop {m.TemporaryId} toegevoegd met id {m.Id}.";
                         break;
                     case RoadNodeModified m:
                         translation = $"Wegknoop {m.Id} gewijzigd.";
@@ -21,7 +21,7 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         translation = $"Wegknoop {m.Id} verwijderd.";
                         break;
                     case RoadSegmentAdded m:
-                        translation = $"Wegsegment {m.TemporaryId} toegevoegd.";
+                        translation = $"Wegsegment {m.TemporaryId} toegevoegd met id {m.Id}.";
                         break;
                     case RoadSegmentModified m:
                         translation = $"Wegsegment {m.Id} gewijzigd.";
@@ -42,7 +42,7 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         translation = $"Wegsegment {m.SegmentId} verwijderd van nationale weg {m.Number}.";
                         break;
                     case RoadSegmentAddedToNumberedRoad m:
-                        translation = $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Number}.";
+                        translation = $"Wegsegment {m.SegmentId} toegevoegd aan genummerde weg {m.Number}.";
                         break;
                     case RoadSegmentOnNumberedRoadModified m:
                         translation = $"Wegsegment {m.SegmentId} gewijzigd op genummerde weg {m.Number}.";
@@ -51,7 +51,7 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         translation = $"Wegsegment {m.SegmentId} verwijderd van genummerde weg {m.Number}.";
                         break;
                     case GradeSeparatedJunctionAdded m:
-                        translation = $"Ongelijkgrondse kruising {m.TemporaryId} toegevoegd.";
+                        translation = $"Ongelijkgrondse kruising {m.TemporaryId} toegevoegd met id {m.Id}.";
                         break;
                     case GradeSeparatedJunctionModified m:
                         translation = $"Ongelijkgrondse kruising {m.Id} gewijzigd.";

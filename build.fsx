@@ -102,6 +102,7 @@ Target.create "Publish_Solution" (fun _ ->
   Shell.copyFile dist (source @@ "default.conf")
   Shell.copyFile dist (source @@ "config.js")
   Shell.copyFile dist (source @@ "init.sh")
+  Shell.copyFile dist (source @@ ".htpasswd")
 )
 
 Target.create "Pack_Solution" ignore

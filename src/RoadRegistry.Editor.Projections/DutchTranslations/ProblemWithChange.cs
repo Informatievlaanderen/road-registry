@@ -82,6 +82,9 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                     case nameof(RoadSegmentLaneAttributeToPositionNotEqualToLength):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het laatste rijstroken attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).";
                         break;
+                    case nameof(RoadSegmentLaneAttributeHasLengthOfZero):
+                        translation = $"De van ({problem.Parameters[1].Value}) en tot positie ({problem.Parameters[2].Value}) van het rijstroken attribuut met id {problem.Parameters[0].Value} heeft lengte 0.";
+                        break;
                     case nameof(RoadSegmentWidthAttributeFromPositionNotEqualToZero):
                         translation = $"De van positie ({problem.Parameters[1].Value}) van het eerste wegbreedte attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
                         break;
@@ -91,6 +94,9 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                     case nameof(RoadSegmentWidthAttributeToPositionNotEqualToLength):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het laatste wegbreedte attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).";
                         break;
+                    case nameof(RoadSegmentWidthAttributeHasLengthOfZero):
+                        translation = $"De van ({problem.Parameters[1].Value}) en tot positie ({problem.Parameters[2].Value}) van het wegbreedte attribuut met id {problem.Parameters[0].Value} heeft lengte 0.";
+                        break;
                     case nameof(RoadSegmentSurfaceAttributeFromPositionNotEqualToZero):
                         translation = $"De van positie ({problem.Parameters[2].Value}) van het eerste wegverharding attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
                         break;
@@ -99,6 +105,9 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         break;
                     case nameof(RoadSegmentSurfaceAttributeToPositionNotEqualToLength):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het laatste wegverharding attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).";
+                        break;
+                    case nameof(RoadSegmentSurfaceAttributeHasLengthOfZero):
+                        translation = $"De van ({problem.Parameters[1].Value}) en tot positie ({problem.Parameters[2].Value}) van het wegverharding attribuut met id {problem.Parameters[0].Value} heeft lengte 0.";
                         break;
                     case nameof(RoadSegmentPointMeasureValueOutOfRange):
                         translation = $"De meting ({problem.Parameters[2].Value}) op het punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] ligt niet binnen de verwachte grenzen [{problem.Parameters[3].Value}-{problem.Parameters[4].Value}].";

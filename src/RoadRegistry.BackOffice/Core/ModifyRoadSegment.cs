@@ -156,6 +156,15 @@ namespace RoadRegistry.BackOffice.Core
                                 lane.TemporaryId,
                                 lane.From));
                     }
+
+                    if (lane.From == lane.To)
+                    {
+                        problems =
+                            problems.Add(new RoadSegmentLaneAttributeHasLengthOfZero(
+                                lane.TemporaryId,
+                                lane.From,
+                                lane.To));
+                    }
                 }
 
                 previousLane = lane;
@@ -196,6 +205,15 @@ namespace RoadRegistry.BackOffice.Core
                                 width.TemporaryId,
                                 width.From));
                     }
+
+                    if (width.From == width.To)
+                    {
+                        problems =
+                            problems.Add(new RoadSegmentWidthAttributeHasLengthOfZero(
+                                width.TemporaryId,
+                                width.From,
+                                width.To));
+                    }
                 }
 
                 previousWidth = width;
@@ -235,6 +253,15 @@ namespace RoadRegistry.BackOffice.Core
                                 previousSurface.To,
                                 surface.TemporaryId,
                                 surface.From));
+                    }
+
+                    if (surface.From == surface.To)
+                    {
+                        problems =
+                            problems.Add(new RoadSegmentSurfaceAttributeHasLengthOfZero(
+                                surface.TemporaryId,
+                                surface.From,
+                                surface.To));
                     }
                 }
 

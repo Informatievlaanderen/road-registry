@@ -5,5 +5,7 @@ namespace RoadRegistry.Editor.Schema
         public RoadNetworkChangesArchiveInfo Archive { get; set; }
 
         public RoadNetworkAcceptedChange[] Changes { get; set; }
+
+        public RoadNetworkChangesSummary Summary { get; set; }
     }
 }

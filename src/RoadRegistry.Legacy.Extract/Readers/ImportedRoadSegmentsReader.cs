@@ -443,7 +443,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
         private static string LookupToParameterNames(IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
         {
             return string.Join(',', Enumerable
-                .Range(0, lookup.Count - 1)
+                .Range(0, lookup.Count)
                 .Select(index => "@P" + index)
             );
         }
