@@ -136,6 +136,11 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         translation = $"De dbase record {problem.Parameters[0].Value} heeft een ongeldige eind wegknoop in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.E_WK_OIDN)}: {problem.Parameters[1].Value}.";
                         break;
 
+                    case nameof(DbaseFileProblems.OrganizationIdOutOfRange):
+                        translation =
+                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig organisatie identificator in veld {nameof(TransactionZoneDbaseRecord.Schema.ORG)}: {problem.Parameters[2].Value}.";
+                        break;
+
                     case nameof(DbaseFileProblems.LaneCountOutOfRange):
                         translation =
                             $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig rijstrook aantal in veld {nameof(RoadSegmentLaneChangeDbaseRecord.Schema.AANTAL)}: {problem.Parameters[2].Value}.";
