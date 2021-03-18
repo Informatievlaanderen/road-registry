@@ -65,8 +65,10 @@ namespace RoadRegistry.BackOffice.Api
             Assert.IsType<UnsupportedMediaTypeResult>(result);
         }
 
-        [Fact]
-        public async Task When_uploading_a_file_that_is_a_zip()
+        [Theory]
+        [InlineData("application/zip")]
+        [InlineData("application/x-zip-compressed")]
+        public async Task When_uploading_a_file_that_is_a_zip(string contentType)
         {
             var client = new MemoryBlobClient();
             var store = new InMemoryStreamStore();
@@ -104,7 +106,7 @@ namespace RoadRegistry.BackOffice.Api
                 {
                     Headers = new HeaderDictionary(new Dictionary<string, StringValues>
                     {
-                        {"Content-Type", StringValues.Concat(StringValues.Empty, "application/zip")}
+                        {"Content-Type", StringValues.Concat(StringValues.Empty, contentType)}
                     })
                 };
                 var result = await controller.Post(formFile);
