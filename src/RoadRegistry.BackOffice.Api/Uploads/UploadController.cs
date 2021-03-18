@@ -20,6 +20,11 @@ namespace RoadRegistry.BackOffice.Api.Uploads
     [ApiExplorerSettings(GroupName = "Uploads")]
     public class UploadController : ControllerBase
     {
+        private static readonly ContentType[] SupportedContentTypes =
+            {
+                ContentType.Parse("application/zip"),
+                ContentType.Parse("application/x-zip-compressed")
+            };
         private readonly CommandHandlerDispatcher _dispatcher;
         private readonly IBlobClient _client;
 
@@ -37,7 +42,7 @@ namespace RoadRegistry.BackOffice.Api.Uploads
             if (archive == null) throw new ArgumentNullException(nameof(archive));
 
             if (!ContentType.TryParse(archive.ContentType, out var parsed) ||
-                parsed != ContentType.Parse("application/zip"))
+                !SupportedContentTypes.Contains(parsed))
             {
                 return new UnsupportedMediaTypeResult();
             }
