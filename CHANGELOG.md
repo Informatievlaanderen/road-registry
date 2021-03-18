@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/informatievlaanderen/road-registry/compare/v1.28.0...v1.29.0) (2021-03-18)
+
+
+### Features
+
+* support x-zip-compressed as a mime type for uploading ([#181](https://github.com/informatievlaanderen/road-registry/issues/181)) ([3732a7c](https://github.com/informatievlaanderen/road-registry/commit/3732a7cbdd7d11fe1d267538ff8852c79b6b6b12))
+
 # [1.28.0](https://github.com/informatievlaanderen/road-registry/compare/v1.27.0...v1.28.0) (2021-03-16)
 
 
