@@ -191,6 +191,8 @@
 
         private static async Task OnRoadSegmentRemoved(EditorContext context, RoadSegmentRemoved m, RoadNetworkInfo info)
         {
+            info.RoadSegmentCount -= 1;
+
             var segmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id);
 
             info.TotalRoadSegmentShapeLength -= segmentCache.ShapeLength;
