@@ -1,3 +1,16 @@
+# [1.30.0](https://github.com/informatievlaanderen/road-registry/compare/v1.29.0...v1.30.0) (2021-03-19)
+
+
+### Bug Fixes
+
+* missing translation for organization id ([#180](https://github.com/informatievlaanderen/road-registry/issues/180)) ([98434f3](https://github.com/informatievlaanderen/road-registry/commit/98434f3f576b605d0d349f7019bced79b4c4f228))
+
+
+### Features
+
+* fix broken tests ([#184](https://github.com/informatievlaanderen/road-registry/issues/184)) ([2fa64e8](https://github.com/informatievlaanderen/road-registry/commit/2fa64e8bbb6fffcf6cc3f8b8f99afb7f412f76c7))
+* fixes road segment count upon remove ([#183](https://github.com/informatievlaanderen/road-registry/issues/183)) ([2f95522](https://github.com/informatievlaanderen/road-registry/commit/2f95522d60e23c90ff8494940ab8672a26e92a01))
+
 # [1.29.0](https://github.com/informatievlaanderen/road-registry/compare/v1.28.0...v1.29.0) (2021-03-18)
 
 
