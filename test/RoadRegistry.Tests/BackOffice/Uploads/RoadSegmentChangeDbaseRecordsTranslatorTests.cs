@@ -206,7 +206,7 @@ namespace RoadRegistry.BackOffice.Uploads
             foreach (var current in records)
             {
                 var id = new RoadSegmentId(current.WS_OIDN.Value);
-                Assert.True(result.TryFindRoadSegmentChangeOfDynamicAttributeRecord(id, out var foundChange));
+                Assert.True(result.TryFindRoadSegmentProvisionalChange(id, out var foundChange));
                 Assert.NotNull(foundChange);
                 var actual = Assert.IsAssignableFrom<ITranslatedChange>(foundChange);
                 ITranslatedChange expected = new Uploads.ModifyRoadSegment(

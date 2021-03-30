@@ -18,9 +18,20 @@ namespace RoadRegistry.BackOffice.Uploads
                 var record = records.Current;
                 if (record != null && record.Content is PolyLineMShapeContent content)
                 {
-                    if (changes.TryFindRoadSegmentChangeOfShapeRecord(record.Header.RecordNumber, out var change))
+                    var geometry = GeometryTranslator.ToGeometryMultiLineString(content.Shape);
+                    if (changes.TryFindRoadSegmentProvisionalChange(record.Header.RecordNumber,
+                        out var provisionalChange))
                     {
-                        var geometry = GeometryTranslator.ToGeometryMultiLineString(content.Shape);
+                        switch (provisionalChange)
+                        {
+                            case ModifyRoadSegment modifyRoadSegment:
+                                changes = changes.ReplaceProvisionalChange(modifyRoadSegment, modifyRoadSegment.WithGeometry(geometry));
+                                break;
+                        }
+                    }
+                    else if (changes.TryFindRoadSegmentChange(record.Header.RecordNumber, out var change))
+                    {
+
                         switch (change)
                         {
                             case AddRoadSegment addRoadSegment:
