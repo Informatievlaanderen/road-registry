@@ -1,3 +1,15 @@
+# [1.32.0](https://github.com/informatievlaanderen/road-registry/compare/v1.31.0...v1.32.0) (2021-04-01)
+
+
+### Bug Fixes
+
+* numbering issue ([6686b75](https://github.com/informatievlaanderen/road-registry/commit/6686b75dd7b480494c6499f03aeb71056dd876c1))
+
+
+### Features
+
+* explicit provisional change handling ([#188](https://github.com/informatievlaanderen/road-registry/issues/188)) ([4dc98f3](https://github.com/informatievlaanderen/road-registry/commit/4dc98f39134c0b5512521cd9be01422d796647b8))
+
 # [1.31.0](https://github.com/informatievlaanderen/road-registry/compare/v1.30.0...v1.31.0) (2021-04-01)
 
 
