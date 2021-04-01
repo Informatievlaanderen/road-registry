@@ -110,24 +110,44 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public TranslatedChanges AppendProvisionalChange(ModifyRoadSegment change)
         {
+            //NOTE: Only road segment modifications are currently considered provisional
             return new TranslatedChanges(Reason, Operator, Organization, _changes, _provisionalChanges.Add(change));
         }
 
-        public bool TryFindRoadSegmentChangeOfDynamicAttributeRecord(RoadSegmentId id, out ITranslatedChange change)
+        // For Dynamic Attribute Records
+        public bool TryFindRoadSegmentProvisionalChange(RoadSegmentId id, out ITranslatedChange change)
+        {
+            //NOTE: Only road segment modifications are currently considered provisional
+            change = new ITranslatedChange[]
+            {
+                _provisionalChanges.OfType<ModifyRoadSegment>().SingleOrDefault(_ => _.Id == id)
+            }.Flatten();
+            return change != null;
+        }
+
+        public bool TryFindRoadSegmentChange(RoadSegmentId id, out ITranslatedChange change)
         {
             change = new ITranslatedChange[]
             {
-                // in case this was a proper addition, or a modification that materialized into an add and remove
                 _changes.OfType<AddRoadSegment>().SingleOrDefault(_ => _.TemporaryId == id),
                 _changes.OfType<ModifyRoadSegment>().SingleOrDefault(_ => _.Id == id),
-                // in case only its attributes were changed
-                _provisionalChanges.OfType<ModifyRoadSegment>().SingleOrDefault(_ => _.Id == id),
                 _changes.OfType<RemoveRoadSegment>().SingleOrDefault(_ => _.Id == id)
             }.Flatten();
             return change != null;
         }
 
-        public bool TryFindRoadSegmentChangeOfShapeRecord(RecordNumber number, out ITranslatedChange change)
+        // For Shape Records
+        public bool TryFindRoadSegmentProvisionalChange(RecordNumber number, out ITranslatedChange change)
+        {
+            //NOTE: Only road segment modifications are currently considered provisional
+            change = new ITranslatedChange[]
+            {
+                _provisionalChanges.OfType<ModifyRoadSegment>().SingleOrDefault(_ => _.RecordNumber.Equals(number))
+            }.Flatten();
+            return change != null;
+        }
+
+        public bool TryFindRoadSegmentChange(RecordNumber number, out ITranslatedChange change)
         {
             change = new ITranslatedChange[]
             {
@@ -145,9 +165,18 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public TranslatedChanges ReplaceChange(ModifyRoadSegment before, ModifyRoadSegment after)
         {
+            //NOTE: ReplaceChange automatically converts a provisional change into a change - by design.
             return _provisionalChanges.Contains(before)
                 ? new TranslatedChanges(Reason, Operator, Organization, _changes.Add(after), _provisionalChanges.Remove(before))
                 : new TranslatedChanges(Reason, Operator, Organization, _changes.Remove(before).Add(after), _provisionalChanges);
+        }
+
+        public TranslatedChanges ReplaceProvisionalChange(ModifyRoadSegment before, ModifyRoadSegment after)
+        {
+            //NOTE: ReplaceProvisionalChange replaces an existing provisional change (if found).
+            return _provisionalChanges.Contains(before)
+                ? new TranslatedChanges(Reason, Operator, Organization, _changes, _provisionalChanges.Remove(before).Add(after))
+                : this;
         }
 
         public TranslatedChanges AppendChange(AddRoadSegmentToEuropeanRoad change)

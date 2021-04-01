@@ -64,41 +64,45 @@ namespace RoadRegistry.BackOffice.Core
         public async Task WriteSnapshot(Messages.RoadNetworkSnapshot snapshot, int version, CancellationToken cancellationToken)
         {
             var snapshotBlobName = SnapshotPrefix.Append(new BlobName(version.ToString()));
-            using (var stream = _streamManager.GetStream())
+            if (!await _client.BlobExistsAsync(snapshotBlobName, cancellationToken))
             {
-                await MessagePackSerializer.SerializeAsync(stream, snapshot, cancellationToken: cancellationToken);
+                using (var stream = _streamManager.GetStream())
+                {
+                    await MessagePackSerializer.SerializeAsync(stream, snapshot, cancellationToken: cancellationToken);
 
-                stream.Position = 0;
+                    stream.Position = 0;
 
-                await _client.CreateBlobAsync(
-                    snapshotBlobName,
-                    Metadata.None.AtVersion(version),
-                    MessagePackContentType,
-                    stream,
-                    cancellationToken);
-            }
+                    await _client.CreateBlobAsync(
+                        snapshotBlobName,
+                        Metadata.None.AtVersion(version),
+                        MessagePackContentType,
+                        stream,
+                        cancellationToken);
+                }
 
-            if (await _client.BlobExistsAsync(SnapshotHead, cancellationToken))
-            {
-                await _client.DeleteBlobAsync(SnapshotHead, cancellationToken);
-            }
+                if (await _client.BlobExistsAsync(SnapshotHead, cancellationToken))
+                {
+                    await _client.DeleteBlobAsync(SnapshotHead, cancellationToken);
+                }
 
-            var snapshotHead = new Messages.RoadNetworkSnapshotHead
-            {
-                SnapshotBlobName = snapshotBlobName.ToString()
-            };
-            using (var stream = _streamManager.GetStream())
-            {
-                await MessagePackSerializer.SerializeAsync(stream, snapshotHead, cancellationToken: cancellationToken);
+                var snapshotHead = new Messages.RoadNetworkSnapshotHead
+                {
+                    SnapshotBlobName = snapshotBlobName.ToString()
+                };
+                using (var stream = _streamManager.GetStream())
+                {
+                    await MessagePackSerializer.SerializeAsync(stream, snapshotHead,
+                        cancellationToken: cancellationToken);
 
-                stream.Position = 0;
+                    stream.Position = 0;
 
-                await _client.CreateBlobAsync(
-                    SnapshotHead,
-                    Metadata.None,
-                    MessagePackContentType,
-                    stream,
-                    cancellationToken);
+                    await _client.CreateBlobAsync(
+                        SnapshotHead,
+                        Metadata.None,
+                        MessagePackContentType,
+                        stream,
+                        cancellationToken);
+                }
             }
         }
     }

@@ -129,6 +129,30 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         [Fact]
+        public void TranslateWithIdenticalRecordsReturnsExpectedResult()
+        {
+            var segment = _fixture.Create<ModifyRoadSegment>();
+            var record = _fixture.Create<ShapeRecord>().Content.RecordAs(segment.RecordNumber);
+            var records = new List<ShapeRecord> { record };
+            var enumerator = records.GetEnumerator();
+            var changes = TranslatedChanges.Empty.AppendProvisionalChange(segment);
+
+            var result = _sut.Translate(_entry, enumerator, changes);
+
+            var expected = segment.WithGeometry(
+                GeometryTranslator.ToGeometryMultiLineString(
+                    ((PolyLineMShapeContent) record.Content).Shape)
+            );
+            var expectedResult = TranslatedChanges.Empty.AppendProvisionalChange(
+                expected
+            );
+
+            Assert.Equal(expectedResult,result, new TranslatedChangeEqualityComparer());
+            Assert.True(result.TryFindRoadSegmentProvisionalChange(segment.Id, out var actual));
+            Assert.Equal(expected, actual, new TranslatedChangeEqualityComparer());
+        }
+
+        [Fact]
         public void TranslateWithModifyRecordsReturnsExpectedResult()
         {
             var segment = _fixture.Create<ModifyRoadSegment>();

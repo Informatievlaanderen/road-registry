@@ -129,6 +129,89 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         [Fact]
+        public void TranslateWithIdenticalRecordsForModifyRoadSegmentReturnsExpectedResult()
+        {
+            var segment = _fixture.Create<Uploads.ModifyRoadSegment>();
+            var records = _fixture
+                .CreateMany<RoadSegmentSurfaceChangeDbaseRecord>(new Random().Next(1, 5))
+                .Select((record, index) =>
+                {
+                    record.WV_OIDN.Value = index + 1;
+                    record.WS_OIDN.Value = segment.Id;
+                    record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
+                    record.RECORDTYPE.Value = RecordType.IdenticalIdentifier;
+                    return record;
+                })
+                .ToArray();
+            var enumerator = records.ToDbaseRecordEnumerator();
+            var changes = TranslatedChanges.Empty.AppendProvisionalChange(segment);
+
+            var result = _sut.Translate(_entry, enumerator, changes);
+
+            var expected = records
+                .Where(record => record.RECORDTYPE.Value != (short)RecordType.Removed.Translation.Identifier)
+                .Aggregate(
+                    segment,
+                    (current, record) => current.WithSurface(
+                        new Uploads.RoadSegmentSurfaceAttribute(
+                            new AttributeId(record.WV_OIDN.Value),
+                            RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value],
+                            new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value)),
+                            new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value)))
+                    )
+                );
+            var expectedResult = TranslatedChanges.Empty.AppendProvisionalChange(expected);
+
+            Assert.Equal(expectedResult,result, new TranslatedChangeEqualityComparer());
+
+            Assert.True(result.TryFindRoadSegmentProvisionalChange(segment.Id, out var actual));
+            Assert.Equal(expected, actual, new TranslatedChangeEqualityComparer());
+        }
+
+        [Fact]
+        public void TranslateWithChangedRecordsForModifyRoadSegmentReturnsExpectedResult()
+        {
+            var segment = _fixture.Create<Uploads.ModifyRoadSegment>();
+            var records = _fixture
+                .CreateMany<RoadSegmentSurfaceChangeDbaseRecord>(new Random().Next(1, 5))
+                .Select((record, index) =>
+                {
+                    record.WV_OIDN.Value = index + 1;
+                    record.WS_OIDN.Value = segment.Id;
+                    record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
+                    if (index == 0) // force at least one lane change to promote the provisional change to an actual change
+                    {
+                        record.RECORDTYPE.Value = RecordType.AddedIdentifier;
+                    }
+
+                    return record;
+                })
+                .ToArray();
+            var enumerator = records.ToDbaseRecordEnumerator();
+            var changes = TranslatedChanges.Empty.AppendProvisionalChange(segment);
+
+            var result = _sut.Translate(_entry, enumerator, changes);
+
+            var expected =
+                TranslatedChanges.Empty.AppendChange(
+                    records
+                        .Where(record => record.RECORDTYPE.Value != (short)RecordType.Removed.Translation.Identifier)
+                        .Aggregate(
+                            segment,
+                            (current, record) => current.WithSurface(
+                                new Uploads.RoadSegmentSurfaceAttribute(
+                                    new AttributeId(record.WV_OIDN.Value),
+                                    RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value],
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value)))
+                            )
+                        )
+                );
+
+            Assert.Equal(expected,result, new TranslatedChangeEqualityComparer());
+        }
+
+        [Fact]
         public void TranslateWithRecordsForModifyRoadSegmentReturnsExpectedResult()
         {
             var segment = _fixture.Create<Uploads.ModifyRoadSegment>();
