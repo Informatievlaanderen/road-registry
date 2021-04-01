@@ -1,3 +1,10 @@
+# [1.31.0](https://github.com/informatievlaanderen/road-registry/compare/v1.30.0...v1.31.0) (2021-04-01)
+
+
+### Features
+
+* add indices to wegsegmentDenorm ([#166](https://github.com/informatievlaanderen/road-registry/issues/166)) ([c3e9fdf](https://github.com/informatievlaanderen/road-registry/commit/c3e9fdf0e71459dfe01af17b9857ff0e6ad97f8e))
+
 # [1.30.0](https://github.com/informatievlaanderen/road-registry/compare/v1.29.0...v1.30.0) (2021-03-19)
 
 
