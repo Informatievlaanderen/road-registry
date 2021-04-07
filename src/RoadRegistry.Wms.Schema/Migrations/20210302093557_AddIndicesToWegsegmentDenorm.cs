@@ -7,7 +7,7 @@ namespace RoadRegistry.Wms.Schema.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"
-                CREATE SPATIAL INDEX [SPATIAL_wegsegmentDeNorm2D0708] ON [RoadRegistry].[RoadRegistryWms].[wegsegmentDeNorm]([geometrie2D])
+                CREATE SPATIAL INDEX [SPATIAL_wegsegmentDeNorm2D0708] ON [RoadRegistryWms].[wegsegmentDeNorm]([geometrie2D])
                 USING  GEOMETRY_GRID
                 WITH (
                     BOUNDING_BOX =(22000, 152500, 253000, 245000),
@@ -27,7 +27,7 @@ namespace RoadRegistry.Wms.Schema.Migrations
                 GO");
 
             migrationBuilder.Sql(@"
-                CREATE NONCLUSTERED INDEX [wegsegmentmorfologie] ON [RoadRegistry].[RoadRegistryWms].[wegsegmentDeNorm]([morfologie] ASC)
+                CREATE NONCLUSTERED INDEX [wegsegmentmorfologie] ON [RoadRegistryWms].[wegsegmentDeNorm]([morfologie] ASC)
                 WITH (
                     PAD_INDEX = OFF,
                     STATISTICS_NORECOMPUTE = OFF,
@@ -41,8 +41,8 @@ namespace RoadRegistry.Wms.Schema.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql(@"DROP INDEX [SPATIAL_wegsegmentDeNorm2D0708] ON [RoadRegistry].[RoadRegistryWms].[wegsegmentDeNorm]");
-            migrationBuilder.Sql(@"DROP INDEX [wegsegmentmorfologie] ON [RoadRegistry].[RoadRegistryWms].[wegsegmentDeNorm]");
+            migrationBuilder.Sql(@"DROP INDEX [SPATIAL_wegsegmentDeNorm2D0708] ON [RoadRegistryWms].[wegsegmentDeNorm]");
+            migrationBuilder.Sql(@"DROP INDEX [wegsegmentmorfologie] ON [RoadRegistryWms].[wegsegmentDeNorm]");
         }
     }
 }
