@@ -1,3 +1,10 @@
+## [1.32.1](https://github.com/informatievlaanderen/road-registry/compare/v1.32.0...v1.32.1) (2021-04-07)
+
+
+### Bug Fixes
+
+* use 2part naming scheme for azure db ([c81cf81](https://github.com/informatievlaanderen/road-registry/commit/c81cf814c1faaf7997ba774cfaf6901b11ab48c1))
+
 # [1.32.0](https://github.com/informatievlaanderen/road-registry/compare/v1.31.0...v1.32.0) (2021-04-01)
 
 
