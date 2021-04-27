@@ -6,6 +6,6 @@ namespace RoadRegistry.BackOffice.Uploads
     public interface IZipArchiveDbaseRecordsValidator<TDbaseRecord>
         where TDbaseRecord : DbaseRecord, new()
     {
-        ZipArchiveProblems Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<TDbaseRecord> records);
+        (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<TDbaseRecord> records, ZipArchiveValidationContext context);
     }
 }

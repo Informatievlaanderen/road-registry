@@ -18,6 +18,7 @@ namespace RoadRegistry.BackOffice.Uploads
         private readonly ZipArchiveEntry _entry;
         private readonly Fixture _fixture;
         private readonly IEnumerator<ShapeRecord> _enumerator;
+        private readonly ZipArchiveValidationContext _context;
 
         public RoadNodeChangeShapeRecordsValidatorTests()
         {
@@ -42,6 +43,7 @@ namespace RoadRegistry.BackOffice.Uploads
             _stream = new MemoryStream();
             _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
             _entry = _archive.CreateEntry("wegknoop_all.shp");
+            _context = ZipArchiveValidationContext.Empty;
         }
 
         [Fact]
@@ -53,23 +55,30 @@ namespace RoadRegistry.BackOffice.Uploads
         [Fact]
         public void ValidateEntryCanNotBeNull()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator));
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
         }
 
         [Fact]
         public void ValidateRecordsCanNotBeNull()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null));
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
+        }
+
+        [Fact]
+        public void ValidateContextCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
         }
 
         [Fact]
         public void ValidateWithoutRecordsReturnsExpectedResult()
         {
-            var result = _sut.Validate(_entry, _enumerator);
+            var (result, context) = _sut.Validate(_entry, _enumerator, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -80,11 +89,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Select((record, index) => record.Content.RecordAs(new RecordNumber(index + 1)))
                 .GetEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry, records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.None,
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -93,11 +103,11 @@ namespace RoadRegistry.BackOffice.Uploads
             var records = _fixture
                 .CreateMany<ShapeRecord>(new Random().Next(1, 5))
                 .Select((record, index) => index == 0
-                    ? NullShapeContent.Instance.RecordAs(new RecordNumber(index + 1))
+                    ? NullShapeContent.Instance.RecordAs(new RecordNumber(1))
                     : record.Content.RecordAs(new RecordNumber(index + 1)))
                 .GetEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry, records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(
@@ -108,6 +118,7 @@ namespace RoadRegistry.BackOffice.Uploads
                             ShapeType.NullShape)
                 ),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact(Skip = "It's impossible to mimic empty points at this time because they can no longer be serialized.")]
@@ -119,7 +130,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         .RecordAs(new RecordNumber(index + 1)))
                 .GetEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry, records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Many(
@@ -127,6 +138,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     _entry.AtShapeRecord(new RecordNumber(2)).ShapeRecordGeometryMismatch()
                 ),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -139,7 +151,7 @@ namespace RoadRegistry.BackOffice.Uploads
             var exception = new Exception("problem");
             var enumerator = new ProblematicShapeRecordEnumerator(records, 1, exception);
 
-            var result = _sut.Validate(_entry, enumerator);
+            var (result, context) = _sut.Validate(_entry, enumerator, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(
@@ -147,6 +159,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 ),
                 result,
                 new FileProblemComparer());
+            Assert.Same(_context, context);
         }
 
         public void Dispose()

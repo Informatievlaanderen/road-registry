@@ -116,12 +116,27 @@ namespace RoadRegistry.BackOffice.Uploads
                 };
         }
 
+        private static readonly string[] ValidationOrder = { // MC Hammer Style
+            "TRANSACTIEZONES.DBF",
+            "WEGKNOOP_ALL.DBF",
+            "WEGKNOOP_ALL.SHP",
+            "WEGSEGMENT_ALL.DBF",
+            "ATTRIJSTROKEN_ALL.DBF",
+            "ATTWEGBREEDTE_ALL.DBF",
+            "ATTWEGVERHARDING_ALL.DBF",
+            "WEGSEGMENT_ALL.SHP",
+            "ATTEUROPWEG_ALL.DBF",
+            "ATTNATIONWEG_ALL.DBF",
+            "ATTGENUMWEG_ALL.DBF",
+            "RLTOGKRUISING_ALL.DBF"
+        };
+
         public ZipArchiveProblems Validate(ZipArchive archive)
         {
             if (archive == null)
                 throw new ArgumentNullException(nameof(archive));
 
-            var errors = ZipArchiveProblems.None;
+            var problems = ZipArchiveProblems.None;
 
             // Report all missing required files
 
@@ -135,8 +150,8 @@ namespace RoadRegistry.BackOffice.Uploads
                     StringComparer.InvariantCultureIgnoreCase
                 )
             );
-            errors = missingRequiredFiles.Aggregate(
-                errors,
+            problems = missingRequiredFiles.Aggregate(
+                problems,
                 (current, file) => current.RequiredFileMissing(file));
 
 
@@ -153,15 +168,20 @@ namespace RoadRegistry.BackOffice.Uploads
                 )
             );
 
-            foreach (var file in availableRequiredFiles)
+            var context = ZipArchiveValidationContext.Empty;
+            foreach (var file in
+                availableRequiredFiles
+                    .OrderBy(file => Array.IndexOf(ValidationOrder, file.ToUpperInvariant())))
             {
                 if (_validators.TryGetValue(file, out var validator))
                 {
-                    errors = errors.AddRange(validator.Validate(archive.GetEntry(file)));
+                    var (fileProblems, fileContext) = validator.Validate(archive.GetEntry(file), context);
+                    problems = problems.AddRange(fileProblems);
+                    context = fileContext;
                 }
             }
 
-            return errors;
+            return problems;
         }
     }
 }

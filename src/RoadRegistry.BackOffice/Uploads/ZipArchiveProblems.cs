@@ -5,9 +5,9 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Diagnostics;
+    using System.IO.Compression;
     using System.Linq;
 
-    [DebuggerDisplay("Problems = {" + nameof(_problems) + "}")]
     public class ZipArchiveProblems : IReadOnlyCollection<FileProblem>
     {
         private readonly ImmutableList<FileProblem> _problems;

@@ -8,10 +8,11 @@ namespace RoadRegistry.BackOffice.Uploads
 
     public class RoadNodeChangeShapeRecordsValidator : IZipArchiveShapeRecordsValidator
     {
-        public ZipArchiveProblems Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records)
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, ZipArchiveValidationContext context)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = ZipArchiveProblems.None;
             var recordNumber = RecordNumber.Initial;
@@ -59,7 +60,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 problems += entry.AtShapeRecord(recordNumber).HasShapeRecordFormatError(exception);
             }
 
-            return problems;
+            return (problems, context);
         }
     }
 }

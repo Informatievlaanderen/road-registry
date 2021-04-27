@@ -7,7 +7,6 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Linq;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Core;
     using Schema;
     using Xunit;
 
@@ -19,6 +18,7 @@ namespace RoadRegistry.BackOffice.Uploads
         private readonly ZipArchiveEntry _entry;
         private readonly Fixture _fixture;
         private readonly IDbaseRecordEnumerator<TransactionZoneDbaseRecord> _enumerator;
+        private readonly ZipArchiveValidationContext _context;
 
         public TransactionZoneDbaseRecordsValidatorTests()
         {
@@ -49,6 +49,7 @@ namespace RoadRegistry.BackOffice.Uploads
             _stream = new MemoryStream();
             _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
             _entry = _archive.CreateEntry("transactiezone.dbf");
+            _context = ZipArchiveValidationContext.Empty;
         }
 
         [Fact]
@@ -60,23 +61,30 @@ namespace RoadRegistry.BackOffice.Uploads
         [Fact]
         public void ValidateEntryCanNotBeNull()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator));
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
         }
 
         [Fact]
         public void ValidateRecordsCanNotBeNull()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null));
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
+        }
+
+        [Fact]
+        public void ValidateContextCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
         }
 
         [Fact]
         public void ValidateWithoutRecordsReturnsExpectedResult()
         {
-            var result = _sut.Validate(_entry, _enumerator);
+            var (result, context) = _sut.Validate(_entry, _enumerator, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.HasNoDbaseRecords(false)),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -86,11 +94,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 .CreateMany<TransactionZoneDbaseRecord>(1)
                 .ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry, records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.None,
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -100,11 +109,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 .CreateMany<TransactionZoneDbaseRecord>(2)
                 .ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry, records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.HasTooManyDbaseRecords(1, 2)),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -119,11 +129,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry, records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(TransactionZoneDbaseRecord.Schema.BESCHRIJV)),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -138,11 +149,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry, records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(TransactionZoneDbaseRecord.Schema.OPERATOR)),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -157,11 +169,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry, records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(TransactionZoneDbaseRecord.Schema.ORG)),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -177,11 +190,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry, records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).OrganizationIdOutOfRange(value)),
                 result);
+            Assert.Same(_context, context);
         }
 
         public void Dispose()

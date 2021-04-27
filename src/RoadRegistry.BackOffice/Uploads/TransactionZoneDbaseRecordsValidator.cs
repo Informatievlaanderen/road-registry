@@ -7,13 +7,13 @@ namespace RoadRegistry.BackOffice.Uploads
 
     public class TransactionZoneDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<TransactionZoneDbaseRecord>
     {
-        public ZipArchiveProblems Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<TransactionZoneDbaseRecord> records)
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<TransactionZoneDbaseRecord> records, ZipArchiveValidationContext context)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = ZipArchiveProblems.None;
-
             try
             {
                 var count = 0;
@@ -63,7 +63,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 problems += entry.AtDbaseRecord(records.CurrentRecordNumber).HasDbaseRecordFormatError(exception);
             }
 
-            return problems;
+            return (problems, context);
         }
     }
 }

@@ -18,6 +18,7 @@ namespace RoadRegistry.BackOffice.Uploads
         private readonly ZipArchiveEntry _entry;
         private readonly Fixture _fixture;
         private readonly IDbaseRecordEnumerator<NationalRoadChangeDbaseRecord> _enumerator;
+        private readonly ZipArchiveValidationContext _context;
 
         public NationalRoadChangeDbaseRecordsValidatorTests()
         {
@@ -43,6 +44,7 @@ namespace RoadRegistry.BackOffice.Uploads
             _stream = new MemoryStream();
             _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
             _entry = _archive.CreateEntry("attnationweg_all.dbf");
+            _context = ZipArchiveValidationContext.Empty;
         }
 
         [Fact]
@@ -54,23 +56,30 @@ namespace RoadRegistry.BackOffice.Uploads
         [Fact]
         public void ValidateEntryCanNotBeNull()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator));
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
         }
 
         [Fact]
         public void ValidateRecordsCanNotBeNull()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null));
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
+        }
+
+        [Fact]
+        public void ValidateContextCanNotBeNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
         }
 
         [Fact]
         public void ValidateWithoutRecordsReturnsExpectedResult()
         {
-            var result = _sut.Validate(_entry,  _enumerator);
+            var (result, context) = _sut.Validate(_entry,  _enumerator, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.HasNoDbaseRecords(true)),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -85,11 +94,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry,  records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.None,
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -105,7 +115,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry,  records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Many(
@@ -117,6 +127,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         .RecordTypeMismatch(-1)
                 ),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -140,7 +151,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry,  records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(
@@ -150,6 +161,7 @@ namespace RoadRegistry.BackOffice.Uploads
                             new RecordNumber(1))
                     ),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -173,11 +185,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry,  records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.None,
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -192,7 +205,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry,  records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Many(
@@ -200,6 +213,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierZero()
                 ),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Theory]
@@ -211,9 +225,10 @@ namespace RoadRegistry.BackOffice.Uploads
             modifier(record);
             var records = new[] {record}.ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry,  records, _context);
 
             Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
+            Assert.Same(_context, context);
         }
 
         public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
@@ -255,12 +270,13 @@ namespace RoadRegistry.BackOffice.Uploads
             var exception = new Exception("problem");
             var enumerator = new ProblematicDbaseRecordEnumerator<NationalRoadChangeDbaseRecord>(records, 1, exception);
 
-            var result = _sut.Validate(_entry, enumerator);
+            var (result, context) = _sut.Validate(_entry, enumerator, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)),
                 result,
                 new FileProblemComparer());
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -270,11 +286,12 @@ namespace RoadRegistry.BackOffice.Uploads
             record.WS_OIDN.Value = -1;
             var records = new [] { record }.ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry,  records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentIdOutOfRange(-1)),
                 result);
+            Assert.Same(_context, context);
         }
 
         [Fact]
@@ -284,11 +301,12 @@ namespace RoadRegistry.BackOffice.Uploads
             record.IDENT2.Value = "-1";
             var records = new [] { record }.ToDbaseRecordEnumerator();
 
-            var result = _sut.Validate(_entry, records);
+            var (result, context) = _sut.Validate(_entry,  records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).NotNationalRoadNumber("-1")),
                 result);
+            Assert.Same(_context, context);
         }
 
         public void Dispose()

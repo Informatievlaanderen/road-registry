@@ -6,6 +6,6 @@ namespace RoadRegistry.BackOffice.Uploads
 
     public interface IZipArchiveShapeRecordsValidator
     {
-        ZipArchiveProblems Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records);
+        (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, ZipArchiveValidationContext context);
     }
 }

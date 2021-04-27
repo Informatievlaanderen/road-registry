@@ -8,13 +8,13 @@ namespace RoadRegistry.BackOffice.Uploads
 
     public class GradeSeparatedJunctionChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<GradeSeparatedJunctionChangeDbaseRecord>
     {
-        public ZipArchiveProblems Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord> records)
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord> records, ZipArchiveValidationContext context)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = ZipArchiveProblems.None;
-
             try
             {
                 var identifiers = new Dictionary<GradeSeparatedJunctionId, RecordNumber>();
@@ -117,7 +117,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 problems += entry.AtDbaseRecord(records.CurrentRecordNumber).HasDbaseRecordFormatError(exception);
             }
 
-            return problems;
+            return (problems, context);
         }
     }
 }
