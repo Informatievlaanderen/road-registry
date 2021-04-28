@@ -113,15 +113,18 @@ namespace RoadRegistry.BackOffice.Uploads
 
                         break;
                     case RecordType.AddedIdentifier:
-                        if (record.EVENTIDN.HasValue && record.EVENTIDN.Value != 0)
+                        if (record.WS_OIDN.HasValue)
                         {
-                            expectedContext =
-                                expectedContext.WithAddedRoadSegment(new RoadSegmentId(record.EVENTIDN.Value));
-                        }
-                        else if (record.WS_OIDN.HasValue && RoadSegmentId.Accepts(record.WS_OIDN.Value))
-                        {
-                            expectedContext =
-                                expectedContext.WithAddedRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                            if (record.EVENTIDN.HasValue && record.EVENTIDN.Value != 0)
+                            {
+                                expectedContext =
+                                    expectedContext.WithAddedRoadSegment(new RoadSegmentId(record.EVENTIDN.Value));
+                            }
+                            else if (RoadSegmentId.Accepts(record.WS_OIDN.Value))
+                            {
+                                expectedContext =
+                                    expectedContext.WithAddedRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                            }
                         }
 
                         break;

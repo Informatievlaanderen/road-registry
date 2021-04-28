@@ -99,6 +99,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
                     return record;
                 })
+                .ToArray()
                 .ToDbaseRecordEnumerator();
 
             var (result, context) = _sut.Validate(_entry, records, initialContext);
@@ -122,6 +123,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
                     return record;
                 })
+                .ToArray()
                 .ToDbaseRecordEnumerator();
 
             var (result, context) = _sut.Validate(_entry, records, initialContext);
@@ -157,8 +159,10 @@ namespace RoadRegistry.BackOffice.Uploads
                         record.RECORDTYPE.Value = (short) RecordType.Removed.Translation.Identifier;
                     }
                     initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+
                     return record;
                 })
+                .ToArray()
                 .ToDbaseRecordEnumerator();
 
             var (result, context) = _sut.Validate(_entry, records, initialContext);
@@ -193,9 +197,10 @@ namespace RoadRegistry.BackOffice.Uploads
                     initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
                     return record;
                 })
+                .ToArray()
                 .ToDbaseRecordEnumerator();
 
-            var (result, context) = _sut.Validate(_entry, records, _context);
+            var (result, context) = _sut.Validate(_entry, records, initialContext);
 
             Assert.Equal(
                 ZipArchiveProblems.None,
@@ -215,6 +220,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
                     return record;
                 })
+                .ToArray()
                 .ToDbaseRecordEnumerator();
 
             var (result, context) = _sut.Validate(_entry, records, initialContext);

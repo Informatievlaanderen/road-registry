@@ -171,6 +171,26 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                             $"De dbase record {problem.Parameters[0].Value} bevat een niet ondersteund record type in veld RECORDTYPE: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}.";
                         break;
 
+                    case nameof(DbaseFileProblems.RoadSegmentMissing):
+                        translation =
+                            $"De dbase record {problem.Parameters[0].Value} verwijst naar een wegsegment via veld WS_OIDN ({problem.Parameters[1].Value}) dat niet in WEGSEGMENT_ALL.DBF kon worden teruggevonden.";
+                        break;
+
+                    case nameof(DbaseFileProblems.RoadSegmentsWithoutLaneAttributes):
+                        translation =
+                            $"Voor de volgende wegsegmenten uit WEGSEGMENTEN_ALL.DBF werd geen enkel rijstroken attribuut teruggevonden: {problem.Parameters[0].Value}.";
+                        break;
+
+                    case nameof(DbaseFileProblems.RoadSegmentsWithoutWidthAttributes):
+                        translation =
+                            $"Voor de volgende wegsegmenten uit WEGSEGMENTEN_ALL.DBF werd geen enkel wegbreedte attribuut teruggevonden: {problem.Parameters[0].Value}.";
+                        break;
+
+                    case nameof(DbaseFileProblems.RoadSegmentsWithoutSurfaceAttributes):
+                        translation =
+                            $"Voor de volgende wegsegmenten uit WEGSEGMENTEN_ALL.DBF werd geen enkel wegverharding attribuut teruggevonden: {problem.Parameters[0].Value}.";
+                        break;
+
                     case nameof(ShapeFileProblems.HasNoShapeRecords):
                         translation = "Het bestand bevat geen enkele geometrie.";
                         break;

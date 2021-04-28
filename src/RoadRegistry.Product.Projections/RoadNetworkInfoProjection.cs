@@ -91,7 +91,7 @@
                             break;
 
                         case RoadSegmentAdded m:
-                            await OnRoadSegmentAdded(context, m, info);
+                            await OnRoadSegmentAdded(info, m, context);
                             break;
 
                         case RoadSegmentModified m:
@@ -138,7 +138,7 @@
             });
         }
 
-        private static async Task OnRoadSegmentAdded(ProductContext context, RoadSegmentAdded m, RoadNetworkInfo info)
+        private static async Task OnRoadSegmentAdded(RoadNetworkInfo info, RoadSegmentAdded m, ProductContext context)
         {
             info.RoadSegmentCount += 1;
 
@@ -191,6 +191,8 @@
 
         private static async Task OnRoadSegmentRemoved(ProductContext context, RoadSegmentRemoved m, RoadNetworkInfo info)
         {
+            info.RoadSegmentCount -= 1;
+
             var segmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id);
 
             info.TotalRoadSegmentShapeLength -= segmentCache.ShapeLength;

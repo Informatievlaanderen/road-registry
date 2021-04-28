@@ -92,6 +92,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     writer.Write(roadSegmentShapeChangeRecord);
                 }
 
+                var roadSegmentChangeDbaseRecord = fixture.Create<RoadSegmentChangeDbaseRecord>();
                 var roadSegmentDbaseChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
                     new DbaseFileHeader(
@@ -104,7 +105,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         Encoding.UTF8,
                         true)))
                 {
-                    writer.Write(fixture.Create<RoadSegmentChangeDbaseRecord>());
+                    writer.Write(roadSegmentChangeDbaseRecord);
                 }
 
                 var europeanRoadChangeStream = new MemoryStream();
@@ -164,7 +165,9 @@ namespace RoadRegistry.BackOffice.Uploads
                         Encoding.UTF8,
                         true)))
                 {
-                    writer.Write(fixture.Create<RoadSegmentLaneChangeDbaseRecord>());
+                    var laneChangeDbaseRecord = fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
+                    laneChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
+                    writer.Write(laneChangeDbaseRecord);
                 }
 
                 var widthChangeStream = new MemoryStream();
@@ -179,7 +182,9 @@ namespace RoadRegistry.BackOffice.Uploads
                         Encoding.UTF8,
                         true)))
                 {
-                    writer.Write(fixture.Create<RoadSegmentWidthChangeDbaseRecord>());
+                    var widthChangeDbaseRecord = fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
+                    widthChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
+                    writer.Write(widthChangeDbaseRecord);
                 }
 
                 var surfaceChangeStream = new MemoryStream();
@@ -194,7 +199,9 @@ namespace RoadRegistry.BackOffice.Uploads
                         Encoding.UTF8,
                         true)))
                 {
-                    writer.Write(fixture.Create<RoadSegmentSurfaceChangeDbaseRecord>());
+                    var surfaceChangeDbaseRecord = fixture.Create<RoadSegmentSurfaceChangeDbaseRecord>();
+                    surfaceChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
+                    writer.Write(surfaceChangeDbaseRecord);
                 }
 
                 var roadNodeShapeChangeStream = new MemoryStream();
@@ -928,27 +935,15 @@ namespace RoadRegistry.BackOffice.Uploads
             gradeSeparatedJunctionChangeStream.Position = 0;
             transactionZoneStream.Position = 0;
 
-            var errors = ZipArchiveProblems.None;
             var archiveStream = new MemoryStream();
             using (var createArchive =
                 new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
             {
-                using (var entryStream =
-                    createArchive.CreateEntry("WEGSEGMENT_ALL.SHP").Open())
-                {
-                    roadSegmentShapeChangeStream.CopyTo(entryStream);
-                }
 
                 using (var entryStream =
-                    createArchive.CreateEntry("WEGSEGMENT_ALL.DBF").Open())
+                    createArchive.CreateEntry("TRANSACTIEZONES.DBF").Open())
                 {
-                    roadSegmentDbaseChangeStream.CopyTo(entryStream);
-                }
-
-                using (var entryStream =
-                    createArchive.CreateEntry("WEGKNOOP_ALL.SHP").Open())
-                {
-                    roadNodeShapeChangeStream.CopyTo(entryStream);
+                    transactionZoneStream.CopyTo(entryStream);
                 }
 
                 using (var entryStream =
@@ -958,21 +953,15 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
 
                 using (var entryStream =
-                    createArchive.CreateEntry("ATTEUROPWEG_ALL.DBF").Open())
+                    createArchive.CreateEntry("WEGKNOOP_ALL.SHP").Open())
                 {
-                    europeanRoadChangeStream.CopyTo(entryStream);
+                    roadNodeShapeChangeStream.CopyTo(entryStream);
                 }
 
                 using (var entryStream =
-                    createArchive.CreateEntry("ATTGENUMWEG_ALL.DBF").Open())
+                    createArchive.CreateEntry("WEGSEGMENT_ALL.DBF").Open())
                 {
-                    numberedRoadChangeStream.CopyTo(entryStream);
-                }
-
-                using (var entryStream =
-                    createArchive.CreateEntry("ATTNATIONWEG_ALL.DBF").Open())
-                {
-                    nationalRoadChangeStream.CopyTo(entryStream);
+                    roadSegmentDbaseChangeStream.CopyTo(entryStream);
                 }
 
                 using (var entryStream =
@@ -994,15 +983,33 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
 
                 using (var entryStream =
-                    createArchive.CreateEntry("RLTOGKRUISING_ALL.DBF").Open())
+                    createArchive.CreateEntry("WEGSEGMENT_ALL.SHP").Open())
                 {
-                    gradeSeparatedJunctionChangeStream.CopyTo(entryStream);
+                    roadSegmentShapeChangeStream.CopyTo(entryStream);
                 }
 
                 using (var entryStream =
-                    createArchive.CreateEntry("TRANSACTIEZONES.DBF").Open())
+                    createArchive.CreateEntry("ATTEUROPWEG_ALL.DBF").Open())
                 {
-                    transactionZoneStream.CopyTo(entryStream);
+                    europeanRoadChangeStream.CopyTo(entryStream);
+                }
+
+                using (var entryStream =
+                    createArchive.CreateEntry("ATTNATIONWEG_ALL.DBF").Open())
+                {
+                    nationalRoadChangeStream.CopyTo(entryStream);
+                }
+
+                using (var entryStream =
+                    createArchive.CreateEntry("ATTGENUMWEG_ALL.DBF").Open())
+                {
+                    numberedRoadChangeStream.CopyTo(entryStream);
+                }
+
+                using (var entryStream =
+                    createArchive.CreateEntry("RLTOGKRUISING_ALL.DBF").Open())
+                {
+                    gradeSeparatedJunctionChangeStream.CopyTo(entryStream);
                 }
             }
 

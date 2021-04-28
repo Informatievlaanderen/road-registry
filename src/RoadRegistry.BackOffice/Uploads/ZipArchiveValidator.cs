@@ -139,7 +139,6 @@ namespace RoadRegistry.BackOffice.Uploads
             var problems = ZipArchiveProblems.None;
 
             // Report all missing required files
-
             var missingRequiredFiles = new HashSet<string>(
                 _validators.Keys,
                 StringComparer.InvariantCultureIgnoreCase
@@ -155,29 +154,32 @@ namespace RoadRegistry.BackOffice.Uploads
                 (current, file) => current.RequiredFileMissing(file));
 
 
-            // Validate all available required files (if a validator was registered for it)
+            // Validate all required files (if a validator was registered for it)
 
-            var availableRequiredFiles = new HashSet<string>(
-                archive.Entries.Select(entry => entry.FullName),
-                StringComparer.InvariantCultureIgnoreCase
-            );
-            availableRequiredFiles.IntersectWith(
-                new HashSet<string>(
-                    _validators.Keys,
-                    StringComparer.InvariantCultureIgnoreCase
-                )
-            );
-
-            var context = ZipArchiveValidationContext.Empty;
-            foreach (var file in
-                availableRequiredFiles
-                    .OrderBy(file => Array.IndexOf(ValidationOrder, file.ToUpperInvariant())))
+            if (missingRequiredFiles.Count == 0)
             {
-                if (_validators.TryGetValue(file, out var validator))
+                var requiredFiles = new HashSet<string>(
+            archive.Entries.Select(entry => entry.FullName),
+                    StringComparer.InvariantCultureIgnoreCase
+                );
+                requiredFiles.IntersectWith(
+                    new HashSet<string>(
+                        _validators.Keys,
+                        StringComparer.InvariantCultureIgnoreCase
+                    )
+                );
+
+                var context = ZipArchiveValidationContext.Empty;
+                foreach (var file in
+                    requiredFiles
+                        .OrderBy(file => Array.IndexOf(ValidationOrder, file.ToUpperInvariant())))
                 {
-                    var (fileProblems, fileContext) = validator.Validate(archive.GetEntry(file), context);
-                    problems = problems.AddRange(fileProblems);
-                    context = fileContext;
+                    if (_validators.TryGetValue(file, out var validator))
+                    {
+                        var (fileProblems, fileContext) = validator.Validate(archive.GetEntry(file), context);
+                        problems = problems.AddRange(fileProblems);
+                        context = fileContext;
+                    }
                 }
             }
 
