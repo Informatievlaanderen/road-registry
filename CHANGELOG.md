@@ -1,3 +1,10 @@
+# [1.33.0](https://github.com/informatievlaanderen/road-registry/compare/v1.32.1...v1.33.0) (2021-04-29)
+
+
+### Features
+
+* support for validation context ([#201](https://github.com/informatievlaanderen/road-registry/issues/201)) ([4967f01](https://github.com/informatievlaanderen/road-registry/commit/4967f016aa54754a2af28c4225d3f300a3a613a1))
+
 ## [1.32.1](https://github.com/informatievlaanderen/road-registry/compare/v1.32.0...v1.32.1) (2021-04-07)
 
 
