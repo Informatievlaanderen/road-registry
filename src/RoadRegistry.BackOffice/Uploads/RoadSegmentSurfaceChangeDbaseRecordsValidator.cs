@@ -9,15 +9,19 @@ namespace RoadRegistry.BackOffice.Uploads
 
     public class RoadSegmentSurfaceChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<RoadSegmentSurfaceChangeDbaseRecord>
     {
-        public ZipArchiveProblems Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentSurfaceChangeDbaseRecord> records)
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentSurfaceChangeDbaseRecord> records, ZipArchiveValidationContext context)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = ZipArchiveProblems.None;
-
             try
             {
+                var segments =
+                    context
+                        .KnownRoadSegments
+                        .ToDictionary(segment => segment, segment => 0);
                 var identifiers = new Dictionary<AttributeId, RecordNumber>();
                 var moved = records.MoveNext();
                 if (moved)
@@ -105,8 +109,25 @@ namespace RoadRegistry.BackOffice.Uploads
                             {
                                 problems += recordContext.RoadSegmentIdOutOfRange(record.WS_OIDN.Value);
                             }
+                            else if (!segments.ContainsKey(new RoadSegmentId(record.WS_OIDN.Value)))
+                            {
+                                problems += recordContext.RoadSegmentMissing(record.WS_OIDN.Value);
+                            }
+                            else
+                            {
+                                segments[new RoadSegmentId(record.WS_OIDN.Value)] += 1;
+                            }
                         }
                         moved = records.MoveNext();
+                    }
+
+                    var segmentsWithoutAttributes = segments
+                        .Where(pair => pair.Value == 0)
+                        .Select(pair => pair.Key)
+                        .ToArray();
+                    if (segmentsWithoutAttributes.Length > 0)
+                    {
+                        problems += entry.RoadSegmentsWithoutSurfaceAttributes(segmentsWithoutAttributes);
                     }
                 }
                 else
@@ -119,7 +140,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 problems += entry.AtDbaseRecord(records.CurrentRecordNumber).HasDbaseRecordFormatError(exception);
             }
 
-            return problems;
+            return (problems, context);
         }
     }
 }

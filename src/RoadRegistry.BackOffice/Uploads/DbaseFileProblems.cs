@@ -74,6 +74,36 @@ namespace RoadRegistry.BackOffice.Uploads
             return builder.ToString();
         }
 
+        public static FileError RoadSegmentsWithoutLaneAttributes(this IFileProblemBuilder builder, RoadSegmentId[] segments)
+        {
+            if (segments == null) throw new ArgumentNullException(nameof(segments));
+
+            return builder
+                .Error(nameof(RoadSegmentsWithoutLaneAttributes))
+                .WithParameter(new ProblemParameter("Segments", string.Join(",", segments.Select(segment => segment.ToString()))))
+                .Build();
+        }
+
+        public static FileError RoadSegmentsWithoutSurfaceAttributes(this IFileProblemBuilder builder, RoadSegmentId[] segments)
+        {
+            if (segments == null) throw new ArgumentNullException(nameof(segments));
+
+            return builder
+                .Error(nameof(RoadSegmentsWithoutSurfaceAttributes))
+                .WithParameter(new ProblemParameter("Segments", string.Join(",", segments.Select(segment => segment.ToString()))))
+                .Build();
+        }
+
+        public static FileError RoadSegmentsWithoutWidthAttributes(this IFileProblemBuilder builder, RoadSegmentId[] segments)
+        {
+            if (segments == null) throw new ArgumentNullException(nameof(segments));
+
+            return builder
+                .Error(nameof(RoadSegmentsWithoutWidthAttributes))
+                .WithParameter(new ProblemParameter("Segments", string.Join(",", segments.Select(segment => segment.ToString()))))
+                .Build();
+        }
+
         // record
 
         public static FileError HasDbaseRecordFormatError(this IDbaseFileRecordProblemBuilder builder, Exception exception)
@@ -113,6 +143,14 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             return builder
                 .Error(nameof(RoadSegmentIdOutOfRange))
+                .WithParameter(new ProblemParameter("Actual", value.ToString()))
+                .Build();
+        }
+
+        public static FileError RoadSegmentMissing(this IDbaseFileRecordProblemBuilder builder, int value)
+        {
+            return builder
+                .Error(nameof(RoadSegmentMissing))
                 .WithParameter(new ProblemParameter("Actual", value.ToString()))
                 .Build();
         }

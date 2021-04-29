@@ -3,18 +3,19 @@ namespace RoadRegistry.BackOffice.Uploads
     using System;
     using System.Collections.Generic;
     using System.IO.Compression;
+    using Amazon.Runtime.EventStreams.Internal;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Schema;
 
     public class RoadSegmentChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<RoadSegmentChangeDbaseRecord>
     {
-        public ZipArchiveProblems Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentChangeDbaseRecord> records)
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentChangeDbaseRecord> records, ZipArchiveValidationContext context)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (records == null) throw new ArgumentNullException(nameof(records));
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = ZipArchiveProblems.None;
-
             try
             {
                 var identifiers = new Dictionary<RoadSegmentId, RecordNumber>();
@@ -49,6 +50,10 @@ namespace RoadRegistry.BackOffice.Uploads
                                 {
                                     problems += recordContext.IdentifierZero();
                                 }
+                                else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value))
+                                {
+                                    problems += recordContext.RoadSegmentIdOutOfRange(record.WS_OIDN.Value);
+                                }
                                 else
                                 {
                                     if (recordType != RecordType.Added)
@@ -65,6 +70,30 @@ namespace RoadRegistry.BackOffice.Uploads
                                         {
                                             identifiers.Add(identifier, records.CurrentRecordNumber);
                                         }
+                                    }
+
+                                    if (recordType == RecordType.Identical)
+                                    {
+                                        context = context.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                                    }
+                                    else if (recordType == RecordType.Added)
+                                    {
+                                        if (recordType == RecordType.Added && record.EVENTIDN.HasValue && record.EVENTIDN.Value != 0)
+                                        {
+                                            context = context.WithAddedRoadSegment(new RoadSegmentId(record.EVENTIDN.Value));
+                                        }
+                                        else
+                                        {
+                                            context = context.WithAddedRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                                        }
+                                    }
+                                    else if (recordType == RecordType.Modified)
+                                    {
+                                        context = context.WithModifiedRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                                    }
+                                    else if (recordType == RecordType.Removed)
+                                    {
+                                        context = context.WithRemovedRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
                                     }
                                 }
                             }
@@ -156,7 +185,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 problems += entry.AtDbaseRecord(records.CurrentRecordNumber).HasDbaseRecordFormatError(exception);
             }
 
-            return problems;
+            return (problems, context);
         }
     }
 }

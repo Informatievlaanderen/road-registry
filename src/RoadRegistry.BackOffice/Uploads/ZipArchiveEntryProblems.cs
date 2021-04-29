@@ -172,6 +172,21 @@ namespace RoadRegistry.BackOffice.Uploads
             return new FileProblemBuilder(entry.Name).HasDbaseSchemaMismatch(expectedSchema, actualSchema);
         }
 
+        public static FileProblem RoadSegmentsWithoutLaneAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)
+        {
+            return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutLaneAttributes(segments);
+        }
+
+        public static FileProblem RoadSegmentsWithoutSurfaceAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)
+        {
+            return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutSurfaceAttributes(segments);
+        }
+
+        public static FileProblem RoadSegmentsWithoutWidthAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)
+        {
+            return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutWidthAttributes(segments);
+        }
+
         // shape
 
         public static FileError HasNoShapeRecords(this ZipArchiveEntry entry)

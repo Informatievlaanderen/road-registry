@@ -11,6 +11,13 @@ namespace RoadRegistry.BackOffice.Uploads
 
     public class ZipArchiveDbaseEntryValidatorTests
     {
+        private readonly ZipArchiveValidationContext _context;
+
+        public ZipArchiveDbaseEntryValidatorTests()
+        {
+            _context = ZipArchiveValidationContext.Empty;
+        }
+
         [Fact]
         public void EncodingCanNotBeNull()
         {
@@ -49,7 +56,31 @@ namespace RoadRegistry.BackOffice.Uploads
                 new FakeDbaseSchema(),
                 new FakeDbaseRecordValidator());
 
-            Assert.Throws<ArgumentNullException>(() => sut.Validate(null));
+            Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _context));
+        }
+
+        [Fact]
+        public void ValidateContextCanNotBeNull()
+        {
+            var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
+                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
+                new FakeDbaseSchema(),
+                new FakeDbaseRecordValidator());
+            using (var stream = new MemoryStream())
+            {
+                using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+                {
+                    archive.CreateEntry("entry");
+                }
+
+                stream.Flush();
+                stream.Position = 0;
+
+                using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
+                {
+                    Assert.Throws<ArgumentNullException>(() => sut.Validate(archive.GetEntry("entry"), null));
+                }
+            }
         }
 
         [Fact]
@@ -73,7 +104,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     var entry = archive.GetEntry("entry");
 
-                    var result = sut.Validate(entry);
+                    var (result, context) = sut.Validate(entry, _context);
 
                     Assert.Equal(
                         ZipArchiveProblems.Single(entry.HasDbaseHeaderFormatError(
@@ -81,6 +112,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         ),
                         result,
                         new FileProblemComparer());
+                    Assert.Same(_context, context);
                 }
             }
         }
@@ -111,7 +143,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     var entry = archive.GetEntry("entry");
 
-                    var result = sut.Validate(entry);
+                    var (result, context) = sut.Validate(entry, _context);
 
                     Assert.Equal(
                         ZipArchiveProblems.Single(entry.HasDbaseHeaderFormatError(
@@ -119,6 +151,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         ),
                         result,
                         new FileProblemComparer());
+                    Assert.Same(_context, context);
                 }
             }
         }
@@ -156,7 +189,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     var entry = archive.GetEntry("entry");
 
-                    var result = sut.Validate(entry);
+                    var (result, context) = sut.Validate(entry, _context);
 
                     Assert.Equal(
                         ZipArchiveProblems.Single(entry.HasDbaseSchemaMismatch(
@@ -164,6 +197,7 @@ namespace RoadRegistry.BackOffice.Uploads
                             new AnonymousDbaseSchema(new DbaseField[0]))
                         ),
                         result);
+                    Assert.Same(_context, context);
                 }
             }
         }
@@ -207,11 +241,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     var entry = archive.GetEntry("entry");
 
-                    var result = sut.Validate(entry);
+                    var (result, context) = sut.Validate(entry, _context);
 
                     Assert.Equal(
                         ZipArchiveProblems.None.AddRange(problems),
                         result);
+                    Assert.Same(_context, context);
                 }
             }
         }
@@ -261,10 +296,11 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     var entry = archive.GetEntry("entry");
 
-                    var result = sut.Validate(entry);
+                    var (result, context) = sut.Validate(entry, _context);
 
                     Assert.Equal(ZipArchiveProblems.None, result);
                     Assert.Equal(records, validator.Collected);
+                    Assert.Same(_context, context);
                 }
             }
         }
@@ -312,15 +348,15 @@ namespace RoadRegistry.BackOffice.Uploads
                 _problems = problems ?? throw new ArgumentNullException(nameof(problems));
             }
 
-            public ZipArchiveProblems Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records)
+            public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, ZipArchiveValidationContext context)
             {
-                return ZipArchiveProblems.None.AddRange(_problems);
+                return (ZipArchiveProblems.None.AddRange(_problems), context);
             }
         }
 
         private class CollectDbaseRecordValidator : IZipArchiveDbaseRecordsValidator<FakeDbaseRecord>
         {
-            public ZipArchiveProblems Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records)
+            public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, ZipArchiveValidationContext context)
             {
                 var collected = new List<FakeDbaseRecord>();
                 while (records.MoveNext())
@@ -329,7 +365,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
                 Collected = collected.ToArray();
 
-                return ZipArchiveProblems.None;
+                return (ZipArchiveProblems.None, context);
             }
 
             public FakeDbaseRecord[] Collected { get; private set; }

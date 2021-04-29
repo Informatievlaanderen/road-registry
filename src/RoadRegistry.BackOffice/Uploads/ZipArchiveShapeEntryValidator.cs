@@ -17,12 +17,12 @@ namespace RoadRegistry.BackOffice.Uploads
             _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
         }
 
-        public ZipArchiveProblems Validate(ZipArchiveEntry entry)
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = ZipArchiveProblems.None;
-
             using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, _encoding))
             {
@@ -40,12 +40,14 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     using (var records = header.CreateShapeRecordEnumerator(reader))
                     {
-                        problems += _recordValidator.Validate(entry, records);
+                        var (recordProblems, recordContext) = _recordValidator.Validate(entry, records, context);
+                        problems += recordProblems;
+                        context = recordContext;
                     }
                 }
             }
 
-            return problems;
+            return (problems, context);
         }
     }
 }

@@ -4,6 +4,6 @@ namespace RoadRegistry.BackOffice.Uploads
 
     public interface IZipArchiveEntryValidator
     {
-        ZipArchiveProblems Validate(ZipArchiveEntry entry);
+        (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context);
     }
 }
