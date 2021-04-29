@@ -16,17 +16,20 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
 
     public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
     {
+        private readonly string _entryFormat;
         private readonly ZipArchiveWriterOptions _zipArchiveWriterOptions;
         private readonly IStreetNameCache _streetNameCache;
         private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
         public RoadSegmentsToZipArchiveWriter(
+            string entryFormat,
             ZipArchiveWriterOptions zipArchiveWriterOptions,
             IStreetNameCache streetNameCache,
             RecyclableMemoryStreamManager manager,
             Encoding encoding)
         {
+            _entryFormat = entryFormat ?? throw new ArgumentNullException(nameof(entryFormat));
             _zipArchiveWriterOptions = zipArchiveWriterOptions ?? throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
             _streetNameCache = streetNameCache ?? throw new ArgumentNullException(nameof(streetNameCache));
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
@@ -39,7 +42,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var count = await context.RoadSegments.CountAsync(cancellationToken);
-            var dbfEntry = archive.CreateEntry("Wegsegment.dbf");
+            var dbfEntry = archive.CreateEntry(string.Format(_entryFormat, "Wegsegment.dbf"));
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
@@ -93,7 +96,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
 
             var info = await context.RoadNetworkInfo.SingleAsync(cancellationToken);
 
-            var shpEntry = archive.CreateEntry("Wegsegment.shp");
+            var shpEntry = archive.CreateEntry(string.Format(_entryFormat, "Wegsegment.shp"));
             var shpHeader = new ShapeFileHeader(
                 new WordLength(info.TotalRoadSegmentShapeLength),
                 ShapeType.PolyLineM,
@@ -118,7 +121,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
                 await shpEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shxEntry = archive.CreateEntry("Wegsegment.shx");
+            var shxEntry = archive.CreateEntry(string.Format(_entryFormat, "Wegsegment.shx"));
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(count));
             await using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =

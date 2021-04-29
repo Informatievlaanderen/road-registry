@@ -15,12 +15,14 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
 
     public class RoadSegmentEuropeanRoadAttributesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
     {
+        private readonly string _entryFormat;
         private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
-        public RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(RecyclableMemoryStreamManager manager,
+        public RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(string entryFormat, RecyclableMemoryStreamManager manager,
             Encoding encoding)
         {
+            _entryFormat = entryFormat ?? throw new ArgumentNullException(nameof(entryFormat));
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }

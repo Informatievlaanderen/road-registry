@@ -15,11 +15,13 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
 
     public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
     {
+        private readonly string _entryFormat;
         private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
-        public RoadNodesToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
+        public RoadNodesToZipArchiveWriter(string entryFormat, RecyclableMemoryStreamManager manager, Encoding encoding)
         {
+            _entryFormat = entryFormat ?? throw new ArgumentNullException(nameof(entryFormat));
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
@@ -30,7 +32,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var count = await context.RoadNodes.CountAsync(cancellationToken);
-            var dbfEntry = archive.CreateEntry("Wegknoop.dbf");
+            var dbfEntry = archive.CreateEntry(string.Format(_entryFormat, "Wegknoop.dbf"));
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
@@ -59,7 +61,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
 
             var info = await context.RoadNetworkInfo.SingleAsync(cancellationToken);
 
-            var shpEntry = archive.CreateEntry("Wegknoop.shp");
+            var shpEntry = archive.CreateEntry(string.Format(_entryFormat, "Wegknoop.shp"));
             var shpHeader = new ShapeFileHeader(
                 new WordLength(info.TotalRoadNodeShapeLength),
                 ShapeType.Point,
@@ -84,7 +86,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
                 await shpEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shxEntry = archive.CreateEntry("Wegknoop.shx");
+            var shxEntry = archive.CreateEntry(string.Format(_entryFormat, "Wegknoop.shx"));
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(count));
             await using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =

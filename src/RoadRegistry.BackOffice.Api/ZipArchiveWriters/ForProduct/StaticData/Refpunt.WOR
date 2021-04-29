@@ -1,0 +1,25 @@
+!Workspace
+!Version 600
+!Charset WindowsLatin1
+Open Table "Refpunt" As Refpunt Interactive
+Add Map Layer Refpunt
+Set Map Order 1
+Set Map
+  CoordSys Earth Projection 3, 9999, 4, -99.059, 53.322, -112.486, -0.419, 0.83, -1.885, 0.999999, 0, "m", 4.36748667, 90, 49.8333333333, 51.1666666667, 150000.01256, 5400088.4378000004
+shade 1 with TYPE values
+  2 Symbol (33,5570560,6,"MapInfo Symbols",0,0) ,
+  1 Symbol (33,11141120,6,"MapInfo Symbols",0,0)
+set legend
+  layer 1
+    display on
+    shades off
+    symbols on
+    lines off
+    count off
+    title auto Font ("Arial",0,9,0)
+    subtitle auto Font ("Arial",0,8,0)
+    ascending on
+    ranges Font("Arial", 0, 8, 0)
+      auto display off ,
+      "hectometerpaal" display on ,
+      "kilometerpaal" display on

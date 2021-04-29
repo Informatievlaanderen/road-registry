@@ -16,11 +16,13 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
 
     public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
     {
+        private readonly string _entryFormat;
         private readonly RecyclableMemoryStreamManager _manager;
         private readonly Encoding _encoding;
 
-        public OrganizationsToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
+        public OrganizationsToZipArchiveWriter(string entryFormat, RecyclableMemoryStreamManager manager, Encoding encoding)
         {
+            _entryFormat = entryFormat ?? throw new ArgumentNullException(nameof(entryFormat));
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
@@ -30,7 +32,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var dbfEntry = archive.CreateEntry("LstOrg.dbf");
+            var dbfEntry = archive.CreateEntry(string.Format(_entryFormat,"LstOrg.dbf"));
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,

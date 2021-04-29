@@ -1,0 +1,57 @@
+!Workspace
+!Version 600
+!Charset WindowsLatin1
+Open Table "Wegsegment" As Wegsegment Interactive
+Add Map Layer Wegsegment
+Set Map Order 1
+Set Map
+  CoordSys Earth Projection 3, 9999, 4, -99.059, 53.322, -112.486, -0.419, 0.83, -1.885, 0.999999, 0, "m", 4.36748667, 90, 49.8333333333, 51.1666666667, 150000.01256, 5400088.4378000004
+shade 1 with morf values
+      101 Line (44,2,12523264) ,
+      102 Line (30,2,13924352) ,
+      103 Line (22,2,9868950) ,
+      104 Line (22,2,255) ,
+      105 Line (22,2,38143) ,
+      106 Line (22,2,10402775) ,
+      107 Line (22,2,15123456) ,
+      108 Line (22,2,15132160) ,
+      109 Line (22,2,11024384) ,
+      110 Line (22,2,11851678) ,
+      111 Line (22,2,16760703) ,
+      112 Line (22,2,16745087) ,
+      113 Line (22,2,16760552) ,
+      114 Line (22,2,8901632) ,
+      116 Line (22,2,11075814) ,
+      120 Line (22,2,14130846) ,
+      125 Line (22,2,11038720) ,
+      130 Line (22,2,43775)
+set legend
+  layer 1
+    display on
+    shades off
+    symbols off
+    lines on
+    count off
+    title auto Font ("Arial",0,9,0)
+    subtitle auto Font ("Arial",0,8,0)
+    ascending on
+    ranges Font("Arial", 0, 8, 0)
+      auto display off ,
+      "autosnelweg" display on ,
+      "weg met gescheiden rijbanen die geen autosnelweg is" display on ,
+      "weg bestaande uit één rijbaan" display on ,
+      "rotonde" display on ,
+      "speciale verkeerssituatie" display on ,
+      "verkeersplein" display on ,
+      "op- of afrit, behorende tot een niet-gelijkgrondse verbinding" display on ,
+      "op- of afrit, behorende tot een gelijkgrondse verbinding" display on ,
+      "parallelweg" display on ,
+      "ventweg" display on ,
+      "in- of uitrit van een parking" display on ,
+      "in- of uitrit van een dienst" display on ,
+      "voetgangerszone" display on ,
+      "wandel- of fietsweg, niet toegankelijk voor andere voertuigen" display on ,
+      "tramweg, niet toegankelijk voor andere voertuigen" display on ,
+      "dienstweg" display on ,
+      "aardeweg" display on ,
+      "veer" display on
