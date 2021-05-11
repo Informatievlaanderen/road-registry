@@ -25,7 +25,7 @@
         [Fact]
         public Task ArchiveCanNotBeNull()
         {
-            var sut = new OrganizationsToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+            var sut = new OrganizationsToZipArchiveWriter("{0}", _fixture.MemoryStreamManager, Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
                 () => sut.WriteAsync(null, new ProductContext(), default));
         }
@@ -33,7 +33,7 @@
         [Fact]
         public Task ContextCanNotBeNull()
         {
-            var sut = new OrganizationsToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+            var sut = new OrganizationsToZipArchiveWriter("{0}", _fixture.MemoryStreamManager, Encoding.UTF8);
             return Assert.ThrowsAsync<ArgumentNullException>(
                 () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
         }
@@ -41,7 +41,7 @@
         [Fact]
         public async Task WithEmptyDatabaseWritesArchiveWithExpectedEntries()
         {
-            var sut = new OrganizationsToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+            var sut = new OrganizationsToZipArchiveWriter("{0}", _fixture.MemoryStreamManager, Encoding.UTF8);
 
             var db = await _fixture.CreateDatabaseAsync();
             var context = await _fixture.CreateProductContextAsync(db);
