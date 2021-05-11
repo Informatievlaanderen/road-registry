@@ -1,3 +1,10 @@
+## [1.33.1](https://github.com/informatievlaanderen/road-registry/compare/v1.33.0...v1.33.1) (2021-05-11)
+
+
+### Bug Fixes
+
+* wrong parameter in problem message ([#206](https://github.com/informatievlaanderen/road-registry/issues/206)) ([6ac1684](https://github.com/informatievlaanderen/road-registry/commit/6ac1684169d37f4c94f2501aff33b7b610d2af12))
+
 # [1.33.0](https://github.com/informatievlaanderen/road-registry/compare/v1.32.1...v1.33.0) (2021-04-29)
 
 
