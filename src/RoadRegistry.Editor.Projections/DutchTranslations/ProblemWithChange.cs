@@ -41,7 +41,7 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         translation = "De wegknoop is met geen enkel wegsegment verbonden.";
                         break;
                     case nameof(RoadNodeTypeMismatch):
-                        translation = $"Het opgegeven wegknoop type {RoadNodeType.Parse(problem.Parameters[1].Value).Translation.Name} komt niet overeen met een van de verwachte wegknoop types:{string.Join(',', problem.Parameters.Skip(2).Select(parameter => RoadNodeType.Parse(parameter.Value).Translation.Name))}. De wegknoop is verbonden met {problem.Parameters[0].Value} wegsegment(-en).";
+                        translation = $"Het opgegeven wegknoop type {RoadNodeType.Parse(problem.Parameters[2].Value).Translation.Name} komt niet overeen met een van de verwachte wegknoop types:{string.Join(',', problem.Parameters.Skip(3).Select(parameter => RoadNodeType.Parse(parameter.Value).Translation.Name))}. De wegknoop is verbonden met {problem.Parameters[1].Value} wegsegment(-en).";
                         break;
                     case nameof(FakeRoadNodeConnectedSegmentsDoNotDiffer):
                         translation = $"De attributen van de verbonden wegsegmenten ({problem.Parameters[1].Value} en {problem.Parameters[2].Value}) verschillen onvoldoende voor deze schijnknoop.";
