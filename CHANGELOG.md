@@ -1,3 +1,10 @@
+## [1.33.2](https://github.com/informatievlaanderen/road-registry/compare/v1.33.1...v1.33.2) (2021-05-12)
+
+
+### Bug Fixes
+
+* dutch translation offset issue ([#221](https://github.com/informatievlaanderen/road-registry/issues/221)) ([0968f97](https://github.com/informatievlaanderen/road-registry/commit/0968f977c48beb5d958fe43a17f73df66f9aa6f4))
+
 ## [1.33.1](https://github.com/informatievlaanderen/road-registry/compare/v1.33.0...v1.33.1) (2021-05-11)
 
 
