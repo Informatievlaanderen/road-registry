@@ -1,3 +1,11 @@
+# [1.34.0](https://github.com/informatievlaanderen/road-registry/compare/v1.33.2...v1.34.0) (2021-05-13)
+
+
+### Features
+
+* bump aws mutex to fix ResourceInUseException ([#204](https://github.com/informatievlaanderen/road-registry/issues/204)) ([34bf90d](https://github.com/informatievlaanderen/road-registry/commit/34bf90df82698552478259f5b75d872ab9a8d630))
+* product download improvements ([#202](https://github.com/informatievlaanderen/road-registry/issues/202)) ([e0937fb](https://github.com/informatievlaanderen/road-registry/commit/e0937fbc3a73bf04cfb38690293cc962a259334d))
+
 ## [1.33.2](https://github.com/informatievlaanderen/road-registry/compare/v1.33.1...v1.33.2) (2021-05-12)
 
 
