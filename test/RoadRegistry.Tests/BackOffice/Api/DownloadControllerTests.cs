@@ -100,7 +100,8 @@
             };
             using (var context = await _fixture.CreateEmptyProductContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.Get(context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
+                var version = DateTime.Today.ToString("yyyyMMdd");
+                var result = await controller.Get(version, context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
 
                 var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
                 Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
@@ -127,7 +128,8 @@
 
             using (var context = await _fixture.CreateProductContextAsync(database))
             {
-                var result = await controller.Get(context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
+                var version = DateTime.Today.ToString("yyyyMMdd");
+                var result = await controller.Get(version, context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
 
                 var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
                 Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
@@ -154,10 +156,11 @@
 
             using (var context = await _fixture.CreateProductContextAsync(database))
             {
-                var result = await controller.Get(context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
+                var version = DateTime.Today.ToString("yyyyMMdd");
+                var result = await controller.Get(version, context, new ZipArchiveWriterOptions(), new StreetNameCacheStub());
 
                 var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
-                Assert.Equal("wegenregister.zip", fileCallbackResult.FileDownloadName);
+                Assert.Equal($"wegenregister-{version}.zip", fileCallbackResult.FileDownloadName);
             }
         }
     }

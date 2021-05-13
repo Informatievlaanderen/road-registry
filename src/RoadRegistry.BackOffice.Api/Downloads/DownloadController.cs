@@ -13,6 +13,8 @@ namespace RoadRegistry.BackOffice.Api.Downloads
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
     using Microsoft.Net.Http.Headers;
+    using NodaTime;
+    using NodaTime.Text;
     using Product.Schema;
     using ZipArchiveWriters.ForEditor;
     using ZipArchiveWriters.ForProduct;
@@ -58,8 +60,9 @@ namespace RoadRegistry.BackOffice.Api.Downloads
             };
         }
 
-        [HttpGet("for-product")]
+        [HttpGet("for-product/{date}")]
         public async Task<IActionResult> Get(
+            string date,
             [FromServices] ProductContext context,
             [FromServices] ZipArchiveWriterOptions zipArchiveWriterOptions,
             [FromServices] IStreetNameCache streetNameCache)
@@ -70,19 +73,25 @@ namespace RoadRegistry.BackOffice.Api.Downloads
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
 
+            var result = LocalDatePattern.CreateWithInvariantCulture("yyyyMMdd").Parse(date);
+            if (!result.Success)
+            {
+                return BadRequest();
+            }
+
             return new FileCallbackResult(
                 new MediaTypeHeaderValue("application/zip"),
                 async (stream, actionContext) =>
                 {
                     var encoding = Encoding.GetEncoding(1252);
-                    var writer = new RoadNetworkForProductToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, _manager, encoding);
+                    var writer = new RoadNetworkForProductToZipArchiveWriter(result.Value, zipArchiveWriterOptions, streetNameCache, _manager, encoding);
                     using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
                     {
                         await writer.WriteAsync(archive, context, HttpContext.RequestAborted);
                     }
                 })
             {
-                FileDownloadName = "wegenregister.zip"
+                FileDownloadName = $"wegenregister-{date}.zip"
             };
         }
     }

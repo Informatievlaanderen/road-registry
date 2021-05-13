@@ -20,6 +20,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
             if (context == null) throw new ArgumentNullException(nameof(context));
+
             foreach (var writer in _writers)
             {
                 await writer.WriteAsync(archive, context, cancellationToken);

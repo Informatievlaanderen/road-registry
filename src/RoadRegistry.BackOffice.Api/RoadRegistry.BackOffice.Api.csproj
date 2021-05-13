@@ -28,5 +28,34 @@
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ZipArchiveWriters\ForProduct\StaticData" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Data_Wegenregister_v2.0.pdf" />
+    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Data_Wegenregister_v2.0.pdf" />
+    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Leesmij_Wegenregister_v1.0.pdf" />
+    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Leesmij_Wegenregister_v1.0.pdf" />
+    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Refpunt.lyr" />
+    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Refpunt.lyr" />
+    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Refpunt.sld" />
+    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Refpunt.sld" />
+    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Refpunt.WOR" />
+    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Refpunt.WOR" />
+    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.lyr" />
+    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.lyr" />
+    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.sld" />
+    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.sld" />
+    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.WOR" />
+    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.WOR" />
+    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.lyr" />
+    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.lyr" />
+    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.sld" />
+    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.sld" />
+    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.WOR" />
+    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.WOR" />
+  </ItemGroup>
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
