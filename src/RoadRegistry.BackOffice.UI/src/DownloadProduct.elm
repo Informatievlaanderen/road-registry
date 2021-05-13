@@ -7,11 +7,12 @@ import File.Download
 import Filesize
 import Footer
 import Header exposing (HeaderModel)
-import Html exposing (Html, a, div, h1, h2, li, main_, section, span, text, ul)
-import Html.Attributes exposing (class, classList, id, style)
-import Html.Events exposing (onClick)
+import Html exposing (Html, a, br, div, h1, h2, input, label, li, main_, section, span, text, ul)
+import Html.Attributes exposing (class, classList, disabled, for, id, placeholder, style, type_)
+import Html.Events exposing (onClick, onInput)
 import Http
 import HttpBytes
+import Date
 
 
 main : Program String Model Msg
@@ -22,6 +23,7 @@ main =
 type alias DownloadModel =
     { title : String
     , url : String
+    , version : String
     , downloading : Bool
     , progressing : Bool
     , progress : String
@@ -47,6 +49,7 @@ init url =
 
                 else
                     String.concat [ url, "/v1/download/for-product" ]
+            , version = ""
             , downloading = False
             , progressing = False
             , progress = ""
@@ -60,36 +63,52 @@ init url =
 
 type Msg
     = DownloadFile
+    | ChangeVersion String
     | GotDownloadProgress Http.Progress
     | FileDownloaded (Result Http.Error Bytes)
     | GotAlertMessage Alert.Message
-
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         DownloadFile ->
-            let
-                oldDownload =
-                    model.download
+            case Date.fromIsoString model.download.version of
+              Ok _ ->
+                let
+                  oldDownload =
+                      model.download
 
-                newDownload =
-                    { oldDownload | downloading = True, count = oldDownload.count + 1 }
+                  newDownload =
+                      { oldDownload | downloading = True, count = oldDownload.count + 1 }
+                in
+                  ( { model | download = newDownload, alert = Alert.hide model.alert }
+                  , Cmd.batch
+                    [ Http.cancel ("download-" ++ String.fromInt oldDownload.count)
+                      , Http.request
+                        { method = "GET"
+                        , headers = []
+                        , url = String.concat [ model.download.url, "/", model.download.version ]
+                        , body = Http.emptyBody
+                        , expect = HttpBytes.expect FileDownloaded
+                        , timeout = Nothing
+                        , tracker = Just ("download-" ++ String.fromInt newDownload.count)
+                        }
+                    ]
+                  )
+              Err _ ->
+                ( { model | alert = Alert.showError model.alert "Gelieve een geldige versie in het formaat jjjjmmdd (j=jaar m=maand d=dag) op te geven." }
+                  , Cmd.none
+                  )
+
+        ChangeVersion version ->
+            let
+              oldDownload =
+                model.download
+
+              newDownload =
+                { oldDownload | version = version }
             in
-            ( { model | download = newDownload, alert = Alert.hide model.alert }
-            , Cmd.batch
-              [ Http.cancel ("download-" ++ String.fromInt oldDownload.count)
-                , Http.request
-                  { method = "GET"
-                  , headers = []
-                  , url = model.download.url
-                  , body = Http.emptyBody
-                  , expect = HttpBytes.expect FileDownloaded
-                  , timeout = Nothing
-                  , tracker = Just ("download-" ++ String.fromInt newDownload.count)
-                  }
-              ]
-            )
+              ( { model | download = newDownload, alert = Alert.hide model.alert }, Cmd.none)
 
         GotAlertMessage alertMessage ->
             let
@@ -128,7 +147,7 @@ update msg model =
                             { oldDownload | downloading = False, progressing = False, progress = "" }
                     in
                     ( { model | download = newDownload, alert = Alert.hide model.alert }
-                    , File.Download.bytes "product.zip" "application/zip" bytes
+                    , File.Download.bytes (String.concat [ "wegenregister-", model.download.version , ".zip" ]) "application/zip" bytes
                     )
 
                 Err error ->
@@ -191,7 +210,10 @@ viewDownload model =
                     [ text "Downloaden" ]
                 , ul [ class "grid grid--is-stacked js-equal-height-container u-spacer", style "clear" "both" ]
                     [ li [ class "col--4-12 col--6-12--m col--12-12--xs" ]
-                        [ a
+                        [ label [ for "version", class "form__label" ] [ text "Versie"]
+                          , input [ id "version", classList [ ("input-field", True), ("input-field--disabled", model.downloading), ("input-field--block", True) ], type_ "text", placeholder "", disabled model.downloading, onInput ChangeVersion ] [ ]
+                          , br [] []
+                          , a
                             [ classList [ ( "not-allowed", False ), ( "doormat", True ), ( "doormat--graphic", True ), ( "js-equal-height", True ), ( "paragraph--type--doormat-graphic", True ), ( "paragraph--view-mode--default", True ) ]
                             , onClick DownloadFile
                             ]

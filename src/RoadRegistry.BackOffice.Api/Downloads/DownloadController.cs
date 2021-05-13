@@ -60,9 +60,9 @@ namespace RoadRegistry.BackOffice.Api.Downloads
             };
         }
 
-        [HttpGet("for-product/@version")]
+        [HttpGet("for-product/{date}")]
         public async Task<IActionResult> Get(
-            string version,
+            string date,
             [FromServices] ProductContext context,
             [FromServices] ZipArchiveWriterOptions zipArchiveWriterOptions,
             [FromServices] IStreetNameCache streetNameCache)
@@ -73,7 +73,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
 
-            var result = LocalDatePattern.CreateWithInvariantCulture("yyyyMMdd").Parse(version);
+            var result = LocalDatePattern.CreateWithInvariantCulture("yyyyMMdd").Parse(date);
             if (!result.Success)
             {
                 return BadRequest();
@@ -91,7 +91,7 @@ namespace RoadRegistry.BackOffice.Api.Downloads
                     }
                 })
             {
-                FileDownloadName = $"wegenregister-{version}.zip"
+                FileDownloadName = $"wegenregister-{date}.zip"
             };
         }
     }

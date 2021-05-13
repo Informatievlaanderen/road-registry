@@ -33,7 +33,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var count = await context.RoadSegmentEuropeanRoadAttributes.CountAsync(cancellationToken);
-            var dbfEntry = archive.CreateEntry("AttEuropweg.dbf");
+            var dbfEntry = archive.CreateEntry(string.Format(_entryFormat, "AttEuropweg.dbf"));
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
