@@ -1,3 +1,10 @@
+## [1.34.1](https://github.com/informatievlaanderen/road-registry/compare/v1.34.0...v1.34.1) (2021-05-21)
+
+
+### Bug Fixes
+
+* do not change opndatum when road segments got modified ([#224](https://github.com/informatievlaanderen/road-registry/issues/224)) ([f0749c4](https://github.com/informatievlaanderen/road-registry/commit/f0749c459b71e4d4321e285ab22cb3da5ee400cf))
+
 # [1.34.0](https://github.com/informatievlaanderen/road-registry/compare/v1.33.2...v1.34.0) (2021-05-13)
 
 
