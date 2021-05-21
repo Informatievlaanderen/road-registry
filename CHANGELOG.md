@@ -1,3 +1,10 @@
+# [1.35.0](https://github.com/informatievlaanderen/road-registry/compare/v1.34.1...v1.35.0) (2021-05-21)
+
+
+### Features
+
+* enrich road segment changes with org name ([#225](https://github.com/informatievlaanderen/road-registry/issues/225)) ([cd98b5d](https://github.com/informatievlaanderen/road-registry/commit/cd98b5dc07cd61d576e961c57d55fded8109550d))
+
 ## [1.34.1](https://github.com/informatievlaanderen/road-registry/compare/v1.34.0...v1.34.1) (2021-05-21)
 
 
