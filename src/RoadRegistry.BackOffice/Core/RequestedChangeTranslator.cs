@@ -3,7 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Messages;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     internal class RequestedChangeTranslator
     {
@@ -52,14 +53,15 @@
                 nextRoadSegmentSurfaceAttributeId ?? throw new ArgumentNullException(nameof(nextRoadSegmentSurfaceAttributeId));
         }
 
-        public RequestedChanges Translate(IReadOnlyCollection<Messages.RequestedChange> changes)
+        public async Task<RequestedChanges> Translate(IReadOnlyCollection<Messages.RequestedChange> changes, IOrganizations organizations, CancellationToken ct = default)
         {
             if (changes == null)
                 throw new ArgumentNullException(nameof(changes));
+            if (organizations == null)
+                throw new ArgumentNullException(nameof(organizations));
 
             var translated = RequestedChanges.Start(_nextTransactionId());
-            foreach (var change in changes
-                .Flatten()
+            foreach (var change in Messages.ChangeExtensions.Flatten(changes)
                 .Select((change, ordinal) => new SortableChange(change, ordinal))
                 .OrderBy(_ => _, new RankChangeBeforeTranslation())
                 .Select(_ => _.Change))
@@ -76,10 +78,10 @@
                         translated = translated.Append(Translate(command));
                         break;
                     case Messages.AddRoadSegment command:
-                        translated = translated.Append(Translate(command, translated));
+                        translated = translated.Append(await Translate(command, translated, organizations, ct));
                         break;
                     case Messages.ModifyRoadSegment command:
-                        translated = translated.Append(Translate(command, translated));
+                        translated = translated.Append(await Translate(command, translated, organizations, ct));
                         break;
                     case Messages.RemoveRoadSegment command:
                         translated = translated.Append(Translate(command));
@@ -153,7 +155,7 @@
             );
         }
 
-        private AddRoadSegment Translate(Messages.AddRoadSegment command, IRequestedChangeIdentityTranslator translator)
+        private async Task<AddRoadSegment> Translate(Messages.AddRoadSegment command, IRequestedChangeIdentityTranslator translator, IOrganizations organizations, CancellationToken ct)
         {
             var permanent = _nextRoadSegmentId();
             var temporary = new RoadSegmentId(command.TemporaryId);
@@ -183,7 +185,8 @@
             }
 
             var geometry = GeometryTranslator.Translate(command.Geometry);
-            var maintainer = new OrganizationId(command.MaintenanceAuthority);
+            var maintainerId = new OrganizationId(command.MaintenanceAuthority);
+            var maintainer = await organizations.TryGet(maintainerId, ct);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
             var morphology = RoadSegmentMorphology.Parse(command.Morphology);
             var status = RoadSegmentStatus.Parse(command.Status);
@@ -242,7 +245,8 @@
                 endNodeId,
                 temporaryEndNodeId,
                 geometry,
-                maintainer,
+                maintainerId,
+                maintainer?.Translation.Name,
                 geometryDrawMethod,
                 morphology,
                 status,
@@ -256,7 +260,7 @@
             );
         }
 
-        private ModifyRoadSegment Translate(Messages.ModifyRoadSegment command, IRequestedChangeIdentityTranslator translator)
+        private async Task<ModifyRoadSegment> Translate(Messages.ModifyRoadSegment command, IRequestedChangeIdentityTranslator translator, IOrganizations organizations, CancellationToken ct)
         {
             var permanent = new RoadSegmentId(command.Id);
 
@@ -285,7 +289,8 @@
             }
 
             var geometry = GeometryTranslator.Translate(command.Geometry);
-            var maintainer = new OrganizationId(command.MaintenanceAuthority);
+            var maintainerId = new OrganizationId(command.MaintenanceAuthority);
+            var maintainer = await organizations.TryGet(maintainerId, ct);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
             var morphology = RoadSegmentMorphology.Parse(command.Morphology);
             var status = RoadSegmentStatus.Parse(command.Status);
@@ -343,7 +348,8 @@
                 endNodeId,
                 temporaryEndNodeId,
                 geometry,
-                maintainer,
+                maintainerId,
+                maintainer?.Translation.Name,
                 geometryDrawMethod,
                 morphology,
                 status,
