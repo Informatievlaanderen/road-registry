@@ -222,7 +222,7 @@ namespace RoadRegistry.Product.Projections
                             LBLBEHEER = { Value = segment.MaintenanceAuthority.Name },
                             METHODE = { Value = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Identifier },
                             LBLMETHOD = { Value = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Name },
-                            OPNDATUM = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
+                            OPNDATUM = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When) },
                             BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
                             BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
                             LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization },
