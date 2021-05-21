@@ -39,7 +39,7 @@ namespace RoadRegistry.BackOffice.Core
                         network.ProvidesNextRoadSegmentWidthAttributeId(),
                         network.ProvidesNextRoadSegmentSurfaceAttributeId()
                     );
-                    var requestedChanges = translator.Translate(message.Body.Changes);
+                    var requestedChanges = await translator.Translate(message.Body.Changes, context.Organizations, ct);
                     network.Change(request, reason, @operator, translation, requestedChanges);
                 });
         }

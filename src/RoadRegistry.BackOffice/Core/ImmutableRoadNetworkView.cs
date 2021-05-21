@@ -971,7 +971,7 @@ namespace RoadRegistry.BackOffice.Core
                 command.Status,
                 command.LeftSideStreetNameId,
                 command.RightSideStreetNameId,
-                command.MaintenanceAuthority);
+                command.MaintenanceAuthorityId);
 
             return new ImmutableRoadNetworkView(
                 _nodes
@@ -1009,7 +1009,7 @@ namespace RoadRegistry.BackOffice.Core
                 command.Status,
                 command.LeftSideStreetNameId,
                 command.RightSideStreetNameId,
-                command.MaintenanceAuthority);
+                command.MaintenanceAuthorityId);
 
             var segmentBefore = _segments[command.Id];
 
@@ -2082,7 +2082,7 @@ namespace RoadRegistry.BackOffice.Core
                     command.Status,
                     command.LeftSideStreetNameId,
                     command.RightSideStreetNameId,
-                    command.MaintenanceAuthority);
+                    command.MaintenanceAuthorityId);
 
                 _nodes
                     .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
@@ -2108,7 +2108,7 @@ namespace RoadRegistry.BackOffice.Core
                     command.Status,
                     command.LeftSideStreetNameId,
                     command.RightSideStreetNameId,
-                    command.MaintenanceAuthority);
+                    command.MaintenanceAuthorityId);
 
                 var segmentBefore = _segments[command.Id];
 

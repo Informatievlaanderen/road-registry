@@ -338,7 +338,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 MaintenanceAuthority = new MaintenanceAuthority
                 {
                     Code = AddSegment1.MaintenanceAuthority,
-                    Name = null
+                    Name = ""
                 },
                 GeometryDrawMethod = AddSegment1.GeometryDrawMethod,
                 Morphology = AddSegment1.Morphology,
@@ -468,7 +468,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 MaintenanceAuthority = new MaintenanceAuthority
                 {
                     Code = AddSegment2.MaintenanceAuthority,
-                    Name = null
+                    Name = ""
                 },
                 GeometryDrawMethod = AddSegment2.GeometryDrawMethod,
                 Morphology = AddSegment2.Morphology,
@@ -598,7 +598,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 MaintenanceAuthority = new MaintenanceAuthority
                 {
                     Code = AddSegment3.MaintenanceAuthority,
-                    Name = null
+                    Name = ""
                 },
                 GeometryDrawMethod = AddSegment3.GeometryDrawMethod,
                 Morphology = AddSegment3.Morphology,

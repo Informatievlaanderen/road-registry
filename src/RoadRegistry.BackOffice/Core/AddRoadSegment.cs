@@ -15,7 +15,8 @@ namespace RoadRegistry.BackOffice.Core
             RoadNodeId endNodeId,
             RoadNodeId? temporaryEndNodeId,
             MultiLineString geometry,
-            OrganizationId maintenanceAuthority,
+            OrganizationId maintenanceAuthorityId,
+            OrganizationName? maintenanceAuthorityName,
             RoadSegmentGeometryDrawMethod geometryDrawMethod,
             RoadSegmentMorphology morphology,
             RoadSegmentStatus status,
@@ -34,7 +35,8 @@ namespace RoadRegistry.BackOffice.Core
             EndNodeId = endNodeId;
             TemporaryEndNodeId = temporaryEndNodeId;
             Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
-            MaintenanceAuthority = maintenanceAuthority;
+            MaintenanceAuthorityId = maintenanceAuthorityId;
+            MaintenanceAuthorityName = maintenanceAuthorityName;
             GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
             Morphology = morphology ?? throw new ArgumentNullException(nameof(morphology));
             Status = status ?? throw new ArgumentNullException(nameof(status));
@@ -54,7 +56,8 @@ namespace RoadRegistry.BackOffice.Core
         public RoadNodeId EndNodeId { get; }
         public RoadNodeId? TemporaryEndNodeId { get; }
         public MultiLineString Geometry { get; }
-        public OrganizationId MaintenanceAuthority { get; }
+        public OrganizationId MaintenanceAuthorityId { get; }
+        public OrganizationName? MaintenanceAuthorityName { get; }
         public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
         public RoadSegmentMorphology Morphology { get; }
         public RoadSegmentStatus Status { get; }
@@ -334,7 +337,8 @@ namespace RoadRegistry.BackOffice.Core
                 Geometry = GeometryTranslator.Translate(Geometry),
                 MaintenanceAuthority = new Messages.MaintenanceAuthority
                 {
-                    Code = MaintenanceAuthority
+                    Code = MaintenanceAuthorityId,
+                    Name = MaintenanceAuthorityName ?? ""
                 },
                 GeometryDrawMethod = GeometryDrawMethod,
                 Morphology = Morphology,
@@ -393,7 +397,7 @@ namespace RoadRegistry.BackOffice.Core
                 StartNodeId = TemporaryStartNodeId ?? StartNodeId,
                 EndNodeId = TemporaryEndNodeId ?? EndNodeId,
                 Geometry = GeometryTranslator.Translate(Geometry),
-                MaintenanceAuthority = MaintenanceAuthority,
+                MaintenanceAuthority = MaintenanceAuthorityId,
                 GeometryDrawMethod = GeometryDrawMethod,
                 Morphology = Morphology,
                 Status = Status,

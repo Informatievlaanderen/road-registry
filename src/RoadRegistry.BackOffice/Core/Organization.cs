@@ -8,8 +8,8 @@ namespace RoadRegistry.BackOffice.Core
     {
         public static class PredefinedTranslations
         {
-            public static readonly DutchTranslation Other = new DutchTranslation(OrganizationId.Other, "andere");
-            public static readonly DutchTranslation Unknown = new DutchTranslation(OrganizationId.Unknown, "niet gekend");
+            public static readonly DutchTranslation Other = new DutchTranslation(OrganizationId.Other, new OrganizationName("andere"));
+            public static readonly DutchTranslation Unknown = new DutchTranslation(OrganizationId.Unknown, new OrganizationName("niet gekend"));
             public static readonly DutchTranslation[] All = { Other, Unknown };
         }
 
@@ -19,21 +19,21 @@ namespace RoadRegistry.BackOffice.Core
 
         private Organization()
         {
-            On<ImportedOrganization>(e => _translation = new DutchTranslation(e.Code, e.Name));
+            On<ImportedOrganization>(e => _translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
         }
 
         public DutchTranslation Translation => _translation;
 
         public class DutchTranslation
         {
-            internal DutchTranslation(string identifier, string name)
+            internal DutchTranslation(OrganizationId identifier, OrganizationName name)
             {
                 Identifier = identifier;
                 Name = name;
             }
 
-            public string Identifier { get; }
-            public string Name { get; }
+            public OrganizationId Identifier { get; }
+            public OrganizationName Name { get; }
         }
     }
 }
