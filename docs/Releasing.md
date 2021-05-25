@@ -19,3 +19,17 @@ The import process consists of opening the `import-streams.zip` file and the `st
 As the import proceeds, the various projections will start projecting the imported events. Note this is suboptimal since processing 1 event at a time is going to take a very long time.
 It's preferred to restart the projection hosts in order for them to run in catchup mode which is going to speed things up. Once all projections have caught up (WMS, Editor, Product, Command Host and Event Host), you can start performing uploads and downloads for editing and product purposes.
 
+## Resetting
+
+While things are not yet running in production, there's the opportunity to reset the environment. Please note this destroys **ALL** data associated with the environment!
+
+- Remove `import-streams.zip` from the road registry import legacy bucket,
+- Stop all containers (or leave them running but ignore their errors),
+- Drop all tables in the `road-registry` and `road-registry-events` databases _OR_ alternatively, delete all records and properly reset the identity column seeds (but beware you're still going to carry that log file with you), 
+- Remove all objects from the road registry upload bucket (these have become unreachable).
+- Deploy a newer version or restart the containers (leaving them running will not help),
+- Upload a new `import-streams.zip` to the road registry import legacy bucket,
+- Wait for the initial seeding to unfold.
+
+
+
