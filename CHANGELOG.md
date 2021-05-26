@@ -1,3 +1,10 @@
+# [1.36.0](https://github.com/informatievlaanderen/road-registry/compare/v1.35.0...v1.36.0) (2021-05-26)
+
+
+### Features
+
+* treat fake node eligibility as warning ([#228](https://github.com/informatievlaanderen/road-registry/issues/228)) ([00c6895](https://github.com/informatievlaanderen/road-registry/commit/00c68956883c38739eaa547f6bf2cf472b805fa8))
+
 # [1.35.0](https://github.com/informatievlaanderen/road-registry/compare/v1.34.1...v1.35.0) (2021-05-21)
 
 
