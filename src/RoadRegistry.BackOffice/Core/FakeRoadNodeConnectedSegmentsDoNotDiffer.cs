@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Core
 {
-    public class FakeRoadNodeConnectedSegmentsDoNotDiffer : Error
+    public class FakeRoadNodeConnectedSegmentsDoNotDiffer : Warning
     {
         public FakeRoadNodeConnectedSegmentsDoNotDiffer(RoadNodeId node, RoadSegmentId segment1, RoadSegmentId segment2)
             : base(

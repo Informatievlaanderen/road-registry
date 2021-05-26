@@ -1125,6 +1125,8 @@ namespace RoadRegistry.BackOffice.Scenarios
 
             ModifyStartNode1.Type = RoadNodeType.FakeNode;
             ModifyStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
+            StartNode1Modified.Type = RoadNodeType.FakeNode;
+            StartNode1Modified.Geometry = Core.GeometryTranslator.Translate(startPoint);
 
             StartNode1Added.Type = RoadNodeType.FakeNode;
             StartNode1Added.Geometry = Core.GeometryTranslator.Translate(startPoint);
@@ -1219,21 +1221,22 @@ namespace RoadRegistry.BackOffice.Scenarios
                         ModifyRoadNode = ModifyStartNode1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
                     OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     TransactionId = new TransactionId(2),
                     Changes = new[]
                     {
-                        new Messages.RejectedChange
+                        new Messages.AcceptedChange
                         {
-                            ModifyRoadNode = ModifyStartNode1,
+                            RoadNodeModified = StartNode1Modified,
                             Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
+                                    Severity = ProblemSeverity.Warning,
                                     Parameters = new []
                                     {
                                         new Messages.ProblemParameter
@@ -1607,6 +1610,8 @@ namespace RoadRegistry.BackOffice.Scenarios
 
             ModifyEndNode1.Type = RoadNodeType.FakeNode;
             ModifyEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint);
+            EndNode1Modified.Type = RoadNodeType.FakeNode;
+            EndNode1Modified.Geometry = Core.GeometryTranslator.Translate(endPoint);
 
             StartNode1Added.Type = RoadNodeType.EndNode;
             StartNode1Added.Geometry = Core.GeometryTranslator.Translate(startPoint1);
@@ -1702,21 +1707,22 @@ namespace RoadRegistry.BackOffice.Scenarios
                         ModifyRoadNode = ModifyEndNode1
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
                     OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     TransactionId = new TransactionId(2),
                     Changes = new[]
                     {
-                        new Messages.RejectedChange
+                        new Messages.AcceptedChange
                         {
-                            ModifyRoadNode = ModifyEndNode1,
+                            RoadNodeModified = EndNode1Modified,
                             Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
+                                    Severity = ProblemSeverity.Warning,
                                     Parameters = new []
                                     {
                                         new Messages.ProblemParameter

@@ -425,6 +425,166 @@ viewArchiveLinkContent url archive =
             , text archive.filename
             ]
 
+viewChangeProblemsList: List ChangeProblems -> Html Message
+viewChangeProblemsList problems =
+  ul
+      []
+      (List.map
+          (\changeProblems ->
+              li
+                  [ style "padding-top" "5px" ]
+                  [ span [ style "font-weight" "bold" ] [ text changeProblems.change ]
+                  , ul
+                      []
+                      (List.map
+                          (\problem ->
+                              case problem.severity of
+                                  Warning ->
+                                      li
+                                          []
+                                          [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
+                                          , text "\u{00A0}"
+                                          , text problem.problem
+                                          ]
+
+                                  Error ->
+                                      li
+                                          []
+                                          [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
+                                          , text "\u{00A0}"
+                                          , text problem.problem
+                                          ]
+                          )
+                          changeProblems.problems
+                      )
+                  ]
+          )
+          problems
+      )
+
+viewFileProblemsList: List FileProblems -> Html Message
+viewFileProblemsList problems =
+  ul
+      []
+      (List.map
+          (\fileProblems ->
+              li
+                  [ style "padding-top" "5px" ]
+                  [ span [ style "font-weight" "bold" ] [ text fileProblems.file ]
+                  , ul
+                      []
+                      (List.map
+                          (\problem ->
+                              case problem.severity of
+                                  Warning ->
+                                      li
+                                          []
+                                          [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
+                                          , text "\u{00A0}"
+                                          , text problem.problem
+                                          ]
+
+                                  Error ->
+                                      li
+                                          []
+                                          [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
+                                          , text "\u{00A0}"
+                                          , text problem.problem
+                                          ]
+                          )
+                          fileProblems.problems
+                      )
+                  ]
+          )
+          problems
+      )
+
+viewSummary: Maybe Summary -> Html Message
+viewSummary mayBeSummary =
+  case mayBeSummary of
+    Just summary ->
+      div
+        [ class "grid"
+        , style "background-color" "#e8ebee"
+        , style "margin-bottom" "5px"
+        , style "margin-left" "0px"
+        , style "padding-bottom" "10px"]
+        [
+          div [ class "col--4-12"]
+          [
+            div [ class "infotext"]
+            [
+              div [ class "infotext__value"] [ text (String.fromInt summary.roadNodes.added) ]
+            , div [ class "infotext__text"] [ text "Toegevoegde wegknopen" ]
+            ]
+          ]
+        , div [ class "col--4-12"]
+          [
+            div [ class "infotext"]
+            [
+              div [ class "infotext__value"] [ text (String.fromInt summary.roadNodes.modified) ]
+            , div [ class "infotext__text"] [ text "Gewijzigde wegknopen" ]
+            ]
+          ]
+        , div [ class "col--4-12"]
+          [
+            div [ class "infotext"]
+            [
+              div [ class "infotext__value"] [ text (String.fromInt summary.roadNodes.removed) ]
+            , div [ class "infotext__text"] [ text "Verwijderde wegknopen" ]
+            ]
+          ]
+        , div [ class "col--4-12"]
+          [
+            div [ class "infotext"]
+            [
+              div [ class "infotext__value"] [ text (String.fromInt summary.roadSegments.added) ]
+            , div [ class "infotext__text"] [ text "Toegevoegde wegsegmenten" ]
+            ]
+          ]
+        , div [ class "col--4-12"]
+          [
+            div [ class "infotext"]
+            [
+              div [ class "infotext__value"] [ text (String.fromInt summary.roadSegments.modified) ]
+            , div [ class "infotext__text"] [ text "Gewijzigde wegsegmenten" ]
+            ]
+          ]
+        , div [ class "col--4-12"]
+          [
+            div [ class "infotext"]
+            [
+              div [ class "infotext__value"] [ text (String.fromInt summary.roadSegments.removed) ]
+            , div [ class "infotext__text"] [ text "Verwijderde wegsegmenten" ]
+            ]
+          ]
+        , div [ class "col--4-12"]
+          [
+            div [ class "infotext"]
+            [
+              div [ class "infotext__value"] [ text (String.fromInt summary.gradeSeparatedJunctions.added) ]
+            , div [ class "infotext__text"] [ text "Toegevoegde ongelijkgrondse kruisingen" ]
+            ]
+          ]
+        , div [ class "col--4-12"]
+          [
+            div [ class "infotext"]
+            [
+              div [ class "infotext__value"] [ text (String.fromInt summary.gradeSeparatedJunctions.modified) ]
+            , div [ class "infotext__text"] [ text "Gewijzigde ongelijkgrondse kruisingen" ]
+            ]
+          ]
+        , div [ class "col--4-12"]
+          [
+            div [ class "infotext"]
+            [
+              div [ class "infotext__value"] [ text (String.fromInt summary.gradeSeparatedJunctions.removed) ]
+            , div [ class "infotext__text"] [ text "Verwijderde ongelijkgrondse kruisingen" ]
+            ]
+          ]
+        ]
+    Nothing ->
+      text ""
 
 viewChangeFeedEntryContent : String -> ChangeFeedEntryContent -> Html Message
 viewChangeFeedEntryContent url content =
@@ -445,40 +605,7 @@ viewChangeFeedEntryContent url content =
 
         RoadNetworkChangesArchiveRejected rejected ->
             div [ class "step__content" ]
-                [ ul
-                    []
-                    (List.map
-                        (\fileProblems ->
-                            li
-                                [ style "padding-top" "5px" ]
-                                [ span [ style "font-weight" "bold" ] [ text fileProblems.file ]
-                                , ul
-                                    []
-                                    (List.map
-                                        (\problem ->
-                                            case problem.severity of
-                                                Warning ->
-                                                    li
-                                                        []
-                                                        [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
-                                                        , text "\u{00A0}"
-                                                        , text problem.problem
-                                                        ]
-
-                                                Error ->
-                                                    li
-                                                        []
-                                                        [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
-                                                        , text "\u{00A0}"
-                                                        , text problem.problem
-                                                        ]
-                                        )
-                                        fileProblems.problems
-                                    )
-                                ]
-                        )
-                        rejected.problems
-                    )
+                [ viewFileProblemsList rejected.problems
                 , br [] []
                 , text "Archief: "
                 , viewArchiveLinkContent url rejected.archive
@@ -486,8 +613,7 @@ viewChangeFeedEntryContent url content =
 
         RoadNetworkChangesArchiveAccepted accepted ->
             div [ class "step__content" ]
-                [ ul []
-                    (List.map (\problem -> li [] [ text problem.file ]) accepted.problems)
+                [ viewFileProblemsList accepted.problems
                 , br [] []
                 , text "Archief: "
                 , viewArchiveLinkContent url accepted.archive
@@ -496,124 +622,8 @@ viewChangeFeedEntryContent url content =
         RoadNetworkChangesBasedOnArchiveAccepted accepted ->
             div [ class "step__content" ]
                 [
-                  case accepted.summary of
-                    Just summary ->
-                      div
-                        [ class "grid"
-                        , style "background-color" "#e8ebee"
-                        , style "margin-bottom" "5px"
-                        , style "margin-left" "0px"
-                        , style "padding-bottom" "10px"]
-                        [
-                          div [ class "col--4-12"]
-                          [
-                            div [ class "infotext"]
-                            [
-                              div [ class "infotext__value"] [ text (String.fromInt summary.roadNodes.added) ]
-                            , div [ class "infotext__text"] [ text "Toegevoegde wegknopen" ]
-                            ]
-                          ]
-                        , div [ class "col--4-12"]
-                          [
-                            div [ class "infotext"]
-                            [
-                              div [ class "infotext__value"] [ text (String.fromInt summary.roadNodes.modified) ]
-                            , div [ class "infotext__text"] [ text "Gewijzigde wegknopen" ]
-                            ]
-                          ]
-                        , div [ class "col--4-12"]
-                          [
-                            div [ class "infotext"]
-                            [
-                              div [ class "infotext__value"] [ text (String.fromInt summary.roadNodes.removed) ]
-                            , div [ class "infotext__text"] [ text "Verwijderde wegknopen" ]
-                            ]
-                          ]
-                        , div [ class "col--4-12"]
-                          [
-                            div [ class "infotext"]
-                            [
-                              div [ class "infotext__value"] [ text (String.fromInt summary.roadSegments.added) ]
-                            , div [ class "infotext__text"] [ text "Toegevoegde wegsegmenten" ]
-                            ]
-                          ]
-                        , div [ class "col--4-12"]
-                          [
-                            div [ class "infotext"]
-                            [
-                              div [ class "infotext__value"] [ text (String.fromInt summary.roadSegments.modified) ]
-                            , div [ class "infotext__text"] [ text "Gewijzigde wegsegmenten" ]
-                            ]
-                          ]
-                        , div [ class "col--4-12"]
-                          [
-                            div [ class "infotext"]
-                            [
-                              div [ class "infotext__value"] [ text (String.fromInt summary.roadSegments.removed) ]
-                            , div [ class "infotext__text"] [ text "Verwijderde wegsegmenten" ]
-                            ]
-                          ]
-                        , div [ class "col--4-12"]
-                          [
-                            div [ class "infotext"]
-                            [
-                              div [ class "infotext__value"] [ text (String.fromInt summary.gradeSeparatedJunctions.added) ]
-                            , div [ class "infotext__text"] [ text "Toegevoegde ongelijkgrondse kruisingen" ]
-                            ]
-                          ]
-                        , div [ class "col--4-12"]
-                          [
-                            div [ class "infotext"]
-                            [
-                              div [ class "infotext__value"] [ text (String.fromInt summary.gradeSeparatedJunctions.modified) ]
-                            , div [ class "infotext__text"] [ text "Gewijzigde ongelijkgrondse kruisingen" ]
-                            ]
-                          ]
-                        , div [ class "col--4-12"]
-                          [
-                            div [ class "infotext"]
-                            [
-                              div [ class "infotext__value"] [ text (String.fromInt summary.gradeSeparatedJunctions.removed) ]
-                            , div [ class "infotext__text"] [ text "Verwijderde ongelijkgrondse kruisingen" ]
-                            ]
-                          ]
-                        ]
-                    Nothing ->
-                      text ""
-                , ul
-                    []
-                    (List.map
-                        (\changeProblems ->
-                            li
-                                [ style "padding-top" "5px" ]
-                                [ span [ style "font-weight" "bold" ] [ text changeProblems.change ]
-                                , ul
-                                    []
-                                    (List.map
-                                        (\problem ->
-                                            case problem.severity of
-                                                Warning ->
-                                                    li
-                                                        []
-                                                        [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
-                                                        , text "\u{00A0}"
-                                                        , text problem.problem
-                                                        ]
-
-                                                Error ->
-                                                    li
-                                                        []
-                                                        [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
-                                                        , text "\u{00A0}"
-                                                        , text problem.problem
-                                                        ]
-                                        )
-                                        changeProblems.problems
-                                    )
-                                ]
-                        )
-                        accepted.problems
-                    )
+                  viewSummary accepted.summary
+                , viewChangeProblemsList accepted.problems
                 , br [] []
                 , text "Archief: "
                 , viewArchiveLinkContent url accepted.archive
@@ -621,40 +631,7 @@ viewChangeFeedEntryContent url content =
 
         RoadNetworkChangesBasedOnArchiveRejected rejected ->
             div [ class "step__content" ]
-                [ ul
-                    []
-                    (List.map
-                        (\changeProblems ->
-                            li
-                                [ style "padding-top" "5px" ]
-                                [ span [ style "font-weight" "bold" ] [ text changeProblems.change ]
-                                , ul
-                                    []
-                                    (List.map
-                                        (\problem ->
-                                            case problem.severity of
-                                                Warning ->
-                                                    li
-                                                        []
-                                                        [ span [ style "color" "#ffc515" ] [ FA.icon FA.exclamationTriangle ]
-                                                        , text "\u{00A0}"
-                                                        , text problem.problem
-                                                        ]
-
-                                                Error ->
-                                                    li
-                                                        []
-                                                        [ span [ style "color" "#db3434" ] [ FA.icon FA.exclamationTriangle ]
-                                                        , text "\u{00A0}"
-                                                        , text problem.problem
-                                                        ]
-                                        )
-                                        changeProblems.problems
-                                    )
-                                ]
-                        )
-                        rejected.problems
-                    )
+                [ viewChangeProblemsList rejected.problems
                 , br [] []
                 , text "Archief: "
                 , viewArchiveLinkContent url rejected.archive
