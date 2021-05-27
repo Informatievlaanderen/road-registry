@@ -30,7 +30,27 @@ namespace RoadRegistry.BackOffice.Core
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            return Problems.None;
+            var problems = Problems.None;
+
+            var nodeBefore = context.BeforeView.Nodes[Id];
+
+            foreach (var segment in nodeBefore.Segments)
+            {
+                if (context.AfterView.View.Segments.TryGetValue(segment, out var foundSegment))
+                {
+                    if (foundSegment.Start == Id)
+                    {
+                        problems = problems.Add(new RoadSegmentStartNodeRefersToRemovedNode(foundSegment.Id, Id));
+                    }
+
+                    if (foundSegment.End == Id)
+                    {
+                        problems = problems.Add(new RoadSegmentEndNodeRefersToRemovedNode(foundSegment.Id, Id));
+                    }
+                }
+            }
+
+            return problems;
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

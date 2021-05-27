@@ -303,6 +303,7 @@ namespace RoadRegistry.BackOffice.Core
             }
             else
             {
+                problems = problems.AddRange(startNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
                 if (line.StartPoint != null && !line.StartPoint.EqualsWithinTolerance(startNode.Geometry, context.Tolerances.GeometryTolerance))
                 {
                     problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry());
@@ -315,6 +316,7 @@ namespace RoadRegistry.BackOffice.Core
             }
             else
             {
+                problems = problems.AddRange(endNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
                 if (line.EndPoint != null && !line.EndPoint.EqualsWithinTolerance(endNode.Geometry, context.Tolerances.GeometryTolerance))
                 {
                     problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry());

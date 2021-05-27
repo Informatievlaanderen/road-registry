@@ -841,6 +841,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                         },
                                         new Messages.ProblemParameter
                                         {
+                                            Name = "ConnectedSegmentId",
+                                            Value = Segment1Added.Id.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
                                             Name = "Actual",
                                             Value = ModifyStartNode1.Type
                                         },
@@ -929,6 +934,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                                         {
                                             Name = "ConnectedSegmentCount",
                                             Value = "1"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = Segment1Added.Id.ToString()
                                         },
                                         new Messages.ProblemParameter
                                         {
@@ -1081,6 +1091,16 @@ namespace RoadRegistry.BackOffice.Scenarios
                                         {
                                             Name = "ConnectedSegmentCount",
                                             Value = "2"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = Segment1Added.Id.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = Segment2Added.Id.ToString()
                                         },
                                         new Messages.ProblemParameter
                                         {
@@ -1566,6 +1586,16 @@ namespace RoadRegistry.BackOffice.Scenarios
                                         {
                                             Name = "ConnectedSegmentCount",
                                             Value = "2"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = Segment1Added.Id.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = Segment2Added.Id.ToString()
                                         },
                                         new Messages.ProblemParameter
                                         {
