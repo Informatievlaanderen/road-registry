@@ -871,6 +871,50 @@ namespace RoadRegistry.BackOffice.Scenarios
                                         },
                                         new Messages.ProblemParameter
                                         {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddStartNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "EndNode"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "1"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
                                             Name = "Actual",
                                             Value = AddStartNode1.Type
                                         },
@@ -945,6 +989,50 @@ namespace RoadRegistry.BackOffice.Scenarios
                                         {
                                             Name = "ConnectedSegmentCount",
                                             Value = "1"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddEndNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "EndNode"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddEndNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "1"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
                                         },
                                         new Messages.ProblemParameter
                                         {
@@ -1081,6 +1169,114 @@ namespace RoadRegistry.BackOffice.Scenarios
                                         {
                                             Name = "ConnectedSegmentCount",
                                             Value = "2"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddStartNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "FakeNode"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "TurningLoopNode"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "2"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddStartNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "FakeNode"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "TurningLoopNode"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment2,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "2"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
                                         },
                                         new Messages.ProblemParameter
                                         {
@@ -1290,12 +1486,62 @@ namespace RoadRegistry.BackOffice.Scenarios
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment1Added,
-                            Problems = Array.Empty<Messages.Problem>()
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
+                                    Severity = ProblemSeverity.Warning,
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "SegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "SegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        }
+                                    }
+                                }
+                            }
                         },
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment2Added,
-                            Problems = Array.Empty<Messages.Problem>()
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
+                                    Severity = ProblemSeverity.Warning,
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "SegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "SegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1607,6 +1853,114 @@ namespace RoadRegistry.BackOffice.Scenarios
                                         },
                                         new Messages.ProblemParameter
                                         {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddEndNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "FakeNode"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "TurningLoopNode"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddEndNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "2"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddEndNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "FakeNode"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "TurningLoopNode"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment2,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddEndNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "2"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
                                             Name = "Actual",
                                             Value = AddEndNode1.Type
                                         },
@@ -1655,8 +2009,11 @@ namespace RoadRegistry.BackOffice.Scenarios
             };
             AddStartNode1.Geometry = Core.GeometryTranslator.Translate(startPoint);
             AddEndNode1.Geometry = Core.GeometryTranslator.Translate(endPoint1);
+            AddEndNode1.Type = RoadNodeType.EndNode.ToString();
             AddEndNode2.Geometry = Core.GeometryTranslator.Translate(endPoint2);
+            AddEndNode2.Type = RoadNodeType.EndNode.ToString();
             AddEndNode3.Geometry = Core.GeometryTranslator.Translate(endPoint3);
+            AddEndNode3.Type = RoadNodeType.EndNode.ToString();
             AddSegment1.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment1.Widths = new RequestedRoadSegmentWidthAttribute[0];
@@ -1776,6 +2133,183 @@ namespace RoadRegistry.BackOffice.Scenarios
                                         {
                                             Name = "ConnectedSegmentCount",
                                             Value = "3"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment3.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddStartNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "RealNode"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "MiniRoundabout"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "3"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment3.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddStartNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "RealNode"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "MiniRoundabout"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment2,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "3"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment3.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddStartNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "RealNode"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "MiniRoundabout"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment3,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddStartNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "3"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment3.TemporaryId.ToString()
                                         },
                                         new Messages.ProblemParameter
                                         {
@@ -1948,6 +2482,183 @@ namespace RoadRegistry.BackOffice.Scenarios
                                         {
                                             Name = "ConnectedSegmentCount",
                                             Value = "3"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment3.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddEndNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "RealNode"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "MiniRoundabout"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment1,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddEndNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "3"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment3.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddEndNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "RealNode"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "MiniRoundabout"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment2,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddEndNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "3"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment3.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Actual",
+                                            Value = AddEndNode1.Type
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "RealNode"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "Expected",
+                                            Value = "MiniRoundabout"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment3,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "RoadNodeTypeMismatch",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "RoadNodeId",
+                                            Value = AddEndNode1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentCount",
+                                            Value = "3"
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment1.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "ConnectedSegmentId",
+                                            Value = AddSegment3.TemporaryId.ToString()
                                         },
                                         new Messages.ProblemParameter
                                         {
@@ -2560,6 +3271,8 @@ namespace RoadRegistry.BackOffice.Scenarios
         [Fact]
         public Task when_adding_a_segment_with_a_geometry_that_has_been_taken()
         {
+            StartNode1Added.Type = RoadNodeType.FakeNode.ToString();
+            EndNode1Added.Type = RoadNodeType.FakeNode.ToString();
             AddSegment2.StartNodeId = StartNode1Added.Id;
             AddSegment2.EndNodeId = EndNode1Added.Id;
             AddSegment2.Geometry = Segment1Added.Geometry;
@@ -3147,6 +3860,9 @@ namespace RoadRegistry.BackOffice.Scenarios
         public Task when_adding_a_segment_whose_start_point_does_not_match_its_existing_start_node_geometry()
         {
             AddSegment2.StartNodeId = StartNode1Added.Id;
+            StartNode1Added.Type = RoadNodeType.FakeNode.ToString();
+            EndNode1Added.Type = RoadNodeType.EndNode.ToString();
+            AddEndNode2.Type = RoadNodeType.EndNode.ToString();
 
             return Run(scenario => scenario
                 .Given(Organizations.StreamNameFactory(ChangedByOrganization),
@@ -3270,6 +3986,9 @@ namespace RoadRegistry.BackOffice.Scenarios
         public Task when_adding_a_segment_whose_end_point_does_not_match_its_existing_end_node_geometry()
         {
             AddSegment2.EndNodeId = EndNode1Added.Id;
+            StartNode1Added.Type = RoadNodeType.EndNode.ToString();
+            EndNode1Added.Type = RoadNodeType.FakeNode.ToString();
+            AddStartNode2.Type = RoadNodeType.EndNode.ToString();
 
             return Run(scenario => scenario
                 .Given(Organizations.StreamNameFactory(ChangedByOrganization),

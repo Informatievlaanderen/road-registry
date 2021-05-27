@@ -306,13 +306,15 @@ namespace RoadRegistry.BackOffice.Core
 
             var segmentBefore = context.BeforeView.Segments[Id];
 
-            if (segmentBefore.Start != StartNodeId && context.AfterView.Nodes.TryGetValue(segmentBefore.Start, out var beforeStartNode))
+            if (segmentBefore.Start != StartNodeId && segmentBefore.Start != EndNodeId &&
+                context.AfterView.Nodes.TryGetValue(segmentBefore.Start, out var beforeStartNode))
             {
                 problems = problems.AddRange(
                     beforeStartNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
             }
 
-            if (segmentBefore.End != EndNodeId && context.AfterView.Nodes.TryGetValue(segmentBefore.End, out var beforeEndNode))
+            if (segmentBefore.End != StartNodeId && segmentBefore.End != EndNodeId &&
+                context.AfterView.Nodes.TryGetValue(segmentBefore.End, out var beforeEndNode))
             {
                 problems = problems.AddRange(
                     beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
@@ -324,6 +326,7 @@ namespace RoadRegistry.BackOffice.Core
             }
             else
             {
+                problems = problems.AddRange(startNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
                 if (line.StartPoint != null && !line.StartPoint.EqualsWithinTolerance(startNode.Geometry, context.Tolerances.GeometryTolerance))
                 {
                     problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry());
@@ -336,6 +339,7 @@ namespace RoadRegistry.BackOffice.Core
             }
             else
             {
+                problems = problems.AddRange(endNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
                 if (line.EndPoint != null && !line.EndPoint.EqualsWithinTolerance(endNode.Geometry, context.Tolerances.GeometryTolerance))
                 {
                     problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry());

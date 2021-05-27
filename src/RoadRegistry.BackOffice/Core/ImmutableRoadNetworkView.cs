@@ -1015,10 +1015,10 @@ namespace RoadRegistry.BackOffice.Core
 
             return new ImmutableRoadNetworkView(
                 _nodes
-                    .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
-                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id))
                     .TryReplaceIf(segmentBefore.Start, node => node.Id != command.StartNodeId, node => node.DisconnectFrom(command.Id))
-                    .TryReplaceIf(segmentBefore.End, node => node.Id != command.EndNodeId, node => node.DisconnectFrom(command.Id)),
+                    .TryReplaceIf(segmentBefore.End, node => node.Id != command.EndNodeId, node => node.DisconnectFrom(command.Id))
+                    .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
+                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id)),
                 _segments.
                     TryReplace(command.Id, segment => segment
                         .WithGeometry(command.Geometry)
@@ -2113,10 +2113,10 @@ namespace RoadRegistry.BackOffice.Core
                 var segmentBefore = _segments[command.Id];
 
                 _nodes
-                    .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
-                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id))
                     .TryReplaceIf(segmentBefore.Start, node => node.Id != command.StartNodeId, node => node.DisconnectFrom(command.Id))
-                    .TryReplaceIf(segmentBefore.End, node => node.Id != command.EndNodeId, node => node.DisconnectFrom(command.Id));
+                    .TryReplaceIf(segmentBefore.End, node => node.Id != command.EndNodeId, node => node.DisconnectFrom(command.Id))
+                    .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
+                    .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id));
                 _segments.TryReplace(command.Id, segment =>
                     segment
                         .WithGeometry(command.Geometry)

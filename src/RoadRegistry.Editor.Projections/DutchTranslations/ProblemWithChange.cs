@@ -41,7 +41,16 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         translation = "De wegknoop is met geen enkel wegsegment verbonden.";
                         break;
                     case nameof(RoadNodeTypeMismatch):
-                        translation = $"Het opgegeven wegknoop type {RoadNodeType.Parse(problem.Parameters[2].Value).Translation.Name} komt niet overeen met een van de verwachte wegknoop types:{string.Join(',', problem.Parameters.Skip(3).Select(parameter => RoadNodeType.Parse(parameter.Value).Translation.Name))}. De wegknoop is verbonden met {problem.Parameters[1].Value} wegsegment(-en).";
+                        translation = $"Het opgegeven wegknoop type {RoadNodeType.Parse(problem.Parameters.Single(p => p.Name == "Actual").Value).Translation.Name} van knoop {problem.Parameters.Single(p => p.Name == "RoadNodeId").Value} komt niet overeen met een van de verwachte wegknoop types: {string.Join(',', problem.Parameters.Where(p => p.Name == "Expected").Select(parameter => RoadNodeType.Parse(parameter.Value).Translation.Name))}. De wegknoop is verbonden met {problem.Parameters[1].Value} wegsegment(-en)";
+                        if (problem.Parameters.Any(p => p.Name == "ConnectedSegmentId"))
+                        {
+                            translation += $": {string.Join(',', problem.Parameters.Where(p => p.Name == "ConnectedSegmentId").Select(parameter => parameter.Value))}.";
+                        }
+                        else
+                        {
+                            translation += ".";
+                        }
+
                         break;
                     case nameof(FakeRoadNodeConnectedSegmentsDoNotDiffer):
                         translation = $"De attributen van de verbonden wegsegmenten ({problem.Parameters[1].Value} en {problem.Parameters[2].Value}) verschillen onvoldoende voor deze schijnknoop.";
@@ -129,6 +138,12 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         break;
                     case nameof(UpperAndLowerRoadSegmentDoNotIntersect):
                         translation = "Het bovenste en onderste wegsegment kruisen elkaar niet.";
+                        break;
+                    case nameof(RoadSegmentStartNodeRefersToRemovedNode):
+                        translation = $"De begin knoop van wegsegment {problem.Parameters[0].Value} verwijst naar een verwijderde knoop {problem.Parameters[1].Value}.";
+                        break;
+                    case nameof(RoadSegmentEndNodeRefersToRemovedNode):
+                        translation = $"De eind knoop van wegsegment {problem.Parameters[0].Value} verwijst naar een verwijderde knoop {problem.Parameters[1].Value}.";
                         break;
                     default:
                         translation = $"'{problem.Reason}' has no translation. Please fix it.";
