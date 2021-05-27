@@ -1,3 +1,10 @@
+# [1.37.0](https://github.com/informatievlaanderen/road-registry/compare/v1.36.0...v1.37.0) (2021-05-27)
+
+
+### Features
+
+* improved road node type checking ([#229](https://github.com/informatievlaanderen/road-registry/issues/229)) ([6f359af](https://github.com/informatievlaanderen/road-registry/commit/6f359af56dae9466c57ca5f723f74f799dbe15b0))
+
 # [1.36.0](https://github.com/informatievlaanderen/road-registry/compare/v1.35.0...v1.36.0) (2021-05-26)
 
 
