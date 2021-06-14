@@ -1,3 +1,10 @@
+## [1.37.1](https://github.com/informatievlaanderen/road-registry/compare/v1.37.0...v1.37.1) (2021-06-14)
+
+
+### Bug Fixes
+
+* provide authless health check location ([116b914](https://github.com/informatievlaanderen/road-registry/commit/116b914654b40a460869e75694af96ceaa96282c))
+
 # [1.37.0](https://github.com/informatievlaanderen/road-registry/compare/v1.36.0...v1.37.0) (2021-05-27)
 
 
