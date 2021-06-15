@@ -1,3 +1,10 @@
+## [1.37.2](https://github.com/informatievlaanderen/road-registry/compare/v1.37.1...v1.37.2) (2021-06-15)
+
+
+### Bug Fixes
+
+* remove out of bounds call to problem params ([509fd73](https://github.com/informatievlaanderen/road-registry/commit/509fd7390cbe2ecc7f0bacc495072280c79229fd))
+
 ## [1.37.1](https://github.com/informatievlaanderen/road-registry/compare/v1.37.0...v1.37.1) (2021-06-14)
 
 
