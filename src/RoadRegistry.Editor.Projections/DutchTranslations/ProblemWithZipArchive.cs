@@ -138,12 +138,12 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
 
                     case nameof(DbaseFileProblems.OrganizationIdOutOfRange):
                         translation =
-                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig organisatie identificator in veld {nameof(TransactionZoneDbaseRecord.Schema.ORG)}: {problem.Parameters[2].Value}.";
+                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig organisatie identificator in veld {nameof(TransactionZoneDbaseRecord.Schema.ORG)}: {problem.Parameters[1].Value}.";
                         break;
 
                     case nameof(DbaseFileProblems.LaneCountOutOfRange):
                         translation =
-                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig rijstrook aantal in veld {nameof(RoadSegmentLaneChangeDbaseRecord.Schema.AANTAL)}: {problem.Parameters[2].Value}.";
+                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig rijstrook aantal in veld {nameof(RoadSegmentLaneChangeDbaseRecord.Schema.AANTAL)}: {problem.Parameters[1].Value}.";
                         break;
 
                     case nameof(DbaseFileProblems.LaneDirectionMismatch):
@@ -158,7 +158,7 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
 
                     case nameof(DbaseFileProblems.WidthOutOfRange):
                         translation =
-                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige wegbreedte in veld {nameof(RoadSegmentWidthChangeDbaseRecord.Schema.BREEDTE)}: {problem.Parameters[2].Value}.";
+                            $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige wegbreedte in veld {nameof(RoadSegmentWidthChangeDbaseRecord.Schema.BREEDTE)}: {problem.Parameters[1].Value}.";
                         break;
 
                     case nameof(DbaseFileProblems.RecordTypeMismatch):
