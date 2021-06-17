@@ -19,7 +19,7 @@
             <span>uitgegeven door</span>
             <span itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
               <a itemprop="url" href="https://www.vlaanderen.be/nl/contact/adressengids/diensten-van-de-vlaamse-overheid/administratieve-diensten-van-de-vlaamse-overheid/beleidsdomein-kanselarij-en-bestuur/agentschap-informatie-vlaanderen" target="_self">
-                <span itemprop="name">het Agentschap Informatie Vlaanderen</span>
+                <span itemprop="name">Digitaal Vlaanderen</span>
               </a><span id="wrVersion">Developer versie</span>
             </span>
           </div>

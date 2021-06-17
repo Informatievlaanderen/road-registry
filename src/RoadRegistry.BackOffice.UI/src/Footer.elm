@@ -65,7 +65,7 @@ viewFooter () =
                             [ itemprop "url", href "https://www.vlaanderen.be/nl/contact/adressengids/diensten-van-de-vlaamse-overheid/administratieve-diensten-van-de-vlaamse-overheid/beleidsdomein-kanselarij-en-bestuur/agentschap-informatie-vlaanderen", target "_self" ]
                             [ span
                                 [ itemprop "name" ]
-                                [ text "het Agentschap Informatie Vlaanderen" ]
+                                [ text "Digitaal Vlaanderen" ]
                             ]
                         , span
                             [ id "wrVersion" ]

@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/mssql/server:2019-latest
 
-LABEL maintainer "Informatie Vlaanderen <informatie.vlaanderen@vlaanderen.be>"
+LABEL maintainer "Digitaal Vlaanderen <digitaal.vlaanderen@vlaanderen.be>"
 
 COPY entrypoint.sh ./
 
