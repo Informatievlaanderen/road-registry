@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.Api
     using Amazon;
     using Amazon.Runtime;
     using Amazon.S3;
+    using BackOffice.Extracts;
     using BackOffice.Framework;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.Api;
@@ -177,6 +178,7 @@ namespace RoadRegistry.BackOffice.Api
                                     Schema = WellknownSchemas.EventSchema
                                 }))
                         .AddSingleton<IClock>(SystemClock.Instance)
+                        .AddSingleton(new NetTopologySuite.IO.WKTReader(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory))
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
                             new SqlBlobClient(
@@ -199,6 +201,11 @@ namespace RoadRegistry.BackOffice.Api
                                     sp.GetService<IClock>()
                                 ),
                                 new RoadNetworkCommandModule(
+                                    sp.GetService<IStreamStore>(),
+                                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                                    sp.GetService<IClock>()
+                                ),
+                                new RoadNetworkExtractCommandModule(
                                     sp.GetService<IStreamStore>(),
                                     sp.GetService<IRoadNetworkSnapshotReader>(),
                                     sp.GetService<IClock>()

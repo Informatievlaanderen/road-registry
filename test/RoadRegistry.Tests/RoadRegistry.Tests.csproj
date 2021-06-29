@@ -38,5 +38,9 @@
     </Content>
   </ItemGroup>
   
+  <ItemGroup>
+    <Folder Include="BackOffice\Extracts" />
+  </ItemGroup>
+  
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

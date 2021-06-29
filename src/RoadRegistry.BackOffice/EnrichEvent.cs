@@ -12,6 +12,7 @@ namespace RoadRegistry.BackOffice
             {
                 switch (@event)
                 {
+                    // Import
                     case Messages.BeganRoadNetworkImport m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
@@ -30,6 +31,7 @@ namespace RoadRegistry.BackOffice
                     case Messages.ImportedGradeSeparatedJunction m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
+                    // Uploads
                     case Messages.RoadNetworkChangesArchiveUploaded m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
@@ -39,10 +41,18 @@ namespace RoadRegistry.BackOffice
                     case Messages.RoadNetworkChangesArchiveRejected m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
+                    // Core
                     case Messages.RoadNetworkChangesAccepted m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
                     case Messages.RoadNetworkChangesRejected m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
+                        break;
+                    // Extracts
+                    case Messages.RoadNetworkExtractGotRequested m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
+                        break;
+                    case Messages.RoadNetworkExtractBecameAvailable m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
                 }

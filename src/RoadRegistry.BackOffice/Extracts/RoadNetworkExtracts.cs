@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Extracts
 {
     using System;
     using System.Collections.Generic;
@@ -10,17 +10,16 @@ namespace RoadRegistry.BackOffice.Core
     using SqlStreamStore;
     using SqlStreamStore.Streams;
 
-    public class Organizations : IOrganizations
+    public class RoadNetworkExtracts : IRoadNetworkExtracts
     {
-        public static readonly Func<OrganizationId, StreamName> ToStreamName =
-            id => new StreamName(id.ToString()).WithPrefix("organization-");
-
+        public static readonly StreamName Prefix = new StreamName("extract-");
+        public static StreamName ToStreamName(ExtractRequestId id) => Prefix.WithSuffix(id.ToString());
         private readonly EventSourcedEntityMap _map;
         private readonly IStreamStore _store;
         private readonly JsonSerializerSettings _settings;
         private readonly EventMapping _mapping;
 
-        public Organizations(EventSourcedEntityMap map, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
+        public RoadNetworkExtracts(EventSourcedEntityMap map, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
         {
             _map = map ?? throw new ArgumentNullException(nameof(map));
             _store = store ?? throw new ArgumentNullException(nameof(store));
@@ -28,20 +27,19 @@ namespace RoadRegistry.BackOffice.Core
             _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
         }
 
-        public async Task<Organization> TryGet(OrganizationId id, CancellationToken ct = default)
+        public async Task<RoadNetworkExtract> Get(ExtractRequestId id, CancellationToken ct = default)
         {
             var stream = ToStreamName(id);
             if (_map.TryGet(stream, out var entry))
             {
-                return (Organization)entry.Entity;
+                return (RoadNetworkExtract)entry.Entity;
             }
-            var organization = Organization.Factory();
-            var page = await _store.ReadStreamForwards(stream, StreamVersion.Start, 100, ct);
+            var page = await _store.ReadStreamForwards(stream, StreamVersion.Start, 1024, ct);
             if (page.Status == PageReadStatus.StreamNotFound)
             {
                 return null;
             }
-            IEventSourcedEntity entity = organization;
+            IEventSourcedEntity entity = RoadNetworkExtract.Factory();
             var messages = new List<object>(page.Messages.Length);
             foreach (var message in page.Messages)
             {
@@ -71,7 +69,15 @@ namespace RoadRegistry.BackOffice.Core
                 entity.RestoreFromEvents(messages.ToArray());
             }
             _map.Attach(new EventSourcedEntityMapEntry(entity, stream, page.LastStreamVersion));
-            return organization;
+            return (RoadNetworkExtract)entity;
+        }
+
+        public void Add(RoadNetworkExtract extract)
+        {
+            if (extract == null)
+                throw new ArgumentNullException(nameof(extract));
+
+            _map.Attach(new EventSourcedEntityMapEntry(extract, ToStreamName(extract.Id), ExpectedVersion.NoStream));
         }
     }
 }

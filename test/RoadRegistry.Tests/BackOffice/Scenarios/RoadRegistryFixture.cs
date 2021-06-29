@@ -6,6 +6,7 @@ namespace RoadRegistry.BackOffice.Scenarios
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Core;
+    using Extracts;
     using Framework;
     using Messages;
     using Newtonsoft.Json;
@@ -43,7 +44,10 @@ namespace RoadRegistry.BackOffice.Scenarios
             Clock = new FakeClock(NodaConstants.UnixEpoch);
 
             _runner = new ScenarioRunner(
-                Resolve.WhenEqualToMessage(new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), Clock)),
+                Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
+                        new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), Clock),
+                        new RoadNetworkExtractCommandModule(Store, new FakeRoadNetworkSnapshotReader(), Clock)
+                    }),
                 Store,
                 Settings,
                 Mapping,

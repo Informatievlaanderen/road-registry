@@ -13,6 +13,7 @@ namespace RoadRegistry.Editor.Projections
     using Microsoft.IO;
     using Schema;
     using Schema.RoadNodes;
+    using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
     public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
     {
@@ -35,7 +36,7 @@ namespace RoadRegistry.Editor.Projections
                     LBLBGNORG = {Value = envelope.Message.Origin.Organization}
                 };
 
-                var point = GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(envelope.Message.Geometry));
+                var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry));
                 var pointShapeContent = new PointShapeContent(point);
 
                 await context.RoadNodes.AddAsync(new RoadNodeRecord
@@ -89,7 +90,7 @@ namespace RoadRegistry.Editor.Projections
                 LBLBGNORG = {Value = envelope.Message.Organization}
             };
 
-            var point = GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(node.Geometry));
+            var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(node.Geometry));
             var pointShapeContent = new PointShapeContent(point);
 
             await context.RoadNodes.AddAsync(new RoadNodeRecord
@@ -120,7 +121,7 @@ namespace RoadRegistry.Editor.Projections
                 LBLBGNORG = {Value = envelope.Message.Organization}
             };
 
-            var point = GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(node.Geometry));
+            var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(node.Geometry));
             var pointShapeContent = new PointShapeContent(point);
 
             var roadNode = await context.RoadNodes.FindAsync(node.Id);

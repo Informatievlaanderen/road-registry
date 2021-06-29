@@ -14,7 +14,7 @@ namespace RoadRegistry.Product.Projections
     using Schema.RoadSegments;
     using Wms.Projections;
     using Xunit;
-    using GeometryTranslator = BackOffice.Core.GeometryTranslator;
+    using GeometryTranslator = BackOffice.GeometryTranslator;
 
     public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>
     {

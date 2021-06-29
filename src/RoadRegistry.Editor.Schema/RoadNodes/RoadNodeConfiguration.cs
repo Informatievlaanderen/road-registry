@@ -17,6 +17,7 @@ namespace RoadRegistry.Editor.Schema.RoadNodes
             b.Property(p => p.ShapeRecordContent).IsRequired();
             b.Property(p => p.ShapeRecordContentLength).IsRequired();
             b.Property(p => p.DbaseRecord).IsRequired();
+            //b.Property(p => p.Geometry).HasColumnType("Geometry");
 
             b.OwnsOne(p => p.BoundingBox);
         }

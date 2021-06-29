@@ -71,7 +71,7 @@ namespace RoadRegistry.Editor.Projections
                 .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
                 .Select(importedRoadSegment =>
                 {
-                    var geometry = BackOffice.Core.GeometryTranslator.Translate(importedRoadSegment.Geometry);
+                    var geometry = GeometryTranslator.Translate(importedRoadSegment.Geometry);
                     var polyLineMShapeContent = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
 
                     var expected = new RoadSegmentRecord
@@ -128,7 +128,7 @@ namespace RoadRegistry.Editor.Projections
             var expectedRecords = Array.ConvertAll(message.Changes, change =>
             {
                 var segment = change.RoadSegmentAdded;
-                var geometry = BackOffice.Core.GeometryTranslator.Translate(segment.Geometry);
+                var geometry = GeometryTranslator.Translate(segment.Geometry);
                 var polyLineMShapeContent = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
 
                 return (object)new RoadSegmentRecord
@@ -190,7 +190,7 @@ namespace RoadRegistry.Editor.Projections
             var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
             {
                 var segment = change.RoadSegmentModified;
-                var geometry = BackOffice.Core.GeometryTranslator.Translate(segment.Geometry);
+                var geometry = GeometryTranslator.Translate(segment.Geometry);
                 var polyLineMShapeContent = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
 
                 return (object)new RoadSegmentRecord

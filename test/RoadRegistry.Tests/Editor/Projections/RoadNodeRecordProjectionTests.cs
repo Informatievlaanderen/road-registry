@@ -49,7 +49,7 @@ namespace RoadRegistry.Editor.Projections
                 .CreateMany<ImportedRoadNode>(new Random().Next(1, 100))
                 .Select(@event =>
                 {
-                    var point = BackOffice.Core.GeometryTranslator.Translate(@event.Geometry);
+                    var point = GeometryTranslator.Translate(@event.Geometry);
                     var pointShapeContent = new PointShapeContent(
                         Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(
                             new NetTopologySuite.Geometries.Point(point.X, point.Y)
