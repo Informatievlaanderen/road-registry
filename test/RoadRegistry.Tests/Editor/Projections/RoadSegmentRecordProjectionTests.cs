@@ -80,6 +80,7 @@ namespace RoadRegistry.Editor.Projections
                         ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                         BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
+                        Geometry = geometry,
                         DbaseRecord = new RoadSegmentDbaseRecord
                         {
                             WS_OIDN = { Value = importedRoadSegment.Id },
@@ -137,6 +138,7 @@ namespace RoadRegistry.Editor.Projections
                         ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                         BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
+                        Geometry = geometry,
                         DbaseRecord = new RoadSegmentDbaseRecord
                         {
                             WS_OIDN = { Value = segment.Id },
@@ -199,6 +201,7 @@ namespace RoadRegistry.Editor.Projections
                         ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                         BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
+                        Geometry = geometry,
                         DbaseRecord = new RoadSegmentDbaseRecord
                         {
                             WS_OIDN = { Value = segment.Id },

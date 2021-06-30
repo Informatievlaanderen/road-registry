@@ -8,7 +8,7 @@ namespace RoadRegistry.Editor.Schema.RoadNodes
         public byte[] ShapeRecordContent { get; set; }
         public int ShapeRecordContentLength { get; set; }
         public byte[] DbaseRecord { get; set; }
-        //public Geometry Geometry { get; set; }
+        public Geometry Geometry { get; set; }
         public RoadNodeBoundingBox BoundingBox { get; set; }
     }
 }

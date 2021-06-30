@@ -40,6 +40,7 @@ namespace RoadRegistry.Editor.Projections
                         ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding),
                         ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                         BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
+                        Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry),
                         DbaseRecord = new RoadSegmentDbaseRecord
                         {
                             WS_OIDN = {Value = envelope.Message.Id},
@@ -115,6 +116,7 @@ namespace RoadRegistry.Editor.Projections
                     ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding),
                     ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                     BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
+                    Geometry = BackOffice.GeometryTranslator.Translate(segment.Geometry),
                     DbaseRecord = new RoadSegmentDbaseRecord
                     {
                         WS_OIDN = {Value = segment.Id},
@@ -168,6 +170,7 @@ namespace RoadRegistry.Editor.Projections
             roadSegmentRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
             roadSegmentRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
             roadSegmentRecord.BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape);
+            roadSegmentRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry);
             var dbaseRecord = new RoadSegmentDbaseRecord();
             dbaseRecord.FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
             dbaseRecord.WS_UIDN.Value = $"{roadSegmentModified.Id}_{roadSegmentModified.Version}";

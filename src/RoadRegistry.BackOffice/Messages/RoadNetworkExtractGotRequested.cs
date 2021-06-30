@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.Messages
     using System;
     using Be.Vlaanderen.Basisregisters.EventHandling;
 
-    [EventName("RoadNetworkGotRequested")]
+    [EventName("RoadNetworkExtractGotRequested")]
     [EventDescription("Indicates a road network extract was requested.")]
     public class RoadNetworkExtractGotRequested
     {

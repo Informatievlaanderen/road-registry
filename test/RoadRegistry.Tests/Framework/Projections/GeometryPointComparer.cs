@@ -5,21 +5,21 @@ namespace RoadRegistry.Framework.Projections
     using KellermanSoftware.CompareNetObjects.TypeComparers;
     using NetTopologySuite.Geometries;
 
-    public class GeometryMultiPolygonComparer : BaseTypeComparer
+    public class GeometryPointComparer : BaseTypeComparer
     {
-        public GeometryMultiPolygonComparer(RootComparer rootComparer) : base(rootComparer)
+        public GeometryPointComparer(RootComparer rootComparer) : base(rootComparer)
         {
         }
 
         public override bool IsTypeMatch(Type type1, Type type2)
         {
-            return type1 == typeof (MultiPolygon);
+            return type1 == typeof (Point);
         }
 
         public override void CompareType(CompareParms parms)
         {
-            var left = (MultiPolygon)parms.Object1;
-            var right = (MultiPolygon)parms.Object2;
+            var left = (Point)parms.Object1;
+            var right = (Point)parms.Object2;
 
             if (!left.EqualsExact(right))
             {

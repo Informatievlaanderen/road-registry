@@ -73,7 +73,8 @@ namespace RoadRegistry.Editor.Projections
                         }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                        BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
+                        BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape),
+                        Geometry = point
                     };
 
                     return new
@@ -122,7 +123,8 @@ namespace RoadRegistry.Editor.Projections
                     }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
+                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape),
+                    Geometry = point
                 };
             });
 
@@ -171,7 +173,8 @@ namespace RoadRegistry.Editor.Projections
                     }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
+                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape),
+                    Geometry = point
                 };
             });
 
