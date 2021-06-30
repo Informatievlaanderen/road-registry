@@ -1,3 +1,11 @@
+# [1.38.0](https://github.com/informatievlaanderen/road-registry/compare/v1.37.2...v1.38.0) (2021-06-30)
+
+
+### Features
+
+* ignore the field offset in all uploaded dbase file headers ([#246](https://github.com/informatievlaanderen/road-registry/issues/246)) ([ea5bdd9](https://github.com/informatievlaanderen/road-registry/commit/ea5bdd9980297c74a491678e56d95437f22dda93))
+* upgrade net core ([#244](https://github.com/informatievlaanderen/road-registry/issues/244)) ([5a68b9e](https://github.com/informatievlaanderen/road-registry/commit/5a68b9e1b851179aa92bdb9b7e38fd7767b9146a))
+
 ## [1.37.2](https://github.com/informatievlaanderen/road-registry/compare/v1.37.1...v1.37.2) (2021-06-15)
 
 
