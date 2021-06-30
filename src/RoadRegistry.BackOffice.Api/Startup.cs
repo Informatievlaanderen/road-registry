@@ -57,8 +57,8 @@ namespace RoadRegistry.BackOffice.Api
                             Description = GetApiLeadingText(description),
                             Contact = new OpenApiContact
                             {
-                                Name = "Informatie Vlaanderen",
-                                Email = "informatie.vlaanderen@vlaanderen.be",
+                                Name = "Digitaal Vlaanderen",
+                                Email = "digitaal.vlaanderen@vlaanderen.be",
                                 Url = new Uri("https://legacy.basisregisters.vlaanderen")
                             }
                         }
@@ -149,7 +149,7 @@ namespace RoadRegistry.BackOffice.Api
                     Server =
                     {
                         PoweredByName = "Vlaamse overheid - Basisregisters Vlaanderen",
-                        ServerName = "agentschap Informatie Vlaanderen"
+                        ServerName = "Digitaal Vlaanderen"
                     },
                     MiddlewareHooks =
                     {
