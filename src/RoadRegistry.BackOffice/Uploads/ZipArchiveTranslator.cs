@@ -22,7 +22,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "WEGKNOOP_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<RoadNodeChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             new RoadNodeChangeDbaseRecordsTranslator()
                         )
                     },
@@ -36,7 +36,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "WEGSEGMENT_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<RoadSegmentChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             new RoadSegmentChangeDbaseRecordsTranslator()
                         )
                     },
@@ -50,49 +50,49 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "ATTEUROPWEG_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<EuropeanRoadChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             new EuropeanRoadChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "ATTNATIONWEG_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<NationalRoadChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             new NationalRoadChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "ATTGENUMWEG_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<NumberedRoadChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             new NumberedRoadChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "ATTRIJSTROKEN_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<RoadSegmentLaneChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             new RoadSegmentLaneChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "ATTWEGBREEDTE_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<RoadSegmentWidthChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             new RoadSegmentWidthChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "ATTWEGVERHARDING_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<RoadSegmentSurfaceChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             new RoadSegmentSurfaceChangeDbaseRecordsTranslator()
                         )
                     },
                     {
                         "RLTOGKRUISING_ALL.DBF",
                         new ZipArchiveDbaseEntryTranslator<GradeSeparatedJunctionChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             new GradeSeparatedJunctionChangeDbaseRecordsTranslator()
                         )
                     },
