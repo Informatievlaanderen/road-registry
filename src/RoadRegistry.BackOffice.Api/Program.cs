@@ -10,6 +10,7 @@ namespace RoadRegistry.BackOffice.Api
     using BackOffice.Framework;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.Api;
+    using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
@@ -166,6 +167,7 @@ namespace RoadRegistry.BackOffice.Api
                     hostContext.Configuration.GetSection(nameof(ZipArchiveWriterOptions)).Bind(zipArchiveWriterOptions);
 
                     builder
+                        .AddSingleton<ProblemDetailsHelper>()
                         .AddSingleton<ZipArchiveWriterOptions>(zipArchiveWriterOptions)
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(
