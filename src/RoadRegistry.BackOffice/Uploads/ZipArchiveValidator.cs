@@ -30,7 +30,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "WEGKNOOP_ALL.DBF",
                         new ZipArchiveDbaseEntryValidator<RoadNodeChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             RoadNodeChangeDbaseRecord.Schema,
                             new RoadNodeChangeDbaseRecordsValidator()
                         )
@@ -45,7 +45,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "WEGSEGMENT_ALL.DBF",
                         new ZipArchiveDbaseEntryValidator<RoadSegmentChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             RoadSegmentChangeDbaseRecord.Schema,
                             new RoadSegmentChangeDbaseRecordsValidator()
                         )
@@ -53,7 +53,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "ATTEUROPWEG_ALL.DBF",
                         new ZipArchiveDbaseEntryValidator<EuropeanRoadChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             EuropeanRoadChangeDbaseRecord.Schema,
                             new EuropeanRoadChangeDbaseRecordsValidator()
                         )
@@ -61,7 +61,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "ATTNATIONWEG_ALL.DBF",
                         new ZipArchiveDbaseEntryValidator<NationalRoadChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             NationalRoadChangeDbaseRecord.Schema,
                             new NationalRoadChangeDbaseRecordsValidator()
                         )
@@ -69,7 +69,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "ATTGENUMWEG_ALL.DBF",
                         new ZipArchiveDbaseEntryValidator<NumberedRoadChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             NumberedRoadChangeDbaseRecord.Schema,
                             new NumberedRoadChangeDbaseRecordsValidator()
                         )
@@ -77,7 +77,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "ATTRIJSTROKEN_ALL.DBF",
                         new ZipArchiveDbaseEntryValidator<RoadSegmentLaneChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             RoadSegmentLaneChangeDbaseRecord.Schema,
                             new RoadSegmentLaneChangeDbaseRecordsValidator()
                         )
@@ -85,7 +85,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "ATTWEGBREEDTE_ALL.DBF",
                         new ZipArchiveDbaseEntryValidator<RoadSegmentWidthChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             RoadSegmentWidthChangeDbaseRecord.Schema,
                             new RoadSegmentWidthChangeDbaseRecordsValidator()
                         )
@@ -93,7 +93,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "ATTWEGVERHARDING_ALL.DBF",
                         new ZipArchiveDbaseEntryValidator<RoadSegmentSurfaceChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             RoadSegmentSurfaceChangeDbaseRecord.Schema,
                             new RoadSegmentSurfaceChangeDbaseRecordsValidator()
                         )
@@ -101,7 +101,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "RLTOGKRUISING_ALL.DBF",
                         new ZipArchiveDbaseEntryValidator<GradeSeparatedJunctionChangeDbaseRecord>(
-                            encoding, DbaseFileHeaderReadBehavior.Default,
+                            encoding, new DbaseFileHeaderReadBehavior(true),
                             GradeSeparatedJunctionChangeDbaseRecord.Schema,
                             new GradeSeparatedJunctionChangeDbaseRecordsValidator()
                         )
