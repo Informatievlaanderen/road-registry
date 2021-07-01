@@ -1,3 +1,10 @@
+## [1.38.1](https://github.com/informatievlaanderen/road-registry/compare/v1.38.0...v1.38.1) (2021-07-01)
+
+
+### Bug Fixes
+
+* bump actions/setup-node from 2.1.5 to 2.2.0 (chore) + trigger build for 31a715 ([fb8b964](https://github.com/informatievlaanderen/road-registry/commit/fb8b964b5a9e511786db6358f901f0d7a88d52e2))
+
 # [1.38.0](https://github.com/informatievlaanderen/road-registry/compare/v1.37.2...v1.38.0) (2021-06-30)
 
 
