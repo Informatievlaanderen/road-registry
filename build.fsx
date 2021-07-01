@@ -69,6 +69,7 @@ Target.create "Build_Solution" (fun _ ->
   buildSource "RoadRegistry.Wms.ProjectionHost"
   buildSource "RoadRegistry.BackOffice.CommandHost"
   buildSource "RoadRegistry.BackOffice.EventHost"
+  buildSource "RoadRegistry.BackOffice.ExtractHost"
   buildSource "RoadRegistry.BackOffice.Api"
   buildSource "RoadRegistry.Legacy.Extract"
   buildSource "RoadRegistry.Legacy.Import"
@@ -88,6 +89,7 @@ Target.create "Publish_Solution" (fun _ ->
     "RoadRegistry.Wms.ProjectionHost"
     "RoadRegistry.Syndication.ProjectionHost"
     "RoadRegistry.BackOffice.EventHost"
+    "RoadRegistry.BackOffice.ExtractHost"
     "RoadRegistry.BackOffice.CommandHost"
     "RoadRegistry.Legacy.Extract"
     "RoadRegistry.Legacy.Import"
@@ -127,6 +129,9 @@ Target.create "PushContainer_SyndicationProjectionHost" (fun _ -> push "syndicat
 
 Target.create "Containerize_BackOfficeEventHost" (fun _ -> containerize "RoadRegistry.BackOffice.EventHost" "backoffice-eventhost")
 Target.create "PushContainer_BackOfficeEventHost" (fun _ -> push "backoffice-eventhost")
+
+Target.create "Containerize_BackOfficeExtractHost" (fun _ -> containerize "RoadRegistry.BackOffice.ExtractHost" "backoffice-extracthost")
+Target.create "PushContainer_BackOfficeExtractHost" (fun _ -> push "backoffice-extracthost")
 
 Target.create "Containerize_BackOfficeCommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
 Target.create "PushContainer_BackOfficeCommandHost" (fun _ -> push "backoffice-commandhost")
@@ -173,6 +178,7 @@ Target.create "Push" ignore
   ==> "Containerize_WmsProjectionHost"
   ==> "Containerize_SyndicationProjectionHost"
   ==> "Containerize_BackOfficeEventHost"
+  ==> "Containerize_BackOfficeExtractHost"
   ==> "Containerize_BackOfficeCommandHost"
   ==> "Containerize_ImportLegacy"
   ==> "Containerize_ExtractLegacy"
@@ -188,6 +194,7 @@ Target.create "Push" ignore
   ==> "PushContainer_WmsProjectionHost"
   ==> "PushContainer_SyndicationProjectionHost"
   ==> "PushContainer_BackOfficeEventHost"
+  ==> "PushContainer_BackOfficeExtractHost"
   ==> "PushContainer_BackOfficeCommandHost"
   ==> "PushContainer_ImportLegacy"
   ==> "PushContainer_ExtractLegacy"

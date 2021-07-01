@@ -9,6 +9,7 @@ namespace RoadRegistry.BackOffice.Api
     using FluentValidation;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using NetTopologySuite;
     using NetTopologySuite.IO;
     using NodaTime;
     using SqlStreamStore;
@@ -33,6 +34,7 @@ namespace RoadRegistry.BackOffice.Api
                 )
             );
         }
+
         [Fact]
         public async Task When_requesting_an_extract_for_the_first_time()
         {
@@ -40,7 +42,7 @@ namespace RoadRegistry.BackOffice.Api
             {
                 PrecisionModel = GeometryConfiguration.GeometryFactory.PrecisionModel
             };
-            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(GeometryConfiguration.GeometryFactory))
+            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID)))
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -62,7 +64,7 @@ namespace RoadRegistry.BackOffice.Api
             {
                 PrecisionModel = GeometryConfiguration.GeometryFactory.PrecisionModel
             };
-            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(GeometryConfiguration.GeometryFactory))
+            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID)))
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -84,7 +86,7 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_requesting_an_extract_without_contour()
         {
-            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(GeometryConfiguration.GeometryFactory))
+            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID)))
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -110,7 +112,7 @@ namespace RoadRegistry.BackOffice.Api
             {
                 PrecisionModel = GeometryConfiguration.GeometryFactory.PrecisionModel
             };
-            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(GeometryConfiguration.GeometryFactory))
+            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID)))
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };

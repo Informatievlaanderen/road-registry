@@ -178,7 +178,12 @@ namespace RoadRegistry.BackOffice.Api
                                     Schema = WellknownSchemas.EventSchema
                                 }))
                         .AddSingleton<IClock>(SystemClock.Instance)
-                        .AddSingleton(new NetTopologySuite.IO.WKTReader(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory))
+                        .AddSingleton(new NetTopologySuite.IO.WKTReader(
+                            new NetTopologySuite.NtsGeometryServices(
+                                Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory.PrecisionModel,
+                                Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory.SRID
+                                )
+                            ))
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
                             new SqlBlobClient(
