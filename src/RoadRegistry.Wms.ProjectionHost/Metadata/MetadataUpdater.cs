@@ -66,8 +66,8 @@ namespace RoadRegistry.Wms.ProjectionHost.Metadata
                    $"<csw:Value>{description}</csw:Value>" + "</csw:RecordProperty>" + "<csw:RecordProperty>" +
                    "<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/gml:endPosition</csw:Name>" +
                    $"<csw:Value>{shortDate}</csw:Value>" + "</csw:RecordProperty>" + "<csw:RecordProperty>" +
-                   "<csw:Name>gmd:dateStamp/gco:DateTime</csw:Name>" +
-                   $"<csw:Value>{currentInstant:yyyy-MM-ddThh:mm:ss}</csw:Value>" +
+                   "<csw:Name>gmd:dateStamp/gco:date</csw:Name>" +
+                   $"<csw:Value>{shortDate}</csw:Value>" +
                    "</csw:RecordProperty>" + "<csw:Constraint version=\"1.1.0\">" + "<ogc:Filter>" +
                    "<ogc:PropertyIsEqualTo>" + "<ogc:PropertyName>Identifier</ogc:PropertyName>" +
                    $"<ogc:Literal>{id}</ogc:Literal>" + "</ogc:PropertyIsEqualTo>" + "</ogc:Filter>" +
