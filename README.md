@@ -109,20 +109,26 @@ To test whether the backoffice command host works you can type
 `docker-compose up --build backoffice-command-host`
 
 To test whether the backoffice api and ui work you can type
-
+docker-om
 `docker-compose up --build backoffice-api backoffice-ui`
 
 Several projections use a cache called the syndication projections. 
 These are built from the streetname and municipality registries, using their respective syndication feeds.
 You will need a copy of the Municipality Syndication table from the municipality registry
 
-`bcp MunicipalityRegistryLegacy.MunicipalitySyndication out ./syndication.bcp -S<host>,<port> -U <user> -d municipality-registry -n -E`
+`bcp MunicipalityRegistryLegacy.MunicipalitySyndication out ./municipality-syndication.bcp -S<host>,<port> -U <user> -d municipality-registry -n -E`
 
 and a copy of the StreetName Syndication table from the street name registry
 
-`bcp StreetNameRegistryLegacy.StreetNameSyndication out ./syndication.bcp -S<host>,<port> -U <user> -d streetname-registry -n -E`
+`bcp StreetNameRegistryLegacy.StreetNameSyndication out ./streetname-syndication.bcp -S<host>,<port> -U <user> -d streetname-registry -n -E`
 
 and copy these to `src/RoadRegistry.MunicipalityDatabase/filled` and `src/RoadRegistry.StreetNameDatabase/filled` respectively.
+
+```
+cp ./municipality-syndication.bcp src/RoadRegistry.MunicipalityDatabase/filled
+cp ./streetname-syndication.bcp src/RoadRegistry.StreetNameDatabase/filled
+
+```
 
 To seed the database for these syndication feeds you can type
 

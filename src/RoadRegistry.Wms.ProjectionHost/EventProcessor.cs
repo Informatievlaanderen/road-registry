@@ -10,7 +10,7 @@ namespace RoadRegistry.Wms.ProjectionHost
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Microsoft.Data.SqlClient;
+    using Metadata;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
@@ -19,7 +19,6 @@ namespace RoadRegistry.Wms.ProjectionHost
     using Schema;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
-    using SqlStreamStore.Subscriptions;
 
     public class EventProcessor : IHostedService
     {
@@ -36,7 +35,6 @@ namespace RoadRegistry.Wms.ProjectionHost
                     EventMapping.DiscoverEventNamesInAssembly(typeof(SynchronizeWithStreetNameCache).Assembly)
                 }.SelectMany(dict => dict).ToDictionary(x => x.Key, x => x.Value));
 
-        private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
         private static readonly TimeSpan SynchronizeWithStreetNameCacheAfter = TimeSpan.FromMinutes(5);
 
         private readonly Channel<object> _messageChannel;
@@ -45,10 +43,10 @@ namespace RoadRegistry.Wms.ProjectionHost
 
         private readonly Scheduler _scheduler;
         private readonly ILogger<EventProcessor> _logger;
+        private readonly IHostApplicationLifetime _lifeTime;
 
         private const int CatchUpThreshold = 1000;
         private const int CatchUpBatchSize = 5000;
-        private const int RecordPositionThreshold = 1000;
         private const int SynchronizeWithCacheBatchSize = 100;
 
         public EventProcessor(
@@ -59,7 +57,9 @@ namespace RoadRegistry.Wms.ProjectionHost
             Func<WmsContext> dbContextFactory,
             IStreetNameCache streetNameCache,
             Scheduler scheduler,
-            ILogger<EventProcessor> logger)
+            ILogger<EventProcessor> logger,
+            IHostApplicationLifetime lifeTime,
+            IMetadataUpdater metadataUpdater)
         {
             if (streamStore == null) throw new ArgumentNullException(nameof(streamStore));
             if (filter == null) throw new ArgumentNullException(nameof(filter));
@@ -69,6 +69,7 @@ namespace RoadRegistry.Wms.ProjectionHost
 
             _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _lifeTime = lifeTime;
 
             _messagePumpCancellation = new CancellationTokenSource();
             _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
@@ -83,7 +84,8 @@ namespace RoadRegistry.Wms.ProjectionHost
                 try
                 {
                     logger.LogInformation("EventProcessor message pump entered ...");
-                    while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
+                    while (!_messagePumpCancellation.IsCancellationRequested &&
+                        await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
                     {
                         while (_messageChannel.Reader.TryRead(out var message))
                         {
@@ -158,7 +160,7 @@ namespace RoadRegistry.Wms.ProjectionHost
                                             : head - CatchUpThreshold <= 0))
                                         {
                                             await _messageChannel.Writer
-                                                .WriteAsync(new Subscribe(after), _messagePumpCancellation.Token)
+                                                .WriteAsync(new CatchUp(after, CatchUpBatchSize), _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
                                         }
                                         else
@@ -260,143 +262,8 @@ namespace RoadRegistry.Wms.ProjectionHost
 
                                     await context.DisposeAsync().ConfigureAwait(false);
 
-                                    //switch to subscription as of the last page
-                                    await _messageChannel.Writer
-                                        .WriteAsync(
-                                            new Subscribe(catchUpPosition),
-                                            _messagePumpCancellation.Token)
-                                        .ConfigureAwait(false);
-                                    break;
-                                case Subscribe subscribe:
-                                    logger.LogInformation("Subscribing as of {0}", subscribe.AfterPosition ?? -1L);
-                                    subscription?.Dispose();
-                                    subscription = streamStore.SubscribeToAll(
-                                        subscribe.AfterPosition, async (_, streamMessage, token) =>
-                                        {
-                                            if (filter(streamMessage))
-                                            {
-                                                logger.LogInformation("Observing {0} at {1}", streamMessage.Type,
-                                                    streamMessage.Position);
-                                                var command = new ProcessStreamMessage(streamMessage);
-                                                await _messageChannel.Writer.WriteAsync(command, token).ConfigureAwait(false);
-                                                await command.Completion.ConfigureAwait(false);
-                                            }
-                                            else if (streamMessage.Position % RecordPositionThreshold == 0 &&
-                                                     !_messagePumpCancellation.IsCancellationRequested)
-                                            {
-                                                await _messageChannel.Writer
-                                                    .WriteAsync(new RecordPosition(streamMessage), token)
-                                                    .ConfigureAwait(false);
-                                            }
-                                        }, async (_, reason, exception) =>
-                                        {
-                                            if (!_messagePumpCancellation.IsCancellationRequested)
-                                            {
-                                                await _messageChannel.Writer
-                                                    .WriteAsync(
-                                                        new SubscriptionDropped(reason, exception),
-                                                        _messagePumpCancellation.Token)
-                                                    .ConfigureAwait(false);
-                                            }
-                                        },
-                                        prefetchJsonData: false,
-                                        name: "RoadRegistry.Wms.ProjectionHost.EventProcessor");
-
-                                    break;
-                                case RecordPosition record:
-                                    try
-                                    {
-                                        logger.LogInformation("Recording position of {MessageType} at {Position}.",
-                                            record.Message.Type, record.Message.Position);
-
-                                        await using (var recordContext = dbContextFactory())
-                                        {
-                                            await recordContext
-                                                .UpdateProjectionState(
-                                                    RoadRegistryWmsProjectionHost,
-                                                    record.Message.Position, _messagePumpCancellation.Token)
-                                                .ConfigureAwait(false);
-
-                                            await recordContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
-                                        }
-                                    }
-                                    catch (Exception exception)
-                                    {
-                                        logger.LogError(exception, exception.Message);
-                                    }
-
-                                    break;
-                                case ProcessStreamMessage process:
-                                    try
-                                    {
-                                        logger.LogInformation("Processing {MessageType} at {Position}",
-                                            process.Message.Type, process.Message.Position);
-
-                                        var envelope = envelopeFactory.Create(process.Message);
-                                        var handlers = resolver(envelope);
-                                        await using (var processContext = dbContextFactory())
-                                        {
-                                            processContext.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                                            foreach (var handler in handlers)
-                                            {
-                                                await handler
-                                                    .Handler(processContext, envelope, _messagePumpCancellation.Token)
-                                                    .ConfigureAwait(false);
-                                            }
-
-                                            await processContext.UpdateProjectionState(
-                                                RoadRegistryWmsProjectionHost,
-                                                process.Message.Position,
-                                                _messagePumpCancellation.Token).ConfigureAwait(false);
-                                            processContext.ChangeTracker.DetectChanges();
-                                            await processContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
-                                        }
-
-                                        process.Complete();
-                                    }
-                                    catch (Exception exception)
-                                    {
-                                        logger.LogError(exception, exception.Message);
-
-                                        // how are we going to recover from this? do we even need to recover from this?
-                                        // prediction: it's going to be a serialization error, a data quality error, or a bug
-
-                                        process.Fault(exception);
-                                    }
-
-                                    break;
-                                case SubscriptionDropped dropped:
-                                    if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
-                                    {
-                                        logger.LogError(dropped.Exception,
-                                            "Subscription was dropped because of a stream store error");
-                                        await scheduler.Schedule(async token =>
-                                        {
-                                            if (!_messagePumpCancellation.IsCancellationRequested)
-                                            {
-                                                await _messageChannel.Writer.WriteAsync(new Resume(), token).ConfigureAwait(false);
-                                            }
-                                        }, ResubscribeAfter).ConfigureAwait(false);
-                                    }
-                                    else if (dropped.Reason == SubscriptionDroppedReason.SubscriberError)
-                                    {
-                                        logger.LogError(dropped.Exception,
-                                            "Subscription was dropped because of a subscriber error");
-
-                                        if (dropped.Exception != null
-                                            && dropped.Exception is SqlException sqlException
-                                            && sqlException.Number == -2 /* timeout */)
-                                        {
-                                            await scheduler.Schedule(async token =>
-                                            {
-                                                if (!_messagePumpCancellation.IsCancellationRequested)
-                                                {
-                                                    await _messageChannel.Writer.WriteAsync(new Resume(), token).ConfigureAwait(false);
-                                                }
-                                            }, ResubscribeAfter).ConfigureAwait(false);
-                                        }
-                                    }
+                                    await metadataUpdater.UpdateAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
+                                    _lifeTime.StopApplication();
 
                                     break;
                             }
@@ -438,56 +305,6 @@ namespace RoadRegistry.Wms.ProjectionHost
             public int BatchSize { get; }
         }
 
-        private class Subscribe
-        {
-            public Subscribe(long? afterPosition)
-            {
-                AfterPosition = afterPosition;
-            }
-
-            public long? AfterPosition { get; }
-        }
-
-        private class SubscriptionDropped
-        {
-            public SubscriptionDropped(SubscriptionDroppedReason reason, Exception exception)
-            {
-                Reason = reason;
-                Exception = exception;
-            }
-
-            public SubscriptionDroppedReason Reason { get; }
-            public Exception Exception { get; }
-        }
-
-        private class ProcessStreamMessage
-        {
-            private readonly TaskCompletionSource<object> _source;
-
-            public ProcessStreamMessage(StreamMessage message)
-            {
-                Message = message;
-                _source = new TaskCompletionSource<object>();
-            }
-
-            public StreamMessage Message { get; }
-
-            public Task Completion => _source.Task;
-
-            public void Complete() => _source.TrySetResult(null);
-            public void Fault(Exception exception) => _source.TrySetException(exception);
-        }
-
-        private class RecordPosition
-        {
-            public StreamMessage Message { get; }
-
-            public RecordPosition(StreamMessage message)
-            {
-                Message = message;
-            }
-        }
-
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting event processor ...");
@@ -500,8 +317,8 @@ namespace RoadRegistry.Wms.ProjectionHost
         {
             _logger.LogInformation("Stopping event processor ...");
             _messageChannel.Writer.Complete();
-            _messagePumpCancellation.Cancel();
             await _messagePump.ConfigureAwait(false);
+            _messagePumpCancellation.Cancel();
             _messagePumpCancellation.Dispose();
             await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
             _logger.LogInformation("Stopped event processor.");

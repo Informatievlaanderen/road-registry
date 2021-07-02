@@ -11,6 +11,7 @@
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Metadata;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -78,9 +79,11 @@
                 .ConfigureServices((hostContext, builder) =>
                 {
                     builder
+                        .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
                         .AddSingleton<IStreetNameCache, StreetNameCache>()
+                        .AddScoped<IMetadataUpdater, MetadataUpdater>()
                         .AddHostedService<EventProcessor>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(new EnvelopeFactory(
