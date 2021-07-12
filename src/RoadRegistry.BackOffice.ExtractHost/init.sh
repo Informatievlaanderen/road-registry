@@ -10,4 +10,4 @@ echo CONTAINERID = $CONTAINERID
 
 sed -i "s/REPLACE_CONTAINERID/$CONTAINERID/g" appsettings.json
 
-./RoadRegistry.BackOffice.EventHost
+./RoadRegistry.BackOffice.ExtractHost

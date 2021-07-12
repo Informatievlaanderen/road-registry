@@ -39,10 +39,17 @@ This host reacts to things happening in the entire event stream, selectively cho
 When the `CompletedRoadNetworkImport` event is observed, this host will create a snapshot of the road network and store it as a blob. This will speed up access to the road network.
 When the `RoadNetworkChangesArchiveAccepted` event is observed, this host will translate the changes into a command that can be picked up and handled by the BackOffice Command Host.
 
+### BackOffice Extract Host
+
+This host reacts to things happening in the entire event stream, selectively choosing if, when and what to do.
+The reason to keep it separate from the above event host is to guarantee throughput, to isolate dependencies, to be able to tune memory and cpu for the task at hand.  
+When the `RoadNetworkExtractGotRequested` event is observed, this host will assemble an extract based on the requested contour, upload it and announce that the extract became available.
+
 ### BackOffice Command Host
 
 This host react to things happening in the `roadnetwork-command-queue` event stream.
 When the `ChangeRoadNetworkBasedOnArchive` command is observed, this host will try to merge the requested changes into the golden copy of the road network.
+When the `AnnounceRoadNetworkExtractBecameAvailable` command is observed, this host will tell the request to announce that the extract became available.
 
 ### BackOffice API
 

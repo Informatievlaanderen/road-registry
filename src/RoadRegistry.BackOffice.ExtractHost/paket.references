@@ -4,6 +4,8 @@ Microsoft.Extensions.Hosting
 
 SqlStreamStore.MsSql
 
+Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+
 Serilog
 Serilog.Enrichers.Environment
 Serilog.Enrichers.Thread

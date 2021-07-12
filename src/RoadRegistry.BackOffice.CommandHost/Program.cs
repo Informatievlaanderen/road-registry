@@ -15,6 +15,7 @@
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
     using Configuration;
     using Core;
+    using Extracts;
     using Framework;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -160,7 +161,8 @@
 
                     builder
                         .AddSingleton<Scheduler>()
-                        .AddHostedService<CommandProcessor>()
+                        .AddHostedService<RoadNetworkCommandProcessor>()
+                        .AddHostedService<RoadNetworkExtractCommandProcessor>()
                         .AddSingleton<ICommandProcessorPositionStore>(sp =>
                             new SqlCommandProcessorPositionStore(
                                 new SqlConnectionStringBuilder(
@@ -199,6 +201,11 @@
                                     sp.GetService<IClock>()
                                 ),
                                 new RoadNetworkCommandModule(
+                                    sp.GetService<IStreamStore>(),
+                                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                                    sp.GetService<IClock>()
+                                ),
+                                new RoadNetworkExtractCommandModule(
                                     sp.GetService<IStreamStore>(),
                                     sp.GetService<IRoadNetworkSnapshotReader>(),
                                     sp.GetService<IClock>()

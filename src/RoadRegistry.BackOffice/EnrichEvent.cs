@@ -52,7 +52,7 @@ namespace RoadRegistry.BackOffice
                     case Messages.RoadNetworkExtractGotRequested m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
-                    case Messages.RoadNetworkExtractBecameAvailable m:
+                    case Messages.RoadNetworkExtractDownloadBecameAvailable m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
                 }

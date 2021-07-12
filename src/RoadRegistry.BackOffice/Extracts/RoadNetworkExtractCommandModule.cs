@@ -35,6 +35,17 @@ namespace RoadRegistry.BackOffice.Extracts
                         extract.RequestAgain(downloadId, boundary);
                     }
                 });
+
+            For<AnnounceRoadNetworkExtractDownloadBecameAvailable>()
+                .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
+                .Handle(async (context, message, ct) =>
+                {
+                    var requestId = ExtractRequestId.FromString(message.Body.RequestId);
+                    var downloadId = new DownloadId(message.Body.DownloadId);
+                    var archiveId = new ArchiveId(message.Body.ArchiveId);
+                    var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
+                    extract.Announce(downloadId, archiveId);
+                });
         }
     }
 }

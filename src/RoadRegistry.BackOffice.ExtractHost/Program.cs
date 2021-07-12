@@ -15,6 +15,7 @@
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
     using Configuration;
     using Core;
+    using Extracts;
     using Framework;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -24,13 +25,12 @@
     using NodaTime;
     using Serilog;
     using SqlStreamStore;
-    using Uploads;
 
     public class Program
     {
         public static async Task Main(string[] args)
         {
-            Console.WriteLine("Starting RoadRegistry.BackOffice.EventHost");
+            Console.WriteLine("Starting {0}", typeof(Program).Namespace);
 
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
                 Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
@@ -136,7 +136,7 @@
                             builder.AddSingleton<IBlobClient>(sp =>
                                 new S3BlobClient(
                                     sp.GetService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.ExtractsDownloadsBucket]
+                                    s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
                                 )
                             );
 
@@ -183,20 +183,14 @@
                                         .GetConnectionString(WellknownConnectionNames.Snapshots)
                                 ), WellknownSchemas.SnapshotSchema),
                             sp.GetService<RecyclableMemoryStreamManager>()))
-                        .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
-                        .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
+                        .AddSingleton<IRoadNetworkExtractArchiveAssembler>(sp =>
+                            new RoadNetworkExtractArchiveAssembler(sp.GetService<RecyclableMemoryStreamManager>()))
                         .AddSingleton(sp => new EventHandlerModule[]
                         {
-                            new RoadNetworkChangesArchiveEventModule(
+                            new RoadNetworkExtractEventModule(
                                 sp.GetService<IBlobClient>(),
-                                new ZipArchiveTranslator(Encoding.UTF8),
-                                sp.GetService<IStreamStore>()
-                            ),
-                            new RoadNetworkEventModule(
-                                sp.GetService<IStreamStore>(),
-                                sp.GetService<IRoadNetworkSnapshotReader>(),
-                                sp.GetService<IRoadNetworkSnapshotWriter>(),
-                                sp.GetService<IClock>())
+                                sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
+                                sp.GetService<IStreamStore>())
                         })
                         .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                         .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));

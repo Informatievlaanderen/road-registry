@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Extracts
 {
     using System;
+    using System.Collections.Generic;
     using Framework;
     using Messages;
     using NetTopologySuite.Geometries;
@@ -11,12 +12,23 @@ namespace RoadRegistry.BackOffice.Extracts
 
         private ExternalExtractRequestId _externalExtractRequestId;
 
+        private readonly HashSet<DownloadId> _requestedDownloads;
+        private readonly HashSet<DownloadId> _announcedDownloads;
+
         private RoadNetworkExtract()
         {
+            _requestedDownloads = new HashSet<DownloadId>();
+            _announcedDownloads = new HashSet<DownloadId>();
+
             On<RoadNetworkExtractGotRequested>(e =>
             {
                 Id = ExtractRequestId.FromString(e.RequestId);
                 _externalExtractRequestId = new ExternalExtractRequestId(e.ExternalRequestId);
+                _requestedDownloads.Add(new DownloadId(e.DownloadId));
+            });
+            On<RoadNetworkExtractDownloadBecameAvailable>(e =>
+            {
+                _announcedDownloads.Add(new DownloadId(e.DownloadId));
             });
         }
 
@@ -40,13 +52,30 @@ namespace RoadRegistry.BackOffice.Extracts
 
         public void RequestAgain(DownloadId downloadId, MultiPolygon boundary)
         {
-            Apply(new RoadNetworkExtractGotRequested
+            if (!_requestedDownloads.Contains(downloadId))
             {
-                RequestId = Id.ToString(),
-                ExternalRequestId = _externalExtractRequestId,
-                DownloadId = downloadId,
-                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(boundary)
-            });
+                Apply(new RoadNetworkExtractGotRequested
+                {
+                    RequestId = Id.ToString(),
+                    ExternalRequestId = _externalExtractRequestId,
+                    DownloadId = downloadId,
+                    Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(boundary)
+                });
+            }
+        }
+
+        public void Announce(DownloadId downloadId, ArchiveId archiveId)
+        {
+            if (_requestedDownloads.Contains(downloadId) && !_announcedDownloads.Contains(downloadId))
+            {
+                Apply(new RoadNetworkExtractDownloadBecameAvailable
+                {
+                    RequestId = Id.ToString(),
+                    ExternalRequestId = _externalExtractRequestId,
+                    DownloadId = downloadId,
+                    ArchiveId = archiveId
+                });
+            }
         }
     }
 }
