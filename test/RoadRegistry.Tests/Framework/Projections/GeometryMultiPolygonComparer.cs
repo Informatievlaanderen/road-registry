@@ -18,10 +18,10 @@ namespace RoadRegistry.Framework.Projections
 
         public override void CompareType(CompareParms parms)
         {
-            var multiPolygon1 = (MultiPolygon)parms.Object1;
-            var multiPolygon2 = (MultiPolygon)parms.Object2;
+            var left = (MultiPolygon)parms.Object1;
+            var right = (MultiPolygon)parms.Object2;
 
-            if (!multiPolygon1.EqualsExact(multiPolygon2))
+            if (!left.EqualsExact(right))
             {
                 AddDifference(parms);
             }

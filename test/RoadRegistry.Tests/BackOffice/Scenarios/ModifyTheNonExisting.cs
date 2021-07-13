@@ -122,7 +122,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                     SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
                 var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
                 return scenario
-                    .Given(Organizations.StreamNameFactory(ChangedByOrganization),
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
                         new Messages.ImportedOrganization
                         {
                             Code = ChangedByOrganization,
@@ -234,7 +234,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 var roadSegmentStatus = Fixture.Create<RoadSegmentStatus>();
                 var maintenanceAuthority = Fixture.Create<OrganizationId>();
                 return scenario
-                    .Given(Organizations.StreamNameFactory(ChangedByOrganization),
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
                         new Messages.ImportedOrganization
                         {
                             Code = ChangedByOrganization,
@@ -438,7 +438,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 var maintenanceAuthorityName = Fixture.Create<OrganizationName>();
                 var gradeSeparatedJunctionType = Fixture.Create<GradeSeparatedJunctionType>();
                 return scenario
-                    .Given(Organizations.StreamNameFactory(ChangedByOrganization),
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
                         new Messages.ImportedOrganization
                         {
                             Code = ChangedByOrganization,
@@ -680,7 +680,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 var numberedRoadNumber = Fixture.Create<NumberedRoadNumber>();
                 var roadSegmentNumberedRoadOrdinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>();
                 return scenario
-                    .Given(Organizations.StreamNameFactory(ChangedByOrganization),
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
                         new Messages.ImportedOrganization
                         {
                             Code = ChangedByOrganization,

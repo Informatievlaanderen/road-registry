@@ -4,14 +4,11 @@ namespace RoadRegistry.BackOffice.Api
     using System.IO;
     using System.IO.Compression;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using BackOffice.Framework;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
-    using Core;
-    using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Primitives;
@@ -24,14 +21,6 @@ namespace RoadRegistry.BackOffice.Api
 
     public class UploadControllerTests
     {
-        private class FakeRoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
-        {
-            public Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken)
-            {
-                return Task.FromResult<(RoadNetworkSnapshot snapshot, int version)>((null, ExpectedVersion.NoStream));
-            }
-        }
-
         [Fact]
         public async Task When_uploading_a_file_that_is_not_a_zip()
         {

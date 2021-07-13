@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Framework
 {
     using System;
+    using System.Diagnostics.Contracts;
     using SqlStreamStore.Streams;
 
     public struct StreamName : IEquatable<StreamName>
@@ -12,26 +13,31 @@ namespace RoadRegistry.BackOffice.Framework
             _value = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        [Pure]
         public StreamName WithSuffix(string suffix)
         {
             return _value == null ? new StreamName(suffix) : new StreamName(_value + suffix);
         }
 
+        [Pure]
         public StreamName WithPrefix(string prefix)
         {
             return _value == null ? new StreamName(prefix) : new StreamName(prefix + _value);
         }
 
+        [Pure]
         public bool StartsWith(string prefix)
         {
             return _value != null && _value.StartsWith(prefix);
         }
 
+        [Pure]
         public bool EndsWith(string suffix)
         {
             return _value != null && _value.EndsWith(suffix);
         }
 
+        [Pure]
         public StreamName WithoutPrefix(string prefix)
         {
             if (StartsWith(prefix))
@@ -41,6 +47,7 @@ namespace RoadRegistry.BackOffice.Framework
             return this;
         }
 
+        [Pure]
         public StreamName WithoutSuffix(string suffix)
         {
             if (EndsWith(suffix))

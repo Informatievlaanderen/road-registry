@@ -12,7 +12,7 @@ namespace RoadRegistry.BackOffice.Core
 
     public class Organizations : IOrganizations
     {
-        public static readonly Func<OrganizationId, StreamName> StreamNameFactory =
+        public static readonly Func<OrganizationId, StreamName> ToStreamName =
             id => new StreamName(id.ToString()).WithPrefix("organization-");
 
         private readonly EventSourcedEntityMap _map;
@@ -30,7 +30,7 @@ namespace RoadRegistry.BackOffice.Core
 
         public async Task<Organization> TryGet(OrganizationId id, CancellationToken ct = default)
         {
-            var stream = StreamNameFactory(id);
+            var stream = ToStreamName(id);
             if (_map.TryGet(stream, out var entry))
             {
                 return (Organization)entry.Entity;

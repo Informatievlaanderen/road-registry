@@ -212,7 +212,7 @@ namespace RoadRegistry.BackOffice.Scenarios
 
             return Run(scenario =>
                 scenario
-                    .Given(Organizations.StreamNameFactory(ChangedByOrganization),
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
                         new Messages.ImportedOrganization
                         {
                             Code = ChangedByOrganization,

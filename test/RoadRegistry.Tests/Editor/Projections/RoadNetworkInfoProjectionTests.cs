@@ -13,6 +13,7 @@ namespace RoadRegistry.Editor.Projections
     using RoadRegistry.Projections;
     using Schema;
     using Xunit;
+    using GeometryTranslator = BackOffice.GeometryTranslator;
 
     public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServices>
     {
@@ -299,7 +300,7 @@ namespace RoadRegistry.Editor.Projections
                     {
                         Id = _fixture.Create<int>(),
                         Type = _fixture.Create<RoadNodeType>(),
-                        Geometry = BackOffice.Core.GeometryTranslator.Translate(geometry),
+                        Geometry = GeometryTranslator.Translate(geometry),
                         Origin = _fixture.Create<ImportedOriginProperties>()
                     }
                 )
@@ -334,7 +335,7 @@ namespace RoadRegistry.Editor.Projections
                 {
                     Id = _fixture.Create<int>(),
                     Type = _fixture.Create<RoadNodeType>(),
-                    Geometry = BackOffice.Core.GeometryTranslator.Translate(_fixture.Create<NetTopologySuite.Geometries.Point>()),
+                    Geometry = GeometryTranslator.Translate(_fixture.Create<NetTopologySuite.Geometries.Point>()),
                     Origin = _fixture.Create<ImportedOriginProperties>()
                 })
                 .ToArray();
@@ -357,7 +358,7 @@ namespace RoadRegistry.Editor.Projections
                             (current, imported) =>
                                 current
                                     .Plus(
-                                        new PointShapeContent(GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(imported.Geometry)))
+                                        new PointShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(GeometryTranslator.Translate(imported.Geometry)))
                                             .ContentLength
                                             .Plus(ShapeRecord.HeaderLength))
                         ).ToInt32(),
@@ -394,7 +395,7 @@ namespace RoadRegistry.Editor.Projections
                         Id = _fixture.Create<int>(),
                         StartNodeId = _fixture.Create<int>(),
                         EndNodeId = _fixture.Create<int>(),
-                        Geometry = BackOffice.Core.GeometryTranslator.Translate(geometry),
+                        Geometry = GeometryTranslator.Translate(geometry),
                         GeometryVersion = _fixture.Create<int>(),
                         MaintenanceAuthority = _fixture.Create<MaintenanceAuthority>(),
                         GeometryDrawMethod = _fixture.Create<RoadSegmentGeometryDrawMethod>(),
@@ -445,7 +446,7 @@ namespace RoadRegistry.Editor.Projections
                     Id = _fixture.Create<int>(),
                     StartNodeId = _fixture.Create<int>(),
                     EndNodeId = _fixture.Create<int>(),
-                    Geometry = BackOffice.Core.GeometryTranslator.Translate(_fixture.Create<MultiLineString>()),
+                    Geometry = GeometryTranslator.Translate(_fixture.Create<MultiLineString>()),
                     GeometryVersion = _fixture.Create<int>(),
                     MaintenanceAuthority = _fixture.Create<MaintenanceAuthority>(),
                     GeometryDrawMethod = _fixture.Create<RoadSegmentGeometryDrawMethod>(),
@@ -498,8 +499,8 @@ namespace RoadRegistry.Editor.Projections
                                 (current, imported) => current
                                     .Plus(
                                         new PolyLineMShapeContent(
-                                            GeometryTranslator.FromGeometryMultiLineString(
-                                                BackOffice.Core.GeometryTranslator.Translate(imported.Geometry)
+                                            Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(
+                                                GeometryTranslator.Translate(imported.Geometry)
                                             )
                                         )
                                         .ContentLength
@@ -812,7 +813,7 @@ namespace RoadRegistry.Editor.Projections
                  OrganizationCount = 0,
                  RoadNodeCount = 1,
                  TotalRoadNodeShapeLength = new PointShapeContent(
-                         GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(roadNodeAdded.Geometry))
+                         Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(GeometryTranslator.Translate(roadNodeAdded.Geometry))
                      )
                      .ContentLength.Plus(ShapeRecord.HeaderLength)
                      .ToInt32(),
@@ -856,7 +857,7 @@ namespace RoadRegistry.Editor.Projections
                  OrganizationCount = 0,
                  RoadNodeCount = 1,
                  TotalRoadNodeShapeLength = new PointShapeContent(
-                         GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(roadNodeAdded.Geometry))
+                         Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(GeometryTranslator.Translate(roadNodeAdded.Geometry))
                      )
                      .ContentLength.Plus(ShapeRecord.HeaderLength)
                      .ToInt32(),
@@ -939,7 +940,7 @@ namespace RoadRegistry.Editor.Projections
                  OrganizationCount = 0,
                  RoadNodeCount = 1,
                  TotalRoadNodeShapeLength = new PointShapeContent(
-                         GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(importedRoadNode.Geometry))
+                         Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(GeometryTranslator.Translate(importedRoadNode.Geometry))
                      )
                      .ContentLength.Plus(ShapeRecord.HeaderLength)
                      .ToInt32(),
@@ -1025,7 +1026,7 @@ namespace RoadRegistry.Editor.Projections
                  RoadSegmentNationalRoadAttributeCount = 0,
                  RoadSegmentNumberedRoadAttributeCount = 0,
                  TotalRoadSegmentShapeLength = new PolyLineMShapeContent(
-                         GeometryTranslator.FromGeometryMultiLineString(BackOffice.Core.GeometryTranslator.Translate(roadSegmentAdded.Geometry))
+                         Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(GeometryTranslator.Translate(roadSegmentAdded.Geometry))
                      )
                      .ContentLength.Plus(ShapeRecord.HeaderLength)
                      .ToInt32(),
@@ -1078,13 +1079,13 @@ namespace RoadRegistry.Editor.Projections
                  RoadSegmentNationalRoadAttributeCount = 0,
                  RoadSegmentNumberedRoadAttributeCount = 0,
                  TotalRoadSegmentShapeLength =
-                     new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(
-                             BackOffice.Core.GeometryTranslator.Translate(roadSegmentAdded.Geometry)))
+                     new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(
+                             GeometryTranslator.Translate(roadSegmentAdded.Geometry)))
                          .ContentLength.Plus(ShapeRecord.HeaderLength)
                          .ToInt32()
                      +
-                     new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(
-                             BackOffice.Core.GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
+                     new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(
+                             GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
                          .ContentLength.Plus(ShapeRecord.HeaderLength)
                          .ToInt32(),
                  GradeSeparatedJunctionCount = 0
@@ -1140,8 +1141,8 @@ namespace RoadRegistry.Editor.Projections
                  RoadSegmentNationalRoadAttributeCount = 0,
                  RoadSegmentNumberedRoadAttributeCount = 0,
                  TotalRoadSegmentShapeLength =
-                     new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(
-                             BackOffice.Core.GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
+                     new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(
+                             GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
                          .ContentLength.Plus(ShapeRecord.HeaderLength)
                          .ToInt32(),
                  GradeSeparatedJunctionCount = 0
@@ -1193,13 +1194,13 @@ namespace RoadRegistry.Editor.Projections
                  RoadSegmentNationalRoadAttributeCount = importedRoadSegment.PartOfNationalRoads.Length,
                  RoadSegmentNumberedRoadAttributeCount = importedRoadSegment.PartOfNumberedRoads.Length,
                  TotalRoadSegmentShapeLength =
-                     new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(
-                             BackOffice.Core.GeometryTranslator.Translate(importedRoadSegment.Geometry)))
+                     new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(
+                             GeometryTranslator.Translate(importedRoadSegment.Geometry)))
                          .ContentLength.Plus(ShapeRecord.HeaderLength)
                          .ToInt32()
                      +
-                     new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(
-                             BackOffice.Core.GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
+                     new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(
+                             GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
                          .ContentLength.Plus(ShapeRecord.HeaderLength)
                          .ToInt32(),
                  GradeSeparatedJunctionCount = 0
@@ -1252,8 +1253,8 @@ namespace RoadRegistry.Editor.Projections
                  RoadSegmentNationalRoadAttributeCount = 0,
                  RoadSegmentNumberedRoadAttributeCount = 0,
                  TotalRoadSegmentShapeLength =
-                     new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(
-                             BackOffice.Core.GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
+                     new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(
+                             GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
                          .ContentLength.Plus(ShapeRecord.HeaderLength)
                          .ToInt32(),
                  GradeSeparatedJunctionCount = 0

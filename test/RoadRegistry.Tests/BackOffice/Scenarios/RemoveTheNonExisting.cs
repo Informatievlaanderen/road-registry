@@ -122,7 +122,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                     SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
                 var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
                 return scenario
-                    .Given(Organizations.StreamNameFactory(ChangedByOrganization),
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
                         new Messages.ImportedOrganization
                         {
                             Code = ChangedByOrganization,
@@ -225,7 +225,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
                 var maintenanceAuthority = Fixture.Create<OrganizationId>();
                 return scenario
-                    .Given(Organizations.StreamNameFactory(ChangedByOrganization),
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
                         new Messages.ImportedOrganization
                         {
                             Code = ChangedByOrganization,
@@ -400,7 +400,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 var maintenanceAuthority = Fixture.Create<OrganizationId>();
                 var maintenanceAuthorityName = Fixture.Create<OrganizationName>();
                 return scenario
-                    .Given(Organizations.StreamNameFactory(ChangedByOrganization),
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
                         new Messages.ImportedOrganization
                         {
                             Code = ChangedByOrganization,
@@ -634,7 +634,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 var maintenanceAuthorityName = Fixture.Create<OrganizationName>();
                 var europeanRoadNumber = Fixture.Create<EuropeanRoadNumber>();
                 return scenario
-                    .Given(Organizations.StreamNameFactory(ChangedByOrganization),
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
                         new Messages.ImportedOrganization
                         {
                             Code = ChangedByOrganization,
@@ -817,7 +817,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 var maintenanceAuthorityName = Fixture.Create<OrganizationName>();
                 var nationalRoadNumber = Fixture.Create<NationalRoadNumber>();
                 return scenario
-                    .Given(Organizations.StreamNameFactory(ChangedByOrganization),
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
                         new Messages.ImportedOrganization
                         {
                             Code = ChangedByOrganization,
@@ -1000,7 +1000,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 var maintenanceAuthorityName = Fixture.Create<OrganizationName>();
                 var numberedRoadNumber = Fixture.Create<NumberedRoadNumber>();
                 return scenario
-                    .Given(Organizations.StreamNameFactory(ChangedByOrganization),
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
                         new Messages.ImportedOrganization
                         {
                             Code = ChangedByOrganization,

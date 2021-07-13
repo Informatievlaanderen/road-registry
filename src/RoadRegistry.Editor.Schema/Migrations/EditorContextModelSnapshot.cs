@@ -18,7 +18,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
             modelBuilder
                 .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.1");
+                .HasAnnotation("ProductVersion", "5.0.2");
 
             modelBuilder.Entity("Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates.ProjectionStateItem", b =>
                 {
@@ -223,24 +223,6 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.ToTable("RoadNetworkInfo", "RoadRegistryEditor");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNodeBoundingBox2D", b =>
-                {
-                    b.Property<double>("MaximumX")
-                        .HasColumnType("float");
-
-                    b.Property<double>("MaximumY")
-                        .HasColumnType("float");
-
-                    b.Property<double>("MinimumX")
-                        .HasColumnType("float");
-
-                    b.Property<double>("MinimumY")
-                        .HasColumnType("float");
-
-                    b
-                        .HasAnnotation("Relational:SqlQuery", "SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [RoadRegistryEditor].[RoadNode]");
-                });
-
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNetworkInfoSegmentCache", b =>
                 {
                     b.Property<int>("RoadSegmentId")
@@ -270,9 +252,27 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.HasKey("RoadSegmentId");
 
                     b.HasIndex("RoadSegmentId")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .IsClustered(false);
 
-                    b.ToTable("RoadNetworkInfoSegmentCache","RoadRegistryEditor");
+                    b.ToTable("RoadNetworkInfoSegmentCache", "RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNodeBoundingBox2D", b =>
+                {
+                    b.Property<double>("MaximumX")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MaximumY")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MinimumX")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MinimumY")
+                        .HasColumnType("float");
+
+                    b
+                        .HasAnnotation("Relational:SqlQuery", "SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [RoadRegistryEditor].[RoadNode]");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNodes.RoadNodeRecord", b =>
@@ -283,6 +283,9 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<byte[]>("DbaseRecord")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<Geometry>("Geometry")
+                        .HasColumnType("Geometry");
 
                     b.Property<byte[]>("ShapeRecordContent")
                         .IsRequired()
@@ -409,6 +412,9 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<byte[]>("DbaseRecord")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<Geometry>("Geometry")
+                        .HasColumnType("Geometry");
 
                     b.Property<byte[]>("ShapeRecordContent")
                         .IsRequired()

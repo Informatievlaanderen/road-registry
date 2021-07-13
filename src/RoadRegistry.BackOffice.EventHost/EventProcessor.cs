@@ -17,7 +17,7 @@ namespace RoadRegistry.BackOffice.EventHost
 
     public class EventProcessor : IHostedService
     {
-        private const string RoadNetworkArchiveEventQueue = "roadnetworkarchive-event-queue";
+        private const string QueueName = "roadnetworkarchive-event-queue";
 
         private static readonly JsonSerializerSettings SerializerSettings =
             EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
@@ -74,7 +74,7 @@ namespace RoadRegistry.BackOffice.EventHost
                                     logger.LogInformation("Subscribing ...");
                                     subscription?.Dispose();
                                     var position = await positionStore
-                                        .ReadPosition(RoadNetworkArchiveEventQueue, _messagePumpCancellation.Token)
+                                        .ReadPosition(QueueName, _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
                                     logger.LogInformation("Subscribing as of {0}", position ?? -1L);
                                     subscription = streamStore.SubscribeToAll(
@@ -117,7 +117,7 @@ namespace RoadRegistry.BackOffice.EventHost
 
                                         await positionStore
                                             .WritePosition(
-                                                RoadNetworkArchiveEventQueue,
+                                                QueueName,
                                                 record.Message.Position,
                                                 _messagePumpCancellation.Token)
                                             .ConfigureAwait(false);
@@ -143,7 +143,7 @@ namespace RoadRegistry.BackOffice.EventHost
 
                                         await positionStore
                                             .WritePosition(
-                                                RoadNetworkArchiveEventQueue,
+                                                QueueName,
                                                 process.Message.Position,
                                                 _messagePumpCancellation.Token)
                                             .ConfigureAwait(false);

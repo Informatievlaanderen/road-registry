@@ -49,7 +49,7 @@ namespace RoadRegistry.Editor.Projections
                 .CreateMany<ImportedRoadNode>(new Random().Next(1, 100))
                 .Select(@event =>
                 {
-                    var point = BackOffice.Core.GeometryTranslator.Translate(@event.Geometry);
+                    var point = GeometryTranslator.Translate(@event.Geometry);
                     var pointShapeContent = new PointShapeContent(
                         Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(
                             new NetTopologySuite.Geometries.Point(point.X, point.Y)
@@ -73,7 +73,8 @@ namespace RoadRegistry.Editor.Projections
                         }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                        BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
+                        BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape),
+                        Geometry = point
                     };
 
                     return new
@@ -122,7 +123,8 @@ namespace RoadRegistry.Editor.Projections
                     }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
+                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape),
+                    Geometry = point
                 };
             });
 
@@ -171,7 +173,8 @@ namespace RoadRegistry.Editor.Projections
                     }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
+                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape),
+                    Geometry = point
                 };
             });
 

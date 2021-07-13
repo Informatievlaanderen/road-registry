@@ -6,7 +6,9 @@ namespace RoadRegistry.BackOffice.Messages
     {
         public static readonly Type[] All = {
             typeof(UploadRoadNetworkChangesArchive),
-            typeof(ChangeRoadNetwork)
+            typeof(ChangeRoadNetwork),
+            typeof(AnnounceRoadNetworkExtractDownloadBecameAvailable),
+            typeof(RequestRoadNetworkExtract)
         };
     }
 }

@@ -13,7 +13,7 @@ namespace RoadRegistry.Product.Projections
     using RoadRegistry.Projections;
     using Schema.RoadNodes;
     using Xunit;
-    using GeometryTranslator = BackOffice.Core.GeometryTranslator;
+    using GeometryTranslator = BackOffice.GeometryTranslator;
     using RoadNodeType = BackOffice.RoadNodeType;
 
     public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestServices>

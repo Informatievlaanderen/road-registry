@@ -13,6 +13,7 @@ namespace RoadRegistry.Editor.Projections
     using Microsoft.IO;
     using Schema;
     using Schema.RoadNodes;
+    using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
     public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
     {
@@ -35,7 +36,7 @@ namespace RoadRegistry.Editor.Projections
                     LBLBGNORG = {Value = envelope.Message.Origin.Organization}
                 };
 
-                var point = GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(envelope.Message.Geometry));
+                var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry));
                 var pointShapeContent = new PointShapeContent(point);
 
                 await context.RoadNodes.AddAsync(new RoadNodeRecord
@@ -44,6 +45,7 @@ namespace RoadRegistry.Editor.Projections
                     ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding),
                     ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
                     DbaseRecord = dbaseRecord.ToBytes(manager, encoding),
+                    Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry),
                     BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
                 }, token);
             });
@@ -89,7 +91,7 @@ namespace RoadRegistry.Editor.Projections
                 LBLBGNORG = {Value = envelope.Message.Organization}
             };
 
-            var point = GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(node.Geometry));
+            var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(node.Geometry));
             var pointShapeContent = new PointShapeContent(point);
 
             await context.RoadNodes.AddAsync(new RoadNodeRecord
@@ -98,6 +100,7 @@ namespace RoadRegistry.Editor.Projections
                 ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding),
                 ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
                 DbaseRecord = dbaseRecord.ToBytes(manager, encoding),
+                Geometry = BackOffice.GeometryTranslator.Translate(node.Geometry),
                 BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
             }, token);
         }
@@ -120,7 +123,7 @@ namespace RoadRegistry.Editor.Projections
                 LBLBGNORG = {Value = envelope.Message.Organization}
             };
 
-            var point = GeometryTranslator.FromGeometryPoint(BackOffice.Core.GeometryTranslator.Translate(node.Geometry));
+            var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(node.Geometry));
             var pointShapeContent = new PointShapeContent(point);
 
             var roadNode = await context.RoadNodes.FindAsync(node.Id);
@@ -129,6 +132,7 @@ namespace RoadRegistry.Editor.Projections
             roadNode.ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32();
             roadNode.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
             roadNode.BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape);
+            roadNode.Geometry = BackOffice.GeometryTranslator.Translate(node.Geometry);
         }
 
         private static async Task RemoveRoadNode(EditorContext context, RoadNodeRemoved node)

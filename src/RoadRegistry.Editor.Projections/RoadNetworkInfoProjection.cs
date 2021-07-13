@@ -37,7 +37,7 @@
                     RoadSegmentId = envelope.Message.Id,
                     ShapeLength = new PolyLineMShapeContent(
                             GeometryTranslator.FromGeometryMultiLineString(
-                                BackOffice.Core.GeometryTranslator.Translate(envelope.Message.Geometry)))
+                                BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry)))
                         .ContentLength.Plus(ShapeRecord.HeaderLength)
                         .ToInt32(),
                     SurfacesLength = envelope.Message.Surfaces.Length,
@@ -146,7 +146,7 @@
             {
                 RoadSegmentId = m.Id,
                 ShapeLength = new PolyLineMShapeContent(
-                        GeometryTranslator.FromGeometryMultiLineString(BackOffice.Core.GeometryTranslator.Translate(m.Geometry))
+                        GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(m.Geometry))
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32(),
@@ -169,7 +169,7 @@
             var newSegmentCache = new RoadNetworkInfoSegmentCache
             {
                 ShapeLength = new PolyLineMShapeContent(
-                        GeometryTranslator.FromGeometryMultiLineString(BackOffice.Core.GeometryTranslator.Translate(m.Geometry))
+                        GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(m.Geometry))
                     )
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32(),

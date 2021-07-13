@@ -112,7 +112,11 @@ namespace RoadRegistry.Framework.Projections
                     MaxDifferences = 10,
                     CustomComparers = new List<BaseTypeComparer>
                     {
-                        new GeometryMultiPolygonComparer(RootComparerFactory.GetRootComparer())
+                        new GeometryMultiPolygonComparer(RootComparerFactory.GetRootComparer()),
+                        new GeometryPointComparer(RootComparerFactory.GetRootComparer()),
+                        new GeometryPolygonComparer(RootComparerFactory.GetRootComparer()),
+                        new GeometryMultiLineStringComparer(RootComparerFactory.GetRootComparer()),
+                        new GeometryLineStringComparer(RootComparerFactory.GetRootComparer())
                     }
                 };
                 var comparer = new CompareLogic(comparisonConfig);

@@ -54,6 +54,16 @@ namespace RoadRegistry.BackOffice
             );
         }
 
+        public static void CustomizeExternalExtractRequestId(this IFixture fixture)
+        {
+            fixture.Customize<ExternalExtractRequestId>(composer =>
+                composer.FromFactory(generator =>
+                    new ExternalExtractRequestId(new string(
+                        (char)generator.Next(97, 123), // a-z
+                        generator.Next(1, ExternalExtractRequestId.MaxLength + 1))))
+            );
+        }
+
         public static void CustomizeCrabStreetnameId(this IFixture fixture)
         {
             fixture.Customize<CrabStreetnameId>(composer =>
@@ -87,6 +97,15 @@ namespace RoadRegistry.BackOffice
             fixture.Customize<ChangeRequestId>(composer =>
                 composer.FromFactory(generator =>
                     new ChangeRequestId(Enumerable.Range(0,ChangeRequestId.ExactLength).Select(index => (byte)generator.Next(0,256)).ToArray())
+                )
+            );
+        }
+
+        public static void CustomizeExtractRequestId(this IFixture fixture)
+        {
+            fixture.Customize<ExtractRequestId>(composer =>
+                composer.FromFactory(generator =>
+                    new ExtractRequestId(Enumerable.Range(0,ExtractRequestId.ExactLength).Select(index => (byte)generator.Next(0,256)).ToArray())
                 )
             );
         }
@@ -285,12 +304,82 @@ namespace RoadRegistry.BackOffice
             fixture.Customize<MunicipalityGeometry>(customization =>
                 customization.FromFactory(generator =>
                 {
-                    var municipalityGeometry = new MunicipalityGeometry
+                    var geometry = new MunicipalityGeometry
                     {
                         MultiPolygon = new []{fixture.Create<Messages.Polygon>()},
                         SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                     };
-                    return municipalityGeometry;
+                    return geometry;
+                }).OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeRoadNetworkExtractGeometry(this IFixture fixture)
+        {
+            fixture.Customize<Ring>(customization =>
+                customization.FromFactory(generator =>
+                {
+                    var ring = new Ring
+                    {
+                        Points = fixture.CreateMany<Messages.Point>().ToArray()
+                    };
+
+                    ring.Points = ring.Points.Append(ring.Points[0]).ToArray();
+
+                    return ring;
+                }).OmitAutoProperties());
+
+            fixture.Customize<Messages.Polygon>(customization =>
+                customization.FromFactory(generator => new Messages.Polygon
+                {
+                    Shell = fixture.Create<Ring>(),
+                    Holes = new Ring[0]
+                }).OmitAutoProperties());
+
+            fixture.Customize<RoadNetworkExtractGeometry>(customization =>
+                customization.FromFactory(generator =>
+                {
+                    var geometry = new RoadNetworkExtractGeometry
+                    {
+                        MultiPolygon = new []{fixture.Create<Messages.Polygon>()},
+                        SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                    };
+                    return geometry;
+                }).OmitAutoProperties()
+            );
+        }
+
+        public static void CustomizeMultiPolygon(this IFixture fixture)
+        {
+            fixture.Customize<Ring>(customization =>
+                customization.FromFactory(generator =>
+                {
+                    var ring = new Ring
+                    {
+                        Points = fixture.CreateMany<Messages.Point>().ToArray()
+                    };
+
+                    ring.Points = ring.Points.Append(ring.Points[0]).ToArray();
+
+                    return ring;
+                }).OmitAutoProperties());
+
+            fixture.Customize<Messages.Polygon>(customization =>
+                customization.FromFactory(generator => new Messages.Polygon
+                {
+                    Shell = fixture.Create<Ring>(),
+                    Holes = new Ring[0]
+                }).OmitAutoProperties());
+
+            fixture.Customize<RoadNetworkExtractGeometry>(customization =>
+                customization.FromFactory(generator =>
+                {
+                    var geometry = new RoadNetworkExtractGeometry
+                    {
+                        MultiPolygon = new []{fixture.Create<Messages.Polygon>()},
+                        SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                    };
+                    return geometry;
                 }).OmitAutoProperties()
             );
         }

@@ -18,8 +18,6 @@ namespace RoadRegistry.BackOffice.CommandHost
 
     public class CommandProcessor : IHostedService
     {
-        private const string RoadNetworkCommandQueue = "roadnetwork-command-queue";
-
         private static readonly JsonSerializerSettings SerializerSettings =
             EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
@@ -36,6 +34,7 @@ namespace RoadRegistry.BackOffice.CommandHost
 
         public CommandProcessor(
             IStreamStore streamStore,
+            StreamName queue,
             ICommandProcessorPositionStore positionStore,
             CommandHandlerDispatcher dispatcher,
             Scheduler scheduler,
@@ -70,11 +69,11 @@ namespace RoadRegistry.BackOffice.CommandHost
                                     logger.LogInformation("Subscribing ...");
                                     subscription?.Dispose();
                                     var version = await positionStore
-                                        .ReadVersion(RoadNetworkCommandQueue, _messagePumpCancellation.Token)
+                                        .ReadVersion(queue.ToString(), _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
                                     logger.LogInformation("Subscribing as of {0}", version ?? -1);
                                     subscription = streamStore.SubscribeToStream(
-                                        RoadNetworkCommandQueue,
+                                        queue.ToString(),
                                         version,
                                         async (_, streamMessage, token) =>
                                         {
@@ -115,7 +114,7 @@ namespace RoadRegistry.BackOffice.CommandHost
                                         var command = new Command(body).WithMessageId(process.Message.MessageId);
                                         await dispatcher(command, _messagePumpCancellation.Token).ConfigureAwait(false);
                                         await positionStore
-                                            .WriteVersion(RoadNetworkCommandQueue,
+                                            .WriteVersion(queue.ToString(),
                                                 process.Message.StreamVersion,
                                                 _messagePumpCancellation.Token)
                                             .ConfigureAwait(false);
