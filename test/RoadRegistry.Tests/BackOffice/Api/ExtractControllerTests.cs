@@ -59,7 +59,7 @@ namespace RoadRegistry.BackOffice.Api
                 RequestId = externalExtractRequestId,
                 Contour = writer.Write(BackOffice.GeometryTranslator.Translate(contour))
             });
-            var result = Assert.IsType<OkObjectResult>(response);
+            var result = Assert.IsType<AcceptedResult>(response);
             Assert.IsType<DownloadExtractResponseBody>(result.Value);
         }
 
