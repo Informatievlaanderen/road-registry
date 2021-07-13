@@ -11,13 +11,13 @@ namespace RoadRegistry.Editor.Schema.RoadNodes
         {
             b.ToTable(TableName, WellknownSchemas.EditorSchema)
                 .HasKey(p => p.Id)
-                .IsClustered(false);
+                .IsClustered();
 
             b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
             b.Property(p => p.ShapeRecordContent).IsRequired();
             b.Property(p => p.ShapeRecordContentLength).IsRequired();
             b.Property(p => p.DbaseRecord).IsRequired();
-            b.Property(p => p.Geometry).HasColumnType("Geometry");
+            b.Property(p => p.Geometry).HasColumnType("Geometry").IsRequired();
 
             b.OwnsOne(p => p.BoundingBox);
         }

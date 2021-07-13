@@ -32,12 +32,15 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             if (contour == null) throw new ArgumentNullException(nameof(contour));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var count = await context.RoadSegmentNumberedRoadAttributes.CountAsync(cancellationToken);
+            var attributes = await context.RoadSegmentNumberedRoadAttributes
+                .Where(attribute => context.RoadSegments.Any(segment =>
+                    segment.Geometry.Intersects(contour) && attribute.RoadSegmentId == segment.Id))
+                .ToListAsync(cancellationToken);
             var dbfEntry = archive.CreateEntry("AttGenumweg.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
-                new DbaseRecordCount(count),
+                new DbaseRecordCount(attributes.Count),
                 RoadSegmentNumberedRoadAttributeDbaseRecord.Schema
             );
             await using (var dbfEntryStream = dbfEntry.Open())
@@ -47,7 +50,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                     new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
                 var dbfRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord();
-                foreach (var data in context.RoadSegmentNumberedRoadAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+                foreach (var data in attributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
                     dbfRecord.FromBytes(data, _manager, _encoding);
                     dbfWriter.Write(dbfRecord);

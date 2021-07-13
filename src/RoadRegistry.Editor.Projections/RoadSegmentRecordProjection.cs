@@ -37,6 +37,8 @@ namespace RoadRegistry.Editor.Projections
                     new RoadSegmentRecord
                     {
                         Id = envelope.Message.Id,
+                        StartNodeId = envelope.Message.StartNodeId,
+                        EndNodeId = envelope.Message.EndNodeId,
                         ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding),
                         ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                         BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
@@ -113,6 +115,8 @@ namespace RoadRegistry.Editor.Projections
                 new RoadSegmentRecord
                 {
                     Id = segment.Id,
+                    StartNodeId = segment.StartNodeId,
+                    EndNodeId = segment.EndNodeId,
                     ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding),
                     ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                     BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
@@ -167,6 +171,8 @@ namespace RoadRegistry.Editor.Projections
 
             var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id);
             roadSegmentRecord.Id = roadSegmentModified.Id;
+            roadSegmentRecord.StartNodeId = roadSegmentModified.StartNodeId;
+            roadSegmentRecord.EndNodeId = roadSegmentModified.EndNodeId;
             roadSegmentRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
             roadSegmentRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
             roadSegmentRecord.BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape);

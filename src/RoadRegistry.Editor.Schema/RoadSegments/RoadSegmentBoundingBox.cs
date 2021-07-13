@@ -23,5 +23,16 @@ namespace RoadRegistry.Editor.Schema.RoadSegments
             MinimumM = GeometryTranslator.ToGeometryMultiLineString(shape).GetOrdinates(Ordinate.M).DefaultIfEmpty(double.NegativeInfinity).Min(),
             MaximumM = GeometryTranslator.ToGeometryMultiLineString(shape).GetOrdinates(Ordinate.M).DefaultIfEmpty(double.PositiveInfinity).Max()
         };
+
+        public BoundingBox3D ToBoundingBox3D() => new BoundingBox3D(
+            MinimumX,
+            MinimumY,
+            MaximumX,
+            MaximumY,
+            0.0,
+            0.0,
+            MinimumM,
+            MaximumM
+        );
     }
 }
