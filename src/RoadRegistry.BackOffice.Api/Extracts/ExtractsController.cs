@@ -45,7 +45,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                     DownloadId = downloadId
                 });
             await _dispatcher(message, HttpContext.RequestAborted);
-            return Ok(new DownloadExtractResponseBody {DownloadId = downloadId.ToString()});
+            return Accepted(new DownloadExtractResponseBody {DownloadId = downloadId.ToString()});
         }
 
         [HttpGet("download/{downloadid}")]
