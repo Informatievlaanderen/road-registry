@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
     using BackOffice.Framework;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+    using FluentValidation;
     using Messages;
     using Microsoft.AspNetCore.Mvc;
     using NetTopologySuite.IO;
@@ -17,20 +18,22 @@ namespace RoadRegistry.BackOffice.Api.Extracts
     {
         private readonly CommandHandlerDispatcher _dispatcher;
         private readonly WKTReader _reader;
+        private readonly IValidator<DownloadExtractRequestBody> _downloadExtractRequestBodyValidator;
 
-        public ExtractsController(CommandHandlerDispatcher dispatcher, WKTReader reader)
+        public ExtractsController(
+            CommandHandlerDispatcher dispatcher,
+            WKTReader reader,
+            IValidator<DownloadExtractRequestBody> downloadExtractRequestBodyValidator)
         {
             _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
             _reader = reader ?? throw new ArgumentNullException(nameof(reader));
+            _downloadExtractRequestBodyValidator = downloadExtractRequestBodyValidator ?? throw new ArgumentNullException(nameof(downloadExtractRequestBodyValidator));
         }
 
         [HttpPost("downloadrequests")]
         public async Task<IActionResult> PostDownloadRequest([FromBody]DownloadExtractRequestBody body)
         {
-            //TODO: Verify api key
-
-            var validator = new DownloadExtractRequestBodyValidator(_reader);
-            await validator.ValidateAndThrowAsync(body, cancellationToken: HttpContext.RequestAborted);
+            await _downloadExtractRequestBodyValidator.ValidateAndThrowAsync(body, HttpContext.RequestAborted);
 
             var downloadId = new DownloadId(Guid.NewGuid());
             var message = new Command(

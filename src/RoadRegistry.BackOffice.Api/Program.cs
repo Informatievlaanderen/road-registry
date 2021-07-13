@@ -168,6 +168,7 @@ namespace RoadRegistry.BackOffice.Api
                     hostContext.Configuration.GetSection(nameof(ZipArchiveWriterOptions)).Bind(zipArchiveWriterOptions);
 
                     builder
+                        .AddSingleton<Extracts.DownloadExtractRequestBodyValidator>()
                         .AddSingleton<ProblemDetailsHelper>()
                         .AddSingleton<ZipArchiveWriterOptions>(zipArchiveWriterOptions)
                         .AddSingleton<IStreamStore>(sp =>

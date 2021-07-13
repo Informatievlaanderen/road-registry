@@ -49,13 +49,19 @@ namespace RoadRegistry.BackOffice.Extracts
                     else
                     {
                         var contour = GeometryTranslator.Translate(message.Body.Contour);
-                        var content = await assembler.AssembleWithin(contour); //(content, revision)
-                        await client.CreateBlobAsync(
-                            new BlobName(archiveId),
-                            Metadata.None, // .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("Revision"), revision.ToInt32().ToString(CultureInfo.InvariantCulture))),
-                            ContentType.Parse("application/x-zip-compressed"),
-                            content,
-                            ct);
+                        using (var content = await assembler.AssembleWithin(contour)) //(content, revision)
+                        {
+                            content.Position = 0L;
+
+                            await client.CreateBlobAsync(
+                                new BlobName(archiveId),
+                                Metadata
+                                    .None, // .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("Revision"), revision.ToInt32().ToString(CultureInfo.InvariantCulture))),
+                                ContentType.Parse("application/x-zip-compressed"),
+                                content,
+                                ct);
+                        }
+
                         var command = new Command(new Messages.AnnounceRoadNetworkExtractDownloadBecameAvailable
                             {
                                 RequestId = message.Body.RequestId,

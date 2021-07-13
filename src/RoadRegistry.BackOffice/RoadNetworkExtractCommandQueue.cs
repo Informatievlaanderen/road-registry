@@ -31,7 +31,7 @@ namespace RoadRegistry.BackOffice
         public async Task Write(Command command, CancellationToken cancellationToken)
         {
             var jsonMetadata = JsonConvert.SerializeObject(
-                new RoadNetworkExtractCommandMetadata
+                new CommandMetadata
                 {
                     Principal = command
                         .Principal
@@ -56,7 +56,7 @@ namespace RoadRegistry.BackOffice
             public string Value { get; set; }
         }
 
-        private class RoadNetworkExtractCommandMetadata
+        private class CommandMetadata
         {
             public Claim[] Principal { get; set; }
         }

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CT=eventhost
+CT=extracthost
 
 curl -s http://169.254.170.2/v2/metadata > metadata
 cat metadata

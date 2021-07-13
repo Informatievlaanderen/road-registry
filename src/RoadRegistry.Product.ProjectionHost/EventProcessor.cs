@@ -20,7 +20,7 @@ namespace RoadRegistry.Product.ProjectionHost
 
     public class EventProcessor : IHostedService
     {
-        private const string RoadRegistryProductProjectionHost = "roadregistry-product-projectionhost";
+        private const string QueueName = "roadregistry-product-projectionhost";
 
         public static readonly JsonSerializerSettings SerializerSettings =
             EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
@@ -84,7 +84,7 @@ namespace RoadRegistry.Product.ProjectionHost
                                         var projection =
                                             await resumeContext.ProjectionStates
                                                 .SingleOrDefaultAsync(
-                                                    item => item.Name == RoadRegistryProductProjectionHost,
+                                                    item => item.Name == QueueName,
                                                     _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
                                         var after = projection?.Position;
@@ -154,7 +154,7 @@ namespace RoadRegistry.Product.ProjectionHost
                                                     catchUpPosition);
                                                 await context
                                                     .UpdateProjectionState(
-                                                        RoadRegistryProductProjectionHost,
+                                                        QueueName,
                                                         catchUpPosition,
                                                         _messagePumpCancellation.Token)
                                                     .ConfigureAwait(false);
@@ -178,7 +178,7 @@ namespace RoadRegistry.Product.ProjectionHost
                                             catchUpPosition);
                                         await context
                                             .UpdateProjectionState(
-                                                RoadRegistryProductProjectionHost,
+                                                QueueName,
                                                 catchUpPosition,
                                                 _messagePumpCancellation.Token)
                                             .ConfigureAwait(false);
@@ -241,7 +241,7 @@ namespace RoadRegistry.Product.ProjectionHost
                                         {
                                             await recordContext
                                                 .UpdateProjectionState(
-                                                    RoadRegistryProductProjectionHost,
+                                                    QueueName,
                                                     record.Message.Position, _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
                                             await recordContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
@@ -273,7 +273,7 @@ namespace RoadRegistry.Product.ProjectionHost
                                             }
 
                                             await processContext.UpdateProjectionState(
-                                                RoadRegistryProductProjectionHost,
+                                                QueueName,
                                                 process.Message.Position,
                                                 _messagePumpCancellation.Token).ConfigureAwait(false);
                                             processContext.ChangeTracker.DetectChanges();

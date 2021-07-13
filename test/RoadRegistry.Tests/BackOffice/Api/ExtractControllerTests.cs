@@ -9,6 +9,7 @@ namespace RoadRegistry.BackOffice.Api
     using FluentValidation;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Logging.Abstractions;
     using NetTopologySuite;
     using NetTopologySuite.IO;
     using NodaTime;
@@ -42,7 +43,12 @@ namespace RoadRegistry.BackOffice.Api
             {
                 PrecisionModel = GeometryConfiguration.GeometryFactory.PrecisionModel
             };
-            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID)))
+
+            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
+            var validator =
+                new DownloadExtractRequestBodyValidator(wktReader,
+                    new NullLogger<DownloadExtractRequestBodyValidator>());
+            var controller = new ExtractsController(Dispatch.Using(_resolver), wktReader, validator)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -64,7 +70,11 @@ namespace RoadRegistry.BackOffice.Api
             {
                 PrecisionModel = GeometryConfiguration.GeometryFactory.PrecisionModel
             };
-            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID)))
+            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
+            var validator =
+                new DownloadExtractRequestBodyValidator(wktReader,
+                    new NullLogger<DownloadExtractRequestBodyValidator>());
+            var controller = new ExtractsController(Dispatch.Using(_resolver), wktReader, validator)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -86,7 +96,11 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_requesting_an_extract_without_contour()
         {
-            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID)))
+            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
+            var validator =
+                new DownloadExtractRequestBodyValidator(wktReader,
+                    new NullLogger<DownloadExtractRequestBodyValidator>());
+            var controller = new ExtractsController(Dispatch.Using(_resolver), wktReader, validator)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -112,7 +126,11 @@ namespace RoadRegistry.BackOffice.Api
             {
                 PrecisionModel = GeometryConfiguration.GeometryFactory.PrecisionModel
             };
-            var controller = new ExtractsController(Dispatch.Using(_resolver), new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID)))
+            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
+            var validator =
+                new DownloadExtractRequestBodyValidator(wktReader,
+                    new NullLogger<DownloadExtractRequestBodyValidator>());
+            var controller = new ExtractsController(Dispatch.Using(_resolver), wktReader, validator)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };

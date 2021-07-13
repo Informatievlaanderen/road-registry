@@ -2,22 +2,25 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 {
     using System;
     using FluentValidation;
+    using Microsoft.Extensions.Logging;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
 
     public class DownloadExtractRequestBodyValidator : AbstractValidator<DownloadExtractRequestBody>
     {
         private readonly WKTReader _reader;
+        private readonly ILogger<DownloadExtractRequestBodyValidator> _logger;
 
-        public DownloadExtractRequestBodyValidator(WKTReader reader) //TODO: Add logger to be able to log why parsing the WKT failed
+        public DownloadExtractRequestBodyValidator(WKTReader reader, ILogger<DownloadExtractRequestBodyValidator> logger)
         {
             _reader = reader ?? throw new ArgumentNullException(nameof(reader));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             RuleFor(c => c.RequestId)
-                .NotEmpty().WithErrorCode("RequestIdMissing");
+                .NotEmpty();
             RuleFor(c => c.Contour)
-                .NotEmpty().WithErrorCode("ContourMissing")
-                .Must(BeMultiPolygonGeometryAsWellKnownText).WithErrorCode("ContourMismatch")
+                .NotEmpty()
+                .Must(BeMultiPolygonGeometryAsWellKnownText)
                 .When(c => !string.IsNullOrEmpty(c.Contour), ApplyConditionTo.CurrentValidator);
         }
 
@@ -33,8 +36,9 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 
                 return false;
             }
-            catch (ParseException)
+            catch (ParseException exception)
             {
+                _logger.LogWarning(exception, "The download extract request body validation encountered a problem while trying to parse the contour as well-known text");
                 return false;
             }
         }
