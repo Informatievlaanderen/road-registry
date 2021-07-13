@@ -1,3 +1,10 @@
+# [1.39.0](https://github.com/informatievlaanderen/road-registry/compare/v1.38.1...v1.39.0) (2021-07-13)
+
+
+### Features
+
+* wr-199 extract request ([#260](https://github.com/informatievlaanderen/road-registry/issues/260)) ([ce9c64f](https://github.com/informatievlaanderen/road-registry/commit/ce9c64f73c397d6ed418c6a6a5650abcaef31d64))
+
 ## [1.38.1](https://github.com/informatievlaanderen/road-registry/compare/v1.38.0...v1.38.1) (2021-07-01)
 
 
