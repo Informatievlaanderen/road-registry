@@ -11,11 +11,11 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
 
-    public class RoadNetworkForEditorToZipArchiveWriter : IZipArchiveWriter<EditorContext>
+    public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
         private readonly IZipArchiveWriter<EditorContext> _writer;
 
-        public RoadNetworkForEditorToZipArchiveWriter(
+        public RoadNetworkExtractToZipArchiveWriter(
             ZipArchiveWriterOptions zipArchiveWriterOptions,
             IStreetNameCache streetNameCache,
             RecyclableMemoryStreamManager manager,

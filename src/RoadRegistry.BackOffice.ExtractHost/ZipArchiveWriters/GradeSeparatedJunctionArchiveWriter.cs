@@ -31,12 +31,15 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             if (contour == null) throw new ArgumentNullException(nameof(contour));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var count = await context.GradeSeparatedJunctions.CountAsync(cancellationToken);
+            var junctions = await context.GradeSeparatedJunctions
+                .Where(junction => context.RoadSegments.Any(segment =>
+                    segment.Geometry.Intersects(contour) && (junction.UpperRoadSegmentId == segment.Id || junction.LowerRoadSegmentId == segment.Id)))
+                .ToListAsync(cancellationToken);
             var dbfEntry = archive.CreateEntry("RltOgkruising.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
-                new DbaseRecordCount(count),
+                new DbaseRecordCount(junctions.Count),
                 GradeSeparatedJunctionDbaseRecord.Schema
             );
             await using (var dbfEntryStream = dbfEntry.Open())
@@ -46,7 +49,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                     new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
                 var dbfRecord = new GradeSeparatedJunctionDbaseRecord();
-                foreach (var data in context.GradeSeparatedJunctions.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+                foreach (var data in junctions.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
                     dbfRecord.FromBytes(data, _manager, _encoding);
                     dbfWriter.Write(dbfRecord);

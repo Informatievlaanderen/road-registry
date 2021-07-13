@@ -11,9 +11,11 @@ namespace RoadRegistry.Editor.Schema.GradeSeparatedJunctions
         {
             b.ToTable(TableName, WellknownSchemas.EditorSchema)
                 .HasKey(p => p.Id)
-                .IsClustered(false);
+                .IsClustered();
 
             b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
+            b.Property(p => p.UpperRoadSegmentId).IsRequired();
+            b.Property(p => p.LowerRoadSegmentId).IsRequired();
             b.Property(p => p.DbaseRecord).IsRequired();
         }
     }
