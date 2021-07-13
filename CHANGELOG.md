@@ -1,3 +1,10 @@
+# [1.40.0](https://github.com/informatievlaanderen/road-registry/compare/v1.39.0...v1.40.0) (2021-07-13)
+
+
+### Features
+
+* make extracthost part of gh workflow ([#261](https://github.com/informatievlaanderen/road-registry/issues/261)) ([d690d43](https://github.com/informatievlaanderen/road-registry/commit/d690d4383ceda62da790c194398c8a5810415496))
+
 # [1.39.0](https://github.com/informatievlaanderen/road-registry/compare/v1.38.1...v1.39.0) (2021-07-13)
 
 
