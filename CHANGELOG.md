@@ -1,3 +1,10 @@
+# [1.41.0](https://github.com/informatievlaanderen/road-registry/compare/v1.40.0...v1.41.0) (2021-07-13)
+
+
+### Features
+
+* change from ok to accepted status code ([#262](https://github.com/informatievlaanderen/road-registry/issues/262)) ([8524f9f](https://github.com/informatievlaanderen/road-registry/commit/8524f9fb4fa203703704d5d4af2104f2be3b4379))
+
 # [1.40.0](https://github.com/informatievlaanderen/road-registry/compare/v1.39.0...v1.40.0) (2021-07-13)
 
 
