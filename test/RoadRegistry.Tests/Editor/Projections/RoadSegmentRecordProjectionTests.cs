@@ -77,6 +77,8 @@ namespace RoadRegistry.Editor.Projections
                     var expected = new RoadSegmentRecord
                     {
                         Id = importedRoadSegment.Id,
+                        StartNodeId = importedRoadSegment.StartNodeId,
+                        EndNodeId = importedRoadSegment.EndNodeId,
                         ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                         BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
@@ -135,6 +137,8 @@ namespace RoadRegistry.Editor.Projections
                 return (object)new RoadSegmentRecord
                 {
                         Id = segment.Id,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
                         ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                         BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
@@ -198,6 +202,8 @@ namespace RoadRegistry.Editor.Projections
                 return (object)new RoadSegmentRecord
                 {
                         Id = segment.Id,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
                         ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                         ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                         BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),

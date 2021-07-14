@@ -49,7 +49,7 @@ namespace RoadRegistry.BackOffice.Extracts
                     else
                     {
                         var contour = GeometryTranslator.Translate(message.Body.Contour);
-                        using (var content = await assembler.AssembleWithin(contour)) //(content, revision)
+                        using (var content = await assembler.AssembleWithin(contour, ct)) //(content, revision)
                         {
                             content.Position = 0L;
 

@@ -31,12 +31,14 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             if (contour == null) throw new ArgumentNullException(nameof(contour));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var count = await context.RoadSegmentSurfaceAttributes.CountAsync(cancellationToken);
+            var attributes = await context.RoadSegmentSurfaceAttributes
+                .InsideContour(contour)
+                .ToListAsync(cancellationToken);
             var dbfEntry = archive.CreateEntry("AttWegverharding.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
-                new DbaseRecordCount(count),
+                new DbaseRecordCount(attributes.Count),
                 RoadSegmentSurfaceAttributeDbaseRecord.Schema
             );
             await using (var dbfEntryStream = dbfEntry.Open())
@@ -46,7 +48,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                     new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
                 var dbfRecord = new RoadSegmentSurfaceAttributeDbaseRecord();
-                foreach (var data in context.RoadSegmentSurfaceAttributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+                foreach (var data in attributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
                 {
                     dbfRecord.FromBytes(data, _manager, _encoding);
                     dbfWriter.Write(dbfRecord);

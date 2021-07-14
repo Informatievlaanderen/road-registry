@@ -15,8 +15,10 @@
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
     using Configuration;
     using Core;
+    using Editor.Schema;
     using Extracts;
     using Framework;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -25,6 +27,8 @@
     using NodaTime;
     using Serilog;
     using SqlStreamStore;
+    using Syndication.Schema;
+    using ZipArchiveWriters;
 
     public class Program
     {
@@ -157,6 +161,9 @@
                             throw new Exception(blobOptions.BlobClientType + " is not a supported blob client type.");
                     }
 
+                    var zipArchiveWriterOptions = new ZipArchiveWriterOptions();
+                    hostContext.Configuration.GetSection(nameof(ZipArchiveWriterOptions)).Bind(zipArchiveWriterOptions);
+
                     builder
                         .AddSingleton<Scheduler>()
                         .AddHostedService<EventProcessor>()
@@ -183,8 +190,43 @@
                                         .GetConnectionString(WellknownConnectionNames.Snapshots)
                                 ), WellknownSchemas.SnapshotSchema),
                             sp.GetService<RecyclableMemoryStreamManager>()))
+                        .AddSingleton<IStreetNameCache, StreetNameCache>()
+                        .AddSingleton<Func<SyndicationContext>>(sp =>
+                            () =>
+                                new SyndicationContext(
+                                    new DbContextOptionsBuilder<SyndicationContext>()
+                                        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                                        .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                                        .UseSqlServer(
+                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
+                                            options => options
+                                                .EnableRetryOnFailure()
+                                        ).Options)
+                        )
+                        .AddSingleton<ZipArchiveWriterOptions>(zipArchiveWriterOptions)
+                        .AddSingleton<IZipArchiveWriter<EditorContext>>(sp =>
+                            new RoadNetworkExtractToZipArchiveWriter(
+                                sp.GetService<ZipArchiveWriterOptions>(),
+                                sp.GetService<IStreetNameCache>(),
+                                sp.GetService<RecyclableMemoryStreamManager>(),
+                                Encoding.GetEncoding(1252)))
+                        .AddSingleton<Func<EditorContext>>(sp =>
+                            () =>
+                                new EditorContext(
+                                    new DbContextOptionsBuilder<EditorContext>()
+                                        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                                        .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                                        .UseSqlServer(
+                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.EditorProjections),
+                                            options => options
+                                                .UseNetTopologySuite()
+                                        ).Options)
+                        )
                         .AddSingleton<IRoadNetworkExtractArchiveAssembler>(sp =>
-                            new RoadNetworkExtractArchiveAssembler(sp.GetService<RecyclableMemoryStreamManager>()))
+                            new RoadNetworkExtractArchiveAssembler(
+                                sp.GetService<RecyclableMemoryStreamManager>(),
+                                sp.GetService<Func<EditorContext>>(),
+                                sp.GetService<IZipArchiveWriter<EditorContext>>()))
                         .AddSingleton(sp => new EventHandlerModule[]
                         {
                             new RoadNetworkExtractEventModule(
@@ -213,6 +255,8 @@
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ExtractHostAdmin);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SnapshotsAdmin);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EditorProjections);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SyndicationProjections);
                 logger.LogBlobClientCredentials(blobClientOptions);
 
                 await DistributedLock<Program>.RunAsync(async () =>

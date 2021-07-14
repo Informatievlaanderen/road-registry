@@ -17,5 +17,16 @@
             MaximumX = GeometryTranslator.ToGeometryPoint(shape).EnvelopeInternal.MaxX,
             MaximumY = GeometryTranslator.ToGeometryPoint(shape).EnvelopeInternal.MaxY
         };
+
+        public BoundingBox3D ToBoundingBox3D(double minimumM = default, double maximumM = default) => new BoundingBox3D(
+            MinimumX,
+            MinimumY,
+            MaximumX,
+            MaximumY,
+            0.0,
+            0.0,
+            minimumM,
+            maximumM
+        );
     }
 }

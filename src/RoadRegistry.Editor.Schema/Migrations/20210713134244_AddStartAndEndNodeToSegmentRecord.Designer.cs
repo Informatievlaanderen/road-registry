@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Editor.Schema;
@@ -10,9 +11,10 @@ using RoadRegistry.Editor.Schema;
 namespace RoadRegistry.Editor.Schema.Migrations
 {
     [DbContext(typeof(EditorContext))]
-    partial class EditorContextModelSnapshot : ModelSnapshot
+    [Migration("20210713134244_AddStartAndEndNodeToSegmentRecord")]
+    partial class AddStartAndEndNodeToSegmentRecord
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,14 +54,8 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<int>("LowerRoadSegmentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UpperRoadSegmentId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id")
-                        .IsClustered();
+                        .IsClustered(false);
 
                     b.ToTable("GradeSeparatedJunction", "RoadRegistryEditor");
                 });
@@ -291,7 +287,6 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.Property<Geometry>("Geometry")
-                        .IsRequired()
                         .HasColumnType("Geometry");
 
                     b.Property<byte[]>("ShapeRecordContent")
@@ -302,7 +297,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .IsClustered();
+                        .IsClustered(false);
 
                     b.ToTable("RoadNode", "RoadRegistryEditor");
                 });
@@ -424,7 +419,6 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("int");
 
                     b.Property<Geometry>("Geometry")
-                        .IsRequired()
                         .HasColumnType("Geometry");
 
                     b.Property<byte[]>("ShapeRecordContent")
@@ -438,7 +432,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .IsClustered();
+                        .IsClustered(false);
 
                     b.ToTable("RoadSegment", "RoadRegistryEditor");
                 });

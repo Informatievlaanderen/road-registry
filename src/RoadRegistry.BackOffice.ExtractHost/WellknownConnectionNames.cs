@@ -7,5 +7,7 @@ namespace RoadRegistry.BackOffice.ExtractHost
         public const string Events = "Events";
         public const string ExtractHost = "ExtractHost";
         public const string ExtractHostAdmin = "ExtractHostAdmin";
+        public const string EditorProjections = "EditorProjections";
+        public const string SyndicationProjections = "SyndicationProjections";
     }
 }

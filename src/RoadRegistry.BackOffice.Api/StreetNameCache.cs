@@ -7,11 +7,6 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.EntityFrameworkCore;
     using Syndication.Schema;
 
-    public interface IStreetNameCache
-    {
-        Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds);
-    }
-
     public class StreetNameCache : IStreetNameCache
     {
         private readonly Func<SyndicationContext> _contextFactory;
