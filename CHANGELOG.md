@@ -1,3 +1,10 @@
+# [1.42.0](https://github.com/informatievlaanderen/road-registry/compare/v1.41.0...v1.42.0) (2021-07-14)
+
+
+### Features
+
+* extract assembly ([#271](https://github.com/informatievlaanderen/road-registry/issues/271)) ([c2a2eec](https://github.com/informatievlaanderen/road-registry/commit/c2a2eec7d0981d28722f6ea5e1e5048f28f524c9))
+
 # [1.41.0](https://github.com/informatievlaanderen/road-registry/compare/v1.40.0...v1.41.0) (2021-07-13)
 
 
