@@ -41,7 +41,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var segments = await context.RoadSegments
-                .Where(segment => segment.Geometry.Intersects(contour))
+                .InsideContour(contour)
                 .ToListAsync(cancellationToken);
             var dbfEntry = archive.CreateEntry("Wegsegment.dbf");
             var dbfHeader = new DbaseFileHeader(

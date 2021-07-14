@@ -33,8 +33,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var attributes = await context.RoadSegmentNationalRoadAttributes
-                .Where(attribute => context.RoadSegments.Any(segment =>
-                    segment.Geometry.Intersects(contour) && attribute.RoadSegmentId == segment.Id))
+                .InsideContour(contour)
                 .ToListAsync(cancellationToken);
 
             var dbfEntry = archive.CreateEntry("AttNationweg.dbf");

@@ -103,7 +103,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id")
-                        .IsClustered();
+                        .IsClustered(false);
 
                     b.ToTable("Organization", "RoadRegistryEditor");
                 });

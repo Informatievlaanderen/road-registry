@@ -51,6 +51,8 @@ namespace RoadRegistry.Editor.Projections
                     var expected = new GradeSeparatedJunctionRecord
                     {
                         Id = junction.Id,
+                        UpperRoadSegmentId = junction.UpperRoadSegmentId,
+                        LowerRoadSegmentId = junction.LowerRoadSegmentId,
                         DbaseRecord = new GradeSeparatedJunctionDbaseRecord
                         {
                             OK_OIDN = { Value = junction.Id },
@@ -90,6 +92,8 @@ namespace RoadRegistry.Editor.Projections
                 return (object)new GradeSeparatedJunctionRecord
                 {
                     Id = junction.Id,
+                    UpperRoadSegmentId = junction.UpperRoadSegmentId,
+                    LowerRoadSegmentId = junction.LowerRoadSegmentId,
                     DbaseRecord = new GradeSeparatedJunctionDbaseRecord
                     {
                         OK_OIDN = {Value = junction.Id},
@@ -129,6 +133,8 @@ namespace RoadRegistry.Editor.Projections
                 return (object)new GradeSeparatedJunctionRecord
                 {
                     Id = junction.Id,
+                    UpperRoadSegmentId = junction.UpperRoadSegmentId,
+                    LowerRoadSegmentId = junction.LowerRoadSegmentId,
                     DbaseRecord = new GradeSeparatedJunctionDbaseRecord
                     {
                         OK_OIDN = {Value = junction.Id},

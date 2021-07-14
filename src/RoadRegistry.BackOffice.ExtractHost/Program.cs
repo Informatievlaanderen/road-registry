@@ -219,7 +219,6 @@
                                         .UseSqlServer(
                                             hostContext.Configuration.GetConnectionString(WellknownConnectionNames.EditorProjections),
                                             options => options
-                                                .EnableRetryOnFailure()
                                                 .UseNetTopologySuite()
                                         ).Options)
                         )

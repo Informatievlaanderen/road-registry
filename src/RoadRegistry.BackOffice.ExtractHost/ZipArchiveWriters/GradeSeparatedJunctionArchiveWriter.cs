@@ -31,10 +31,10 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             if (contour == null) throw new ArgumentNullException(nameof(contour));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var junctions = await context.GradeSeparatedJunctions
-                .Where(junction => context.RoadSegments.Any(segment =>
-                    segment.Geometry.Intersects(contour) && (junction.UpperRoadSegmentId == segment.Id || junction.LowerRoadSegmentId == segment.Id)))
-                .ToListAsync(cancellationToken);
+            var junctions =
+                await context.GradeSeparatedJunctions
+                    .InsideContour(contour)
+                    .ToListAsync(cancellationToken);
             var dbfEntry = archive.CreateEntry("RltOgkruising.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,

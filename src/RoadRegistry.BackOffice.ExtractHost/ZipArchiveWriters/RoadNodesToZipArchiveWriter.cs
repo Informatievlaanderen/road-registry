@@ -32,18 +32,8 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             if (contour == null) throw new ArgumentNullException(nameof(contour));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var nodesThatIntersectContour =
-                context.RoadNodes
-                    .Where(node => node.Geometry.Intersects(contour));
-            var nodesThatAreStartOrEndNodeOfSegmentsThatIntersectContour =
-                context.RoadNodes
-                    .Where(node => context.RoadSegments.Any(segment => segment.Geometry.Intersects(contour) &&
-                                                                       (segment.StartNodeId == node.Id ||
-                                                                        segment.EndNodeId == node.Id)));
             var nodes =
-                await nodesThatIntersectContour
-                    .Union(nodesThatAreStartOrEndNodeOfSegmentsThatIntersectContour)
-                    .ToListAsync(cancellationToken);
+                await context.RoadNodes.InsideContour(contour).ToListAsync(cancellationToken);
 
             var dbfEntry = archive.CreateEntry("Wegknoop.dbf");
             var dbfHeader = new DbaseFileHeader(
