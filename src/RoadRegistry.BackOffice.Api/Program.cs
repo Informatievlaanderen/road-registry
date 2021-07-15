@@ -140,12 +140,17 @@ namespace RoadRegistry.BackOffice.Api
                                 );
                             }
 
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )
-                            );
+                            builder
+                                .AddSingleton(sp =>
+                                    new UploadsBlobClient(new S3BlobClient(
+                                        sp.GetRequiredService<AmazonS3Client>(),
+                                        s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                    )))
+                                .AddSingleton(sp =>
+                                    new ExtractDownloadsBlobClient(new S3BlobClient(
+                                        sp.GetRequiredService<AmazonS3Client>(),
+                                        s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
+                                    )));
 
                             break;
 
@@ -153,11 +158,14 @@ namespace RoadRegistry.BackOffice.Api
                             var fileOptions = new FileBlobClientOptions();
                             hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
 
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new FileBlobClient(
-                                    new DirectoryInfo(fileOptions.Directory)
+                            builder
+                                .AddSingleton<IBlobClient>(sp =>
+                                    new FileBlobClient(
+                                        new DirectoryInfo(fileOptions.Directory)
+                                    )
                                 )
-                            );
+                                .AddSingleton<UploadsBlobClient>()
+                                .AddSingleton<ExtractDownloadsBlobClient>();
                             break;
 
                         default:
@@ -200,7 +208,7 @@ namespace RoadRegistry.BackOffice.Api
                             new CommandHandlerModule[]
                             {
                                 new RoadNetworkChangesArchiveCommandModule(
-                                    sp.GetService<IBlobClient>(),
+                                    sp.GetService<UploadsBlobClient>(),
                                     sp.GetService<IStreamStore>(),
                                     sp.GetService<IRoadNetworkSnapshotReader>(),
                                     new ZipArchiveValidator(Encoding.GetEncoding(1252)),

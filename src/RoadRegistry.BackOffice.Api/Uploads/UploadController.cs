@@ -26,9 +26,9 @@ namespace RoadRegistry.BackOffice.Api.Uploads
                 ContentType.Parse("application/x-zip-compressed")
             };
         private readonly CommandHandlerDispatcher _dispatcher;
-        private readonly IBlobClient _client;
+        private readonly UploadsBlobClient _client;
 
-        public UploadController(CommandHandlerDispatcher dispatcher, IBlobClient client)
+        public UploadController(CommandHandlerDispatcher dispatcher, UploadsBlobClient client)
         {
             _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
             _client = client ?? throw new ArgumentNullException(nameof(client));

@@ -11,6 +11,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
 
+    // NOTE: If you change the properties of any of the entities used below, you will need to update these queries too!
     public static class ContourQueryExtensions
     {
         private static SqlParameter ToSqlParameter(this MultiPolygon contour)
