@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Api
     using AutoFixture;
     using BackOffice.Extracts;
     using BackOffice.Framework;
+    using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Extracts;
     using FluentValidation;
@@ -48,7 +49,7 @@ namespace RoadRegistry.BackOffice.Api
             var validator =
                 new DownloadExtractRequestBodyValidator(wktReader,
                     new NullLogger<DownloadExtractRequestBodyValidator>());
-            var controller = new ExtractsController(Dispatch.Using(_resolver), wktReader, validator)
+            var controller = new ExtractsController(SystemClock.Instance, Dispatch.Using(_resolver), new ExtractDownloadsBlobClient(new MemoryBlobClient()), wktReader, validator)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -74,7 +75,7 @@ namespace RoadRegistry.BackOffice.Api
             var validator =
                 new DownloadExtractRequestBodyValidator(wktReader,
                     new NullLogger<DownloadExtractRequestBodyValidator>());
-            var controller = new ExtractsController(Dispatch.Using(_resolver), wktReader, validator)
+            var controller = new ExtractsController(SystemClock.Instance,Dispatch.Using(_resolver), new ExtractDownloadsBlobClient(new MemoryBlobClient()), wktReader, validator)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -100,7 +101,7 @@ namespace RoadRegistry.BackOffice.Api
             var validator =
                 new DownloadExtractRequestBodyValidator(wktReader,
                     new NullLogger<DownloadExtractRequestBodyValidator>());
-            var controller = new ExtractsController(Dispatch.Using(_resolver), wktReader, validator)
+            var controller = new ExtractsController(SystemClock.Instance,Dispatch.Using(_resolver), new ExtractDownloadsBlobClient(new MemoryBlobClient()), wktReader, validator)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -130,7 +131,7 @@ namespace RoadRegistry.BackOffice.Api
             var validator =
                 new DownloadExtractRequestBodyValidator(wktReader,
                     new NullLogger<DownloadExtractRequestBodyValidator>());
-            var controller = new ExtractsController(Dispatch.Using(_resolver), wktReader, validator)
+            var controller = new ExtractsController(SystemClock.Instance,Dispatch.Using(_resolver), new ExtractDownloadsBlobClient(new MemoryBlobClient()), wktReader, validator)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };

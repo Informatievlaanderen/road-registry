@@ -4,6 +4,7 @@ namespace RoadRegistry.Editor.Schema
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+    using Extracts;
     using GradeSeparatedJunctions;
     using Microsoft.EntityFrameworkCore;
     using Organizations;
@@ -33,6 +34,7 @@ namespace RoadRegistry.Editor.Schema
         public DbSet<RoadNetworkChange> RoadNetworkChanges { get; set; }
         public DbSet<RoadNetworkChangeRequestBasedOnArchive> RoadNetworkChangeRequestsBasedOnArchive { get; set; }
         public DbSet<MunicipalityGeometry> MunicipalityGeometries { get; set; }
+        public DbSet<ExtractDownloadRecord> ExtractDownloads { get; set; }
 
         public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken token)
         {

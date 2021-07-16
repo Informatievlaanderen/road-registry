@@ -365,6 +365,7 @@ services:
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
+      S3BLOBCLIENTOPTIONS__BUCKETS__EXTRACTDOWNLOADS: road-registry-extract-downloads
       CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
