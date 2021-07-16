@@ -34,7 +34,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             var attributes = await context.RoadSegmentWidthAttributes
                 .InsideContour(contour)
                 .ToListAsync(cancellationToken);
-            var dbfEntry = archive.CreateEntry("AttWegbreedte.dbf");
+            var dbfEntry = archive.CreateEntry("eAttWegbreedte.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,

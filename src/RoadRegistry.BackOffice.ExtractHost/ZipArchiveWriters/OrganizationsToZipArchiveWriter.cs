@@ -32,7 +32,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             if (contour == null) throw new ArgumentNullException(nameof(contour));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var dbfEntry = archive.CreateEntry("LstOrg.dbf");
+            var dbfEntry = archive.CreateEntry("eLstOrg.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,

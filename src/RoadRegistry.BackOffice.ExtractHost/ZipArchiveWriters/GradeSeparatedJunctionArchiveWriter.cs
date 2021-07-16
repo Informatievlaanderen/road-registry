@@ -35,7 +35,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 await context.GradeSeparatedJunctions
                     .InsideContour(contour)
                     .ToListAsync(cancellationToken);
-            var dbfEntry = archive.CreateEntry("RltOgkruising.dbf");
+            var dbfEntry = archive.CreateEntry("eRltOgkruising.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,

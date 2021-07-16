@@ -35,7 +35,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             var nodes =
                 await context.RoadNodes.InsideContour(contour).ToListAsync(cancellationToken);
 
-            var dbfEntry = archive.CreateEntry("Wegknoop.dbf");
+            var dbfEntry = archive.CreateEntry("eWegknoop.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
@@ -63,7 +63,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                     BoundingBox3D.Empty,
                     (box, record) => box.ExpandWith(record.BoundingBox.ToBoundingBox3D()));
 
-            var shpEntry = archive.CreateEntry("Wegknoop.shp");
+            var shpEntry = archive.CreateEntry("eWegknoop.shp");
             var shpHeader = new ShapeFileHeader(
                 new WordLength(
                     nodes.Aggregate(0, (length, record) => length + record.ShapeRecordContentLength)),
@@ -89,7 +89,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 await shpEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shxEntry = archive.CreateEntry("Wegknoop.shx");
+            var shxEntry = archive.CreateEntry("eWegknoop.shx");
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(nodes.Count));
             await using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =
