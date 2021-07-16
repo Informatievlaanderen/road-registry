@@ -1,3 +1,10 @@
+# [1.43.0](https://github.com/informatievlaanderen/road-registry/compare/v1.42.0...v1.43.0) (2021-07-16)
+
+
+### Features
+
+* ability to download extract ([#272](https://github.com/informatievlaanderen/road-registry/issues/272)) ([04e59c5](https://github.com/informatievlaanderen/road-registry/commit/04e59c546b15a21435526ef8f491dcc016fce5cd))
+
 # [1.42.0](https://github.com/informatievlaanderen/road-registry/compare/v1.41.0...v1.42.0) (2021-07-14)
 
 
