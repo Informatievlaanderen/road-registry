@@ -24,7 +24,7 @@ namespace RoadRegistry.Editor.Projections
                     ArchiveId = null,
                     Available = false,
                     AvailableOn = 0L,
-                    RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeTicks()
+                    RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds()
                 };
                 await context.ExtractDownloads.AddAsync(record, ct);
             });
@@ -36,7 +36,7 @@ namespace RoadRegistry.Editor.Projections
                     ?? await context.ExtractDownloads.SingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
                 record.ArchiveId = envelope.Message.ArchiveId;
                 record.Available = true;
-                record.AvailableOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeTicks();
+                record.AvailableOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds();
             });
         }
     }

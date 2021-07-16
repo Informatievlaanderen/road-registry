@@ -2,19 +2,18 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 {
     using System;
     using System.Globalization;
-    using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
     using BackOffice.Framework;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.BlobStore;
+    using Configuration;
     using Editor.Schema;
     using FluentValidation;
     using FluentValidation.Results;
     using Framework;
     using Messages;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Net.Http.Headers;
     using NetTopologySuite.IO;
     using NodaTime;
@@ -64,30 +63,24 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         }
 
         [HttpGet("download/{downloadid}")]
-        public async Task<IActionResult> GetDownload([FromServices]EditorContext context, [FromRoute]string downloadid)
+        public async Task<IActionResult> GetDownload(
+            [FromServices]EditorContext context,
+            [FromServices]ExtractDownloadsOptions options,
+            [FromRoute]string downloadid)
         {
             if (Guid.TryParseExact(downloadid, "N", out var parsed))
             {
                 var record = await context.ExtractDownloads.FindAsync(new object[] { parsed }, HttpContext.RequestAborted);
                 if (record == null || !record.Available)
                 {
-                    // NOT FOUND (with retry after)
-                    // NOTE: using this approach the system calculates
-                    // var bufferSeconds = 5;
-                    // var thirtyDays = Duration.FromDays(30);
-                    // var thirtyDaysAgo = _clock.GetCurrentInstant().Minus(thirtyDays).ToUnixTimeTicks();
-                    // var average = await context.ExtractDownloads
-                    //     .Where(download => download.Available && download.AvailableOn > thirtyDaysAgo)
-                    //     .AverageAsync(download => download.RequestedOn - download.AvailableOn,
-                    //         HttpContext.RequestAborted);
-                    // var retryAfterSeconds =
-                    //     (
-                    //         Convert.ToInt32(Math.Round(Duration.FromTicks(average).TotalSeconds, 0, MidpointRounding.ToEven))
-                    //         +
-                    //         bufferSeconds
-                    //     )
-                    //     .ToString(CultureInfo.InvariantCulture);
-                    Response.Headers.Add("Retry-After", "5");
+                    var retryAfterSeconds =
+                        await context.ExtractDownloads.TookAverageAssembleDuration(
+                            _clock
+                                .GetCurrentInstant()
+                                .Minus(Duration.FromDays(options.RetryAfterAverageWindowInDays)),
+                            options.DefaultRetryAfter);
+
+                    Response.Headers.Add("Retry-After", retryAfterSeconds.ToString(CultureInfo.InvariantCulture));
                     return NotFound();
                 }
 

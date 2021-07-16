@@ -80,7 +80,7 @@ namespace RoadRegistry.Editor.Projections
                         ArchiveId = null,
                         Available = false,
                         AvailableOn = 0L,
-                        RequestedOn = InstantPattern.ExtendedIso.Parse(requested.When).Value.ToUnixTimeTicks()
+                        RequestedOn = InstantPattern.ExtendedIso.Parse(requested.When).Value.ToUnixTimeSeconds()
                     };
 
                     return new
@@ -110,8 +110,8 @@ namespace RoadRegistry.Editor.Projections
                         ExternalRequestId = available.ExternalRequestId,
                         ArchiveId = available.ArchiveId,
                         Available = true,
-                        AvailableOn = InstantPattern.ExtendedIso.Parse(available.When).Value.ToUnixTimeTicks(),
-                        RequestedOn = InstantPattern.ExtendedIso.Parse(available.When).Value.ToUnixTimeTicks()
+                        AvailableOn = InstantPattern.ExtendedIso.Parse(available.When).Value.ToUnixTimeSeconds(),
+                        RequestedOn = InstantPattern.ExtendedIso.Parse(available.When).Value.ToUnixTimeSeconds()
                     };
 
                     return new

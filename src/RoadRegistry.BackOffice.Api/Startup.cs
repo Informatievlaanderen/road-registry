@@ -46,7 +46,8 @@ namespace RoadRegistry.BackOffice.Api
                             .GetSection("Cors")
                             .GetChildren()
                             .Select(c => c.Value)
-                            .ToArray()
+                            .ToArray(),
+                        ExposedHeaders = new [] { "Retry-After" }
                     },
                     Swagger =
                     {
