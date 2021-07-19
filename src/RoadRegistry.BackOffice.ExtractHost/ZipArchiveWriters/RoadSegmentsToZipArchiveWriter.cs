@@ -11,9 +11,9 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using Configuration;
     using Editor.Schema;
     using Editor.Schema.RoadSegments;
+    using Extracts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
-    using NetTopologySuite.Geometries;
 
     public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
@@ -34,16 +34,18 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, MultiPolygon contour, EditorContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
+            EditorContext context,
+            CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (contour == null) throw new ArgumentNullException(nameof(contour));
+            if (request == null) throw new ArgumentNullException(nameof(request));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var segments = await context.RoadSegments
-                .InsideContour(contour)
+                .InsideContour(request.Contour)
                 .ToListAsync(cancellationToken);
-            var dbfEntry = archive.CreateEntry("Wegsegment.dbf");
+            var dbfEntry = archive.CreateEntry("eWegsegment.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
@@ -95,7 +97,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 BoundingBox3D.Empty,
                 (box, record) => box.ExpandWith(record.BoundingBox.ToBoundingBox3D()));
 
-            var shpEntry = archive.CreateEntry("Wegsegment.shp");
+            var shpEntry = archive.CreateEntry("eWegsegment.shp");
             var shpHeader = new ShapeFileHeader(
                 new WordLength(
                     segments.Aggregate(0, (length, record) => length + record.ShapeRecordContentLength)),
@@ -121,7 +123,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 await shpEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shxEntry = archive.CreateEntry("Wegsegment.shx");
+            var shxEntry = archive.CreateEntry("eWegsegment.shx");
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(segments.Count));
             await using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =

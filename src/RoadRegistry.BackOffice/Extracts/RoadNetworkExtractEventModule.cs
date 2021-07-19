@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Extracts
     using System.Globalization;
     using System.IO.Compression;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Core;
     using Framework;
@@ -48,8 +49,11 @@ namespace RoadRegistry.BackOffice.Extracts
                     }
                     else
                     {
-                        var contour = GeometryTranslator.Translate(message.Body.Contour);
-                        using (var content = await assembler.AssembleWithin(contour, ct)) //(content, revision)
+                        var request = new RoadNetworkExtractAssemblyRequest(
+                            new ExternalExtractRequestId(message.Body.ExternalRequestId),
+                            new DownloadId(message.Body.DownloadId),
+                            GeometryTranslator.Translate(message.Body.Contour));
+                        using (var content = await assembler.AssembleArchive(request, ct)) //(content, revision)
                         {
                             content.Position = 0L;
 

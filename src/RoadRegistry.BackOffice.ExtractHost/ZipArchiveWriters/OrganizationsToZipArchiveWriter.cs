@@ -11,6 +11,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using Core;
     using Editor.Schema;
     using Editor.Schema.Organizations;
+    using Extracts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
@@ -26,13 +27,15 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, MultiPolygon contour, EditorContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
+            EditorContext context,
+            CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (contour == null) throw new ArgumentNullException(nameof(contour));
+            if (request == null) throw new ArgumentNullException(nameof(request));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var dbfEntry = archive.CreateEntry("LstOrg.dbf");
+            var dbfEntry = archive.CreateEntry("eLstOrg.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,

@@ -17,10 +17,11 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             RuleFor(c => c.RequestId)
-                .NotEmpty();
+                .NotEmpty().WithMessage("'RequestId' must not be empty, null or missing");
             RuleFor(c => c.Contour)
-                .NotEmpty()
+                .NotEmpty().WithMessage("'Contour' must not be empty, null or missing")
                 .Must(BeMultiPolygonGeometryAsWellKnownText)
+                .WithMessage("'Contour' must be a valid multipolygon represented as well-known text")
                 .When(c => !string.IsNullOrEmpty(c.Contour), ApplyConditionTo.CurrentValidator);
         }
 
