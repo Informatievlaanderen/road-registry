@@ -1,3 +1,10 @@
+# [1.44.0](https://github.com/informatievlaanderen/road-registry/compare/v1.43.0...v1.44.0) (2021-07-19)
+
+
+### Features
+
+* prefix with e and transaction zone support ([#273](https://github.com/informatievlaanderen/road-registry/issues/273)) ([32ed136](https://github.com/informatievlaanderen/road-registry/commit/32ed1369ca61adb68deab384742ecc6873d4e6b7))
+
 # [1.43.0](https://github.com/informatievlaanderen/road-registry/compare/v1.42.0...v1.43.0) (2021-07-16)
 
 
