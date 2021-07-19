@@ -62,7 +62,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 await dbfEntryStream.FlushAsync(cancellationToken);
             }
 
-            var polygon = GeometryTranslator.FromGeometryMultiPolygon(request.Contour);
+            var polygon = PolygonalGeometryTranslator.FromGeometry(request.Contour);
             var shapeContent = new PolygonShapeContent(polygon);
             var shpBoundingBox = BoundingBox3D.FromGeometry(polygon);
 

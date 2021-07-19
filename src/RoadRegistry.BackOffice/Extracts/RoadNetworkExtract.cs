@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Extracts
         public static RoadNetworkExtract Request(
             ExternalExtractRequestId externalExtractRequestId,
             DownloadId downloadId,
-            MultiPolygon boundary)
+            IPolygonal contour)
         {
             var instance = Factory();
             instance.Apply(new RoadNetworkExtractGotRequested
@@ -45,12 +45,12 @@ namespace RoadRegistry.BackOffice.Extracts
                 RequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId).ToString(),
                 ExternalRequestId = externalExtractRequestId,
                 DownloadId = downloadId,
-                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(boundary)
+                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour)
             });
             return instance;
         }
 
-        public void RequestAgain(DownloadId downloadId, MultiPolygon boundary)
+        public void RequestAgain(DownloadId downloadId, IPolygonal contour)
         {
             if (!_requestedDownloads.Contains(downloadId))
             {
@@ -59,7 +59,7 @@ namespace RoadRegistry.BackOffice.Extracts
                     RequestId = Id.ToString(),
                     ExternalRequestId = _externalExtractRequestId,
                     DownloadId = downloadId,
-                    Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(boundary)
+                    Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour)
                 });
             }
         }

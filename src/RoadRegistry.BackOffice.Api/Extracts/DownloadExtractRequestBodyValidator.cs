@@ -21,7 +21,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             RuleFor(c => c.Contour)
                 .NotEmpty().WithMessage("'Contour' must not be empty, null or missing")
                 .Must(BeMultiPolygonGeometryAsWellKnownText)
-                .WithMessage("'Contour' must be a valid multipolygon represented as well-known text")
+                .WithMessage("'Contour' must be a valid multipolygon or polygon represented as well-known text")
                 .When(c => !string.IsNullOrEmpty(c.Contour), ApplyConditionTo.CurrentValidator);
         }
 
@@ -30,12 +30,12 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             try
             {
                 var geometry = _reader.Read(text);
-                if (geometry is MultiPolygon multiPolygon)
+                return geometry switch
                 {
-                    return multiPolygon.IsValid;
-                }
-
-                return false;
+                    MultiPolygon multiPolygon => multiPolygon.IsValid,
+                    Polygon polygon => polygon.IsValid,
+                    _ => false
+                };
             }
             catch (ParseException exception)
             {

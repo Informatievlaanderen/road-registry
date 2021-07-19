@@ -23,16 +23,16 @@ namespace RoadRegistry.BackOffice.Extracts
                     var externalRequestId = new ExternalExtractRequestId(message.Body.ExternalRequestId);
                     var requestId = ExtractRequestId.FromExternalRequestId(externalRequestId);
                     var downloadId = new DownloadId(message.Body.DownloadId);
-                    var boundary = GeometryTranslator.Translate(message.Body.Contour);
+                    var contour = GeometryTranslator.Translate(message.Body.Contour);
                     var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
                     if (extract == null)
                     {
-                        extract = RoadNetworkExtract.Request(externalRequestId, downloadId, boundary);
+                        extract = RoadNetworkExtract.Request(externalRequestId, downloadId, contour);
                         context.RoadNetworkExtracts.Add(extract);
                     }
                     else
                     {
-                        extract.RequestAgain(downloadId, boundary);
+                        extract.RequestAgain(downloadId, contour);
                     }
                 });
 

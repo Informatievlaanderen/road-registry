@@ -58,7 +58,7 @@ namespace RoadRegistry.BackOffice.Api
             var response = await controller.PostDownloadRequest(new DownloadExtractRequestBody
             {
                 RequestId = externalExtractRequestId,
-                Contour = writer.Write(BackOffice.GeometryTranslator.Translate(contour))
+                Contour = writer.Write((NetTopologySuite.Geometries.Geometry)BackOffice.GeometryTranslator.Translate(contour))
             });
             var result = Assert.IsType<AcceptedResult>(response);
             Assert.IsType<DownloadExtractResponseBody>(result.Value);
@@ -85,7 +85,7 @@ namespace RoadRegistry.BackOffice.Api
                 await controller.PostDownloadRequest(new DownloadExtractRequestBody
                 {
                     RequestId = null,
-                    Contour = writer.Write(BackOffice.GeometryTranslator.Translate(contour))
+                    Contour = writer.Write((NetTopologySuite.Geometries.Geometry)BackOffice.GeometryTranslator.Translate(contour))
                 });
                 throw new XunitException("Expected a validation exception but did not receive any");
             }
