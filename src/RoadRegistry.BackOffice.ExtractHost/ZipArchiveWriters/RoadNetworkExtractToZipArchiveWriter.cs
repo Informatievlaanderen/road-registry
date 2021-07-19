@@ -8,6 +8,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using Configuration;
     using Editor.Schema;
     using Editor.Schema.Lists;
+    using Extracts;
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
 
@@ -29,6 +30,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             _writer = new CompositeZipArchiveWriter<EditorContext>(
                 new ReadCommittedZipArchiveWriter<EditorContext>(
                     new CompositeZipArchiveWriter<EditorContext>(
+                        new TransactionZoneToZipArchiveWriter(encoding),
                         new OrganizationsToZipArchiveWriter(manager, encoding),
                         new RoadNodesToZipArchiveWriter(manager, encoding),
                         new RoadSegmentsToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding),
@@ -52,13 +54,15 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 new DbaseFileArchiveWriter<EditorContext>("eOgkruisingLktType.dbf", GradeSeparatedJunctionTypeDbaseRecord.Schema, Lists.AllGradeSeparatedJunctionTypeDbaseRecords, encoding),
                 new DbaseFileArchiveWriter<EditorContext>("eRijstrokenLktRichting.dbf", LaneDirectionDbaseRecord.Schema, Lists.AllLaneDirectionDbaseRecords, encoding),
                 new ProjectionFormatFileZipArchiveWriter<EditorContext>("eWegsegment.prj", encoding),
-                new ProjectionFormatFileZipArchiveWriter<EditorContext>("eWegknoop.prj", encoding)
+                new ProjectionFormatFileZipArchiveWriter<EditorContext>("eWegknoop.prj", encoding),
+                new ProjectionFormatFileZipArchiveWriter<EditorContext>("eTransactiezones.prj", encoding)
             );
         }
 
-        public Task WriteAsync(ZipArchive archive, MultiPolygon contour, EditorContext context, CancellationToken cancellationToken)
+        public Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, EditorContext context,
+            CancellationToken cancellationToken)
         {
-            return _writer.WriteAsync(archive, contour, context, cancellationToken);
+            return _writer.WriteAsync(archive, request, context, cancellationToken);
         }
     }
 }

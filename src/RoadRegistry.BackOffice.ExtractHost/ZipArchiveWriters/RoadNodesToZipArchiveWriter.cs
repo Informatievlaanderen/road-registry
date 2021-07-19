@@ -10,10 +10,9 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Editor.Schema;
     using Editor.Schema.RoadNodes;
+    using Extracts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
-    using NetTopologySuite.Geometries;
-    using NetTopologySuite.Planargraph;
 
     public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
@@ -26,14 +25,16 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, MultiPolygon contour, EditorContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
+            EditorContext context,
+            CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (contour == null) throw new ArgumentNullException(nameof(contour));
+            if (request == null) throw new ArgumentNullException(nameof(request));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var nodes =
-                await context.RoadNodes.InsideContour(contour).ToListAsync(cancellationToken);
+                await context.RoadNodes.InsideContour(request.Contour).ToListAsync(cancellationToken);
 
             var dbfEntry = archive.CreateEntry("eWegknoop.dbf");
             var dbfHeader = new DbaseFileHeader(

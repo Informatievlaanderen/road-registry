@@ -28,15 +28,15 @@ namespace RoadRegistry.BackOffice.ExtractHost
             _writer = writer ?? throw new ArgumentNullException(nameof(writer));
         }
 
-        public async Task<MemoryStream> AssembleWithin(MultiPolygon contour, CancellationToken cancellationToken)
+        public async Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken)
         {
-            if (contour == null) throw new ArgumentNullException(nameof(contour));
+            if (request == null) throw new ArgumentNullException(nameof(request));
 
             var stream = _manager.GetStream();
             using (var context = _contextFactory())
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
             {
-                await _writer.WriteAsync(archive, contour, context, cancellationToken);
+                await _writer.WriteAsync(archive, request, context, cancellationToken);
             }
 
             return stream;

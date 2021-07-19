@@ -10,9 +10,9 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Editor.Schema;
     using Editor.Schema.GradeSeparatedJunctions;
+    using Extracts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
-    using NetTopologySuite.Geometries;
 
     public class GradeSeparatedJunctionArchiveWriter : IZipArchiveWriter<EditorContext>
     {
@@ -25,15 +25,17 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
-        public async Task WriteAsync(ZipArchive archive, MultiPolygon contour, EditorContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
+            EditorContext context,
+            CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (contour == null) throw new ArgumentNullException(nameof(contour));
+            if (request == null) throw new ArgumentNullException(nameof(request));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var junctions =
                 await context.GradeSeparatedJunctions
-                    .InsideContour(contour)
+                    .InsideContour(request.Contour)
                     .ToListAsync(cancellationToken);
             var dbfEntry = archive.CreateEntry("eRltOgkruising.dbf");
             var dbfHeader = new DbaseFileHeader(

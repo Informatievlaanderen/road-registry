@@ -6,6 +6,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Extracts;
     using Microsoft.EntityFrameworkCore;
     using NetTopologySuite.Geometries;
 
@@ -19,10 +20,11 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             _filename = filename ?? throw new ArgumentNullException(nameof(filename));
             _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
-        public async Task WriteAsync(ZipArchive archive, MultiPolygon contour, TContext context, CancellationToken cancellationToken)
+        public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, TContext context,
+            CancellationToken cancellationToken)
         {
             if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (contour == null) throw new ArgumentNullException(nameof(contour));
+            if (request == null) throw new ArgumentNullException(nameof(request));
             if (context == null) throw new ArgumentNullException(nameof(context));
             var prjEntry = archive.CreateEntry(_filename);
             using (var prjEntryStream = prjEntry.Open())

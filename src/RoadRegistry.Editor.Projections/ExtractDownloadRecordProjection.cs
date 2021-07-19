@@ -5,7 +5,6 @@ namespace RoadRegistry.Editor.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Microsoft.EntityFrameworkCore;
-    using NodaTime;
     using NodaTime.Text;
     using Schema;
     using Schema.Extracts;

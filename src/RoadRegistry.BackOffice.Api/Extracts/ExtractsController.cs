@@ -116,7 +116,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             throw new ValidationException(new[]
             {
                 new ValidationFailure("downloadid",
-                    "The 'downloadid' querystring parameter is not a global unique identifier without dashes.")
+                    "'DownloadId' querystring parameter is not a global unique identifier without dashes.")
             });
         }
     }
