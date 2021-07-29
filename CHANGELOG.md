@@ -1,3 +1,10 @@
+## [1.44.1](https://github.com/informatievlaanderen/road-registry/compare/v1.44.0...v1.44.1) (2021-07-29)
+
+
+### Bug Fixes
+
+* return error on empty maintainer ([1c803e1](https://github.com/informatievlaanderen/road-registry/commit/1c803e1e3e5714306e6dec68352f55a178939d82))
+
 # [1.44.0](https://github.com/informatievlaanderen/road-registry/compare/v1.43.0...v1.44.0) (2021-07-19)
 
 
