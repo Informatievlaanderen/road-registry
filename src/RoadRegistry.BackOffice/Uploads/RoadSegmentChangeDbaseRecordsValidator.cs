@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Uploads
     using System;
     using System.Collections.Generic;
     using System.IO.Compression;
-    using Amazon.Runtime.EventStreams.Internal;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Schema;
 
@@ -165,7 +164,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 problems += recordContext.EndRoadNodeIdOutOfRange(record.E_WK_OIDN.Value);
                             }
 
-                            if (!record.BEHEERDER.HasValue)
+                            if (string.IsNullOrEmpty(record.BEHEERDER.Value))
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.BEHEERDER.Field);
                             }
