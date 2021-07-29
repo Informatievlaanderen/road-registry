@@ -306,6 +306,23 @@ namespace RoadRegistry.BackOffice.Uploads
             Assert.Equal(expectedContext, actualContext);
         }
 
+        [Theory]
+        [MemberData(nameof(ValidateWithRecordsThatHaveEmptyStringAsRequiredFieldValueCases))]
+        public void ValidateWithRecordsThatHaveEmptyStringAsRequiredFieldValueReturnsExpectedResult(
+            Action<RoadSegmentChangeDbaseRecord> modifier, DbaseField field)
+        {
+            var expectedContext = ZipArchiveValidationContext.Empty;
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            modifier(record);
+            expectedContext = BuildValidationContext(record, expectedContext);
+            var records = new[] {record}.ToDbaseRecordEnumerator();
+
+            var (result, actualContext) = _sut.Validate(_entry, records, _context);
+
+            Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
+            Assert.Equal(expectedContext, actualContext);
+        }
+
         public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
         {
             get
@@ -367,6 +384,19 @@ namespace RoadRegistry.BackOffice.Uploads
                 yield return new object[]
                 {
                     new Action<RoadSegmentChangeDbaseRecord>(r => r.BEHEERDER.Reset()),
+                    RoadSegmentChangeDbaseRecord.Schema.BEHEERDER
+                };
+            }
+        }
+
+
+        public static IEnumerable<object[]> ValidateWithRecordsThatHaveEmptyStringAsRequiredFieldValueCases
+        {
+            get
+            {
+                yield return new object[]
+                {
+                    new Action<RoadSegmentChangeDbaseRecord>(r => r.BEHEERDER.Value = string.Empty),
                     RoadSegmentChangeDbaseRecord.Schema.BEHEERDER
                 };
             }
