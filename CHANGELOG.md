@@ -1,3 +1,10 @@
+# [1.45.0](https://github.com/informatievlaanderen/road-registry/compare/v1.44.1...v1.45.0) (2021-07-30)
+
+
+### Features
+
+* update wms metadata ([#257](https://github.com/informatievlaanderen/road-registry/issues/257)) ([00e0d95](https://github.com/informatievlaanderen/road-registry/commit/00e0d954e0fc87711f1eaafae0b7d5c18b1efdc4))
+
 ## [1.44.1](https://github.com/informatievlaanderen/road-registry/compare/v1.44.0...v1.44.1) (2021-07-29)
 
 
