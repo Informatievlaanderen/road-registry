@@ -232,7 +232,7 @@ namespace RoadRegistry.Wms.Projections
             var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.LeftSide.StreetNameId, token);
             var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.RightSide.StreetNameId, token);
 
-            var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id);
+            var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id).ConfigureAwait(false);
 
             roadSegmentRecord.Id = roadSegmentModified.Id;
             roadSegmentRecord.BeginOperator = envelope.Message.Operator;
@@ -284,7 +284,7 @@ namespace RoadRegistry.Wms.Projections
 
         private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, WmsContext context)
         {
-            var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id);
+            var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id).ConfigureAwait(false);
 
             context.RoadSegments.Remove(roadSegmentRecord);
         }
@@ -295,7 +295,7 @@ namespace RoadRegistry.Wms.Projections
             CancellationToken token)
         {
             return streetNameId.HasValue ?
-                await streetNameCache.GetAsync(streetNameId.Value, token) :
+                await streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) :
                 null;
         }
     }

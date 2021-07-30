@@ -82,9 +82,9 @@
                         .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
+                        .AddTransient<EventProcessor>()
                         .AddSingleton<IStreetNameCache, StreetNameCache>()
                         .AddScoped<IMetadataUpdater, MetadataUpdater>()
-                        .AddHostedService<EventProcessor>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(new EnvelopeFactory(
                             EventProcessor.EventMapping,
@@ -142,6 +142,7 @@
             var streamStore = host.Services.GetRequiredService<IStreamStore>();
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
             var logger = host.Services.GetRequiredService<ILogger<Program>>();
+            var eventProcessor = host.Services.GetRequiredService<EventProcessor>();
 
             try
             {
@@ -156,7 +157,7 @@
                         await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
                         await migratorFactory.CreateMigrator(configuration, loggerFactory)
                             .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
-                        await host.RunAsync().ConfigureAwait(false);
+                        await eventProcessor.Resume(CancellationToken.None);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),
                     logger)
