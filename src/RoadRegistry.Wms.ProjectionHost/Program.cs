@@ -11,6 +11,7 @@
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Metadata;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -78,10 +79,12 @@
                 .ConfigureServices((hostContext, builder) =>
                 {
                     builder
+                        .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
+                        .AddTransient<EventProcessor>()
                         .AddSingleton<IStreetNameCache, StreetNameCache>()
-                        .AddHostedService<EventProcessor>()
+                        .AddScoped<IMetadataUpdater, MetadataUpdater>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(new EnvelopeFactory(
                             EventProcessor.EventMapping,
@@ -139,6 +142,7 @@
             var streamStore = host.Services.GetRequiredService<IStreamStore>();
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
             var logger = host.Services.GetRequiredService<ILogger<Program>>();
+            var eventProcessor = host.Services.GetRequiredService<EventProcessor>();
 
             try
             {
@@ -153,7 +157,7 @@
                         await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
                         await migratorFactory.CreateMigrator(configuration, loggerFactory)
                             .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
-                        await host.RunAsync().ConfigureAwait(false);
+                        await eventProcessor.Resume(CancellationToken.None);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),
                     logger)
