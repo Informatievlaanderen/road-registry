@@ -1,3 +1,10 @@
+# [1.46.0](https://github.com/informatievlaanderen/road-registry/compare/v1.45.2...v1.46.0) (2021-08-03)
+
+
+### Features
+
+* log when not able to create envelope ([9d89f7e](https://github.com/informatievlaanderen/road-registry/commit/9d89f7e807c1ef7955895a047f5622cfc7fe1f66))
+
 ## [1.45.2](https://github.com/informatievlaanderen/road-registry/compare/v1.45.1...v1.45.2) (2021-08-03)
 
 
