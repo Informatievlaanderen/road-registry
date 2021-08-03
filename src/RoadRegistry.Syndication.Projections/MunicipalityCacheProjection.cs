@@ -138,7 +138,7 @@ namespace RoadRegistry.Syndication.Projections
                 municipalityRecord.MunicipalityStatus = MunicipalityStatus.Current;
             });
 
-            When<Envelope<MunicipalityBecameRetired>>(async (context, envelope, token) =>
+            When<Envelope<MunicipalityWasRetired>>(async (context, envelope, token) =>
             {
                 var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
 

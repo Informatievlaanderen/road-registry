@@ -97,8 +97,8 @@ namespace RoadRegistry.Syndication.Projections.MunicipalityEvents
         public Guid MunicipalityId { get; set; }
     }
 
-    [DataContract(Name = "MunicipalityBecameRetired", Namespace = "")]
-    public class MunicipalityBecameRetired
+    [DataContract(Name = "MunicipalityWasRetired", Namespace = "")]
+    public class MunicipalityWasRetired
     {
         [DataMember(Name = "MunicipalityId", Order = 1)]
         public Guid MunicipalityId { get; set; }
@@ -109,6 +109,16 @@ namespace RoadRegistry.Syndication.Projections.MunicipalityEvents
     {
         [DataMember(Name = "MunicipalityId", Order = 1)]
         public Guid MunicipalityId { get; set; }
+    }
+
+    [DataContract(Name = "MunicipalityOfficialLanguageWasAdded", Namespace = "")]
+    public class MunicipalityOfficialLanguageWasAdded
+    {
+    }
+
+    [DataContract(Name = "MunicipalityFacilityLanguageWasAdded", Namespace = "")]
+    public class MunicipalityFacilityLanguageWasAdded
+    {
     }
 
     public enum MunicipalityLanguage
