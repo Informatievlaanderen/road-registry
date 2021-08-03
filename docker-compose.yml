@@ -167,7 +167,7 @@ services:
       - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
 
   municipality-api:
-    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/municipality-registry/api-legacy:3.12.1
+    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/municipality-registry/api-legacy:3.15.10
     depends_on:
       - municipality-mssql
       - seq
@@ -186,7 +186,7 @@ services:
       SERILOG__WRITETO__0__ARGS__FORMATTER: "Serilog.Formatting.Compact.RenderedCompactJsonFormatter, Serilog.Formatting.Compact"
 
   streetname-api:
-    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/streetname-registry/api-legacy:2.17.1
+    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/streetname-registry/api-legacy:2.21.9
     depends_on:
       - streetname-mssql
       - seq
