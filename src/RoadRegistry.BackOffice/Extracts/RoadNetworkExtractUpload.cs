@@ -26,7 +26,7 @@ namespace RoadRegistry.BackOffice.Extracts
         }
 
         private void Apply(object @event) => _applier(@event);
-        
+
         public void ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator)
         {
             var problems = validator.Validate(archive);
@@ -52,6 +52,7 @@ namespace RoadRegistry.BackOffice.Extracts
                         RequestId = _requestId,
                         DownloadId = _downloadId,
                         UploadId = _uploadId,
+                        ArchiveId = _archiveId,
                         Problems = problems.Select(problem => problem.Translate()).ToArray()
                     });
             }

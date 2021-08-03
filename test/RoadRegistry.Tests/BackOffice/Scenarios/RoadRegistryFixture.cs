@@ -34,6 +34,8 @@ namespace RoadRegistry.BackOffice.Scenarios
         protected FakeClock Clock { get; }
         protected MemoryBlobClient Client { get; }
 
+        protected IZipArchiveValidator ZipArchiveValidator { get; set; }
+
         private class FakeRoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
         {
             public Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken)
@@ -46,7 +48,9 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             public ZipArchiveProblems Validate(ZipArchive archive)
             {
-                return ZipArchiveProblems.None;
+                return archive.GetEntry("error") != null
+                    ? ZipArchiveProblems.Single(new FileError("error", "reason"))
+                    : ZipArchiveProblems.None;
             }
         }
 
@@ -56,11 +60,12 @@ namespace RoadRegistry.BackOffice.Scenarios
             Client = new MemoryBlobClient();
             Store = new InMemoryStreamStore();
             Clock = new FakeClock(NodaConstants.UnixEpoch);
+            ZipArchiveValidator = new FakeZipArchiveValidator();
 
             _runner = new ScenarioRunner(
                 Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
                         new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), Clock),
-                        new RoadNetworkExtractCommandModule(Client, Store, new FakeRoadNetworkSnapshotReader(), new FakeZipArchiveValidator(), Clock)
+                        new RoadNetworkExtractCommandModule(Client, Store, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock)
                     }),
                 Store,
                 Settings,

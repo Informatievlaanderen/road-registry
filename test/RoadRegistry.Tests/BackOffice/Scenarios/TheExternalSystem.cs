@@ -17,5 +17,20 @@ namespace RoadRegistry.BackOffice.Scenarios
                 Contour = contour
             });
         }
+
+        public static Command UploadsRoadNetworkExtractChangesArchive(
+            ExtractRequestId requestId,
+            DownloadId downloadId,
+            UploadId uploadId,
+            ArchiveId archiveId)
+        {
+            return new Command(new UploadRoadNetworkExtractChangesArchive
+            {
+                RequestId = requestId,
+                DownloadId = downloadId,
+                UploadId = uploadId,
+                ArchiveId = archiveId
+            });
+        }
     }
 }

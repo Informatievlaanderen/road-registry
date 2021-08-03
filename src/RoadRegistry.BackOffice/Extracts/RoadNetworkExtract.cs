@@ -32,6 +32,10 @@ namespace RoadRegistry.BackOffice.Extracts
             {
                 _announcedDownloads.Add(new DownloadId(e.DownloadId));
             });
+            On<RoadNetworkExtractChangesArchiveUploaded>(e =>
+            {
+                _knownUploads.Add(new UploadId(e.UploadId));
+            });
         }
 
         public ExtractRequestId Id { get; private set; }
@@ -84,17 +88,20 @@ namespace RoadRegistry.BackOffice.Extracts
         {
             if (!_requestedDownloads.Contains(downloadId))
             {
-                // TODO: Not sure how you got here but you can't upload for a download we don't know about
+                throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownload(
+                    _externalExtractRequestId, Id, downloadId, uploadId);
             }
 
             if (_requestedDownloads[_requestedDownloads.Count - 1] != downloadId)
             {
-                // TODO: You can only upload for the last requested download, not for an older version
+                throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload(
+                    _externalExtractRequestId, Id, downloadId, _requestedDownloads[_requestedDownloads.Count - 1], uploadId);
             }
 
-            if (_knownUploads.Contains(uploadId))
+            if (_knownUploads.Count == 1)
             {
-                // TODO: Not sure how you got here but you can only upload the same upload id once
+                throw new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce(
+                    _externalExtractRequestId, Id, downloadId, uploadId);
             }
 
             Apply(new RoadNetworkExtractChangesArchiveUploaded

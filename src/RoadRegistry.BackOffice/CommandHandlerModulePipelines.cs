@@ -11,7 +11,7 @@ namespace RoadRegistry.BackOffice
     using SqlStreamStore;
     using SqlStreamStore.Streams;
 
-    internal static class ModulePipelines
+    internal static class CommandHandlerModulePipelines
     {
         private static readonly JsonSerializerSettings SerializerSettings =
             EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
