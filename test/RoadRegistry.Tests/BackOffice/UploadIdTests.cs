@@ -7,11 +7,11 @@ namespace RoadRegistry.BackOffice
     using RoadRegistry.Framework.Assertions;
     using Xunit;
 
-    public class DownloadIdTests
+    public class UploadIdTests
     {
         private readonly Fixture _fixture;
 
-        public DownloadIdTests()
+        public UploadIdTests()
         {
             _fixture = new Fixture();
             _fixture.CustomizeArchiveId();
@@ -34,7 +34,7 @@ namespace RoadRegistry.BackOffice
                 new EqualsOtherAssertion(_fixture),
                 new EqualsSuccessiveAssertion(_fixture),
                 new GetHashCodeSuccessiveAssertion(_fixture)
-            ).Verify(typeof(DownloadId));
+            ).Verify(typeof(UploadId));
         }
 
         [Fact]
@@ -43,14 +43,14 @@ namespace RoadRegistry.BackOffice
             new GuardClauseAssertion(
                 _fixture,
                 new EmptyGuidBehaviorExpectation()
-            ).Verify(Constructors.Select(() => new DownloadId(Guid.Empty)));
+            ).Verify(Constructors.Select(() => new UploadId(Guid.Empty)));
         }
 
         [Fact]
         public void ToStringReturnsExpectedResult()
         {
             var value = Guid.NewGuid();
-            var sut = new DownloadId(value);
+            var sut = new UploadId(value);
 
             Assert.Equal(value.ToString("N"), sut.ToString());
         }
@@ -60,7 +60,7 @@ namespace RoadRegistry.BackOffice
         [InlineData("62bee5951746453da866aef66daa2be7", true)]
         public void AcceptsReturnsExceptedResult(string value, bool expected)
         {
-            var result = DownloadId.Accepts(Guid.Parse(value));
+            var result = UploadId.Accepts(Guid.Parse(value));
 
             Assert.Equal(expected, result);
         }

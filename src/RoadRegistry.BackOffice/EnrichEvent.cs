@@ -55,6 +55,15 @@ namespace RoadRegistry.BackOffice
                     case Messages.RoadNetworkExtractDownloadBecameAvailable m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
+                    case Messages.RoadNetworkExtractChangesArchiveUploaded m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
+                        break;
+                    case Messages.RoadNetworkExtractChangesArchiveAccepted m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
+                        break;
+                    case Messages.RoadNetworkExtractChangesArchiveRejected m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
+                        break;
                 }
             };
         }

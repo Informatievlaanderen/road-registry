@@ -12,13 +12,15 @@ namespace RoadRegistry.BackOffice.Extracts
 
         private ExternalExtractRequestId _externalExtractRequestId;
 
-        private readonly HashSet<DownloadId> _requestedDownloads;
+        private readonly List<DownloadId> _requestedDownloads;
         private readonly HashSet<DownloadId> _announcedDownloads;
+        private readonly HashSet<UploadId> _knownUploads;
 
         private RoadNetworkExtract()
         {
-            _requestedDownloads = new HashSet<DownloadId>();
+            _requestedDownloads = new List<DownloadId>();
             _announcedDownloads = new HashSet<DownloadId>();
+            _knownUploads = new HashSet<UploadId>();
 
             On<RoadNetworkExtractGotRequested>(e =>
             {
@@ -76,6 +78,41 @@ namespace RoadRegistry.BackOffice.Extracts
                     ArchiveId = archiveId
                 });
             }
+        }
+
+        public RoadNetworkExtractUpload Upload(DownloadId downloadId, UploadId uploadId, ArchiveId archiveId)
+        {
+            if (!_requestedDownloads.Contains(downloadId))
+            {
+                // TODO: Not sure how you got here but you can't upload for a download we don't know about
+            }
+
+            if (_requestedDownloads[_requestedDownloads.Count - 1] != downloadId)
+            {
+                // TODO: You can only upload for the last requested download, not for an older version
+            }
+
+            if (_knownUploads.Contains(uploadId))
+            {
+                // TODO: Not sure how you got here but you can only upload the same upload id once
+            }
+
+            Apply(new RoadNetworkExtractChangesArchiveUploaded
+            {
+                RequestId = Id,
+                ExternalRequestId = _externalExtractRequestId,
+                DownloadId = downloadId,
+                UploadId = uploadId,
+                ArchiveId = archiveId
+            });
+
+            return new RoadNetworkExtractUpload(
+                _externalExtractRequestId,
+                Id,
+                downloadId,
+                uploadId,
+                archiveId,
+                Apply);
         }
     }
 }

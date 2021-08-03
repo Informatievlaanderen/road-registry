@@ -151,5 +151,11 @@ namespace RoadRegistry.BackOffice.Scenarios
                 .ThenNone()
             );
         }
+
+        //when_uploading_an_archive_of_changes_for_an_outdated_download
+        //when_uploading_an_archive_of_changes_for_an_unknown_download
+        //when_uploading_an_archive_of_changes
+        //when_the_uploaded_archive_of_changes_can_not_be_accepted_after_validation
+        //when_the_uploaded_archive_of_changes_can_be_accepted_after_validation
     }
 }

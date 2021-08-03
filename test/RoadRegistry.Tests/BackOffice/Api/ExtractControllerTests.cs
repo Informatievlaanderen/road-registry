@@ -1,9 +1,11 @@
 namespace RoadRegistry.BackOffice.Api
 {
+    using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
     using BackOffice.Extracts;
     using BackOffice.Framework;
+    using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Extracts;
@@ -30,8 +32,10 @@ namespace RoadRegistry.BackOffice.Api
             _fixture.CustomizeRoadNetworkExtractGeometry();
             _resolver = Resolve.WhenEqualToMessage(
                 new RoadNetworkExtractCommandModule(
+                    new MemoryBlobClient(),
                     new InMemoryStreamStore(),
                     new FakeRoadNetworkSnapshotReader(),
+                    new ZipArchiveValidator(Encoding.UTF8),
                     SystemClock.Instance
                 )
             );

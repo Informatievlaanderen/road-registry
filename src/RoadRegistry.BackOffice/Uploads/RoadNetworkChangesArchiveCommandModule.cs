@@ -19,6 +19,7 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             if (client == null) throw new ArgumentNullException(nameof(client));
             if (store == null) throw new ArgumentNullException(nameof(store));
+            if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
             if (validator == null) throw new ArgumentNullException(nameof(validator));
             if (clock == null) throw new ArgumentNullException(nameof(clock));
 

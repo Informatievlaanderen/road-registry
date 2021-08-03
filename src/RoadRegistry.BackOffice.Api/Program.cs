@@ -223,8 +223,10 @@ namespace RoadRegistry.BackOffice.Api
                                     sp.GetService<IClock>()
                                 ),
                                 new RoadNetworkExtractCommandModule(
+                                    sp.GetService<UploadsBlobClient>(),
                                     sp.GetService<IStreamStore>(),
                                     sp.GetService<IRoadNetworkSnapshotReader>(),
+                                    new ZipArchiveValidator(Encoding.GetEncoding(1252)),
                                     sp.GetService<IClock>()
                                 )
                             })))

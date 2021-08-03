@@ -197,7 +197,7 @@
                                     sp.GetService<IBlobClient>(),
                                     sp.GetService<IStreamStore>(),
                                     sp.GetService<IRoadNetworkSnapshotReader>(),
-                                    new ZipArchiveValidator(Encoding.UTF8),
+                                    new ZipArchiveValidator(Encoding.GetEncoding(1252)),
                                     sp.GetService<IClock>()
                                 ),
                                 new RoadNetworkCommandModule(
@@ -206,8 +206,10 @@
                                     sp.GetService<IClock>()
                                 ),
                                 new RoadNetworkExtractCommandModule(
+                                    sp.GetService<IBlobClient>(),
                                     sp.GetService<IStreamStore>(),
                                     sp.GetService<IRoadNetworkSnapshotReader>(),
+                                    new ZipArchiveValidator(Encoding.GetEncoding(1252)),
                                     sp.GetService<IClock>()
                                 )
                             })));

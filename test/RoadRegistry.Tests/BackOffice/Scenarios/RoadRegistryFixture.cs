@@ -1,9 +1,12 @@
 namespace RoadRegistry.BackOffice.Scenarios
 {
     using System;
+    using System.IO.Compression;
     using System.Threading;
     using System.Threading.Tasks;
+    using Amazon.Runtime;
     using AutoFixture;
+    using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Core;
     using Extracts;
@@ -15,6 +18,7 @@ namespace RoadRegistry.BackOffice.Scenarios
     using RoadRegistry.Framework.Testing;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
+    using Uploads;
 
     public abstract class RoadRegistryFixture : IDisposable
     {
@@ -28,6 +32,7 @@ namespace RoadRegistry.BackOffice.Scenarios
         protected Fixture Fixture { get; }
         protected IStreamStore Store { get; }
         protected FakeClock Clock { get; }
+        protected MemoryBlobClient Client { get; }
 
         private class FakeRoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
         {
@@ -37,16 +42,25 @@ namespace RoadRegistry.BackOffice.Scenarios
             }
         }
 
+        private class FakeZipArchiveValidator : IZipArchiveValidator
+        {
+            public ZipArchiveProblems Validate(ZipArchive archive)
+            {
+                return ZipArchiveProblems.None;
+            }
+        }
+
         protected RoadRegistryFixture()
         {
             Fixture = new Fixture();
+            Client = new MemoryBlobClient();
             Store = new InMemoryStreamStore();
             Clock = new FakeClock(NodaConstants.UnixEpoch);
 
             _runner = new ScenarioRunner(
                 Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
                         new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), Clock),
-                        new RoadNetworkExtractCommandModule(Store, new FakeRoadNetworkSnapshotReader(), Clock)
+                        new RoadNetworkExtractCommandModule(Client, Store, new FakeRoadNetworkSnapshotReader(), new FakeZipArchiveValidator(), Clock)
                     }),
                 Store,
                 Settings,
