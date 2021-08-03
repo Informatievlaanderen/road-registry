@@ -1,28 +1,34 @@
 namespace RoadRegistry.Syndication.ProjectionHost.Mapping
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Serialization;
-    using Projections.MunicipalityEvents;
 
     public class EventSerializerMapping
     {
         private readonly IReadOnlyDictionary<string, DataContractSerializer> _eventSerializers;
 
-        public EventSerializerMapping()
+        private EventSerializerMapping(IReadOnlyDictionary<string, DataContractSerializer> eventSerializers)
         {
-            _eventSerializers = new ReadOnlyDictionary<string, DataContractSerializer>(
+            _eventSerializers = eventSerializers;
+        }
+
+        public static EventSerializerMapping CreateForNamespaceOf(Type eventType)
+        {
+            var eventNamespace = eventType.Namespace;
+            return new EventSerializerMapping(new ReadOnlyDictionary<string, DataContractSerializer>(
                 Assembly
-                    .GetAssembly(typeof(MunicipalityWasRegistered))
+                    .GetAssembly(eventType)
                     ?.GetTypes()
                     .Where(t => t.Namespace != null &&
-                                (t.Namespace.EndsWith("MunicipalityEvents") ||
-                                 t.Namespace.EndsWith("StreetNameEvents")))
+                                (t.Namespace == eventNamespace))
                     .ToDictionary(
                         type => type.Name,
-                        type => new DataContractSerializer(type)));
+                        type => new DataContractSerializer(type))
+                ?? throw new InvalidOperationException($"No assembly found for event type '{eventType}'")));
         }
 
         public DataContractSerializer GetSerializerFor(string eventName)
