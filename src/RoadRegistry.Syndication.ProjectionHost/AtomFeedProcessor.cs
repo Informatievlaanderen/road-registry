@@ -101,8 +101,8 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                         {
                                             foreach (var atomEntry in entries)
                                             {
-                                                logger.LogInformation("[{Context}] Catching up on {MessageType} at {Position}",
-                                                                typeof(TSyndicationContent).Name, atomEntry.ContentType, atomEntry.Id);
+                                                logger.LogInformation("[{Context}] Catching up on {MessageTitle}({MessageType}) at {Position}",
+                                                    typeof(TSyndicationContent).Name, atomEntry.Title, atomEntry.ContentType, atomEntry.Id);
 
                                                 observedMessageCount++;
                                                 catchUpPosition = Convert.ToInt64(atomEntry.Id);
@@ -117,6 +117,11 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                                             .Handler(context, envelope, _messagePumpCancellation.Token)
                                                             .ConfigureAwait(false);
                                                     }
+                                                }
+                                                else
+                                                {
+                                                    _logger.LogWarning("[{Context}] Could not create envelope for {MessageTitle}({MessageType}) at {Position}",
+                                                        typeof(TSyndicationContent).Name, atomEntry.Title, atomEntry.ContentType, atomEntry.Id);
                                                 }
 
                                                 if (observedMessageCount % CatchUpBatchSize == 0)
@@ -188,7 +193,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
                                                     .ConfigureAwait(false);
                                             }
                                         }, ResumeAfter).ConfigureAwait(false);
-
                                     }
                                     break;
                             }
