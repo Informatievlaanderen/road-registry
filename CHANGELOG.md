@@ -1,3 +1,10 @@
+## [1.45.2](https://github.com/informatievlaanderen/road-registry/compare/v1.45.1...v1.45.2) (2021-08-03)
+
+
+### Bug Fixes
+
+* make sure last page is processed as well ([09af6e4](https://github.com/informatievlaanderen/road-registry/commit/09af6e47c0ec3944db4d80b446174a30e584e103))
+
 ## [1.45.1](https://github.com/informatievlaanderen/road-registry/compare/v1.45.0...v1.45.1) (2021-08-03)
 
 
