@@ -132,8 +132,8 @@ and a copy of the StreetName Syndication table from the street name registry
 and copy these to `src/RoadRegistry.MunicipalityDatabase/filled` and `src/RoadRegistry.StreetNameDatabase/filled` respectively.
 
 ```
-cp ./municipality-syndication.bcp src/RoadRegistry.MunicipalityDatabase/filled
-cp ./streetname-syndication.bcp src/RoadRegistry.StreetNameDatabase/filled
+cp ./municipality-syndication.bcp src/RoadRegistry.MunicipalityDatabase/filled/syndication.bcp
+cp ./streetname-syndication.bcp src/RoadRegistry.StreetNameDatabase/filled/syndication.bcp
 
 ```
 
