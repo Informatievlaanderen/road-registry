@@ -1,3 +1,16 @@
+# [1.47.0](https://github.com/informatievlaanderen/road-registry/compare/v1.46.0...v1.47.0) (2021-08-03)
+
+
+### Bug Fixes
+
+* rename and add missing municipality event types ([c45a655](https://github.com/informatievlaanderen/road-registry/commit/c45a6553617b581d7e706efd841aa715af67f104))
+
+
+### Features
+
+* inject serializers specific to the AtomFeedProcessor ([a7be207](https://github.com/informatievlaanderen/road-registry/commit/a7be207733b3ea7a89f2021e1a99a68fcaa4a15e))
+* update streetname and muni dependencies in docker compose ([06f88af](https://github.com/informatievlaanderen/road-registry/commit/06f88af6a30ee16c585768d34818e14503d7fa07))
+
 # [1.46.0](https://github.com/informatievlaanderen/road-registry/compare/v1.45.2...v1.46.0) (2021-08-03)
 
 
