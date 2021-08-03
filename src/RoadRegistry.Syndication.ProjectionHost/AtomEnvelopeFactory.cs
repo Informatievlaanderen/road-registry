@@ -15,14 +15,14 @@ namespace RoadRegistry.Syndication.ProjectionHost
     public class AtomEnvelopeFactory
     {
         private readonly EventSerializerMapping _eventSerializers;
-        private readonly AtomEntrySerializerMapping _atomEntrySerializerMapping;
+        private readonly DataContractSerializer _dataContractSerializer;
 
         public AtomEnvelopeFactory(
             EventSerializerMapping eventSerializerMapping,
-            AtomEntrySerializerMapping atomEntrySerializerMapping)
+            DataContractSerializer dataContractSerializer)
         {
             _eventSerializers = eventSerializerMapping;
-            _atomEntrySerializerMapping = atomEntrySerializerMapping;
+            _dataContractSerializer = dataContractSerializer;
         }
 
         public object CreateEnvelope<T>(IAtomEntry message)
@@ -32,11 +32,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
                     new StringReader(message.Description),
                     new XmlReaderSettings {Async = true}))
             {
-                var atomEntrySerializer = FindAtomEntrySerializer(message);
-                if (atomEntrySerializer == null)
-                    return null;
-
-                var atomEntry = new AtomEntry(message, atomEntrySerializer.ReadObject(contentXmlReader));
+                var atomEntry = new AtomEntry(message, _dataContractSerializer.ReadObject(contentXmlReader));
 
                 using (var eventXmlReader =
                     XmlReader.Create(
@@ -64,15 +60,6 @@ namespace RoadRegistry.Syndication.ProjectionHost
                     return envelope;
                 }
             }
-        }
-
-        private DataContractSerializer FindAtomEntrySerializer(ISyndicationItem message)
-        {
-            if (!message.Categories.Any())
-                throw new FormatException($"No category found in message with id {message.Id}.");
-
-            var categoryName = message.Categories.First().Name;
-            return _atomEntrySerializerMapping.HasSerializerFor(categoryName) ? _atomEntrySerializerMapping.GetSerializerFor(categoryName) : null;
         }
 
         private DataContractSerializer FindEventSerializer(AtomEntry atomEntry)

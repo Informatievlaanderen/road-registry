@@ -10,7 +10,7 @@ namespace RoadRegistry.Syndication.Projections
         [Fact]
         public void Has_serializers_for_municipality_events()
         {
-            var eventSerializerMapping = new EventSerializerMapping();
+            var eventSerializerMapping = EventSerializerMapping.CreateForNamespaceOf(typeof(MunicipalityWasRegistered));
 
             Assert.True(eventSerializerMapping.HasSerializerFor(nameof(MunicipalityWasRegistered)));
             Assert.True(eventSerializerMapping.HasSerializerFor(nameof(MunicipalityWasNamed)));
@@ -21,14 +21,14 @@ namespace RoadRegistry.Syndication.Projections
             Assert.True(eventSerializerMapping.HasSerializerFor(nameof(MunicipalityNisCodeWasCorrected)));
             Assert.True(eventSerializerMapping.HasSerializerFor(nameof(MunicipalityBecameCurrent)));
             Assert.True(eventSerializerMapping.HasSerializerFor(nameof(MunicipalityWasCorrectedToCurrent)));
-            Assert.True(eventSerializerMapping.HasSerializerFor(nameof(MunicipalityBecameRetired)));
+            Assert.True(eventSerializerMapping.HasSerializerFor(nameof(MunicipalityWasRetired)));
             Assert.True(eventSerializerMapping.HasSerializerFor(nameof(MunicipalityWasCorrectedToRetired)));
         }
 
         [Fact]
         public void Has_serializers_for_street_name_events()
         {
-            var eventSerializerMapping = new EventSerializerMapping();
+            var eventSerializerMapping = EventSerializerMapping.CreateForNamespaceOf(typeof(StreetNameWasRegistered));
 
             Assert.True(eventSerializerMapping.HasSerializerFor(nameof(StreetNameWasRegistered)));
             Assert.True(eventSerializerMapping.HasSerializerFor(nameof(StreetNamePersistentLocalIdentifierWasAssigned)));

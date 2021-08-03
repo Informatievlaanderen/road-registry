@@ -478,9 +478,9 @@ namespace RoadRegistry.Syndication.Projections
             return municipalityWasCorrectedToCurrent;
         }
 
-        private MunicipalityBecameRetired CreateMunicipalityBecameRetired(MunicipalityWasRegistered municipalityWasRegistered)
+        private MunicipalityWasRetired CreateMunicipalityBecameRetired(MunicipalityWasRegistered municipalityWasRegistered)
         {
-            var municipalityBecameRetired = _fixture.Create<MunicipalityBecameRetired>();
+            var municipalityBecameRetired = _fixture.Create<MunicipalityWasRetired>();
             municipalityBecameRetired.MunicipalityId = municipalityWasRegistered.MunicipalityId;
             return municipalityBecameRetired;
         }

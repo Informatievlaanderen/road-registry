@@ -4,6 +4,7 @@
     using System.IO;
     using System.Linq;
     using System.Net.Http;
+    using System.Runtime.Serialization;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -20,6 +21,8 @@
     using NodaTime;
     using Polly;
     using Projections;
+    using Projections.MunicipalityEvents;
+    using Projections.StreetNameEvents;
     using Projections.Syndication;
     using Schema;
     using Serilog;
@@ -94,7 +97,9 @@
                         .AddTransient<IRegistryAtomFeedReader, RegistryAtomFeedReader>()
                         .AddHostedService(serviceProvider => new AtomFeedProcessor<MunicipalityFeedConfiguration, Gemeente>(
                             serviceProvider.GetRequiredService<IRegistryAtomFeedReader>(),
-                            serviceProvider.GetRequiredService<AtomEnvelopeFactory>(),
+                            new AtomEnvelopeFactory(
+                                EventSerializerMapping.CreateForNamespaceOf(typeof(MunicipalityWasRegistered)),
+                                new DataContractSerializer(typeof(SyndicationContent<Gemeente>))),
                             serviceProvider.GetRequiredService<ConnectedProjectionHandlerResolver<SyndicationContext>>(),
                             serviceProvider.GetRequiredService<Func<SyndicationContext>>(),
                             serviceProvider.GetRequiredService<Scheduler>(),
@@ -102,15 +107,15 @@
                             serviceProvider.GetRequiredService<ILogger<AtomFeedProcessor<MunicipalityFeedConfiguration, Gemeente>>>()))
                         .AddHostedService(serviceProvider => new AtomFeedProcessor<StreetNameFeedConfiguration, StraatNaam>(
                             serviceProvider.GetRequiredService<IRegistryAtomFeedReader>(),
-                            serviceProvider.GetRequiredService<AtomEnvelopeFactory>(),
+                            new AtomEnvelopeFactory(
+                                EventSerializerMapping.CreateForNamespaceOf(typeof(StreetNameWasRegistered)),
+                                new DataContractSerializer(typeof(SyndicationContent<StraatNaam>))),
                             serviceProvider.GetRequiredService<ConnectedProjectionHandlerResolver<SyndicationContext>>(),
                             serviceProvider.GetRequiredService<Func<SyndicationContext>>(),
                             serviceProvider.GetRequiredService<Scheduler>(),
                             serviceProvider.GetRequiredService<StreetNameFeedConfiguration>(),
                             serviceProvider.GetRequiredService<ILogger<AtomFeedProcessor<StreetNameFeedConfiguration, StraatNaam>>>()))
                         .AddSingleton(new RecyclableMemoryStreamManager())
-                        .AddSingleton<EventSerializerMapping>()
-                        .AddSingleton<AtomEntrySerializerMapping>()
                         .AddSingleton<AtomEnvelopeFactory>()
                         .AddSingleton<Func<SyndicationContext>>(
                             () =>
