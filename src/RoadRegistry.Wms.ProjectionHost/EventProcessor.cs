@@ -103,7 +103,7 @@ namespace RoadRegistry.Wms.ProjectionHost
                     token)
                 .ConfigureAwait(false);
 
-            while (!page.IsEnd)
+            while (page.Messages.Length > 0)
             {
                 foreach (var streamMessage in page.Messages)
                 {
@@ -154,9 +154,7 @@ namespace RoadRegistry.Wms.ProjectionHost
                 page = await page.ReadNext(token).ConfigureAwait(false);
             }
 
-            if (
-                observedMessageCount >
-                0) // case where we just read the last page and pending work in memory needs to be flushed
+            if (observedMessageCount > 0) // case where we just read the last page and pending work in memory needs to be flushed
             {
                 _logger.LogInformation(
                     "Flushing catch up position of {Position} and persisting changes ...",
