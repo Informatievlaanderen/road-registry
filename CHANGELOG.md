@@ -1,3 +1,10 @@
+## [1.45.1](https://github.com/informatievlaanderen/road-registry/compare/v1.45.0...v1.45.1) (2021-08-03)
+
+
+### Bug Fixes
+
+* remove e prefix from tx zones ([#282](https://github.com/informatievlaanderen/road-registry/issues/282)) ([ef0ec8e](https://github.com/informatievlaanderen/road-registry/commit/ef0ec8e9e01c47de9711b2e4a786fe41cd5409a6))
+
 # [1.45.0](https://github.com/informatievlaanderen/road-registry/compare/v1.44.1...v1.45.0) (2021-07-30)
 
 
