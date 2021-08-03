@@ -31,7 +31,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             if (request == null) throw new ArgumentNullException(nameof(request));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var dbfEntry = archive.CreateEntry("eTransactiezones.dbf");
+            var dbfEntry = archive.CreateEntry("Transactiezones.dbf");
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
@@ -66,7 +66,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             var shapeContent = new PolygonShapeContent(polygon);
             var shpBoundingBox = BoundingBox3D.FromGeometry(polygon);
 
-            var shpEntry = archive.CreateEntry("eTransactiezones.shp");
+            var shpEntry = archive.CreateEntry("Transactiezones.shp");
             var shpHeader = new ShapeFileHeader(
                 shapeContent.ContentLength,
                 ShapeType.Polygon,
@@ -82,7 +82,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 await shpEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shxEntry = archive.CreateEntry("eTransactiezones.shx");
+            var shxEntry = archive.CreateEntry("Transactiezones.shx");
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(1));
             await using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =

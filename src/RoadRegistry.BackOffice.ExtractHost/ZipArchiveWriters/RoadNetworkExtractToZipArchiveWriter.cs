@@ -55,7 +55,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 new DbaseFileArchiveWriter<EditorContext>("eRijstrokenLktRichting.dbf", LaneDirectionDbaseRecord.Schema, Lists.AllLaneDirectionDbaseRecords, encoding),
                 new ProjectionFormatFileZipArchiveWriter<EditorContext>("eWegsegment.prj", encoding),
                 new ProjectionFormatFileZipArchiveWriter<EditorContext>("eWegknoop.prj", encoding),
-                new ProjectionFormatFileZipArchiveWriter<EditorContext>("eTransactiezones.prj", encoding)
+                new ProjectionFormatFileZipArchiveWriter<EditorContext>("Transactiezones.prj", encoding)
             );
         }
 
