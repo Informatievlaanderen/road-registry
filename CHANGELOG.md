@@ -1,3 +1,10 @@
+## [1.48.1](https://github.com/informatievlaanderen/road-registry/compare/v1.48.0...v1.48.1) (2021-08-05)
+
+
+### Bug Fixes
+
+* use correct parameter index ([0b1d111](https://github.com/informatievlaanderen/road-registry/commit/0b1d1117920e6b1c78b8aaa716f9ab34bd34c4f2))
+
 # [1.48.0](https://github.com/informatievlaanderen/road-registry/compare/v1.47.0...v1.48.0) (2021-08-05)
 
 
