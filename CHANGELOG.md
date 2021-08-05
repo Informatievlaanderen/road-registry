@@ -1,3 +1,10 @@
+# [1.48.0](https://github.com/informatievlaanderen/road-registry/compare/v1.47.0...v1.48.0) (2021-08-05)
+
+
+### Features
+
+* use local mock server for metadata updates ([a79ebab](https://github.com/informatievlaanderen/road-registry/commit/a79ebabc2a9fbd6ac27f23d765f6a73aca78ed49))
+
 # [1.47.0](https://github.com/informatievlaanderen/road-registry/compare/v1.46.0...v1.47.0) (2021-08-03)
 
 
