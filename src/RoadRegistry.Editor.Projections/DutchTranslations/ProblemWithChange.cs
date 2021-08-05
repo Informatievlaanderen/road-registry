@@ -83,7 +83,7 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         translation = $"Het wegsegment met id {problem.Parameters[0].Value} ontbreekt.";
                         break;
                     case nameof(RoadSegmentLaneAttributeFromPositionNotEqualToZero):
-                        translation = $"De van positie ({problem.Parameters[2].Value}) van het eerste rijstroken attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
+                        translation = $"De van positie ({problem.Parameters[1].Value}) van het eerste rijstroken attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
                         break;
                     case nameof(RoadSegmentLaneAttributesNotAdjacent):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het rijstroken attribuut met id {problem.Parameters[0].Value} sluit niet aan op de van positie ({problem.Parameters[3].Value}) van het rijstroken attribuut met id {problem.Parameters[2].Value}.";
@@ -107,7 +107,7 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         translation = $"De van ({problem.Parameters[1].Value}) en tot positie ({problem.Parameters[2].Value}) van het wegbreedte attribuut met id {problem.Parameters[0].Value} heeft lengte 0.";
                         break;
                     case nameof(RoadSegmentSurfaceAttributeFromPositionNotEqualToZero):
-                        translation = $"De van positie ({problem.Parameters[2].Value}) van het eerste wegverharding attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
+                        translation = $"De van positie ({problem.Parameters[1].Value}) van het eerste wegverharding attribuut met id {problem.Parameters[0].Value} is niet 0.0.";
                         break;
                     case nameof(RoadSegmentSurfaceAttributesNotAdjacent):
                         translation = $"De tot positie ({problem.Parameters[1].Value}) van het wegverharding attribuut met id {problem.Parameters[0].Value} sluit niet aan op de van positie ({problem.Parameters[3].Value}) van het wegverharding attribuut met id {problem.Parameters[2].Value}.";
