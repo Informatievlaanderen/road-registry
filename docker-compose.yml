@@ -265,6 +265,7 @@ services:
     depends_on:
       - mssql-seed
       - seq
+      - wiremock
     environment:
       DOTNET_ENVIRONMENT: Development
       SERILOG__WRITETO__0__NAME: "Seq"
@@ -275,6 +276,8 @@ services:
       CONNECTIONSTRINGS__WMSPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__WMSPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
       CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;
+      METADATA__URI: http://wiremock:8080/metadatacenter/srv/dut/csw-publication
+      METADATA__LOGINURI: http://wiremock:8080/metadatacenter/srv/dut/info?info=me
 
   backoffice-event-host:
     build: dist/RoadRegistry.BackOffice.EventHost/linux
@@ -385,6 +388,14 @@ services:
     environment:
       API_ENDPOINT: http://localhost:5020
       API_VERSION: 0.0.0
+
+  wiremock:
+    image: rodolpheche/wiremock:2.29.1
+    container_name: wiremock
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings
+    ports:
+      - 8080:8080
 
 volumes:
   mssql-data:
