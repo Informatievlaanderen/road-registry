@@ -189,7 +189,7 @@
                         {
                             new RoadNetworkChangesArchiveEventModule(
                                 sp.GetService<IBlobClient>(),
-                                new ZipArchiveTranslator(Encoding.UTF8),
+                                new ZipArchiveTranslator(Encoding.GetEncoding(1252)),
                                 sp.GetService<IStreamStore>()
                             ),
                             new RoadNetworkEventModule(
