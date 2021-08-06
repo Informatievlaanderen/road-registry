@@ -65,7 +65,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             _runner = new ScenarioRunner(
                 Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
                         new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), Clock),
-                        new RoadNetworkExtractCommandModule(Client, Store, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock)
+                        new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock)
                     }),
                 Store,
                 Settings,

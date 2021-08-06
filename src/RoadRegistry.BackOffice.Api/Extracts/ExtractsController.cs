@@ -2,10 +2,14 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 {
     using System;
     using System.Globalization;
+    using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
+    using BackOffice.Extracts;
     using BackOffice.Framework;
     using Be.Vlaanderen.Basisregisters.Api;
+    using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+    using Be.Vlaanderen.Basisregisters.BasicApiProblem;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Configuration;
     using Editor.Schema;
@@ -13,6 +17,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
     using FluentValidation.Results;
     using Framework;
     using Messages;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Net.Http.Headers;
     using NetTopologySuite.IO;
@@ -24,8 +29,15 @@ namespace RoadRegistry.BackOffice.Api.Extracts
     [ApiExplorerSettings(GroupName = "Extracts")]
     public class ExtractsController : ControllerBase
     {
+        private static readonly ContentType[] SupportedContentTypes =
+        {
+            ContentType.Parse("application/zip"),
+            ContentType.Parse("application/x-zip-compressed")
+        };
+
         private readonly CommandHandlerDispatcher _dispatcher;
-        private readonly ExtractDownloadsBlobClient _client;
+        private readonly RoadNetworkExtractDownloadsBlobClient _downloadsClient;
+        private readonly RoadNetworkExtractUploadsBlobClient _uploadsClient;
         private readonly WKTReader _reader;
         private readonly IValidator<DownloadExtractRequestBody> _downloadExtractRequestBodyValidator;
         private readonly IClock _clock;
@@ -33,13 +45,15 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         public ExtractsController(
             IClock clock,
             CommandHandlerDispatcher dispatcher,
-            ExtractDownloadsBlobClient client,
+            RoadNetworkExtractDownloadsBlobClient downloadsClient,
+            RoadNetworkExtractUploadsBlobClient uploadsClient,
             WKTReader reader,
             IValidator<DownloadExtractRequestBody> downloadExtractRequestBodyValidator)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-            _client = client ?? throw new ArgumentNullException(nameof(client));
+            _downloadsClient = downloadsClient ?? throw new ArgumentNullException(nameof(downloadsClient));
+            _uploadsClient = uploadsClient ?? throw new ArgumentNullException(nameof(uploadsClient));
             _reader = reader ?? throw new ArgumentNullException(nameof(reader));
             _downloadExtractRequestBodyValidator = downloadExtractRequestBodyValidator ?? throw new ArgumentNullException(nameof(downloadExtractRequestBodyValidator));
         }
@@ -88,13 +102,13 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 
                 var blobName = new BlobName(record.ArchiveId);
 
-                if(!await _client.BlobExistsAsync(blobName, HttpContext.RequestAborted))
+                if(!await _downloadsClient.BlobExistsAsync(blobName, HttpContext.RequestAborted))
                 {
                     // NOTE: This condition can only occur if the blob no longer exists in the bucket
                     return StatusCode((int)HttpStatusCode.Gone);
                 }
 
-                var blob = await _client.GetBlobAsync(blobName, HttpContext.RequestAborted);
+                var blob = await _downloadsClient.GetBlobAsync(blobName, HttpContext.RequestAborted);
 
                 var filename = downloadid + ".zip";
 
@@ -116,7 +130,103 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             throw new ValidationException(new[]
             {
                 new ValidationFailure("downloadid",
-                    "'DownloadId' querystring parameter is not a global unique identifier without dashes.")
+                    "'DownloadId' path parameter is not a global unique identifier without dashes.")
+            });
+        }
+
+        [HttpPost("download/{downloadid}/uploads")]
+        public async Task<IActionResult> PostUpload(
+            [FromServices] EditorContext context,
+            [FromRoute] string downloadid,
+            IFormFile archive)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (downloadid == null) throw new ArgumentNullException(nameof(downloadid));
+
+            if (Guid.TryParseExact(downloadid, "N", out var parsedDownloadId))
+            {
+                var formContentType = HttpContext.Request.ContentType?.Split(';');
+                if (formContentType == null ||
+                    formContentType.Length == 0 ||
+                    !ContentType.TryParse(formContentType[0], out var parsedFormContentType) ||
+                    !parsedFormContentType.Equals(ContentType.Parse("multipart/form-data")))
+                {
+                    return new UnsupportedMediaTypeResult();
+                }
+
+                var download =
+                    await context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId },
+                        HttpContext.RequestAborted);
+                if (download == null)
+                {
+                    return NotFound();
+                }
+
+                if (archive == null)
+                {
+                    throw new ValidationException(new[]
+                    {
+                        new ValidationFailure("archive",
+                            "'Archive' body parameter is missing.")
+                    });
+                }
+
+                if (!ContentType.TryParse(archive.ContentType, out var parsedContentType) ||
+                    !SupportedContentTypes.Contains(parsedContentType))
+                {
+                    return new UnsupportedMediaTypeResult();
+                }
+
+                using (var readStream = archive.OpenReadStream())
+                {
+                    var uploadId = new UploadId(Guid.NewGuid());
+                    var archiveId = new ArchiveId(uploadId.ToString());
+
+                    var metadata = Metadata.None;
+
+                    await _uploadsClient.CreateBlobAsync(
+                        new BlobName(archiveId.ToString()),
+                        metadata,
+                        ContentType.Parse("application/zip"),
+                        readStream,
+                        HttpContext.RequestAborted
+                    );
+
+                    var message = new Command(
+                    new UploadRoadNetworkExtractChangesArchive
+                        {
+                            RequestId = download.RequestId,
+                            DownloadId = download.DownloadId,
+                            UploadId = uploadId.ToGuid(),
+                            ArchiveId = archiveId.ToString()
+                        });
+
+                    try
+                    {
+                        await _dispatcher(message, HttpContext.RequestAborted);
+                    }
+                    catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload exception)
+                    {
+                        throw new ApiProblemDetailsException(
+                            "Can not upload roadnetwork extract changes archive for superseded download",
+                            409, new ExceptionProblemDetails(exception), exception);
+                    }
+                    catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce exception)
+                    {
+                        throw new ApiProblemDetailsException(
+                            "Can not upload roadnetwork extract changes archive for same download more than once",
+                            409, new ExceptionProblemDetails(exception), exception);
+                    }
+
+                    return Accepted(new UploadExtractResponseBody { UploadId = uploadId.ToString() });
+                }
+            }
+
+            // results in BAD REQUEST
+            throw new ValidationException(new[]
+            {
+                new ValidationFailure("downloadid",
+                    "'DownloadId' path parameter is not a global unique identifier without dashes.")
             });
         }
     }

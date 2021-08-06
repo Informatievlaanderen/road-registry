@@ -3,6 +3,7 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
     using System;
     using BackOffice.Messages;
     using Schema;
+    using Schema.RoadNetworkChanges;
 
     public static class AcceptedChanges
     {

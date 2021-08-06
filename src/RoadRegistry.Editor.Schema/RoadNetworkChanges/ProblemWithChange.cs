@@ -1,6 +1,6 @@
-namespace RoadRegistry.Editor.Schema
+namespace RoadRegistry.Editor.Schema.RoadNetworkChanges
 {
-    public class RoadNetworkChangeProblem
+    public class ProblemWithChange
     {
         public string Text { get; set; }
         public string Severity { get; set; }

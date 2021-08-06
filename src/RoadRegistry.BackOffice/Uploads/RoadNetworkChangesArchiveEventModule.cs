@@ -11,7 +11,7 @@ namespace RoadRegistry.BackOffice.Uploads
     public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
     {
         public RoadNetworkChangesArchiveEventModule(
-            IBlobClient client,
+            RoadNetworkUploadsBlobClient client,
             IZipArchiveTranslator translator,
             IStreamStore store)
         {

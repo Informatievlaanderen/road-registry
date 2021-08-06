@@ -13,13 +13,13 @@ namespace RoadRegistry.BackOffice.Extracts
     public class RoadNetworkExtractCommandModule : CommandHandlerModule
     {
         public RoadNetworkExtractCommandModule(
-            IBlobClient client,
+            RoadNetworkExtractUploadsBlobClient uploadsBlobClient,
             IStreamStore store,
             IRoadNetworkSnapshotReader snapshotReader,
             IZipArchiveValidator validator,
             IClock clock)
         {
-            if (client == null) throw new ArgumentNullException(nameof(client));
+            if (uploadsBlobClient == null) throw new ArgumentNullException(nameof(uploadsBlobClient));
             if (store == null) throw new ArgumentNullException(nameof(store));
             if (validator == null) throw new ArgumentNullException(nameof(validator));
             if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
@@ -69,7 +69,7 @@ namespace RoadRegistry.BackOffice.Extracts
 
                     var upload = extract.Upload(forDownloadId, uploadId, archiveId);
 
-                    var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
+                    var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
                     using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {

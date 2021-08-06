@@ -8,6 +8,7 @@ namespace RoadRegistry.Editor.Schema
     using GradeSeparatedJunctions;
     using Microsoft.EntityFrameworkCore;
     using Organizations;
+    using RoadNetworkChanges;
     using RoadNodes;
     using RoadSegments;
 

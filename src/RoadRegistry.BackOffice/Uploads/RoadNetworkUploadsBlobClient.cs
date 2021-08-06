@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api
+namespace RoadRegistry.BackOffice.Uploads
 {
     using System;
     using System.IO;
@@ -6,11 +6,11 @@ namespace RoadRegistry.BackOffice.Api
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.BlobStore;
 
-    public class ExtractDownloadsBlobClient : IBlobClient
+    public class RoadNetworkUploadsBlobClient : IBlobClient
     {
         private readonly IBlobClient _client;
 
-        public ExtractDownloadsBlobClient(IBlobClient client)
+        public RoadNetworkUploadsBlobClient(IBlobClient client)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
         }

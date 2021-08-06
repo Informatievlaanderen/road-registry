@@ -2,23 +2,25 @@ namespace RoadRegistry.BackOffice.Extracts
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.IO.Compression;
-    using System.Linq;
-    using System.Runtime.InteropServices;
     using Be.Vlaanderen.Basisregisters.BlobStore;
-    using Core;
     using Framework;
     using SqlStreamStore;
+    using Uploads;
 
     public class RoadNetworkExtractEventModule : EventHandlerModule
     {
         public RoadNetworkExtractEventModule(
-            IBlobClient client,
+            RoadNetworkExtractDownloadsBlobClient downloadsBlobClient,
+            RoadNetworkExtractUploadsBlobClient uploadsBlobClient,
             IRoadNetworkExtractArchiveAssembler assembler,
+            IZipArchiveTranslator translator,
             IStreamStore store)
         {
-            if (client == null) throw new ArgumentNullException(nameof(client));
+            if (downloadsBlobClient == null) throw new ArgumentNullException(nameof(downloadsBlobClient));
+            if (uploadsBlobClient == null) throw new ArgumentNullException(nameof(uploadsBlobClient));
+            if (assembler == null) throw new ArgumentNullException(nameof(assembler));
+            if (translator == null) throw new ArgumentNullException(nameof(translator));
             if (store == null) throw new ArgumentNullException(nameof(store));
 
             For<Messages.RoadNetworkExtractGotRequested>()
@@ -27,7 +29,7 @@ namespace RoadRegistry.BackOffice.Extracts
                 {
                     var archiveId = new ArchiveId(message.Body.DownloadId.ToString("N"));
                     var blobName = new BlobName(archiveId);
-                    if (await client.BlobExistsAsync(blobName, ct))
+                    if (await downloadsBlobClient.BlobExistsAsync(blobName, ct))
                     {
                         //Case: we previously uploaded a blob for this particular download.
                         //var blob = await client.GetBlobAsync(blobName, ct);
@@ -57,7 +59,7 @@ namespace RoadRegistry.BackOffice.Extracts
                         {
                             content.Position = 0L;
 
-                            await client.CreateBlobAsync(
+                            await downloadsBlobClient.CreateBlobAsync(
                                 new BlobName(archiveId),
                                 Metadata
                                     .None, // .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("Revision"), revision.ToInt32().ToString(CultureInfo.InvariantCulture))),
@@ -74,6 +76,40 @@ namespace RoadRegistry.BackOffice.Extracts
                                 ArchiveId = archiveId
                             })
                             .WithMessageId(message.MessageId);
+                        await queue.Write(command, ct);
+                    }
+                });
+
+            For<Messages.RoadNetworkExtractChangesArchiveAccepted>()
+                .UseRoadNetworkCommandQueue(store)
+                .Handle(async (queue, message, ct) =>
+                {
+                    var uploadId = new UploadId(message.Body.UploadId);
+                    var archiveId = new ArchiveId(message.Body.ArchiveId);
+                    var requestId = ChangeRequestId.FromUploadId(uploadId);
+                    var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
+                    using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
+                    using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
+                    {
+                        var requestedChanges = new List<Messages.RequestedChange>();
+                        var translatedChanges = translator.Translate(archive);
+                        foreach (var change in translatedChanges)
+                        {
+                            var requestedChange = new Messages.RequestedChange();
+                            change.TranslateTo(requestedChange);
+                            requestedChanges.Add(requestedChange);
+                        }
+
+                        var command = new Command(new Messages.ChangeRoadNetwork
+                            {
+                                RequestId = requestId,
+                                Changes = requestedChanges.ToArray(),
+                                Reason = translatedChanges.Reason,
+                                Operator = translatedChanges.Operator,
+                                OrganizationId = translatedChanges.Organization
+                            })
+                            .WithMessageId(message.MessageId);
+
                         await queue.Write(command, ct);
                     }
                 });

@@ -1,6 +1,6 @@
-namespace RoadRegistry.Editor.Schema
+namespace RoadRegistry.Editor.Schema.RoadNetworkChanges
 {
-    public class RoadNetworkChangesArchiveInfo
+    public class ArchiveInfo
     {
         public string Id { get; set; }
         public bool Available { get; set; }

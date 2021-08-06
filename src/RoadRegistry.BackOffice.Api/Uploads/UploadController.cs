@@ -6,6 +6,7 @@ namespace RoadRegistry.BackOffice.Api.Uploads
     using System.Threading.Tasks;
     using BackOffice;
     using BackOffice.Framework;
+    using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Framework;
@@ -26,9 +27,9 @@ namespace RoadRegistry.BackOffice.Api.Uploads
                 ContentType.Parse("application/x-zip-compressed")
             };
         private readonly CommandHandlerDispatcher _dispatcher;
-        private readonly UploadsBlobClient _client;
+        private readonly RoadNetworkUploadsBlobClient _client;
 
-        public UploadController(CommandHandlerDispatcher dispatcher, UploadsBlobClient client)
+        public UploadController(CommandHandlerDispatcher dispatcher, RoadNetworkUploadsBlobClient client)
         {
             _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
             _client = client ?? throw new ArgumentNullException(nameof(client));
@@ -92,8 +93,12 @@ namespace RoadRegistry.BackOffice.Api.Uploads
 
             var blob = await _client.GetBlobAsync(blobName, HttpContext.RequestAborted);
 
-            var filename = blob.Metadata
-                .Single(pair => pair.Key == new MetadataKey("filename"));
+            var metadata = blob.Metadata
+                .Where(pair => pair.Key == new MetadataKey("filename"))
+                .ToArray();
+            var filename = metadata.Length == 1
+                ? metadata[0].Value
+                : archiveId + ".zip";
 
             return new FileCallbackResult(
                 new MediaTypeHeaderValue("application/zip"),
@@ -105,7 +110,7 @@ namespace RoadRegistry.BackOffice.Api.Uploads
                     }
                 })
             {
-                FileDownloadName = filename.Value
+                FileDownloadName = filename
             };
         }
     }

@@ -280,6 +280,7 @@ namespace RoadRegistry.Framework.Projections
             records.AddRange(await context.Organizations.ToArrayAsync());
             records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
             records.AddRange(await context.RoadNetworkChanges.ToArrayAsync());
+            records.AddRange(await context.RoadNetworkChangeRequestsBasedOnArchive.ToArrayAsync());
             records.AddRange(await context.MunicipalityGeometries.ToArrayAsync());
             records.AddRange(await context.ExtractDownloads.ToArrayAsync());
 

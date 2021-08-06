@@ -11,7 +11,7 @@ namespace RoadRegistry.BackOffice.Uploads
     public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
     {
         public RoadNetworkChangesArchiveCommandModule(
-            IBlobClient client,
+            RoadNetworkUploadsBlobClient client,
             IStreamStore store,
             IRoadNetworkSnapshotReader snapshotReader,
             IZipArchiveValidator validator,

@@ -1,4 +1,4 @@
-namespace RoadRegistry.Editor.Schema
+namespace RoadRegistry.Editor.Schema.RoadNetworkChanges
 {
     public class RoadNetworkChangesSummary
     {

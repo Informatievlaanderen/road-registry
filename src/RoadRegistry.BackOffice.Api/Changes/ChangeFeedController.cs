@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.Api.Changes
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Api;
     using Editor.Schema;
+    using Editor.Schema.RoadNetworkChanges;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -257,6 +258,14 @@ namespace RoadRegistry.BackOffice.Api.Changes
                     typeof(RoadNetworkChangesBasedOnArchiveAcceptedEntry)),
                 nameof(RoadNetworkChangesRejected) => JsonConvert.DeserializeObject(entry.Content,
                     typeof(RoadNetworkChangesBasedOnArchiveRejectedEntry)),
+                nameof(RoadNetworkExtractChangesArchiveUploaded) => JsonConvert.DeserializeObject(entry.Content,
+                    typeof(RoadNetworkExtractChangesArchiveUploadedEntry)),
+                nameof(RoadNetworkExtractChangesArchiveAccepted) => JsonConvert.DeserializeObject(entry.Content,
+                    typeof(RoadNetworkExtractChangesArchiveAcceptedEntry)),
+                nameof(RoadNetworkExtractChangesArchiveRejected) => JsonConvert.DeserializeObject(entry.Content,
+                    typeof(RoadNetworkExtractChangesArchiveRejectedEntry)),
+                nameof(RoadNetworkExtractDownloadBecameAvailable) => JsonConvert.DeserializeObject(entry.Content,
+                    typeof(RoadNetworkExtractDownloadBecameAvailableEntry)),
                 _ => null
             };
             return new JsonResult(new ChangeFeedEntryContent

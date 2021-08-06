@@ -28,6 +28,7 @@
     using Serilog;
     using SqlStreamStore;
     using Syndication.Schema;
+    using Uploads;
     using ZipArchiveWriters;
 
     public class Program
@@ -137,12 +138,17 @@
                                     )
                                 );
                             }
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new S3BlobClient(
-                                    sp.GetService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
-                                )
-                            );
+                            builder
+                                .AddSingleton(sp =>
+                                    new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(
+                                        sp.GetRequiredService<AmazonS3Client>(),
+                                        s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                    )))
+                                .AddSingleton(sp =>
+                                    new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(
+                                        sp.GetRequiredService<AmazonS3Client>(),
+                                        s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
+                                    )));
 
                             break;
 
@@ -150,11 +156,14 @@
                             var fileOptions = new FileBlobClientOptions();
                             hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
 
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new FileBlobClient(
-                                    new DirectoryInfo(fileOptions.Directory)
+                            builder
+                                .AddSingleton<IBlobClient>(sp =>
+                                    new FileBlobClient(
+                                        new DirectoryInfo(fileOptions.Directory)
+                                    )
                                 )
-                            );
+                                .AddSingleton<RoadNetworkExtractUploadsBlobClient>()
+                                .AddSingleton<RoadNetworkExtractDownloadsBlobClient>();
                             break;
 
                         default:
@@ -183,12 +192,13 @@
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
-                            new SqlBlobClient(
-                                new SqlConnectionStringBuilder(
-                                    sp
-                                        .GetService<IConfiguration>()
-                                        .GetConnectionString(WellknownConnectionNames.Snapshots)
-                                ), WellknownSchemas.SnapshotSchema),
+                            new RoadNetworkSnapshotsBlobClient(
+                                new SqlBlobClient(
+                                    new SqlConnectionStringBuilder(
+                                        sp
+                                            .GetService<IConfiguration>()
+                                            .GetConnectionString(WellknownConnectionNames.Snapshots)
+                                    ), WellknownSchemas.SnapshotSchema)),
                             sp.GetService<RecyclableMemoryStreamManager>()))
                         .AddSingleton<IStreetNameCache, StreetNameCache>()
                         .AddSingleton<Func<SyndicationContext>>(sp =>
@@ -230,8 +240,10 @@
                         .AddSingleton(sp => new EventHandlerModule[]
                         {
                             new RoadNetworkExtractEventModule(
-                                sp.GetService<IBlobClient>(),
+                                sp.GetService<RoadNetworkExtractDownloadsBlobClient>(),
+                                sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                                 sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
+                                new ZipArchiveTranslator(Encoding.GetEncoding(1252)),
                                 sp.GetService<IStreamStore>())
                         })
                         .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
@@ -242,7 +254,7 @@
             var configuration = host.Services.GetRequiredService<IConfiguration>();
             var streamStore = host.Services.GetRequiredService<IStreamStore>();
             var logger = host.Services.GetRequiredService<ILogger<Program>>();
-            var blobClient = host.Services.GetRequiredService<IBlobClient>();
+            var blobClient = host.Services.GetRequiredService<RoadNetworkExtractDownloadsBlobClient>();
             var blobClientOptions = new BlobClientOptions();
             configuration.Bind(blobClientOptions);
 

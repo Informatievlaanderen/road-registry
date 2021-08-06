@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Api
     using System.IO.Compression;
     using System.Text;
     using System.Threading.Tasks;
+    using BackOffice.Extracts;
     using BackOffice.Framework;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -24,7 +25,7 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_uploading_a_file_that_is_not_a_zip()
         {
-            var client = new UploadsBlobClient(new MemoryBlobClient());
+            var client = new RoadNetworkUploadsBlobClient(new MemoryBlobClient());
             var store = new InMemoryStreamStore();
             var validator = new ZipArchiveValidator(Encoding.UTF8);
             var resolver = Resolve.WhenEqualToMessage(
@@ -59,7 +60,7 @@ namespace RoadRegistry.BackOffice.Api
         [InlineData("application/x-zip-compressed")]
         public async Task When_uploading_a_file_that_is_a_zip(string contentType)
         {
-            var client = new UploadsBlobClient(new MemoryBlobClient());
+            var client = new RoadNetworkUploadsBlobClient(new MemoryBlobClient());
             var store = new InMemoryStreamStore();
             var validator = new ZipArchiveValidator(Encoding.UTF8);
             var resolver = Resolve.WhenEqualToMessage(
@@ -125,7 +126,7 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_uploading_an_externally_created_file_that_is_a_zip()
         {
-            var client = new UploadsBlobClient(new MemoryBlobClient());
+            var client = new RoadNetworkUploadsBlobClient(new MemoryBlobClient());
             var store = new InMemoryStreamStore();
             var validator = new ZipArchiveValidator(Encoding.UTF8);
             var resolver = Resolve.WhenEqualToMessage(
