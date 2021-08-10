@@ -76,6 +76,11 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                             $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige tot positie: {problem.Parameters[1].Value}.";
                         break;
 
+                    case nameof(DbaseFileProblems.FromPositionEqualToOrGreaterThanToPosition):
+                        translation =
+                            $"De dbase record {problem.Parameters[0].Value} heeft een van positie ({problem.Parameters[1].Value}) die gelijk aan of groter dan de tot positie ({problem.Parameters[1].Value}) is.";
+                        break;
+
                     case nameof(DbaseFileProblems.GradeSeparatedJunctionTypeMismatch):
                         translation =
                             $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig type ongelijkgrondse kruising in veld {nameof(GradeSeparatedJunctionChangeDbaseRecord.Schema.TYPE)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}.";
