@@ -110,6 +110,14 @@ namespace RoadRegistry.BackOffice.Uploads
                                 problems += recordContext.ToPositionOutOfRange(record.TOTPOSITIE.Value);
                             }
 
+                            if (record.VANPOSITIE.HasValue && record.TOTPOSITIE.HasValue &&
+                                record.VANPOSITIE.Value >= record.TOTPOSITIE.Value)
+                            {
+                                problems += recordContext.FromPositionEqualToOrGreaterThanToPosition(
+                                    record.VANPOSITIE.Value,
+                                    record.TOTPOSITIE.Value);
+                            }
+
                             if (!record.WS_OIDN.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.WS_OIDN.Field);

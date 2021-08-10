@@ -176,6 +176,16 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Build();
         }
 
+        public static FileError FromPositionEqualToOrGreaterThanToPosition(this IDbaseFileRecordProblemBuilder builder,
+            double from, double to)
+        {
+            return builder
+                .Error(nameof(FromPositionEqualToOrGreaterThanToPosition))
+                .WithParameter(new ProblemParameter("From", from.ToString(Provider)))
+                .WithParameter(new ProblemParameter("To", to.ToString(Provider)))
+                .Build();
+        }
+
         public static FileError IdentifierNotUnique(this IDbaseFileRecordProblemBuilder builder,
             AttributeId identifier,
             RecordNumber takenByRecordNumber)

@@ -31,16 +31,28 @@ namespace RoadRegistry.BackOffice.Uploads
             _fixture.CustomizeRoadSegmentPosition();
             _fixture.Customize<RoadSegmentLaneChangeDbaseRecord>(
                 composer => composer
-                    .FromFactory(random => new RoadSegmentLaneChangeDbaseRecord
+                    .FromFactory(random =>
                     {
-                        RECORDTYPE = {Value = (short)new Generator<RecordType>(_fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
-                        TRANSACTID = {Value = (short)random.Next(1, 9999)},
-                        RS_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
-                        WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
-                        VANPOSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
-                        TOTPOSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
-                        AANTAL = { Value = (short)_fixture.Create<RoadSegmentLaneCount>().ToInt32() },
-                        RICHTING = {Value = (short) _fixture.Create<RoadSegmentLaneDirection>().Translation.Identifier}
+                        var fromPosition = _fixture.Create<RoadSegmentPosition>().ToDouble();
+                        return new RoadSegmentLaneChangeDbaseRecord
+                        {
+                            RECORDTYPE =
+                            {
+                                Value = (short)new Generator<RecordType>(_fixture).First(candidate =>
+                                        candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed))
+                                    .Translation.Identifier
+                            },
+                            TRANSACTID = { Value = (short)random.Next(1, 9999) },
+                            RS_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                            WS_OIDN = { Value = _fixture.Create<RoadSegmentId>().ToInt32() },
+                            VANPOSITIE = { Value = fromPosition },
+                            TOTPOSITIE = { Value = fromPosition + _fixture.Create<RoadSegmentPosition>().ToDouble() },
+                            AANTAL = { Value = (short)_fixture.Create<RoadSegmentLaneCount>().ToInt32() },
+                            RICHTING =
+                            {
+                                Value = (short)_fixture.Create<RoadSegmentLaneDirection>().Translation.Identifier
+                            }
+                        };
                     })
                     .OmitAutoProperties());
 
@@ -376,6 +388,42 @@ namespace RoadRegistry.BackOffice.Uploads
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentIdOutOfRange(-1)),
+                result);
+            Assert.Same(initialContext, context);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasSameFromAsToPositionExpectedResult()
+        {
+            var initialContext = ZipArchiveValidationContext.Empty;
+            var record = _fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
+            record.VANPOSITIE.Value = record.TOTPOSITIE.Value;
+            initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var (result, context) = _sut.Validate(_entry, records, initialContext);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1))
+                    .FromPositionEqualToOrGreaterThanToPosition(record.VANPOSITIE.Value, record.TOTPOSITIE.Value)),
+                result);
+            Assert.Same(initialContext, context);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasFromAfterToPositionExpectedResult()
+        {
+            var initialContext = ZipArchiveValidationContext.Empty;
+            var record = _fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
+            record.VANPOSITIE.Value = record.TOTPOSITIE.Value + 1;
+            initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var (result, context) = _sut.Validate(_entry, records, initialContext);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1))
+                    .FromPositionEqualToOrGreaterThanToPosition(record.VANPOSITIE.Value, record.TOTPOSITIE.Value)),
                 result);
             Assert.Same(initialContext, context);
         }
