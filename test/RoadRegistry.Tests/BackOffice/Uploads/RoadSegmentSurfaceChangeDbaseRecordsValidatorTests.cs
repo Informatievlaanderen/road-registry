@@ -30,15 +30,24 @@ namespace RoadRegistry.BackOffice.Uploads
             _fixture.CustomizeRoadSegmentPosition();
             _fixture.Customize<RoadSegmentSurfaceChangeDbaseRecord>(
                 composer => composer
-                    .FromFactory(random => new RoadSegmentSurfaceChangeDbaseRecord
+                    .FromFactory(random =>
                     {
-                        RECORDTYPE = {Value = (short)new Generator<RecordType>(_fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
-                        TRANSACTID = {Value = (short)random.Next(1, 9999)},
-                        WV_OIDN = {Value = new AttributeId(random.Next(1, int.MaxValue))},
-                        WS_OIDN = {Value = _fixture.Create<RoadSegmentId>().ToInt32()},
-                        VANPOSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
-                        TOTPOSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
-                        TYPE = { Value = (short)_fixture.Create<RoadSegmentSurfaceType>().Translation.Identifier }
+                        var fromPosition = _fixture.Create<RoadSegmentPosition>().ToDouble();
+                        return new RoadSegmentSurfaceChangeDbaseRecord
+                        {
+                            RECORDTYPE =
+                            {
+                                Value = (short)new Generator<RecordType>(_fixture).First(candidate =>
+                                        candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed))
+                                    .Translation.Identifier
+                            },
+                            TRANSACTID = { Value = (short)random.Next(1, 9999) },
+                            WV_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                            WS_OIDN = { Value = _fixture.Create<RoadSegmentId>().ToInt32() },
+                            VANPOSITIE = { Value = fromPosition },
+                            TOTPOSITIE = { Value = fromPosition + _fixture.Create<RoadSegmentPosition>().ToDouble() },
+                            TYPE = { Value = (short)_fixture.Create<RoadSegmentSurfaceType>().Translation.Identifier }
+                        };
                     })
                     .OmitAutoProperties());
 
@@ -346,6 +355,42 @@ namespace RoadRegistry.BackOffice.Uploads
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentIdOutOfRange(-1)),
+                result);
+            Assert.Same(initialContext, context);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasSameFromAsToPositionExpectedResult()
+        {
+            var initialContext = ZipArchiveValidationContext.Empty;
+            var record = _fixture.Create<RoadSegmentSurfaceChangeDbaseRecord>();
+            record.VANPOSITIE.Value = record.TOTPOSITIE.Value;
+            initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var (result, context) = _sut.Validate(_entry, records, initialContext);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1))
+                    .FromPositionEqualToOrGreaterThanToPosition(record.VANPOSITIE.Value, record.TOTPOSITIE.Value)),
+                result);
+            Assert.Same(initialContext, context);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasFromAfterToPositionExpectedResult()
+        {
+            var initialContext = ZipArchiveValidationContext.Empty;
+            var record = _fixture.Create<RoadSegmentSurfaceChangeDbaseRecord>();
+            record.VANPOSITIE.Value = record.TOTPOSITIE.Value + 1;
+            initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var (result, context) = _sut.Validate(_entry, records, initialContext);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1))
+                    .FromPositionEqualToOrGreaterThanToPosition(record.VANPOSITIE.Value, record.TOTPOSITIE.Value)),
                 result);
             Assert.Same(initialContext, context);
         }
