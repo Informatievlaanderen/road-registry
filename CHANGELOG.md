@@ -1,3 +1,10 @@
+## [1.48.2](https://github.com/informatievlaanderen/road-registry/compare/v1.48.1...v1.48.2) (2021-08-10)
+
+
+### Bug Fixes
+
+* validate from position < to position ([28e367a](https://github.com/informatievlaanderen/road-registry/commit/28e367a4ded55943cf8a3d9549e4551ce4fbd054))
+
 ## [1.48.1](https://github.com/informatievlaanderen/road-registry/compare/v1.48.0...v1.48.1) (2021-08-05)
 
 
