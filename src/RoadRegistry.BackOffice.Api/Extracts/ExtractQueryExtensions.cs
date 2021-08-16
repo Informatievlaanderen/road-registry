@@ -39,7 +39,7 @@ AND (AvailableOn - RequestedOn) <= (
 
         public static async Task<int> TookAverageAssembleDuration(this DbSet<ExtractUploadRecord> source, Instant since, int defaultValue)
         {
-            // NOTE: This query takes into account all extract downloads that took an hour or less to assemble
+            // NOTE: This query takes into account all extract uploads that took an hour or less to assemble
             // and computes the median (or the 0.5 or 50th percentile) of that dataset, that is, 50% of the assembly durations
             // took at most the median value (or less). We also limit the data set to anything more recent or equal to the moment
             // identified by the since parameter. Next we compute the average of the resulting set.
