@@ -182,12 +182,15 @@ namespace RoadRegistry.BackOffice.Api
                     hostContext.Configuration.GetSection(nameof(ZipArchiveWriterOptions)).Bind(zipArchiveWriterOptions);
                     var extractDownloadsOptions = new ExtractDownloadsOptions();
                     hostContext.Configuration.GetSection(nameof(ExtractDownloadsOptions)).Bind(extractDownloadsOptions);
+                    var extractUploadsOptions = new ExtractUploadsOptions();
+                    hostContext.Configuration.GetSection(nameof(ExtractUploadsOptions)).Bind(extractDownloadsOptions);
 
                     builder
                         .AddSingleton<Extracts.DownloadExtractRequestBodyValidator>()
                         .AddSingleton<ProblemDetailsHelper>()
                         .AddSingleton<ZipArchiveWriterOptions>(zipArchiveWriterOptions)
                         .AddSingleton<ExtractDownloadsOptions>(extractDownloadsOptions)
+                        .AddSingleton<ExtractUploadsOptions>(extractUploadsOptions)
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(
                                 new MsSqlStreamStoreV3Settings(

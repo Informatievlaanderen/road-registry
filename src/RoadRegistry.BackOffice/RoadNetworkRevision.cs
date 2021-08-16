@@ -15,6 +15,16 @@ namespace RoadRegistry.BackOffice
         }
 
         public int ToInt32() => _value;
+        public RoadNetworkRevision Next()
+        {
+            if (_value == int.MaxValue)
+            {
+                throw new NotSupportedException(
+                    "There is no next road network revision because the maximum of the integer data type has been reached.");
+            }
+            return new RoadNetworkRevision(_value + 1);
+        }
+
         public bool Equals(RoadNetworkRevision other) => _value == other._value;
         public override bool Equals(object other) => other is RoadNetworkRevision revision && Equals(revision);
         public override int GetHashCode() => _value.GetHashCode();

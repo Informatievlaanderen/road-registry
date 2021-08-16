@@ -199,7 +199,8 @@
                             new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
                             new RoadSegmentSurfaceAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
                             new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                            new ExtractDownloadRecordProjection()
+                            new ExtractDownloadRecordProjection(),
+                            new ExtractUploadRecordProjection()
                         })
                         .AddSingleton(sp =>
                             Resolve

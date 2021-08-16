@@ -13,6 +13,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Configuration;
     using Editor.Schema;
+    using Editor.Schema.Extracts;
     using FluentValidation;
     using FluentValidation.Results;
     using Framework;
@@ -227,6 +228,69 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             {
                 new ValidationFailure("downloadid",
                     "'DownloadId' path parameter is not a global unique identifier without dashes.")
+            });
+        }
+
+        [HttpGet("upload/{uploadid}/status")]
+        public async Task<IActionResult> GetUploadStatus(
+            [FromServices]EditorContext context,
+            [FromServices]ExtractUploadsOptions options,
+            [FromRoute]string uploadid)
+        {
+            if (Guid.TryParseExact(uploadid, "N", out var parsed))
+            {
+                var record = await context.ExtractUploads.FindAsync(new object[] { parsed }, HttpContext.RequestAborted);
+                if (record == null)
+                {
+                    var retryAfterSeconds =
+                        await context.ExtractUploads.TookAverageAssembleDuration(
+                            _clock
+                                .GetCurrentInstant()
+                                .Minus(Duration.FromDays(options.RetryAfterAverageWindowInDays)),
+                            options.DefaultRetryAfter);
+
+                    Response.Headers.Add("Retry-After", retryAfterSeconds.ToString(CultureInfo.InvariantCulture));
+                    return NotFound();
+                }
+
+                // FOUND
+
+                var body = new GetUploadStatusResponseBody();
+                switch (record.Status)
+                {
+                    case ExtractUploadStatus.Received:
+                    case ExtractUploadStatus.UploadAccepted:
+                        var retryAfterSeconds =
+                            await context.ExtractUploads.TookAverageAssembleDuration(
+                                _clock
+                                    .GetCurrentInstant()
+                                    .Minus(Duration.FromDays(options.RetryAfterAverageWindowInDays)),
+                                options.DefaultRetryAfter);
+
+                        Response.Headers.Add("Retry-After", retryAfterSeconds.ToString(CultureInfo.InvariantCulture));
+
+                        body.Status = "Processing";
+                        break;
+                    case ExtractUploadStatus.UploadRejected:
+                    case ExtractUploadStatus.ChangesRejected:
+                        body.Status = "Rejected";
+                        break;
+                    case ExtractUploadStatus.ChangesAccepted:
+                        body.Status = "Accepted";
+                        break;
+                    default:
+                        body.Status = "Unknown";
+                        break;
+                }
+
+                return Ok(body);
+            }
+
+            // results in BAD REQUEST
+            throw new ValidationException(new[]
+            {
+                new ValidationFailure("uploadid",
+                    "'UploadId' path parameter is not a global unique identifier without dashes.")
             });
         }
     }
