@@ -74,6 +74,48 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.ToTable("ExtractDownload", "RoadRegistryEditor");
                 });
 
+            modelBuilder.Entity("RoadRegistry.Editor.Schema.Extracts.ExtractUploadRecord", b =>
+                {
+                    b.Property<Guid>("UploadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ArchiveId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ChangeRequestId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("CompletedOn")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("DownloadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ExternalRequestId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("ReceivedOn")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RequestId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("UploadId")
+                        .IsClustered(false);
+
+                    b.HasIndex("ChangeRequestId")
+                        .IsUnique();
+
+                    b.ToTable("ExtractUpload", "RoadRegistryEditor");
+                });
+
             modelBuilder.Entity("RoadRegistry.Editor.Schema.GradeSeparatedJunctions.GradeSeparatedJunctionRecord", b =>
                 {
                     b.Property<int>("Id")
@@ -139,7 +181,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.ToTable("Organization", "RoadRegistryEditor");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNetworkChange", b =>
+            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNetworkChanges.RoadNetworkChange", b =>
                 {
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
@@ -167,7 +209,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.ToTable("RoadNetworkChange", "RoadRegistryEditor");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNetworkChangeRequestBasedOnArchive", b =>
+            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNetworkChanges.RoadNetworkChangeRequestBasedOnArchive", b =>
                 {
                     b.Property<byte[]>("ChangeRequestId")
                         .HasMaxLength(32)

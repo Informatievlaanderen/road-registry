@@ -265,6 +265,8 @@ namespace RoadRegistry.Framework.Projections
             }
         }
 
+        //IMPORTANT: Each time you change the db sets on the context, you must adjust this method as well.
+        //
         private static async Task<object[]> AllRecords(this EditorContext context)
         {
             var records = new List<object>();
@@ -280,8 +282,10 @@ namespace RoadRegistry.Framework.Projections
             records.AddRange(await context.Organizations.ToArrayAsync());
             records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
             records.AddRange(await context.RoadNetworkChanges.ToArrayAsync());
+            records.AddRange(await context.RoadNetworkChangeRequestsBasedOnArchive.ToArrayAsync());
             records.AddRange(await context.MunicipalityGeometries.ToArrayAsync());
             records.AddRange(await context.ExtractDownloads.ToArrayAsync());
+            records.AddRange(await context.ExtractUploads.ToArrayAsync());
 
             return records.ToArray();
         }

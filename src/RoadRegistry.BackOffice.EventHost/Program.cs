@@ -133,12 +133,15 @@
                                     )
                                 );
                             }
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new S3BlobClient(
-                                    sp.GetService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
+
+                            builder
+                                .AddSingleton<IBlobClient>(sp =>
+                                    new S3BlobClient(
+                                        sp.GetService<AmazonS3Client>(),
+                                        s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                    )
                                 )
-                            );
+                                .AddSingleton<RoadNetworkUploadsBlobClient>();
 
                             break;
 
@@ -146,11 +149,12 @@
                             var fileOptions = new FileBlobClientOptions();
                             hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
 
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new FileBlobClient(
-                                    new DirectoryInfo(fileOptions.Directory)
-                                )
-                            );
+                            builder
+                                .AddSingleton<IBlobClient>(sp =>
+                                    new FileBlobClient(
+                                        new DirectoryInfo(fileOptions.Directory)
+                                    )
+                                ).AddSingleton<RoadNetworkUploadsBlobClient>();
                             break;
 
                         default:
@@ -176,20 +180,21 @@
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
-                            new SqlBlobClient(
-                                new SqlConnectionStringBuilder(
-                                    sp
-                                        .GetService<IConfiguration>()
-                                        .GetConnectionString(WellknownConnectionNames.Snapshots)
-                                ), WellknownSchemas.SnapshotSchema),
+                            new RoadNetworkSnapshotsBlobClient(
+                                new SqlBlobClient(
+                                    new SqlConnectionStringBuilder(
+                                        sp
+                                            .GetService<IConfiguration>()
+                                            .GetConnectionString(WellknownConnectionNames.Snapshots)
+                                    ), WellknownSchemas.SnapshotSchema)),
                             sp.GetService<RecyclableMemoryStreamManager>()))
                         .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                         .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                         .AddSingleton(sp => new EventHandlerModule[]
                         {
                             new RoadNetworkChangesArchiveEventModule(
-                                sp.GetService<IBlobClient>(),
-                                new ZipArchiveTranslator(Encoding.UTF8),
+                                sp.GetService<RoadNetworkUploadsBlobClient>(),
+                                new ZipArchiveTranslator(Encoding.GetEncoding(1252)),
                                 sp.GetService<IStreamStore>()
                             ),
                             new RoadNetworkEventModule(

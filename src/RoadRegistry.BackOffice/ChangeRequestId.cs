@@ -71,6 +71,16 @@ namespace RoadRegistry.BackOffice
             }
         }
 
+        public static ChangeRequestId FromUploadId(UploadId id)
+        {
+            using (var hash = SHA256.Create())
+            {
+                return new ChangeRequestId(
+                    hash.ComputeHash(id.ToGuid().ToByteArray())
+                );
+            }
+        }
+
         public IReadOnlyCollection<byte> ToBytes() => _value;
 
         public bool Equals(ChangeRequestId other) => _value == other._value;

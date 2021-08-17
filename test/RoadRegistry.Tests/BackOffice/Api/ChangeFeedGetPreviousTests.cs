@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Api
     using System.Threading.Tasks;
     using Changes;
     using Editor.Schema;
+    using Editor.Schema.RoadNetworkChanges;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,8 @@ namespace RoadRegistry.BackOffice.Api
     using NodaTime.Text;
     using RoadRegistry.Framework.Containers;
     using Xunit;
+    using AcceptedChange = Editor.Schema.RoadNetworkChanges.AcceptedChange;
+    using RejectedChange = Editor.Schema.RoadNetworkChanges.RejectedChange;
 
     [Collection(nameof(SqlServerCollection))]
     public class ChangeFeedGetPreviousTests
@@ -212,7 +215,7 @@ namespace RoadRegistry.BackOffice.Api
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
-                        Archive = new RoadNetworkChangesArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" }
+                        Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" }
                     }),
                     When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                 });
@@ -223,8 +226,8 @@ namespace RoadRegistry.BackOffice.Api
                     Type = nameof(RoadNetworkChangesArchiveAccepted),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
                     {
-                        Archive = new RoadNetworkChangesArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" },
-                        Files = new RoadNetworkChangesArchiveFile[0]
+                        Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" },
+                        Files = new FileProblems[0]
                     }),
                     When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                 });
@@ -235,8 +238,8 @@ namespace RoadRegistry.BackOffice.Api
                     Type = nameof(RoadNetworkChangesAccepted),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesBasedOnArchiveAcceptedEntry
                     {
-                        Archive = new RoadNetworkChangesArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" },
-                        Changes = new RoadNetworkAcceptedChange[0]
+                        Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" },
+                        Changes = new AcceptedChange[0]
                     }),
                     When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                 });
@@ -247,8 +250,8 @@ namespace RoadRegistry.BackOffice.Api
                     Type = nameof(RoadNetworkChangesRejected),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesBasedOnArchiveRejectedEntry
                     {
-                        Archive = new RoadNetworkChangesArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" },
-                        Changes = new RoadNetworkRejectedChange[0]
+                        Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" },
+                        Changes = new RejectedChange[0]
                     }),
                     When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                 });

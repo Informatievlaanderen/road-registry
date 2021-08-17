@@ -142,12 +142,17 @@ namespace RoadRegistry.BackOffice.Api
 
                             builder
                                 .AddSingleton(sp =>
-                                    new UploadsBlobClient(new S3BlobClient(
+                                    new RoadNetworkUploadsBlobClient(new S3BlobClient(
                                         sp.GetRequiredService<AmazonS3Client>(),
                                         s3Options.Buckets[WellknownBuckets.UploadsBucket]
                                     )))
                                 .AddSingleton(sp =>
-                                    new ExtractDownloadsBlobClient(new S3BlobClient(
+                                    new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(
+                                        sp.GetRequiredService<AmazonS3Client>(),
+                                        s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                    )))
+                                .AddSingleton(sp =>
+                                    new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(
                                         sp.GetRequiredService<AmazonS3Client>(),
                                         s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
                                     )));
@@ -164,8 +169,9 @@ namespace RoadRegistry.BackOffice.Api
                                         new DirectoryInfo(fileOptions.Directory)
                                     )
                                 )
-                                .AddSingleton<UploadsBlobClient>()
-                                .AddSingleton<ExtractDownloadsBlobClient>();
+                                .AddSingleton<RoadNetworkUploadsBlobClient>()
+                                .AddSingleton<RoadNetworkExtractUploadsBlobClient>()
+                                .AddSingleton<RoadNetworkExtractDownloadsBlobClient>();
                             break;
 
                         default:
@@ -176,12 +182,15 @@ namespace RoadRegistry.BackOffice.Api
                     hostContext.Configuration.GetSection(nameof(ZipArchiveWriterOptions)).Bind(zipArchiveWriterOptions);
                     var extractDownloadsOptions = new ExtractDownloadsOptions();
                     hostContext.Configuration.GetSection(nameof(ExtractDownloadsOptions)).Bind(extractDownloadsOptions);
+                    var extractUploadsOptions = new ExtractUploadsOptions();
+                    hostContext.Configuration.GetSection(nameof(ExtractUploadsOptions)).Bind(extractDownloadsOptions);
 
                     builder
                         .AddSingleton<Extracts.DownloadExtractRequestBodyValidator>()
                         .AddSingleton<ProblemDetailsHelper>()
                         .AddSingleton<ZipArchiveWriterOptions>(zipArchiveWriterOptions)
                         .AddSingleton<ExtractDownloadsOptions>(extractDownloadsOptions)
+                        .AddSingleton<ExtractUploadsOptions>(extractUploadsOptions)
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(
                                 new MsSqlStreamStoreV3Settings(
@@ -198,10 +207,11 @@ namespace RoadRegistry.BackOffice.Api
                             ))
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
-                            new SqlBlobClient(
-                                new SqlConnectionStringBuilder(
-                                    hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
-                                WellknownSchemas.SnapshotSchema),
+                            new RoadNetworkSnapshotsBlobClient(
+                                new SqlBlobClient(
+                                    new SqlConnectionStringBuilder(
+                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
+                                    WellknownSchemas.SnapshotSchema)),
                             sp.GetService<RecyclableMemoryStreamManager>()))
                         .AddSingleton<IRoadNetworkSnapshotReader>(sp =>
                             sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
@@ -211,7 +221,7 @@ namespace RoadRegistry.BackOffice.Api
                             new CommandHandlerModule[]
                             {
                                 new RoadNetworkChangesArchiveCommandModule(
-                                    sp.GetService<UploadsBlobClient>(),
+                                    sp.GetService<RoadNetworkUploadsBlobClient>(),
                                     sp.GetService<IStreamStore>(),
                                     sp.GetService<IRoadNetworkSnapshotReader>(),
                                     new ZipArchiveValidator(Encoding.GetEncoding(1252)),
@@ -223,8 +233,10 @@ namespace RoadRegistry.BackOffice.Api
                                     sp.GetService<IClock>()
                                 ),
                                 new RoadNetworkExtractCommandModule(
+                                    sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                                     sp.GetService<IStreamStore>(),
                                     sp.GetService<IRoadNetworkSnapshotReader>(),
+                                    new ZipArchiveValidator(Encoding.GetEncoding(1252)),
                                     sp.GetService<IClock>()
                                 )
                             })))

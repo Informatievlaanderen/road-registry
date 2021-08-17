@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Api
     using System.Threading.Tasks;
     using Changes;
     using Editor.Schema;
+    using Editor.Schema.RoadNetworkChanges;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -65,7 +66,7 @@ namespace RoadRegistry.BackOffice.Api
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
-                        Archive = new RoadNetworkChangesArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" }
+                        Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" }
                     }),
                     When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                 });

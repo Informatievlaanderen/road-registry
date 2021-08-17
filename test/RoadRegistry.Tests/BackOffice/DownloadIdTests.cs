@@ -4,7 +4,6 @@ namespace RoadRegistry.BackOffice
     using Albedo;
     using AutoFixture;
     using AutoFixture.Idioms;
-    using AutoFixture.Kernel;
     using RoadRegistry.Framework.Assertions;
     using Xunit;
 

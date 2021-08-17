@@ -71,6 +71,11 @@ type ChangeFeedEntryContent
     | RoadNetworkChangesArchiveUploaded { archive : Archive }
     | RoadNetworkChangesBasedOnArchiveAccepted { archive : Archive, summary: Maybe Summary, problems : List ChangeProblems }
     | RoadNetworkChangesBasedOnArchiveRejected { archive : Archive, problems : List ChangeProblems }
+    | RoadNetworkExtractGotRequested
+    | RoadNetworkExtractDownloadBecameAvailable { archive : Archive }
+    | RoadNetworkExtractChangesArchiveAccepted { archive : Archive, problems : List FileProblems }
+    | RoadNetworkExtractChangesArchiveRejected { archive : Archive, problems : List FileProblems }
+    | RoadNetworkExtractChangesArchiveUploaded { archive : Archive }
 
 
 type alias ChangeFeedEntriesResponse =
@@ -637,6 +642,38 @@ viewChangeFeedEntryContent url content =
                 , viewArchiveLinkContent url rejected.archive
                 ]
 
+        RoadNetworkExtractGotRequested ->
+            div [ class "step__content" ]
+                []
+
+        RoadNetworkExtractDownloadBecameAvailable available ->
+            div [ class "step__content" ]
+                [ text "Archief: "
+                , viewArchiveLinkContent url available.archive
+                ]
+
+        RoadNetworkExtractChangesArchiveUploaded uploaded ->
+            div [ class "step__content" ]
+                [ text "Archief: "
+                , viewArchiveLinkContent url uploaded.archive
+                ]
+
+        RoadNetworkExtractChangesArchiveRejected rejected ->
+            div [ class "step__content" ]
+                [ viewFileProblemsList rejected.problems
+                , br [] []
+                , text "Archief: "
+                , viewArchiveLinkContent url rejected.archive
+                ]
+
+        RoadNetworkExtractChangesArchiveAccepted accepted ->
+            div [ class "step__content" ]
+                [ viewFileProblemsList accepted.problems
+                , br [] []
+                , text "Archief: "
+                , viewArchiveLinkContent url accepted.archive
+                ]
+
 
 onClickNoBubble : msg -> Html.Attribute msg
 onClickNoBubble message =
@@ -726,6 +763,53 @@ viewChangeFeedEntry url entry =
                             ]
 
                     "RoadNetworkChangesRejected" ->
+                        div [ class "step__header__info" ]
+                            [ i [ classList [ ( "vi", True ), ( "vi-plus", entry.state == RequiresLoading ), ( "vi-minus", entry.state == Loaded ) ] ]
+                                []
+                            , if entry.state == Loading then
+                                div [ class "loader" ] []
+
+                              else
+                                text ""
+                            ]
+
+                    "RoadNetworkExtractGotRequested" ->
+                        text ""
+
+                    "RoadNetworkExtractDownloadBecameAvailable" ->
+                        div [ class "step__header__info" ]
+                            [ i [ classList [ ( "vi", True ), ( "vi-plus", entry.state == RequiresLoading ), ( "vi-minus", entry.state == Loaded ) ] ]
+                                []
+                            , if entry.state == Loading then
+                                div [ class "loader" ] []
+
+                              else
+                                text ""
+                            ]
+
+                    "RoadNetworkExtractChangesArchiveAccepted" ->
+                        div [ class "step__header__info", style "width" "30px" ]
+                            [ i [ classList [ ( "vi", True ), ( "vi-plus", entry.state == RequiresLoading ), ( "vi-minus", entry.state == Loaded ) ] ]
+                                []
+                            , if entry.state == Loading then
+                                div [ class "loader" ] []
+
+                              else
+                                text ""
+                            ]
+
+                    "RoadNetworkExtractChangesArchiveRejected" ->
+                        div [ class "step__header__info" ]
+                            [ i [ classList [ ( "vi", True ), ( "vi-plus", entry.state == RequiresLoading ), ( "vi-minus", entry.state == Loaded ) ] ]
+                                []
+                            , if entry.state == Loading then
+                                div [ class "loader" ] []
+
+                              else
+                                text ""
+                            ]
+
+                    "RoadNetworkExtractChangesArchiveUploaded" ->
                         div [ class "step__header__info" ]
                             [ i [ classList [ ( "vi", True ), ( "vi-plus", entry.state == RequiresLoading ), ( "vi-minus", entry.state == Loaded ) ] ]
                                 []
@@ -874,6 +958,21 @@ decodeArchive =
         (Decode.field "available" Decode.bool)
         (Decode.field "filename" Decode.string)
 
+decodeRoadNetworkExtractDownloadBecameAvailable : Decode.Decoder ChangeFeedEntryContent
+decodeRoadNetworkExtractDownloadBecameAvailable =
+    Decode.field "content"
+        (Decode.map
+            (\archive -> RoadNetworkExtractDownloadBecameAvailable { archive = archive })
+            (Decode.field "archive" decodeArchive)
+        )
+
+decodeRoadNetworkExtractChangesArchiveUploaded : Decode.Decoder ChangeFeedEntryContent
+decodeRoadNetworkExtractChangesArchiveUploaded =
+    Decode.field "content"
+        (Decode.map
+            (\archive -> RoadNetworkExtractChangesArchiveUploaded { archive = archive })
+            (Decode.field "archive" decodeArchive)
+        )
 
 decodeRoadNetworkChangesArchiveUploaded : Decode.Decoder ChangeFeedEntryContent
 decodeRoadNetworkChangesArchiveUploaded =
@@ -884,6 +983,15 @@ decodeRoadNetworkChangesArchiveUploaded =
         )
 
 
+decodeRoadNetworkExtractChangesArchiveAccepted : Decode.Decoder ChangeFeedEntryContent
+decodeRoadNetworkExtractChangesArchiveAccepted =
+    Decode.field "content"
+        (Decode.map2
+            (\archive problems -> RoadNetworkExtractChangesArchiveAccepted { archive = archive, problems = problems })
+            (Decode.field "archive" decodeArchive)
+            (Decode.field "files" (Decode.list decodeFileProblems))
+        )
+
 decodeRoadNetworkChangesArchiveAccepted : Decode.Decoder ChangeFeedEntryContent
 decodeRoadNetworkChangesArchiveAccepted =
     Decode.field "content"
@@ -893,6 +1001,14 @@ decodeRoadNetworkChangesArchiveAccepted =
             (Decode.field "files" (Decode.list decodeFileProblems))
         )
 
+decodeRoadNetworkExtractChangesArchiveRejected : Decode.Decoder ChangeFeedEntryContent
+decodeRoadNetworkExtractChangesArchiveRejected =
+    Decode.field "content"
+        (Decode.map2
+            (\archive problems -> RoadNetworkExtractChangesArchiveRejected { archive = archive, problems = problems })
+            (Decode.field "archive" decodeArchive)
+            (Decode.field "files" (Decode.list decodeFileProblems))
+        )
 
 decodeRoadNetworkChangesArchiveRejected : Decode.Decoder ChangeFeedEntryContent
 decodeRoadNetworkChangesArchiveRejected =
@@ -983,5 +1099,10 @@ decodeChangeFeedEntryContentResponse =
             , when decodeEntryContentType (is "RoadNetworkChangesAccepted") decodeRoadNetworkChangesAccepted
             , when decodeEntryContentType (is "RoadNetworkChangesAccepted:v2") decodeRoadNetworkChangesAcceptedV2
             , when decodeEntryContentType (is "RoadNetworkChangesRejected") decodeRoadNetworkChangesRejected
+            , when decodeEntryContentType (is "RoadNetworkExtractGotRequested") (Decode.succeed RoadNetworkExtractGotRequested)
+            , when decodeEntryContentType (is "RoadNetworkExtractDownloadBecameAvailable") decodeRoadNetworkExtractDownloadBecameAvailable
+            , when decodeEntryContentType (is "RoadNetworkExtractChangesArchiveAccepted") decodeRoadNetworkExtractChangesArchiveAccepted
+            , when decodeEntryContentType (is "RoadNetworkExtractChangesArchiveRejected") decodeRoadNetworkExtractChangesArchiveRejected
+            , when decodeEntryContentType (is "RoadNetworkExtractChangesArchiveUploaded") decodeRoadNetworkExtractChangesArchiveUploaded
             ]
         )

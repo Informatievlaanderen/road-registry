@@ -135,12 +135,17 @@
                                 );
                             }
 
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new S3BlobClient(
-                                    sp.GetService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )
-                            );
+                            builder
+                                .AddSingleton(sp =>
+                                    new RoadNetworkUploadsBlobClient(new S3BlobClient(
+                                        sp.GetRequiredService<AmazonS3Client>(),
+                                        s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                    )))
+                                .AddSingleton(sp =>
+                                    new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(
+                                        sp.GetRequiredService<AmazonS3Client>(),
+                                        s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                    )));
 
                             break;
 
@@ -148,11 +153,14 @@
                             var fileOptions = new FileBlobClientOptions();
                             hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
 
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new FileBlobClient(
-                                    new DirectoryInfo(fileOptions.Directory)
+                            builder
+                                .AddSingleton<IBlobClient>(sp =>
+                                    new FileBlobClient(
+                                        new DirectoryInfo(fileOptions.Directory)
+                                    )
                                 )
-                            );
+                                .AddSingleton<RoadNetworkUploadsBlobClient>()
+                                .AddSingleton<RoadNetworkExtractUploadsBlobClient>();
                             break;
 
                         default:
@@ -181,12 +189,13 @@
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
-                            new SqlBlobClient(
-                                new SqlConnectionStringBuilder(
-                                    sp
-                                        .GetService<IConfiguration>()
-                                        .GetConnectionString(WellknownConnectionNames.Snapshots)),
-                                WellknownSchemas.SnapshotSchema),
+                            new RoadNetworkSnapshotsBlobClient(
+                                new SqlBlobClient(
+                                    new SqlConnectionStringBuilder(
+                                        sp
+                                            .GetService<IConfiguration>()
+                                            .GetConnectionString(WellknownConnectionNames.Snapshots)),
+                                    WellknownSchemas.SnapshotSchema)),
                             sp.GetService<RecyclableMemoryStreamManager>()))
                         .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                         .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
@@ -194,10 +203,10 @@
                             new CommandHandlerModule[]
                             {
                                 new RoadNetworkChangesArchiveCommandModule(
-                                    sp.GetService<IBlobClient>(),
+                                    sp.GetService<RoadNetworkUploadsBlobClient>(),
                                     sp.GetService<IStreamStore>(),
                                     sp.GetService<IRoadNetworkSnapshotReader>(),
-                                    new ZipArchiveValidator(Encoding.UTF8),
+                                    new ZipArchiveValidator(Encoding.GetEncoding(1252)),
                                     sp.GetService<IClock>()
                                 ),
                                 new RoadNetworkCommandModule(
@@ -206,8 +215,10 @@
                                     sp.GetService<IClock>()
                                 ),
                                 new RoadNetworkExtractCommandModule(
+                                    sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                                     sp.GetService<IStreamStore>(),
                                     sp.GetService<IRoadNetworkSnapshotReader>(),
+                                    new ZipArchiveValidator(Encoding.GetEncoding(1252)),
                                     sp.GetService<IClock>()
                                 )
                             })));

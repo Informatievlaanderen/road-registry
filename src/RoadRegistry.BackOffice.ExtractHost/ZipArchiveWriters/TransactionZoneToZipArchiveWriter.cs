@@ -36,7 +36,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
                 new DbaseRecordCount(1),
-                RoadNodeDbaseRecord.Schema
+                TransactionZoneDbaseRecord.Schema
             );
             await using (var dbfEntryStream = dbfEntry.Open())
             using (var dbfWriter =
