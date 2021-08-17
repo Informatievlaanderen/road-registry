@@ -1,3 +1,10 @@
+# [1.49.0](https://github.com/informatievlaanderen/road-registry/compare/v1.48.3...v1.49.0) (2021-08-17)
+
+
+### Features
+
+* support for extract uploads ([#281](https://github.com/informatievlaanderen/road-registry/issues/281)) ([d03913a](https://github.com/informatievlaanderen/road-registry/commit/d03913a1531efc40fdba848ed1a9e721b16969c0))
+
 ## [1.48.3](https://github.com/informatievlaanderen/road-registry/compare/v1.48.2...v1.48.3) (2021-08-10)
 
 
