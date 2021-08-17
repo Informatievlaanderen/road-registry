@@ -8,9 +8,9 @@ namespace RoadRegistry.BackOffice.Extracts
         public ExternalExtractRequestId ExternalRequestId { get; }
         public ExtractRequestId RequestId { get; }
         public DownloadId DownloadId { get; }
-        public MultiPolygon Contour { get; }
+        public IPolygonal Contour { get; }
 
-        public RoadNetworkExtractAssemblyRequest(ExternalExtractRequestId requestId, DownloadId downloadId, MultiPolygon contour)
+        public RoadNetworkExtractAssemblyRequest(ExternalExtractRequestId requestId, DownloadId downloadId, IPolygonal contour)
         {
             ExternalRequestId = requestId;
             RequestId = ExtractRequestId.FromExternalRequestId(requestId);

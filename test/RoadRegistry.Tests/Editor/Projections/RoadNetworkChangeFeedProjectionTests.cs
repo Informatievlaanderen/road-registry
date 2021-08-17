@@ -81,7 +81,7 @@ namespace RoadRegistry.Editor.Projections
                     ExternalRequestId = externalExtractRequestId,
                     RequestId = extractRequestId,
                     DownloadId = downloadId,
-                    Contour = new RoadNetworkExtractGeometry { MultiPolygon = Array.Empty<Polygon>(), SpatialReferenceSystemIdentifier = 0 }
+                    Contour = new RoadNetworkExtractGeometry { Polygon = null, MultiPolygon = Array.Empty<Polygon>(), SpatialReferenceSystemIdentifier = 0 }
                 })
                 .Expect(new RoadNetworkChange
                 {

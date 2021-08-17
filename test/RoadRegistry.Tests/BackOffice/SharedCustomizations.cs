@@ -341,9 +341,21 @@ namespace RoadRegistry.BackOffice
                 {
                     var geometry = new RoadNetworkExtractGeometry
                     {
-                        MultiPolygon = new []{fixture.Create<Messages.Polygon>()},
-                        SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        SpatialReferenceSystemIdentifier =
+                            SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                     };
+
+                    if (generator.Next() % 2 == 0)
+                    {
+                        geometry.MultiPolygon = new[] { fixture.Create<Messages.Polygon>() };
+                        geometry.Polygon = null;
+                    }
+                    else
+                    {
+                        geometry.Polygon = fixture.Create<Messages.Polygon>();
+                        geometry.MultiPolygon = null;
+                    }
+
                     return geometry;
                 }).OmitAutoProperties()
             );
@@ -376,9 +388,21 @@ namespace RoadRegistry.BackOffice
                 {
                     var geometry = new RoadNetworkExtractGeometry
                     {
-                        MultiPolygon = new []{fixture.Create<Messages.Polygon>()},
-                        SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                        SpatialReferenceSystemIdentifier =
+                            SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                     };
+
+                    if (generator.Next() % 2 == 0)
+                    {
+                        geometry.MultiPolygon = new[] { fixture.Create<Messages.Polygon>() };
+                        geometry.Polygon = null;
+                    }
+                    else
+                    {
+                        geometry.Polygon = fixture.Create<Messages.Polygon>();
+                        geometry.MultiPolygon = null;
+                    }
+
                     return geometry;
                 }).OmitAutoProperties()
             );

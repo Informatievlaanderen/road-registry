@@ -37,7 +37,8 @@ namespace RoadRegistry.Editor.Projections
                                     {
                                         SpatialReferenceSystemIdentifier =
                                             SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                                        MultiPolygon = new BackOffice.Messages.Polygon[0]
+                                        MultiPolygon = new BackOffice.Messages.Polygon[0],
+                                        Polygon = null
                                     },
                                     When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
                                 };
@@ -125,7 +126,8 @@ namespace RoadRegistry.Editor.Projections
                             {
                                 SpatialReferenceSystemIdentifier =
                                     SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                                MultiPolygon = new BackOffice.Messages.Polygon[0]
+                                MultiPolygon = new BackOffice.Messages.Polygon[0],
+                                Polygon = null
                             },
                             When = InstantPattern.ExtendedIso.Format(InstantPattern.ExtendedIso.Parse(available.When).Value)
                         },
