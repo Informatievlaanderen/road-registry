@@ -17,7 +17,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             // identified by the since parameter. Next we compute the average of the resulting set.
             if (await source.AnyAsync())
             {
-                return Convert.ToInt32(await source.FromSqlRaw(@"
+                var average = await source.FromSqlRaw(@"
 SELECT DownloadId, ExternalRequestId, RequestId, ArchiveId, RequestedOn, Available, AvailableOn
 FROM RoadRegistryEditor.ExtractDownload
 WHERE Available = 1
@@ -31,13 +31,17 @@ AND (AvailableOn - RequestedOn) <= (
     WHERE Available = 1
     AND (AvailableOn - RequestedOn) <= 3600)
     AND RequestedOn >= {1}", since.ToUnixTimeSeconds(), since.ToUnixTimeSeconds())
-                    .AverageAsync(download => download.AvailableOn - download.RequestedOn));
+                    .AverageAsync(download => new long?(download.AvailableOn - download.RequestedOn));
+                if (average.HasValue)
+                {
+                    return Convert.ToInt32(average.Value);
+                }
             }
 
             return defaultValue;
         }
 
-        public static async Task<int> TookAverageAssembleDuration(this DbSet<ExtractUploadRecord> source, Instant since, int defaultValue)
+        public static async Task<int> TookAverageProcessDuration(this DbSet<ExtractUploadRecord> source, Instant since, int defaultValue)
         {
             // NOTE: This query takes into account all extract uploads that took an hour or less to assemble
             // and computes the median (or the 0.5 or 50th percentile) of that dataset, that is, 50% of the assembly durations
@@ -45,7 +49,7 @@ AND (AvailableOn - RequestedOn) <= (
             // identified by the since parameter. Next we compute the average of the resulting set.
             if (await source.AnyAsync())
             {
-                return Convert.ToInt32(await source.FromSqlRaw(@"
+                var average = await source.FromSqlRaw(@"
 SELECT UploadId, DownloadId, ExternalRequestId, RequestId, ArchiveId, ChangeRequestId, ReceivedOn, Status, CompletedOn
 FROM RoadRegistryEditor.ExtractUploads
 WHERE CompletedOn <> 0
@@ -59,7 +63,11 @@ AND (CompletedOn - ReceivedOn) <= (
     WHERE CompletedOn <> 0
     AND (CompletedOn - ReceivedOn) <= 3600)
     AND ReceivedOn >= {1}", since.ToUnixTimeSeconds(), since.ToUnixTimeSeconds())
-                    .AverageAsync(upload => upload.CompletedOn - upload.ReceivedOn));
+                    .AverageAsync(upload => new long?(upload.CompletedOn - upload.ReceivedOn));
+                if (average.HasValue)
+                {
+                    return Convert.ToInt32(average.Value);
+                }
             }
 
             return defaultValue;

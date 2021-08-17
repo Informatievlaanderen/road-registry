@@ -243,7 +243,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 if (record == null)
                 {
                     var retryAfterSeconds =
-                        await context.ExtractUploads.TookAverageAssembleDuration(
+                        await context.ExtractUploads.TookAverageProcessDuration(
                             _clock
                                 .GetCurrentInstant()
                                 .Minus(Duration.FromDays(options.RetryAfterAverageWindowInDays)),
@@ -261,7 +261,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                     case ExtractUploadStatus.Received:
                     case ExtractUploadStatus.UploadAccepted:
                         var retryAfterSeconds =
-                            await context.ExtractUploads.TookAverageAssembleDuration(
+                            await context.ExtractUploads.TookAverageProcessDuration(
                                 _clock
                                     .GetCurrentInstant()
                                     .Minus(Duration.FromDays(options.RetryAfterAverageWindowInDays)),
