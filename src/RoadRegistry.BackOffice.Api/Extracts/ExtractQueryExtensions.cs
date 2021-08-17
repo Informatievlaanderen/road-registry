@@ -31,7 +31,7 @@ AND (AvailableOn - RequestedOn) <= (
     WHERE Available = 1
     AND (AvailableOn - RequestedOn) <= 3600)
     AND RequestedOn >= {1}", since.ToUnixTimeSeconds(), since.ToUnixTimeSeconds())
-                    .AverageAsync(download => new long?(download.AvailableOn - download.RequestedOn));
+                    .AverageAsync(download => (long?)(download.AvailableOn - download.RequestedOn));
                 if (average.HasValue)
                 {
                     return Convert.ToInt32(average.Value);
@@ -63,7 +63,7 @@ AND (CompletedOn - ReceivedOn) <= (
     WHERE CompletedOn <> 0
     AND (CompletedOn - ReceivedOn) <= 3600)
     AND ReceivedOn >= {1}", since.ToUnixTimeSeconds(), since.ToUnixTimeSeconds())
-                    .AverageAsync(upload => new long?(upload.CompletedOn - upload.ReceivedOn));
+                    .AverageAsync(upload => (long?)(upload.CompletedOn - upload.ReceivedOn));
                 if (average.HasValue)
                 {
                     return Convert.ToInt32(average.Value);
