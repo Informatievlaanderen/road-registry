@@ -461,6 +461,22 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Build();
         }
 
+        public static FileError LeftStreetNameIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, int value)
+        {
+            return builder
+                .Error(nameof(LeftStreetNameIdOutOfRange))
+                .WithParameter(new ProblemParameter("Actual", value.ToString()))
+                .Build();
+        }
+
+        public static FileError RightStreetNameIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, int value)
+        {
+            return builder
+                .Error(nameof(RightStreetNameIdOutOfRange))
+                .WithParameter(new ProblemParameter("Actual", value.ToString()))
+                .Build();
+        }
+
         // lane
 
         public static FileError LaneCountOutOfRange(this IDbaseFileRecordProblemBuilder builder, int count)
