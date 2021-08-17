@@ -1,3 +1,10 @@
+# [1.50.0](https://github.com/informatievlaanderen/road-registry/compare/v1.49.1...v1.50.0) (2021-08-17)
+
+
+### Features
+
+* support polygon or multipolygon contour ([#274](https://github.com/informatievlaanderen/road-registry/issues/274)) ([bdda887](https://github.com/informatievlaanderen/road-registry/commit/bdda88718b650806d472e6a728ab6766f6214d21))
+
 ## [1.49.1](https://github.com/informatievlaanderen/road-registry/compare/v1.49.0...v1.49.1) (2021-08-17)
 
 
