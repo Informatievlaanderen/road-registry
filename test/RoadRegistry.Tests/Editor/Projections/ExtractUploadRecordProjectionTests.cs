@@ -264,6 +264,42 @@ namespace RoadRegistry.Editor.Projections
         }
 
         [Fact]
+        public Task When_changes_got_accepted_but_were_not_caused_by_an_extract_upload()
+        {
+            var uploadId = _fixture.Create<UploadId>();
+
+            _fixture.CustomizeReason();
+            _fixture.CustomizeOperatorName();
+            _fixture.CustomizeOrganizationId();
+            _fixture.CustomizeOrganizationName();
+            _fixture.CustomizeTransactionId();
+            _fixture.Customize<RoadNetworkChangesAccepted>(
+                customization =>
+                    customization
+                        .FromFactory(generator => new RoadNetworkChangesAccepted
+                        {
+                            RequestId = ChangeRequestId.FromUploadId(uploadId),
+                            Reason = _fixture.Create<Reason>(),
+                            Operator = _fixture.Create<OperatorName>(),
+                            OrganizationId = _fixture.Create<OrganizationId>(),
+                            Organization = _fixture.Create<OrganizationName>(),
+                            TransactionId = _fixture.Create<TransactionId>(),
+                            Changes = Array.Empty<AcceptedChange>(),
+                            When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                        })
+                        .OmitAutoProperties()
+            );
+            var events = _fixture
+                .CreateMany<RoadNetworkChangesAccepted>(1)
+                .ToList();
+
+            return new ExtractUploadRecordProjection()
+                .Scenario()
+                .Given(events)
+                .ExpectNone();
+        }
+
+        [Fact]
         public Task When_changes_got_rejected()
         {
             var uploadId = _fixture.Create<UploadId>();
@@ -327,6 +363,43 @@ namespace RoadRegistry.Editor.Projections
                 .Scenario()
                 .Given(data.SelectMany(d => new object[] { d.given, d.@event }))
                 .Expect(data.Select(d => d.expected));
+        }
+
+        [Fact]
+        public Task When_changes_got_rejected_but_were_not_caused_by_an_extract_upload()
+        {
+            var uploadId = _fixture.Create<UploadId>();
+
+            _fixture.CustomizeReason();
+            _fixture.CustomizeOperatorName();
+            _fixture.CustomizeOrganizationId();
+            _fixture.CustomizeOrganizationName();
+            _fixture.CustomizeTransactionId();
+            _fixture.Customize<RoadNetworkChangesRejected>(
+                customization =>
+                    customization
+                        .FromFactory(generator => new RoadNetworkChangesRejected
+                        {
+                            RequestId = ChangeRequestId.FromUploadId(uploadId),
+                            Reason = _fixture.Create<Reason>(),
+                            Operator = _fixture.Create<OperatorName>(),
+                            OrganizationId = _fixture.Create<OrganizationId>(),
+                            Organization = _fixture.Create<OrganizationName>(),
+                            TransactionId = _fixture.Create<TransactionId>(),
+                            Changes = Array.Empty<RejectedChange>(),
+                            When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                        })
+                        .OmitAutoProperties()
+            );
+
+            var events = _fixture
+                .CreateMany<RoadNetworkChangesRejected>(1)
+                .ToList();
+
+            return new ExtractUploadRecordProjection()
+                .Scenario()
+                .Given(events)
+                .ExpectNone();
         }
     }
 }
