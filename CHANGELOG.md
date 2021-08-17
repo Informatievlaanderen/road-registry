@@ -1,3 +1,12 @@
+## [1.49.1](https://github.com/informatievlaanderen/road-registry/compare/v1.49.0...v1.49.1) (2021-08-17)
+
+
+### Bug Fixes
+
+* check value range of left and right street name ([#303](https://github.com/informatievlaanderen/road-registry/issues/303)) ([33b0381](https://github.com/informatievlaanderen/road-registry/commit/33b038120007f0ef5625e1e8abb67dae0278aea3))
+* problem name was wrong ([#304](https://github.com/informatievlaanderen/road-registry/issues/304)) ([00bde95](https://github.com/informatievlaanderen/road-registry/commit/00bde95502b0d22efb6901508e308981ebca1cec))
+* retry after calc chokes on empty seq ([#305](https://github.com/informatievlaanderen/road-registry/issues/305)) ([f6311f4](https://github.com/informatievlaanderen/road-registry/commit/f6311f48421fc0aa5469d42e450e7b7e9428fca6))
+
 # [1.49.0](https://github.com/informatievlaanderen/road-registry/compare/v1.48.3...v1.49.0) (2021-08-17)
 
 
