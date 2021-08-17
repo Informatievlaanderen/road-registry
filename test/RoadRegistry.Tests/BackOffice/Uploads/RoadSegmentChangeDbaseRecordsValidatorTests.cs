@@ -550,6 +550,40 @@ namespace RoadRegistry.BackOffice.Uploads
             Assert.Equal(expectedContext, actualContext);
         }
 
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidLeftStreetNameIdReturnsExpectedResult()
+        {
+            var expectedContext = ZipArchiveValidationContext.Empty;
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            record.LSTRNMID.Value = -12;
+            expectedContext = BuildValidationContext(record, expectedContext);
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var (result, actualContext) = _sut.Validate(_entry, records, _context);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).LeftStreetNameIdOutOfRange(-12)),
+                result);
+            Assert.Equal(expectedContext, actualContext);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatHasInvalidRightStreetNameIdReturnsExpectedResult()
+        {
+            var expectedContext = ZipArchiveValidationContext.Empty;
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            record.RSTRNMID.Value = -12;
+            expectedContext = BuildValidationContext(record, expectedContext);
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var (result, actualContext) = _sut.Validate(_entry, records, _context);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RightStreetNameIdOutOfRange(-12)),
+                result);
+            Assert.Equal(expectedContext, actualContext);
+        }
+
         public void Dispose()
         {
             _archive?.Dispose();
