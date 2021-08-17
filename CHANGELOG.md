@@ -1,3 +1,10 @@
+# [1.51.0](https://github.com/informatievlaanderen/road-registry/compare/v1.50.0...v1.51.0) (2021-08-17)
+
+
+### Features
+
+* ack not all changes are extract uploads ([#306](https://github.com/informatievlaanderen/road-registry/issues/306)) ([2a31083](https://github.com/informatievlaanderen/road-registry/commit/2a3108362b72d65d1fff6098485ccc16902be846))
+
 # [1.50.0](https://github.com/informatievlaanderen/road-registry/compare/v1.49.1...v1.50.0) (2021-08-17)
 
 
