@@ -50,20 +50,32 @@ namespace RoadRegistry.Editor.Projections
 
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
             {
+                // NOTE: Not all changes to the road network are caused by extract uploads.
+                // Hence why we need to treat this conditionally.
                 var record =
                     context.ExtractUploads.Local.SingleOrDefault(upload => upload.ChangeRequestId == envelope.Message.RequestId)
-                    ?? await context.ExtractUploads.SingleAsync(upload => upload.ChangeRequestId == envelope.Message.RequestId, ct);
-                record.Status = ExtractUploadStatus.ChangesAccepted;
-                record.CompletedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds();
+                    ?? await context.ExtractUploads.SingleOrDefaultAsync(upload => upload.ChangeRequestId == envelope.Message.RequestId, ct);
+                if (record != null)
+                {
+                    record.Status = ExtractUploadStatus.ChangesAccepted;
+                    record.CompletedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value
+                        .ToUnixTimeSeconds();
+                }
             });
 
             When<Envelope<RoadNetworkChangesRejected>>(async (context, envelope, ct) =>
             {
+                // NOTE: Not all changes to the road network are caused by extract uploads.
+                // Hence why we need to treat this conditionally.
                 var record =
                     context.ExtractUploads.Local.SingleOrDefault(upload => upload.ChangeRequestId == envelope.Message.RequestId)
-                    ?? await context.ExtractUploads.SingleAsync(upload => upload.ChangeRequestId == envelope.Message.RequestId, ct);
-                record.Status = ExtractUploadStatus.ChangesRejected;
-                record.CompletedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds();
+                    ?? await context.ExtractUploads.SingleOrDefaultAsync(upload => upload.ChangeRequestId == envelope.Message.RequestId, ct);
+                if (record != null)
+                {
+                    record.Status = ExtractUploadStatus.ChangesRejected;
+                    record.CompletedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value
+                        .ToUnixTimeSeconds();
+                }
             });
         }
     }
