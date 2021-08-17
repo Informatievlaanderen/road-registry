@@ -349,7 +349,7 @@ namespace RoadRegistry.BackOffice.Uploads
         public static FileError RoadNodeTypeMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
         {
             return builder
-                .Error(nameof(RoadNodeType))
+                .Error(nameof(RoadNodeTypeMismatch))
                 .WithParameter(
                     new ProblemParameter(
                         "ExpectedOneOf",
