@@ -44,6 +44,14 @@ namespace RoadRegistry.BackOffice.Scenarios
             }
         }
 
+        private class FakeRoadNetworkSnapshotWriter : IRoadNetworkSnapshotWriter
+        {
+            public Task WriteSnapshot(RoadNetworkSnapshot snapshot, int version, CancellationToken cancellationToken)
+            {
+                return Task.CompletedTask;
+            }
+        }
+
         private class FakeZipArchiveValidator : IZipArchiveValidator
         {
             public ZipArchiveProblems Validate(ZipArchive archive)
@@ -64,7 +72,7 @@ namespace RoadRegistry.BackOffice.Scenarios
 
             _runner = new ScenarioRunner(
                 Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
-                        new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), Clock),
+                        new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), new FakeRoadNetworkSnapshotWriter(), Clock),
                         new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock)
                     }),
                 Store,

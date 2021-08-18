@@ -29,15 +29,56 @@ namespace RoadRegistry.BackOffice
         }
 
         public static ICommandHandlerBuilder<IRoadRegistryContext, TCommand> UseRoadRegistryContext<TCommand>(
-            this ICommandHandlerBuilder<TCommand> builder, IStreamStore store, IRoadNetworkSnapshotReader snapshotReader,  EventEnricher enricher)
+            this ICommandHandlerBuilder<TCommand> builder,
+            IStreamStore store,
+            IRoadNetworkSnapshotReader snapshotReader,
+            EventEnricher enricher,
+            IRoadNetworkSnapshotWriter snapshotWriter = default)
         {
             if (store == null) throw new ArgumentNullException(nameof(store));
             if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
             if (enricher == null) throw new ArgumentNullException(nameof(enricher));
+
+            if (snapshotWriter == null)
+            {
+                return builder.Pipe<IRoadRegistryContext>(next => async (message, ct) =>
+                    {
+                        var map = new EventSourcedEntityMap();
+                        var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings,
+                            EventMapping);
+
+                        await next(context, message, ct);
+
+                        foreach (var entry in map.Entries)
+                        {
+                            var events = entry.Entity.TakeEvents();
+                            if (events.Length != 0)
+                            {
+
+                                var messageId = message.MessageId.ToString("N");
+                                var version = entry.ExpectedVersion;
+                                Array.ForEach(events, @event => enricher(@event));
+                                var messages = Array.ConvertAll(
+                                    events,
+                                    @event =>
+                                        new NewStreamMessage(
+                                            Deterministic.Create(Deterministic.Namespaces.Events,
+                                                $"{messageId}-{version++}"),
+                                            EventMapping.GetEventName(@event.GetType()),
+                                            JsonConvert.SerializeObject(@event, SerializerSettings)
+                                        ));
+                                await store.AppendToStream(entry.Stream, entry.ExpectedVersion, messages, ct);
+                            }
+                        }
+
+                    }
+                );
+            }
             return builder.Pipe<IRoadRegistryContext>(next => async (message, ct) =>
                 {
                     var map = new EventSourcedEntityMap();
-                    var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping);
+                    var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings,
+                        EventMapping);
 
                     await next(context, message, ct);
 
@@ -59,7 +100,19 @@ namespace RoadRegistry.BackOffice
                                         EventMapping.GetEventName(@event.GetType()),
                                         JsonConvert.SerializeObject(@event, SerializerSettings)
                                     ));
-                            await store.AppendToStream(entry.Stream, entry.ExpectedVersion, messages, ct);
+                            var result = await store.AppendToStream(entry.Stream, entry.ExpectedVersion, messages,
+                                ct);
+
+                            //NOTE: We're storing a snapshot of the network in memory,
+                            // such that the next command we need to handle on the network
+                            // can be handled much faster
+                            if (entry.Entity is RoadNetwork network)
+                            {
+                                await snapshotWriter.WriteSnapshot(
+                                    network.TakeSnapshot(),
+                                    result.CurrentVersion,
+                                    ct);
+                            }
                         }
                     }
 

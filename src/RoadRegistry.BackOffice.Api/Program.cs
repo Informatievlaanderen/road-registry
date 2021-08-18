@@ -213,10 +213,13 @@ namespace RoadRegistry.BackOffice.Api
                                         hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
                                     WellknownSchemas.SnapshotSchema)),
                             sp.GetService<RecyclableMemoryStreamManager>()))
+
                         .AddSingleton<IRoadNetworkSnapshotReader>(sp =>
                             sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                         .AddSingleton<IRoadNetworkSnapshotWriter>(sp =>
                             sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
+                        .AddSingleton(sp =>
+                            new MemoryRoadNetworkSnapshotReaderWriter(sp.GetRequiredService<IRoadNetworkSnapshotReader>()))
                         .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                             new CommandHandlerModule[]
                             {
@@ -229,7 +232,8 @@ namespace RoadRegistry.BackOffice.Api
                                 ),
                                 new RoadNetworkCommandModule(
                                     sp.GetService<IStreamStore>(),
-                                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                                    sp.GetService<MemoryRoadNetworkSnapshotReaderWriter>(),
+                                    sp.GetService<MemoryRoadNetworkSnapshotReaderWriter>(),
                                     sp.GetService<IClock>()
                                 ),
                                 new RoadNetworkExtractCommandModule(

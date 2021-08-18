@@ -199,6 +199,9 @@
                             sp.GetService<RecyclableMemoryStreamManager>()))
                         .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                         .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
+                        .AddSingleton(sp =>
+                            new MemoryRoadNetworkSnapshotReaderWriter(
+                                sp.GetRequiredService<IRoadNetworkSnapshotReader>()))
                         .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                             new CommandHandlerModule[]
                             {
@@ -211,7 +214,8 @@
                                 ),
                                 new RoadNetworkCommandModule(
                                     sp.GetService<IStreamStore>(),
-                                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                                    sp.GetService<MemoryRoadNetworkSnapshotReaderWriter>(),
+                                    sp.GetService<MemoryRoadNetworkSnapshotReaderWriter>(),
                                     sp.GetService<IClock>()
                                 ),
                                 new RoadNetworkExtractCommandModule(
