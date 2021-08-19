@@ -179,7 +179,7 @@ namespace RoadRegistry.BackOffice.EventHost
                                         logger.LogError(dropped.Exception,
                                             "Subscription was dropped because of a subscriber error");
 
-                                        if (CanResumeFrom(dropped) /* timeout */)
+                                        if (CanResumeFrom(dropped))
                                         {
                                             await scheduler.Schedule(async token =>
                                             {
