@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.CommandHost
 {
     using System;
+    using System.IO;
     using Microsoft.Data.SqlClient;
     using System.Linq;
     using System.Threading;
@@ -155,9 +156,7 @@ namespace RoadRegistry.BackOffice.CommandHost
                                         logger.LogError(dropped.Exception,
                                             "Subscription was dropped because of a subscriber error.");
 
-                                        if (dropped.Exception != null
-                                            && dropped.Exception is SqlException sqlException
-                                            && sqlException.Number == -2 /* timeout */)
+                                        if (CanResumeFrom(dropped))
                                         {
                                             await scheduler.Schedule(async token =>
                                             {
@@ -197,6 +196,14 @@ namespace RoadRegistry.BackOffice.CommandHost
                     subscription?.Dispose();
                 }
             }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+        }
+
+        private static bool CanResumeFrom(SubscriptionDropped dropped)
+        {
+            const int timeout = -2;
+            return dropped.Exception != null
+                   && (dropped.Exception is SqlException { Number: timeout } ||
+                       dropped.Exception is IOException { InnerException: SqlException { Number: timeout } });
         }
 
         private class Subscribe { }
