@@ -1,3 +1,10 @@
+## [1.51.1](https://github.com/informatievlaanderen/road-registry/compare/v1.51.0...v1.51.1) (2021-08-19)
+
+
+### Bug Fixes
+
+* begin and end road id should differ ([de208b8](https://github.com/informatievlaanderen/road-registry/commit/de208b8c2afa414768a9966b054a0af66d128086))
+
 # [1.51.0](https://github.com/informatievlaanderen/road-registry/compare/v1.50.0...v1.51.0) (2021-08-17)
 
 
