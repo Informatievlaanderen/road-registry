@@ -584,6 +584,25 @@ namespace RoadRegistry.BackOffice.Uploads
             Assert.Equal(expectedContext, actualContext);
         }
 
+
+        [Fact]
+        public void ValidateWithRecordThatHasSameBeginAndEndRoadNodeId()
+        {
+            var expectedContext = ZipArchiveValidationContext.Empty;
+            var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
+            record.B_WK_OIDN.Value = record.E_WK_OIDN.Value;
+            expectedContext = BuildValidationContext(record, expectedContext);
+            var records = new [] { record }.ToDbaseRecordEnumerator();
+
+            var (result, actualContext) = _sut.Validate(_entry, records, _context);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).BeginRoadNodeIdEqualsEndRoadNode(
+                    record.B_WK_OIDN.Value, record.E_WK_OIDN.Value)),
+                result);
+            Assert.Equal(expectedContext, actualContext);
+        }
+
         public void Dispose()
         {
             _archive?.Dispose();

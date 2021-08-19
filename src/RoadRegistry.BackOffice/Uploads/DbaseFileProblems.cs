@@ -477,6 +477,17 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Build();
         }
 
+        public static FileError BeginRoadNodeIdEqualsEndRoadNode(this IDbaseFileRecordProblemBuilder builder,
+            int beginNode,
+            int endNode)
+        {
+            return builder
+                .Error(nameof(BeginRoadNodeIdEqualsEndRoadNode))
+                .WithParameter(new ProblemParameter("Begin", beginNode.ToString()))
+                .WithParameter(new ProblemParameter("End", endNode.ToString()))
+                .Build();
+        }
+
         // lane
 
         public static FileError LaneCountOutOfRange(this IDbaseFileRecordProblemBuilder builder, int count)

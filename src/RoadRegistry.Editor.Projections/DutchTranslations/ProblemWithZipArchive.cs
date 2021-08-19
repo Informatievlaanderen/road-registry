@@ -149,6 +149,10 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         translation = $"De dbase record {problem.Parameters[0].Value} heeft een ongeldige straat naam id in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.RSTRNMID)}: {problem.Parameters[1].Value}.";
                         break;
 
+                    case nameof(DbaseFileProblems.BeginRoadNodeIdEqualsEndRoadNode):
+                        translation = $"De dbase record {problem.Parameters[0].Value} heeft een begin wegknoop in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.B_WK_OIDN)}: {problem.Parameters[1].Value} die gelijk is aan de eindwegknoop in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.E_WK_OIDN)}: {problem.Parameters[2].Value}.";
+                        break;
+
                     case nameof(DbaseFileProblems.OrganizationIdOutOfRange):
                         translation =
                             $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig organisatie identificator in veld {nameof(TransactionZoneDbaseRecord.Schema.ORG)}: {problem.Parameters[1].Value}.";
