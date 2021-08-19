@@ -174,6 +174,14 @@ namespace RoadRegistry.BackOffice.Uploads
                                 problems += recordContext.RightStreetNameIdOutOfRange(record.RSTRNMID.Value.Value);
                             }
 
+                            if (record.B_WK_OIDN.HasValue && record.E_WK_OIDN.HasValue &&
+                                record.B_WK_OIDN.Value.Equals(record.E_WK_OIDN.Value))
+                            {
+                                problems += recordContext.BeginRoadNodeIdEqualsEndRoadNode(
+                                    record.B_WK_OIDN.Value,
+                                    record.E_WK_OIDN.Value);
+                            }
+
                             if (string.IsNullOrEmpty(record.BEHEERDER.Value))
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.BEHEERDER.Field);
