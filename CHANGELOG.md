@@ -1,3 +1,10 @@
+## [1.51.2](https://github.com/informatievlaanderen/road-registry/compare/v1.51.1...v1.51.2) (2021-08-19)
+
+
+### Bug Fixes
+
+* better sql timeout handling ([#309](https://github.com/informatievlaanderen/road-registry/issues/309)) ([e73dbac](https://github.com/informatievlaanderen/road-registry/commit/e73dbacf84b96bc06f8aa560e15f0efc682f672e))
+
 ## [1.51.1](https://github.com/informatievlaanderen/road-registry/compare/v1.51.0...v1.51.1) (2021-08-19)
 
 
