@@ -26,7 +26,7 @@ namespace RoadRegistry.BackOffice.Uploads
                         var record = records.Current;
                         if (record != null)
                         {
-                            if (!record.BESCHRIJV.HasValue)
+                            if (string.IsNullOrEmpty(record.BESCHRIJV.Value))
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.BESCHRIJV.Field);
                             }
