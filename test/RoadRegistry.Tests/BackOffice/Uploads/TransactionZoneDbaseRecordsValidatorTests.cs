@@ -198,6 +198,26 @@ namespace RoadRegistry.BackOffice.Uploads
             Assert.Same(_context, context);
         }
 
+        [Fact]
+        public void ValidateWithRecordsThatHaveEmptyStringAsRequiredFieldValueReturnsExpectedResult()
+        {
+            var records = _fixture
+                .CreateMany<TransactionZoneDbaseRecord>(1)
+                .Select(record =>
+                {
+                    record.BESCHRIJV.Value = string.Empty;
+                    return record;
+                })
+                .ToDbaseRecordEnumerator();
+
+            var (result, context) = _sut.Validate(_entry, records, _context);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(TransactionZoneDbaseRecord.Schema.BESCHRIJV)),
+                result);
+            Assert.Same(_context, context);
+        }
+
         public void Dispose()
         {
             _archive?.Dispose();
