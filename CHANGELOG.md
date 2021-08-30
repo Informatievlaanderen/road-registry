@@ -1,3 +1,10 @@
+## [1.51.3](https://github.com/informatievlaanderen/road-registry/compare/v1.51.2...v1.51.3) (2021-08-30)
+
+
+### Bug Fixes
+
+* beschrijv field of transactionzones no longer allows empty strings ([0308e66](https://github.com/informatievlaanderen/road-registry/commit/0308e66f5c372e02871497d2010dd7a186985b7d))
+
 ## [1.51.2](https://github.com/informatievlaanderen/road-registry/compare/v1.51.1...v1.51.2) (2021-08-19)
 
 
