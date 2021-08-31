@@ -343,6 +343,32 @@ namespace RoadRegistry.Editor.Projections
                         When = envelope.Message.When
                     }, ct);
             });
+
+            When<Envelope<NoRoadNetworkChanges>>(async (context, envelope, ct) =>
+            {
+                var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
+                                  .FirstOrDefault(r =>
+                                      r.ChangeRequestId == ChangeRequestId.FromString(envelope.Message.RequestId).ToBytes()
+                                          .ToArray())
+                              ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(ChangeRequestId
+                                  .FromString(envelope.Message.RequestId).ToBytes().ToArray());
+                var content = new Schema.RoadNetworkChanges.NoRoadNetworkChangesBasedOnArchiveEntry
+                {
+                    Archive = new Schema.RoadNetworkChanges.ArchiveInfo { Id = request.ArchiveId },
+                };
+
+                await EnrichWithArchiveInformation(request.ArchiveId, content.Archive, client, ct);
+
+                await context.RoadNetworkChanges.AddAsync(
+                    new Schema.RoadNetworkChanges.RoadNetworkChange
+                    {
+                        Id = envelope.Position,
+                        Title = $"Geen wijzigingen in oplading \"{envelope.Message.Reason}\" door {envelope.Message.Organization} ({envelope.Message.Operator})",
+                        Type = nameof(NoRoadNetworkChanges),
+                        Content = JsonConvert.SerializeObject(content),
+                        When = envelope.Message.When
+                    }, ct);
+            });
         }
 
         private static async Task EnrichWithArchiveInformation(string archiveId,

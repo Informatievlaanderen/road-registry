@@ -6,6 +6,7 @@ namespace RoadRegistry.Editor.Schema.Extracts
         UploadAccepted,
         UploadRejected,
         ChangesAccepted,
-        ChangesRejected
+        ChangesRejected,
+        NoChanges
     }
 }

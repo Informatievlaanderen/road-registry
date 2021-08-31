@@ -401,5 +401,71 @@ namespace RoadRegistry.Editor.Projections
                 .Given(events)
                 .ExpectNone();
         }
+
+        [Fact]
+        public Task When_no_changes()
+        {
+            var uploadId = _fixture.Create<UploadId>();
+
+            _fixture.CustomizeReason();
+            _fixture.CustomizeOperatorName();
+            _fixture.CustomizeOrganizationId();
+            _fixture.CustomizeOrganizationName();
+            _fixture.CustomizeTransactionId();
+            _fixture.Customize<NoRoadNetworkChanges>(
+                customization =>
+                    customization
+                        .FromFactory(generator => new NoRoadNetworkChanges
+                        {
+                            RequestId = ChangeRequestId.FromUploadId(uploadId),
+                            Reason = _fixture.Create<Reason>(),
+                            Operator = _fixture.Create<OperatorName>(),
+                            OrganizationId = _fixture.Create<OrganizationId>(),
+                            Organization = _fixture.Create<OrganizationName>(),
+                            TransactionId = _fixture.Create<TransactionId>(),
+                            When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                        })
+                        .OmitAutoProperties()
+            );
+
+            var data = _fixture
+                .CreateMany<NoRoadNetworkChanges>(1)
+                .Select(rejected =>
+                {
+                    var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
+                    var expected = new ExtractUploadRecord
+                    {
+                        UploadId = uploadId,
+                        DownloadId = _fixture.Create<DownloadId>(),
+                        RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
+                        ExternalRequestId = externalRequestId,
+                        ArchiveId = _fixture.Create<ArchiveId>(),
+                        ChangeRequestId = ChangeRequestId.FromUploadId(new UploadId(uploadId)),
+                        ReceivedOn = InstantPattern.ExtendedIso.Parse(rejected.When).Value.ToUnixTimeSeconds(),
+                        Status = ExtractUploadStatus.NoChanges,
+                        CompletedOn = InstantPattern.ExtendedIso.Parse(rejected.When).Value.ToUnixTimeSeconds()
+                    };
+
+                    return new
+                    {
+                        given = new RoadNetworkExtractChangesArchiveUploaded
+                        {
+                            UploadId = expected.UploadId,
+                            DownloadId = expected.DownloadId,
+                            ExternalRequestId = expected.ExternalRequestId,
+                            RequestId = expected.RequestId,
+                            ArchiveId = expected.ArchiveId,
+                            When = rejected.When
+                        },
+                        @event = rejected,
+                        expected
+                    };
+                }).ToList();
+
+            return new ExtractUploadRecordProjection()
+                .Scenario()
+                .Given(data.SelectMany(d => new object[] { d.given, d.@event }))
+                .Expect(data.Select(d => d.expected));
+        }
     }
 }

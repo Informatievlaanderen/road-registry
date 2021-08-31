@@ -77,6 +77,22 @@ namespace RoadRegistry.Editor.Projections
                         .ToUnixTimeSeconds();
                 }
             });
+
+            When<Envelope<NoRoadNetworkChanges>>(async (context, envelope, ct) =>
+            {
+                // NOTE: Not all changes to the road network are caused by extract uploads.
+                // Hence why we need to treat this conditionally.
+                var record =
+                    context.ExtractUploads.Local.SingleOrDefault(upload => upload.ChangeRequestId == envelope.Message.RequestId)
+                    ?? await context.ExtractUploads.SingleOrDefaultAsync(upload => upload.ChangeRequestId == envelope.Message.RequestId, ct);
+                if (record != null)
+                {
+                    record.Status = ExtractUploadStatus.NoChanges;
+                    record.CompletedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value
+                        .ToUnixTimeSeconds();
+                }
+            });
+
         }
     }
 }

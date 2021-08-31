@@ -278,6 +278,9 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                     case ExtractUploadStatus.ChangesAccepted:
                         body.Status = "Accepted";
                         break;
+                    case ExtractUploadStatus.NoChanges:
+                        body.Status = "No Changes";
+                        break;
                     default:
                         body.Status = "Unknown";
                         break;
