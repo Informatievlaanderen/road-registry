@@ -71,9 +71,19 @@ namespace RoadRegistry.BackOffice.Core
 
             var verifiedChanges = verifiableChanges.ConvertAll(change => change.AsVerifiedChange());
 
-            if (verifiedChanges.Count == 0) return;
-
-            if (verifiedChanges.OfType<RejectedChange>().Any())
+            if (verifiedChanges.Count == 0)
+            {
+                Apply(new Messages.NoRoadNetworkChanges
+                {
+                    RequestId = requestId,
+                    Reason = reason,
+                    Operator = @operator,
+                    OrganizationId = organization.Identifier,
+                    Organization = organization.Name,
+                    TransactionId = requestedChanges.TransactionId,
+                });
+            }
+            else if (verifiedChanges.OfType<RejectedChange>().Any())
             {
                 Apply(new Messages.RoadNetworkChangesRejected
                 {

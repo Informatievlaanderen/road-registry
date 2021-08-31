@@ -1945,5 +1945,83 @@ namespace RoadRegistry.BackOffice.Scenarios
                 })
             );
         }
+
+        [Fact]
+        public Task when_no_modifications()
+        {
+            ModifyStartNode1.Type = new Generator<RoadNodeType>(Fixture)
+                .First(type => type != RoadNodeType.EndNode)
+                .ToString();
+            return Run(scenario => scenario
+                .Given(Organizations.ToStreamName(ChangedByOrganization),
+                    new ImportedOrganization
+                    {
+                        Code = ChangedByOrganization,
+                        Name = ChangedByOrganizationName,
+                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                    }
+                )
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                {
+                    RequestId = RequestId,
+                    Reason = ReasonForChange,
+                    Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization,
+                    Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
+                    Changes = new[]
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added,
+                            Problems = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added,
+                            Problems = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added,
+                            Problems = new Messages.Problem[0]
+                        },
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }, new RoadNetworkChangesAccepted
+                {
+                    RequestId = "test",
+                    Reason = ReasonForChange,
+                    Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization,
+                    Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
+                    Changes = new[]
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeModified = new RoadNodeModified()
+                            {
+                                Geometry = StartNode1Added.Geometry,
+                                Id = StartNode1Added.Id,
+                                Type = StartNode1Added.Type
+                            },
+                            Problems = new Messages.Problem[0]
+                        },
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization))
+                .Then(RoadNetworks.Stream, new NoRoadNetworkChanges
+                {
+                    RequestId = RequestId,
+                    Reason = ReasonForChange,
+                    Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization,
+                    Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(2),
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }));
+        }
     }
 }

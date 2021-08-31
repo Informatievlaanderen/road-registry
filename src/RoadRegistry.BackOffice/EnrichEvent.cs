@@ -42,6 +42,9 @@ namespace RoadRegistry.BackOffice
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
                     // Core
+                    case Messages.NoRoadNetworkChanges m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
+                        break;
                     case Messages.RoadNetworkChangesAccepted m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;

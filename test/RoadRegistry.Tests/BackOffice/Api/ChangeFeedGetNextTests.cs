@@ -256,6 +256,17 @@ namespace RoadRegistry.BackOffice.Api
                     }),
                     When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                 });
+                context.RoadNetworkChanges.Add(new RoadNetworkChange
+                {
+                    Id = 4,
+                    Title = "Geen wijzigingen in de oplading.",
+                    Type = nameof(NoRoadNetworkChanges),
+                    Content = JsonConvert.SerializeObject(new NoRoadNetworkChangesBasedOnArchiveEntry
+                    {
+                        Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" },
+                    }),
+                    When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
+                });
                 await context.SaveChangesAsync();
             }
 
@@ -288,6 +299,16 @@ namespace RoadRegistry.BackOffice.Api
                 // YR: Different versions of libicu use different casing
                 Assert.Equal("jan.", item2.Month.ToLowerInvariant());
                 Assert.Equal("01:00", item2.TimeOfDay);
+
+                var item3 = response.Entries[2];
+                Assert.NotNull(item3);
+                Assert.Equal(4, item3.Id);
+                Assert.Equal("Geen wijzigingen in de oplading.", item3.Title);
+                Assert.Equal(nameof(NoRoadNetworkChanges), item3.Type);
+                Assert.Equal("01", item3.Day);
+                // YR: Different versions of libicu use different casing
+                Assert.Equal("jan.", item3.Month.ToLowerInvariant());
+                Assert.Equal("01:00", item3.TimeOfDay);
             }
         }
     }
