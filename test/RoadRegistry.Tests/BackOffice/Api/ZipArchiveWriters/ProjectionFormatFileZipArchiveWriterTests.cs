@@ -6,6 +6,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice.Uploads;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
     using Xunit;
@@ -58,7 +59,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
                                 using (var entryStreamReader = new StreamReader(entryStream, Encoding.Default))
                                 {
                                     var result = entryStreamReader.ReadToEnd();
-                                    Assert.Equal(ProjectionFormatFileZipArchiveWriter<FakeDbContext>.StaticFileContents, result);
+                                    Assert.Equal(ProjectionFormat.Belge_Lambert_1972, result);
                                 }
                                 break;
 

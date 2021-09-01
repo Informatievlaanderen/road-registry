@@ -6,9 +6,12 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.IO.Compression;
     using System.Linq;
     using System.Text;
+    using System.Threading;
+    using Api.ZipArchiveWriters;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Core;
+    using Editor.Schema;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.Geometries.Implementation;
     using Schema;
@@ -63,7 +66,22 @@ namespace RoadRegistry.BackOffice.Uploads
 
                 Assert.Equal(
                     ZipArchiveProblems.Many(
-                        archive.Entries.Select(entry => entry.Name.EndsWith(".SHP") ? entry.HasNoShapeRecords() : entry.HasNoDbaseRecords(false))
+                        archive.Entries.Select
+                            (entry =>
+                            {
+                                var extension = Path.GetExtension(entry.Name);
+                                switch (extension)
+                                {
+                                    case ".SHP":
+                                        return entry.HasNoShapeRecords();
+                                    case ".DBF":
+                                        return entry.HasNoDbaseRecords(false);
+                                    case ".PRJ":
+                                        return entry.ProjectionFormatInvalid();
+                                }
+
+                                return null;
+                            })
                     ),
                     result);
             }
@@ -90,6 +108,15 @@ namespace RoadRegistry.BackOffice.Uploads
                         true)))
                 {
                     writer.Write(roadSegmentShapeChangeRecord);
+                }
+
+                var roadSegmentProjectionFormatStream = new MemoryStream();
+                using (var writer = new StreamWriter(
+                    roadSegmentProjectionFormatStream,
+                    Encoding.UTF8,
+                    leaveOpen: true))
+                {
+                    writer.Write(ProjectionFormat.Belge_Lambert_1972);
                 }
 
                 var roadSegmentChangeDbaseRecord = fixture.Create<RoadSegmentChangeDbaseRecord>();
@@ -221,6 +248,15 @@ namespace RoadRegistry.BackOffice.Uploads
                     writer.Write(roadNodeShapeChangeRecord);
                 }
 
+                var roadNodeProjectionFormatStream = new MemoryStream();
+                using (var writer = new StreamWriter(
+                    roadNodeProjectionFormatStream,
+                    Encoding.UTF8,
+                    leaveOpen: true))
+                {
+                    writer.Write(ProjectionFormat.Belge_Lambert_1972);
+                }
+
                 var roadNodeDbaseChangeStream = new MemoryStream();
                 using (var writer = new DbaseBinaryWriter(
                     new DbaseFileHeader(
@@ -269,8 +305,10 @@ namespace RoadRegistry.BackOffice.Uploads
                 var requiredFiles = new[]
                 {
                     "WEGSEGMENT_ALL.SHP",
+                    "WEGSEGMENT_ALL.PRJ",
                     "WEGSEGMENT_ALL.DBF",
                     "WEGKNOOP_ALL.SHP",
+                    "WEGKNOOP_ALL.PRJ",
                     "WEGKNOOP_ALL.DBF",
                     "ATTEUROPWEG_ALL.DBF",
                     "ATTGENUMWEG_ALL.DBF",
@@ -285,6 +323,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 for (var index = 0; index < requiredFiles.Length; index++)
                 {
                     roadSegmentShapeChangeStream.Position = 0;
+                    roadSegmentProjectionFormatStream.Position = 0;
                     roadSegmentDbaseChangeStream.Position = 0;
                     europeanRoadChangeStream.Position = 0;
                     nationalRoadChangeStream.Position = 0;
@@ -293,6 +332,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     widthChangeStream.Position = 0;
                     surfaceChangeStream.Position = 0;
                     roadNodeShapeChangeStream.Position = 0;
+                    roadNodeProjectionFormatStream.Position = 0;
                     roadNodeDbaseChangeStream.Position = 0;
                     gradeSeparatedJunctionChangeStream.Position = 0;
                     transactionZoneStream.Position = 0;
@@ -317,6 +357,21 @@ namespace RoadRegistry.BackOffice.Uploads
                                             createArchive.CreateEntry("WEGSEGMENT_ALL.SHP").Open())
                                         {
                                             roadSegmentShapeChangeStream.CopyTo(entryStream);
+                                        }
+                                    }
+
+                                    break;
+                                case "WEGSEGMENT_ALL.PRJ":
+                                    if (requiredFiles[index] == "WEGSEGMENT_ALL.PRJ")
+                                    {
+                                        errors = errors.RequiredFileMissing("WEGSEGMENT_ALL.PRJ");
+                                    }
+                                    else
+                                    {
+                                        using (var entryStream =
+                                            createArchive.CreateEntry("WEGSEGMENT_ALL.PRJ").Open())
+                                        {
+                                            roadSegmentProjectionFormatStream.CopyTo(entryStream);
                                         }
                                     }
 
@@ -347,6 +402,21 @@ namespace RoadRegistry.BackOffice.Uploads
                                             createArchive.CreateEntry("WEGKNOOP_ALL.SHP").Open())
                                         {
                                             roadNodeShapeChangeStream.CopyTo(entryStream);
+                                        }
+                                    }
+
+                                    break;
+                                case "WEGKNOOP_ALL.PRJ":
+                                    if (requiredFiles[index] == "WEGKNOOP_ALL.PRJ")
+                                    {
+                                        errors = errors.RequiredFileMissing("WEGKNOOP_ALL.PRJ");
+                                    }
+                                    else
+                                    {
+                                        using (var entryStream =
+                                            createArchive.CreateEntry("WEGKNOOP_ALL.PRJ").Open())
+                                        {
+                                            roadNodeProjectionFormatStream.CopyTo(entryStream);
                                         }
                                     }
 
@@ -758,6 +828,15 @@ namespace RoadRegistry.BackOffice.Uploads
                 writer.Write(new ShapeRecord[0]);
             }
 
+            var roadSegmentProjectionFormatStream = new MemoryStream();
+            using (var writer = new StreamWriter(
+                roadSegmentProjectionFormatStream,
+                Encoding.UTF8,
+                leaveOpen: true))
+            {
+                writer.Write(string.Empty);
+            }
+
             var roadSegmentDbaseChangeStream = new MemoryStream();
             using (var writer = new DbaseBinaryWriter(
                 new DbaseFileHeader(
@@ -877,6 +956,15 @@ namespace RoadRegistry.BackOffice.Uploads
                 writer.Write(new ShapeRecord[0]);
             }
 
+            var roadNodeProjectionFormatStream = new MemoryStream();
+            using (var writer = new StreamWriter(
+                roadNodeProjectionFormatStream,
+                Encoding.UTF8,
+                leaveOpen: true))
+            {
+                writer.Write(string.Empty);
+            }
+
             var roadNodeDbaseChangeStream = new MemoryStream();
             using (var writer = new DbaseBinaryWriter(
                 new DbaseFileHeader(
@@ -923,6 +1011,7 @@ namespace RoadRegistry.BackOffice.Uploads
             }
 
             roadSegmentShapeChangeStream.Position = 0;
+            roadSegmentProjectionFormatStream.Position = 0;
             roadSegmentDbaseChangeStream.Position = 0;
             europeanRoadChangeStream.Position = 0;
             nationalRoadChangeStream.Position = 0;
@@ -931,6 +1020,7 @@ namespace RoadRegistry.BackOffice.Uploads
             widthChangeStream.Position = 0;
             surfaceChangeStream.Position = 0;
             roadNodeShapeChangeStream.Position = 0;
+            roadNodeProjectionFormatStream.Position = 0;
             roadNodeDbaseChangeStream.Position = 0;
             gradeSeparatedJunctionChangeStream.Position = 0;
             transactionZoneStream.Position = 0;
@@ -957,6 +1047,13 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     roadNodeShapeChangeStream.CopyTo(entryStream);
                 }
+
+                using (var entryStream =
+                    createArchive.CreateEntry("WEGKNOOP_ALL.PRJ").Open())
+                {
+                    roadNodeProjectionFormatStream.CopyTo(entryStream);
+                }
+
 
                 using (var entryStream =
                     createArchive.CreateEntry("WEGSEGMENT_ALL.DBF").Open())
@@ -986,6 +1083,12 @@ namespace RoadRegistry.BackOffice.Uploads
                     createArchive.CreateEntry("WEGSEGMENT_ALL.SHP").Open())
                 {
                     roadSegmentShapeChangeStream.CopyTo(entryStream);
+                }
+
+                using (var entryStream =
+                    createArchive.CreateEntry("WEGSEGMENT_ALL.PRJ").Open())
+                {
+                    roadSegmentProjectionFormatStream.CopyTo(entryStream);
                 }
 
                 using (var entryStream =
