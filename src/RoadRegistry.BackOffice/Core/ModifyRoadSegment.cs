@@ -346,6 +346,18 @@ namespace RoadRegistry.BackOffice.Core
                 }
             }
 
+            var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal).Segments
+                .Where(pair => pair.Value.Geometry.Intersects(Geometry));
+
+            var doAllIntersectingSegmentsHaveJunctions = intersectingSegments.All(intersectingSegment =>
+                context.AfterView.GradeSeparatedJunctions.Any(junction =>
+                    (junction.Value.LowerSegment == Id && junction.Value.UpperSegment == intersectingSegment.Key) ||
+                    (junction.Value.LowerSegment == intersectingSegment.Key && junction.Value.UpperSegment == Id)));
+            if (!doAllIntersectingSegmentsHaveJunctions)
+            {
+                problems = problems.Add(new IntersectingRoadSegmentsDoNotHaveGradeSepagratedJunction());
+            }
+
             return problems;
         }
 
