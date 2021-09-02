@@ -1,3 +1,10 @@
+# [1.52.0](https://github.com/informatievlaanderen/road-registry/compare/v1.51.3...v1.52.0) (2021-09-02)
+
+
+### Features
+
+* check missing prj files ([#313](https://github.com/informatievlaanderen/road-registry/issues/313)) ([a2200a9](https://github.com/informatievlaanderen/road-registry/commit/a2200a97f0e06eb123fefaa38e3ed021ce512eb3))
+
 ## [1.51.3](https://github.com/informatievlaanderen/road-registry/compare/v1.51.2...v1.51.3) (2021-08-30)
 
 
