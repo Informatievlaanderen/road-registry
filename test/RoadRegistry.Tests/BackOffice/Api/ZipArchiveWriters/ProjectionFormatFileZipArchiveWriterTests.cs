@@ -59,7 +59,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
                                 using (var entryStreamReader = new StreamReader(entryStream, Encoding.Default))
                                 {
                                     var result = entryStreamReader.ReadToEnd();
-                                    Assert.Equal(ProjectionFormat.Belge_Lambert_1972, result);
+                                    Assert.Equal(ProjectionFormat.BelgeLambert1972.Content, result);
                                 }
                                 break;
 

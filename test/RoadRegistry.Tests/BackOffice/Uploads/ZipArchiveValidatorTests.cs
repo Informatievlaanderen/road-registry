@@ -116,7 +116,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     Encoding.UTF8,
                     leaveOpen: true))
                 {
-                    writer.Write(ProjectionFormat.Belge_Lambert_1972);
+                    writer.Write(ProjectionFormat.BelgeLambert1972);
                 }
 
                 var roadSegmentChangeDbaseRecord = fixture.Create<RoadSegmentChangeDbaseRecord>();
@@ -254,7 +254,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     Encoding.UTF8,
                     leaveOpen: true))
                 {
-                    writer.Write(ProjectionFormat.Belge_Lambert_1972);
+                    writer.Write(ProjectionFormat.BelgeLambert1972);
                 }
 
                 var roadNodeDbaseChangeStream = new MemoryStream();

@@ -27,7 +27,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
             using (var prjEntryStream = prjEntry.Open())
             using (var prjEntryStreamWriter = new StreamWriter(prjEntryStream, _encoding))
             {
-                await prjEntryStreamWriter.WriteAsync(ProjectionFormat.Belge_Lambert_1972);
+                await prjEntryStreamWriter.WriteAsync(ProjectionFormat.BelgeLambert1972.Content);
                 await prjEntryStreamWriter.FlushAsync();
             }
         }
