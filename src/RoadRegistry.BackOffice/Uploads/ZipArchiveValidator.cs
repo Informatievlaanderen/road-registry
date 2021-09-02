@@ -28,6 +28,12 @@ namespace RoadRegistry.BackOffice.Uploads
                         )
                     },
                     {
+                        "WEGKNOOP_ALL.PRJ",
+                        new ZipArchiveProjectionFormatEntryValidator(
+                            encoding
+                        )
+                    },
+                    {
                         "WEGKNOOP_ALL.DBF",
                         new ZipArchiveDbaseEntryValidator<RoadNodeChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
@@ -40,6 +46,12 @@ namespace RoadRegistry.BackOffice.Uploads
                         new ZipArchiveShapeEntryValidator(
                             encoding,
                             new RoadSegmentChangeShapeRecordsValidator()
+                        )
+                    },
+                    {
+                        "WEGSEGMENT_ALL.PRJ",
+                        new ZipArchiveProjectionFormatEntryValidator(
+                            encoding
                         )
                     },
                     {
@@ -120,11 +132,13 @@ namespace RoadRegistry.BackOffice.Uploads
             "TRANSACTIEZONES.DBF",
             "WEGKNOOP_ALL.DBF",
             "WEGKNOOP_ALL.SHP",
+            "WEGKNOOP_ALL.PRJ",
             "WEGSEGMENT_ALL.DBF",
             "ATTRIJSTROKEN_ALL.DBF",
             "ATTWEGBREEDTE_ALL.DBF",
             "ATTWEGVERHARDING_ALL.DBF",
             "WEGSEGMENT_ALL.SHP",
+            "WEGSEGMENT_ALL.PRJ",
             "ATTEUROPWEG_ALL.DBF",
             "ATTNATIONWEG_ALL.DBF",
             "ATTGENUMWEG_ALL.DBF",
