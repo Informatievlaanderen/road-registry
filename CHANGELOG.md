@@ -1,3 +1,10 @@
+## [1.52.1](https://github.com/informatievlaanderen/road-registry/compare/v1.52.0...v1.52.1) (2021-09-07)
+
+
+### Bug Fixes
+
+* add translation for incorrect projection format ([9b0be45](https://github.com/informatievlaanderen/road-registry/commit/9b0be45886aa1de3361000ecc0ef183db1a2bbbf))
+
 # [1.52.0](https://github.com/informatievlaanderen/road-registry/compare/v1.51.3...v1.52.0) (2021-09-02)
 
 
