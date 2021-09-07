@@ -5150,6 +5150,236 @@ namespace RoadRegistry.BackOffice.Scenarios
         }
 
         [Fact]
+        public Task when_adding_a_segment_that_intersects_without_grade_separated_junction()
+        {
+            Segment1Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
+            {
+                new NetTopologySuite.Geometries.LineString(
+                    new CoordinateArraySequence(new Coordinate[] {new CoordinateM(0.0, 0.0), new CoordinateM(50.0, 50.0)}),
+                    GeometryConfiguration.GeometryFactory)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                }
+            }));
+            Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
+            Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
+            Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
+
+            var startPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 50.0, 0.0));
+            var endPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(50.0, 0.0, 70.71067));
+            AddSegment2.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
+            {
+                new NetTopologySuite.Geometries.LineString(
+                    new CoordinateArraySequence(new[] {startPoint2.Coordinate, endPoint2.Coordinate}),
+                    GeometryConfiguration.GeometryFactory)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                }
+            })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            });
+            AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
+            AddSegment2.Widths = new RequestedRoadSegmentWidthAttribute[0];
+            AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
+            AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint2);
+            AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint2);
+
+            return Run(scenario => scenario
+                .Given(Organizations.ToStreamName(ChangedByOrganization),
+                    new ImportedOrganization
+                    {
+                        Code = ChangedByOrganization,
+                        Name = ChangedByOrganizationName,
+                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                    }
+                )
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                {
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    Changes = new []
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added
+                        }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                    new RequestedChange
+                    {
+                        AddRoadNode = AddStartNode2
+                    },
+                    new RequestedChange
+                    {
+                        AddRoadNode = AddEndNode2
+                    },
+                    new RequestedChange
+                    {
+                        AddRoadSegment = AddSegment2
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+                {
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange()
+                        {
+                            AddRoadSegment = AddSegment2,
+                            Problems = new []
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "modifiedRoadSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "intersectingRoadSegmentId",
+                                            Value = Segment1Added.Id.ToString()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }));
+        }
+
+        [Fact]
+        public Task when_modifying_a_segment_that_intersects_without_grade_separated_junction()
+        {
+            Segment1Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
+            {
+                new NetTopologySuite.Geometries.LineString(
+                    new CoordinateArraySequence(new Coordinate[] {new CoordinateM(0.0, 0.0), new CoordinateM(50.0, 50.0)}),
+                    GeometryConfiguration.GeometryFactory)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                }
+            }));
+            Segment1Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
+            Segment1Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
+            Segment1Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
+
+            var startPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(0.0, 50.0, 0.0));
+            var endPoint2 = new NetTopologySuite.Geometries.Point(new CoordinateM(50.0, 0.0, 70.71067));
+            AddSegment2.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
+            {
+                new NetTopologySuite.Geometries.LineString(
+                    new CoordinateArraySequence(new[] {startPoint2.Coordinate, endPoint2.Coordinate}),
+                    GeometryConfiguration.GeometryFactory)
+                {
+                    SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+                }
+            })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            });
+            AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
+            AddSegment2.Widths = new RequestedRoadSegmentWidthAttribute[0];
+            AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
+            AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint2);
+            AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint2);
+
+            return Run(scenario => scenario
+                .Given(Organizations.ToStreamName(ChangedByOrganization),
+                    new ImportedOrganization
+                    {
+                        Code = ChangedByOrganization,
+                        Name = ChangedByOrganizationName,
+                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                    }
+                )
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                {
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    Changes = new []
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added
+                        }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                    new RequestedChange
+                    {
+                        AddRoadNode = AddStartNode2
+                    },
+                    new RequestedChange
+                    {
+                        AddRoadNode = AddEndNode2
+                    },
+                    new RequestedChange
+                    {
+                        AddRoadSegment = AddSegment2
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+                {
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
+                    Changes = new []
+                    {
+                        new Messages.RejectedChange()
+                        {
+                            AddRoadSegment = AddSegment2,
+                            Problems = new []
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "modifiedRoadSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "intersectingRoadSegmentId",
+                                            Value = Segment1Added.Id.ToString()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }));
+        }
+
+        [Fact]
         public Task when_adding_a_grade_separated_junction_with_a_missing_upper_segment()
         {
             var addGradeSeparatedJunction = new Messages.AddGradeSeparatedJunction
