@@ -1,3 +1,24 @@
+## [1.52.1](https://github.com/informatievlaanderen/road-registry/compare/v1.52.0...v1.52.1) (2021-09-07)
+
+
+### Bug Fixes
+
+* add translation for incorrect projection format ([9b0be45](https://github.com/informatievlaanderen/road-registry/commit/9b0be45886aa1de3361000ecc0ef183db1a2bbbf))
+
+# [1.52.0](https://github.com/informatievlaanderen/road-registry/compare/v1.51.3...v1.52.0) (2021-09-02)
+
+
+### Features
+
+* check missing prj files ([#313](https://github.com/informatievlaanderen/road-registry/issues/313)) ([a2200a9](https://github.com/informatievlaanderen/road-registry/commit/a2200a97f0e06eb123fefaa38e3ed021ce512eb3))
+
+## [1.51.3](https://github.com/informatievlaanderen/road-registry/compare/v1.51.2...v1.51.3) (2021-08-30)
+
+
+### Bug Fixes
+
+* beschrijv field of transactionzones no longer allows empty strings ([0308e66](https://github.com/informatievlaanderen/road-registry/commit/0308e66f5c372e02871497d2010dd7a186985b7d))
+
 ## [1.51.2](https://github.com/informatievlaanderen/road-registry/compare/v1.51.1...v1.51.2) (2021-08-19)
 
 

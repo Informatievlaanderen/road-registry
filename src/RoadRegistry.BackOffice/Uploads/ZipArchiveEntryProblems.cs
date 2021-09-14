@@ -198,5 +198,12 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             return new FileProblemBuilder(entry.Name).HasShapeRecordFormatError(exception);
         }
+
+        // projection format
+
+        public static FileError ProjectionFormatInvalid(this ZipArchiveEntry entry)
+        {
+            return new FileProblemBuilder(entry.Name).ProjectionFormatInvalid();
+        }
     }
 }

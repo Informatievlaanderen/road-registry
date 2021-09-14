@@ -16,6 +16,10 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         translation = "Het bestand ontbreekt in het archief.";
                         break;
 
+                    case nameof(ProjectionFormatFileProblems.ProjectionFormatInvalid):
+                        translation = "Projectie formaat is niet 'Belge_Lambert_1972'.";
+                        break;
+
                     case nameof(DbaseFileProblems.HasNoDbaseRecords):
                         translation = "Het bestand bevat geen rijen.";
                         break;
