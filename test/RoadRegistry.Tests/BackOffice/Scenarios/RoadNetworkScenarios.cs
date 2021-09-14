@@ -1614,6 +1614,14 @@ namespace RoadRegistry.BackOffice.Scenarios
             EndNode2Added.Id = 3;
             Segment2Added.EndNodeId = EndNode2Added.Id;
 
+            var addGradeSeparatedJunction = new Messages.AddGradeSeparatedJunction
+            {
+                TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
+                Type = Fixture.Create<GradeSeparatedJunctionType>(),
+                UpperSegmentId = Segment1Added.Id,
+                LowerSegmentId = Segment2Added.Id
+            };
+
             AddSegment2.Status = AddSegment1.Status;
             Segment2Added.Status = AddSegment1.Status;
             AddSegment2.Morphology = AddSegment1.Morphology;
@@ -1698,6 +1706,10 @@ namespace RoadRegistry.BackOffice.Scenarios
                     new RequestedChange
                     {
                         AddRoadSegment = AddSegment2
+                    },
+                    new RequestedChange
+                    {
+                        AddGradeSeparatedJunction = addGradeSeparatedJunction
                     }
                 ))
                 .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
@@ -1729,6 +1741,18 @@ namespace RoadRegistry.BackOffice.Scenarios
                         new Messages.AcceptedChange
                         {
                             RoadSegmentAdded = Segment2Added,
+                            Problems = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            GradeSeparatedJunctionAdded = new GradeSeparatedJunctionAdded
+                            {
+                                Id = 1,
+                                TemporaryId = addGradeSeparatedJunction.TemporaryId,
+                                UpperRoadSegmentId = Segment1Added.Id,
+                                LowerRoadSegmentId = Segment2Added.Id,
+                                Type = addGradeSeparatedJunction.Type
+                            },
                             Problems = new Messages.Problem[0]
                         }
                     },
@@ -2797,6 +2821,30 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     }
                                 }
                             }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment2,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "modifiedRoadSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "intersectingRoadSegmentId",
+                                            Value = Segment1Added.Id.ToString()
+                                        },
+                                    }
+                                }
+                            }
                         }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -2913,7 +2961,32 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     }
                                 }
                             }
+                        },
+                        new Messages.RejectedChange
+                        {
+                            AddRoadSegment = AddSegment2,
+                            Problems = new[]
+                            {
+                                new Messages.Problem
+                                {
+                                    Reason = "IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction",
+                                    Parameters = new []
+                                    {
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "modifiedRoadSegmentId",
+                                            Value = AddSegment2.TemporaryId.ToString()
+                                        },
+                                        new Messages.ProblemParameter
+                                        {
+                                            Name = "intersectingRoadSegmentId",
+                                            Value = Segment1Added.Id.ToString()
+                                        },
+                                    }
+                                }
+                            }
                         }
+
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
@@ -3003,34 +3076,39 @@ namespace RoadRegistry.BackOffice.Scenarios
         [Fact]
         public Task when_adding_a_start_node_that_is_within_two_meters_of_another_segment()
         {
-            var random = new Random();
-            var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(
-                StartPoint1.X + random.Next(1, 1000) / 1000.0 * Distances.TooClose,
-                StartPoint1.Y + random.Next(1, 1000) / 1000.0 * Distances.TooClose
-            )) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()};
             AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
             Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
             AddSegment2.Widths = new RequestedRoadSegmentWidthAttribute[0];
             Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
             AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
             Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(
-                    new []
-                    {
-                        new NetTopologySuite.Geometries.LineString(
-                            new CoordinateArraySequence(new Coordinate[]
-                            {
-                                new CoordinateM(startPoint.X, startPoint.Y, 0.0),
-                                new CoordinateM(MiddlePoint2.X, MiddlePoint2.Y, startPoint.Distance(MiddlePoint2)),
-                                new CoordinateM(EndPoint2.X, EndPoint2.Y,
-                                    startPoint.Distance(MiddlePoint2) + MiddlePoint2.Distance(EndPoint2))
-                            }),
-                            GeometryConfiguration.GeometryFactory
-                        )
-                    }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
-            );
-            AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint);
+
+            do
+            {
+                var random = new Random();
+                var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(
+                    StartPoint1.X + random.Next(1, 1000) / 1000.0 * Distances.TooClose,
+                    StartPoint1.Y + random.Next(1, 1000) / 1000.0 * Distances.TooClose
+                )) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()};
+                AddSegment2.Geometry = GeometryTranslator.Translate(
+                    new MultiLineString(
+                        new[]
+                        {
+                            new NetTopologySuite.Geometries.LineString(
+                                new CoordinateArraySequence(new Coordinate[]
+                                {
+                                    new CoordinateM(startPoint.X, startPoint.Y, 0.0),
+                                    new CoordinateM(MiddlePoint2.X, MiddlePoint2.Y, startPoint.Distance(MiddlePoint2)),
+                                    new CoordinateM(EndPoint2.X, EndPoint2.Y,
+                                        startPoint.Distance(MiddlePoint2) + MiddlePoint2.Distance(EndPoint2))
+                                }),
+                                GeometryConfiguration.GeometryFactory
+                            )
+                        }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
+                );
+                AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint);
+            } while (GeometryTranslator.Translate(Segment1Added.Geometry).Intersects(GeometryTranslator.Translate(AddSegment2.Geometry)));
+
             return Run(scenario => scenario
                 .Given(Organizations.ToStreamName(ChangedByOrganization),
                     new ImportedOrganization
