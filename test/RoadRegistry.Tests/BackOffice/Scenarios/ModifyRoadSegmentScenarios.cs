@@ -397,5 +397,397 @@ namespace RoadRegistry.BackOffice.Scenarios
                     })
                 );
         }
+
+        [Fact]
+        public Task modify_segment_that_intersects_without_grade_separated_junction()
+        {
+            var pointA = new NetTopologySuite.Geometries.Point(new NetTopologySuite.Geometries.CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var nodeA = Fixture.Create<RoadNodeId>();
+            var pointB = new NetTopologySuite.Geometries.Point(new NetTopologySuite.Geometries.CoordinateM(10.0, 0.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var nodeB = Fixture.Create<RoadNodeId>();
+            var pointC = new NetTopologySuite.Geometries.Point(new NetTopologySuite.Geometries.CoordinateM(0.0, 10.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var nodeC = Fixture.Create<RoadNodeId>();
+            var pointD = new NetTopologySuite.Geometries.Point(new NetTopologySuite.Geometries.CoordinateM(10.0, 10.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var nodeD = Fixture.Create<RoadNodeId>();
+            var pointCModified = new NetTopologySuite.Geometries.Point(new NetTopologySuite.Geometries.CoordinateM(5.0, 10.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var pointDModified = new NetTopologySuite.Geometries.Point(new NetTopologySuite.Geometries.CoordinateM(5.0, -10.0, 20.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var segment1 = Fixture.Create<RoadSegmentId>();
+            var segment2 = Fixture.Create<RoadSegmentId>();
+            var line1 = new NetTopologySuite.Geometries.MultiLineString(
+                new []
+                {
+                    new NetTopologySuite.Geometries.LineString(
+                        new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(new [] { pointA.Coordinate, pointB.Coordinate }),
+                        Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory
+                    )
+                }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var line2Before = new NetTopologySuite.Geometries.MultiLineString(
+                new []
+                {
+                    new NetTopologySuite.Geometries.LineString(
+                        new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(new [] { pointC.Coordinate, pointD.Coordinate }),
+                        Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory
+                    )
+                }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            var line2After = new NetTopologySuite.Geometries.MultiLineString(
+                new []
+                {
+                    new NetTopologySuite.Geometries.LineString(
+                        new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(new [] { pointCModified.Coordinate, pointDModified.Coordinate }),
+                        Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory
+                    )
+                }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+
+            var count = 3;
+
+            var modifyRoadSegment = new Messages.ModifyRoadSegment
+            {
+                Id = segment2,
+                StartNodeId = nodeC,
+                EndNodeId = nodeD,
+                Geometry = GeometryTranslator.Translate(line2After),
+                AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
+                Category = Fixture.Create<RoadSegmentCategory>(),
+                Morphology = Fixture.Create<RoadSegmentMorphology>(),
+                Status = Fixture.Create<RoadSegmentStatus>(),
+                GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                LeftSideStreetNameId = Fixture.Create<CrabStreetnameId?>(),
+                RightSideStreetNameId = Fixture.Create<CrabStreetnameId?>(),
+                MaintenanceAuthority = ChangedByOrganization,
+                Lanes = Fixture
+                    .CreateMany<Messages.RequestedRoadSegmentLaneAttribute>(count)
+                    .Select((part, index) =>
+                    {
+                        part.FromPosition = index * (Convert.ToDecimal(line2After.Length) / count);
+                        if (index == count - 1)
+                        {
+                            part.ToPosition = Convert.ToDecimal(line2After.Length);
+                        }
+                        else
+                        {
+                            part.ToPosition = (index + 1) * (Convert.ToDecimal(line2After.Length) / count);
+                        }
+
+                        return part;
+                    })
+                    .ToArray(),
+                Widths = Fixture
+                    .CreateMany<Messages.RequestedRoadSegmentWidthAttribute>(3)
+                    .Select((part, index) =>
+                    {
+                        part.FromPosition = index * (Convert.ToDecimal(line2After.Length) / count);
+                        if (index == count - 1)
+                        {
+                            part.ToPosition = Convert.ToDecimal(line2After.Length);
+                        }
+                        else
+                        {
+                            part.ToPosition = (index + 1) * (Convert.ToDecimal(line2After.Length) / count);
+                        }
+
+                        return part;
+                    })
+                    .ToArray(),
+                Surfaces = Fixture
+                    .CreateMany<Messages.RequestedRoadSegmentSurfaceAttribute>(3)
+                    .Select((part, index) =>
+                    {
+                        part.FromPosition = index * (Convert.ToDecimal(line2After.Length) / count);
+                        if (index == count - 1)
+                        {
+                            part.ToPosition = Convert.ToDecimal(line2After.Length);
+                        }
+                        else
+                        {
+                            part.ToPosition = (index + 1) * (Convert.ToDecimal(line2After.Length) / count);
+                        }
+
+                        return part;
+                    })
+                    .ToArray()
+            };
+
+            return Run(scenario =>
+                scenario
+                    .Given(Organizations.ToStreamName(ChangedByOrganization),
+                        new Messages.ImportedOrganization
+                        {
+                            Code = ChangedByOrganization,
+                            Name = ChangedByOrganizationName,
+                            When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                        }
+                    )
+                    .Given(RoadNetworks.Stream, new Messages.RoadNetworkChangesAccepted
+                        {
+                            RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
+                            OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                            TransactionId = new TransactionId(1),
+                            Changes = new[]
+                            {
+                                new Messages.AcceptedChange
+                                {
+                                    RoadNodeAdded = new Messages.RoadNodeAdded
+                                    {
+                                        Id = nodeA,
+                                        TemporaryId = Fixture.Create<RoadNodeId>(),
+                                        Geometry = GeometryTranslator.Translate(pointA),
+                                        Type = RoadNodeType.EndNode
+                                    }, Problems = new Messages.Problem[0]
+                                },
+                                new Messages.AcceptedChange
+                                {
+                                    RoadNodeAdded = new Messages.RoadNodeAdded
+                                    {
+                                        Id = nodeB,
+                                        TemporaryId = Fixture.Create<RoadNodeId>(),
+                                        Geometry = GeometryTranslator.Translate(pointB),
+                                        Type = RoadNodeType.EndNode
+                                    }, Problems = new Messages.Problem[0]
+                                },
+                                new Messages.AcceptedChange
+                                {
+                                    RoadSegmentAdded = new Messages.RoadSegmentAdded
+                                    {
+                                        Id = segment1,
+                                        TemporaryId = Fixture.Create<RoadSegmentId>(),
+                                        Version = Fixture.Create<int>(),
+                                        StartNodeId = nodeA,
+                                        EndNodeId = nodeB,
+                                        AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
+                                        Category = Fixture.Create<RoadSegmentCategory>(),
+                                        Morphology = Fixture.Create<RoadSegmentMorphology>(),
+                                        Status = Fixture.Create<RoadSegmentStatus>(),
+                                        GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                                        Geometry = GeometryTranslator.Translate(line1),
+                                        GeometryVersion = Fixture.Create<GeometryVersion>(),
+                                        MaintenanceAuthority = new Messages.MaintenanceAuthority
+                                        {
+                                            Code = Fixture.Create<OrganizationId>(),
+                                            Name = Fixture.Create<OrganizationName>()
+                                        },
+                                        LeftSide = new Messages.RoadSegmentSideAttributes
+                                        {
+                                            StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                                        },
+                                        RightSide = new Messages.RoadSegmentSideAttributes
+                                        {
+                                            StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                                        },
+                                        Lanes = Fixture
+                                            .CreateMany<Messages.RoadSegmentLaneAttributes>(count)
+                                            .Select((part, index) =>
+                                            {
+                                                part.FromPosition = index * (Convert.ToDecimal(line1.Length) / count);
+                                                if (index == count - 1)
+                                                {
+                                                    part.ToPosition = Convert.ToDecimal(line1.Length);
+                                                }
+                                                else
+                                                {
+                                                    part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
+                                                }
+
+                                                return part;
+                                            })
+                                            .ToArray(),
+                                        Widths = Fixture
+                                            .CreateMany<Messages.RoadSegmentWidthAttributes>(3)
+                                            .Select((part, index) =>
+                                            {
+                                                part.FromPosition = index * (Convert.ToDecimal(line1.Length) / count);
+                                                if (index == count - 1)
+                                                {
+                                                    part.ToPosition = Convert.ToDecimal(line1.Length);
+                                                }
+                                                else
+                                                {
+                                                    part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
+                                                }
+
+                                                return part;
+                                            })
+                                            .ToArray(),
+                                        Surfaces = Fixture
+                                            .CreateMany<Messages.RoadSegmentSurfaceAttributes>(3)
+                                            .Select((part, index) =>
+                                            {
+                                                part.FromPosition = index * (Convert.ToDecimal(line1.Length) / count);
+                                                if (index == count - 1)
+                                                {
+                                                    part.ToPosition = Convert.ToDecimal(line1.Length);
+                                                }
+                                                else
+                                                {
+                                                    part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
+                                                }
+
+                                                return part;
+                                            })
+                                            .ToArray()
+                                    }, Problems = new Messages.Problem[0]
+                                },
+                                new Messages.AcceptedChange
+                                {
+                                    RoadNodeAdded = new Messages.RoadNodeAdded
+                                    {
+                                        Id = nodeC,
+                                        TemporaryId = Fixture.Create<RoadNodeId>(),
+                                        Geometry = GeometryTranslator.Translate(pointC),
+                                        Type = RoadNodeType.EndNode
+                                    }, Problems = new Messages.Problem[0]
+                                },
+                                new Messages.AcceptedChange
+                                {
+                                    RoadNodeAdded = new Messages.RoadNodeAdded
+                                    {
+                                        Id = nodeD,
+                                        TemporaryId = Fixture.Create<RoadNodeId>(),
+                                        Geometry = GeometryTranslator.Translate(pointD),
+                                        Type = RoadNodeType.EndNode
+                                    }, Problems = new Messages.Problem[0]
+                                },
+                                new Messages.AcceptedChange
+                                {
+                                    RoadSegmentAdded = new Messages.RoadSegmentAdded
+                                    {
+                                        Id = segment2,
+                                        TemporaryId = Fixture.Create<RoadSegmentId>(),
+                                        Version = Fixture.Create<int>(),
+                                        StartNodeId = nodeC,
+                                        EndNodeId = nodeD,
+                                        AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
+                                        Category = Fixture.Create<RoadSegmentCategory>(),
+                                        Morphology = Fixture.Create<RoadSegmentMorphology>(),
+                                        Status = Fixture.Create<RoadSegmentStatus>(),
+                                        GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                                        Geometry = GeometryTranslator.Translate(line1),
+                                        GeometryVersion = Fixture.Create<GeometryVersion>(),
+                                        MaintenanceAuthority = new Messages.MaintenanceAuthority
+                                        {
+                                            Code = Fixture.Create<OrganizationId>(),
+                                            Name = Fixture.Create<OrganizationName>()
+                                        },
+                                        LeftSide = new Messages.RoadSegmentSideAttributes
+                                        {
+                                            StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                                        },
+                                        RightSide = new Messages.RoadSegmentSideAttributes
+                                        {
+                                            StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                                        },
+                                        Lanes = Fixture
+                                            .CreateMany<Messages.RoadSegmentLaneAttributes>(count)
+                                            .Select((part, index) =>
+                                            {
+                                                part.FromPosition = index * (Convert.ToDecimal(line2Before.Length) / count);
+                                                if (index == count - 1)
+                                                {
+                                                    part.ToPosition = Convert.ToDecimal(line2Before.Length);
+                                                }
+                                                else
+                                                {
+                                                    part.ToPosition = (index + 1) * (Convert.ToDecimal(line2Before.Length) / count);
+                                                }
+
+                                                return part;
+                                            })
+                                            .ToArray(),
+                                        Widths = Fixture
+                                            .CreateMany<Messages.RoadSegmentWidthAttributes>(3)
+                                            .Select((part, index) =>
+                                            {
+                                                part.FromPosition = index * (Convert.ToDecimal(line2Before.Length) / count);
+                                                if (index == count - 1)
+                                                {
+                                                    part.ToPosition = Convert.ToDecimal(line2Before.Length);
+                                                }
+                                                else
+                                                {
+                                                    part.ToPosition = (index + 1) * (Convert.ToDecimal(line2Before.Length) / count);
+                                                }
+
+                                                return part;
+                                            })
+                                            .ToArray(),
+                                        Surfaces = Fixture
+                                            .CreateMany<Messages.RoadSegmentSurfaceAttributes>(3)
+                                            .Select((part, index) =>
+                                            {
+                                                part.FromPosition = index * (Convert.ToDecimal(line2Before.Length) / count);
+                                                if (index == count - 1)
+                                                {
+                                                    part.ToPosition = Convert.ToDecimal(line2Before.Length);
+                                                }
+                                                else
+                                                {
+                                                    part.ToPosition = (index + 1) * (Convert.ToDecimal(line2Before.Length) / count);
+                                                }
+
+                                                return part;
+                                            })
+                                            .ToArray()
+                                    }, Problems = new Messages.Problem[0]
+                                }
+                            }
+                        })
+                    .When(TheOperator.ChangesTheRoadNetwork(
+                        RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                        new Messages.RequestedChange
+                        {
+                            ModifyRoadNode = new Messages.ModifyRoadNode
+                            {
+                                Id = nodeC,
+                                Geometry = GeometryTranslator.Translate(pointCModified),
+                                Type = RoadNodeType.EndNode
+                            }
+                        },
+                        new Messages.RequestedChange
+                        {
+                            ModifyRoadNode = new Messages.ModifyRoadNode
+                            {
+                                Id = nodeD,
+                                Geometry = GeometryTranslator.Translate(pointDModified),
+                                Type = RoadNodeType.EndNode
+                            }
+                        },
+                        new Messages.RequestedChange
+                        {
+                            ModifyRoadSegment = modifyRoadSegment
+                        }))
+                    .Then(RoadNetworks.Stream, new Messages.RoadNetworkChangesRejected
+                    {
+                        RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                        TransactionId = new TransactionId(2),
+                        Changes = new[]
+                        {
+                            new Messages.RejectedChange
+                            {
+                                ModifyRoadSegment = modifyRoadSegment,
+                                Problems = new []
+                                {
+                                    new Messages.Problem
+                                    {
+                                        Reason = nameof(IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction),
+                                        Parameters = new []
+                                        {
+                                            new Messages.ProblemParameter
+                                            {
+                                               Name = "modifiedRoadSegmentId",
+                                               Value = modifyRoadSegment.Id.ToString()
+                                            },
+                                            new Messages.ProblemParameter
+                                            {
+                                               Name = "intersectingRoadSegmentId",
+                                               Value = segment1.ToInt32().ToString()
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                        },
+                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                    })
+                );
+        }
     }
 }
