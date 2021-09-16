@@ -1,3 +1,10 @@
+# [1.53.0](https://github.com/informatievlaanderen/road-registry/compare/v1.52.1...v1.53.0) (2021-09-16)
+
+
+### Features
+
+* Wr 243/intersecting road segment check ([#317](https://github.com/informatievlaanderen/road-registry/issues/317)) ([ebb8ba7](https://github.com/informatievlaanderen/road-registry/commit/ebb8ba7b7bd970e9a2bf3dc85c700e63a5cb1257))
+
 ## [1.52.1](https://github.com/informatievlaanderen/road-registry/compare/v1.52.0...v1.52.1) (2021-09-07)
 
 
