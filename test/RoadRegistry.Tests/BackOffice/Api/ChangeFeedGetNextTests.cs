@@ -201,7 +201,7 @@ namespace RoadRegistry.BackOffice.Api
                     {
                         Request =
                         {
-                            QueryString = new QueryString("?afterEntry=1&maxEntryCount=2")
+                            QueryString = new QueryString("?afterEntry=1&maxEntryCount=3")
                         }
                     }
                 }};
@@ -278,13 +278,13 @@ namespace RoadRegistry.BackOffice.Api
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
                 var response = Assert.IsType<ChangeFeedResponse>(jsonResult.Value);
 
-                Assert.Equal(2, response.Entries.Length);
+                Assert.Equal(3, response.Entries.Length);
 
                 var item1 = response.Entries[0];
                 Assert.NotNull(item1);
-                Assert.Equal(3, item1.Id);
-                Assert.Equal("De oplading werd geweigerd.", item1.Title);
-                Assert.Equal(nameof(RoadNetworkChangesRejected), item1.Type);
+                Assert.Equal(4, item1.Id);
+                Assert.Equal("Geen wijzigingen in de oplading.", item1.Title);
+                Assert.Equal(nameof(NoRoadNetworkChanges), item1.Type);
                 Assert.Equal("01", item1.Day);
                 // YR: Different versions of libicu use different casing
                 Assert.Equal("jan.", item1.Month.ToLowerInvariant());
@@ -292,9 +292,9 @@ namespace RoadRegistry.BackOffice.Api
 
                 var item2 = response.Entries[1];
                 Assert.NotNull(item2);
-                Assert.Equal(2, item2.Id);
-                Assert.Equal("De oplading werd geaccepteerd.", item2.Title);
-                Assert.Equal(nameof(RoadNetworkChangesAccepted), item2.Type);
+                Assert.Equal(3, item2.Id);
+                Assert.Equal("De oplading werd geweigerd.", item2.Title);
+                Assert.Equal(nameof(RoadNetworkChangesRejected), item2.Type);
                 Assert.Equal("01", item2.Day);
                 // YR: Different versions of libicu use different casing
                 Assert.Equal("jan.", item2.Month.ToLowerInvariant());
@@ -302,9 +302,9 @@ namespace RoadRegistry.BackOffice.Api
 
                 var item3 = response.Entries[2];
                 Assert.NotNull(item3);
-                Assert.Equal(4, item3.Id);
-                Assert.Equal("Geen wijzigingen in de oplading.", item3.Title);
-                Assert.Equal(nameof(NoRoadNetworkChanges), item3.Type);
+                Assert.Equal(2, item3.Id);
+                Assert.Equal("De oplading werd geaccepteerd.", item3.Title);
+                Assert.Equal(nameof(RoadNetworkChangesAccepted), item3.Type);
                 Assert.Equal("01", item3.Day);
                 // YR: Different versions of libicu use different casing
                 Assert.Equal("jan.", item3.Month.ToLowerInvariant());
