@@ -1,3 +1,16 @@
+# [1.54.0](https://github.com/informatievlaanderen/road-registry/compare/v1.53.0...v1.54.0) (2021-09-17)
+
+
+### Bug Fixes
+
+* add index on SSS Messages.StreamIdInternal ([a388b69](https://github.com/informatievlaanderen/road-registry/commit/a388b69e5357bc7b1a38e4dde6a1beccb9b2fea7))
+* fix failing test for 680299d ([3d8b8be](https://github.com/informatievlaanderen/road-registry/commit/3d8b8bec7233abcd32000afaee815c76ce6bc6f3))
+
+
+### Features
+
+* when no changes are uploaded, give appropiate message WR-226 ([680299d](https://github.com/informatievlaanderen/road-registry/commit/680299de2c87b77d6610812c16fd783218fdb2c8))
+
 # [1.53.0](https://github.com/informatievlaanderen/road-registry/compare/v1.52.1...v1.53.0) (2021-09-16)
 
 
