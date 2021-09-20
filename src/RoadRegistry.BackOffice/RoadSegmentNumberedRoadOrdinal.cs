@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice
 
     public readonly struct RoadSegmentNumberedRoadOrdinal : IEquatable<RoadSegmentNumberedRoadOrdinal>
     {
-        internal struct WellKnownValues
+        public struct WellKnownValues
         {
             public const int NotKnown = -8;
         }
@@ -25,12 +25,19 @@ namespace RoadRegistry.BackOffice
         }
 
         public int ToInt32() => _value;
+
         public bool Equals(RoadSegmentNumberedRoadOrdinal other) => _value == other._value;
+
         public override bool Equals(object other) => other is RoadSegmentNumberedRoadOrdinal revision && Equals(revision);
+
         public override int GetHashCode() => _value;
+
         public override string ToString() => _value.ToString();
+
         public static bool operator ==(RoadSegmentNumberedRoadOrdinal left, RoadSegmentNumberedRoadOrdinal right) => left.Equals(right);
+
         public static bool operator !=(RoadSegmentNumberedRoadOrdinal left, RoadSegmentNumberedRoadOrdinal right) => !left.Equals(right);
+
         public static implicit operator int(RoadSegmentNumberedRoadOrdinal instance) => instance._value;
     }
 }
