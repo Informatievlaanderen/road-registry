@@ -44,6 +44,7 @@ namespace RoadRegistry.BackOffice
         [InlineData(-1, false)]
         [InlineData(0, true)]
         [InlineData(1, true)]
+        [InlineData(RoadSegmentNumberedRoadOrdinal.WellKnownValues.NotKnown, true)]
         [InlineData(int.MaxValue, true)]
         public void AcceptsReturnsExpectedResult(int value, bool expected)
         {
