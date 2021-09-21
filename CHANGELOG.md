@@ -1,3 +1,10 @@
+# [1.55.0](https://github.com/informatievlaanderen/road-registry/compare/v1.54.0...v1.55.0) (2021-09-21)
+
+
+### Features
+
+* add support for 'not known' (-8) volgnummer in numbered roads ([#327](https://github.com/informatievlaanderen/road-registry/issues/327)) ([2353635](https://github.com/informatievlaanderen/road-registry/commit/23536353a0136c3c0cad41f5bf94d33a68443d3d))
+
 # [1.54.0](https://github.com/informatievlaanderen/road-registry/compare/v1.53.0...v1.54.0) (2021-09-17)
 
 
