@@ -1,0 +1,24 @@
+type file
+version 1.0.0
+
+id Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api
+title Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api
+
+authors Basisregisters.Vlaanderen
+owners Vlaamse overheid
+copyright Copyright (c) Vlaamse overheid
+requireLicenseAcceptance false
+projectUrl https://vlaanderen.be/digitaal-vlaanderen
+iconUrl https://raw.githubusercontent.com/Informatievlaanderen/build-pipeline/master/logo.png
+licenseUrl https://opensource.org/licenses/EUPL-1.2
+
+description Road Registry.
+
+files
+  RoadRegistry.BackOffice.Api.dll => lib\net5.0
+  RoadRegistry.BackOffice.Api.pdb => lib\net5.0
+  RoadRegistry.BackOffice.Api.xml => lib\net5.0
+  RoadRegistry.BackOffice.Api.xml => content
+
+  RoadRegistry.BackOffice.dll => lib\net5.0
+  RoadRegistry.BackOffice.pdb => lib\net5.0
