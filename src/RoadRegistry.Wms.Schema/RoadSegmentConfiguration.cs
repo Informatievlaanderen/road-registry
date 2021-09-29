@@ -58,6 +58,8 @@ namespace RoadRegistry.Wms.Schema
             b.Property(p => p.RightSideMunicipalityNisCode).HasColumnName("rechtsGemeenteNisCode");
 
             b.Property(p => p.StreetNameCachePosition).HasColumnName("straatnaamCachePositie");
+
+            b.HasIndex(p => p.StreetNameCachePosition).IsClustered(false);
         }
     }
 }
