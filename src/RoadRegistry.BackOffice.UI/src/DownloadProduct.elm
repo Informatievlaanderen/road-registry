@@ -15,10 +15,14 @@ import HttpBytes
 import Date
 
 
-main : Program String Model Msg
+main : Program Flags Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
+type alias Flags =
+    { endpoint : String
+    , apikey : String
+    }
 
 type alias DownloadModel =
     { title : String
@@ -28,6 +32,7 @@ type alias DownloadModel =
     , progressing : Bool
     , progress : String
     , count: Int
+    , apikey: String
     }
 
 
@@ -38,22 +43,23 @@ type alias Model =
     }
 
 
-init : String -> ( Model, Cmd Msg )
-init url =
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     ( { header = Header.init |> Header.downloadProductBecameActive
       , download =
             { title = "Register download product"
             , url =
-                if String.endsWith "/" url then
-                    String.concat [ url, "v1/download/for-product" ]
+                if String.endsWith "/" flags.endpoint then
+                    String.concat [ flags.endpoint, "v1/download/for-product" ]
 
                 else
-                    String.concat [ url, "/v1/download/for-product" ]
+                    String.concat [ flags.endpoint, "/v1/download/for-product" ]
             , version = ""
             , downloading = False
             , progressing = False
             , progress = ""
             , count = 0
+            , apikey = flags.apikey
             }
       , alert = Alert.init ()
       }
@@ -86,7 +92,7 @@ update msg model =
                     [ Http.cancel ("download-" ++ String.fromInt oldDownload.count)
                       , Http.request
                         { method = "GET"
-                        , headers = []
+                        , headers = [ Http.header "x-api-key" model.download.apikey ]
                         , url = String.concat [ model.download.url, "/", model.download.version ]
                         , body = Http.emptyBody
                         , expect = HttpBytes.expect FileDownloaded

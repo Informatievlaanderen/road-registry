@@ -113,6 +113,7 @@ type alias Model =
     , archiveUrl : String
     , maxEntryCount : Int
     , alert : Alert.Model
+    , apikey: String
     }
 
 
@@ -120,8 +121,8 @@ type alias Model =
 -- messaging
 
 
-init : Int -> String -> ( Model, Cmd Message )
-init maxEntryCount url =
+init : Int -> String -> String -> ( Model, Cmd Message )
+init maxEntryCount url apikey =
     let
         feedUrl =
             if String.endsWith "/" url then
@@ -144,12 +145,18 @@ init maxEntryCount url =
             , archiveUrl = archiveUrl
             , maxEntryCount = maxEntryCount
             , alert = Alert.init ()
+            , apikey = apikey
             }
     in
     ( model
-    , Http.get
-        { url = buildHeadUrl model
+    , Http.request
+        { method = "GET"
+        , headers = [ Http.header "x-api-key" model.apikey ]
+        , url = buildHeadUrl model
+        , body = Http.emptyBody
         , expect = Http.expectJson GotHead decodeChangeFeedEntriesResponse
+        , timeout = Nothing
+        , tracker = Nothing
         }
     )
 
@@ -289,17 +296,41 @@ update message model =
     case message of
         GetHead ->
             ( model
-            , Http.get { url = buildHeadUrl model, expect = Http.expectJson GotHead decodeChangeFeedEntriesResponse }
+            , Http.request
+              { method = "GET"
+              , headers = [ Http.header "x-api-key" model.apikey ]
+              , url = buildHeadUrl model
+              , body = Http.emptyBody
+              , expect = Http.expectJson GotHead decodeChangeFeedEntriesResponse
+              , timeout = Nothing
+              , tracker = Nothing
+              }
             )
 
         GetNext afterEntry ->
             ( model
-            , Http.get { url = buildNextUrl afterEntry model, expect = Http.expectJson GotNext decodeChangeFeedEntriesResponse }
+            , Http.request
+              { method = "GET"
+              , headers = [ Http.header "x-api-key" model.apikey ]
+              , url = buildNextUrl afterEntry model
+              , body = Http.emptyBody
+              , expect = Http.expectJson GotNext decodeChangeFeedEntriesResponse
+              , timeout = Nothing
+              , tracker = Nothing
+              }
             )
 
         GetPrevious beforeEntry ->
             ( { model | loading = True }
-            , Http.get { url = buildPreviousUrl beforeEntry model, expect = Http.expectJson GotPrevious decodeChangeFeedEntriesResponse }
+            , Http.request
+              { method = "GET"
+              , headers = [ Http.header "x-api-key" model.apikey ]
+              , url = buildPreviousUrl beforeEntry model
+              , body = Http.emptyBody
+              , expect = Http.expectJson GotPrevious decodeChangeFeedEntriesResponse
+              , timeout = Nothing
+              , tracker = Nothing
+              }
             )
 
         ToggleEntryContent entry ->
@@ -342,7 +373,15 @@ update message model =
                                             model.entries
                                 in
                                 ( { model | entries = entries }
-                                , Http.get { url = buildEntryContentUrl entry model, expect = Http.expectJson GotEntryContent decodeChangeFeedEntryContentResponse }
+                                , Http.request
+                                    { method = "GET"
+                                    , headers = [ Http.header "x-api-key" model.apikey ]
+                                    , url = buildEntryContentUrl entry model
+                                    , body = Http.emptyBody
+                                    , expect = Http.expectJson GotEntryContent decodeChangeFeedEntryContentResponse
+                                    , timeout = Nothing
+                                    , tracker = Nothing
+                                    }
                                 )
 
                 Nothing ->

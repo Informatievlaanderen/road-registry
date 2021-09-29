@@ -389,6 +389,7 @@ services:
     environment:
       API_ENDPOINT: http://localhost:5020
       API_VERSION: 0.0.0
+      API_KEY: MY_API_KEY
 
   wiremock:
     image: rodolpheche/wiremock:2.29.1
