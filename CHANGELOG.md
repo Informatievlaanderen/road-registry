@@ -1,3 +1,15 @@
+# [1.57.0](https://github.com/informatievlaanderen/road-registry/compare/v1.56.0...v1.57.0) (2021-09-29)
+
+
+### Bug Fixes
+
+* mark paket.template as content ([91df799](https://github.com/informatievlaanderen/road-registry/commit/91df7993c15da931e025a89ba74890801c1f2d6f))
+
+
+### Features
+
+* expose backoffice.api as nuget package ([4c74ba6](https://github.com/informatievlaanderen/road-registry/commit/4c74ba6c6b289ee9a90c07b37145bd9387daba14))
+
 # [1.56.0](https://github.com/informatievlaanderen/road-registry/compare/v1.55.0...v1.56.0) (2021-09-29)
 
 
