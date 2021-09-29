@@ -32,10 +32,7 @@
     <Content Include="init.sh" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
-    <None Remove="paket.template" />
-    <Content Include="paket.template">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="paket.template" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
