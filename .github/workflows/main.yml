@@ -199,6 +199,16 @@ jobs:
         BUILD_DOCKER_REGISTRY_PRD: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
         SEMVER: ${{ env.RELEASE_VERSION }}
         WORKSPACE: ${{ github.workspace }}
+        
+   - name: Publish to NuGet
+      if: env.RELEASE_VERSION != 'none'
+      shell: bash
+      run: |
+        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api.$SEMVER.nupkg        
+      env:
+        SEMVER: ${{ env.RELEASE_VERSION }}
+        NUGET_HOST: ${{ secrets.NUGET_HOST }}
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
     - name: Publish to Confluence
       if: env.RELEASE_VERSION != 'none'
