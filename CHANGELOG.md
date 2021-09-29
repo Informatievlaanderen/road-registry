@@ -1,3 +1,10 @@
+## [1.57.3](https://github.com/informatievlaanderen/road-registry/compare/v1.57.2...v1.57.3) (2021-09-29)
+
+
+### Bug Fixes
+
+* add index on streetnamecacheposition WR-260 ([f6e41a8](https://github.com/informatievlaanderen/road-registry/commit/f6e41a8229875b95b97302e3e8ca89f7f1da3312))
+
 ## [1.57.2](https://github.com/informatievlaanderen/road-registry/compare/v1.57.1...v1.57.2) (2021-09-29)
 
 
