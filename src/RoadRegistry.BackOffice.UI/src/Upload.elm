@@ -13,7 +13,7 @@ import Html.Events exposing (onClick)
 import Http
 
 
-main : Program String Model Msg
+main : Program Flags Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -24,8 +24,13 @@ type alias UploadModel =
     , uploading : Bool
     , progressing : Bool
     , progress : String
+    , apikey : String
     }
 
+type alias Flags =
+    { endpoint : String
+    , apikey : String
+    }
 
 type alias Model =
     { header : HeaderModel
@@ -34,20 +39,21 @@ type alias Model =
     }
 
 
-init : String -> ( Model, Cmd Msg )
-init url =
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     ( { header = Header.init |> Header.uploadBecameActive
       , upload =
             { title = "Feature compare"
             , url =
-                if String.endsWith "/" url then
-                    String.concat [ url, "v1/upload" ]
+                if String.endsWith "/" flags.endpoint then
+                    String.concat [ flags.endpoint , "v1/upload" ]
 
                 else
-                    String.concat [ url, "/v1/upload" ]
+                    String.concat [ flags.endpoint, "/v1/upload" ]
             , uploading = False
             , progressing = False
             , progress = ""
+            , apikey = flags.apikey
             }
       , alert = Alert.init ()
       }
@@ -82,7 +88,7 @@ update msg model =
             ( { model | upload = newUpload }
             , Http.request
                 { method = "POST"
-                , headers = []
+                , headers = [ Http.header "x-api-key" model.upload.apikey ]
                 , url = model.upload.url
                 , body = Http.multipartBody [ Http.filePart "archive" file ]
                 , expect = Http.expectWhatever FileUploaded

@@ -10,9 +10,15 @@ import Html.Attributes exposing (class, id)
 import Time exposing (Posix, every)
 
 
-main : Program String Model Msg
+main : Program Flags Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+
+
+type alias Flags =
+    { endpoint : String
+    , apikey : String
+    }
 
 
 type alias Model =
@@ -21,11 +27,11 @@ type alias Model =
     }
 
 
-init : String -> ( Model, Cmd Msg )
-init url =
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     let
         ( changeFeedModel, changeFeedCommand ) =
-            ChangeFeed.init 25 url
+            ChangeFeed.init 25 flags.endpoint flags.apikey
     in
     ( { header = Header.init |> Header.activityBecameActive
       , changeFeed = changeFeedModel

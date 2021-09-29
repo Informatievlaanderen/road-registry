@@ -11,7 +11,7 @@ import Json.Decode as D
 import Time exposing (Posix, every)
 
 
-main : Program String Model Msg
+main : Program Flags Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -40,8 +40,13 @@ type alias InformationModel =
     , roadNodeCount : String
     , roadSegmentCount : String
     , gradeSeparatedJunctionCount : String
+    , apikey : String
     }
 
+type alias Flags =
+    { endpoint : String
+    , apikey : String
+    }
 
 type alias Model =
     { header : HeaderModel
@@ -50,32 +55,38 @@ type alias Model =
     }
 
 
-init : String -> ( Model, Cmd Msg )
-init url =
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     ( { header = Header.init |> Header.informationBecameActive
       , information =
             { title = "Register dump"
             , url =
-                if String.endsWith "/" url then
-                    String.concat [ url, "v1/information" ]
+                if String.endsWith "/" flags.endpoint then
+                    String.concat [ flags.endpoint, "v1/information" ]
 
                 else
-                    String.concat [ url, "/v1/information" ]
+                    String.concat [ flags.endpoint, "/v1/information" ]
             , organizationCount = ""
             , roadNodeCount = ""
             , roadSegmentCount = ""
             , gradeSeparatedJunctionCount = ""
+            , apikey = flags.apikey
             }
       , alert = Alert.init ()
       }
-    , Http.get
-        { url =
-            if String.endsWith "/" url then
-                String.concat [ url, "v1/information" ]
+    , Http.request
+        { method = "GET"
+        , headers = [ Http.header "x-api-key" flags.apikey ]
+        , url =
+            if String.endsWith "/" flags.endpoint then
+                String.concat [ flags.endpoint, "v1/information" ]
 
             else
-                String.concat [ url, "/v1/information" ]
+                String.concat [ flags.endpoint, "/v1/information" ]
+        , body = Http.emptyBody
         , expect = Http.expectJson GotInformation informationDecoder
+        , timeout = Nothing
+        , tracker = Nothing
         }
     )
 
@@ -92,17 +103,27 @@ update msg model =
     case msg of
         DownloadInformation ->
             ( model
-            , Http.get
-                { url = model.information.url
+            , Http.request
+                { method = "GET"
+                , headers = [ Http.header "x-api-key" model.information.apikey ]
+                , url = model.information.url
+                , body = Http.emptyBody
                 , expect = Http.expectJson GotInformation informationDecoder
+                , timeout = Nothing
+                , tracker = Nothing
                 }
             )
 
         Tick _ ->
             ( model
-            , Http.get
-                { url = model.information.url
+            , Http.request
+                { method = "GET"
+                , headers = [ Http.header "x-api-key" model.information.apikey ]
+                , url = model.information.url
+                , body = Http.emptyBody
                 , expect = Http.expectJson GotInformation informationDecoder
+                , timeout = Nothing
+                , tracker = Nothing
                 }
             )
 
