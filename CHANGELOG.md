@@ -1,3 +1,10 @@
+## [1.57.2](https://github.com/informatievlaanderen/road-registry/compare/v1.57.1...v1.57.2) (2021-09-29)
+
+
+### Bug Fixes
+
+* add missing dependencies to backoffice.api nuget ([10b9881](https://github.com/informatievlaanderen/road-registry/commit/10b9881250b588ff445f857993f65a24309454ca))
+
 ## [1.57.1](https://github.com/informatievlaanderen/road-registry/compare/v1.57.0...v1.57.1) (2021-09-29)
 
 
