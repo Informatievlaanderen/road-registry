@@ -1,3 +1,15 @@
+# [1.56.0](https://github.com/informatievlaanderen/road-registry/compare/v1.55.0...v1.56.0) (2021-09-29)
+
+
+### Bug Fixes
+
+* wr-233 add api-key-header to requests ([4ee2ef1](https://github.com/informatievlaanderen/road-registry/commit/4ee2ef1dbcceed508ec422dd051b74bf80a2b16e))
+
+
+### Features
+
+* wr-233 add x-api-key header to requests ([34ee237](https://github.com/informatievlaanderen/road-registry/commit/34ee2371ac0639eef7a29ea3efd6736e42bcc6f0))
+
 # [1.55.0](https://github.com/informatievlaanderen/road-registry/compare/v1.54.0...v1.55.0) (2021-09-21)
 
 
