@@ -107,7 +107,10 @@ Target.create "Publish_Solution" (fun _ ->
   Shell.copyFile dist (source @@ ".htpasswd")
 )
 
-Target.create "Pack_Solution" ignore
+Target.create "Pack_Solution" (fun _ ->
+  [
+    "RoadRegistry.BackOffice.Api"
+  ] |> List.iter pack)
 
 Target.create "Containerize_BackOfficeApi" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
 Target.create "PushContainer_BackOfficeApi" (fun _ -> push "backoffice-api")
