@@ -1,3 +1,11 @@
+## [1.57.1](https://github.com/informatievlaanderen/road-registry/compare/v1.57.0...v1.57.1) (2021-09-29)
+
+
+### Bug Fixes
+
+* add nuget push package to build ([c64a284](https://github.com/informatievlaanderen/road-registry/commit/c64a284f7bbda61356d5de904afbccd861263d3b))
+* correct workflow to push to nuget ([972e24e](https://github.com/informatievlaanderen/road-registry/commit/972e24e45be5b242eb3f984f5860b491fc38ed44))
+
 # [1.57.0](https://github.com/informatievlaanderen/road-registry/compare/v1.56.0...v1.57.0) (2021-09-29)
 
 
