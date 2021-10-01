@@ -51,7 +51,7 @@ AND (AvailableOn - RequestedOn) <= (
             {
                 var average = await source.FromSqlRaw(@"
 SELECT UploadId, DownloadId, ExternalRequestId, RequestId, ArchiveId, ChangeRequestId, ReceivedOn, Status, CompletedOn
-FROM RoadRegistryEditor.ExtractUploads
+FROM RoadRegistryEditor.ExtractUpload
 WHERE CompletedOn <> 0
 AND ReceivedOn >= {0}
 AND (CompletedOn - ReceivedOn) <= (
@@ -59,7 +59,7 @@ AND (CompletedOn - ReceivedOn) <= (
         PERCENTILE_DISC(0.5)
         WITHIN GROUP (ORDER BY (CompletedOn - ReceivedOn))
         OVER ()
-    FROM RoadRegistryEditor.ExtractUploads
+    FROM RoadRegistryEditor.ExtractUpload
     WHERE CompletedOn <> 0
     AND (CompletedOn - ReceivedOn) <= 3600)
     AND ReceivedOn >= {1}", since.ToUnixTimeSeconds(), since.ToUnixTimeSeconds())
