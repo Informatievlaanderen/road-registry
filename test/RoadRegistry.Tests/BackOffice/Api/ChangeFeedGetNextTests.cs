@@ -44,7 +44,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetNext(context);
+                var result = await controller.GetNext(new []{"0"}, new string[]{}, context);
 
                 var badRequest = Assert.IsType<BadRequestObjectResult>(result);
                 Assert.Equal("MaxEntryCount query string parameter is missing.", badRequest.Value);
@@ -67,7 +67,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetNext(context);
+                var result = await controller.GetNext(new []{"0"}, new []{"5", "10"}, context);
 
                 var badRequest = Assert.IsType<BadRequestObjectResult>(result);
                 Assert.Equal("MaxEntryCount query string parameter requires exactly 1 value.", badRequest.Value);
@@ -90,7 +90,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetNext(context);
+                var result = await controller.GetNext(new []{"0"}, new []{"abc"}, context);
 
                 var badRequest = Assert.IsType<BadRequestObjectResult>(result);
                 Assert.Equal("MaxEntryCount query string parameter value must be an integer.", badRequest.Value);
@@ -113,7 +113,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetNext(context);
+                var result = await controller.GetNext(new string[]{}, new []{"0"}, context);
 
                 var badRequest = Assert.IsType<BadRequestObjectResult>(result);
                 Assert.Equal("AfterEntry query string parameter is missing.", badRequest.Value);
@@ -136,7 +136,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetNext(context);
+                var result = await controller.GetNext(new[] {"1","2"}, new[] {"0"}, context);
 
                 var badRequest = Assert.IsType<BadRequestObjectResult>(result);
                 Assert.Equal("AfterEntry query string parameter requires exactly 1 value.", badRequest.Value);
@@ -159,7 +159,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetNext(context);
+                var result = await controller.GetNext(new[] {"abc"}, new[] { "0" }, context);
 
                 var badRequest = Assert.IsType<BadRequestObjectResult>(result);
                 Assert.Equal("AfterEntry query string parameter value must be an integer.", badRequest.Value);
@@ -182,7 +182,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetNext(context);
+                var result = await controller.GetNext(new[] {"0"}, new[] { "5" }, context);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
@@ -272,7 +272,7 @@ namespace RoadRegistry.BackOffice.Api
 
             using (var context = await _fixture.CreateEditorContextAsync(database))
             {
-                var result = await controller.GetNext(context);
+                var result = await controller.GetNext(new[] {"1"}, new[] {"3"}, context);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);

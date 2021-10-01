@@ -1,10 +1,8 @@
 namespace RoadRegistry.BackOffice.Api
 {
     using System;
-    using System.Globalization;
     using System.Threading.Tasks;
     using Changes;
-    using Editor.Schema;
     using Editor.Schema.RoadNetworkChanges;
     using Messages;
     using Microsoft.AspNetCore.Http;
@@ -36,7 +34,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetHead(context);
+                var result = await controller.GetHead(new string[]{}, context);
 
                 var badRequest = Assert.IsType<BadRequestObjectResult>(result);
                 Assert.Equal("MaxEntryCount query string parameter is missing.", badRequest.Value);
@@ -59,7 +57,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetHead(context);
+                var result = await controller.GetHead(new string[]{"5", "10"}, context);
 
                 var badRequest = Assert.IsType<BadRequestObjectResult>(result);
                 Assert.Equal("MaxEntryCount query string parameter requires exactly 1 value.", badRequest.Value);
@@ -82,7 +80,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetHead(context);
+                var result = await controller.GetHead(new []{"abc"}, context);
 
                 var badRequest = Assert.IsType<BadRequestObjectResult>(result);
                 Assert.Equal("MaxEntryCount query string parameter value must be an integer.", badRequest.Value);
@@ -105,7 +103,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetHead(context);
+                var result = await controller.GetHead(new []{"5"}, context);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
@@ -147,7 +145,7 @@ namespace RoadRegistry.BackOffice.Api
 
             using (var context = await _fixture.CreateEditorContextAsync(database))
             {
-                var result = await controller.GetHead(context);
+                var result = await controller.GetHead(new []{"5"}, context);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
