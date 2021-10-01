@@ -1,3 +1,10 @@
+## [1.57.4](https://github.com/informatievlaanderen/road-registry/compare/v1.57.3...v1.57.4) (2021-10-01)
+
+
+### Bug Fixes
+
+* fix upload status endpoint ([5cbed9b](https://github.com/informatievlaanderen/road-registry/commit/5cbed9b935bee5c20be421ddbaffebb21b92eaec))
+
 ## [1.57.3](https://github.com/informatievlaanderen/road-registry/compare/v1.57.2...v1.57.3) (2021-09-29)
 
 
