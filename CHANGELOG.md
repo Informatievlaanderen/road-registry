@@ -1,3 +1,10 @@
+## [1.57.5](https://github.com/informatievlaanderen/road-registry/compare/v1.57.4...v1.57.5) (2021-10-04)
+
+
+### Bug Fixes
+
+* add missing dependency to api paket template ([afbd063](https://github.com/informatievlaanderen/road-registry/commit/afbd0638e0d844dc44c014133b730bbbe7a88bfc))
+
 ## [1.57.4](https://github.com/informatievlaanderen/road-registry/compare/v1.57.3...v1.57.4) (2021-10-01)
 
 
