@@ -17,6 +17,7 @@ description Road Registry.
 dependencies
   framework: net5.0
     Be.Vlaanderen.Basisregisters.BlobStore >= LOCKEDVERSION
+    Microsoft.IO.RecyclableMemoryStream >= LOCKEDVERSION
 
 files
   RoadRegistry.BackOffice.Api.dll => lib\net5.0
