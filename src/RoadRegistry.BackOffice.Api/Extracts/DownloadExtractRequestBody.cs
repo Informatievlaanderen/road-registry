@@ -4,5 +4,6 @@ namespace RoadRegistry.BackOffice.Api.Extracts
     {
         public string RequestId { get; set; }
         public string Contour { get; set; }
+        public double BufferInMeters { get; set; }
     }
 }

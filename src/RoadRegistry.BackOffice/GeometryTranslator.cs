@@ -166,11 +166,22 @@ namespace RoadRegistry.BackOffice
             }
         }
 
-        public static Messages.RoadNetworkExtractGeometry TranslateToRoadNetworkExtractGeometry(NetTopologySuite.Geometries.IPolygonal geometry)
+        public static Messages.RoadNetworkExtractGeometry TranslateToRoadNetworkExtractGeometry(NetTopologySuite.Geometries.IPolygonal geometry, double buffer = 0)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
+            NetTopologySuite.Geometries.Geometry geometryWithBuffer = null;
             switch (geometry)
+            {
+                case NetTopologySuite.Geometries.MultiPolygon multiPolygon:
+                    geometryWithBuffer = multiPolygon.Buffer(buffer);
+                    break;
+                case NetTopologySuite.Geometries.Polygon polygon:
+                    geometryWithBuffer = polygon.Buffer(buffer);
+                    break;
+            }
+
+            switch (geometryWithBuffer)
             {
                 case NetTopologySuite.Geometries.MultiPolygon multiPolygon:
                 {
