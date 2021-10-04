@@ -170,16 +170,9 @@ namespace RoadRegistry.BackOffice
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
-            NetTopologySuite.Geometries.Geometry geometryWithBuffer = null;
-            switch (geometry)
-            {
-                case NetTopologySuite.Geometries.MultiPolygon multiPolygon:
-                    geometryWithBuffer = multiPolygon.Buffer(buffer);
-                    break;
-                case NetTopologySuite.Geometries.Polygon polygon:
-                    geometryWithBuffer = polygon.Buffer(buffer);
-                    break;
-            }
+            var requestedGeometry = (NetTopologySuite.Geometries.Geometry) geometry;
+            var geometryWithBuffer = requestedGeometry.Buffer(buffer);
+            var onlyBuffer = geometryWithBuffer.Difference(requestedGeometry);
 
             switch (geometryWithBuffer)
             {
