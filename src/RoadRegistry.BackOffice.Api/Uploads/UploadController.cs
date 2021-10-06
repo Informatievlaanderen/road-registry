@@ -9,6 +9,8 @@ namespace RoadRegistry.BackOffice.Api.Uploads
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.BlobStore;
+    using FluentValidation;
+    using FluentValidation.Results;
     using Framework;
     using Messages;
     using Microsoft.AspNetCore.Http;
@@ -80,7 +82,11 @@ namespace RoadRegistry.BackOffice.Api.Uploads
         {
             if (!ArchiveId.Accepts(identifier))
             {
-                return BadRequest();
+                throw new ValidationException(new[]
+                {
+                    new ValidationFailure("identifier",
+                        $"'identifier' path parameter cannot be empty and must be less or equal to {ArchiveId.MaxLength} characters.")
+                });
             }
 
             var archiveId = new ArchiveId(identifier);

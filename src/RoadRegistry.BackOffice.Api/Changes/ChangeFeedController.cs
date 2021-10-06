@@ -8,6 +8,8 @@ namespace RoadRegistry.BackOffice.Api.Changes
     using Be.Vlaanderen.Basisregisters.Api;
     using Editor.Schema;
     using Editor.Schema.RoadNetworkChanges;
+    using FluentValidation;
+    using FluentValidation.Results;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -36,21 +38,23 @@ namespace RoadRegistry.BackOffice.Api.Changes
         }
 
         [HttpGet("head")]
-        public async Task<IActionResult> GetHead([FromServices] EditorContext context)
+        public async Task<IActionResult> GetHead(
+            [FromQuery(Name = "MaxEntryCount")] string[] maxEntryCountValue,
+            [FromServices] EditorContext context)
         {
-            if (!HttpContext.Request.Query.TryGetValue("MaxEntryCount", out var maxEntryCountValue))
+            if (maxEntryCountValue.Length == 0)
             {
-                return BadRequest("MaxEntryCount query string parameter is missing.");
+                throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
             }
 
-            if(maxEntryCountValue.Count != 1)
+            if (maxEntryCountValue.Length != 1)
             {
-                return BadRequest("MaxEntryCount query string parameter requires exactly 1 value.");
+                throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
             }
 
-            if(!int.TryParse(maxEntryCountValue[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var maxEntryCount))
+            if (!int.TryParse(maxEntryCountValue[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var maxEntryCount))
             {
-                return BadRequest("MaxEntryCount query string parameter value must be an integer.");
+                throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
             }
 
             var entries = new List<ChangeFeedEntry>();
@@ -92,36 +96,39 @@ namespace RoadRegistry.BackOffice.Api.Changes
         }
 
         [HttpGet("next")]
-        public async Task<IActionResult> GetNext([FromServices] EditorContext context)
+        public async Task<IActionResult> GetNext(
+            [FromQuery(Name = "AfterEntry")] string[] afterEntryValue,
+            [FromQuery(Name = "MaxEntryCount")] string[] maxEntryCountValue,
+            [FromServices] EditorContext context)
         {
-            if(!HttpContext.Request.Query.TryGetValue("AfterEntry", out var afterEntryValue))
+            if (afterEntryValue.Length == 0)
             {
-                return BadRequest("AfterEntry query string parameter is missing.");
+                throw new ValidationException(new[] { new ValidationFailure("AfterEntry", "AfterEntry query string parameter is missing.") });
             }
 
-            if (!HttpContext.Request.Query.TryGetValue("MaxEntryCount", out var maxEntryCountValue))
+            if (maxEntryCountValue.Length == 0)
             {
-                return BadRequest("MaxEntryCount query string parameter is missing.");
+                throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
             }
 
-            if(afterEntryValue.Count != 1)
+            if (afterEntryValue.Length != 1)
             {
-                return BadRequest("AfterEntry query string parameter requires exactly 1 value.");
+                throw new ValidationException(new[] { new ValidationFailure("AfterEntry", "AfterEntry query string parameter requires exactly 1 value.") });
             }
 
-            if(maxEntryCountValue.Count != 1)
+            if (maxEntryCountValue.Length != 1)
             {
-                return BadRequest("MaxEntryCount query string parameter requires exactly 1 value.");
+                throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
             }
 
-            if(!long.TryParse(afterEntryValue[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var afterEntry))
+            if (!long.TryParse(afterEntryValue[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var afterEntry))
             {
-                return BadRequest("AfterEntry query string parameter value must be an integer.");
+                throw new ValidationException(new[] { new ValidationFailure("AfterEntry", "AfterEntry query string parameter value must be an integer.") });
             }
 
-            if(!int.TryParse(maxEntryCountValue[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var maxEntryCount))
+            if (!int.TryParse(maxEntryCountValue[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var maxEntryCount))
             {
-                return BadRequest("MaxEntryCount query string parameter value must be an integer.");
+                throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
             }
 
             var entries = new List<ChangeFeedEntry>();
@@ -163,36 +170,39 @@ namespace RoadRegistry.BackOffice.Api.Changes
         }
 
         [HttpGet("previous")]
-        public async Task<IActionResult> GetPrevious([FromServices] EditorContext context)
+        public async Task<IActionResult> GetPrevious(
+            [FromQuery(Name = "BeforeEntry")] string[] beforeEntryValue,
+            [FromQuery(Name = "MaxEntryCount")] string[] maxEntryCountValue,
+            [FromServices] EditorContext context)
         {
-            if(!HttpContext.Request.Query.TryGetValue("BeforeEntry", out var beforeEntryValue))
+            if (beforeEntryValue.Length == 0)
             {
-                return BadRequest("BeforeEntry query string parameter is missing.");
+                throw new ValidationException(new[] { new ValidationFailure("BeforeEntry", "BeforeEntry query string parameter is missing.") });
             }
 
-            if (!HttpContext.Request.Query.TryGetValue("MaxEntryCount", out var maxEntryCountValue))
+            if (maxEntryCountValue.Length == 0)
             {
-                return BadRequest("MaxEntryCount query string parameter is missing.");
+                throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
             }
 
-            if(beforeEntryValue.Count != 1)
+            if (beforeEntryValue.Length != 1)
             {
-                return BadRequest("BeforeEntry query string parameter requires exactly 1 value.");
+                throw new ValidationException(new[] { new ValidationFailure("BeforeEntry", "BeforeEntry query string parameter requires exactly 1 value.") });
             }
 
-            if(maxEntryCountValue.Count != 1)
+            if (maxEntryCountValue.Length != 1)
             {
-                return BadRequest("MaxEntryCount query string parameter requires exactly 1 value.");
+                throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
             }
 
-            if(!long.TryParse(beforeEntryValue[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var beforeEntry))
+            if (!long.TryParse(beforeEntryValue[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var beforeEntry))
             {
-                return BadRequest("BeforeEntry query string parameter value must be an integer.");
+                throw new ValidationException(new[] { new ValidationFailure("BeforeEntry", "BeforeEntry query string parameter value must be an integer.") });
             }
 
-            if(!int.TryParse(maxEntryCountValue[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var maxEntryCount))
+            if (!int.TryParse(maxEntryCountValue[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var maxEntryCount))
             {
-                return BadRequest("MaxEntryCount query string parameter value must be an integer.");
+                throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
             }
 
             var entries = new List<ChangeFeedEntry>();

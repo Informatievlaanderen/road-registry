@@ -7,6 +7,8 @@ namespace RoadRegistry.BackOffice.Api.Downloads
     using Be.Vlaanderen.Basisregisters.Api;
     using Configuration;
     using Editor.Schema;
+    using FluentValidation;
+    using FluentValidation.Results;
     using Framework;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -76,7 +78,11 @@ namespace RoadRegistry.BackOffice.Api.Downloads
             var result = LocalDatePattern.CreateWithInvariantCulture("yyyyMMdd").Parse(date);
             if (!result.Success)
             {
-                return BadRequest();
+                throw new ValidationException(new[]
+                {
+                    new ValidationFailure("date",
+                        "'date' path parameter is not a valid date according to format yyyyMMdd.")
+                });
             }
 
             return new FileCallbackResult(

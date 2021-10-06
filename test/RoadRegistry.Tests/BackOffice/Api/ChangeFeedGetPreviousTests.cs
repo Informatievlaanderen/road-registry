@@ -1,10 +1,14 @@
 namespace RoadRegistry.BackOffice.Api
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Changes;
-    using Editor.Schema;
     using Editor.Schema.RoadNetworkChanges;
+    using FluentAssertions;
+    using FluentValidation;
+    using FluentValidation.Results;
+    using KellermanSoftware.CompareNetObjects;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -14,6 +18,7 @@ namespace RoadRegistry.BackOffice.Api
     using NodaTime.Text;
     using RoadRegistry.Framework.Containers;
     using Xunit;
+    using Xunit.Sdk;
     using AcceptedChange = Editor.Schema.RoadNetworkChanges.AcceptedChange;
     using RejectedChange = Editor.Schema.RoadNetworkChanges.RejectedChange;
 
@@ -43,10 +48,15 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetPrevious(context);
-
-                var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-                Assert.Equal("MaxEntryCount query string parameter is missing.", badRequest.Value);
+                try
+                {
+                    await controller.GetPrevious(new []{"0"}, new string[]{}, context);
+                    throw new XunitException("Expected a validation exception but did not receive any");
+                }
+                catch (ValidationException exception)
+                {
+                    exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
+                }
             }
         }
 
@@ -66,10 +76,15 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetPrevious(context);
-
-                var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-                Assert.Equal("MaxEntryCount query string parameter requires exactly 1 value.", badRequest.Value);
+                try
+                {
+                    await controller.GetPrevious(new[] {"0"}, new [] {"5", "10"}, context);
+                    throw new XunitException("Expected a validation exception but did not receive any");
+                }
+                catch (ValidationException exception)
+                {
+                    exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
+                }
             }
         }
 
@@ -89,10 +104,15 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetPrevious(context);
-
-                var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-                Assert.Equal("MaxEntryCount query string parameter value must be an integer.", badRequest.Value);
+                try
+                {
+                    await controller.GetPrevious(new[] {"0"}, new[] {"abc"}, context);
+                    throw new XunitException("Expected a validation exception but did not receive any");
+                }
+                catch (ValidationException exception)
+                {
+                    exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
+                }
             }
         }
 
@@ -112,10 +132,15 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetPrevious(context);
-
-                var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-                Assert.Equal("BeforeEntry query string parameter is missing.", badRequest.Value);
+                try
+                {
+                    await controller.GetPrevious(new string[] {}, new[] { "0" }, context);
+                    throw new XunitException("Expected a validation exception but did not receive any");
+                }
+                catch (ValidationException exception)
+                {
+                    exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new ValidationFailure("BeforeEntry", "BeforeEntry query string parameter is missing.") });
+                }
             }
         }
 
@@ -135,10 +160,15 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetPrevious(context);
-
-                var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-                Assert.Equal("BeforeEntry query string parameter requires exactly 1 value.", badRequest.Value);
+                try
+                {
+                    await controller.GetPrevious(new[] {"1", "2"}, new[] {"10"}, context);
+                    throw new XunitException("Expected a validation exception but did not receive any");
+                }
+                catch (ValidationException exception)
+                {
+                    exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new ValidationFailure("BeforeEntry", "BeforeEntry query string parameter requires exactly 1 value.") });
+                }
             }
         }
 
@@ -158,10 +188,15 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetPrevious(context);
-
-                var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-                Assert.Equal("BeforeEntry query string parameter value must be an integer.", badRequest.Value);
+                try
+                {
+                    await controller.GetPrevious(new[] { "abc" }, new[] { "0" }, context);
+                    throw new XunitException("Expected a validation exception but did not receive any");
+                }
+                catch (ValidationException exception)
+                {
+                    exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new ValidationFailure("BeforeEntry", "BeforeEntry query string parameter value must be an integer.") });
+                }
             }
         }
 
@@ -181,7 +216,7 @@ namespace RoadRegistry.BackOffice.Api
             }};
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetPrevious(context);
+                var result = await controller.GetPrevious(new[] { "0" }, new[] { "5" }, context);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
@@ -260,7 +295,7 @@ namespace RoadRegistry.BackOffice.Api
 
             using (var context = await _fixture.CreateEditorContextAsync(database))
             {
-                var result = await controller.GetPrevious(context);
+                var result = await controller.GetPrevious(new[] { "2" }, new[] { "2" }, context);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
