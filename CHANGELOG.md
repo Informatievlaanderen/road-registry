@@ -1,3 +1,12 @@
+## [1.57.6](https://github.com/informatievlaanderen/road-registry/compare/v1.57.5...v1.57.6) (2021-10-06)
+
+
+### Bug Fixes
+
+* add Test to ECR ([9d3541d](https://github.com/informatievlaanderen/road-registry/commit/9d3541d085904c2959acab0a2f04edb2f56fed22))
+* fix failing tests for validation errors ([607d9ac](https://github.com/informatievlaanderen/road-registry/commit/607d9ace969c78d3a050c2c0705c7d994fbb5b34))
+* fix failing tests for validation errors ([25dc2ab](https://github.com/informatievlaanderen/road-registry/commit/25dc2ab629f3445a81f962cb92d906c6a864d934))
+
 ## [1.57.5](https://github.com/informatievlaanderen/road-registry/compare/v1.57.4...v1.57.5) (2021-10-04)
 
 
