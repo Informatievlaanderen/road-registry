@@ -415,7 +415,7 @@ NUGET
       FSharp.Core (>= 4.7.2)
     Fare (2.1.2)
       NETStandard.Library (>= 1.6.1)
-    FluentAssertions (5.10.3) - copy_local: true, copy_content_to_output_dir: always, content: true
+    FluentAssertions (6.1)
       System.Configuration.ConfigurationManager (>= 4.4)
     FluentValidation (10.2.3)
     FluentValidation.AspNetCore (10.2.3)
