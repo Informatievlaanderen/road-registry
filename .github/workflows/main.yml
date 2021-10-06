@@ -96,7 +96,7 @@ jobs:
       shell: bash
       run: npx semantic-release
       env:
-        BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY }}
+        BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GIT_COMMIT: ${{ github.sha }}
         GIT_USERNAME: ${{ secrets.VBR_GIT_USER }}
@@ -114,6 +114,38 @@ jobs:
         echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
       shell: bash
 
+    - name: Configure AWS credentials (Test)
+      if: env.RELEASE_VERSION != 'none'
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
+    - name: Login to Amazon ECR (Test)
+      if: env.RELEASE_VERSION != 'none'
+      uses: aws-actions/amazon-ecr-login@v1.3.3
+
+    - name: Push to Test
+      if: env.RELEASE_VERSION != 'none'
+      shell: bash
+      run: |
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER
+      env:
+        BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
+        SEMVER: ${{ env.RELEASE_VERSION }}
+        WORKSPACE: ${{ github.workspace }}
+
     - name: Configure AWS credentials (Staging)
       if: env.RELEASE_VERSION != 'none'
       uses: aws-actions/configure-aws-credentials@v1.5.9
@@ -130,6 +162,18 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
+
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
@@ -142,6 +186,7 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
       env:
+        BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
         BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY }}
         SEMVER: ${{ env.RELEASE_VERSION }}
         WORKSPACE: ${{ github.workspace }}
@@ -162,40 +207,31 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
-        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/editor-projectionhost:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-extracthost:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
+
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
-
-        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
-
-        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/editor-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/editor-projectionhost:$SEMVER
-
-        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
-
-        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
-
-        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
-
-        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
-
-        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-extracthost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-extracthost:$SEMVER
-
-        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
-
-        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
-
-        docker tag  $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
       env:
-        BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY }}
+        BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
         BUILD_DOCKER_REGISTRY_PRD: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
         SEMVER: ${{ env.RELEASE_VERSION }}
         WORKSPACE: ${{ github.workspace }}
