@@ -21,3 +21,4 @@ SqlStreamStore.MsSql
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
 NetTopologySuite.IO.GeoJSON
 CsvHelper
+FluentAssertions

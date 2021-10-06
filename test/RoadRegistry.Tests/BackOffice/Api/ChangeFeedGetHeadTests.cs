@@ -5,9 +5,9 @@ namespace RoadRegistry.BackOffice.Api
     using System.Threading.Tasks;
     using Changes;
     using Editor.Schema.RoadNetworkChanges;
+    using FluentAssertions;
     using FluentValidation;
     using FluentValidation.Results;
-    using KellermanSoftware.CompareNetObjects;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -46,7 +46,7 @@ namespace RoadRegistry.BackOffice.Api
                 }
                 catch (ValidationException exception)
                 {
-                    exception.Errors.ShouldCompare(new List<ValidationFailure>{new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter is missing.")});
+                    exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure>{new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter is missing.")});
                 }
             }
         }
@@ -74,7 +74,7 @@ namespace RoadRegistry.BackOffice.Api
                 }
                 catch (ValidationException exception)
                 {
-                    exception.Errors.ShouldCompare(new List<ValidationFailure> { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
+                    exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
                 }
             }
         }
@@ -102,7 +102,7 @@ namespace RoadRegistry.BackOffice.Api
                 }
                 catch (ValidationException exception)
                 {
-                    exception.Errors.ShouldCompare(new List<ValidationFailure> { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
+                    exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
                 }
             }
         }
