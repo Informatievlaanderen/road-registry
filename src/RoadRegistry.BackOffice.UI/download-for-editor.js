@@ -1,4 +1,5 @@
 import { Elm } from './output/download-for-editor.js'
+import "./env.js"
 
 Elm.DownloadForEditor.init({
 	node: document.getElementById('app'),

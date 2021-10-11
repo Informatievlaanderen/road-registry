@@ -1,5 +1,6 @@
 {
   "name": "road-registry",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
   "version": "2.0.0",
   "description": "Road Registry",
   "author": "Basisregisters.Vlaanderen",
@@ -10,33 +11,48 @@
   },
   "private": true,
   "scripts": {
-    "build-index": "node_modules/.bin/elm make src/Main.elm --optimize --output=output/index.js",
-    "build-activity": "node_modules/.bin/elm make src/Activity.elm --optimize --output=output/activity.js",
-    "build-information": "node_modules/.bin/elm make src/Information.elm --optimize --output=output/information.js",
-    "build-download-for-editor": "node_modules/.bin/elm make src/DownloadForEditor.elm --optimize --output=output/download-for-editor.js",
-    "build-download-product": "node_modules/.bin/elm make src/DownloadProduct.elm --optimize --output=output/download-product.js",
-    "build-upload": "node_modules/.bin/elm make src/Upload.elm --optimize --output=output/upload.js",
-    "prebuild": "npm run build-index && npm run build-activity && npm run build-information && npm run build-download-for-editor && npm run build-download-product && npm run build-upload",
-    "build": "node_modules/.bin/parcel build --out-dir wwwroot index.html activity.html information.html download-for-editor.html download-product.html upload.html",
-    "live": "node_modules/.bin/parcel index.html activity.html information.html download-for-editor.html download-product.html upload.html"
+    "build": "NODE_ENV=development && node_modules/.bin/parcel build --dist-dir wwwroot 'src/views/*.html'",
+    "live": "NODE_ENV=development node_modules/.bin/parcel 'src/views/*.html'",
+    "release": "NODE_ENV=production && node_modules/.bin/parcel build --dist-dir wwwroot 'src/views/*.html'"
+  },
+  "targets": {
+    "default": {
+      "includeNodeModules": true
+    }
   },
   "engines": {
-    "node": ">= 8.16.0",
-    "npm": ">= 6.9.0"
+    "node": ">= 10",
+    "npm": ">= 6.13.4"
   },
   "devDependencies": {
-    "cssnano": "^4.1.10",
-    "elm": "^0.19.1-3",
+    "@parcel/core": "^2.0.0-rc.0",
+    "@parcel/packager-raw-url": "^2.0.0",
+    "@parcel/packager-xml": "^2.0.0",
+    "@parcel/plugin": "^2.0.0-alpha.3",
+    "@parcel/transformer-elm": "^2.0.0",
+    "@parcel/transformer-image": "^2.0.0-rc.0",
+    "@parcel/transformer-typescript-tsc": "^2.0.0-nightly.879",
+    "@parcel/transformer-typescript-types": "^2.0.0-nightly.879",
+    "@parcel/transformer-vue": "^2.0.0",
+    "@parcel/transformer-webmanifest": "^2.0.0",
+    "@parcel/transformer-xml": "^2.0.0",
+    "@parcel/validator-typescript": "^2.0.0-nightly.879",
+    "@types/node": "^16.10.9",
+    "@vue/compiler-sfc": "^3.2.20",
+    "cssnano": "^5.0.8",
+    "elm": "^0.19.1-5",
     "elm-analyse": "^0.16.5",
-    "elm-format": "^0.8.4",
-    "elm-hot": "^1.1.5",
+    "elm-format": "^0.8.5",
+    "elm-hot": "^1.1.6",
     "elm-live": "^4.0.2",
-    "node-elm-compiler": "^5.0.5",
-    "parcel-bundler": "^1.12.4"
+    "elm-types": "0.0.2",
+    "http-proxy-middleware": "^2.0.1",
+    "node-elm-compiler": "^5.0.6",
+    "parcel": "^2.0.0",
+    "rollup-plugin-vue": "^6.0.0",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.3",
+    "vue": "^3.2.20"
   },
-  "browserslist": [
-    "> 0.5%",
-    "last 2 versions",
-    "not ie <= 9"
-  ]
+  "dependencies": {}
 }
