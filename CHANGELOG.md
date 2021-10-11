@@ -1,3 +1,10 @@
+## [1.57.7](https://github.com/informatievlaanderen/road-registry/compare/v1.57.6...v1.57.7) (2021-10-11)
+
+
+### Bug Fixes
+
+* also build for msil ([1d81e0c](https://github.com/informatievlaanderen/road-registry/commit/1d81e0c8147cc32bd82635840779c89ee4cf538d))
+
 ## [1.57.6](https://github.com/informatievlaanderen/road-registry/compare/v1.57.5...v1.57.6) (2021-10-06)
 
 
