@@ -1,0 +1,18 @@
+{
+  "/v1/wegen": {
+    "changeOrigin": true,
+    "router": {
+      "dev.localhost:1234/v1/wegen"         : "https://docs.basisregisters.dev-vlaanderen.be",
+      "test.localhost:1234/v1/wegen"        : "https://docs.basisregisters.test-vlaanderen.be",
+      "localhost:1234/v1/wegen"             : "http://localhost:2080"
+    }
+  },
+  "/docs": {
+    "changeOrigin": true,
+    "router": {
+      "dev.localhost:1234/docs"         : "https://docs.basisregisters.dev-vlaanderen.be",
+      "test.localhost:1234/docs"        : "https://docs.basisregisters.test-vlaanderen.be",
+      "localhost:1234/docs"             : "http://localhost:2080"
+    }
+  }
+}

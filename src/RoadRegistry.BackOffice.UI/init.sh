@@ -1,7 +1,4 @@
 #!/bin/sh
 
-echo "window.wegenregisterVersion=\"$API_VERSION\";" > /usr/share/nginx/html/config.f84e1103.js
-echo "window.wegenregisterApiOldEndpoint=\"$API_OLDENDPOINT\";" >> /usr/share/nginx/html/config.f84e1103.js
-echo "window.wegenregisterApiEndpoint=\"$API_ENDPOINT\";" >> /usr/share/nginx/html/config.f84e1103.js
-echo "window.wegenregisterApiKey=\"$API_KEY\";" >> /usr/share/nginx/html/config.f84e1103.js
+echo "window.wegenregister = {\"version\":\"$API_VERSION\",\"apiEndpoint\":\"$API_ENDPOINT\",\"apiOldEndpoint\":\"$API_OLDENDPOINT\",\"apiKey\":\"$API_KEY\"};" > /usr/share/nginx/html/config.f84e1103.js
 nginx -g 'daemon off;'

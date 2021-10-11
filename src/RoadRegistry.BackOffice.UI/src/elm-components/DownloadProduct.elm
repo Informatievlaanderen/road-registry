@@ -21,6 +21,7 @@ main =
 
 type alias Flags =
     { endpoint : String
+    , oldEndpoint : String
     , apikey : String
     }
 
@@ -49,11 +50,11 @@ init flags =
       , download =
             { title = "Register download product"
             , url =
-                if String.endsWith "/" flags.endpoint then
-                    String.concat [ flags.endpoint, "v1/download/for-product" ]
+                if String.endsWith "/" flags.oldEndpoint then
+                    String.concat [ flags.oldEndpoint, "v1/download/for-product" ]
 
                 else
-                    String.concat [ flags.endpoint, "/v1/download/for-product" ]
+                    String.concat [ flags.oldEndpoint, "/v1/download/for-product" ]
             , version = ""
             , downloading = False
             , progressing = False

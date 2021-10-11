@@ -29,6 +29,7 @@ type alias UploadModel =
 
 type alias Flags =
     { endpoint : String
+    , oldEndpoint : String
     , apikey : String
     }
 
@@ -45,11 +46,11 @@ init flags =
       , upload =
             { title = "Feature compare"
             , url =
-                if String.endsWith "/" flags.endpoint then
-                    String.concat [ flags.endpoint , "v1/upload" ]
+                if String.endsWith "/" flags.oldEndpoint then
+                    String.concat [ flags.oldEndpoint , "v1/upload" ]
 
                 else
-                    String.concat [ flags.endpoint, "/v1/upload" ]
+                    String.concat [ flags.oldEndpoint, "/v1/upload" ]
             , uploading = False
             , progressing = False
             , progress = ""
