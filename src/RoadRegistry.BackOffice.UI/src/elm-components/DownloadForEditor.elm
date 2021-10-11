@@ -81,11 +81,11 @@ init flags =
       , download =
             { title = "Register dump"
             , url =
-                if String.endsWith "/" flags.endpoint then
-                    String.concat [ flags.endpoint, "v1/download/for-editor" ]
+                if String.endsWith "/" flags.oldEndpoint then
+                    String.concat [ flags.oldEndpoint, "v1/download/for-editor" ]
 
                 else
-                    String.concat [ flags.endpoint, "/v1/download/for-editor" ]
+                    String.concat [ flags.oldEndpoint, "/v1/download/for-editor" ]
             , downloading = False
             , progressing = False
             , progress = ""

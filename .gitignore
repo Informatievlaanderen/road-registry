@@ -3,6 +3,7 @@
 .fake/
 .idea/
 .cache/
+.parcel-cache/
 .ionide/
 .paket/
 elm-stuff/
