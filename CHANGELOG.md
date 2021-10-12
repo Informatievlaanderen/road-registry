@@ -1,3 +1,11 @@
+## [1.58.3](https://github.com/informatievlaanderen/road-registry/compare/v1.58.2...v1.58.3) (2021-10-12)
+
+
+### Bug Fixes
+
+* update docker compose file ([ba0bd80](https://github.com/informatievlaanderen/road-registry/commit/ba0bd80a9b35c2451f0e7ea9a8dba4c23ead0714))
+* use old endpoints for some calls ([17bce59](https://github.com/informatievlaanderen/road-registry/commit/17bce599e266f47c0363d379c66905389607143d))
+
 ## [1.58.2](https://github.com/informatievlaanderen/road-registry/compare/v1.58.1...v1.58.2) (2021-10-12)
 
 
