@@ -1,3 +1,10 @@
+## [1.58.1](https://github.com/informatievlaanderen/road-registry/compare/v1.58.0...v1.58.1) (2021-10-12)
+
+
+### Bug Fixes
+
+* build ([3e420c3](https://github.com/informatievlaanderen/road-registry/commit/3e420c35d0df8da59545513cfa5afa906b53ac1b))
+
 # [1.58.0](https://github.com/informatievlaanderen/road-registry/compare/v1.57.7...v1.58.0) (2021-10-12)
 
 
