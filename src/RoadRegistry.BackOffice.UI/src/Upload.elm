@@ -46,10 +46,10 @@ init flags =
             { title = "Feature compare"
             , url =
                 if String.endsWith "/" flags.endpoint then
-                    String.concat [ flags.endpoint , "v1/wegen/upload" ]
+                    String.concat [ flags.endpoint , "v1/upload" ]
 
                 else
-                    String.concat [ flags.endpoint, "/v1/wegen/upload" ]
+                    String.concat [ flags.endpoint, "/v1/upload" ]
             , uploading = False
             , progressing = False
             , progress = ""
@@ -88,7 +88,7 @@ update msg model =
             ( { model | upload = newUpload }
             , Http.request
                 { method = "POST"
-                , headers = [ Http.header "x-api-key" model.upload.apikey ]
+                , headers = [ ]
                 , url = model.upload.url
                 , body = Http.multipartBody [ Http.filePart "archive" file ]
                 , expect = Http.expectWhatever FileUploaded

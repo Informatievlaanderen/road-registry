@@ -50,10 +50,10 @@ init flags =
             { title = "Register download product"
             , url =
                 if String.endsWith "/" flags.endpoint then
-                    String.concat [ flags.endpoint, "v1/wegen/download/voor-product" ]
+                    String.concat [ flags.endpoint, "v1/download/for-product" ]
 
                 else
-                    String.concat [ flags.endpoint, "/v1/wegen/download/voor-product" ]
+                    String.concat [ flags.endpoint, "/v1/download/for-product" ]
             , version = ""
             , downloading = False
             , progressing = False
@@ -92,7 +92,7 @@ update msg model =
                     [ Http.cancel ("download-" ++ String.fromInt oldDownload.count)
                       , Http.request
                         { method = "GET"
-                        , headers = [ Http.header "x-api-key" model.download.apikey ]
+                        , headers = [ ]
                         , url = String.concat [ model.download.url, "/", model.download.version ]
                         , body = Http.emptyBody
                         , expect = HttpBytes.expect FileDownloaded
