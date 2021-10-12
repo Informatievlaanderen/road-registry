@@ -13,7 +13,7 @@ jobs:
 
     services:
       sqlserver:
-        image: mcr.microsoft.com/mssql/server:latest
+        image: mcr.microsoft.com/mssql/server:2019-latest
         env:
           ACCEPT_EULA: Y
           SA_PASSWORD: E@syP@ssw0rd
