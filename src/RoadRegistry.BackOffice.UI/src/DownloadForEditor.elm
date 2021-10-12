@@ -48,10 +48,10 @@ init flags =
             { title = "Register dump"
             , url =
                 if String.endsWith "/" flags.endpoint then
-                    String.concat [ flags.endpoint, "v1/wegen/download/voor-editor" ]
+                    String.concat [ flags.endpoint, "v1/download/for-editor" ]
 
                 else
-                    String.concat [ flags.endpoint, "/v1/wegen/download/voor-editor" ]
+                    String.concat [ flags.endpoint, "/v1/download/for-editor" ]
             , downloading = False
             , progressing = False
             , progress = ""
@@ -88,7 +88,7 @@ update msg model =
                   Http.cancel ("download-" ++ String.fromInt oldDownload.count)
                   , Http.request
                     { method = "GET"
-                    , headers = [ Http.header "x-api-key" model.download.apikey ]
+                    , headers = [ ]
                     , url = model.download.url
                     , body = Http.emptyBody
                     , expect = HttpBytes.expect FileDownloaded
