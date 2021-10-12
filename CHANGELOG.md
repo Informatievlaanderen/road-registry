@@ -1,3 +1,10 @@
+## [1.58.2](https://github.com/informatievlaanderen/road-registry/compare/v1.58.1...v1.58.2) (2021-10-12)
+
+
+### Bug Fixes
+
+* crosorigin manifest.js ([576d78f](https://github.com/informatievlaanderen/road-registry/commit/576d78fcc4bdc94a538c1176f09bfc911b76b20d))
+
 ## [1.58.1](https://github.com/informatievlaanderen/road-registry/compare/v1.58.0...v1.58.1) (2021-10-12)
 
 
