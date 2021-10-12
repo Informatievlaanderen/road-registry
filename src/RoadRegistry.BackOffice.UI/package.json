@@ -11,7 +11,7 @@
   "private": true,
   "scripts": {
     "build-index": "node_modules/.bin/elm make src/Main.elm --optimize --output=output/index.js",
-    "build-activity": "node_modules/.bin/elm make src/Activity.elm --output=output/activity.js",
+    "build-activity": "node_modules/.bin/elm make src/Activity.elm --optimize --output=output/activity.js",
     "build-information": "node_modules/.bin/elm make src/Information.elm --optimize --output=output/information.js",
     "build-download-for-editor": "node_modules/.bin/elm make src/DownloadForEditor.elm --optimize --output=output/download-for-editor.js",
     "build-download-product": "node_modules/.bin/elm make src/DownloadProduct.elm --optimize --output=output/download-product.js",
