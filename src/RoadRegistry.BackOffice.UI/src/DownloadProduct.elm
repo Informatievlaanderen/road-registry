@@ -50,10 +50,10 @@ init flags =
             { title = "Register download product"
             , url =
                 if String.endsWith "/" flags.endpoint then
-                    String.concat [ flags.endpoint, "v1/download/for-product" ]
+                    String.concat [ flags.endpoint, "v1/wegen/download/voor-product" ]
 
                 else
-                    String.concat [ flags.endpoint, "/v1/download/for-product" ]
+                    String.concat [ flags.endpoint, "/v1/wegen/download/voor-product" ]
             , version = ""
             , downloading = False
             , progressing = False

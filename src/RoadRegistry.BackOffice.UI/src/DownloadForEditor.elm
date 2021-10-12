@@ -48,10 +48,10 @@ init flags =
             { title = "Register dump"
             , url =
                 if String.endsWith "/" flags.endpoint then
-                    String.concat [ flags.endpoint, "v1/download/for-editor" ]
+                    String.concat [ flags.endpoint, "v1/wegen/download/voor-editor" ]
 
                 else
-                    String.concat [ flags.endpoint, "/v1/download/for-editor" ]
+                    String.concat [ flags.endpoint, "/v1/wegen/download/voor-editor" ]
             , downloading = False
             , progressing = False
             , progress = ""

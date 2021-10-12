@@ -62,10 +62,10 @@ init flags =
             { title = "Register dump"
             , url =
                 if String.endsWith "/" flags.endpoint then
-                    String.concat [ flags.endpoint, "v1/information" ]
+                    String.concat [ flags.endpoint, "v1/wegen/informatie" ]
 
                 else
-                    String.concat [ flags.endpoint, "/v1/information" ]
+                    String.concat [ flags.endpoint, "/v1/wegen/informatie" ]
             , organizationCount = ""
             , roadNodeCount = ""
             , roadSegmentCount = ""
@@ -79,10 +79,10 @@ init flags =
         , headers = [ Http.header "x-api-key" flags.apikey ]
         , url =
             if String.endsWith "/" flags.endpoint then
-                String.concat [ flags.endpoint, "v1/information" ]
+                String.concat [ flags.endpoint, "v1/wegen/informatie" ]
 
             else
-                String.concat [ flags.endpoint, "/v1/information" ]
+                String.concat [ flags.endpoint, "/v1/wegen/informatie" ]
         , body = Http.emptyBody
         , expect = Http.expectJson GotInformation informationDecoder
         , timeout = Nothing

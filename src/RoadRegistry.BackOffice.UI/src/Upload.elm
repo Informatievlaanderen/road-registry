@@ -46,10 +46,10 @@ init flags =
             { title = "Feature compare"
             , url =
                 if String.endsWith "/" flags.endpoint then
-                    String.concat [ flags.endpoint , "v1/upload" ]
+                    String.concat [ flags.endpoint , "v1/wegen/upload" ]
 
                 else
-                    String.concat [ flags.endpoint, "/v1/upload" ]
+                    String.concat [ flags.endpoint, "/v1/wegen/upload" ]
             , uploading = False
             , progressing = False
             , progress = ""
