@@ -1,3 +1,17 @@
+# [1.58.0](https://github.com/informatievlaanderen/road-registry/compare/v1.57.7...v1.58.0) (2021-10-12)
+
+
+### Bug Fixes
+
+* build ([bab1dd1](https://github.com/informatievlaanderen/road-registry/commit/bab1dd15a0bdaca82e2b6c105b8c83e93a093fb1))
+* fix wrong parameters ([51c7a6b](https://github.com/informatievlaanderen/road-registry/commit/51c7a6bd84a182be5b0befa63eda949a614bc885))
+* optimize build-activity ([d5f102a](https://github.com/informatievlaanderen/road-registry/commit/d5f102a78677a7267272b73d3034ca9c58707709))
+
+
+### Features
+
+* use public api endpoints ([ab4a403](https://github.com/informatievlaanderen/road-registry/commit/ab4a403a331ba02bd0e9f31c9fb14a60251242de))
+
 ## [1.57.7](https://github.com/informatievlaanderen/road-registry/compare/v1.57.6...v1.57.7) (2021-10-11)
 
 
