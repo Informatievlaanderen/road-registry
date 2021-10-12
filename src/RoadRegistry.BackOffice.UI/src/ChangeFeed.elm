@@ -126,17 +126,17 @@ init maxEntryCount url apikey =
     let
         feedUrl =
             if String.endsWith "/" url then
-                String.concat [ url, "v1/changefeed" ]
+                String.concat [ url, "v1/wegen/activiteit" ]
 
             else
-                String.concat [ url, "/v1/changefeed" ]
+                String.concat [ url, "/v1/wegen/activiteit" ]
 
         archiveUrl =
             if String.endsWith "/" url then
-                String.concat [ url, "v1/upload/" ]
+                String.concat [ url, "v1/wegen/upload/" ]
 
             else
-                String.concat [ url, "/v1/upload/" ]
+                String.concat [ url, "/v1/wegen/upload/" ]
 
         model =
             { entries = []
@@ -185,22 +185,22 @@ type Message
 
 buildHeadUrl : Model -> String
 buildHeadUrl model =
-    model.feedUrl ++ "/head?maxEntryCount=" ++ String.fromInt model.maxEntryCount
+    model.feedUrl ++ "/begin?maxEntryCount=" ++ String.fromInt model.maxEntryCount
 
 
 buildNextUrl : Int -> Model -> String
 buildNextUrl entry model =
-    model.feedUrl ++ "/next?afterEntry=" ++ String.fromInt entry ++ "&maxEntryCount=" ++ String.fromInt model.maxEntryCount
+    model.feedUrl ++ "/volgende?afterEntry=" ++ String.fromInt entry ++ "&maxEntryCount=" ++ String.fromInt model.maxEntryCount
 
 
 buildPreviousUrl : Int -> Model -> String
 buildPreviousUrl entry model =
-    model.feedUrl ++ "/previous?beforeEntry=" ++ String.fromInt entry ++ "&maxEntryCount=" ++ String.fromInt model.maxEntryCount
+    model.feedUrl ++ "/vorige?beforeEntry=" ++ String.fromInt entry ++ "&maxEntryCount=" ++ String.fromInt model.maxEntryCount
 
 
 buildEntryContentUrl : Int -> Model -> String
 buildEntryContentUrl entry model =
-    model.feedUrl ++ "/entry/" ++ String.fromInt entry ++ "/content"
+    model.feedUrl ++ "/gebeurtenis/" ++ String.fromInt entry ++ "/inhoud"
 
 
 type alias BadStatusTranslator =

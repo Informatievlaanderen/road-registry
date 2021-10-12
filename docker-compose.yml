@@ -384,12 +384,20 @@ services:
     depends_on:
       - backoffice-api
       - seq
+      - public-api
     ports:
       - "5010:10007"
     environment:
-      API_ENDPOINT: http://localhost:5020
+      API_ENDPOINT: http://localhost:2080
       API_VERSION: 0.0.0
-      API_KEY: MY_API_KEY
+      API_KEY: 00000000-0000-0000-0000-000000000000
+
+  public-api:
+    image: dev.local/public-api/api-legacy:latest
+    volumes:
+      - ./docker/public-api/appsettings.json:/app/appsettings.json
+    ports:
+      - "2080:2080"
 
   wiremock:
     image: rodolpheche/wiremock:2.29.1
