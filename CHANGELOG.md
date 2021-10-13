@@ -1,3 +1,10 @@
+## [1.58.4](https://github.com/informatievlaanderen/road-registry/compare/v1.58.3...v1.58.4) (2021-10-13)
+
+
+### Bug Fixes
+
+* download-product url ([5db0eca](https://github.com/informatievlaanderen/road-registry/commit/5db0ecaddcde1f5212e6f542941d7b76103f7383))
+
 ## [1.58.3](https://github.com/informatievlaanderen/road-registry/compare/v1.58.2...v1.58.3) (2021-10-12)
 
 
