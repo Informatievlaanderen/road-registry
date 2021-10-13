@@ -1130,18 +1130,18 @@ decodeChangeFeedEntryContentResponse =
     Decode.map2 ChangeFeedEntryContentResponse
         (Decode.field "id" Decode.int)
         (Decode.oneOf
-            [ when decodeEntryContentType (is "BeganRoadNetworkImport") (Decode.succeed BeganRoadNetworkImport)
-            , when decodeEntryContentType (is "CompletedRoadNetworkImport") (Decode.succeed CompletedRoadNetworkImport)
-            , when decodeEntryContentType (is "RoadNetworkChangesArchiveAccepted") decodeRoadNetworkChangesArchiveAccepted
-            , when decodeEntryContentType (is "RoadNetworkChangesArchiveRejected") decodeRoadNetworkChangesArchiveRejected
-            , when decodeEntryContentType (is "RoadNetworkChangesArchiveUploaded") decodeRoadNetworkChangesArchiveUploaded
-            , when decodeEntryContentType (is "RoadNetworkChangesAccepted") decodeRoadNetworkChangesAccepted
-            , when decodeEntryContentType (is "RoadNetworkChangesAccepted:v2") decodeRoadNetworkChangesAcceptedV2
-            , when decodeEntryContentType (is "RoadNetworkChangesRejected") decodeRoadNetworkChangesRejected
-            , when decodeEntryContentType (is "RoadNetworkExtractGotRequested") (Decode.succeed RoadNetworkExtractGotRequested)
-            , when decodeEntryContentType (is "RoadNetworkExtractDownloadBecameAvailable") decodeRoadNetworkExtractDownloadBecameAvailable
-            , when decodeEntryContentType (is "RoadNetworkExtractChangesArchiveAccepted") decodeRoadNetworkExtractChangesArchiveAccepted
-            , when decodeEntryContentType (is "RoadNetworkExtractChangesArchiveRejected") decodeRoadNetworkExtractChangesArchiveRejected
-            , when decodeEntryContentType (is "RoadNetworkExtractChangesArchiveUploaded") decodeRoadNetworkExtractChangesArchiveUploaded
+            [ when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:BeganRoadNetworkImport") (Decode.succeed BeganRoadNetworkImport)
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:CompletedRoadNetworkImport") (Decode.succeed CompletedRoadNetworkImport)
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:RoadNetworkChangesArchiveAccepted") decodeRoadNetworkChangesArchiveAccepted
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:RoadNetworkChangesArchiveRejected") decodeRoadNetworkChangesArchiveRejected
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:RoadNetworkChangesArchiveUploaded") decodeRoadNetworkChangesArchiveUploaded
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:RoadNetworkChangesAccepted") decodeRoadNetworkChangesAccepted
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:RoadNetworkChangesAccepted:v2") decodeRoadNetworkChangesAcceptedV2
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:RoadNetworkChangesRejected") decodeRoadNetworkChangesRejected
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:RoadNetworkExtractGotRequested") (Decode.succeed RoadNetworkExtractGotRequested)
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:RoadNetworkExtractDownloadBecameAvailable") decodeRoadNetworkExtractDownloadBecameAvailable
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:RoadNetworkExtractChangesArchiveAccepted") decodeRoadNetworkExtractChangesArchiveAccepted
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:RoadNetworkExtractChangesArchiveRejected") decodeRoadNetworkExtractChangesArchiveRejected
+            , when decodeEntryContentType (is "urn:be.vlaanderen.basisregisters.api:RoadNetworkExtractChangesArchiveUploaded") decodeRoadNetworkExtractChangesArchiveUploaded
             ]
         )
