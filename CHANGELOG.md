@@ -1,3 +1,10 @@
+## [1.58.5](https://github.com/informatievlaanderen/road-registry/compare/v1.58.4...v1.58.5) (2021-10-14)
+
+
+### Bug Fixes
+
+* download zip file in activity page ([2cc6c70](https://github.com/informatievlaanderen/road-registry/commit/2cc6c7047fb43832d3c434f048ca07beb47eb4ff))
+
 ## [1.58.4](https://github.com/informatievlaanderen/road-registry/compare/v1.58.3...v1.58.4) (2021-10-13)
 
 
