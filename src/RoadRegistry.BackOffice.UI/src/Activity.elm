@@ -17,6 +17,7 @@ main =
 
 type alias Flags =
     { endpoint : String
+    , oldEndpoint: String
     , apikey : String
     }
 
@@ -31,7 +32,7 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
         ( changeFeedModel, changeFeedCommand ) =
-            ChangeFeed.init 25 flags.endpoint flags.apikey
+            ChangeFeed.init 25 flags.endpoint flags.oldEndpoint flags.apikey
     in
     ( { header = Header.init |> Header.activityBecameActive
       , changeFeed = changeFeedModel
