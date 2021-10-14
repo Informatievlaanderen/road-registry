@@ -121,8 +121,8 @@ type alias Model =
 -- messaging
 
 
-init : Int -> String -> String -> ( Model, Cmd Message )
-init maxEntryCount url apikey =
+init : Int -> String -> String -> String -> ( Model, Cmd Message )
+init maxEntryCount url url1 apikey =
     let
         feedUrl =
             if String.endsWith "/" url then
@@ -132,11 +132,11 @@ init maxEntryCount url apikey =
                 String.concat [ url, "/v1/wegen/activiteit" ]
 
         archiveUrl =
-            if String.endsWith "/" url then
-                String.concat [ url, "v1/wegen/upload/" ]
+            if String.endsWith "/" url1 then
+                String.concat [ url1, "v1/upload/" ]
 
             else
-                String.concat [ url, "/v1/wegen/upload/" ]
+                String.concat [ url1, "/v1/upload/" ]
 
         model =
             { entries = []
