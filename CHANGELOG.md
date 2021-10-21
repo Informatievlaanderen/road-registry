@@ -1,3 +1,10 @@
+## [1.58.6](https://github.com/informatievlaanderen/road-registry/compare/v1.58.5...v1.58.6) (2021-10-21)
+
+
+### Bug Fixes
+
+* accept 'unknown' ordinal when adding road segment to numbered road ([d58cbdc](https://github.com/informatievlaanderen/road-registry/commit/d58cbdc4bbd7e08da8f54cd5e4bfad06d9acb115))
+
 ## [1.58.5](https://github.com/informatievlaanderen/road-registry/compare/v1.58.4...v1.58.5) (2021-10-14)
 
 
