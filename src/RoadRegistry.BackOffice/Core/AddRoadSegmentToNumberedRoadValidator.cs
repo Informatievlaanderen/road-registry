@@ -17,7 +17,8 @@ namespace RoadRegistry.BackOffice.Core
                 .Must(RoadSegmentNumberedRoadDirection.CanParse)
                 .When(c => c.Direction != null, ApplyConditionTo.CurrentValidator)
                 .WithMessage("The 'Direction' is not a RoadSegmentNumberedRoadDirection.");
-            RuleFor(c => c.Ordinal).GreaterThanOrEqualTo(0);
+            RuleFor(c => c.Ordinal)
+                .Must(RoadSegmentNumberedRoadOrdinal.Accepts);
         }
     }
 }

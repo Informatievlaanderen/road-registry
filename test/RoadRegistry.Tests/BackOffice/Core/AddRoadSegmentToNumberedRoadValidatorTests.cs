@@ -49,6 +49,15 @@ namespace RoadRegistry.BackOffice.Core
             Validator.ShouldHaveValidationErrorFor(c => c.Ordinal, value);
         }
 
+        [Theory]
+        [InlineData(0)]
+        [InlineData(int.MaxValue)]
+        [InlineData(RoadSegmentNumberedRoadOrdinal.WellKnownValues.NotKnown)]
+        public void OrdinalMustBeGreaterThanOrEqualToZeroOrAcceptedValue(int value)
+        {
+            Validator.ShouldNotHaveValidationErrorFor(c => c.Ordinal, value);
+        }
+
         [Fact]
         public void VerifyValid()
         {
