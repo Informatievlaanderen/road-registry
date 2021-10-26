@@ -20,7 +20,9 @@ namespace RoadRegistry.BackOffice.Api.Extracts
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Net.Http.Headers;
+    using NetTopologySuite.Geometries;
     using NetTopologySuite.IO;
     using NodaTime;
 
@@ -42,6 +44,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         private readonly WKTReader _reader;
         private readonly IValidator<DownloadExtractRequestBody> _downloadExtractRequestBodyValidator;
         private readonly IValidator<DownloadExtractByContourRequestBody> _downloadExtractByContourRequestBodyValidator;
+        private readonly IValidator<DownloadExtractByNisRequestBody> _downloadExtractByNisRequestBodyValidator;
+        private readonly EditorContext _editorContext;
         private readonly IClock _clock;
 
         public ExtractsController(
@@ -51,7 +55,9 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             RoadNetworkExtractUploadsBlobClient uploadsClient,
             WKTReader reader,
             IValidator<DownloadExtractRequestBody> downloadExtractRequestBodyValidator,
-            IValidator<DownloadExtractByContourRequestBody> downloadExtractByContourRequestBodyValidator)
+            IValidator<DownloadExtractByContourRequestBody> downloadExtractByContourRequestBodyValidator,
+            IValidator<DownloadExtractByNisRequestBody> downloadExtractByNisRequestBodyValidator,
+            EditorContext editorContext)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
@@ -59,7 +65,9 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             _uploadsClient = uploadsClient ?? throw new ArgumentNullException(nameof(uploadsClient));
             _reader = reader ?? throw new ArgumentNullException(nameof(reader));
             _downloadExtractRequestBodyValidator = downloadExtractRequestBodyValidator ?? throw new ArgumentNullException(nameof(downloadExtractRequestBodyValidator));
-            _downloadExtractByContourRequestBodyValidator = downloadExtractByContourRequestBodyValidator;
+            _downloadExtractByContourRequestBodyValidator = downloadExtractByContourRequestBodyValidator ?? throw new ArgumentNullException(nameof(downloadExtractByContourRequestBodyValidator));
+            _downloadExtractByNisRequestBodyValidator = downloadExtractByNisRequestBodyValidator ?? throw new ArgumentNullException(nameof(downloadExtractByNisRequestBodyValidator));
+            _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
         }
 
         [HttpPost("downloadrequests")]
@@ -93,6 +101,25 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                     ExternalRequestId = randomExternalRequestId,
                     Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(
                         (NetTopologySuite.Geometries.IPolygonal) _reader.Read(body.Contour)),
+                    DownloadId = downloadId
+                });
+            await _dispatcher(message, HttpContext.RequestAborted);
+            return Accepted(new DownloadExtractResponseBody {DownloadId = downloadId.ToString()});
+        }
+
+        [HttpPost("downloadrequests/bynis")]
+        public async Task<IActionResult> PostDownloadRequestByNis([FromBody]DownloadExtractByNisRequestBody body)
+        {
+            await _downloadExtractByNisRequestBodyValidator.ValidateAndThrowAsync(body, HttpContext.RequestAborted);
+            var municipalityGeometry = await _editorContext.MunicipalityGeometries.SingleAsync(x => x.NisCode == body.Nis, HttpContext.RequestAborted);
+
+            var downloadId = new DownloadId(Guid.NewGuid());
+            var randomExternalRequestId = Guid.NewGuid().ToString("N");
+            var message = new Command(
+                new RequestRoadNetworkExtract
+                {
+                    ExternalRequestId = randomExternalRequestId,
+                    Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(municipalityGeometry.Geometry as MultiPolygon),
                     DownloadId = downloadId
                 });
             await _dispatcher(message, HttpContext.RequestAborted);
