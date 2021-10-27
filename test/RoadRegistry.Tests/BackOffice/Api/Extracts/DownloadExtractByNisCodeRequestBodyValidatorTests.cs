@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 {
     using System;
     using System.Threading.Tasks;
-    using AutoFixture;
     using Editor.Schema;
     using FluentAssertions;
     using FluentValidation;
@@ -88,19 +87,17 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                     NisCode = nisCode,
                     Geometry = GeometryCollection.Empty
                 });
+                await context.SaveChangesAsync();
 
                 var logger = new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>();
                 var validator = new DownloadExtractByNisCodeRequestBodyValidator(context, logger);
 
-                Func<Task> act = () =>
+                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
                 {
-                    return validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
-                    {
-                        NisCode = nisCode
-                    });
-                };
+                    NisCode = nisCode
+                });
 
-                await act.Should().ThrowAsync<ValidationException>();
+                await act.Should().NotThrowAsync<ValidationException>();
             }
         }
     }
