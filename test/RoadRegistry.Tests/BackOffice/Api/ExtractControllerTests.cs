@@ -10,7 +10,6 @@ namespace RoadRegistry.BackOffice.Api
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Configuration;
     using Editor.Schema;
-    using Editor.Schema.Extracts;
     using Extracts;
     using FluentValidation;
     using Microsoft.AspNetCore.Http;
@@ -19,19 +18,24 @@ namespace RoadRegistry.BackOffice.Api
     using NetTopologySuite;
     using NetTopologySuite.IO;
     using NodaTime;
+    using RoadRegistry.Framework.Containers;
     using SqlStreamStore;
     using Xunit;
     using Xunit.Sdk;
 
-    public class ExtractControllerTests
+    [Collection(nameof(SqlServerCollection))]
+    public class ExtractControllerTests : IAsyncLifetime
     {
+        private readonly SqlServer _sqlServerFixture;
         private readonly Fixture _fixture;
         private readonly CommandHandlerResolver _resolver;
         private readonly RoadNetworkExtractDownloadsBlobClient _downloadClient;
         private readonly RoadNetworkExtractUploadsBlobClient _uploadClient;
+        private EditorContext _editorContext;
 
-        public ExtractControllerTests()
+        public ExtractControllerTests(SqlServer sqlServerFixture)
         {
+            _sqlServerFixture = sqlServerFixture;
             _fixture = new Fixture();
             _fixture.CustomizeExternalExtractRequestId();
             _fixture.CustomizeRoadNetworkExtractGeometry();
@@ -60,7 +64,18 @@ namespace RoadRegistry.BackOffice.Api
             var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
             var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
             var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var controller = new ExtractsController(SystemClock.Instance, Dispatch.Using(_resolver), _downloadClient, _uploadClient, wktReader, downloadExtractRequestBodyValidator, downloadExtractByContourRequestBodyValidator)
+            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext, new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>());
+
+            var controller = new ExtractsController(
+                SystemClock.Instance,
+                Dispatch.Using(_resolver),
+                _downloadClient,
+                _uploadClient,
+                wktReader,
+                downloadExtractRequestBodyValidator,
+                downloadExtractByContourRequestBodyValidator,
+                downloadExtractByNisCodeRequestBodyValidator,
+                _editorContext)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -85,7 +100,18 @@ namespace RoadRegistry.BackOffice.Api
             var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
             var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
             var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var controller = new ExtractsController(SystemClock.Instance,Dispatch.Using(_resolver), _downloadClient, _uploadClient, wktReader, downloadExtractRequestBodyValidator, downloadExtractByContourRequestBodyValidator)
+            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext, new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>());
+
+            var controller = new ExtractsController(
+                SystemClock.Instance,
+                Dispatch.Using(_resolver),
+                _downloadClient,
+                _uploadClient,
+                wktReader,
+                downloadExtractRequestBodyValidator,
+                downloadExtractByContourRequestBodyValidator,
+                downloadExtractByNisCodeRequestBodyValidator,
+                _editorContext)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -110,7 +136,18 @@ namespace RoadRegistry.BackOffice.Api
             var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
             var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
             var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var controller = new ExtractsController(SystemClock.Instance,Dispatch.Using(_resolver), _downloadClient, _uploadClient, wktReader, downloadExtractRequestBodyValidator, downloadExtractByContourRequestBodyValidator)
+            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext, new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>());
+
+            var controller = new ExtractsController(
+                SystemClock.Instance,
+                Dispatch.Using(_resolver),
+                _downloadClient,
+                _uploadClient,
+                wktReader,
+                downloadExtractRequestBodyValidator,
+                downloadExtractByContourRequestBodyValidator,
+                downloadExtractByNisCodeRequestBodyValidator,
+                _editorContext)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -139,7 +176,18 @@ namespace RoadRegistry.BackOffice.Api
             var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
             var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
             var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var controller = new ExtractsController(SystemClock.Instance,Dispatch.Using(_resolver), _downloadClient, _uploadClient, wktReader, downloadExtractRequestBodyValidator, downloadExtractByContourRequestBodyValidator)
+            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext, new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>());
+
+            var controller = new ExtractsController(
+                SystemClock.Instance,
+                Dispatch.Using(_resolver),
+                _downloadClient,
+                _uploadClient,
+                wktReader,
+                downloadExtractRequestBodyValidator,
+                downloadExtractByContourRequestBodyValidator,
+                downloadExtractByNisCodeRequestBodyValidator,
+                _editorContext)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -164,7 +212,18 @@ namespace RoadRegistry.BackOffice.Api
             var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
             var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
             var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var controller = new ExtractsController(SystemClock.Instance,Dispatch.Using(_resolver), _downloadClient, _uploadClient, wktReader, downloadExtractRequestBodyValidator, downloadExtractByContourRequestBodyValidator)
+            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext, new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>());
+
+            var controller = new ExtractsController(
+                SystemClock.Instance,
+                Dispatch.Using(_resolver),
+                _downloadClient,
+                _uploadClient,
+                wktReader,
+                downloadExtractRequestBodyValidator,
+                downloadExtractByContourRequestBodyValidator,
+                downloadExtractByNisCodeRequestBodyValidator,
+                _editorContext)
             {
                 ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
             };
@@ -207,5 +266,15 @@ namespace RoadRegistry.BackOffice.Api
         //
         // [Fact]
         // public async Task When_downloading_an_extract_that_is_available(){}
+
+        public async Task InitializeAsync()
+        {
+            _editorContext = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
+        }
+
+        public async Task DisposeAsync()
+        {
+            await _editorContext.DisposeAsync();
+        }
     }
 }
