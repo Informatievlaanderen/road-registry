@@ -44,7 +44,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         private readonly WKTReader _reader;
         private readonly IValidator<DownloadExtractRequestBody> _downloadExtractRequestBodyValidator;
         private readonly IValidator<DownloadExtractByContourRequestBody> _downloadExtractByContourRequestBodyValidator;
-        private readonly IValidator<DownloadExtractByNisRequestBody> _downloadExtractByNisRequestBodyValidator;
+        private readonly IValidator<DownloadExtractByNisCodeRequestBody> _downloadExtractByNisRequestBodyValidator;
         private readonly EditorContext _editorContext;
         private readonly IClock _clock;
 
@@ -56,7 +56,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             WKTReader reader,
             IValidator<DownloadExtractRequestBody> downloadExtractRequestBodyValidator,
             IValidator<DownloadExtractByContourRequestBody> downloadExtractByContourRequestBodyValidator,
-            IValidator<DownloadExtractByNisRequestBody> downloadExtractByNisRequestBodyValidator,
+            IValidator<DownloadExtractByNisCodeRequestBody> downloadExtractByNisRequestBodyValidator,
             EditorContext editorContext)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
@@ -107,11 +107,11 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             return Accepted(new DownloadExtractResponseBody {DownloadId = downloadId.ToString()});
         }
 
-        [HttpPost("downloadrequests/bynis")]
-        public async Task<IActionResult> PostDownloadRequestByNis([FromBody]DownloadExtractByNisRequestBody body)
+        [HttpPost("downloadrequests/byniscode")]
+        public async Task<IActionResult> PostDownloadRequestByNis([FromBody]DownloadExtractByNisCodeRequestBody body)
         {
             await _downloadExtractByNisRequestBodyValidator.ValidateAndThrowAsync(body, HttpContext.RequestAborted);
-            var municipalityGeometry = await _editorContext.MunicipalityGeometries.SingleAsync(x => x.NisCode == body.Nis, HttpContext.RequestAborted);
+            var municipalityGeometry = await _editorContext.MunicipalityGeometries.SingleAsync(x => x.NisCode == body.NisCode, HttpContext.RequestAborted);
 
             var downloadId = new DownloadId(Guid.NewGuid());
             var randomExternalRequestId = Guid.NewGuid().ToString("N");
