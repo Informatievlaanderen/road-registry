@@ -1,3 +1,11 @@
+# [1.59.0](https://github.com/informatievlaanderen/road-registry/compare/v1.58.6...v1.59.0) (2021-10-28)
+
+
+### Features
+
+* add endpoint to create extract by contour ([2b65441](https://github.com/informatievlaanderen/road-registry/commit/2b6544112c7225b02beba991e947b191356b58e5))
+* add endpoint to create extract by nis ([41572a9](https://github.com/informatievlaanderen/road-registry/commit/41572a917970d6f41a87209e54f47b11d3f5ab2b))
+
 ## [1.58.6](https://github.com/informatievlaanderen/road-registry/compare/v1.58.5...v1.58.6) (2021-10-21)
 
 
