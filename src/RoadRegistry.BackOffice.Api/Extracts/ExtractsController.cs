@@ -56,7 +56,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             WKTReader reader,
             IValidator<DownloadExtractRequestBody> downloadExtractRequestBodyValidator,
             IValidator<DownloadExtractByContourRequestBody> downloadExtractByContourRequestBodyValidator,
-            IValidator<DownloadExtractByNisCodeRequestBody> downloadExtractByNisRequestBodyValidator,
+            IValidator<DownloadExtractByNisCodeRequestBody> downloadExtractByNisCodeRequestBodyValidator,
             EditorContext editorContext)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
@@ -66,7 +66,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             _reader = reader ?? throw new ArgumentNullException(nameof(reader));
             _downloadExtractRequestBodyValidator = downloadExtractRequestBodyValidator ?? throw new ArgumentNullException(nameof(downloadExtractRequestBodyValidator));
             _downloadExtractByContourRequestBodyValidator = downloadExtractByContourRequestBodyValidator ?? throw new ArgumentNullException(nameof(downloadExtractByContourRequestBodyValidator));
-            _downloadExtractByNisRequestBodyValidator = downloadExtractByNisRequestBodyValidator ?? throw new ArgumentNullException(nameof(downloadExtractByNisRequestBodyValidator));
+            _downloadExtractByNisRequestBodyValidator = downloadExtractByNisCodeRequestBodyValidator ?? throw new ArgumentNullException(nameof(downloadExtractByNisCodeRequestBodyValidator));
             _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
         }
 
@@ -108,7 +108,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         }
 
         [HttpPost("downloadrequests/byniscode")]
-        public async Task<IActionResult> PostDownloadRequestByNis([FromBody]DownloadExtractByNisCodeRequestBody body)
+        public async Task<IActionResult> PostDownloadRequestByNisCode([FromBody]DownloadExtractByNisCodeRequestBody body)
         {
             await _downloadExtractByNisRequestBodyValidator.ValidateAndThrowAsync(body, HttpContext.RequestAborted);
             var municipalityGeometry = await _editorContext.MunicipalityGeometries.SingleAsync(x => x.NisCode == body.NisCode, HttpContext.RequestAborted);
