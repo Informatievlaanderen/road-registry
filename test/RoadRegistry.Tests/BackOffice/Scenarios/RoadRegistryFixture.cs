@@ -11,6 +11,7 @@ namespace RoadRegistry.BackOffice.Scenarios
     using Core;
     using Extracts;
     using Framework;
+    using KellermanSoftware.CompareNetObjects;
     using Messages;
     using Newtonsoft.Json;
     using NodaTime;
@@ -33,7 +34,6 @@ namespace RoadRegistry.BackOffice.Scenarios
         protected IStreamStore Store { get; }
         protected FakeClock Clock { get; }
         protected MemoryBlobClient Client { get; }
-
         protected IZipArchiveValidator ZipArchiveValidator { get; set; }
 
         private class FakeRoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
@@ -54,7 +54,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             }
         }
 
-        protected RoadRegistryFixture()
+        protected RoadRegistryFixture(ComparisonConfig comparisonConfig = null)
         {
             Fixture = new Fixture();
             Client = new MemoryBlobClient();
@@ -71,7 +71,10 @@ namespace RoadRegistry.BackOffice.Scenarios
                 Settings,
                 Mapping,
                 StreamNameConversions.PassThru
-            );
+            )
+            {
+                ComparisonConfig = comparisonConfig
+            };
         }
 
         protected Task Run(Func<Scenario, IExpectExceptionScenarioBuilder> builder)

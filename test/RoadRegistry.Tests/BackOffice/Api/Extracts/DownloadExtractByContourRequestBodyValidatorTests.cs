@@ -10,6 +10,9 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 
     public class DownloadExtractByContourRequestBodyValidatorTests
     {
+        private const string ValidContour = "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)))";
+        private const int ValidBuffer = 50;
+
         private readonly DownloadExtractByContourRequestBodyValidator _validator;
 
         public DownloadExtractByContourRequestBodyValidatorTests()
@@ -24,8 +27,10 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         {
             Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
             {
-                Contour = "invalid"
+                Contour = "invalid",
+                Buffer = ValidBuffer
             });
+
             await act.Should().ThrowAsync<ValidationException>();
         }
 
@@ -36,8 +41,10 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         {
             Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
             {
-                Contour = givenContour
+                Contour = givenContour,
+                Buffer = ValidBuffer
             });
+
             await act.Should().ThrowAsync<ValidationException>();
         }
 
@@ -46,10 +53,44 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         {
             Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
             {
-                Contour = "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)))"
+                Contour = ValidContour,
+                Buffer = ValidBuffer
             });
 
             await act.Should().NotThrowAsync<ValidationException>();
         }
+
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(101)]
+        [InlineData(int.MinValue)]
+        [InlineData(int.MaxValue)]
+        public async Task Validate_will_not_allow_invalid_buffer(int givenBuffer)
+        {
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
+            {
+                Contour = ValidContour,
+                Buffer = givenBuffer
+            });
+
+            await act.Should().ThrowAsync<ValidationException>();
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(99)]
+        [InlineData(100)]
+        public async Task Validate_will_allow_valid_buffer(int givenBuffer)
+        {
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
+            {
+                Contour = ValidContour,
+                Buffer = givenBuffer
+            });
+
+            await act.Should().NotThrowAsync<ValidationException>();
+        }
+
     }
 }

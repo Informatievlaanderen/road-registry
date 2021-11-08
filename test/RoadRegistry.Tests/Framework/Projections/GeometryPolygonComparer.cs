@@ -3,7 +3,7 @@ namespace RoadRegistry.Framework.Projections
     using System;
     using KellermanSoftware.CompareNetObjects;
     using KellermanSoftware.CompareNetObjects.TypeComparers;
-    using NetTopologySuite.Geometries;
+    using Polygon = NetTopologySuite.Geometries.Polygon;
 
     public class GeometryPolygonComparer : BaseTypeComparer
     {

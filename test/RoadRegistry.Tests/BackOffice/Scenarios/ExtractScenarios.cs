@@ -8,13 +8,34 @@ namespace RoadRegistry.BackOffice.Scenarios
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Extracts;
+    using KellermanSoftware.CompareNetObjects;
+    using Messages;
     using NodaTime.Text;
+    using RoadRegistry.Framework.Projections;
     using RoadRegistry.Framework.Testing;
-    using Uploads;
 
     public class ExtractScenarios: RoadRegistryFixture
     {
-        public ExtractScenarios()
+        private static ComparisonConfig CreateComparisonConfig()
+        {
+            var comparisonConfig = new ComparisonConfig
+            {
+                MaxDifferences = int.MaxValue,
+                MaxStructDepth = 5,
+                IgnoreCollectionOrder = true
+            };
+
+            comparisonConfig.CustomPropertyComparer<RoadNetworkExtractGotRequested>(
+                x => x.Contour.Polygon,
+                new GeometryPolygonComparer(RootComparerFactory.GetRootComparer()));
+            comparisonConfig.CustomPropertyComparer<RoadNetworkExtractGotRequested>(
+                x => x.Contour.MultiPolygon,
+                new GeometryPolygonComparer(RootComparerFactory.GetRootComparer()));
+
+            return comparisonConfig;
+        }
+
+        public ExtractScenarios() : base(CreateComparisonConfig())
         {
             Fixture.CustomizeExternalExtractRequestId();
             Fixture.CustomizeRoadNetworkExtractGeometry();
