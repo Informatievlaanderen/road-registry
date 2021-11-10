@@ -2799,6 +2799,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                                 new Messages.Problem
                                 {
                                     Reason = "RoadNodeGeometryTaken",
+                                    Severity = ProblemSeverity.Warning,
                                     Parameters = new[]
                                     {
                                         new Messages.ProblemParameter
@@ -2939,6 +2940,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                                 new Messages.Problem
                                 {
                                     Reason = "RoadNodeGeometryTaken",
+                                    Severity = ProblemSeverity.Warning,
                                     Parameters = new[]
                                     {
                                         new Messages.ProblemParameter

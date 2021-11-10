@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Core
 {
-    public class RoadNodeGeometryTaken : Error
+    public class RoadNodeGeometryTaken : Warning
     {
         public RoadNodeGeometryTaken(RoadNodeId byOtherNode) : base(
             nameof(RoadNodeGeometryTaken),
