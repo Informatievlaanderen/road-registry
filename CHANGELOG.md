@@ -1,3 +1,10 @@
+## [1.59.1](https://github.com/informatievlaanderen/road-registry/compare/v1.59.0...v1.59.1) (2021-11-10)
+
+
+### Bug Fixes
+
+* mark nodes that are too close together as a warning instead of an error ([ee8441e](https://github.com/informatievlaanderen/road-registry/commit/ee8441ea4e331fc92e5a6e0ac604f3b7b1fe4e96))
+
 # [1.59.0](https://github.com/informatievlaanderen/road-registry/compare/v1.58.6...v1.59.0) (2021-10-28)
 
 
