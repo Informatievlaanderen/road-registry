@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Core
 {
-    public class RoadNodeTooClose : Error
+    public class RoadNodeTooClose : Warning
     {
         public RoadNodeTooClose(RoadSegmentId toOtherSegment) :
             base(nameof(RoadNodeTooClose),

@@ -2799,7 +2799,6 @@ namespace RoadRegistry.BackOffice.Scenarios
                                 new Messages.Problem
                                 {
                                     Reason = "RoadNodeGeometryTaken",
-                                    Severity = ProblemSeverity.Warning,
                                     Parameters = new[]
                                     {
                                         new Messages.ProblemParameter
@@ -2812,6 +2811,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                                 new Messages.Problem
                                 {
                                     Reason = "RoadNodeTooClose",
+                                    Severity = ProblemSeverity.Warning,
                                     Parameters = new []
                                     {
                                         new Messages.ProblemParameter
@@ -2940,7 +2940,6 @@ namespace RoadRegistry.BackOffice.Scenarios
                                 new Messages.Problem
                                 {
                                     Reason = "RoadNodeGeometryTaken",
-                                    Severity = ProblemSeverity.Warning,
                                     Parameters = new[]
                                     {
                                         new Messages.ProblemParameter
@@ -2953,6 +2952,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                                 new Messages.Problem
                                 {
                                     Reason = "RoadNodeTooClose",
+                                    Severity = ProblemSeverity.Warning,
                                     Parameters = new []
                                     {
                                         new Messages.ProblemParameter
@@ -3109,6 +3109,9 @@ namespace RoadRegistry.BackOffice.Scenarios
                         }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
                 );
                 AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint);
+
+                StartNode2Added.Geometry = AddStartNode2.Geometry;
+                Segment2Added.Geometry = AddSegment2.Geometry;
             } while (GeometryTranslator.Translate(Segment1Added.Geometry).Intersects(GeometryTranslator.Translate(AddSegment2.Geometry)));
 
             return Run(scenario => scenario
@@ -3158,20 +3161,21 @@ namespace RoadRegistry.BackOffice.Scenarios
                         AddRoadSegment = AddSegment2
                     }
                 ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
                     RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                     TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
-                        new Messages.RejectedChange
+                        new Messages.AcceptedChange
                         {
-                            AddRoadNode = AddStartNode2,
+                            RoadNodeAdded = StartNode2Added,
                             Problems = new[]
                             {
                                 new Messages.Problem
                                 {
                                     Reason = "RoadNodeTooClose",
+                                    Severity = ProblemSeverity.Warning,
                                     Parameters = new[]
                                     {
                                         new Messages.ProblemParameter
@@ -3182,7 +3186,17 @@ namespace RoadRegistry.BackOffice.Scenarios
                                     }
                                 }
                             }
-                        }
+                        },
+                        new Messages.AcceptedChange()
+                        {
+                            RoadNodeAdded = EndNode2Added,
+                            Problems = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange()
+                        {
+                            RoadSegmentAdded = Segment2Added,
+                            Problems = new Messages.Problem[0]
+                        },
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
