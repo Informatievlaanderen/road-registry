@@ -1,3 +1,10 @@
+## [1.59.2](https://github.com/informatievlaanderen/road-registry/compare/v1.59.1...v1.59.2) (2021-11-17)
+
+
+### Bug Fixes
+
+* mark nodes that are too close as warnings instead of errors ([b0578c7](https://github.com/informatievlaanderen/road-registry/commit/b0578c713b75f871427d7ffc1895d0cd5dd6bfe9))
+
 ## [1.59.1](https://github.com/informatievlaanderen/road-registry/compare/v1.59.0...v1.59.1) (2021-11-10)
 
 
