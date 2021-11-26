@@ -195,9 +195,11 @@ namespace RoadRegistry.BackOffice
                         var toHoles = new Messages.Ring[fromPolygon.Holes.Length];
                         for (var holeIndex = 0; holeIndex < fromPolygon.Holes.Length; holeIndex++)
                         {
-                            var toHole = toHoles[holeIndex];
                             var fromHole = fromPolygon.Holes[holeIndex];
-                            toHole.Points = new Messages.Point[fromHole.NumPoints];
+                            toHoles[holeIndex] = new Messages.Ring
+                            {
+                                Points = new Messages.Point[fromHole.NumPoints]
+                            };
                             for (var holePointIndex = 0; holePointIndex < fromHole.NumPoints; holePointIndex++)
                             {
                                 toShell.Points[holePointIndex] = new Messages.Point
@@ -241,9 +243,11 @@ namespace RoadRegistry.BackOffice
                     var toHoles = new Messages.Ring[polygon.Holes.Length];
                     for (var holeIndex = 0; holeIndex < polygon.Holes.Length; holeIndex++)
                     {
-                        var toHole = toHoles[holeIndex];
                         var fromHole = polygon.Holes[holeIndex];
-                        toHole.Points = new Messages.Point[fromHole.NumPoints];
+                        toHoles[holeIndex] = new Messages.Ring
+                        {
+                            Points = new Messages.Point[fromHole.NumPoints]
+                        };
                         for (var holePointIndex = 0; holePointIndex < fromHole.NumPoints; holePointIndex++)
                         {
                             toShell.Points[holePointIndex] = new Messages.Point
