@@ -1,3 +1,10 @@
+## [1.59.3](https://github.com/informatievlaanderen/road-registry/compare/v1.59.2...v1.59.3) (2021-11-26)
+
+
+### Bug Fixes
+
+* fix handling of polygons with holes ([4517678](https://github.com/informatievlaanderen/road-registry/commit/45176783f8291055ceac3e63377d3322f57a1713))
+
 ## [1.59.2](https://github.com/informatievlaanderen/road-registry/compare/v1.59.1...v1.59.2) (2021-11-17)
 
 
