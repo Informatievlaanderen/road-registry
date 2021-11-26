@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice
 {
-    using Extracts;
     using FluentAssertions;
     using NetTopologySuite.IO;
     using Xunit;
