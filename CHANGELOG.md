@@ -1,3 +1,10 @@
+## [1.59.4](https://github.com/informatievlaanderen/road-registry/compare/v1.59.3...v1.59.4) (2021-11-26)
+
+
+### Bug Fixes
+
+* correctly handle geometries with holes ([9afb924](https://github.com/informatievlaanderen/road-registry/commit/9afb924cdb754a208cf43d85b00f4fa67f7a381a))
+
 ## [1.59.3](https://github.com/informatievlaanderen/road-registry/compare/v1.59.2...v1.59.3) (2021-11-26)
 
 
