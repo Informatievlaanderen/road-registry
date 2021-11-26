@@ -202,7 +202,7 @@ namespace RoadRegistry.BackOffice
                             };
                             for (var holePointIndex = 0; holePointIndex < fromHole.NumPoints; holePointIndex++)
                             {
-                                toShell.Points[holePointIndex] = new Messages.Point
+                                toHoles[holeIndex].Points[holePointIndex] = new Messages.Point
                                 {
                                     X = fromHole.Coordinates[holePointIndex].X,
                                     Y = fromHole.Coordinates[holePointIndex].Y
@@ -250,7 +250,7 @@ namespace RoadRegistry.BackOffice
                         };
                         for (var holePointIndex = 0; holePointIndex < fromHole.NumPoints; holePointIndex++)
                         {
-                            toShell.Points[holePointIndex] = new Messages.Point
+                            toHoles[holeIndex].Points[holePointIndex] = new Messages.Point
                             {
                                 X = fromHole.Coordinates[holePointIndex].X,
                                 Y = fromHole.Coordinates[holePointIndex].Y
