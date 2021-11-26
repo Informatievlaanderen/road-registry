@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice
 {
+    using Extracts;
     using FluentAssertions;
     using NetTopologySuite.IO;
     using Xunit;
@@ -24,6 +25,7 @@ namespace RoadRegistry.BackOffice
             var geometry = _reader.Read(geometryString) as NetTopologySuite.Geometries.IPolygonal;
 
             var result = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(geometry);
+
             result.Should().NotBeNull();
         }
 
