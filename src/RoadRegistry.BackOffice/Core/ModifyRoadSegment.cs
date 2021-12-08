@@ -346,16 +346,15 @@ namespace RoadRegistry.BackOffice.Core
                 }
             }
 
-            // TODO: WR-290 re-enable
-            // var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal)
-            //     .Segments.Where(pair => pair.Key != Id && pair.Value.Geometry.Intersects(Geometry));
-            // var intersectingSegmentsWithoutJunction = intersectingSegments.Where(intersectingSegment =>
-            //     !context.AfterView.GradeSeparatedJunctions.Any(junction =>
-            //         (junction.Value.LowerSegment == Id && junction.Value.UpperSegment == intersectingSegment.Key) ||
-            //         (junction.Value.LowerSegment == intersectingSegment.Key && junction.Value.UpperSegment == Id)));
-            //
-            // problems = problems.AddRange(intersectingSegmentsWithoutJunction.Select(i =>
-            //     new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(Id, i.Key)));
+            var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal)
+                .Segments.Where(pair => pair.Key != Id && pair.Value.Geometry.Intersects(Geometry) && !pair.Value.Nodes.Any(node => new [] {StartNodeId, EndNodeId}.Contains(node)));
+            var intersectingSegmentsWithoutJunction = intersectingSegments.Where(intersectingSegment =>
+                !context.AfterView.GradeSeparatedJunctions.Any(junction =>
+                    (junction.Value.LowerSegment == Id && junction.Value.UpperSegment == intersectingSegment.Key) ||
+                    (junction.Value.LowerSegment == intersectingSegment.Key && junction.Value.UpperSegment == Id)));
+
+            problems = problems.AddRange(intersectingSegmentsWithoutJunction.Select(i =>
+                new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(Id, i.Key)));
 
             return problems;
         }

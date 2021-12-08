@@ -764,6 +764,196 @@ namespace RoadRegistry.BackOffice.Scenarios
         }
 
         [Fact]
+        public Task when_adding_a_start_and_end_node_and_segment_to_an_existing_segment()
+        {
+            var nextWidthsAttributeId = AddSegment1.Widths.Length + 1;
+            var nextSurfacesAttributeId = AddSegment1.Surfaces.Length + 1;
+
+            StartNode1Added.Geometry = new RoadNodeGeometry {Point = new Messages.Point {X = 0, Y = 0}};
+            EndNode1Added.Geometry = new RoadNodeGeometry {Point = new Messages.Point {X = 0, Y = 10}};
+            Segment1Added.Geometry = new RoadSegmentGeometry
+            {
+                MultiLineString = new[]
+                {
+                    new Messages.LineString
+                    {
+                        Measures = new[] {0.0, 10},
+                        Points = new[] {StartNode1Added.Geometry.Point, EndNode1Added.Geometry.Point}
+                    }
+                },
+                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            Segment1Added.Lanes = new[]
+            {
+                new Messages.RoadSegmentLaneAttributes
+                {
+                    FromPosition = 0,
+                    ToPosition = 10
+                }
+            };
+
+            ModifyEndNode1.Type = RoadNodeType.FakeNode;
+            ModifyEndNode1.Geometry = EndNode1Added.Geometry;
+            AddEndNode2.Geometry= new RoadNodeGeometry {Point = new Messages.Point {X = 0, Y = 20}};
+            AddSegment2.Geometry = new RoadSegmentGeometry
+            {
+                MultiLineString = new[]
+                {
+                    new Messages.LineString
+                    {
+                        Measures = new[] {0.0, 10},
+                        Points = new[] {ModifyEndNode1.Geometry.Point, AddEndNode2.Geometry.Point}
+                    }
+                },
+                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            AddSegment2.Lanes = new[]
+            {
+                new Messages.RequestedRoadSegmentLaneAttribute
+                {
+                    FromPosition = 0,
+                    ToPosition = 10,
+                    Direction = RoadSegmentLaneDirection.Forward
+                }
+            };
+            AddSegment2.Widths = new[]
+            {
+                new Messages.RequestedRoadSegmentWidthAttribute
+                {
+                    FromPosition = 0,
+                    ToPosition = 10
+                }
+            };
+            AddSegment2.Surfaces = new[]
+            {
+                new Messages.RequestedRoadSegmentSurfaceAttribute
+                {
+                    FromPosition = 0,
+                    ToPosition = 10,
+                    Type = RoadSegmentSurfaceType.Unknown
+                }
+            };
+
+            AddSegment2.StartNodeId = ModifyEndNode1.Id;
+            AddSegment2.EndNodeId = AddEndNode2.TemporaryId;
+
+            EndNode2Added.Geometry = AddEndNode2.Geometry;
+            EndNode2Added.Id = 3;
+
+            Segment2Added.Geometry = AddSegment2.Geometry;
+            Segment2Added.Lanes = new[]
+            {
+                new Messages.RoadSegmentLaneAttributes
+                {
+                    FromPosition = AddSegment2.Lanes[0].FromPosition,
+                    ToPosition = AddSegment2.Lanes[0].ToPosition,
+                    Direction = AddSegment2.Lanes[0].Direction,
+                    AsOfGeometryVersion = 1,
+                    AttributeId = 1
+                }
+            };
+            Segment2Added.Widths = new[]
+            {
+                new Messages.RoadSegmentWidthAttributes
+                {
+                    FromPosition = AddSegment2.Widths[0].FromPosition,
+                    ToPosition = AddSegment2.Widths[0].ToPosition,
+                    AsOfGeometryVersion = 1,
+                    AttributeId = nextWidthsAttributeId
+                }
+            };
+            Segment2Added.Surfaces = new[]
+            {
+                new Messages.RoadSegmentSurfaceAttributes
+                {
+                    FromPosition = AddSegment2.Surfaces[0].FromPosition,
+                    ToPosition = AddSegment2.Surfaces[0].ToPosition,
+                    Type = AddSegment2.Surfaces[0].Type,
+                    AsOfGeometryVersion = 1,
+                    AttributeId = nextSurfacesAttributeId
+                }
+            };
+            Segment2Added.StartNodeId = ModifyEndNode1.Id;
+            Segment2Added.EndNodeId = EndNode2Added.Id;
+
+            EndNode1Modified.Geometry = ModifyEndNode1.Geometry;
+            EndNode1Modified.Type = ModifyEndNode1.Type;
+
+            return Run(scenario => scenario
+                .Given(Organizations.ToStreamName(ChangedByOrganization),
+                    new ImportedOrganization
+                    {
+                        Code = ChangedByOrganization,
+                        Name = ChangedByOrganizationName,
+                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                    }
+                )
+                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                {
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
+                    Changes = new[]
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added,
+                            Problems = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added,
+                            Problems = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added,
+                            Problems = new Messages.Problem[0]
+                        }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                })
+                .When(TheOperator.ChangesTheRoadNetwork(
+                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                    new RequestedChange
+                    {
+                        ModifyRoadNode = ModifyEndNode1
+                    },
+                    new RequestedChange
+                    {
+                        AddRoadNode = AddEndNode2
+                    },
+                    new RequestedChange
+                    {
+                        AddRoadSegment = AddSegment2
+                    }
+                ))
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                {
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(2),
+                    Changes = new[]
+                    {
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode2Added,
+                            Problems = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment2Added,
+                            Problems = new Messages.Problem[0]
+                        },
+                        new Messages.AcceptedChange
+                        {
+                            RoadNodeModified = EndNode1Modified,
+                            Problems = new Messages.Problem[0]
+                        }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }));
+        }
+
+        [Fact]
         public Task when_adding_a_disconnected_node()
         {
             return Run(scenario => scenario
@@ -2710,7 +2900,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             );
         }
 
-        [Fact(Skip = "Disabled")] // TODO: WR-290 re-enable
+        [Fact]
         public Task when_adding_a_start_node_with_a_geometry_that_has_been_taken()
         {
             AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
@@ -2853,126 +3043,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             );
         }
 
-        [Fact] // TODO: WR-290 remove
-        public Task when_adding_a_start_node_with_a_geometry_that_has_been_taken_without_gradeseparatedjunction()
-        {
-            AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
-            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
-            AddSegment2.Widths = new RequestedRoadSegmentWidthAttribute[0];
-            Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
-            AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
-            Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(
-                    new []
-                    {
-                        new NetTopologySuite.Geometries.LineString(
-                            new CoordinateArraySequence(new Coordinate[]
-                            {
-                                new CoordinateM(StartPoint1.X, StartPoint1.Y, 0.0),
-                                new CoordinateM(MiddlePoint2.X, MiddlePoint2.Y, StartPoint1.Distance(MiddlePoint2)),
-                                new CoordinateM(EndPoint2.X, EndPoint2.Y,
-                                    StartPoint1.Distance(MiddlePoint2) +
-                                    MiddlePoint2.Distance(EndPoint2))
-                            }),
-                            GeometryConfiguration.GeometryFactory
-                        )
-                    }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
-            );
-            AddStartNode2.Geometry = StartNode1Added.Geometry;
-
-            return Run(scenario => scenario
-                .Given(Organizations.ToStreamName(ChangedByOrganization),
-                    new ImportedOrganization
-                    {
-                        Code = ChangedByOrganization,
-                        Name = ChangedByOrganizationName,
-                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                    }
-                )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
-                {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                    Changes = new[]
-                    {
-                        new Messages.AcceptedChange
-                        {
-                            RoadNodeAdded = StartNode1Added,
-                            Problems = new Messages.Problem[0]
-                        },
-                        new Messages.AcceptedChange
-                        {
-                            RoadNodeAdded = EndNode1Added,
-                            Problems = new Messages.Problem[0]
-                        },
-                        new Messages.AcceptedChange
-                        {
-                            RoadSegmentAdded = Segment1Added,
-                            Problems = new Messages.Problem[0]
-                        }
-                    },
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                })
-                .When(TheOperator.ChangesTheRoadNetwork(
-                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
-                    new RequestedChange
-                    {
-                        AddRoadNode = AddStartNode2
-                    },
-                    new RequestedChange
-                    {
-                        AddRoadNode = AddEndNode2
-                    },
-                    new RequestedChange
-                    {
-                        AddRoadSegment = AddSegment2
-                    }
-                ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-                {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                    TransactionId = new TransactionId(1),
-                    Changes = new[]
-                    {
-                        new Messages.RejectedChange
-                        {
-                            AddRoadNode = AddStartNode2,
-                            Problems = new[]
-                            {
-                                new Messages.Problem
-                                {
-                                    Reason = "RoadNodeGeometryTaken",
-                                    Parameters = new[]
-                                    {
-                                        new Messages.ProblemParameter
-                                        {
-                                            Name = "ByOtherNode",
-                                            Value = "1"
-                                        }
-                                    }
-                                },
-                                new Messages.Problem
-                                {
-                                    Reason = "RoadNodeTooClose",
-                                    Severity = ProblemSeverity.Warning,
-                                    Parameters = new []
-                                    {
-                                        new Messages.ProblemParameter
-                                        {
-                                            Name = "ToOtherSegment",
-                                            Value = "1"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                })
-            );
-        }
-
-        [Fact(Skip = "Disabled")] // TODO: WR-290 re-enable
+        [Fact]
         public Task when_adding_an_end_node_with_a_geometry_that_has_been_taken()
         {
             AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
@@ -3108,123 +3179,6 @@ namespace RoadRegistry.BackOffice.Scenarios
                             }
                         }
 
-                    },
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                })
-            );
-        }
-
-        [Fact] // TODO: WR-290 remove
-        public Task when_adding_an_end_node_with_a_geometry_that_has_been_taken_without_gradeseparatedjunction()
-        {
-            AddSegment2.Lanes = new RequestedRoadSegmentLaneAttribute[0];
-            Segment2Added.Lanes = new Messages.RoadSegmentLaneAttributes[0];
-            AddSegment2.Widths = new RequestedRoadSegmentWidthAttribute[0];
-            Segment2Added.Widths = new Messages.RoadSegmentWidthAttributes[0];
-            AddSegment2.Surfaces = new RequestedRoadSegmentSurfaceAttribute[0];
-            Segment2Added.Surfaces = new Messages.RoadSegmentSurfaceAttributes[0];
-            AddSegment2.Geometry = GeometryTranslator.Translate(
-                new MultiLineString(
-                    new []
-                    {
-                        new NetTopologySuite.Geometries.LineString(
-                            new CoordinateArraySequence(new Coordinate[]
-                            {
-                                new CoordinateM(StartPoint2.X, StartPoint2.Y, 0.0),
-                                new CoordinateM(MiddlePoint2.X, MiddlePoint2.Y, 70.7107),
-                                new CoordinateM(EndPoint1.X, EndPoint1.Y, 228.8245)
-                            }),
-                            GeometryConfiguration.GeometryFactory
-                        )
-                    }) {SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()}
-            );
-            AddEndNode2.Geometry = EndNode1Added.Geometry;
-
-            return Run(scenario => scenario
-                .Given(Organizations.ToStreamName(ChangedByOrganization),
-                    new ImportedOrganization
-                    {
-                        Code = ChangedByOrganization,
-                        Name = ChangedByOrganizationName,
-                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                    }
-                )
-                .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
-                {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                    Changes = new[]
-                    {
-                        new Messages.AcceptedChange
-                        {
-                            RoadNodeAdded = StartNode1Added,
-                            Problems = new Messages.Problem[0]
-                        },
-                        new Messages.AcceptedChange
-                        {
-                            RoadNodeAdded = EndNode1Added,
-                            Problems = new Messages.Problem[0]
-                        },
-                        new Messages.AcceptedChange
-                        {
-                            RoadSegmentAdded = Segment1Added,
-                            Problems = new Messages.Problem[0]
-                        }
-                    },
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                })
-                .When(TheOperator.ChangesTheRoadNetwork(
-                    RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
-                    new RequestedChange
-                    {
-                        AddRoadNode = AddStartNode2
-                    },
-                    new RequestedChange
-                    {
-                        AddRoadNode = AddEndNode2
-                    },
-                    new RequestedChange
-                    {
-                        AddRoadSegment = AddSegment2
-                    }
-                ))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-                {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                    TransactionId = new TransactionId(1),
-                    Changes = new[]
-                    {
-                        new Messages.RejectedChange
-                        {
-                            AddRoadNode = AddEndNode2,
-                            Problems = new[]
-                            {
-                                new Messages.Problem
-                                {
-                                    Reason = "RoadNodeGeometryTaken",
-                                    Parameters = new[]
-                                    {
-                                        new Messages.ProblemParameter
-                                        {
-                                            Name = "ByOtherNode",
-                                            Value = "2"
-                                        }
-                                    }
-                                },
-                                new Messages.Problem
-                                {
-                                    Reason = "RoadNodeTooClose",
-                                    Severity = ProblemSeverity.Warning,
-                                    Parameters = new []
-                                    {
-                                        new Messages.ProblemParameter
-                                        {
-                                            Name = "ToOtherSegment",
-                                            Value = "1"
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
@@ -5479,7 +5433,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 }));
         }
 
-        [Fact(Skip = "Disabled")] // TODO: WR-290 re-enable
+        [Fact]
         public Task when_adding_a_segment_that_intersects_without_grade_separated_junction()
         {
             Segment1Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
@@ -5594,7 +5548,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 }));
         }
 
-        [Fact(Skip = "Disabled")] // TODO: WR-290 re-enable
+        [Fact]
         public Task when_modifying_a_segment_that_intersects_without_grade_separated_junction()
         {
             Segment1Added.Geometry = GeometryTranslator.Translate(new MultiLineString(new []
