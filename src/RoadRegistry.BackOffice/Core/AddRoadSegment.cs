@@ -325,9 +325,7 @@ namespace RoadRegistry.BackOffice.Core
 
             if (!problems.Any())
             {
-                var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal)
-                    .Segments.Where(pair => pair.Key != Id && pair.Value.Geometry.Intersects(Geometry) && !pair.Value.Nodes.Any(node => new [] {StartNodeId, EndNodeId}.Contains(node)));
-
+                var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal).FindIntersectingRoadSegments(this);
                 var intersectingSegmentsWithoutJunction = intersectingSegments.Where(intersectingSegment =>
                     !context.AfterView.GradeSeparatedJunctions.Any(junction =>
                         (junction.Value.LowerSegment == Id && junction.Value.UpperSegment == intersectingSegment.Key) ||
