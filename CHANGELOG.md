@@ -1,3 +1,10 @@
+## [1.59.5](https://github.com/informatievlaanderen/road-registry/compare/v1.59.4...v1.59.5) (2021-12-09)
+
+
+### Bug Fixes
+
+* fix false positives for IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction ([1000386](https://github.com/informatievlaanderen/road-registry/commit/10003867755e07e3566dedfd56a12b9365e6ca6e))
+
 ## [1.59.4](https://github.com/informatievlaanderen/road-registry/compare/v1.59.3...v1.59.4) (2021-11-26)
 
 
