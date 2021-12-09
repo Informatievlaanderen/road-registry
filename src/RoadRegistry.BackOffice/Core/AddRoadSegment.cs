@@ -323,23 +323,21 @@ namespace RoadRegistry.BackOffice.Core
                 }
             }
 
-            // TODO: WR-290 re-enable
-            // if (!problems.Any())
-            // {
-            //     var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal)
-            //         .Segments.Where(pair => pair.Key != Id && pair.Value.Geometry.Intersects(Geometry));
-            //     var intersectingSegmentsWithoutJunction = intersectingSegments.Where(intersectingSegment =>
-            //         !context.AfterView.GradeSeparatedJunctions.Any(junction =>
-            //             (junction.Value.LowerSegment == Id && junction.Value.UpperSegment == intersectingSegment.Key) ||
-            //             (junction.Value.LowerSegment == intersectingSegment.Key && junction.Value.UpperSegment == Id)));
-            //
-            //     var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions =
-            //         intersectingSegmentsWithoutJunction.Select(i =>
-            //             new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
-            //                 context.Translator.TranslateToTemporaryOrId(Id),
-            //                 context.Translator.TranslateToTemporaryOrId(i.Key)));
-            //     problems = problems.AddRange(intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions);
-            // }
+            if (!problems.Any())
+            {
+                var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal).FindIntersectingRoadSegments(this);
+                var intersectingSegmentsWithoutJunction = intersectingSegments.Where(intersectingSegment =>
+                    !context.AfterView.GradeSeparatedJunctions.Any(junction =>
+                        (junction.Value.LowerSegment == Id && junction.Value.UpperSegment == intersectingSegment.Key) ||
+                        (junction.Value.LowerSegment == intersectingSegment.Key && junction.Value.UpperSegment == Id)));
+
+                var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions =
+                    intersectingSegmentsWithoutJunction.Select(i =>
+                        new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
+                            context.Translator.TranslateToTemporaryOrId(Id),
+                            context.Translator.TranslateToTemporaryOrId(i.Key)));
+                problems = problems.AddRange(intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions);
+            }
 
             return problems;
         }
