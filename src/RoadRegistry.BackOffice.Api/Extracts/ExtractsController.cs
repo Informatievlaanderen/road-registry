@@ -100,7 +100,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 {
                     ExternalRequestId = randomExternalRequestId,
                     Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(
-                        (NetTopologySuite.Geometries.IPolygonal) _reader.Read(body.Contour)),
+                        (NetTopologySuite.Geometries.IPolygonal) _reader.Read(body.Contour), body.Buffer),
                     DownloadId = downloadId
                 });
             await _dispatcher(message, HttpContext.RequestAborted);
