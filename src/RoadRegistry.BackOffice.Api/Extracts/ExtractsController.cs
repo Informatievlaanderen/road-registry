@@ -119,7 +119,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 new RequestRoadNetworkExtract
                 {
                     ExternalRequestId = randomExternalRequestId,
-                    Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(municipalityGeometry.Geometry as MultiPolygon),
+                    Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(municipalityGeometry.Geometry as MultiPolygon, body.Buffer),
                     DownloadId = downloadId
                 });
             await _dispatcher(message, HttpContext.RequestAborted);

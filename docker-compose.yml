@@ -18,7 +18,7 @@ services:
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
     volumes:
     - minio-data:/data
-    command: server /data
+    command: server --console-address :9001 /data
 
   legacy-mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
