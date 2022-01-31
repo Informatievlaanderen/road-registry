@@ -4,20 +4,22 @@ namespace RoadRegistry.BackOffice
     using System.Collections.Generic;
     using System.Linq;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+    using NetTopologySuite.Geometries;
+    using NetTopologySuite.Operation.Buffer;
 
     public static class GeometryTranslator
     {
-        public static NetTopologySuite.Geometries.Point Translate(Messages.RoadNodeGeometry geometry)
+        public static Point Translate(Messages.RoadNodeGeometry geometry)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
-            return new NetTopologySuite.Geometries.Point(geometry.Point.X, geometry.Point.Y)
+            return new Point(geometry.Point.X, geometry.Point.Y)
             {
                 SRID = geometry.SpatialReferenceSystemIdentifier
             };
         }
 
-        public static Messages.RoadNodeGeometry Translate(NetTopologySuite.Geometries.Point geometry)
+        public static Messages.RoadNodeGeometry Translate(Point geometry)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
@@ -32,23 +34,23 @@ namespace RoadRegistry.BackOffice
             };
         }
 
-        public static NetTopologySuite.Geometries.MultiLineString Translate(Messages.RoadSegmentGeometry geometry)
+        public static MultiLineString Translate(Messages.RoadSegmentGeometry geometry)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
-            var toLineStrings = new List<NetTopologySuite.Geometries.LineString>();
+            var toLineStrings = new List<LineString>();
             foreach (var fromLineString in geometry.MultiLineString)
             {
-                var toPoints = new List<NetTopologySuite.Geometries.Coordinate>();
+                var toPoints = new List<Coordinate>();
                 for (var index = 0; index < fromLineString.Points.Length && index < fromLineString.Measures.Length; index++)
                 {
                     var fromPoint = fromLineString.Points[index];
                     var fromMeasure = fromLineString.Measures[index];
-                    toPoints.Add(new NetTopologySuite.Geometries.CoordinateM(fromPoint.X, fromPoint.Y,fromMeasure));
+                    toPoints.Add(new CoordinateM(fromPoint.X, fromPoint.Y,fromMeasure));
                 }
 
                 toLineStrings.Add(
-                    new NetTopologySuite.Geometries.LineString(
+                    new LineString(
                         new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(toPoints .ToArray()),
                         GeometryConfiguration.GeometryFactory)
                     {
@@ -57,31 +59,31 @@ namespace RoadRegistry.BackOffice
                 );
             }
 
-            return new NetTopologySuite.Geometries.MultiLineString(
+            return new MultiLineString(
                 toLineStrings.ToArray(),
                 GeometryConfiguration.GeometryFactory);
         }
 
-        public static Messages.RoadSegmentGeometry Translate(NetTopologySuite.Geometries.MultiLineString geometry)
+        public static Messages.RoadSegmentGeometry Translate(MultiLineString geometry)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
             var toMultiLineString = new Messages.LineString[geometry.NumGeometries];
             var lineIndex = 0;
-            foreach (var fromLineString in geometry.Geometries.OfType<NetTopologySuite.Geometries.LineString>())
+            foreach (var fromLineString in geometry.Geometries.OfType<LineString>())
             {
                 var toLineString = new Messages.LineString
                 {
                     Points = new Messages.Point[fromLineString.NumPoints],
-                    Measures = fromLineString.GetOrdinates(NetTopologySuite.Geometries.Ordinate.M)
+                    Measures = fromLineString.GetOrdinates(Ordinate.M)
                 };
 
                 for (var pointIndex = 0; pointIndex < fromLineString.NumPoints; pointIndex++)
                 {
                     toLineString.Points[pointIndex] = new Messages.Point
                     {
-                        X = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, NetTopologySuite.Geometries.Ordinate.X),
-                        Y = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, NetTopologySuite.Geometries.Ordinate.Y)
+                        X = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.X),
+                        Y = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.Y)
                     };
                 }
 
@@ -95,17 +97,17 @@ namespace RoadRegistry.BackOffice
             };
         }
 
-        public static NetTopologySuite.Geometries.MultiPolygon Translate(Messages.MunicipalityGeometry geometry)
+        public static MultiPolygon Translate(Messages.MunicipalityGeometry geometry)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
-            return new NetTopologySuite.Geometries.MultiPolygon(
-                polygons: Array.ConvertAll(geometry.MultiPolygon, polygon => new NetTopologySuite.Geometries.Polygon(
-                    shell: new NetTopologySuite.Geometries.LinearRing(
-                        GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(Array.ConvertAll(polygon.Shell.Points, point => new NetTopologySuite.Geometries.Coordinate(point.X, point.Y)))
+            return new MultiPolygon(
+                polygons: Array.ConvertAll(geometry.MultiPolygon, polygon => new Polygon(
+                    shell: new LinearRing(
+                        GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(Array.ConvertAll(polygon.Shell.Points, point => new Coordinate(point.X, point.Y)))
                         , GeometryConfiguration.GeometryFactory),
-                    holes: Array.ConvertAll(polygon.Holes, hole => new NetTopologySuite.Geometries.LinearRing(
-                        GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(Array.ConvertAll(hole.Points, point => new NetTopologySuite.Geometries.Coordinate(point.X, point.Y)))
+                    holes: Array.ConvertAll(polygon.Holes, hole => new LinearRing(
+                        GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(Array.ConvertAll(hole.Points, point => new Coordinate(point.X, point.Y)))
                         , GeometryConfiguration.GeometryFactory))
                     , GeometryConfiguration.GeometryFactory))
                 , GeometryConfiguration.GeometryFactory);
@@ -125,39 +127,39 @@ namespace RoadRegistry.BackOffice
             }.SingleOrDefault(value => !ReferenceEquals(value, null));
         }
 
-        public static NetTopologySuite.Geometries.IPolygonal Translate(Messages.RoadNetworkExtractGeometry geometry)
+        public static IPolygonal Translate(Messages.RoadNetworkExtractGeometry geometry)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
             switch (geometry.Flatten())
             {
                 case Messages.Polygon[] multiPolygon:
-                    return new NetTopologySuite.Geometries.MultiPolygon(
+                    return new MultiPolygon(
                         polygons: Array.ConvertAll(multiPolygon, polygon =>
-                            new NetTopologySuite.Geometries.Polygon(
-                                shell: new NetTopologySuite.Geometries.LinearRing(
+                            new Polygon(
+                                shell: new LinearRing(
                                     GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
                                         Array.ConvertAll(polygon.Shell.Points,
-                                            point => new NetTopologySuite.Geometries.Coordinate(point.X, point.Y)))
+                                            point => new Coordinate(point.X, point.Y)))
                                     , GeometryConfiguration.GeometryFactory),
-                                holes: Array.ConvertAll(polygon.Holes, hole => new NetTopologySuite.Geometries.LinearRing(
+                                holes: Array.ConvertAll(polygon.Holes, hole => new LinearRing(
                                     GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
                                         Array.ConvertAll(hole.Points,
-                                            point => new NetTopologySuite.Geometries.Coordinate(point.X, point.Y)))
+                                            point => new Coordinate(point.X, point.Y)))
                                     , GeometryConfiguration.GeometryFactory))
                                 , GeometryConfiguration.GeometryFactory))
                         , GeometryConfiguration.GeometryFactory);
                 case Messages.Polygon polygon:
-                    return new NetTopologySuite.Geometries.Polygon(
-                        shell: new NetTopologySuite.Geometries.LinearRing(
+                    return new Polygon(
+                        shell: new LinearRing(
                             GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
                                 Array.ConvertAll(polygon.Shell.Points,
-                                    point => new NetTopologySuite.Geometries.Coordinate(point.X, point.Y)))
+                                    point => new Coordinate(point.X, point.Y)))
                             , GeometryConfiguration.GeometryFactory),
-                        holes: Array.ConvertAll(geometry.Polygon.Holes, hole => new NetTopologySuite.Geometries.LinearRing(
+                        holes: Array.ConvertAll(geometry.Polygon.Holes, hole => new LinearRing(
                             GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
                                 Array.ConvertAll(hole.Points,
-                                    point => new NetTopologySuite.Geometries.Coordinate(point.X, point.Y)))
+                                    point => new Coordinate(point.X, point.Y)))
                             , GeometryConfiguration.GeometryFactory))
                         , GeometryConfiguration.GeometryFactory);
                 default:
@@ -166,17 +168,19 @@ namespace RoadRegistry.BackOffice
             }
         }
 
-        public static Messages.RoadNetworkExtractGeometry TranslateToRoadNetworkExtractGeometry(NetTopologySuite.Geometries.IPolygonal geometry)
+        public static Messages.RoadNetworkExtractGeometry TranslateToRoadNetworkExtractGeometry(IPolygonal geometry, double buffer = 0)
         {
             if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
-            switch (geometry)
+            var geometryWithBuffer = ApplyBuffer(geometry, buffer);
+
+            switch (geometryWithBuffer)
             {
-                case NetTopologySuite.Geometries.MultiPolygon multiPolygon:
+                case MultiPolygon multiPolygon:
                 {
                     var polygons = new Messages.Polygon[multiPolygon.NumGeometries];
                     var polygonIndex = 0;
-                    foreach (var fromPolygon in multiPolygon.Geometries.OfType<NetTopologySuite.Geometries.Polygon>())
+                    foreach (var fromPolygon in multiPolygon.Geometries.OfType<Polygon>())
                     {
                         var toShell = new Messages.Ring
                         {
@@ -224,7 +228,7 @@ namespace RoadRegistry.BackOffice
                         Polygon = null
                     };
                 }
-                case NetTopologySuite.Geometries.Polygon polygon:
+                case Polygon polygon:
                 {
                     var toShell = new Messages.Ring
                     {
@@ -269,6 +273,20 @@ namespace RoadRegistry.BackOffice
                         }
                     };
                 }
+                default:
+                    throw new InvalidOperationException(
+                        $"The geometry must be either a polygon or a multipolygon to be able to translate it to a road network extract geometry. The geometry was a {geometry.GetType().Name}");
+            }
+        }
+
+        private static Geometry ApplyBuffer(IPolygonal geometry, double buffer)
+        {
+            switch (geometry)
+            {
+                case MultiPolygon multiPolygon:
+                    return multiPolygon.Buffer(buffer);
+                case Polygon polygon:
+                    return polygon.Buffer(buffer);
                 default:
                     throw new InvalidOperationException(
                         $"The geometry must be either a polygon or a multipolygon to be able to translate it to a road network extract geometry. The geometry was a {geometry.GetType().Name}");

@@ -18,9 +18,11 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 
             RuleFor(c => c.Contour)
                 .NotEmpty().WithMessage("'Contour' must not be empty, null or missing")
-                .Must(BeMultiPolygonGeometryAsWellKnownText)
-                .WithMessage("'Contour' must be a valid multipolygon or polygon represented as well-known text")
+                .Must(BeMultiPolygonGeometryAsWellKnownText).WithMessage("'Contour' must be a valid multipolygon or polygon represented as well-known text")
                 .When(c => !string.IsNullOrEmpty(c.Contour), ApplyConditionTo.CurrentValidator);
+
+            RuleFor(c => c.Buffer)
+                .InclusiveBetween(0, 100).WithMessage("'Buffer' must be a value between 0 and 100");
         }
 
         private bool BeMultiPolygonGeometryAsWellKnownText(string text)
