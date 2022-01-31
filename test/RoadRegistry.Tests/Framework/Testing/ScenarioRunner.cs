@@ -48,7 +48,7 @@
             var config = ComparisonConfig ?? new ComparisonConfig
             {
                 MaxDifferences = int.MaxValue,
-                MaxStructDepth = 5,
+                MaxStructDepth = 5
             };
             var comparer = new CompareLogic(config);
             var expectedEvents = Array.ConvertAll(scenario.Thens,
