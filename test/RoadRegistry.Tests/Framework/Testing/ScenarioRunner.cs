@@ -12,6 +12,7 @@
     using KellermanSoftware.CompareNetObjects;
     using KellermanSoftware.CompareNetObjects.TypeComparers;
     using Newtonsoft.Json;
+    using Projections;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
 
@@ -22,6 +23,8 @@
         private readonly JsonSerializerSettings _settings;
         private readonly EventMapping _mapping;
         private readonly StreamNameConverter _converter;
+
+        public ComparisonConfig ComparisonConfig { get; set; }
 
         public ScenarioRunner(CommandHandlerResolver resolver, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping, StreamNameConverter converter)
         {
@@ -42,7 +45,7 @@
             }
 
             var recordedEvents = await ReadThens(checkpoint);
-            var config = new ComparisonConfig
+            var config = ComparisonConfig ?? new ComparisonConfig
             {
                 MaxDifferences = int.MaxValue,
                 MaxStructDepth = 5

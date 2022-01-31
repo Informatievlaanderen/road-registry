@@ -40,7 +40,9 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                         new RoadSegmentNationalRoadAttributesToZipArchiveWriter(manager, encoding),
                         new RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(manager, encoding),
                         new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(manager, encoding),
-                        new GradeSeparatedJunctionArchiveWriter(manager, encoding)
+                        new GradeSeparatedJunctionArchiveWriter(manager, encoding),
+                        new IntegrationRoadNodesToZipArchiveWriter(manager, encoding),
+                        new IntegrationRoadSegmentsToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding)
                     )
                 ),
                 new DbaseFileArchiveWriter<EditorContext>("eWegknoopLktType.dbf", RoadNodeTypeDbaseRecord.Schema, Lists.AllRoadNodeTypeDbaseRecords, encoding),
@@ -55,7 +57,9 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 new DbaseFileArchiveWriter<EditorContext>("eRijstrokenLktRichting.dbf", LaneDirectionDbaseRecord.Schema, Lists.AllLaneDirectionDbaseRecords, encoding),
                 new ProjectionFormatFileZipArchiveWriter<EditorContext>("eWegsegment.prj", encoding),
                 new ProjectionFormatFileZipArchiveWriter<EditorContext>("eWegknoop.prj", encoding),
-                new ProjectionFormatFileZipArchiveWriter<EditorContext>("Transactiezones.prj", encoding)
+                new ProjectionFormatFileZipArchiveWriter<EditorContext>("Transactiezones.prj", encoding),
+                new ProjectionFormatFileZipArchiveWriter<EditorContext>("iWegknoop.prj", encoding),
+                new ProjectionFormatFileZipArchiveWriter<EditorContext>("iWegsegment.prj", encoding)
             );
         }
 
