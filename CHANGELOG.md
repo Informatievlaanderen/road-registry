@@ -1,3 +1,10 @@
+# [1.60.0](https://github.com/informatievlaanderen/road-registry/compare/v1.59.5...v1.60.0) (2022-01-31)
+
+
+### Features
+
+* add buffer, integration layer for requesting extract + UI ([52f9907](https://github.com/informatievlaanderen/road-registry/commit/52f99071ddbd8d2fc8b8f0ea5add60d7fb258f0a))
+
 ## [1.59.5](https://github.com/informatievlaanderen/road-registry/compare/v1.59.4...v1.59.5) (2021-12-09)
 
 
