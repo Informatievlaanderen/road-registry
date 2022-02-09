@@ -12,7 +12,7 @@ namespace RoadRegistry.BackOffice.Core
 
     public class RoadNetworks : IRoadNetworks
     {
-        private const int StreamPageSize = 5_000;
+        private const int StreamPageSize = 1_000;
 
         public static readonly StreamName Stream = new StreamName("roadnetwork");
 
