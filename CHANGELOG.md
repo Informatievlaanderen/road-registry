@@ -1,3 +1,10 @@
+## [1.60.1](https://github.com/informatievlaanderen/road-registry/compare/v1.60.0...v1.60.1) (2022-02-09)
+
+
+### Bug Fixes
+
+* reduce stream page size to avoid timeouts ([e327a6a](https://github.com/informatievlaanderen/road-registry/commit/e327a6a7f827037937e3dbee140c1c6cfd34f95d))
+
 # [1.60.0](https://github.com/informatievlaanderen/road-registry/compare/v1.59.5...v1.60.0) (2022-01-31)
 
 
