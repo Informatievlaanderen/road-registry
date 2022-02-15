@@ -34,6 +34,7 @@ main =
 
 type alias Flags =
     { endpoint : String
+    , oldEndpoint : String
     , apikey : String
     }
 
