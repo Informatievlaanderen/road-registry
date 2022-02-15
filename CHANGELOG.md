@@ -1,3 +1,10 @@
+## [1.60.4](https://github.com/informatievlaanderen/road-registry/compare/v1.60.3...v1.60.4) (2022-02-15)
+
+
+### Bug Fixes
+
+* use correct endpoint when requesting extracts ([3d78b7d](https://github.com/informatievlaanderen/road-registry/commit/3d78b7d075208a3ba223f495dba2ba5544f8316b))
+
 ## [1.60.3](https://github.com/informatievlaanderen/road-registry/compare/v1.60.2...v1.60.3) (2022-02-10)
 
 ## [1.60.2](https://github.com/informatievlaanderen/road-registry/compare/v1.60.1...v1.60.2) (2022-02-10)
