@@ -14,7 +14,19 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        services: ['road-registry-backoffice-extracthost', 'road-registry-backoffice-commandhost','registry-editor-projectionhost','road-registry-syndication-projectionhost','road-registry-product-projectionhost', 'road-registry-backoffice-eventhost']
+        services:
+        [
+          #'road-registry-import-legacy',
+          # MISSING: 'road-registry-extract-legacy',
+          # MISSING: 'road-registry-backoffice-api',
+          'road-registry-backoffice-commandhost',
+          'road-registry-backoffice-eventhost',
+          # MISSING:'road-registry-backoffice-extracthost',
+          #'road-registry-editor-projectionhost',
+          #'road-registry-syndication-projectionhost',
+          #'road-registry-product-projectionhost',
+          #'road-registry-wms-projectionhost'
+        ]
     steps:
     - name: CD
       env:
