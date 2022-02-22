@@ -1,3 +1,10 @@
+## [1.60.6](https://github.com/informatievlaanderen/road-registry/compare/v1.60.5...v1.60.6) (2022-02-22)
+
+
+### Bug Fixes
+
+* fix redirect after requesting extract ([66392f5](https://github.com/informatievlaanderen/road-registry/commit/66392f52d67a8f8caed7c7b0134d13ee32da13c8))
+
 ## [1.60.5](https://github.com/informatievlaanderen/road-registry/compare/v1.60.4...v1.60.5) (2022-02-21)
 
 ## [1.60.4](https://github.com/informatievlaanderen/road-registry/compare/v1.60.3...v1.60.4) (2022-02-15)
