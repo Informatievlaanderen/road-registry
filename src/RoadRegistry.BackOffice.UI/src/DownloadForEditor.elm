@@ -26,6 +26,7 @@ import Html.Attributes exposing (checked)
 import Html.Events exposing (onInput)
 import Html exposing (select)
 import Html exposing (option)
+import Browser.Navigation exposing (load)
 
 
 main : Program Flags Model Msg
@@ -655,8 +656,8 @@ update msg model =
                 }
             )
 
-        RequestExecuted result-> 
-            ( model, Cmd.none)
+        RequestExecuted _-> 
+            ( model, load "/activity.html")
         FileDownloaded result ->
             case result of
                 Ok bytes ->
