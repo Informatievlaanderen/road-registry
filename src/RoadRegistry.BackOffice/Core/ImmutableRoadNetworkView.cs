@@ -691,7 +691,7 @@ namespace RoadRegistry.BackOffice.Core
         {
             return new ImmutableRoadNetworkView(
                 _nodes,
-                _segments,
+                _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(@event.Number))),
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
                 _maximumNodeId,
@@ -712,7 +712,7 @@ namespace RoadRegistry.BackOffice.Core
         {
             return new ImmutableRoadNetworkView(
                 _nodes,
-                _segments,
+                _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.NotPartOfEuropeanRoad(EuropeanRoadNumber.Parse(@event.Number))),
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
                 _maximumNodeId,
@@ -733,7 +733,7 @@ namespace RoadRegistry.BackOffice.Core
         {
             return new ImmutableRoadNetworkView(
                 _nodes,
-                _segments,
+                _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.PartOfNationalRoad(NationalRoadNumber.Parse(@event.Number))),
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
                 _maximumNodeId,
@@ -754,7 +754,7 @@ namespace RoadRegistry.BackOffice.Core
         {
             return new ImmutableRoadNetworkView(
                 _nodes,
-                _segments,
+                _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.NotPartOfNationalRoad(NationalRoadNumber.Parse(@event.Number))),
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
                 _maximumNodeId,
@@ -775,7 +775,7 @@ namespace RoadRegistry.BackOffice.Core
         {
             return new ImmutableRoadNetworkView(
                 _nodes,
-                _segments,
+                _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.PartOfNumberedRoad(NumberedRoadNumber.Parse(@event.Number))),
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
                 _maximumNodeId,
@@ -817,7 +817,7 @@ namespace RoadRegistry.BackOffice.Core
         {
             return new ImmutableRoadNetworkView(
                 _nodes,
-                _segments,
+                _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.NotPartOfNumberedRoad(NumberedRoadNumber.Parse(@event.Number))),
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
                 _maximumNodeId,
