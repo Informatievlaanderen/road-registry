@@ -1,3 +1,10 @@
+## [1.60.7](https://github.com/informatievlaanderen/road-registry/compare/v1.60.6...v1.60.7) (2022-03-03)
+
+
+### Bug Fixes
+
+* fix adding and removing of numbered/national/european roads to road network view ([dfe0b3e](https://github.com/informatievlaanderen/road-registry/commit/dfe0b3e2d5cb5b1f6c2734b0e0f6a3e8626c0fef))
+
 ## [1.60.6](https://github.com/informatievlaanderen/road-registry/compare/v1.60.5...v1.60.6) (2022-02-22)
 
 
