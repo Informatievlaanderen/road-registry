@@ -460,7 +460,13 @@ update message model =
 viewArchiveLinkContent : String -> Archive -> Html Message
 viewArchiveLinkContent url archive =
     if not archive.available then
-        text archive.filename
+        -- WR-215 workaround
+        -- text archive.filename
+        a [ href (String.concat [ url, archive.id ]), class "link--icon link--icon--inline" ]
+            [ i [ class "vi vi-paperclip", ariaHidden True ]
+                []
+            , text "Download"
+            ]
 
     else
         a [ href (String.concat [ url, archive.id ]), class "link--icon link--icon--inline" ]
