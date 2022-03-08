@@ -1,3 +1,10 @@
+## [1.60.8](https://github.com/informatievlaanderen/road-registry/compare/v1.60.7...v1.60.8) (2022-03-08)
+
+
+### Bug Fixes
+
+* introduce workaround for file downloads ([5f94b3b](https://github.com/informatievlaanderen/road-registry/commit/5f94b3b42f5baea9b75d316375d08ebb0f451760))
+
 ## [1.60.7](https://github.com/informatievlaanderen/road-registry/compare/v1.60.6...v1.60.7) (2022-03-03)
 
 
