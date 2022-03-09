@@ -1,3 +1,10 @@
+# [1.61.0](https://github.com/informatievlaanderen/road-registry/compare/v1.60.8...v1.61.0) (2022-03-09)
+
+
+### Features
+
+* CI automate API_VERSION env ([58235c8](https://github.com/informatievlaanderen/road-registry/commit/58235c8e47cca818a8394ff185ee119233230932))
+
 ## [1.60.8](https://github.com/informatievlaanderen/road-registry/compare/v1.60.7...v1.60.8) (2022-03-08)
 
 
