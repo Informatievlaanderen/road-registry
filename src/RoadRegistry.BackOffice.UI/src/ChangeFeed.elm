@@ -110,6 +110,7 @@ type alias Model =
     , loading : Bool
     , feedUrl : String
     , archiveUrl : String
+    , extractUrl : String
     , maxEntryCount : Int
     , alert : Alert.Model
     , apikey: String
@@ -137,11 +138,19 @@ init maxEntryCount url url1 apikey =
             else
                 String.concat [ url1, "/v1/upload/" ]
 
+        extractUrl =
+            if String.endsWith "/" url1 then
+                String.concat [ url1, "v1/extracts/download/" ]
+
+            else
+                String.concat [ url1, "/v1/extracts/download/" ]
+
         model =
             { entries = []
             , loading = False
             , feedUrl = feedUrl
             , archiveUrl = archiveUrl
+            , extractUrl = extractUrl
             , maxEntryCount = maxEntryCount
             , alert = Alert.init ()
             , apikey = apikey
@@ -635,8 +644,8 @@ viewSummary mayBeSummary =
     Nothing ->
       text ""
 
-viewChangeFeedEntryContent : String -> ChangeFeedEntryContent -> Html Message
-viewChangeFeedEntryContent url content =
+viewChangeFeedEntryContent : String -> String-> ChangeFeedEntryContent -> Html Message
+viewChangeFeedEntryContent url extractUrl content =
     case content of
         BeganRoadNetworkImport ->
             div [ class "step__content" ]
@@ -693,7 +702,7 @@ viewChangeFeedEntryContent url content =
         RoadNetworkExtractDownloadBecameAvailable available ->
             div [ class "step__content" ]
                 [ text "Archief: "
-                , viewArchiveLinkContent url available.archive
+                , viewArchiveLinkContent extractUrl available.archive
                 ]
 
         RoadNetworkExtractChangesArchiveUploaded uploaded ->
@@ -724,8 +733,8 @@ onClickNoBubble message =
     Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = True, preventDefault = True })
 
 
-viewChangeFeedEntry : String -> ChangeFeedEntry -> Html Message
-viewChangeFeedEntry url entry =
+viewChangeFeedEntry : String -> String -> ChangeFeedEntry -> Html Message
+viewChangeFeedEntry url extractUrl entry =
     li
         [ class "step" ]
         [ div [ class "step__icon" ]
@@ -871,7 +880,7 @@ viewChangeFeedEntry url entry =
                 [ class "step__content-wrapper" ]
                 [ case entry.content of
                     Just content ->
-                        viewChangeFeedEntryContent url content
+                        viewChangeFeedEntryContent url extractUrl content
 
                     Nothing ->
                         text ""
@@ -909,7 +918,7 @@ view model =
             [ classList [ ( "layout", True ), ( "layout--wide", True ) ] ]
             [ ul
                 [ class "steps steps--timeline" ]
-                (List.map (viewChangeFeedEntry model.archiveUrl) model.entries)
+                (List.map (viewChangeFeedEntry model.archiveUrl model.extractUrl) model.entries)
             , div [ class "u-align-center" ]
                 [ a [ class "button", href "", onClickNoBubble behavior, disabled model.loading ]
                     [ if model.loading then
