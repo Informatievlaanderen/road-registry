@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix: 
         # DEPENDECY ISSUE: 'road-registry-backoffice-api',
-        services: ['road-registry-backoffice-extracthosts']
+        services: ['road-registry-backoffice-extracthost']
     steps:
     - name: CD
       env:
