@@ -1,3 +1,10 @@
+## [1.61.2](https://github.com/informatievlaanderen/road-registry/compare/v1.61.1...v1.61.2) (2022-03-10)
+
+
+### Bug Fixes
+
+* style to trigger build ([b1b8efd](https://github.com/informatievlaanderen/road-registry/commit/b1b8efd83efb882001af0e4fd755dace36c87a83))
+
 ## [1.61.1](https://github.com/informatievlaanderen/road-registry/compare/v1.61.0...v1.61.1) (2022-03-10)
 
 
