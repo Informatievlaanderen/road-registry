@@ -16,7 +16,7 @@ jobs:
       matrix: 
         # DEPENDECY ISSUE: 'road-registry-backoffice-api',
         # MISSING:'road-registry-backoffice-extracthost',,
-        services: ['road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost']
+        services: ['road-registry-syndication-projectionhost', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost']
     steps:
     - name: CD
       env:
