@@ -1,3 +1,10 @@
+## [1.61.1](https://github.com/informatievlaanderen/road-registry/compare/v1.61.0...v1.61.1) (2022-03-10)
+
+
+### Bug Fixes
+
+* fix ui extract downloads ([a18fa76](https://github.com/informatievlaanderen/road-registry/commit/a18fa769e5b11413485c39b0543c213c4c8e05e5))
+
 # [1.61.0](https://github.com/informatievlaanderen/road-registry/compare/v1.60.8...v1.61.0) (2022-03-09)
 
 
