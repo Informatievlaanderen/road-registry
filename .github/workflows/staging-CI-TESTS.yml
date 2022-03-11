@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        # DEPENDECY ISSUE: 'road-registry-backoffice-api', 'road-registry-syndication-projectionhost'
-        services: ['road-registry-backoffice-extracthost']
+        # MISSING ROLE: 'road-registry-syndication-projectionhost'
+        services: ['road-registry-backoffice-api']
     steps:
     - name: CD
       env:
