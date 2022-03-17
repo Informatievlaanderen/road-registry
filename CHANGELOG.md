@@ -1,3 +1,84 @@
+## [1.61.2](https://github.com/informatievlaanderen/road-registry/compare/v1.61.1...v1.61.2) (2022-03-10)
+
+
+### Bug Fixes
+
+* style to trigger build ([b1b8efd](https://github.com/informatievlaanderen/road-registry/commit/b1b8efd83efb882001af0e4fd755dace36c87a83))
+
+## [1.61.1](https://github.com/informatievlaanderen/road-registry/compare/v1.61.0...v1.61.1) (2022-03-10)
+
+
+### Bug Fixes
+
+* fix ui extract downloads ([a18fa76](https://github.com/informatievlaanderen/road-registry/commit/a18fa769e5b11413485c39b0543c213c4c8e05e5))
+
+# [1.61.0](https://github.com/informatievlaanderen/road-registry/compare/v1.60.8...v1.61.0) (2022-03-09)
+
+
+### Features
+
+* CI automate API_VERSION env ([58235c8](https://github.com/informatievlaanderen/road-registry/commit/58235c8e47cca818a8394ff185ee119233230932))
+
+## [1.60.8](https://github.com/informatievlaanderen/road-registry/compare/v1.60.7...v1.60.8) (2022-03-08)
+
+
+### Bug Fixes
+
+* introduce workaround for file downloads ([5f94b3b](https://github.com/informatievlaanderen/road-registry/commit/5f94b3b42f5baea9b75d316375d08ebb0f451760))
+
+## [1.60.7](https://github.com/informatievlaanderen/road-registry/compare/v1.60.6...v1.60.7) (2022-03-03)
+
+
+### Bug Fixes
+
+* fix adding and removing of numbered/national/european roads to road network view ([dfe0b3e](https://github.com/informatievlaanderen/road-registry/commit/dfe0b3e2d5cb5b1f6c2734b0e0f6a3e8626c0fef))
+
+## [1.60.6](https://github.com/informatievlaanderen/road-registry/compare/v1.60.5...v1.60.6) (2022-02-22)
+
+
+### Bug Fixes
+
+* fix redirect after requesting extract ([66392f5](https://github.com/informatievlaanderen/road-registry/commit/66392f52d67a8f8caed7c7b0134d13ee32da13c8))
+
+## [1.60.5](https://github.com/informatievlaanderen/road-registry/compare/v1.60.4...v1.60.5) (2022-02-21)
+
+## [1.60.4](https://github.com/informatievlaanderen/road-registry/compare/v1.60.3...v1.60.4) (2022-02-15)
+
+
+### Bug Fixes
+
+* use correct endpoint when requesting extracts ([3d78b7d](https://github.com/informatievlaanderen/road-registry/commit/3d78b7d075208a3ba223f495dba2ba5544f8316b))
+
+## [1.60.3](https://github.com/informatievlaanderen/road-registry/compare/v1.60.2...v1.60.3) (2022-02-10)
+
+## [1.60.2](https://github.com/informatievlaanderen/road-registry/compare/v1.60.1...v1.60.2) (2022-02-10)
+
+
+### Bug Fixes
+
+* reduce page size to avoid timeouts ([698c1eb](https://github.com/informatievlaanderen/road-registry/commit/698c1eb552189ee2b874e10129b3a66d81f3373a))
+
+## [1.60.1](https://github.com/informatievlaanderen/road-registry/compare/v1.60.0...v1.60.1) (2022-02-09)
+
+
+### Bug Fixes
+
+* reduce stream page size to avoid timeouts ([e327a6a](https://github.com/informatievlaanderen/road-registry/commit/e327a6a7f827037937e3dbee140c1c6cfd34f95d))
+
+# [1.60.0](https://github.com/informatievlaanderen/road-registry/compare/v1.59.5...v1.60.0) (2022-01-31)
+
+
+### Features
+
+* add buffer, integration layer for requesting extract + UI ([52f9907](https://github.com/informatievlaanderen/road-registry/commit/52f99071ddbd8d2fc8b8f0ea5add60d7fb258f0a))
+
+## [1.59.5](https://github.com/informatievlaanderen/road-registry/compare/v1.59.4...v1.59.5) (2021-12-09)
+
+
+### Bug Fixes
+
+* fix false positives for IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction ([1000386](https://github.com/informatievlaanderen/road-registry/commit/10003867755e07e3566dedfd56a12b9365e6ca6e))
+
 ## [1.59.4](https://github.com/informatievlaanderen/road-registry/compare/v1.59.3...v1.59.4) (2021-11-26)
 
 
