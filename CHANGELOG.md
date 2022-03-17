@@ -1,3 +1,10 @@
+## [1.61.3](https://github.com/informatievlaanderen/road-registry/compare/v1.61.2...v1.61.3) (2022-03-17)
+
+
+### Bug Fixes
+
+* remove empty new-line ([0286b4f](https://github.com/informatievlaanderen/road-registry/commit/0286b4f3fa43675a28379244a6f5b0a4d825c108))
+
 ## [1.61.2](https://github.com/informatievlaanderen/road-registry/compare/v1.61.1...v1.61.2) (2022-03-10)
 
 
