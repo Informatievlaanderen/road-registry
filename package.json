@@ -48,8 +48,9 @@
   },
   "release": {
     "branches": [
-      "master",
-      "main"
+      // { "name": "1.59.x", "range": "1.59.x", "channel": "1.59.x"}, 
+      { "name": "master"},
+      { "name": "main"}
     ],
     "verifyConditions": [
       "@semantic-release/changelog",

@@ -1,0 +1,31 @@
+name: CI maintenance
+
+on:
+  workflow_dispatch:
+      
+jobs:
+  build:
+    name: ${{ github.ref_name }}
+    if: github.repository_owner == 'Informatievlaanderen'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate branch name
+        id: validate-branch-name
+        run: |
+          if [[ ${{ github.event.ref }} =~ ^refs/branches/[0-9]\.[0-9]\.[0-9]+$ ]]; then
+            echo ::set-output name=match::true
+          fi
+
+      - name: Check tag already exists
+        if: validate-branch-name.outputs.match == 'true'
+        id: tag-checker
+        uses: mukunku/tag-exists-action@v1.0.0
+        with:
+          tag: ${{github.ref_name}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Console
+        shell: bash
+        run: echo ${{ steps.tag-checker.outputs.exists }}
