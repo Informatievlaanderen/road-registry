@@ -3,7 +3,7 @@ name: CD Production Single Service
 on:
   workflow_dispatch:
     inputs:
-      deploy_service:
+      service:
         type: choice
         description: 'Services'
         options:
@@ -23,14 +23,11 @@ on:
 jobs:
   deployment:
     runs-on: ubuntu-latest
-    strategy:
-      matrix: 
-        services: [ ${{ github.event.inputs.deploy_service }}]
     steps:
     - name: CD
       env:
-        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
-        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
+        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{ github.event.inputs.service }}
+        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{ github.event.inputs.service }}
       uses: informatievlaanderen/awscurl-polling-action@main
       with:
           environment: prd
