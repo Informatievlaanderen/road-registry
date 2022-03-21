@@ -1,3 +1,21 @@
+# [1.62.0](https://github.com/informatievlaanderen/road-registry/compare/v1.61.3...v1.62.0) (2022-03-21)
+
+
+### Bug Fixes
+
+* fix adding and removing of numbered/national/european roads to road network view ([b6aa737](https://github.com/informatievlaanderen/road-registry/commit/b6aa7378a9d970f9baa971a40e42f5cb11af99a0))
+* fix false positives for IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction ([ae2db2a](https://github.com/informatievlaanderen/road-registry/commit/ae2db2a1943e7fb4c76001635bc421596925a7b9))
+* fix redirect after requesting extract ([1881a47](https://github.com/informatievlaanderen/road-registry/commit/1881a474c6c5ed0ec5788aca9c0421d7d8358509))
+* fix ui extract downloads ([d9dbd05](https://github.com/informatievlaanderen/road-registry/commit/d9dbd05237df600be4c1ad84872fc7e97885c642))
+* introduce workaround for file downloads ([cad60e4](https://github.com/informatievlaanderen/road-registry/commit/cad60e4e65afa86e24f130b8e46aa5a879da7100))
+* use correct endpoint when requesting extracts ([ca7ced7](https://github.com/informatievlaanderen/road-registry/commit/ca7ced7492e3ab959da07cb71aa3ccce8db33c69))
+
+
+### Features
+
+* add buffer, integration layer for requesting extract + UI ([96088bc](https://github.com/informatievlaanderen/road-registry/commit/96088bce1b6ca9fce92d4f6fd46cd08d873bfa2b))
+* CI automate API_VERSION env ([70280d3](https://github.com/informatievlaanderen/road-registry/commit/70280d397228b4e200d16b1e8f5a28862e8b4fa0))
+
 ## [1.61.3](https://github.com/informatievlaanderen/road-registry/compare/v1.61.2...v1.61.3) (2022-03-17)
 
 
