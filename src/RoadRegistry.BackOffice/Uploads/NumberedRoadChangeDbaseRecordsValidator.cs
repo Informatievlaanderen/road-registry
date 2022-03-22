@@ -50,7 +50,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                 }
                                 else
                                 {
-                                    if (recordType != RecordType.Added)
+                                    if (recordType == RecordType.Added)
                                     {
                                         var identifier = new AttributeId(record.GW_OIDN.Value);
                                         if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))

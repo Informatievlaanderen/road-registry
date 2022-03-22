@@ -12,6 +12,7 @@ namespace RoadRegistry.BackOffice.Uploads
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Core;
     using Editor.Schema;
+    using FluentAssertions;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.Geometries.Implementation;
     using Schema;
@@ -84,6 +85,20 @@ namespace RoadRegistry.BackOffice.Uploads
                             })
                     ),
                     result);
+            }
+        }
+
+        [Fact(Skip = "Use me to validate a specific file")]
+        public void ValidateActualFile()
+        {
+            using (var fileStream = File.OpenRead(@""))
+            using (var archive = new ZipArchive(fileStream))
+            {
+                var sut = new ZipArchiveValidator(Encoding.UTF8);
+
+                var result = sut.Validate(archive);
+
+                result.Count.Should().Be(0);
             }
         }
 
