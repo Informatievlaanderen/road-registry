@@ -1,6 +1,7 @@
 import Vue from "vue";
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, Method } from "axios";
 import {API_KEY} from "../environment";
+import { config } from "vue/types/umd";
 
 export interface IApiClient {
   get<T = any>(
@@ -20,6 +21,7 @@ export interface IApiClient {
   ): Promise<IApiResponse<T>>;
   put<T = any>(url: string, data?: any, headers?: any): Promise<IApiResponse<T>>;
   patch<T = any>(url: string, data?: any, headers?: any): Promise<IApiResponse<T>>;
+  download(mimetype: string, filename: string, url: string, method: Method, query?: any, headers?:any): Promise<void>;
 }
 
 export interface IApiResponse<T = any> {
@@ -79,6 +81,33 @@ class AxiosHttpApiClient implements IApiClient {
       url,
       Object.assign({}, { params: query, headers }, config)
     );
+  }
+  public async download(
+    mimetype: string,
+    filename: string,
+    url: string,
+    method: Method = "GET",
+    query?: any,
+    headers?:any)
+  {
+      const response = await this.axios({
+        url,
+        headers,
+        method,
+        params: query,
+        responseType: 'blob'
+      });
+      const blob = new Blob([response.data], {type:mimetype});
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      link.click();
+  }
+  public async postUpload<T = any>(
+    formData: FormData, url: string, config?: any, query?: any, headers?:any)
+  {
+      return await await this.axios.post<T>(url,formData, Object.assign({}, { params: query, headers }, config))
   }
   public async delete(url: string, headers?: any): Promise<IApiResponse> {
     return await this.axios.delete(url, { headers });
