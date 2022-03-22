@@ -1,3 +1,10 @@
+## [1.62.1](https://github.com/informatievlaanderen/road-registry/compare/v1.62.0...v1.62.1) (2022-03-22)
+
+
+### Bug Fixes
+
+* fix validation for unique numbers in zip archive ([fc16b81](https://github.com/informatievlaanderen/road-registry/commit/fc16b812e2815e2a19b8d17d51b153502ccb63a8))
+
 # [1.62.0](https://github.com/informatievlaanderen/road-registry/compare/v1.61.3...v1.62.0) (2022-03-21)
 
 
