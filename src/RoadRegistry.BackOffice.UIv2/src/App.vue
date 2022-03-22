@@ -20,9 +20,9 @@ import { PublicApi, BackOfficeApi } from "./services"
   },
   async mounted() {
   
+    const result1 = await BackOfficeApi.ChangeFeed.getHead(10);
     const result = await PublicApi.ChangeFeed.getHead(10);
-    // const result1 = await BackOfficeApi.Downloads.getForEditor();
-    console.log(result);
+    console.log(result, result1);
   },
 })
 export default class App extends Vue {}
