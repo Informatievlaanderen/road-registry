@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <img alt="Vue logo">
+    <!-- <img alt="Vue logo"> -->
     <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
   </div>
 </template>
@@ -8,7 +8,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import HelloWorld from './core/components/HelloWorld.vue';
-import { PublicApi } from "./services"
+import { PublicApi, BackOfficeApi } from "./services"
 
 @Component({
   components: {
@@ -21,6 +21,7 @@ import { PublicApi } from "./services"
   async mounted() {
   
     const result = await PublicApi.ChangeFeed.getHead(10);
+    // const result1 = await BackOfficeApi.Downloads.getForEditor();
     console.log(result);
   },
 })

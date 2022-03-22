@@ -11,7 +11,7 @@ module.exports = defineConfig({
   },
   devServer: {
     open: false,
-    hot: false,
+    hot: true,
     liveReload: false,
     compress:false,
     https: false,
@@ -23,9 +23,10 @@ module.exports = defineConfig({
         target: API_ENDPOINT,
         changeOrigin: true,
       },
-      "/api": {
+      "/api/v1/": {
         target: API_OLDENDPOINT,
         changeOrigin: true,
+        pathRewrite: {"/api/v1/": "/v1/"}
       },
       "/docs": {
         target: API_ENDPOINT,
