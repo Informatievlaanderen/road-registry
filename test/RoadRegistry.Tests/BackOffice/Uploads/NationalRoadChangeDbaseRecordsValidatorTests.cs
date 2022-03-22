@@ -141,10 +141,10 @@ namespace RoadRegistry.BackOffice.Uploads
                     switch (index % 2)
                     {
                         case 0:
-                            record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
+                            record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                             break;
                         case 1:
-                            record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                            record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                             break;
                     }
                     return record;
@@ -161,6 +161,33 @@ namespace RoadRegistry.BackOffice.Uploads
                             new RecordNumber(1))
                     ),
                 result);
+            Assert.Same(_context, context);
+        }
+
+        [Fact]
+        public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierButNotRecordTypeAddedReturnsExpectedResult()
+        {
+            var records = _fixture
+                .CreateMany<NationalRoadChangeDbaseRecord>(2)
+                .Select((record, index) =>
+                {
+                    record.NW_OIDN.Value = 1;
+                    switch (index % 2)
+                    {
+                        case 0:
+                            record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
+                            break;
+                        case 1:
+                            record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                            break;
+                    }
+                    return record;
+                })
+                .ToDbaseRecordEnumerator();
+
+            var (result, context) = _sut.Validate(_entry,  records, _context);
+
+            Assert.Equal(ZipArchiveProblems.None, result);
             Assert.Same(_context, context);
         }
 

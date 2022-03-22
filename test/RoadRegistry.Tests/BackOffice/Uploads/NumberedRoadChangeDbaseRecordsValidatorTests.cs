@@ -135,7 +135,7 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         [Fact]
-        public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierReturnsExpectedResult()
+        public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierButNotRecordTypeAddedReturnsExpectedResult()
         {
             var records = _fixture
                 .CreateMany<NumberedRoadChangeDbaseRecord>(2)
@@ -149,6 +149,32 @@ namespace RoadRegistry.BackOffice.Uploads
                     else if(index == 1)
                     {
                         record.RECORDTYPE.Value = (short) RecordType.Removed.Translation.Identifier;
+                    }
+                    return record;
+                })
+                .ToDbaseRecordEnumerator();
+
+            var (result, context) = _sut.Validate(_entry, records, _context);
+
+            Assert.Equal(ZipArchiveProblems.None,result);
+            Assert.Same(_context, context);
+        }
+
+        [Fact]
+        public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierReturnsExpectedResult()
+        {
+            var records = _fixture
+                .CreateMany<NumberedRoadChangeDbaseRecord>(2)
+                .Select((record, index) =>
+                {
+                    record.GW_OIDN.Value = 1;
+                    if (index == 0)
+                    {
+                        record.RECORDTYPE.Value = (short) RecordType.Added.Translation.Identifier;
+                    }
+                    else if(index == 1)
+                    {
+                        record.RECORDTYPE.Value = (short) RecordType.Added.Translation.Identifier;
                     }
                     return record;
                 })
