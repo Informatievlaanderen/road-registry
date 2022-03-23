@@ -2,34 +2,20 @@ import Vue from "vue";
 import Router, { RawLocation, Route, RouteConfig } from "vue-router";
 import Home from "./views/Home.vue";
 import { ActivityRoutes } from "./modules/activity/";
-// import { InformationRoutes } from "./modules/information/";
-// import { DownloadExtract } from "./modules/download-extract/views/DownloadExtract.vue";
-// import { DownloadProduct } from "./modules/download-product/views/DownloadProduct.vue";
-// import { Upload } from "./modules/upload/views/Upload.vue";
+import { InformationRoutes } from "./modules/information/";
+import { DownloadExtractRoutes } from "./modules/download-extract";
+import { DownloadProductRoutes } from "./modules/download-product";
+import { UploadRoutes } from "./modules/uploads";
 
+Vue.use(Router);
 
 const routes: RouteConfig[] = [
-    {
-        path: "/",
-        component: Home
-    },
+    { path: "/", component: Home },
     ...ActivityRoutes,
-    // ...InformationRoutes,
-    // {
-    //     path: "/download-extract",
-    //     name: "download-extract",
-    //     component: DownloadExtract
-    // },
-    // {
-    //     path: "/download-product",
-    //     name: "download-product",
-    //     component: DownloadProduct
-    // },
-    // {
-    //     path: "/opladen",
-    //     name: "opladen",
-    //     component: Upload
-    // },
+    ...InformationRoutes,
+    ...DownloadExtractRoutes,
+    ...DownloadProductRoutes,
+    ...UploadRoutes
 ];
 
 function ensureRouteMetaValue(route: Route, predicate: (meta: any) => boolean) {
