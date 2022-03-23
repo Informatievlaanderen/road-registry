@@ -1,16 +1,16 @@
 import Root from "./views/Root.vue";
-import Activities from "./views/Activities.vue";
+import Uploads from "./views/Uploads.vue";
 
-export const ActivityRoutes = [
+export const UploadRoutes = [
     {
-        path: "/activiteit",
+        path: "/uploads",
         component: Root,
         meta: {},
         children: [
             {
                 path: "",
-                component: Activities,
-                name: "activiteit"
+                component: Uploads,
+                name: "uploads"
               },
         ],
     },
