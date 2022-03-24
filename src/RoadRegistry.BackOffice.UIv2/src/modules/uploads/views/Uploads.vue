@@ -1,7 +1,6 @@
 <template>
   <div>
     <h1>UPLOADS PAGE</h1>
-    <wr-go-to />
   </div>
 </template>
 
