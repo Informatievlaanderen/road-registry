@@ -1,7 +1,13 @@
 <template>
   <div id="app">
     <wr-header />
-    <router-view></router-view>
+
+    <section class="vl-region">
+      <div class="vl-layout">
+        <router-view></router-view>
+      </div>
+    </section>
+
     <wr-footer />
   </div>
 </template>
@@ -10,17 +16,15 @@
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
-  components: {
-  },
+  components: {},
   data() {
-    return {}
+    return {};
   },
-  async mounted() {
-  },
+  async mounted() {},
 })
 export default class App extends Vue {}
 </script>
 
 <style lang="scss">
-@import './scss/theme.scss';
+@import "./scss/theme.scss";
 </style>
