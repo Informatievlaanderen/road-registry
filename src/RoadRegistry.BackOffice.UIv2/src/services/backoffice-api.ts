@@ -35,12 +35,12 @@ export const BackOfficeApi = {
         },
     },
     Uploads: {
-        upload: async (file: string | Blob, filename: string): Promise<boolean> => {
+        upload: async (file: string | Blob, filename: string): Promise<number> => {
             const path = `api/v1/upload`;
             const data = new FormData();
             data.append("archive", file, filename);
             const response = await apiClient.post(path,data)
-            return response.status == 200;
+            return response.status;
         },
         download: async(identifier: string): Promise<void> => {
             const path = `api/v1/upload/${identifier}`;
