@@ -1,4 +1,6 @@
 import Vue from "vue";
-import GoTo from "./GoTo.vue";
+import Header from "./Header.vue";
+import Footer from "./Footer.vue";
 
-Vue.component("wr-go-to", GoTo);
+Vue.component("wr-header", Header);
+Vue.component("wr-footer", Footer);
