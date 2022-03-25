@@ -30,7 +30,7 @@ export const BackOfficeApi = {
             await apiClient.download("application/zip", "wegenregister.zip", path, "GET")
         },
         getForProduct: async (date: string) => {
-            const path = `api/v1/download/${date}`;
+            const path = `api/v1/download/for-product/${date}`;
             await apiClient.download("application/zip", `wegenregister-${date}.zip`, path, "GET")
         },
     },
