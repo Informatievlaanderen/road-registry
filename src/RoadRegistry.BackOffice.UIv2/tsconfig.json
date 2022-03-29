@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "esnext",
+    // Generate d.ts files
+    "declaration": true,
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",

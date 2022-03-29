@@ -19,7 +19,7 @@ module.exports = defineConfig({
     host: "localhost",
     port: 1234,
     proxy: {
-      "/v1/wegen": {
+      "/v1": {
         target: API_ENDPOINT,
         changeOrigin: true,
       },

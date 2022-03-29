@@ -4,7 +4,7 @@
       <h2>Downloaden</h2>
     </div>
 
-    <div class="vl-form-grid vl-form-grid--is-stacked" :class="{ 'disabled' : isDownloadInProgress }">
+    <div class="vl-form-grid vl-form-grid--is-stacked" :class="{ disabled: isDownloadInProgress }">
       <div class="vl-form-col--2-12">
         <label for="date">Datum</label>
       </div>
@@ -20,21 +20,30 @@
       </div>
       <div class="vl-form-col--7-12"></div>
       <div class="vl-form-col--5-12">
-        <a class="vl-doormat js-vl-equal-height" href="#" :class="{ 'disabled' : parseDate(selectedDate) == 'Invalid Date' }" v-on:click="download">
+        <a
+          class="vl-doormat js-vl-equal-height"
+          href="#"
+          :class="{ disabled: parseDate(selectedDate) == 'Invalid Date' }"
+          v-on:click="download"
+        >
           <div class="vl-doormat__content">
             <span class="vl-doormat__content__arrow" aria-hidden="true"></span>
             <h2 class="vl-doormat__title" data-vl-clamp="2">Register download product</h2>
-            <div class="vl-doormat__text" data-vl-clamp="3">
-              Download het wegenregister product.
-            </div>
+            <div class="vl-doormat__text" data-vl-clamp="3">Download het wegenregister product.</div>
           </div>
         </a>
       </div>
     </div>
 
-
     <div v-if="isDownloadInProgress">
-      Downloading..
+      <div class="vl-col--1-1">
+        <div class="vl-region">
+          <div class="vl-u-align-center">
+            <div class="vl-loader vl-loader--inline" role="status"></div>
+            Download is bezig..
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -48,7 +57,7 @@ export default Vue.extend({
     return {
       selectedDate: new Date().toISOString().substring(0, 10),
       today: new Date().toISOString().substring(0, 10),
-      isDownloadInProgress: false
+      isDownloadInProgress: false,
     };
   },
   methods: {
@@ -58,22 +67,23 @@ export default Vue.extend({
     async download() {
       const parsedDate = this.parseDate(this.selectedDate);
       // format date as yyyyMMdd
-      const formattedDate = ''.concat(
-        parsedDate.getFullYear().toString(), 
-        (parsedDate.getMonth() + 1).toString().padStart(2, '0'), 
-        parsedDate.getDate().toString().padStart(2, '0'));
+      const formattedDate = "".concat(
+        parsedDate.getFullYear().toString(),
+        (parsedDate.getMonth() + 1).toString().padStart(2, "0"),
+        parsedDate.getDate().toString().padStart(2, "0")
+      );
 
       this.isDownloadInProgress = true;
       await BackOfficeApi.Downloads.getForProduct(formattedDate);
       this.isDownloadInProgress = false;
-    }
+    },
   },
 });
 </script>
 
 <style lang="scss">
 .disabled {
-    pointer-events:none; 
-    opacity:0.6;        
+  pointer-events: none;
+  opacity: 0.6;
 }
 </style>
