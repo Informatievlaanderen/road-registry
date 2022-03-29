@@ -1,5 +1,6 @@
 import apiClient from "./api-client";
 import RoadRegistry from "@/types/road-registry";
+import Municipalities from "@/types/municipalities";
 
 export const PublicApi = {
     ChangeFeed: {
@@ -86,6 +87,18 @@ export const PublicApi = {
             const response = await apiClient.get<RoadRegistry.RoadNetworkInformationResponse>(path)
             return response.data;
         },
+    },
+    Municipalities: {
+        getList: async (fetchFromUrl?: string): Promise<Municipalities.GetMunicipalitiesAPIResponse> => {
+            let removeOrigin = (url: string): string => {
+                return url.replace(new URL(url).origin, '');
+            }
+
+            const path = fetchFromUrl ? removeOrigin(fetchFromUrl) : `v1/gemeenten?status=inGebruik`;
+            const response = await apiClient.get<Municipalities.GetMunicipalitiesAPIResponse>(path)
+
+            return response.data;
+        }
     }
 }
 export default PublicApi;

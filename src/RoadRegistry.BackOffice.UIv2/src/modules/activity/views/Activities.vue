@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1>ACTIVITEIT PAGE</h1>
+    {{ $route.params.downloadId }}
   </div>
 </template>
 
