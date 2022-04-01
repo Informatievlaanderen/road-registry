@@ -1,7 +1,8 @@
 namespace RoadRegistry.BackOffice.Core
 {
     using System;
-    using System.Linq;
+    using Validators;
+    using Validators.AddGradeSeparatedJunction.After;
 
     public class AddGradeSeparatedJunction : IRequestedChange
     {
@@ -33,40 +34,32 @@ namespace RoadRegistry.BackOffice.Core
 
         public Problems VerifyBefore(BeforeVerificationContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             return Problems.None;
         }
 
         public Problems VerifyAfter(AfterVerificationContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-
-            var problems = Problems.None;
-
-            if (!context.AfterView.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
+            if (context == null)
             {
-                problems = problems.Add(new UpperRoadSegmentMissing());
+                throw new ArgumentNullException(nameof(context));
             }
 
-            if (!context.AfterView.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
-            {
-                problems = problems.Add(new LowerRoadSegmentMissing());
-            }
-
-            if (upperSegment != null && lowerSegment != null)
-            {
-                if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))
-                {
-                    problems = problems.Add(new UpperAndLowerRoadSegmentDoNotIntersect());
-                }
-            }
-
-            return problems;
+            var instanceToValidate = new AddGradeSeparatedJunctionWithAfterVerificationContext(this, context);
+            var validator = new AddGradeSeparatedJunctionWithAfterVerificationContextValidator();
+            return validator.Validate(instanceToValidate).ToProblems();
         }
 
         public void TranslateTo(Messages.AcceptedChange message)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
 
             message.GradeSeparatedJunctionAdded = new Messages.GradeSeparatedJunctionAdded
             {
@@ -80,7 +73,10 @@ namespace RoadRegistry.BackOffice.Core
 
         public void TranslateTo(Messages.RejectedChange message)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
 
             message.AddGradeSeparatedJunction = new Messages.AddGradeSeparatedJunction
             {
