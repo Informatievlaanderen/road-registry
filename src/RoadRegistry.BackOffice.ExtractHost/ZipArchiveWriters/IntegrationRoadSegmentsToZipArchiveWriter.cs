@@ -51,7 +51,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 await context.RoadSegments.InsideContour(request.Contour).ToListAsync(cancellationToken);
             var segmentsInIntegrationBuffer =
                 await context.RoadSegments.InsideContour(integrationBuffer as NetTopologySuite.Geometries.IPolygonal).ToListAsync(cancellationToken);
-            var integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour).ToList();
+            var integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
 
             var dbfEntry = archive.CreateEntry("iWegsegment.dbf");
             var dbfHeader = new DbaseFileHeader(
