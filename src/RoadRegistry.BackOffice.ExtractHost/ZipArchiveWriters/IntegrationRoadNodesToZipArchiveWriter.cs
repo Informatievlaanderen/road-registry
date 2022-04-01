@@ -44,7 +44,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                 await context.RoadNodes.InsideContour(request.Contour).ToListAsync(cancellationToken);
             var nodesInIntegrationBuffer =
                 await context.RoadNodes.InsideContour(integrationBuffer as NetTopologySuite.Geometries.IPolygonal).ToListAsync(cancellationToken);
-            var integrationNodes = nodesInIntegrationBuffer.Except(nodesInContour).ToList();
+            var integrationNodes = nodesInIntegrationBuffer.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
 
 
             var dbfEntry = archive.CreateEntry("iWegknoop.dbf");
