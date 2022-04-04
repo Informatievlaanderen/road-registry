@@ -49,9 +49,8 @@ namespace RoadRegistry.BackOffice.Core
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var instanceToValidate = new AddGradeSeparatedJunctionWithAfterVerificationContext(this, context);
             var validator = new AddGradeSeparatedJunctionWithAfterVerificationContextValidator();
-            return validator.Validate(instanceToValidate).ToProblems();
+            return validator.Validate((this, context)).ToProblems();
         }
 
         public void TranslateTo(Messages.AcceptedChange message)

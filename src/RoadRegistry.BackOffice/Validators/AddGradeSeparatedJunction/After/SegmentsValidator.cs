@@ -4,9 +4,9 @@ namespace RoadRegistry.BackOffice.Validators.AddGradeSeparatedJunction.After
     using FluentValidation;
     using FluentValidation.Validators;
 
-    internal class SegmentsValidator : PropertyValidator<AddGradeSeparatedJunctionWithAfterVerificationContext, AddGradeSeparatedJunction>
+    internal class SegmentsValidator : PropertyValidator<(AddGradeSeparatedJunction AddGradeSeparatedJunction, AfterVerificationContext AfterVerificationContext), AddGradeSeparatedJunction>
     {
-        public override bool IsValid(ValidationContext<AddGradeSeparatedJunctionWithAfterVerificationContext> context, AddGradeSeparatedJunction value)
+        public override bool IsValid(ValidationContext<(AddGradeSeparatedJunction AddGradeSeparatedJunction, AfterVerificationContext AfterVerificationContext)> context, AddGradeSeparatedJunction value)
         {
             if (!context.InstanceToValidate.AfterVerificationContext.AfterView.View.Segments.TryGetValue(value.UpperSegmentId, out var upperSegment))
             {
