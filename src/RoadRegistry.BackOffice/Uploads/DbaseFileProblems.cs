@@ -346,6 +346,23 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Build();
         }
 
+        public static FileWarning IdentifierNotUniqueButAllowed(this IDbaseFileRecordProblemBuilder builder,
+            RoadNodeId identifier,
+            RecordType recordType,
+            RecordNumber takenByRecordNumber,
+            RecordType takenByRecordType)
+        {
+            return builder
+                .Warning(nameof(IdentifierNotUniqueButAllowed))
+                .WithParameters(
+                    new ProblemParameter("RecordType", recordType.ToString()),
+                    new ProblemParameter("Identifier", identifier.ToString()),
+                    new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()),
+                    new ProblemParameter("TakenByRecordType", takenByRecordType.ToString())
+                )
+                .Build();
+        }
+
         public static FileError RoadNodeTypeMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
         {
             return builder
