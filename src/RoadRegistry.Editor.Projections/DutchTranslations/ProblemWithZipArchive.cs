@@ -51,6 +51,11 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                             $"De dbase record {problem.Parameters[0].Value} bevat dezelfde identifier {problem.Parameters[1].Value} als dbase record {problem.Parameters[2].Value}.";
                         break;
 
+                    case nameof(DbaseFileProblems.IdentifierNotUniqueButAllowed):
+                        translation =
+                            $"De dbase record {problem.Parameters[0].Value} ({problem.Parameters[1].Value}) bevat dezelfde identifier {problem.Parameters[2].Value} als dbase record {problem.Parameters[3].Value} ({problem.Parameters[4].Value}).";
+                        break;
+
                     case nameof(DbaseFileProblems.RoadSegmentIdOutOfRange):
                         translation = $"De dbase record {problem.Parameters[0].Value} heeft een ongeldige wegsegment identificator: {problem.Parameters[1].Value}.";
                         break;

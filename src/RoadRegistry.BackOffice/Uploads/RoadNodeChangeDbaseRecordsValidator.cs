@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Uploads
     using System;
     using System.Collections.Generic;
     using System.IO.Compression;
+    using System.Linq;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Schema;
 
@@ -17,7 +18,7 @@ namespace RoadRegistry.BackOffice.Uploads
             var problems = ZipArchiveProblems.None;
             try
             {
-                var identifiers = new Dictionary<RoadNodeId, RecordNumber>();
+                var identifiers = new Dictionary<RoadNodeId, (RecordNumber RecordNumber, RecordType RecordType)>();
                 var moved = records.MoveNext();
                 if (moved)
                 {
@@ -37,6 +38,7 @@ namespace RoadRegistry.BackOffice.Uploads
                                     problems += recordContext.RecordTypeMismatch(record.RECORDTYPE.Value);
                                 }
                             }
+
                             if (record.WEGKNOOPID.HasValue)
                             {
                                 if (record.WEGKNOOPID.Value == 0)
@@ -46,16 +48,47 @@ namespace RoadRegistry.BackOffice.Uploads
                                 else
                                 {
                                     var identifier = new RoadNodeId(record.WEGKNOOPID.Value);
-                                    if (identifiers.TryGetValue(identifier, out var takenByRecordNumber))
+
+                                    if (RecordType.ByIdentifier.TryGetValue(record.RECORDTYPE.Value, out var recordType))
                                     {
-                                        problems += recordContext.IdentifierNotUnique(
-                                            identifier,
-                                            takenByRecordNumber
-                                        );
+                                        context = context.WithRoadNode(identifier, recordType);
+                                    }
+
+                                    if (identifiers.TryGetValue(identifier, out var takenBy))
+                                    {
+                                        var acceptedRecordTypesCombinations = new List<RecordType[]>
+                                        {
+                                            new [] {RecordType.Removed, RecordType.Added}
+                                        };
+
+                                        var actualRecordTypeCombination = new[]
+                                        {
+                                            takenBy.RecordType,
+                                            recordType
+                                        };
+
+                                        if (acceptedRecordTypesCombinations.Any(combination => combination.SequenceEqual(actualRecordTypeCombination)))
+                                        {
+                                            // warning
+                                            problems += recordContext.IdentifierNotUniqueButAllowed(
+                                                identifier,
+                                                recordType,
+                                                takenBy.RecordNumber,
+                                                takenBy.RecordType
+                                            );
+                                        }
+                                        else
+                                        {
+                                            // error
+                                            problems += recordContext.IdentifierNotUnique(
+                                                identifier,
+                                                takenBy.RecordNumber
+                                            );
+                                        }
                                     }
                                     else
                                     {
-                                        identifiers.Add(identifier, records.CurrentRecordNumber);
+                                        identifiers.Add(identifier, (records.CurrentRecordNumber, recordType));
                                     }
                                 }
                             }
@@ -63,7 +96,6 @@ namespace RoadRegistry.BackOffice.Uploads
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.WEGKNOOPID.Field);
                             }
-
                             if (!record.TYPE.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.TYPE.Field);
