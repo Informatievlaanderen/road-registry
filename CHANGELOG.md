@@ -1,3 +1,12 @@
+## [1.62.2](https://github.com/informatievlaanderen/road-registry/compare/v1.62.1...v1.62.2) (2022-04-21)
+
+
+### Bug Fixes
+
+* allow duplicate identifiers for certain combinations of record types ([715d30e](https://github.com/informatievlaanderen/road-registry/commit/715d30e009736b4a3d6f3980d8c954b1741a8009))
+* fix overlap of records in integration layer ([282c40c](https://github.com/informatievlaanderen/road-registry/commit/282c40c3aa65527948793b30515d2afa44d3e344))
+* pin dotnet version for build ([72bff3e](https://github.com/informatievlaanderen/road-registry/commit/72bff3e4993c5e0e20721083435ef6666f3a9a11))
+
 ## [1.62.1](https://github.com/informatievlaanderen/road-registry/compare/v1.62.0...v1.62.1) (2022-03-22)
 
 
