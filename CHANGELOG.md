@@ -1,3 +1,18 @@
+# [2.0.0](https://github.com/informatievlaanderen/road-registry/compare/v1.62.2...v2.0.0) (2022-04-26)
+
+
+### Features
+
+* move to dotnet 6.0.3 ([#480](https://github.com/informatievlaanderen/road-registry/issues/480)) ([ea93005](https://github.com/informatievlaanderen/road-registry/commit/ea93005866ab908c8234bd64574c8b7ae1da422f))
+
+
+### BREAKING CHANGES
+
+* move to dotnet 6.0.3
+
+* feat: move to dotnet 6.0.3
+* move to dotnet 6.0.3
+
 ## [1.62.2](https://github.com/informatievlaanderen/road-registry/compare/v1.62.1...v1.62.2) (2022-04-21)
 
 
