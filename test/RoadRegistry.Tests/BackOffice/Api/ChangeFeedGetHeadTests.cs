@@ -13,7 +13,6 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
     using NodaTime;
-    using NodaTime.Testing;
     using NodaTime.Text;
     using RoadRegistry.Framework.Containers;
     using Xunit;
@@ -32,11 +31,13 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_head_changes_without_specifying_a_max_entry_count()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext()
-            }};
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext()
+                }
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 try
@@ -46,7 +47,7 @@ namespace RoadRegistry.BackOffice.Api
                 }
                 catch (ValidationException exception)
                 {
-                    exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure>{new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter is missing.")});
+                    exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
                 }
             }
         }
@@ -54,17 +55,19 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_head_changes_with_too_many_max_entry_counts_specified()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    Request =
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
                     {
                         QueryString = new QueryString("?maxEntryCount=5&maxEntryCount=10")
                     }
+                    }
                 }
-            }};
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 try
@@ -82,22 +85,24 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_head_changes_with_a_max_entry_count_that_is_not_an_integer()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    Request =
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
                     {
                         QueryString = new QueryString("?maxEntryCount=abc")
                     }
+                    }
                 }
-            }};
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 try
                 {
-                    await controller.GetHead(new []{"abc"}, context);
+                    await controller.GetHead(new[] { "abc" }, context);
                     throw new XunitException("Expected a validation exception but did not receive any");
                 }
                 catch (ValidationException exception)
@@ -110,20 +115,22 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_head_changes_of_an_empty_registry()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    Request =
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
                     {
                         QueryString = new QueryString("?maxEntryCount=5")
                     }
+                    }
                 }
-            }};
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetHead(new []{"5"}, context);
+                var result = await controller.GetHead(new[] { "5" }, context);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
@@ -135,8 +142,9 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_head_changes_of_filled_registry()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-                {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
+            {
+                ControllerContext = new ControllerContext
                 {
                     HttpContext = new DefaultHttpContext
                     {
@@ -145,7 +153,8 @@ namespace RoadRegistry.BackOffice.Api
                             QueryString = new QueryString("?maxEntryCount=5")
                         }
                     }
-                }};
+                }
+            };
             var database = await _fixture.CreateDatabaseAsync();
             var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
             using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
@@ -165,7 +174,7 @@ namespace RoadRegistry.BackOffice.Api
 
             using (var context = await _fixture.CreateEditorContextAsync(database))
             {
-                var result = await controller.GetHead(new []{"5"}, context);
+                var result = await controller.GetHead(new[] { "5" }, context);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);

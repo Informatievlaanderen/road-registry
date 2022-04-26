@@ -8,13 +8,11 @@ namespace RoadRegistry.BackOffice.Api
     using FluentAssertions;
     using FluentValidation;
     using FluentValidation.Results;
-    using KellermanSoftware.CompareNetObjects;
     using Messages;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
     using NodaTime;
-    using NodaTime.Testing;
     using NodaTime.Text;
     using RoadRegistry.Framework.Containers;
     using Xunit;
@@ -35,22 +33,24 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_next_changes_without_specifying_a_max_entry_count()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    Request =
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
                     {
                         QueryString = new QueryString("?afterEntry=0")
                     }
+                    }
                 }
-            }};
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 try
                 {
-                    await controller.GetNext(new []{"0"}, new string[]{}, context);
+                    await controller.GetNext(new[] { "0" }, new string[] { }, context);
                     throw new XunitException("Expected a validation exception but did not receive any");
                 }
                 catch (ValidationException exception)
@@ -63,22 +63,24 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_next_changes_with_too_many_max_entry_counts_specified()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    Request =
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
                     {
                         QueryString = new QueryString("?afterEntry=0&maxEntryCount=5&maxEntryCount=10")
                     }
+                    }
                 }
-            }};
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 try
                 {
-                    await controller.GetNext(new []{"0"}, new []{"5", "10"}, context);
+                    await controller.GetNext(new[] { "0" }, new[] { "5", "10" }, context);
                     throw new XunitException("Expected a validation exception but did not receive any");
                 }
                 catch (ValidationException exception)
@@ -91,22 +93,24 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_next_changes_with_a_max_entry_count_that_is_not_an_integer()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    Request =
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
                     {
                         QueryString = new QueryString("?afterEntry=0&maxEntryCount=abc")
                     }
+                    }
                 }
-            }};
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 try
                 {
-                    await controller.GetNext(new []{"0"}, new []{"abc"}, context);
+                    await controller.GetNext(new[] { "0" }, new[] { "abc" }, context);
                     throw new XunitException("Expected a validation exception but did not receive any");
                 }
                 catch (ValidationException exception)
@@ -119,22 +123,24 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_next_changes_without_specifying_an_after_entry()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    Request =
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
                     {
                         QueryString = new QueryString("?maxEntryCount=0")
                     }
+                    }
                 }
-            }};
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 try
                 {
-                    await controller.GetNext(new string[]{}, new []{"0"}, context);
+                    await controller.GetNext(new string[] { }, new[] { "0" }, context);
                     throw new XunitException("Expected a validation exception but did not receive any");
                 }
                 catch (ValidationException exception)
@@ -147,22 +153,24 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_next_changes_with_too_many_after_entries_specified()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    Request =
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
                     {
                         QueryString = new QueryString("?afterEntry=1&afterEntry=2&maxEntryCount=10")
                     }
+                    }
                 }
-            }};
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 try
                 {
-                    await controller.GetNext(new[] {"1","2"}, new[] {"0"}, context);
+                    await controller.GetNext(new[] { "1", "2" }, new[] { "0" }, context);
                     throw new XunitException("Expected a validation exception but did not receive any");
                 }
                 catch (ValidationException exception)
@@ -175,22 +183,24 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_next_changes_with_an_after_entry_that_is_not_an_integer()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    Request =
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
                     {
                         QueryString = new QueryString("?afterEntry=abc&maxEntryCount=0")
                     }
+                    }
                 }
-            }};
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 try
                 {
-                    await controller.GetNext(new[] {"abc"}, new[] { "0" }, context);
+                    await controller.GetNext(new[] { "abc" }, new[] { "0" }, context);
                     throw new XunitException("Expected a validation exception but did not receive any");
                 }
                 catch (ValidationException exception)
@@ -203,20 +213,22 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_next_changes_of_an_empty_registry()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    Request =
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
                     {
                         QueryString = new QueryString("?afterEntry=0&maxEntryCount=5")
                     }
+                    }
                 }
-            }};
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
-                var result = await controller.GetNext(new[] {"0"}, new[] { "5" }, context);
+                var result = await controller.GetNext(new[] { "0" }, new[] { "5" }, context);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
@@ -228,8 +240,9 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_next_changes_of_filled_registry()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-                {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
+            {
+                ControllerContext = new ControllerContext
                 {
                     HttpContext = new DefaultHttpContext
                     {
@@ -238,7 +251,8 @@ namespace RoadRegistry.BackOffice.Api
                             QueryString = new QueryString("?afterEntry=1&maxEntryCount=3")
                         }
                     }
-                }};
+                }
+            };
             var database = await _fixture.CreateDatabaseAsync();
             var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
             using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
@@ -297,7 +311,7 @@ namespace RoadRegistry.BackOffice.Api
                     Type = nameof(NoRoadNetworkChanges),
                     Content = JsonConvert.SerializeObject(new NoRoadNetworkChangesBasedOnArchiveEntry
                     {
-                        Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" },
+                        Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" }
                     }),
                     When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                 });
@@ -306,7 +320,7 @@ namespace RoadRegistry.BackOffice.Api
 
             using (var context = await _fixture.CreateEditorContextAsync(database))
             {
-                var result = await controller.GetNext(new[] {"1"}, new[] {"3"}, context);
+                var result = await controller.GetNext(new[] { "1" }, new[] { "3" }, context);
 
                 var jsonResult = Assert.IsType<JsonResult>(result);
                 Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
