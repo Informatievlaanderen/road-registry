@@ -7,6 +7,7 @@ Microsoft.Data.SqlClient
 Microsoft.Extensions.Logging
 Microsoft.Extensions.Hosting
 Microsoft.Extensions.Http.Polly
+NodaTime
 
 SqlStreamStore
 SqlStreamStore.MsSql

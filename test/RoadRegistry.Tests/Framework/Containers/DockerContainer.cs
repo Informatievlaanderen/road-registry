@@ -167,7 +167,16 @@ namespace RoadRegistry.Framework.Containers
         {
             var images = await _client
                 .Images
-                .ListImagesAsync(new ImagesListParameters { MatchName = Configuration.Image.RegistryQualifiedName })
+                .ListImagesAsync(new ImagesListParameters
+                {
+                    Filters = new Dictionary<string, IDictionary<string, bool>>
+                    {
+                        ["reference"] = new Dictionary<string, bool>
+                        {
+                            [Configuration.Image.RegistryQualifiedName] = true,
+                        },
+                    }
+                })
                 .ConfigureAwait(false);
             return images.Count != 0;
         }

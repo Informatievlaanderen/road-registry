@@ -4,6 +4,7 @@ Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 Microsoft.Data.SqlClient
 Microsoft.Extensions.Logging
 Microsoft.Extensions.Hosting
+NodaTime
 
 SqlStreamStore
 SqlStreamStore.MsSql
