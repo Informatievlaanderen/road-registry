@@ -9,7 +9,6 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
     using NodaTime;
-    using NodaTime.Testing;
     using NodaTime.Text;
     using RoadRegistry.Framework.Containers;
     using Xunit;
@@ -27,11 +26,13 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_entry_content_of_a_non_existing_entry()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext()
-            }};
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext()
+                }
+            };
             using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
             {
                 var result = await controller.GetContent(context, 0);
@@ -43,17 +44,19 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_entry_content_of_an_existing_entry()
         {
-            var controller = new ChangeFeedController(new FakeClock(NodaConstants.UnixEpoch))
-            {ControllerContext = new ControllerContext
+            var controller = new ChangeFeedController
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    Request =
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
                     {
                         QueryString = new QueryString("?beforeEntry=1&maxEntryCount=5")
                     }
+                    }
                 }
-            }};
+            };
             var database = await _fixture.CreateDatabaseAsync();
             var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
             using (var context = await _fixture.CreateEmptyEditorContextAsync(database))

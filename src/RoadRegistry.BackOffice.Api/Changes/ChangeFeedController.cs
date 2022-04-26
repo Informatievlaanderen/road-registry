@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Changes
 {
-    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
@@ -24,14 +23,12 @@ namespace RoadRegistry.BackOffice.Api.Changes
     [ApiExplorerSettings(GroupName = "ChangeFeed")]
     public class ChangeFeedController : ControllerBase
     {
-        private readonly IClock _clock;
         private readonly DateTimeZone _localTimeZone;
         private readonly LocalTimePattern _localTimeOfDayPattern;
         private readonly LocalDatePattern _localMonthPattern;
 
-        public ChangeFeedController(IClock clock)
+        public ChangeFeedController()
         {
-            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _localTimeZone = DateTimeZoneProviders.Tzdb["Europe/Brussels"];
             _localMonthPattern = LocalDatePattern.Create("MMM", new CultureInfo("nl-BE"));
             _localTimeOfDayPattern = LocalTimePattern.CreateWithInvariantCulture("HH':'mm");
