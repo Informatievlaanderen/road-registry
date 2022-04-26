@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Api
     using System;
     using System.Threading.Tasks;
     using Changes;
-    using Editor.Schema;
     using Editor.Schema.RoadNetworkChanges;
     using Messages;
     using Microsoft.AspNetCore.Http;

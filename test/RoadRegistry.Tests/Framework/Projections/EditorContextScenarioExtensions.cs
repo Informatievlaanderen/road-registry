@@ -88,7 +88,9 @@ namespace RoadRegistry.Framework.Projections
                 var result = await specification.Verification(context, CancellationToken.None);
 
                 if (result.Failed)
+                {
                     throw specification.CreateFailedScenarioExceptionFor(result);
+                }
             }
         }
 
@@ -150,7 +152,9 @@ namespace RoadRegistry.Framework.Projections
                 var result = await specification.Verification(context, CancellationToken.None);
 
                 if (result.Failed)
+                {
                     throw specification.CreateFailedScenarioExceptionFor(result);
+                }
             }
         }
 
@@ -261,7 +265,9 @@ namespace RoadRegistry.Framework.Projections
                 var result = await specification.Verification(context, CancellationToken.None);
 
                 if (result.Failed)
+                {
                     throw specification.CreateFailedScenarioExceptionFor(result);
+                }
             }
         }
 

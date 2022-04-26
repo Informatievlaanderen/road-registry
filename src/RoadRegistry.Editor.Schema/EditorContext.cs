@@ -1,7 +1,7 @@
 namespace RoadRegistry.Editor.Schema
 {
-    using System.Linq;
-    using System.Threading;
+using System.Linq;
+using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Extracts;
@@ -61,6 +61,10 @@ namespace RoadRegistry.Editor.Schema
         {
             base.OnModelCreating(builder);
             OnModelQueryTypes(builder);
+
+            builder.Entity<RoadNetworkChange>()
+                .Property(x => x.When)
+                .IsRequired(false);
         }
 
         //HACK: Raw sql is not supported when running against in memory - this allows overriding and adjusting behavior
@@ -70,14 +74,12 @@ namespace RoadRegistry.Editor.Schema
             builder
                 .Entity<RoadNodeBoundingBox2D>()
                 .HasNoKey()
-                .ToTable(null)
-                .ToSqlQuery("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [" + WellknownSchemas.EditorSchema + "].[RoadNode]");
+                .ToSqlQuery($"SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [{WellknownSchemas.EditorSchema}].[RoadNode]");
 
             builder
                 .Entity<RoadSegmentBoundingBox3D>()
                 .HasNoKey()
-                .ToTable(null)
-                .ToSqlQuery("SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [" + WellknownSchemas.EditorSchema + "].[RoadSegment]");
+                .ToSqlQuery($"SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [{WellknownSchemas.EditorSchema}].[RoadSegment]");
         }
     }
 }
