@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/informatievlaanderen/road-registry/compare/v2.0.0...v2.0.1) (2022-04-26)
+
+
+### Bug Fixes
+
+* remove unused ctor param ([1fe84e3](https://github.com/informatievlaanderen/road-registry/commit/1fe84e334f2898607e17aa8307ad1e21aa24af0c))
+
 # [2.0.0](https://github.com/informatievlaanderen/road-registry/compare/v1.62.2...v2.0.0) (2022-04-26)
 
 
