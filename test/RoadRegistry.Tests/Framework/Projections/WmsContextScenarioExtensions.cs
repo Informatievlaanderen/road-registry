@@ -48,7 +48,9 @@ namespace RoadRegistry.Framework.Projections
                 var result = await specification.Verification(context, CancellationToken.None);
 
                 if (result.Failed)
+                {
                     throw specification.CreateFailedScenarioExceptionFor(result);
+                }
             }
         }
 
@@ -72,7 +74,8 @@ namespace RoadRegistry.Framework.Projections
                     MaxDifferences = 10,
                     CustomComparers = new List<BaseTypeComparer>
                     {
-                        new GeometryLineStringComparer(RootComparerFactory.GetRootComparer())
+                        new GeometryLineStringComparer(RootComparerFactory.GetRootComparer()),
+                        new DateTimeComparer(RootComparerFactory.GetRootComparer())
                     }
                 };
                 var comparer = new CompareLogic(comparisonConfig);
@@ -106,7 +109,9 @@ namespace RoadRegistry.Framework.Projections
                 var result = await specification.Verification(context, CancellationToken.None);
 
                 if (result.Failed)
+                {
                     throw specification.CreateFailedScenarioExceptionFor(result);
+                }
             }
         }
 

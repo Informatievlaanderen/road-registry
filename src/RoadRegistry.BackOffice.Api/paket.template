@@ -15,21 +15,21 @@ licenseUrl https://opensource.org/licenses/EUPL-1.2
 description Road Registry.
 
 dependencies
-  framework: net5.0
+  framework: net6.0
     Be.Vlaanderen.Basisregisters.BlobStore >= LOCKEDVERSION
     Microsoft.IO.RecyclableMemoryStream >= LOCKEDVERSION
 
 files
-  RoadRegistry.BackOffice.Api.dll => lib\net5.0
-  RoadRegistry.BackOffice.Api.pdb => lib\net5.0
-  RoadRegistry.BackOffice.Api.xml => lib\net5.0
+  RoadRegistry.BackOffice.Api.dll => lib\net6.0
+  RoadRegistry.BackOffice.Api.pdb => lib\net6.0
+  RoadRegistry.BackOffice.Api.xml => lib\net6.0
   RoadRegistry.BackOffice.Api.xml => content
 
-  RoadRegistry.Product.Schema.dll => lib\net5.0
-  RoadRegistry.Product.Schema.pdb => lib\net5.0
+  RoadRegistry.Product.Schema.dll => lib\net6.0
+  RoadRegistry.Product.Schema.pdb => lib\net6.0
 
-  RoadRegistry.Editor.Schema.dll => lib\net5.0
-  RoadRegistry.Editor.Schema.pdb => lib\net5.0
+  RoadRegistry.Editor.Schema.dll => lib\net6.0
+  RoadRegistry.Editor.Schema.pdb => lib\net6.0
 
-  RoadRegistry.BackOffice.dll => lib\net5.0
-  RoadRegistry.BackOffice.pdb => lib\net5.0
+  RoadRegistry.BackOffice.dll => lib\net6.0
+  RoadRegistry.BackOffice.pdb => lib\net6.0

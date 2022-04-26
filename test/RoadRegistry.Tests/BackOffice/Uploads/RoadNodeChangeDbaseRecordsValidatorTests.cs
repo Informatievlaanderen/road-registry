@@ -173,7 +173,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToDbaseRecordEnumerator();
 
-            var (result, context) = _sut.Validate(_entry, records, _context);
+            var (result, _) = _sut.Validate(_entry, records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(
@@ -211,7 +211,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 })
                 .ToDbaseRecordEnumerator();
 
-            var (result, context) = _sut.Validate(_entry, records, _context);
+            var (result, _) = _sut.Validate(_entry, records, _context);
 
             Assert.Equal(
                 ZipArchiveProblems.Single(
@@ -230,13 +230,12 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             get
             {
-                var allPermutations = GetPermutations<RecordType>(new[]
+                var allPermutations = GetPermutations(new[]
                 {
                     RecordType.Added,
                     RecordType.Identical,
                     RecordType.Modified,
-                    RecordType.Removed,
-                    
+                    RecordType.Removed
                 }, 2);
 
                 foreach (var permutation in allPermutations)
@@ -379,7 +378,11 @@ namespace RoadRegistry.BackOffice.Uploads
 
         private static IEnumerable<IEnumerable<T>> GetPermutations<T>(IEnumerable<T> list, int length)
         {
-            if (length == 1) return list.Select(t => new T[] { t });
+            if (length == 1)
+            {
+                return list.Select(t => new[] { t });
+            }
+
             return GetPermutations(list, length - 1)
                 .SelectMany(t => list,
                     (t1, t2) => t1.Concat(new T[] { t2 }));
