@@ -121,7 +121,7 @@ jobs:
 #        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #      shell: bash
 #      run: |
-#        ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+#        ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" > /dev/null 2>&1
 
     - name: Run Semantic Release
       shell: bash
@@ -138,6 +138,12 @@ jobs:
         GIT_COMMITTER_EMAIL: ${{ secrets.VBR_GIT_EMAIL }}
         SA_PASSWORD: E@syP@ssw0rd
         CI: true
+
+    - name: Set Release Version
+      run: |
+        [ ! -f semver ] && echo none > semver
+        echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
+      shell: bash
         
 #    - name: Sonar end build & analyze
 #      env:
@@ -145,13 +151,7 @@ jobs:
 #        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #      shell: bash
 #      run: |
-#        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
-    - name: Set Release Version
-      run: |
-        [ ! -f semver ] && echo none > semver
-        echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
-      shell: bash
+#        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}" > /dev/null 2>&1
 
     - name: Configure AWS credentials (Test)
       if: env.RELEASE_VERSION != 'none'
