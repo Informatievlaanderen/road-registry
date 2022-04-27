@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/informatievlaanderen/road-registry/compare/v2.0.1...v2.0.2) (2022-04-27)
+
+
+### Bug Fixes
+
+* redirect sonar to /dev/null ([08e4075](https://github.com/informatievlaanderen/road-registry/commit/08e4075450bcdafd7eff0ec5f60b2c959e5c415d))
+
 ## [2.0.1](https://github.com/informatievlaanderen/road-registry/compare/v2.0.0...v2.0.1) (2022-04-26)
 
 
