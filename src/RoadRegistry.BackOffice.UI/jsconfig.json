@@ -1,21 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "baseUrl": "./app/",
+    "target": "es5",
+    "module": "esnext",
+    "baseUrl": "./",
+    "moduleResolution": "node",
     "paths": {
-      "app/*": ["./app/*"],
-      "components/*": ["./app/components/*"],
-      "pages/*": ["./app/pages/*"],
-      "services/*": ["./services/*"],
-      "store/*": ["./app/store/*"],
-      "strings/*": ["./app/strings/*"]
-    }
-  },
-  "include": [
-      "./app/**/*"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules"
-  ]
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
+  }
 }
