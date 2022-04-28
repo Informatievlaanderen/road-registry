@@ -8,6 +8,7 @@ on:
         description: 'service:'
         options:
         - road-registry-backoffice-api
+        - road-registry-backoffice-ui
         - road-registry-backoffice-extracthost
         - road-registry-backoffice-commandhost
         - road-registry-backoffice-eventhost
