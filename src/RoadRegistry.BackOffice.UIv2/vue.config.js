@@ -24,6 +24,11 @@ module.exports = defineConfig({
         changeOrigin: true,
         pathRewrite: {"/public/v1/": "/v1/"}
       },
+      "/public/v2/": {
+        target: API_ENDPOINT,
+        changeOrigin: true,
+        pathRewrite: {"/public/v2/": "/v2/"}
+      },
       "/roads/v1/": {
         target: API_OLDENDPOINT,
         changeOrigin: true,

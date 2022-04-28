@@ -181,13 +181,7 @@ export default Vue.extend({
   },
   async mounted() {
     // fetch paginated data
-    let municipalitiesResponse = await PublicApi.Municipalities.getList();
-    this.municipalities = this.municipalities.concat(municipalitiesResponse.gemeenten);
-
-    while (municipalitiesResponse.volgende != null) {
-      municipalitiesResponse = await PublicApi.Municipalities.getList(municipalitiesResponse.volgende);
-      this.municipalities = this.municipalities.concat(municipalitiesResponse.gemeenten);
-    }
+    this.municipalities = await PublicApi.Municipalities.getAll();
 
     // sort
     this.municipalities = this.municipalities.sort((m1, m2) => {
