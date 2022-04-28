@@ -38,8 +38,7 @@ supportedRuntimeIdentifiers <- [ "msil"; "linux-x64" ]
 Target.create "Restore_Solution" (fun _ -> restore "RoadRegistry")
 
 Target.create "Build_Solution" (fun _ ->
-  Shell.cleanDir ("src" @@ "RoadRegistry.BackOffice.UI" @@ "wwwroot")
-  Shell.cleanDir ("src" @@ "RoadRegistry.BackOffice.UI" @@ "elm-stuff")
+  Shell.cleanDir ("src" @@ "RoadRegistry.BackOffice.UI" @@ "dist")
 
   Npm.install (fun p ->
     { p with
@@ -99,10 +98,9 @@ Target.create "Publish_Solution" (fun _ ->
   let dist = (buildDir @@ "RoadRegistry.BackOffice.UI" @@ "linux")
   let source = "src" @@ "RoadRegistry.BackOffice.UI"
 
-  Shell.copyDir (dist @@ "wwwroot") (source @@ "wwwroot") (fun _ -> true)
+  Shell.copyDir (dist @@ "dist") (source @@ "dist") (fun _ -> true)
   Shell.copyFile dist (source @@ "Dockerfile")
   Shell.copyFile dist (source @@ "default.conf")
-  Shell.copyFile dist (source @@ "config.js")
   Shell.copyFile dist (source @@ "init.sh")
   Shell.copyFile dist (source @@ ".htpasswd")
 )

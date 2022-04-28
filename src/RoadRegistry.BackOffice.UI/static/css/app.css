@@ -1,7 +1,0 @@
-a:before,
-a:hover:before { text-decoration: none; }
-
-.properties--disabled {
-  color: #cbd2da;
-  font-weight: lighter;
-}

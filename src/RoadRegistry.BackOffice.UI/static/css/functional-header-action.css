@@ -1,8 +1,0 @@
-.functional-header__action a {
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.functional-header__action a:hover {
-    text-decoration: underline;
-}
