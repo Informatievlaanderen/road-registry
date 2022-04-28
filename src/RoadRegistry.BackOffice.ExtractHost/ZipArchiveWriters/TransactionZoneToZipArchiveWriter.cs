@@ -51,11 +51,12 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                     BESCHRIJV =
                     {
                         Value =
-                            $"Extract[DownloadId={request.DownloadId.ToGuid():N};RequestId={request.ExternalRequestId.ToString()}]"
+                            $"Extract[DownloadId={request.DownloadId.ToGuid():N};RequestId={request.ExternalRequestId}]"
                     },
                     OPERATOR = {Value = ""},
                     ORG = {Value = "AGIV"},
-                    APPLICATIE = {Value = "Wegenregister"}
+                    APPLICATIE = {Value = "Wegenregister"},
+                    DOWNLOADID = { Value = request.DownloadId.ToGuid().ToString("N")}
                 };
                 dbfWriter.Write(dbfRecord);
                 dbfWriter.Writer.Flush();

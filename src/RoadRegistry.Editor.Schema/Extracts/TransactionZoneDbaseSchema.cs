@@ -15,7 +15,7 @@ namespace RoadRegistry.Editor.Schema.Extracts
                 DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(TYPE)),
                     new DbaseFieldLength(5),
-                    new DbaseDecimalCount(0)),
+                    new DbaseDecimalCount(0)), 
                 DbaseField.CreateCharacterField(
                     new DbaseFieldName(nameof(BESCHRIJV)),
                     new DbaseFieldLength(254)),
@@ -27,7 +27,10 @@ namespace RoadRegistry.Editor.Schema.Extracts
                     new DbaseFieldLength(18)),
                 DbaseField.CreateCharacterField(
                     new DbaseFieldName(nameof(APPLICATIE)),
-                    new DbaseFieldLength(18))
+                    new DbaseFieldLength(18)),
+                DbaseField.CreateCharacterField(
+                    new DbaseFieldName(nameof(DOWNLOADID)),
+                    new DbaseFieldLength(32))
             };
         }
 
@@ -37,6 +40,7 @@ namespace RoadRegistry.Editor.Schema.Extracts
         public DbaseField OPERATOR => Fields[3];
         public DbaseField ORG => Fields[4];
         public DbaseField APPLICATIE => Fields[5];
+        public DbaseField DOWNLOADID => Fields[6];
 
     }
 }
