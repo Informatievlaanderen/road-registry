@@ -84,7 +84,9 @@ jobs:
 
     - name: Install NPM dependencies
       shell: bash
-      run: npm install
+      run: npm install 
+      env:
+        NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
 
     - name: Install Python dependencies
       shell: bash
@@ -136,7 +138,8 @@ jobs:
         GIT_EMAIL: ${{ secrets.VBR_GIT_EMAIL }}
         GIT_AUTHOR_EMAIL: ${{ secrets.VBR_GIT_EMAIL }}
         GIT_COMMITTER_EMAIL: ${{ secrets.VBR_GIT_EMAIL }}
-        SA_PASSWORD: E@syP@ssw0rd
+        SA_PASSWORD: E@syP@ssw0rdenv:
+        NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
         CI: true
 
     - name: Set Release Version
