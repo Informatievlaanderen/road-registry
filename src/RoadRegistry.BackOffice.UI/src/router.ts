@@ -10,7 +10,10 @@ import { UploadRoutes } from "./modules/uploads";
 Vue.use(Router);
 
 const routes: RouteConfig[] = [
-    { path: "/", component: Home },
+    {
+        path: "/",
+        redirect: { name: "activiteit" }
+    },
     ...ActivityRoutes,
     ...InformationRoutes,
     ...DownloadExtractRoutes,
