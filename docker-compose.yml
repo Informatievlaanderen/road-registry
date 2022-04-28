@@ -380,7 +380,10 @@ services:
       CORS__1: "http://localhost:1234"
 
   backoffice-ui:
-    build: dist/RoadRegistry.BackOffice.UI/linux
+    build: 
+      context: dist/RoadRegistry.BackOffice.UI/linux
+      args:
+        build_number: 2.38.0
     depends_on:
       - backoffice-api
       - seq
@@ -391,7 +394,6 @@ services:
       API_ENDPOINT: http://localhost:2080
       API_OLDENDPOINT: http://localhost:5020
       API_KEY: 00000000-0000-0000-0000-000000000000
-      build_number: 0.0.0
 
   public-api:
     image: dev.local/public-api/api-legacy:latest
