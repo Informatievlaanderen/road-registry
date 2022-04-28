@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h1>HOME PAGE</h1>
-
     <div class="vl-alert" role="alertdialog">
       <div class="vl-alert__icon">
         <i class="vl-vi vl-vi-warning" aria-hidden="true"></i>
@@ -18,16 +16,12 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { PublicApi, BackOfficeApi } from "../services";
 
 export default Vue.extend({
   data() {
     return {};
   },
   async mounted() {
-    const result1 = await BackOfficeApi.ChangeFeed.getHead(10);
-    const result = await PublicApi.ChangeFeed.getHead(10);
-    console.log(result, result1);
   },
 });
 </script>
