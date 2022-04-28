@@ -89,15 +89,25 @@ export const PublicApi = {
         },
     },
     Municipalities: {
-        getList: async (fetchFromUrl?: string): Promise<Municipalities.GetMunicipalitiesAPIResponse> => {
-            let removeOrigin = (url: string): string => {
-                return url.replace(new URL(url).origin, '');
+        getAll: async (): Promise<Municipalities.Gemeenten[]> => {
+            const municipalities = [] as Municipalities.Gemeenten[];
+
+            const headers = {Accept: "application/ld+json"};
+            const query = {
+              offset: 0,
+              limit: 500,
+              status: "InGebruik"
+            };
+
+            while(true) {
+                const response = await (await apiClient.get<Municipalities.GetMunicipalitiesAPIResponse>(`/public/v2/gemeenten`,query,headers)).data;
+                municipalities.push(...response.gemeenten)
+                if(!response.volgende) 
+                    break;
+                query.offset += query.limit;
             }
-
-            const path = fetchFromUrl ? removeOrigin(fetchFromUrl) : `/public/v1/gemeenten?status=inGebruik`;
-            const response = await apiClient.get<Municipalities.GetMunicipalitiesAPIResponse>(path)
-
-            return response.data;
+            
+            return municipalities;
         }
     }
 }
