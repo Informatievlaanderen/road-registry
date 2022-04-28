@@ -1,3 +1,11 @@
+## [2.1.1](https://github.com/informatievlaanderen/road-registry/compare/v2.1.0...v2.1.1) (2022-04-28)
+
+
+### Bug Fixes
+
+* nginx conf ([f5b8429](https://github.com/informatievlaanderen/road-registry/commit/f5b8429033b1c4678742c0c97b9a9d90ca2d4d5e))
+* trigger build ([7e43a21](https://github.com/informatievlaanderen/road-registry/commit/7e43a21e2e354f62de1164fb81ef52d1bf31c695))
+
 # [2.1.0](https://github.com/informatievlaanderen/road-registry/compare/v2.0.2...v2.1.0) (2022-04-28)
 
 
