@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.CommandHost\RoadRegistry.BackOffice.CommandHost.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.EventHost\RoadRegistry.BackOffice.EventHost.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ExtractHost\RoadRegistry.BackOffice.ExtractHost.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Editor.Projections\RoadRegistry.Editor.Projections.csproj" />
@@ -36,6 +37,10 @@
     <Content Include="Wms\Projections\TestData\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="BackOffice\ExtractHost\ZipArchiveWriters\" />
   </ItemGroup>
   
   <Import Project="..\..\.paket\Paket.Restore.targets" />

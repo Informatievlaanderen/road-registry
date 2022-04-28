@@ -64,6 +64,14 @@ namespace RoadRegistry.BackOffice
             );
         }
 
+        public static void CustomizeDownloadId(this IFixture fixture)
+        {
+            fixture.Customize<DownloadId>(composer =>
+                composer.FromFactory(generator =>
+                    new DownloadId(Guid.NewGuid()))
+            );
+        }
+
         public static void CustomizeCrabStreetnameId(this IFixture fixture)
         {
             fixture.Customize<CrabStreetnameId>(composer =>
