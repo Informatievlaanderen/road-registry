@@ -1,3 +1,28 @@
+# [2.1.0](https://github.com/informatievlaanderen/road-registry/compare/v2.0.2...v2.1.0) (2022-04-28)
+
+
+### Bug Fixes
+
+* add NPM_TOKEN env to CI ([c4798ab](https://github.com/informatievlaanderen/road-registry/commit/c4798ab5fa003da56c544b5498b956a63f7af425))
+* CI ([e9ff990](https://github.com/informatievlaanderen/road-registry/commit/e9ff99078773e1a19ab9fb3c231024d9beb19546))
+* switch to new ui ([b49a42a](https://github.com/informatievlaanderen/road-registry/commit/b49a42a0ff2a772deea0ce8be6ded407da5a3a8c))
+* use v2 public api, reduce api calls ([5b9dc01](https://github.com/informatievlaanderen/road-registry/commit/5b9dc01349dbcabc9fd549196f3a5e05fe1fc18c))
+
+
+### Features
+
+* add activity page ([62dc413](https://github.com/informatievlaanderen/road-registry/commit/62dc413aebb91959928ba2d40796182f1ea33543))
+* add download product page ([d4409ef](https://github.com/informatievlaanderen/road-registry/commit/d4409ef83f58e2e1b91181b88a77f40816c7c750))
+* add information page ([a8c5551](https://github.com/informatievlaanderen/road-registry/commit/a8c5551fde927a92d9612b66b2eac12e53005090))
+* add ui for requesting extract ([e6d9b33](https://github.com/informatievlaanderen/road-registry/commit/e6d9b33b9fe9943c7e86ff60f4975a88fa9fb435))
+* add upload page ([42e3316](https://github.com/informatievlaanderen/road-registry/commit/42e331639fdf78e98b2203b4581598cfc8daeb67))
+* add vue support (WIP) ([b3cf957](https://github.com/informatievlaanderen/road-registry/commit/b3cf957e460a6f6a94c0f88916156673cc326085))
+
+
+### Performance Improvements
+
+* migrate to parcel to v2, add proxy, setup dev workspace, add typescript support, improve hot reload, reduce npm scripts ([0c7a15c](https://github.com/informatievlaanderen/road-registry/commit/0c7a15cb7cdfbca4bc540ff75adc2dcacbbdd86c))
+
 ## [2.0.2](https://github.com/informatievlaanderen/road-registry/compare/v2.0.1...v2.0.2) (2022-04-27)
 
 
