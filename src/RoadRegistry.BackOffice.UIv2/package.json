@@ -3,16 +3,17 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --mode development",
-    "serve-tst": "vue-cli-service serve --mode test",
-    "serve-stg": "vue-cli-service serve --mode staging",
-    "serve-prd": "vue-cli-service serve --mode production",
+    "serve": "NODE_ENV=development vue-cli-service serve --mode development",
+    "serve-tst": "NODE_ENV=test vue-cli-service serve --mode test",
+    "serve-stg": "NODE_ENV=staging vue-cli-service serve --mode staging --unhandled-rejections=strict",
+    "serve-prd": "NODE_ENV=production vue-cli-service serve --mode production",
     "build": "vue-cli-service build",
-    "build-dev": "vue-cli-service build --mode development",
-    "build-tst": "vue-cli-service build --mode test",
-    "build-stg": "vue-cli-service build --mode staging",
-    "build-prd": "vue-cli-service build --mode production",
-    "lint": "vue-cli-service lint"
+    "build-dev": "NODE_ENV=development vue-cli-service build --mode development",
+    "build-tst": "NODE_ENV=test vue-cli-service build --mode test",
+    "build-stg": "NODE_ENV=staging vue-cli-service build --mode staging",
+    "build-prd": "NODE_ENV=production vue-cli-service build --mode production",
+    "lint": "vue-cli-service lint",
+    "test": "vue-cli-service inspect"
   },
   "dependencies": {
     "@govflanders/vl-ui-accordion": "^12.0.0",
