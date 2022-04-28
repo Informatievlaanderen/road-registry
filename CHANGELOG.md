@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/informatievlaanderen/road-registry/compare/v2.1.1...v2.1.2) (2022-04-28)
+
+
+### Bug Fixes
+
+* delete dev stuff in Home.vue & redirect to activity page ([8e13b52](https://github.com/informatievlaanderen/road-registry/commit/8e13b528a0d782e23df761cea0b6366f600a43a1))
+
 ## [2.1.1](https://github.com/informatievlaanderen/road-registry/compare/v2.1.0...v2.1.1) (2022-04-28)
 
 
