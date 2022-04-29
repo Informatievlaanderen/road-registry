@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/informatievlaanderen/road-registry/compare/v2.1.2...v2.1.3) (2022-04-29)
+
+
+### Bug Fixes
+
+* run sonar end when release version != none ([62e594a](https://github.com/informatievlaanderen/road-registry/commit/62e594ab90a82872358d0518a5c3c8e3f7aea7f5))
+
 ## [2.1.2](https://github.com/informatievlaanderen/road-registry/compare/v2.1.1...v2.1.2) (2022-04-28)
 
 
