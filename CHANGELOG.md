@@ -1,3 +1,10 @@
+## [2.1.4](https://github.com/informatievlaanderen/road-registry/compare/v2.1.3...v2.1.4) (2022-05-02)
+
+
+### Bug Fixes
+
+* fix connectionstrings ([24e1bc2](https://github.com/informatievlaanderen/road-registry/commit/24e1bc20c06dfb792a477f270ae732aacbc9830c))
+
 ## [2.1.3](https://github.com/informatievlaanderen/road-registry/compare/v2.1.2...v2.1.3) (2022-04-29)
 
 
