@@ -96,7 +96,8 @@ export const PublicApi = {
             const query = {
               offset: 0,
               limit: 500,
-              status: "InGebruik"
+              status: "InGebruik",
+              isFlemishRegion: true
             };
 
             while(true) {
