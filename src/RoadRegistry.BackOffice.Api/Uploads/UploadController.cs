@@ -38,11 +38,13 @@ namespace RoadRegistry.BackOffice.Api.Uploads
         }
 
         [HttpPost("")]
-        [DisableRequestSizeLimit]
         [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
         public async Task<IActionResult> Post(IFormFile archive)
         {
-            if (archive == null) throw new ArgumentNullException(nameof(archive));
+            if (archive == null)
+            {
+                throw new ArgumentNullException(nameof(archive));
+            }
 
             if (!ContentType.TryParse(archive.ContentType, out var parsed) ||
                 !SupportedContentTypes.Contains(parsed))
@@ -50,7 +52,7 @@ namespace RoadRegistry.BackOffice.Api.Uploads
                 return new UnsupportedMediaTypeResult();
             }
 
-            using (var readStream = archive.OpenReadStream())
+            await using (var readStream = archive.OpenReadStream())
             {
                 var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
 
@@ -110,10 +112,8 @@ namespace RoadRegistry.BackOffice.Api.Uploads
                 new MediaTypeHeaderValue("application/zip"),
                 async (stream, actionContext) =>
                 {
-                    using (var blobStream = await blob.OpenAsync(actionContext.HttpContext.RequestAborted))
-                    {
-                        await blobStream.CopyToAsync(stream, actionContext.HttpContext.RequestAborted);
-                    }
+                    await using var blobStream = await blob.OpenAsync(actionContext.HttpContext.RequestAborted);
+                    await blobStream.CopyToAsync(stream, actionContext.HttpContext.RequestAborted);
                 })
             {
                 FileDownloadName = filename
