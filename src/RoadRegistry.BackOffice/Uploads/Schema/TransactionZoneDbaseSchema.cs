@@ -27,7 +27,10 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
                     new DbaseFieldLength(18)),
                 DbaseField.CreateCharacterField(
                     new DbaseFieldName(nameof(APPLICATIE)),
-                    new DbaseFieldLength(18))
+                    new DbaseFieldLength(18)),
+                DbaseField.CreateCharacterField(
+                new DbaseFieldName(nameof(DOWNLOADID)),
+                new DbaseFieldLength(32))
             };
         }
 
@@ -37,6 +40,7 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
         public DbaseField OPERATOR => Fields[3];
         public DbaseField ORG => Fields[4];
         public DbaseField APPLICATIE => Fields[5];
+        public DbaseField DOWNLOADID => Fields[6];
 
     }
 }

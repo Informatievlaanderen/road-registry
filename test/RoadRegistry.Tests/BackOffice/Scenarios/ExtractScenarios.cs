@@ -39,6 +39,7 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             Fixture.CustomizeExternalExtractRequestId();
             Fixture.CustomizeRoadNetworkExtractGeometry();
+            Fixture.CustomizeExtractDescription();
             Fixture.CustomizeArchiveId();
         }
 
@@ -47,17 +48,19 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+            var extractDescription = Fixture.Create<ExtractDescription>();
             var downloadId = Fixture.Create<DownloadId>();
             var contour = Fixture.Create<RoadNetworkExtractGeometry>();
 
             return Run(scenario => scenario
                 .GivenNone()
-                .When(TheExternalSystem.PutsInARoadNetworkExtractRequest(externalExtractRequestId, downloadId, contour))
+                .When(TheExternalSystem.PutsInARoadNetworkExtractRequest(externalExtractRequestId, downloadId, extractDescription, contour))
                 .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = downloadId,
+                    Description = extractDescription,
                     Contour = FlattenContour(contour),
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
@@ -74,6 +77,7 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+            var extractDescription = Fixture.Create<ExtractDescription>();
             var oldDownloadId = Fixture.Create<DownloadId>();
             var newDownloadId = Fixture.Create<DownloadId>();
             var oldContour = Fixture.Create<RoadNetworkExtractGeometry>();
@@ -84,15 +88,17 @@ namespace RoadRegistry.BackOffice.Scenarios
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
+                    Description = extractDescription,
                     DownloadId = oldDownloadId,
                     Contour = oldContour,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheExternalSystem.PutsInARoadNetworkExtractRequest(externalExtractRequestId, newDownloadId, newContour))
+                .When(TheExternalSystem.PutsInARoadNetworkExtractRequest(externalExtractRequestId, newDownloadId, extractDescription, newContour))
                 .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
+                    Description = extractDescription,
                     DownloadId = newDownloadId,
                     Contour = FlattenContour(newContour),
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -105,6 +111,7 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+            var extractDescription = Fixture.Create<ExtractDescription>();
             var downloadId = Fixture.Create<DownloadId>();
             var oldContour = Fixture.Create<RoadNetworkExtractGeometry>();
             var newContour = Fixture.Create<RoadNetworkExtractGeometry>();
@@ -114,11 +121,12 @@ namespace RoadRegistry.BackOffice.Scenarios
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
+                    Description = extractDescription,
                     DownloadId = downloadId,
                     Contour = oldContour,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
-                .When(TheExternalSystem.PutsInARoadNetworkExtractRequest(externalExtractRequestId, downloadId, newContour))
+                .When(TheExternalSystem.PutsInARoadNetworkExtractRequest(externalExtractRequestId, downloadId, extractDescription, newContour))
                 .ThenNone()
             );
         }
@@ -128,6 +136,7 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+            var extractDescription = Fixture.Create<ExtractDescription>();
             var downloadId = Fixture.Create<DownloadId>();
             var archiveId = Fixture.Create<ArchiveId>();
             var contour = Fixture.Create<RoadNetworkExtractGeometry>();
@@ -139,6 +148,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = downloadId,
                     Contour = contour,
+                    Description = extractDescription,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(OurSystem.AnnouncesRoadNetworkExtractDownloadBecameAvailable(extractRequestId, downloadId, archiveId))
@@ -148,6 +158,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = downloadId,
                     ArchiveId = archiveId,
+                    Description = extractDescription,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             );
@@ -158,6 +169,7 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+            var extractDescription = Fixture.Create<ExtractDescription>();
             var downloadId = Fixture.Create<DownloadId>();
             var archiveId = Fixture.Create<ArchiveId>();
             var contour = Fixture.Create<RoadNetworkExtractGeometry>();
@@ -167,6 +179,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
+                    Description = extractDescription,
                     DownloadId = downloadId,
                     Contour = contour,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -174,6 +187,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
+                    Description = extractDescription,
                     DownloadId = downloadId,
                     ArchiveId = archiveId,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -188,6 +202,7 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+            var extractDescription = Fixture.Create<ExtractDescription>();
             var outdatedDownloadId = Fixture.Create<DownloadId>();
             var downloadId = Fixture.Create<DownloadId>();
             var uploadId = Fixture.Create<UploadId>();
@@ -202,12 +217,14 @@ namespace RoadRegistry.BackOffice.Scenarios
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = outdatedDownloadId,
+                    Description = extractDescription,
                     Contour = contour,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }, new RoadNetworkExtractDownloadBecameAvailable
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
+                    Description = extractDescription,
                     DownloadId = downloadId,
                     ArchiveId = archiveId,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -216,6 +233,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
+                    Description = extractDescription,
                     DownloadId = downloadId,
                     Contour = contour,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -265,6 +283,7 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+            var extractDescription = Fixture.Create<ExtractDescription>();
             var unknownDownloadId = Fixture.Create<DownloadId>();
             var downloadId = Fixture.Create<DownloadId>();
             var uploadId = Fixture.Create<UploadId>();
@@ -279,12 +298,14 @@ namespace RoadRegistry.BackOffice.Scenarios
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = downloadId,
+                    Description = extractDescription,
                     Contour = contour,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }, new RoadNetworkExtractDownloadBecameAvailable
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
+                    Description = extractDescription,
                     DownloadId = downloadId,
                     ArchiveId = archiveId,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -299,6 +320,7 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+            var extractDescription = Fixture.Create<ExtractDescription>();
             var downloadId = Fixture.Create<DownloadId>();
             var uploadId = Fixture.Create<UploadId>();
             var archiveId = Fixture.Create<ArchiveId>();
@@ -311,6 +333,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
+                    Description = extractDescription,
                     DownloadId = downloadId,
                     Contour = contour,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -318,6 +341,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
+                    Description = extractDescription,
                     DownloadId = downloadId,
                     ArchiveId = archiveId,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -351,6 +375,7 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+            var extractDescription = Fixture.Create<ExtractDescription>();
             var downloadId = Fixture.Create<DownloadId>();
             var uploadId = Fixture.Create<UploadId>();
             var archiveId = Fixture.Create<ArchiveId>();
@@ -364,12 +389,14 @@ namespace RoadRegistry.BackOffice.Scenarios
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = downloadId,
+                    Description = extractDescription,
                     Contour = contour,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }, new RoadNetworkExtractDownloadBecameAvailable
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
+                    Description = extractDescription,
                     DownloadId = downloadId,
                     ArchiveId = archiveId,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -412,6 +439,7 @@ namespace RoadRegistry.BackOffice.Scenarios
         {
             var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+            var extractDescription = Fixture.Create<ExtractDescription>();
             var downloadId = Fixture.Create<DownloadId>();
             var uploadId = Fixture.Create<UploadId>();
             var archiveId = Fixture.Create<ArchiveId>();
@@ -425,6 +453,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = downloadId,
+                    Description = extractDescription,
                     Contour = contour,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }, new RoadNetworkExtractDownloadBecameAvailable
@@ -432,6 +461,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = downloadId,
+                    Description = extractDescription,
                     ArchiveId = archiveId,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 },

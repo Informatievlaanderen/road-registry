@@ -34,6 +34,7 @@ namespace RoadRegistry.BackOffice
         public override int GetHashCode() => _value.GetHashCode();
         public override string ToString() => _value;
         public static implicit operator string(ExternalExtractRequestId instance) => instance.ToString();
+        public static implicit operator ExternalExtractRequestId(string instance) => new ExternalExtractRequestId(instance);
         public static bool operator ==(ExternalExtractRequestId left, ExternalExtractRequestId right) => left.Equals(right);
         public static bool operator !=(ExternalExtractRequestId left, ExternalExtractRequestId right) => !left.Equals(right);
     }

@@ -33,11 +33,12 @@ namespace RoadRegistry.BackOffice.Extracts
                     var externalRequestId = new ExternalExtractRequestId(message.Body.ExternalRequestId);
                     var requestId = ExtractRequestId.FromExternalRequestId(externalRequestId);
                     var downloadId = new DownloadId(message.Body.DownloadId);
+                    var description = new ExtractDescription(message.Body.Description);
                     var contour = GeometryTranslator.Translate(message.Body.Contour);
                     var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
                     if (extract == null)
                     {
-                        extract = RoadNetworkExtract.Request(externalRequestId, downloadId, contour);
+                        extract = RoadNetworkExtract.Request(externalRequestId, downloadId, description, contour);
                         context.RoadNetworkExtracts.Add(extract);
                     }
                     else

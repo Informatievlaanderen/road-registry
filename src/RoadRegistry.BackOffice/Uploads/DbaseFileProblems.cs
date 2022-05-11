@@ -131,6 +131,23 @@ namespace RoadRegistry.BackOffice.Uploads
                 .Build();
         }
 
+        public static FileError DownloadIdInvalidFormat(this IDbaseFileRecordProblemBuilder builder, string value)
+        {
+            return builder
+                .Error(nameof(DownloadIdInvalidFormat))
+                .WithParameter(new ProblemParameter("Actual", value))
+                .Build();
+        }
+
+        public static FileError DownloadIdDiffersFromMetadata(this IDbaseFileRecordProblemBuilder builder, string value, string expectedValue)
+        {
+            return builder
+                .Error(nameof(DownloadIdDiffersFromMetadata))
+                .WithParameter(new ProblemParameter("Actual", value))
+                .WithParameter(new ProblemParameter("Expected", expectedValue))
+                .Build();
+        }
+
         public static FileError OrganizationIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, string value)
         {
             return builder

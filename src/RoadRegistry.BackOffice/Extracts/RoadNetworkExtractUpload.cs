@@ -29,7 +29,9 @@ namespace RoadRegistry.BackOffice.Extracts
 
         public void ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator)
         {
-            var problems = validator.Validate(archive);
+            var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithDownloadId(_downloadId);
+
+            var problems = validator.Validate(archive, zipArchiveMetadata);
             if (!problems.OfType<FileError>().Any())
             {
                 Apply(
