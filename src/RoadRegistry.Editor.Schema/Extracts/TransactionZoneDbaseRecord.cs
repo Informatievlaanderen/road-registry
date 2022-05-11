@@ -14,10 +14,11 @@ namespace RoadRegistry.Editor.Schema.Extracts
             OPERATOR = new DbaseString(Schema.OPERATOR);
             ORG = new DbaseString(Schema.ORG);
             APPLICATIE = new DbaseString(Schema.APPLICATIE);
+            DOWNLOADID = new DbaseString(Schema.DOWNLOADID);
 
             Values = new DbaseFieldValue[]
             {
-                SOURCEID, TYPE, BESCHRIJV, OPERATOR, ORG, APPLICATIE
+                SOURCEID, TYPE, BESCHRIJV, OPERATOR, ORG, APPLICATIE, DOWNLOADID
             };
         }
 
@@ -27,5 +28,6 @@ namespace RoadRegistry.Editor.Schema.Extracts
         public DbaseString OPERATOR { get; }
         public DbaseString ORG { get; }
         public DbaseString APPLICATIE { get; }
+        public DbaseString DOWNLOADID { get; }
     }
 }

@@ -11,6 +11,7 @@ namespace RoadRegistry.BackOffice.Extracts
         public static readonly Func<RoadNetworkExtract> Factory = () => new RoadNetworkExtract();
 
         private ExternalExtractRequestId _externalExtractRequestId;
+        private ExtractDescription _extractDescription;
 
         private readonly List<DownloadId> _requestedDownloads;
         private readonly HashSet<DownloadId> _announcedDownloads;
@@ -26,6 +27,7 @@ namespace RoadRegistry.BackOffice.Extracts
             {
                 Id = ExtractRequestId.FromString(e.RequestId);
                 _externalExtractRequestId = new ExternalExtractRequestId(e.ExternalRequestId);
+                _extractDescription = new ExtractDescription(e.Description);
                 _requestedDownloads.Add(new DownloadId(e.DownloadId));
             });
             On<RoadNetworkExtractDownloadBecameAvailable>(e =>
@@ -43,6 +45,7 @@ namespace RoadRegistry.BackOffice.Extracts
         public static RoadNetworkExtract Request(
             ExternalExtractRequestId externalExtractRequestId,
             DownloadId downloadId,
+            ExtractDescription extractDescription,
             IPolygonal contour)
         {
             var instance = Factory();
@@ -51,6 +54,7 @@ namespace RoadRegistry.BackOffice.Extracts
                 RequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId).ToString(),
                 ExternalRequestId = externalExtractRequestId,
                 DownloadId = downloadId,
+                Description = extractDescription,
                 Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour)
             });
             return instance;
@@ -64,6 +68,7 @@ namespace RoadRegistry.BackOffice.Extracts
                 {
                     RequestId = Id.ToString(),
                     ExternalRequestId = _externalExtractRequestId,
+                    Description = _extractDescription,
                     DownloadId = downloadId,
                     Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour)
                 });
@@ -78,6 +83,7 @@ namespace RoadRegistry.BackOffice.Extracts
                 {
                     RequestId = Id.ToString(),
                     ExternalRequestId = _externalExtractRequestId,
+                    Description = _extractDescription,
                     DownloadId = downloadId,
                     ArchiveId = archiveId
                 });

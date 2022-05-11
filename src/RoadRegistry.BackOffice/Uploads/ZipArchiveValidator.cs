@@ -145,10 +145,13 @@ namespace RoadRegistry.BackOffice.Uploads
             "RLTOGKRUISING_ALL.DBF"
         };
 
-        public ZipArchiveProblems Validate(ZipArchive archive)
+
+        public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)
         {
             if (archive == null)
                 throw new ArgumentNullException(nameof(archive));
+            if (metadata == null)
+                throw new ArgumentNullException(nameof(metadata));
 
             var problems = ZipArchiveProblems.None;
 
@@ -183,7 +186,8 @@ namespace RoadRegistry.BackOffice.Uploads
                     )
                 );
 
-                var context = ZipArchiveValidationContext.Empty;
+                var context = ZipArchiveValidationContext.Empty.WithZipArchiveMetadata(metadata);
+
                 foreach (var file in
                     requiredFiles
                         .OrderBy(file => Array.IndexOf(ValidationOrder, file.ToUpperInvariant())))

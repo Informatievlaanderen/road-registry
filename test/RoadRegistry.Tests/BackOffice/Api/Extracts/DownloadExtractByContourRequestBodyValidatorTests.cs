@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Extracts
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using FluentAssertions;
     using FluentValidation;
@@ -11,6 +13,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
     public class DownloadExtractByContourRequestBodyValidatorTests
     {
         private const string ValidContour = "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)))";
+        private const string ValidDescription = "description";
         private const int ValidBuffer = 50;
 
         private readonly DownloadExtractByContourRequestBodyValidator _validator;
@@ -28,7 +31,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
             {
                 Contour = "invalid",
-                Buffer = ValidBuffer
+                Buffer = ValidBuffer,
+                Description = ValidDescription
             });
 
             await act.Should().ThrowAsync<ValidationException>();
@@ -42,7 +46,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
             {
                 Contour = givenContour,
-                Buffer = ValidBuffer
+                Buffer = ValidBuffer,
+                Description = ValidDescription
             });
 
             await act.Should().ThrowAsync<ValidationException>();
@@ -54,7 +59,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
             {
                 Contour = ValidContour,
-                Buffer = ValidBuffer
+                Buffer = ValidBuffer,
+                Description = ValidDescription
             });
 
             await act.Should().NotThrowAsync<ValidationException>();
@@ -70,7 +76,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
             {
                 Contour = ValidContour,
-                Buffer = givenBuffer
+                Buffer = givenBuffer,
+                Description = ValidDescription
             });
 
             await act.Should().ThrowAsync<ValidationException>();
@@ -86,11 +93,52 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
             {
                 Contour = ValidContour,
-                Buffer = givenBuffer
+                Buffer = givenBuffer,
+                Description = ValidDescription
             });
 
             await act.Should().NotThrowAsync<ValidationException>();
         }
 
+        [Theory]
+        [MemberData(nameof(ValidDescriptionCases))]
+        public async Task Validate_will_allow_valid_description(string givenDescription)
+        {
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
+            {
+                Contour = ValidContour,
+                Buffer = ValidBuffer,
+                Description = givenDescription
+            });
+
+            await act.Should().NotThrowAsync<ValidationException>();
+        }
+
+        public static IEnumerable<object[]> ValidDescriptionCases()
+        {
+            yield return new object[] { string.Empty };
+            yield return new object[] { "description" };
+            yield return new object[] { new string(Enumerable.Repeat('a', ExtractDescription.MaxLength).ToArray())};
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidDescriptionCases))]
+        public async Task Validate_will_not_allow_invalid_description(string givenDescription)
+        {
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
+            {
+                Contour = ValidContour,
+                Buffer = ValidBuffer,
+                Description = givenDescription
+            });
+
+            await act.Should().ThrowAsync<ValidationException>();
+        }
+
+        public static IEnumerable<object[]> InvalidDescriptionCases()
+        {
+            yield return new object[] {(string) null};
+            yield return new object[] { new string(Enumerable.Repeat('a', ExtractDescription.MaxLength + 1).ToArray())};
+        }
     }
 }
