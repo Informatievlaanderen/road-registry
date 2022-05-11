@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.CommandHost
 {
     using Framework;
+    using Hosts;
     using Microsoft.Extensions.Logging;
     using SqlStreamStore;
 

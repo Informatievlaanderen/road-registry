@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.CommandHost
+namespace RoadRegistry.BackOffice.CommandHost
 {
     using System;
     using Microsoft.Data.SqlClient;
@@ -17,6 +17,7 @@
     using Core;
     using Extracts;
     using Framework;
+    using Hosts;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;

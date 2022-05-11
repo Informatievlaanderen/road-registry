@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Wms.ProjectionHost
+namespace RoadRegistry.Wms.ProjectionHost
 {
     using System;
     using System.IO;
@@ -11,6 +11,7 @@
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Hosts;
     using Metadata;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;

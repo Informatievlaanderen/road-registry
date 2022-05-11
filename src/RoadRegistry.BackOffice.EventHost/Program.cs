@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.EventHost
+namespace RoadRegistry.BackOffice.EventHost
 {
     using System;
     using Microsoft.Data.SqlClient;
@@ -16,6 +16,7 @@
     using Configuration;
     using Core;
     using Framework;
+    using Hosts;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;

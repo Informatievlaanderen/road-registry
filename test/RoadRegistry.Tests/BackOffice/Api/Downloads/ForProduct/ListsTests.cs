@@ -1,10 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.Downloads.ForProduct
 {
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Product.Schema.Lists;
+    using Dbase.Lists;
+    using Hosts;
     using RoadRegistry.Framework.Containers;
     using Xunit;
-    using ZipArchiveWriters.ForProduct;
 
     public class ListsTests
     {

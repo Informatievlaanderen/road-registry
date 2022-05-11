@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.ExtractHost
+namespace RoadRegistry.BackOffice.ExtractHost
 {
     using System;
     using Microsoft.Data.SqlClient;
@@ -18,6 +18,7 @@
     using Editor.Schema;
     using Extracts;
     using Framework;
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;

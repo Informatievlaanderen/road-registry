@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracts
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using Editor.Schema.Extracts;
     using Microsoft.EntityFrameworkCore;

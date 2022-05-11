@@ -6,7 +6,6 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using BackOffice.Uploads;
     using Microsoft.EntityFrameworkCore;
 
     public class ProjectionFormatFileZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
@@ -21,8 +20,16 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
         }
         public async Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken)
         {
-            if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (archive == null)
+            {
+                throw new ArgumentNullException(nameof(archive));
+            }
+
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             var prjEntry = archive.CreateEntry(_filename);
             using (var prjEntryStream = prjEntry.Open())
             using (var prjEntryStreamWriter = new StreamWriter(prjEntryStream, _encoding))
