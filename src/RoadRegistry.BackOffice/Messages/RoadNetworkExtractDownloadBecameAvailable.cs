@@ -12,5 +12,6 @@ namespace RoadRegistry.BackOffice.Messages
         public Guid DownloadId { get; set; }
         public string ArchiveId { get; set; }
         public string When { get; set; }
+        public string Description { get; set; }
     }
 }

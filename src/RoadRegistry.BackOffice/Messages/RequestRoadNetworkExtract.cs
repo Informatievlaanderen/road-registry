@@ -7,5 +7,6 @@ namespace RoadRegistry.BackOffice.Messages
         public string ExternalRequestId { get; set; }
         public Guid DownloadId { get; set; }
         public RoadNetworkExtractGeometry Contour { get; set; }
+        public string Description { get; set; }
     }
 }

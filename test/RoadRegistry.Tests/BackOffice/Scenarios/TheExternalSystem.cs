@@ -5,15 +5,16 @@ namespace RoadRegistry.BackOffice.Scenarios
 
     public static class TheExternalSystem
     {
-        public static Command PutsInARoadNetworkExtractRequest(
-            ExternalExtractRequestId requestId,
+        public static Command PutsInARoadNetworkExtractRequest(ExternalExtractRequestId requestId,
             DownloadId downloadId,
+            ExtractDescription extractDescription,
             RoadNetworkExtractGeometry contour)
         {
             return new Command(new RequestRoadNetworkExtract
             {
                 ExternalRequestId = requestId,
                 DownloadId = downloadId,
+                Description = extractDescription,
                 Contour = contour
             });
         }

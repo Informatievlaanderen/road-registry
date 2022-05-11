@@ -54,6 +54,7 @@ namespace RoadRegistry.BackOffice.Extracts
                         var request = new RoadNetworkExtractAssemblyRequest(
                             new ExternalExtractRequestId(message.Body.ExternalRequestId),
                             new DownloadId(message.Body.DownloadId),
+                            new ExtractDescription(message.Body.Description),
                             GeometryTranslator.Translate(message.Body.Contour));
                         using (var content = await assembler.AssembleArchive(request, ct)) //(content, revision)
                         {

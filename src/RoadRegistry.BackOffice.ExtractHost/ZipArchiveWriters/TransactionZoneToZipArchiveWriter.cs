@@ -50,8 +50,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                     TYPE = {Value = 2},
                     BESCHRIJV =
                     {
-                        Value =
-                            $"Extract[DownloadId={request.DownloadId.ToGuid():N};RequestId={request.ExternalRequestId}]"
+                        Value = string.IsNullOrEmpty(request.ExtractDescription) ? request.ExternalRequestId : request.ExtractDescription
                     },
                     OPERATOR = {Value = ""},
                     ORG = {Value = "AGIV"},
