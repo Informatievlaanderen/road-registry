@@ -2,7 +2,7 @@
 version 7.0.2
 framework: net6.0
 source https://api.nuget.org/v3/index.json
-nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 6.0.3 //"
+nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 6.0.4 //"
 
 #load "packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/build-generic.fsx"
 
@@ -22,6 +22,7 @@ let dockerRepository = "road-registry"
 let assemblyVersionNumber = (sprintf "2.%s")
 let nugetVersionNumber = (sprintf "%s")
 
+let buildSolution = buildSolution assemblyVersionNumber
 let buildSource = build assemblyVersionNumber
 let buildTest = buildTest assemblyVersionNumber
 let setVersions = (setSolutionVersions assemblyVersionNumber product copyright company)
@@ -53,27 +54,30 @@ Target.create "Build_Solution" (fun _ ->
   )
 
   setVersions "SolutionInfo.cs"
-  buildSource "RoadRegistry.BackOffice"
-  buildSource "RoadRegistry.Editor.Schema"
-  buildSource "RoadRegistry.Editor.Projections"
-  buildSource "RoadRegistry.Product.Schema"
-  buildSource "RoadRegistry.Product.Projections"
-  buildSource "RoadRegistry.Syndication.Schema"
-  buildSource "RoadRegistry.Syndication.Projections"
-  buildSource "RoadRegistry.Wms.Schema"
-  buildSource "RoadRegistry.Wms.Projections"
-  buildSource "RoadRegistry.Editor.ProjectionHost"
-  buildSource "RoadRegistry.Product.ProjectionHost"
-  buildSource "RoadRegistry.Syndication.ProjectionHost"
-  buildSource "RoadRegistry.Wms.ProjectionHost"
-  buildSource "RoadRegistry.BackOffice.CommandHost"
-  buildSource "RoadRegistry.BackOffice.EventHost"
-  buildSource "RoadRegistry.BackOffice.ExtractHost"
-  buildSource "RoadRegistry.BackOffice.Api"
-  buildSource "RoadRegistry.Legacy.Extract"
-  buildSource "RoadRegistry.Legacy.Import"
-  buildTest "RoadRegistry.Tests"
-)
+  buildSolution "RoadRegistry")
+//  buildSource "RoadRegistry.Hosts"
+//  buildSource "RoadRegistry.Dbase"
+//  buildSource "RoadRegistry.BackOffice"
+//  buildSource "RoadRegistry.Editor.Schema"
+//  buildSource "RoadRegistry.Editor.Projections"
+//  buildSource "RoadRegistry.Product.Schema"
+//  buildSource "RoadRegistry.Product.Projections"
+//  buildSource "RoadRegistry.Syndication.Schema"
+//  buildSource "RoadRegistry.Syndication.Projections"
+//  buildSource "RoadRegistry.Wms.Schema"
+//  buildSource "RoadRegistry.Wms.Projections"
+//  buildSource "RoadRegistry.Editor.ProjectionHost"
+//  buildSource "RoadRegistry.Product.ProjectionHost"
+//  buildSource "RoadRegistry.Syndication.ProjectionHost"
+//  buildSource "RoadRegistry.Wms.ProjectionHost"
+//  buildSource "RoadRegistry.BackOffice.CommandHost"
+//  buildSource "RoadRegistry.BackOffice.EventHost"
+//  buildSource "RoadRegistry.BackOffice.ExtractHost"
+//  buildSource "RoadRegistry.BackOffice.Api"
+//  buildSource "RoadRegistry.Legacy.Extract"
+//  buildSource "RoadRegistry.Legacy.Import"
+//  buildTest "RoadRegistry.Tests"
+//)
 
 Target.create "Test_Solution" (fun _ ->
   [
