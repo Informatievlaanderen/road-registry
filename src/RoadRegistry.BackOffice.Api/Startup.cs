@@ -15,7 +15,6 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.Extensions.Hosting;
     using System;
     using System.Linq;
-    using System.Reflection;
     using Microsoft.OpenApi.Models;
 
     public class Startup

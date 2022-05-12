@@ -46,16 +46,14 @@ namespace RoadRegistry.Editor.ProjectionHost
 
                         try
                         {
-                            using (var response = await client.GetAsync("/api", token))
+                            using var response = await client.GetAsync("/api", token);
+                            if (!response.IsSuccessStatusCode)
                             {
-                                if (!response.IsSuccessStatusCode)
-                                {
-                                    await Task.Delay(TimeSpan.FromSeconds(1), token);
-                                }
-                                else
-                                {
-                                    exit = true;
-                                }
+                                await Task.Delay(TimeSpan.FromSeconds(1), token);
+                            }
+                            else
+                            {
+                                exit = true;
                             }
                         }
                         catch (Exception exception)

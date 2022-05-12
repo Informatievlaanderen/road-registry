@@ -7,10 +7,10 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration;
+    using Dbase.Lists;
     using Microsoft.IO;
     using NodaTime;
     using Product.Schema;
-    using Product.Schema.Lists;
 
     public class RoadNetworkForProductToZipArchiveWriter : IZipArchiveWriter<ProductContext>
     {
@@ -23,10 +23,25 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
             RecyclableMemoryStreamManager manager,
             Encoding encoding)
         {
-            if (zipArchiveWriterOptions == null) throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
-            if (streetNameCache == null) throw new ArgumentNullException(nameof(streetNameCache));
-            if (manager == null) throw new ArgumentNullException(nameof(manager));
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+            if (zipArchiveWriterOptions == null)
+            {
+                throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
+            }
+
+            if (streetNameCache == null)
+            {
+                throw new ArgumentNullException(nameof(streetNameCache));
+            }
+
+            if (manager == null)
+            {
+                throw new ArgumentNullException(nameof(manager));
+            }
+
+            if (encoding == null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
 
             var versionDirectory = $"Wegenregister_SHAPE_{date.ToString("yyyyMMdd", CultureInfo.InvariantCulture)}";
             var extraFileEntryFormat = versionDirectory + "/Shapefile/extra/{0}";

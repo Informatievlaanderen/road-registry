@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Syndication.ProjectionHost
+namespace RoadRegistry.Syndication.ProjectionHost
 {
     using System;
     using System.IO;
@@ -11,6 +11,7 @@
     using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+    using Hosts;
     using Mapping;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;

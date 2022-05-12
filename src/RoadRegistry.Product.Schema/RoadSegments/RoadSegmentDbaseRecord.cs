@@ -1,6 +1,8 @@
+// ReSharper disable InconsistentNaming
 namespace RoadRegistry.Product.Schema.RoadSegments
 {
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Dbase;
 
     public class RoadSegmentDbaseRecord : DbaseRecord
     {
@@ -60,7 +62,7 @@ namespace RoadRegistry.Product.Schema.RoadSegments
                 BEGINORG,
                 LBLBGNORG,
                 TGBEP,
-                LBLTGBEP,
+                LBLTGBEP
             };
         }
 

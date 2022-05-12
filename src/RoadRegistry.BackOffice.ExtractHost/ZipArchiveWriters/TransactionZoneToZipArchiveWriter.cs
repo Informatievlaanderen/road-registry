@@ -7,12 +7,9 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Editor.Schema;
     using Editor.Schema.Extracts;
-    using Editor.Schema.RoadNodes;
     using Extracts;
-    using Microsoft.IO;
 
     public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
@@ -27,9 +24,20 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             EditorContext context,
             CancellationToken cancellationToken)
         {
-            if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (request == null) throw new ArgumentNullException(nameof(request));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (archive == null)
+            {
+                throw new ArgumentNullException(nameof(archive));
+            }
+
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             var dbfEntry = archive.CreateEntry("Transactiezones.dbf");
             var dbfHeader = new DbaseFileHeader(

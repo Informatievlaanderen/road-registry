@@ -53,6 +53,8 @@ Target.create "Build_Solution" (fun _ ->
   )
 
   setVersions "SolutionInfo.cs"
+  buildSource "RoadRegistry.Hosts"
+  buildSource "RoadRegistry.Dbase"
   buildSource "RoadRegistry.BackOffice"
   buildSource "RoadRegistry.Editor.Schema"
   buildSource "RoadRegistry.Editor.Projections"

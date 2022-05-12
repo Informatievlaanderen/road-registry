@@ -4,7 +4,6 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.IO.Compression;
     using System.Threading;
     using System.Threading.Tasks;
-    using Editor.Schema;
     using Microsoft.EntityFrameworkCore;
 
     public class CompositeZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
@@ -18,8 +17,15 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
 
         public async Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken)
         {
-            if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (archive == null)
+            {
+                throw new ArgumentNullException(nameof(archive));
+            }
+
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             foreach (var writer in _writers)
             {

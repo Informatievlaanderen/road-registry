@@ -9,6 +9,7 @@ namespace RoadRegistry.Wms.ProjectionHost
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Hosts;
     using Metadata;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
