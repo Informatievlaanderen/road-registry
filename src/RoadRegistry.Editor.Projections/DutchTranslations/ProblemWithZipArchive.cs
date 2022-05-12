@@ -162,6 +162,16 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                         translation = $"De dbase record {problem.Parameters[0].Value} heeft een begin wegknoop in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.B_WK_OIDN)}: {problem.Parameters[1].Value} die gelijk is aan de eindwegknoop in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.E_WK_OIDN)}: {problem.Parameters[2].Value}.";
                         break;
 
+                    case nameof(DbaseFileProblems.DownloadIdInvalidFormat):
+                        translation =
+                            $"De dbase record {problem.Parameters[0].Value} bevat een download id in veld {nameof(TransactionZoneDbaseRecord.Schema.DOWNLOADID)}: {problem.Parameters[1].Value} dat een ongeldig formaat heeft (verwacht formaat: {Guid.Empty:N})";
+                        break;
+
+                    case nameof(DbaseFileProblems.DownloadIdDiffersFromMetadata):
+                        translation =
+                            $"De dbase record {problem.Parameters[0].Value} bevat een download id in veld {nameof(TransactionZoneDbaseRecord.Schema.DOWNLOADID)}: {problem.Parameters[1].Value} dat niet overeen komt met het download id aangeleverd in de metadata: {problem.Parameters[2].Value}.";
+                        break;
+
                     case nameof(DbaseFileProblems.OrganizationIdOutOfRange):
                         translation =
                             $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig organisatie identificator in veld {nameof(TransactionZoneDbaseRecord.Schema.ORG)}: {problem.Parameters[1].Value}.";

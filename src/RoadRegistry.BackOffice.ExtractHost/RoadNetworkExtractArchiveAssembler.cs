@@ -9,7 +9,6 @@ namespace RoadRegistry.BackOffice.ExtractHost
     using Editor.Schema;
     using Extracts;
     using Microsoft.IO;
-    using NetTopologySuite.Geometries;
     using ZipArchiveWriters;
 
     public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAssembler
@@ -30,7 +29,10 @@ namespace RoadRegistry.BackOffice.ExtractHost
 
         public async Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
 
             var stream = _manager.GetStream();
             using (var context = _contextFactory())

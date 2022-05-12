@@ -8,7 +8,6 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Editor.Schema;
     using Microsoft.EntityFrameworkCore;
 
     public class DbaseFileArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
@@ -28,8 +27,15 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
 
         public async Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken)
         {
-            if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (archive == null)
+            {
+                throw new ArgumentNullException(nameof(archive));
+            }
+
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             var dbfEntry = archive.CreateEntry(_filename);
             var dbfHeader = new DbaseFileHeader(

@@ -15,7 +15,6 @@ namespace RoadRegistry.BackOffice.Api.Downloads
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
     using Microsoft.Net.Http.Headers;
-    using NodaTime;
     using NodaTime.Text;
     using Product.Schema;
     using ZipArchiveWriters.ForEditor;

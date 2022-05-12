@@ -6,9 +6,9 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration;
+    using Dbase.Lists;
     using Microsoft.IO;
     using Editor.Schema;
-    using Editor.Schema.Lists;
 
     public class RoadNetworkForEditorToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
@@ -20,10 +20,25 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
             RecyclableMemoryStreamManager manager,
             Encoding encoding)
         {
-            if (zipArchiveWriterOptions == null) throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
-            if (streetNameCache == null) throw new ArgumentNullException(nameof(streetNameCache));
-            if (manager == null) throw new ArgumentNullException(nameof(manager));
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+            if (zipArchiveWriterOptions == null)
+            {
+                throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
+            }
+
+            if (streetNameCache == null)
+            {
+                throw new ArgumentNullException(nameof(streetNameCache));
+            }
+
+            if (manager == null)
+            {
+                throw new ArgumentNullException(nameof(manager));
+            }
+
+            if (encoding == null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
 
             _writer = new CompositeZipArchiveWriter<EditorContext>(
                 new ReadCommittedZipArchiveWriter<EditorContext>(

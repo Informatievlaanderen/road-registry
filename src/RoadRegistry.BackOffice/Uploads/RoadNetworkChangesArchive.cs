@@ -29,7 +29,7 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public void ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator)
         {
-            var problems = validator.Validate(archive);
+            var problems = validator.Validate(archive, ZipArchiveMetadata.Empty);
             if (!problems.OfType<FileError>().Any())
             {
                 Apply(

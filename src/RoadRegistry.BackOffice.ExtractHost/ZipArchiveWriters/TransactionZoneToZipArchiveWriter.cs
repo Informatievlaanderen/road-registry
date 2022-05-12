@@ -7,12 +7,9 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Editor.Schema;
     using Editor.Schema.Extracts;
-    using Editor.Schema.RoadNodes;
     using Extracts;
-    using Microsoft.IO;
 
     public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
@@ -27,9 +24,20 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             EditorContext context,
             CancellationToken cancellationToken)
         {
-            if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (request == null) throw new ArgumentNullException(nameof(request));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (archive == null)
+            {
+                throw new ArgumentNullException(nameof(archive));
+            }
+
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             var dbfEntry = archive.CreateEntry("Transactiezones.dbf");
             var dbfHeader = new DbaseFileHeader(
@@ -50,12 +58,12 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                     TYPE = {Value = 2},
                     BESCHRIJV =
                     {
-                        Value =
-                            $"Extract[DownloadId={request.DownloadId.ToGuid():N};RequestId={request.ExternalRequestId.ToString()}]"
+                        Value = string.IsNullOrEmpty(request.ExtractDescription) ? request.ExternalRequestId : request.ExtractDescription
                     },
                     OPERATOR = {Value = ""},
                     ORG = {Value = "AGIV"},
-                    APPLICATIE = {Value = "Wegenregister"}
+                    APPLICATIE = {Value = "Wegenregister"},
+                    DOWNLOADID = { Value = request.DownloadId.ToGuid().ToString("N")}
                 };
                 dbfWriter.Write(dbfRecord);
                 dbfWriter.Writer.Flush();

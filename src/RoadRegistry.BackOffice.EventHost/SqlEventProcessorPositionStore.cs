@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.EventHost
     using Microsoft.Data.SqlClient;
     using System.Threading;
     using System.Threading.Tasks;
+    using Hosts;
 
     public class SqlEventProcessorPositionStore : IEventProcessorPositionStore
     {
@@ -28,19 +29,15 @@ namespace RoadRegistry.BackOffice.EventHost
                 1024,
                 name);
 
-            using (var connection = new SqlConnection(_builder.ConnectionString))
+            await using var connection = new SqlConnection(_builder.ConnectionString);
+            await connection.OpenAsync(cancellationToken);
+            await using var command = new SqlCommand(_text.ReadPosition(), connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                using (var command = new SqlCommand(_text.ReadPosition(), connection)
-                {
-                    CommandType = CommandType.Text,
-                    Parameters = {nameParameter}
-                })
-                {
-                    var result = await command.ExecuteScalarAsync(cancellationToken);
-                    return result == null || result == DBNull.Value ? default(long?) : (long) result;
-                }
-            }
+                CommandType = CommandType.Text,
+                Parameters = {nameParameter}
+            };
+            var result = await command.ExecuteScalarAsync(cancellationToken);
+            return result == null || result == DBNull.Value ? default(long?) : (long) result;
         }
 
         public async Task WritePosition(string name, long position, CancellationToken cancellationToken)
@@ -57,23 +54,19 @@ namespace RoadRegistry.BackOffice.EventHost
                 SqlDbType.BigInt,
                 8,
                 position);
-            using (var connection = new SqlConnection(_builder.ConnectionString))
+            await using var connection = new SqlConnection(_builder.ConnectionString);
+            await connection.OpenAsync(cancellationToken);
+            await using var transaction = connection.BeginTransaction(IsolationLevel.Snapshot);
+            await using (var command = new SqlCommand(_text.WritePosition(), connection, transaction)
+                         {
+                             CommandType = CommandType.Text,
+                             Parameters = {nameParameter, positionParameter}
+                         })
             {
-                await connection.OpenAsync(cancellationToken);
-                using (var transaction = connection.BeginTransaction(IsolationLevel.Snapshot))
-                {
-                    using (var command = new SqlCommand(_text.WritePosition(), connection, transaction)
-                    {
-                        CommandType = CommandType.Text,
-                        Parameters = {nameParameter, positionParameter}
-                    })
-                    {
-                        await command.ExecuteNonQueryAsync(cancellationToken);
-                    }
-
-                    transaction.Commit();
-                }
+                await command.ExecuteNonQueryAsync(cancellationToken);
             }
+
+            transaction.Commit();
         }
 
         private static SqlParameter CreateSqlParameter(string name, SqlDbType sqlDbType, int size, object value)

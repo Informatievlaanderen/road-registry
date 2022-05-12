@@ -3,7 +3,6 @@ namespace RoadRegistry.Wms.Schema
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Infrastructure;
-    using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
     public class WmsContextMigrationFactory : RunnerDbContextMigrationFactory<WmsContext>
     {

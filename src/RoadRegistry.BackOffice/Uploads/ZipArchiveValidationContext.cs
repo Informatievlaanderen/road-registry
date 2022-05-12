@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.Uploads
 {
-    using System;
-    using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
 
@@ -17,6 +15,8 @@ namespace RoadRegistry.BackOffice.Uploads
         private readonly ImmutableHashSet<RoadNodeId> _modifiedNodes;
         private readonly ImmutableHashSet<RoadNodeId> _removedNodes;
 
+        private readonly ZipArchiveMetadata _zipArchiveMetadata;
+
         public static readonly ZipArchiveValidationContext Empty = new ZipArchiveValidationContext(
             ImmutableHashSet<RoadSegmentId>.Empty,
             ImmutableHashSet<RoadSegmentId>.Empty,
@@ -25,17 +25,18 @@ namespace RoadRegistry.BackOffice.Uploads
             ImmutableHashSet<RoadNodeId>.Empty,
             ImmutableHashSet<RoadNodeId>.Empty,
             ImmutableHashSet<RoadNodeId>.Empty,
-            ImmutableHashSet<RoadNodeId>.Empty);
+            ImmutableHashSet<RoadNodeId>.Empty,
+            ZipArchiveMetadata.Empty);
 
-        private ZipArchiveValidationContext(
-            ImmutableHashSet<RoadSegmentId> identicalSegments,
+        private ZipArchiveValidationContext(ImmutableHashSet<RoadSegmentId> identicalSegments,
             ImmutableHashSet<RoadSegmentId> addedSegments,
             ImmutableHashSet<RoadSegmentId> modifiedSegments,
             ImmutableHashSet<RoadSegmentId> removedSegments,
             ImmutableHashSet<RoadNodeId> identicalNodes,
             ImmutableHashSet<RoadNodeId> addedNodes,
             ImmutableHashSet<RoadNodeId> modifiedNodes,
-            ImmutableHashSet<RoadNodeId> removedNodes)
+            ImmutableHashSet<RoadNodeId> removedNodes,
+            ZipArchiveMetadata zipArchiveMetadata)
         {
             _identicalSegments = identicalSegments;
             _addedSegments = addedSegments;
@@ -45,6 +46,7 @@ namespace RoadRegistry.BackOffice.Uploads
             _addedNodes = addedNodes;
             _modifiedNodes = modifiedNodes;
             _removedNodes = removedNodes;
+            _zipArchiveMetadata = zipArchiveMetadata;
         }
 
         public IImmutableSet<RoadSegmentId> KnownRoadSegments => _identicalSegments
@@ -67,6 +69,8 @@ namespace RoadRegistry.BackOffice.Uploads
         public IImmutableSet<RoadNodeId> KnownModifiedRoadNodes => _modifiedNodes;
         public IImmutableSet<RoadNodeId> KnownRemovedRoadNodes => _removedNodes;
 
+        public ZipArchiveMetadata ZipArchiveMetadata => _zipArchiveMetadata;
+
         public bool Equals(ZipArchiveValidationContext other) =>
             other != null
             && _identicalSegments.SetEquals(other._identicalSegments)
@@ -76,7 +80,8 @@ namespace RoadRegistry.BackOffice.Uploads
             && _identicalNodes.SetEquals(other._identicalNodes)
             && _addedNodes.SetEquals(other._addedNodes)
             && _modifiedNodes.SetEquals(other._modifiedNodes)
-            && _removedNodes.SetEquals(other._removedNodes);
+            && _removedNodes.SetEquals(other._removedNodes)
+            && _zipArchiveMetadata.Equals(other.ZipArchiveMetadata);
         public override bool Equals(object obj) => obj is ZipArchiveValidationContext other && Equals(other);
         public override int GetHashCode() =>
             _identicalSegments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode())
@@ -86,7 +91,22 @@ namespace RoadRegistry.BackOffice.Uploads
             ^ _identicalNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode())
             ^ _addedNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode())
             ^ _modifiedNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode())
-            ^ _removedNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode());
+            ^ _removedNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode()
+            ^ _zipArchiveMetadata.GetHashCode());
+
+        public ZipArchiveValidationContext WithZipArchiveMetadata(ZipArchiveMetadata zipArchiveMetadata)
+        {
+
+            return new ZipArchiveValidationContext(_identicalSegments,
+                _addedSegments,
+                _modifiedSegments,
+                _removedSegments,
+                _identicalNodes,
+                _addedNodes,
+                _modifiedNodes,
+                _removedNodes,
+                zipArchiveMetadata);
+        }
 
         public ZipArchiveValidationContext WithIdenticalRoadSegment(RoadSegmentId segment)
         {
@@ -98,7 +118,8 @@ namespace RoadRegistry.BackOffice.Uploads
                 _identicalNodes,
                 _addedNodes,
                 _modifiedNodes,
-                _removedNodes);
+                _removedNodes,
+                _zipArchiveMetadata);
         }
 
         public ZipArchiveValidationContext WithAddedRoadSegment(RoadSegmentId segment)
@@ -111,7 +132,8 @@ namespace RoadRegistry.BackOffice.Uploads
                 _identicalNodes,
                 _addedNodes,
                 _modifiedNodes,
-                _removedNodes);
+                _removedNodes,
+                _zipArchiveMetadata);
         }
 
         public ZipArchiveValidationContext WithModifiedRoadSegment(RoadSegmentId segment)
@@ -123,7 +145,8 @@ namespace RoadRegistry.BackOffice.Uploads
                 _identicalNodes,
                 _addedNodes,
                 _modifiedNodes,
-                _removedNodes);
+                _removedNodes,
+                _zipArchiveMetadata);
         }
 
         public ZipArchiveValidationContext WithRemovedRoadSegment(RoadSegmentId segment)
@@ -136,7 +159,8 @@ namespace RoadRegistry.BackOffice.Uploads
                 _identicalNodes,
                 _addedNodes,
                 _modifiedNodes,
-                _removedNodes);
+                _removedNodes,
+                _zipArchiveMetadata);
         }
 
         public ZipArchiveValidationContext WithIdenticalRoadNode(RoadNodeId node)
@@ -149,7 +173,8 @@ namespace RoadRegistry.BackOffice.Uploads
                 _identicalNodes.Add(node),
                 _addedNodes,
                 _modifiedNodes,
-                _removedNodes);
+                _removedNodes,
+                _zipArchiveMetadata);
         }
 
         public ZipArchiveValidationContext WithAddedRoadNode(RoadNodeId node)
@@ -162,7 +187,8 @@ namespace RoadRegistry.BackOffice.Uploads
                 _identicalNodes,
                 _addedNodes.Add(node),
                 _modifiedNodes,
-                _removedNodes);
+                _removedNodes,
+                _zipArchiveMetadata);
         }
 
         public ZipArchiveValidationContext WithModifiedRoadNode(RoadNodeId node)
@@ -174,7 +200,22 @@ namespace RoadRegistry.BackOffice.Uploads
                 _identicalNodes,
                 _addedNodes,
                 _modifiedNodes.Add(node),
-                _removedNodes);
+                _removedNodes,
+                _zipArchiveMetadata);
+        }
+
+        public ZipArchiveValidationContext WithRemovedRoadNode(RoadNodeId node)
+        {
+            return new ZipArchiveValidationContext(
+                _identicalSegments,
+                _addedSegments,
+                _modifiedSegments,
+                _removedSegments,
+                _identicalNodes,
+                _addedNodes,
+                _modifiedNodes,
+                _removedNodes.Add(node),
+                _zipArchiveMetadata);
         }
 
         public ZipArchiveValidationContext WithRoadNode(RoadNodeId node, RecordType recordType)
@@ -206,20 +247,8 @@ namespace RoadRegistry.BackOffice.Uploads
                 _identicalNodes,
                 _addedNodes,
                 _modifiedNodes,
-                _removedNodes);
-        }
-
-        public ZipArchiveValidationContext WithRemovedRoadNode(RoadNodeId node)
-        {
-            return new ZipArchiveValidationContext(
-                _identicalSegments,
-                _addedSegments,
-                _modifiedSegments,
-                _removedSegments,
-                _identicalNodes,
-                _addedNodes,
-                _modifiedNodes,
-                _removedNodes.Add(node));
+                _removedNodes,
+                _zipArchiveMetadata);
         }
     }
 }

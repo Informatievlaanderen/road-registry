@@ -175,7 +175,8 @@ export default Vue.extend({
       },
       contourFlow: {
         wkt: '',
-        buffer: false
+        buffer: false,
+        description: ''
       }
     };
   },
@@ -198,7 +199,8 @@ export default Vue.extend({
     async submitMunicipalityRequest() {
       const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
         buffer: this.municipalityFlow.buffer ? 100 : 0,
-        nisCode: this.municipalityFlow.nisCode
+        nisCode: this.municipalityFlow.nisCode,
+        description: this.municipalityFlow.description
       };
 
       const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
@@ -207,7 +209,8 @@ export default Vue.extend({
     async submitContourRequest() {
       const requestData: RoadRegistry.DownloadExtractByContourRequest = {
         buffer: this.contourFlow.buffer ? 100 : 0,
-        contour: this.contourFlow.wkt
+        contour: this.contourFlow.wkt,
+        description: this.contourFlow.description
       };
 
       const response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);

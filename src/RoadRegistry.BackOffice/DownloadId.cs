@@ -19,6 +19,16 @@ namespace RoadRegistry.BackOffice
             return value != Guid.Empty;
         }
 
+        public static bool CanParse(string value)
+        {
+            return Guid.TryParseExact(value, "N", out var guid) && Accepts(guid);
+        }
+
+        public static DownloadId Parse(string value)
+        {
+            return new DownloadId(Guid.ParseExact(value, "N"));
+        }
+
         public bool Equals(DownloadId other) => _value == other._value;
         public override bool Equals(object other) => other is DownloadId id && Equals(id);
         public override int GetHashCode() => _value.GetHashCode();

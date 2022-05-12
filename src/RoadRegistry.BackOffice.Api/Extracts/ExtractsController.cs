@@ -82,7 +82,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                     ExternalRequestId = body.RequestId,
                     Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(
                         (NetTopologySuite.Geometries.IPolygonal) _reader.Read(body.Contour)),
-                    DownloadId = downloadId
+                    DownloadId = downloadId,
+                    Description = string.Empty
                 });
             await _dispatcher(message, HttpContext.RequestAborted);
             return Accepted(new DownloadExtractResponseBody {DownloadId = downloadId.ToString()});
@@ -101,7 +102,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                     ExternalRequestId = randomExternalRequestId,
                     Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(
                         _reader.Read(body.Contour) as NetTopologySuite.Geometries.IPolygonal, body.Buffer),
-                    DownloadId = downloadId
+                    DownloadId = downloadId,
+                    Description = body.Description
                 });
             await _dispatcher(message, HttpContext.RequestAborted);
             return Accepted(new DownloadExtractResponseBody {DownloadId = downloadId.ToString()});
@@ -120,7 +122,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 {
                     ExternalRequestId = randomExternalRequestId,
                     Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(municipalityGeometry.Geometry as MultiPolygon, body.Buffer),
-                    DownloadId = downloadId
+                    DownloadId = downloadId,
+                    Description = body.Description
                 });
             await _dispatcher(message, HttpContext.RequestAborted);
             return Accepted(new DownloadExtractResponseBody {DownloadId = downloadId.ToString()});
