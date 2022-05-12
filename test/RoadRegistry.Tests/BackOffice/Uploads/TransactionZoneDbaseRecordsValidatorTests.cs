@@ -26,6 +26,7 @@ namespace RoadRegistry.BackOffice.Uploads
             _fixture.CustomizeReason();
             _fixture.CustomizeOperatorName();
             _fixture.CustomizeOrganizationId();
+            _fixture.CustomizeDownloadId();
             _fixture.Customize<TransactionZoneDbaseRecord>(
                 composer => composer
                     .FromFactory(random => new TransactionZoneDbaseRecord
@@ -40,7 +41,8 @@ namespace RoadRegistry.BackOffice.Uploads
                             Value = new string(_fixture
                                 .CreateMany<char>(TransactionZoneDbaseRecord.Schema.APPLICATIE.Length.ToInt32())
                                 .ToArray())
-                        }
+                        },
+                        DOWNLOADID = { Value = _fixture.Create<DownloadId>().ToString() }
                     })
                     .OmitAutoProperties());
 
@@ -194,6 +196,49 @@ namespace RoadRegistry.BackOffice.Uploads
 
             Assert.Equal(
                 ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).OrganizationIdOutOfRange(value)),
+                result);
+            Assert.Same(_context, context);
+        }
+
+        [Fact]
+        public void ValidateWithRecordThatIsMissingDownloadIdReturnsExpectedResult()
+        {
+            var records = _fixture
+                .CreateMany<TransactionZoneDbaseRecord>(1)
+                .Select(record =>
+                {
+                    record.DOWNLOADID.Value = null;
+                    return record;
+                })
+                .ToDbaseRecordEnumerator();
+
+            var (result, context) = _sut.Validate(_entry, records, _context);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(TransactionZoneDbaseRecord.Schema.DOWNLOADID)),
+                result);
+            Assert.Same(_context, context);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("invalid")]
+        [InlineData("not a numerical guid")]
+        public void ValidateWithRecordThatIsInvalidDownloadIdReturnsExpectedResult(string invalidDownloadId)
+        {
+            var records = _fixture
+                .CreateMany<TransactionZoneDbaseRecord>(1)
+                .Select(record =>
+                {
+                    record.DOWNLOADID.Value = invalidDownloadId;
+                    return record;
+                })
+                .ToDbaseRecordEnumerator();
+
+            var (result, context) = _sut.Validate(_entry, records, _context);
+
+            Assert.Equal(
+                ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).DownloadIdInvalidFormat(invalidDownloadId)),
                 result);
             Assert.Same(_context, context);
         }

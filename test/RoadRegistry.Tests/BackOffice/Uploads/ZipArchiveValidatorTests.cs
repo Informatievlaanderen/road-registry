@@ -39,7 +39,19 @@ namespace RoadRegistry.BackOffice.Uploads
         {
             var sut = new ZipArchiveValidator(Encoding.UTF8);
 
-            Assert.Throws<ArgumentNullException>(() => sut.Validate(null));
+            Assert.Throws<ArgumentNullException>(() => sut.Validate(null, ZipArchiveMetadata.Empty));
+        }
+
+        [Fact]
+        public void ValidateMetadataCanNotBeNull()
+        {
+            var sut = new ZipArchiveValidator(Encoding.UTF8);
+
+            using (var ms = new MemoryStream())
+            using (var archive = new ZipArchive(ms, ZipArchiveMode.Create))
+            {
+                Assert.Throws<ArgumentNullException>(() => sut.Validate(archive, null));
+            }
         }
 
         [Theory]
@@ -50,7 +62,7 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 var sut = new ZipArchiveValidator(Encoding.UTF8);
 
-                var result = sut.Validate(archive);
+                var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
 
                 Assert.Equal(expected, result);
             }
@@ -63,7 +75,7 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 var sut = new ZipArchiveValidator(Encoding.UTF8);
 
-                var result = sut.Validate(archive);
+                var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
 
                 Assert.Equal(
                     ZipArchiveProblems.Many(
@@ -96,7 +108,7 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 var sut = new ZipArchiveValidator(Encoding.UTF8);
 
-                var result = sut.Validate(archive);
+                var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
 
                 result.Count.Should().Be(0);
             }

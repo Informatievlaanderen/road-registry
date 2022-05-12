@@ -6,11 +6,10 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration;
+    using Dbase.Lists;
     using Editor.Schema;
-    using Editor.Schema.Lists;
     using Extracts;
     using Microsoft.IO;
-    using NetTopologySuite.Geometries;
 
     public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
@@ -22,10 +21,25 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             RecyclableMemoryStreamManager manager,
             Encoding encoding)
         {
-            if (zipArchiveWriterOptions == null) throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
-            if (streetNameCache == null) throw new ArgumentNullException(nameof(streetNameCache));
-            if (manager == null) throw new ArgumentNullException(nameof(manager));
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+            if (zipArchiveWriterOptions == null)
+            {
+                throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
+            }
+
+            if (streetNameCache == null)
+            {
+                throw new ArgumentNullException(nameof(streetNameCache));
+            }
+
+            if (manager == null)
+            {
+                throw new ArgumentNullException(nameof(manager));
+            }
+
+            if (encoding == null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
 
             _writer = new CompositeZipArchiveWriter<EditorContext>(
                 new ReadCommittedZipArchiveWriter<EditorContext>(

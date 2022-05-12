@@ -1,10 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.Downloads.ForEditor
 {
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Editor.Schema.Lists;
+    using Dbase.Lists;
+    using Hosts;
     using RoadRegistry.Framework.Containers;
     using Xunit;
-    using ZipArchiveWriters.ForEditor;
 
     public class ListsTests
     {

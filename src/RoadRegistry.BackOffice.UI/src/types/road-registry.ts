@@ -49,11 +49,13 @@ export namespace RoadRegistry {
     export interface DownloadExtractByContourRequest {
         buffer: number;
         contour: string;
+        description: string;
     }
 
     export interface DownloadExtractByNisCodeRequest {
         buffer: number;
         nisCode: string;
+        description: string;
     }
 }
 export default RoadRegistry;

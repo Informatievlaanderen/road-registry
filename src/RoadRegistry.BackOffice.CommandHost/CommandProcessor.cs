@@ -9,6 +9,7 @@ namespace RoadRegistry.BackOffice.CommandHost
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Framework;
+    using Hosts;
     using Messages;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;

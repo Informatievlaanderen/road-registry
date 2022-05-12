@@ -6,6 +6,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
     using System.Threading.Channels;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;

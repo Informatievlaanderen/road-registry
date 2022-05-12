@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Product.ProjectionHost
+namespace RoadRegistry.Product.ProjectionHost
 {
     using System;
     using System.IO;
@@ -11,6 +11,7 @@
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -88,7 +89,7 @@
                             new EventDeserializer((eventData, eventType) =>
                                 JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
                         )
-                        .AddSingleton<Func<ProductContext>>(
+                        .AddSingleton(
                             () =>
                                 new ProductContext(
                                     new DbContextOptionsBuilder<ProductContext>()

@@ -30,10 +30,33 @@ namespace RoadRegistry.BackOffice.Uploads
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.BESCHRIJV.Field);
                             }
+
                             if (!record.OPERATOR.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.OPERATOR.Field);
                             }
+
+                            if (!record.DOWNLOADID.HasValue)
+                            {
+                                problems += recordContext.RequiredFieldIsNull(record.DOWNLOADID.Field);
+                            }
+                            else if (!DownloadId.CanParse(record.DOWNLOADID.Value))
+                            {
+                                problems += recordContext.DownloadIdInvalidFormat(record.DOWNLOADID.Value);
+                            }
+                            else 
+                            {
+                                var expectedDownloadId = context.ZipArchiveMetadata.DownloadId;
+                                if (expectedDownloadId.HasValue)
+                                {
+                                    if (!DownloadId.Parse(record.DOWNLOADID.Value).Equals(expectedDownloadId.Value))
+                                    {
+                                        problems += recordContext.DownloadIdDiffersFromMetadata(record.DOWNLOADID.Value, expectedDownloadId.ToString());
+                                    }
+                                }
+
+                            }
+
                             if (!record.ORG.HasValue)
                             {
                                 problems += recordContext.RequiredFieldIsNull(record.ORG.Field);
