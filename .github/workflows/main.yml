@@ -119,13 +119,13 @@ jobs:
         mkdir .sonar/scanner
         dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
         
-#    - name: Sonar begin build & analyze
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-#        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#      shell: bash
-#      run: |
-#        ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" > /dev/null 2>&1
+    - name: Sonar begin build & analyze
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      shell: bash
+      run: |
+        ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" > /dev/null 2>&1
 
     - name: Run Semantic Release
       shell: bash
@@ -150,14 +150,14 @@ jobs:
         echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
       shell: bash
         
-#    - name: Sonar end build & analyze
-#      if: env.RELEASE_VERSION != 'none'
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-#        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#      shell: bash
-#      run: |
-#        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}" > /dev/null 2>&1
+    - name: Sonar end build & analyze
+      if: env.RELEASE_VERSION != 'none'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      shell: bash
+      run: |
+        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}" > /dev/null 2>&1
 
     - name: Configure AWS credentials (Test)
       if: env.RELEASE_VERSION != 'none'
