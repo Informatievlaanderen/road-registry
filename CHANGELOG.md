@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/informatievlaanderen/road-registry/compare/v3.0.0...v3.1.0) (2022-05-13)
+
+
+### Features
+
+* only show flemish municipalities ([5778c20](https://github.com/informatievlaanderen/road-registry/commit/5778c20d84e7a04eddc99e5cdb7f339ccafe1d42))
+
 # [3.0.0](https://github.com/informatievlaanderen/road-registry/compare/v2.1.4...v3.0.0) (2022-05-13)
 
 
