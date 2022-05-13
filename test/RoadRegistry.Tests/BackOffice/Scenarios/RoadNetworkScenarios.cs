@@ -15,10 +15,12 @@ namespace RoadRegistry.BackOffice.Scenarios
     using Core;
     using RoadRegistry.Framework.Testing;
     using Xunit;
+    using Xunit.Abstractions;
     using GeometryTranslator = BackOffice.GeometryTranslator;
 
     public class RoadNetworkScenarios : RoadRegistryFixture
     {
+
         public RoadNetworkScenarios()
         {
             Fixture.CustomizePoint();
@@ -52,6 +54,14 @@ namespace RoadRegistry.BackOffice.Scenarios
             Fixture.CustomizeReason();
             Fixture.CustomizeOperatorName();
             Fixture.CustomizeTransactionId();
+
+            ArchiveId = Fixture.Create<ArchiveId>();
+            RequestId = ChangeRequestId.FromArchiveId(ArchiveId);
+            ReasonForChange = Fixture.Create<Reason>();
+            ChangedByOperator = Fixture.Create<OperatorName>();
+            ChangedByOrganization = Fixture.Create<OrganizationId>();
+            ChangedByOrganizationName = Fixture.Create<OrganizationName>();
+            TransactionId = Fixture.Create<TransactionId>();
 
             Fixture.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
                 composer.Do(instance =>
@@ -267,7 +277,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 StartNodeId = AddStartNode1.TemporaryId,
                 EndNodeId = AddEndNode1.TemporaryId,
                 Geometry = GeometryTranslator.Translate(MultiLineString1),
-                MaintenanceAuthority = Fixture.Create<OrganizationId>(),
+                MaintenanceAuthority = ChangedByOrganization,
                 GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                 Morphology = Fixture.Create<RoadSegmentMorphology>(),
                 Status = Fixture.Create<RoadSegmentStatus>(),
@@ -338,8 +348,8 @@ namespace RoadRegistry.BackOffice.Scenarios
                 GeometryVersion = 0,
                 MaintenanceAuthority = new MaintenanceAuthority
                 {
-                    Code = AddSegment1.MaintenanceAuthority,
-                    Name = ""
+                    Code = ChangedByOrganization,
+                    Name = ChangedByOrganizationName
                 },
                 GeometryDrawMethod = AddSegment1.GeometryDrawMethod,
                 Morphology = AddSegment1.Morphology,
@@ -397,7 +407,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                 StartNodeId = AddStartNode2.TemporaryId,
                 EndNodeId = AddEndNode2.TemporaryId,
                 Geometry = GeometryTranslator.Translate(MultiLineString2),
-                MaintenanceAuthority = Fixture.Create<OrganizationId>(),
+                MaintenanceAuthority = ChangedByOrganization,
                 GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                 Morphology = Fixture.Create<RoadSegmentMorphology>(),
                 Status = Fixture.Create<RoadSegmentStatus>(),
@@ -468,8 +478,8 @@ namespace RoadRegistry.BackOffice.Scenarios
                 GeometryVersion = 0,
                 MaintenanceAuthority = new MaintenanceAuthority
                 {
-                    Code = AddSegment2.MaintenanceAuthority,
-                    Name = ""
+                    Code = ChangedByOrganization,
+                    Name = ChangedByOrganizationName
                 },
                 GeometryDrawMethod = AddSegment2.GeometryDrawMethod,
                 Morphology = AddSegment2.Morphology,
@@ -648,13 +658,6 @@ namespace RoadRegistry.BackOffice.Scenarios
                 Version = 0
             };
 
-            ArchiveId = Fixture.Create<ArchiveId>();
-            RequestId = ChangeRequestId.FromArchiveId(ArchiveId);
-            ReasonForChange = Fixture.Create<Reason>();
-            ChangedByOperator = Fixture.Create<OperatorName>();
-            ChangedByOrganization = Fixture.Create<OrganizationId>();
-            ChangedByOrganizationName = Fixture.Create<OrganizationName>();
-            TransactionId = Fixture.Create<TransactionId>();
         }
 
         public ArchiveId ArchiveId { get; }
@@ -1740,8 +1743,15 @@ namespace RoadRegistry.BackOffice.Scenarios
             );
         }
 
-        [Fact]
-        public Task when_adding_a_start_node_connecting_two_segments_as_a_fake_node_and_the_segments_differ_by_one_attribute()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        [InlineData(5)]
+        [InlineData(6)]
+        public Task when_adding_a_start_node_connecting_two_segments_as_a_fake_node_and_the_segments_differ_by_one_attribute(int testCase)
         {
             var startPoint = new NetTopologySuite.Geometries.Point(new CoordinateM(10.0, 0.0, 0.0))
             {
@@ -1827,7 +1837,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             AddSegment2.RightSideStreetNameId = AddSegment1.RightSideStreetNameId;
             Segment2Added.RightSide.StreetNameId = AddSegment1.RightSideStreetNameId;
 
-            switch (new Random().Next(0, 7))
+            switch (testCase)
             {
                 case 0:
                     AddSegment2.Status = new Generator<RoadSegmentStatus>(Fixture)
@@ -1848,6 +1858,10 @@ namespace RoadRegistry.BackOffice.Scenarios
                     AddSegment2.MaintenanceAuthority = new Generator<OrganizationId>(Fixture)
                         .First(candidate => candidate != AddSegment1.MaintenanceAuthority);
                     Segment2Added.MaintenanceAuthority.Code = AddSegment2.MaintenanceAuthority;
+                    Segment2Added.MaintenanceAuthority.Name = Fixture.Create<OrganizationName>();
+                    //AddSegment2.MaintenanceAuthority = ChangedByOrganization;
+                    //Segment2Added.MaintenanceAuthority.Code = ChangedByOrganization;
+                    //Segment2Added.MaintenanceAuthority.Name = ChangedByOrganizationName;
                     break;
                 case 4:
                     AddSegment2.AccessRestriction = new Generator<RoadSegmentAccessRestriction>(Fixture)
@@ -1872,6 +1886,14 @@ namespace RoadRegistry.BackOffice.Scenarios
                     {
                         Code = ChangedByOrganization,
                         Name = ChangedByOrganizationName,
+                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                    }
+                )
+                .Given(Organizations.ToStreamName(new OrganizationId(AddSegment2.MaintenanceAuthority)),
+                    new ImportedOrganization
+                    {
+                        Code = Segment2Added.MaintenanceAuthority.Code,
+                        Name = Segment2Added.MaintenanceAuthority.Name,
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }
                 )

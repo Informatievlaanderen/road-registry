@@ -52,9 +52,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
         }
 
         [Theory]
-        [InlineData("description", "external request id", "description")]
-        [InlineData("", "external request id", "external request id")]
-        [InlineData("description", "", "description", Skip = "prevented by ExternalExtractRequestId constructor")]
+        [MemberData(nameof(WriteAsyncWritesExpectedBeschrijvCases))]
         public Task WriteAsyncWritesExpectedBeschrijv(ExtractDescription extractDescription, ExternalExtractRequestId externalRequestId, string expectedBeschrijv)
         {
             var editorContext = CreateContextFor(nameof(WriteAsyncWritesExpectedDownloadId));
@@ -70,6 +68,29 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
                     records.Count.Should().Be(1);
                     records[0].Item2.BESCHRIJV.Value.Should().Be(expectedBeschrijv);
                 });
+        }
+
+        public static IEnumerable<object[]> WriteAsyncWritesExpectedBeschrijvCases()
+        {
+            yield return new object[]
+            {
+                new ExtractDescription("description"),
+                new ExternalExtractRequestId("external request id"),
+                "description"
+            };
+            yield return new object[]
+            {
+                new ExtractDescription(string.Empty),
+                new ExternalExtractRequestId("external request id"),
+                "external request id"
+            };
+            // // Empty external extract request id not allowed
+            //yield return new object[]
+            //{
+            //    new ExtractDescription("description"),
+            //    new ExternalExtractRequestId(""),
+            //    "description"
+            //};
         }
 
         private RoadNetworkExtractAssemblyRequest CreateRoadNetworkExtractAssemblyRequest(ExtractDescription extractDescription, ExternalExtractRequestId externalRequestId)
