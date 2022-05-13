@@ -1,3 +1,41 @@
+# [3.0.0](https://github.com/informatievlaanderen/road-registry/compare/v2.1.4...v3.0.0) (2022-05-13)
+
+
+### Bug Fixes
+
+* build pipeline ([e55804e](https://github.com/informatievlaanderen/road-registry/commit/e55804e984baf35172ee1e68cf90aa80ea163d1c))
+* define node version in build pipeline ([78b2131](https://github.com/informatievlaanderen/road-registry/commit/78b21316f8d5633a93d7f801b735a390872b613b))
+* fix failing tests ([13aa7a2](https://github.com/informatievlaanderen/road-registry/commit/13aa7a2230501e10945e1f3ee9c7d3753874d0f2))
+* remove DisableRequestSizeLimit ([6d34467](https://github.com/informatievlaanderen/road-registry/commit/6d3446751235d1088c7af1a6ba8d3ec0b384cc18))
+* remove DisableRequestSizeLimit ([304bdeb](https://github.com/informatievlaanderen/road-registry/commit/304bdeb67320bc559a2218576803a7957109fbe7))
+* remove duplicates ([#495](https://github.com/informatievlaanderen/road-registry/issues/495)) ([9c5ec0e](https://github.com/informatievlaanderen/road-registry/commit/9c5ec0e4553e26aa590833dfcbc46d5453e55d1f))
+* upgrade node version ([7651d84](https://github.com/informatievlaanderen/road-registry/commit/7651d843990c03de01174dddae67b290f24da423))
+* version bump ([bb3c1fc](https://github.com/informatievlaanderen/road-registry/commit/bb3c1fcf1a3234b10aec3b3c6084d14fb3fc7b44))
+
+
+### Features
+
+* add downloadid to transactionzones file in extracts ([a76ca0f](https://github.com/informatievlaanderen/road-registry/commit/a76ca0f6824d7fa9a722f4e128f6c1a332fe3001)), closes [#480](https://github.com/informatievlaanderen/road-registry/issues/480) [#480](https://github.com/informatievlaanderen/road-registry/issues/480)
+
+
+### Reverts
+
+* Revert "fix: remove DisableRequestSizeLimit" ([ea55772](https://github.com/informatievlaanderen/road-registry/commit/ea55772ee4ada6581b36fca10a4e3fad5a79284f))
+
+
+### BREAKING CHANGES
+
+* move to dotnet 6.0.3
+
+* feat: move to dotnet 6.0.3
+* move to dotnet 6.0.3
+
+* chore(release): 2.0.0 [skip ci]
+
+# [2.0.0](https://github.com/informatievlaanderen/road-registry/compare/v1.62.2...v2.0.0) (2022-04-26)
+
+### Features
+
 ## [2.1.4](https://github.com/informatievlaanderen/road-registry/compare/v2.1.3...v2.1.4) (2022-05-02)
 
 
