@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Extracts
     using System.IO.Compression;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Framework;
+    using Polly;
     using SqlStreamStore;
     using Uploads;
 
@@ -29,7 +30,19 @@ namespace RoadRegistry.BackOffice.Extracts
                 {
                     var archiveId = new ArchiveId(message.Body.DownloadId.ToString("N"));
                     var blobName = new BlobName(archiveId);
-                    if (await downloadsBlobClient.BlobExistsAsync(blobName, ct))
+
+
+                    var policy = Policy
+                        .HandleResult<bool>(exists => exists == false)
+                        .WaitAndRetryAsync(new[]
+                        {
+                            TimeSpan.FromSeconds(1),
+                            TimeSpan.FromSeconds(3),
+                            TimeSpan.FromSeconds(5),
+                        });
+                    var blobExists = await policy.ExecuteAsync(() => downloadsBlobClient.BlobExistsAsync(blobName, ct));
+
+                    if (blobExists)
                     {
                         //Case: we previously uploaded a blob for this particular download.
                         //var blob = await client.GetBlobAsync(blobName, ct);
