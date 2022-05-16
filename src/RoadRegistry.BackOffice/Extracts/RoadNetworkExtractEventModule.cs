@@ -31,7 +31,6 @@ namespace RoadRegistry.BackOffice.Extracts
                     var archiveId = new ArchiveId(message.Body.DownloadId.ToString("N"));
                     var blobName = new BlobName(archiveId);
 
-
                     var policy = Policy
                         .HandleResult<bool>(exists => exists == false)
                         .WaitAndRetryAsync(new[]
