@@ -1,4 +1,5 @@
-namespace RoadRegistry.Product.Schema.RoadSegments
+// ReSharper disable InconsistentNaming
+namespace RoadRegistry.Dbase.RoadSegments
 {
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
@@ -6,7 +7,7 @@ namespace RoadRegistry.Product.Schema.RoadSegments
     {
         public RoadSegmentLaneAttributeDbaseSchema()
         {
-            Fields = new DbaseField[]
+            Fields = new[]
             {
                 DbaseField.CreateNumberField(
                     new DbaseFieldName(nameof(RS_OIDN)),

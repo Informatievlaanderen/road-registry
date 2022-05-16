@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.EventHost
     using Microsoft.Data.SqlClient;
     using System.Threading.Tasks;
     using AutoFixture;
+    using Hosts;
     using RoadRegistry.Framework.Containers;
     using Xunit;
 

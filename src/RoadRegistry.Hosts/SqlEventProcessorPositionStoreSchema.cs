@@ -1,10 +1,10 @@
-namespace RoadRegistry.BackOffice.EventHost
+namespace RoadRegistry.Hosts
 {
     using System;
     using System.Data;
-    using Microsoft.Data.SqlClient;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Data.SqlClient;
 
     public class SqlEventProcessorPositionStoreSchema
     {
@@ -32,18 +32,13 @@ namespace RoadRegistry.BackOffice.EventHost
                         CONSTRAINT PK_EventProcessorPosition     PRIMARY KEY NONCLUSTERED (NameHash)
                     )
                 END";
-            using (var connection = new SqlConnection(_builder.ConnectionString))
+            await using var connection = new SqlConnection(_builder.ConnectionString);
+            await connection.OpenAsync(cancellationToken);
+            await using var command = new SqlCommand(text, connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                using (var command = new SqlCommand(
-                    text, connection)
-                {
-                    CommandType = CommandType.Text
-                })
-                {
-                    await command.ExecuteNonQueryAsync(cancellationToken);
-                }
-            }
+                CommandType = CommandType.Text
+            };
+            await command.ExecuteNonQueryAsync(cancellationToken);
         }
     }
 }
