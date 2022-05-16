@@ -1,6 +1,7 @@
 server {
     listen       10007;
     server_name  localhost;
+    client_max_body_size 29M;
 
     location / {
         auth_basic "Authenticatie";
