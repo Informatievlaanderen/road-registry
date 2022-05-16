@@ -1,3 +1,10 @@
+## [3.1.3](https://github.com/informatievlaanderen/road-registry/compare/v3.1.2...v3.1.3) (2022-05-16)
+
+
+### Bug Fixes
+
+* fix nginx conf to allow large uploads ([3079721](https://github.com/informatievlaanderen/road-registry/commit/3079721bcd19bc26c1e9daef3db6bf311c0b52a2))
+
 ## [3.1.2](https://github.com/informatievlaanderen/road-registry/compare/v3.1.1...v3.1.2) (2022-05-16)
 
 
