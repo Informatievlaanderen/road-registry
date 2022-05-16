@@ -1,11 +1,10 @@
-namespace RoadRegistry.BackOffice.EventHost
+namespace RoadRegistry.Hosts
 {
     using System;
     using System.Data;
-    using Microsoft.Data.SqlClient;
     using System.Threading;
     using System.Threading.Tasks;
-    using Hosts;
+    using Microsoft.Data.SqlClient;
 
     public class SqlEventProcessorPositionStore : IEventProcessorPositionStore
     {
@@ -21,8 +20,16 @@ namespace RoadRegistry.BackOffice.EventHost
 
         public async Task<long?> ReadPosition(string name, CancellationToken cancellationToken)
         {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (name.Length > 1024) throw new ArgumentException("The name can not be longer than 1024 characters.", nameof(name));
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (name.Length > 1024)
+            {
+                throw new ArgumentException("The name can not be longer than 1024 characters.", nameof(name));
+            }
+
             var nameParameter = CreateSqlParameter(
                 "@Name",
                 SqlDbType.NVarChar,
@@ -42,8 +49,16 @@ namespace RoadRegistry.BackOffice.EventHost
 
         public async Task WritePosition(string name, long position, CancellationToken cancellationToken)
         {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (name.Length > 1024) throw new ArgumentException("The name can not be longer than 1024 characters.", nameof(name));
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (name.Length > 1024)
+            {
+                throw new ArgumentException("The name can not be longer than 1024 characters.", nameof(name));
+            }
+
             var nameParameter = CreateSqlParameter(
                 "@Name",
                 SqlDbType.NVarChar,
@@ -84,7 +99,7 @@ namespace RoadRegistry.BackOffice.EventHost
                 value);
         }
 
-        private class SqlCommandText
+        private sealed class SqlCommandText
         {
             private readonly string _schema;
 

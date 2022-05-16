@@ -1,6 +1,7 @@
 namespace RoadRegistry.Product.Schema.RoadSegments
 {
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Dbase.RoadSegments;
 
     public class RoadSegmentLaneAttributeDbaseRecord : DbaseRecord
     {
