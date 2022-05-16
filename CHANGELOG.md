@@ -1,3 +1,10 @@
+## [3.1.4](https://github.com/informatievlaanderen/road-registry/compare/v3.1.3...v3.1.4) (2022-05-16)
+
+
+### Bug Fixes
+
+* bump DotSpatial.Projections ([7edfcf9](https://github.com/informatievlaanderen/road-registry/commit/7edfcf993ecde09d00d05edd1bb0ac8546b2528c))
+
 ## [3.1.3](https://github.com/informatievlaanderen/road-registry/compare/v3.1.2...v3.1.3) (2022-05-16)
 
 
