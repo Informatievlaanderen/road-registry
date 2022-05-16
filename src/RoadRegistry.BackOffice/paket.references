@@ -8,6 +8,7 @@ NetTopologySuite
 NodaTime
 SqlStreamStore
 DotSpatial.Projections
+Polly
 
 Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.EventHandling
