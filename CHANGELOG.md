@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/informatievlaanderen/road-registry/compare/v3.1.0...v3.1.1) (2022-05-16)
+
+
+### Bug Fixes
+
+* fix availability of extract archives when writing to s3 ([ff3a527](https://github.com/informatievlaanderen/road-registry/commit/ff3a52724ef8c876637098e3bd1182982cb568ee))
+
 # [3.1.0](https://github.com/informatievlaanderen/road-registry/compare/v3.0.0...v3.1.0) (2022-05-13)
 
 
