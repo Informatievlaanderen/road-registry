@@ -35,11 +35,30 @@ namespace RoadRegistry.Syndication.ProjectionHost
             TConfiguration feedConfiguration,
             ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> logger)
         {
-            if (reader == null) throw new ArgumentNullException(nameof(reader));
-            if (envelopeFactory == null) throw new ArgumentNullException(nameof(envelopeFactory));
-            if (resolver == null) throw new ArgumentNullException(nameof(resolver));
-            if (dbContextFactory == null) throw new ArgumentNullException(nameof(dbContextFactory));
-            if (feedConfiguration == null) throw new ArgumentNullException(nameof(feedConfiguration));
+            if (reader == null)
+            {
+                throw new ArgumentNullException(nameof(reader));
+            }
+
+            if (envelopeFactory == null)
+            {
+                throw new ArgumentNullException(nameof(envelopeFactory));
+            }
+
+            if (resolver == null)
+            {
+                throw new ArgumentNullException(nameof(resolver));
+            }
+
+            if (dbContextFactory == null)
+            {
+                throw new ArgumentNullException(nameof(dbContextFactory));
+            }
+
+            if (feedConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(feedConfiguration));
+            }
 
             _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -65,7 +84,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
                         {
                             switch (message)
                             {
-                                case Resume _:
+                                case Resume:
                                     logger.LogInformation("[{Context}] Resuming ...", typeof(TSyndicationContent).Name);
                                     await using (var resumeContext = dbContextFactory())
                                     {
@@ -215,9 +234,9 @@ namespace RoadRegistry.Syndication.ProjectionHost
             }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
         }
 
-        private class Resume { }
+        private sealed class Resume { }
 
-        private class CatchUp
+        private sealed class CatchUp
         {
             public CatchUp(long? afterPosition, int batchSize)
             {
@@ -226,7 +245,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
             }
 
             public long? AfterPosition { get; }
-            public int BatchSize { get; }
+            private int BatchSize { get; }
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

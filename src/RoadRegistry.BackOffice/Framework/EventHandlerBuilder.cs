@@ -17,7 +17,9 @@ namespace RoadRegistry.BackOffice.Framework
         public void Handle(Func<Event<TEvent>, CancellationToken, Task> handler)
         {
             if (handler == null)
+            {
                 throw new ArgumentNullException(nameof(handler));
+            }
 
             Builder(handler);
         }
@@ -28,9 +30,11 @@ namespace RoadRegistry.BackOffice.Framework
           Func<Event<TEvent>, CancellationToken, Task>> pipe)
         {
             if (pipe == null)
+            {
                 throw new ArgumentNullException(nameof(pipe));
+            }
 
-            return new WithPipeline(Builder, next => pipe(next));
+            return new WithPipeline(Builder, pipe);
         }
 
         public IEventHandlerBuilder<TContext, TEvent> Pipe<TContext>(
@@ -39,12 +43,14 @@ namespace RoadRegistry.BackOffice.Framework
                 Func<Event<TEvent>, CancellationToken, Task>> pipe)
         {
             if (pipe == null)
+            {
                 throw new ArgumentNullException(nameof(pipe));
+            }
 
-            return new WithContextPipeline<TContext>(Builder, next => pipe(next));
+            return new WithContextPipeline<TContext>(Builder, pipe);
         }
 
-        private class WithPipeline : IEventHandlerBuilder<TEvent>
+        private sealed class WithPipeline : IEventHandlerBuilder<TEvent>
         {
             public WithPipeline(
               Action<Func<Event<TEvent>, CancellationToken, Task>> builder,
@@ -56,9 +62,9 @@ namespace RoadRegistry.BackOffice.Framework
                 Pipeline = pipeline;
             }
 
-            public Action<Func<Event<TEvent>, CancellationToken, Task>> Builder { get; }
+            private Action<Func<Event<TEvent>, CancellationToken, Task>> Builder { get; }
 
-            public Func<
+            private Func<
               Func<Event<TEvent>, CancellationToken, Task>,
               Func<Event<TEvent>, CancellationToken, Task>> Pipeline
             { get; }
@@ -69,7 +75,9 @@ namespace RoadRegistry.BackOffice.Framework
                     Func<Event<TEvent>, CancellationToken, Task>> pipe)
             {
                 if (pipe == null)
+                {
                     throw new ArgumentNullException(nameof(pipe));
+                }
 
                 return new WithPipeline(Builder, next => Pipeline(pipe(next)));
             }
@@ -80,7 +88,9 @@ namespace RoadRegistry.BackOffice.Framework
                     Func<Event<TEvent>, CancellationToken, Task>> pipe)
             {
                 if (pipe == null)
+                {
                     throw new ArgumentNullException(nameof(pipe));
+                }
 
                 return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
             }
@@ -89,13 +99,15 @@ namespace RoadRegistry.BackOffice.Framework
             public void Handle(Func<Event<TEvent>, CancellationToken, Task> handler)
             {
                 if (handler == null)
+                {
                     throw new ArgumentNullException(nameof(handler));
+                }
 
                 Builder(Pipeline(handler));
             }
         }
 
-        private class WithContextPipeline<TContext> : IEventHandlerBuilder<TContext, TEvent>
+        private sealed class WithContextPipeline<TContext> : IEventHandlerBuilder<TContext, TEvent>
         {
             public WithContextPipeline(
                 Action<Func<Event<TEvent>, CancellationToken, Task>> builder,
@@ -107,9 +119,9 @@ namespace RoadRegistry.BackOffice.Framework
                 Pipeline = pipeline;
             }
 
-            public Action<Func<Event<TEvent>, CancellationToken, Task>> Builder { get; }
+            private Action<Func<Event<TEvent>, CancellationToken, Task>> Builder { get; }
 
-            public Func<
+            private Func<
                 Func<TContext, Event<TEvent>, CancellationToken, Task>,
                 Func<Event<TEvent>, CancellationToken, Task>> Pipeline
             { get; }
@@ -120,7 +132,9 @@ namespace RoadRegistry.BackOffice.Framework
                     Func<TContext, Event<TEvent>, CancellationToken, Task>> pipe)
             {
                 if (pipe == null)
+                {
                     throw new ArgumentNullException(nameof(pipe));
+                }
 
                 return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
             }
@@ -128,7 +142,9 @@ namespace RoadRegistry.BackOffice.Framework
             public void Handle(Func<TContext, Event<TEvent>, CancellationToken, Task> handler)
             {
                 if (handler == null)
+                {
                     throw new ArgumentNullException(nameof(handler));
+                }
 
                 Builder(Pipeline(handler));
             }

@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core
 {
     using System;
     using System.Collections.Generic;
@@ -602,7 +602,7 @@
             return new RemoveGradeSeparatedJunction(permanent);
         }
 
-        private class SortableChange
+        private sealed class SortableChange
         {
             public int Ordinal { get; }
             public object Change { get; }
@@ -614,7 +614,7 @@
             }
         }
 
-        private class RankChangeBeforeTranslation : IComparer<SortableChange>
+        private sealed class RankChangeBeforeTranslation : IComparer<SortableChange>
         {
             private static readonly Type[] SequenceByTypeOfChange =
             {

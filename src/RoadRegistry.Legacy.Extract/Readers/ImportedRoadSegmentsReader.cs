@@ -29,7 +29,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        private class RoadSegmentEnumerator : IEnumerable<ImportedRoadSegment>, IEnumerator<ImportedRoadSegment>
+        private sealed class RoadSegmentEnumerator : IEnumerable<ImportedRoadSegment>, IEnumerator<ImportedRoadSegment>
         {
             private readonly SqlConnection _connection;
             private readonly IClock _clock;
@@ -109,7 +109,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
 
                         var multiLineString = Array.ConvertAll(
                             geometry.Geometries.Cast<NetTopologySuite.Geometries.LineString>().ToArray(),
-                            input => new BackOffice.Messages.LineString
+                            input => new LineString
                             {
                                 Points = Array.ConvertAll(
                                     input.Coordinates,
@@ -396,7 +396,11 @@ namespace RoadRegistry.Legacy.Extract.Readers
 
         public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {
-            if (connection == null) throw new ArgumentNullException(nameof(connection));
+            if (connection == null)
+            {
+                throw new ArgumentNullException(nameof(connection));
+            }
+
             var watch = Stopwatch.StartNew();
             foreach (var batch in new RoadSegmentEnumerator(connection, _clock, _reader, _logger).Batch(1000))
             {
@@ -472,7 +476,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 var segment = reader.GetInt32(0);
                 _logger.LogDebug("Enriching road segment {0} with surface attributes", segment);
                 if (!lookup.TryGetValue(segment, out var @event))
+                {
                     return;
+                }
 
                 var attributes = new ImportedRoadSegmentSurfaceAttribute
                 {
@@ -520,7 +526,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 var segment = reader.GetInt32(0);
                 _logger.LogDebug("Enriching road segment {0} with width attributes", segment);
                 if (!lookup.TryGetValue(segment, out var @event))
+                {
                     return;
+                }
 
                 var attributes = new ImportedRoadSegmentWidthAttribute
                 {
@@ -570,7 +578,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 var segment = reader.GetInt32(0);
                 _logger.LogDebug("Enriching road segment {0} with lane attributes", segment);
                 if (!lookup.TryGetValue(segment, out var @event))
+                {
                     return;
+                }
 
                 var attributes = new ImportedRoadSegmentLaneAttribute
                 {
@@ -619,7 +629,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 var segment = reader.GetInt32(0);
                 _logger.LogDebug("Enriching road segment {0} with numbered road attributes", segment);
                 if (!lookup.TryGetValue(segment, out var @event))
+                {
                     return;
+                }
 
                 var attributes = new ImportedRoadSegmentNumberedRoadAttribute
                 {
@@ -663,7 +675,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 var segment = reader.GetInt32(0);
                 _logger.LogDebug("Enriching road segment {0} with national road attributes", segment);
                 if (!lookup.TryGetValue(segment, out var @event))
+                {
                     return;
+                }
 
                 var attributes = new ImportedRoadSegmentNationalRoadAttribute
                 {
@@ -705,7 +719,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 var segment = reader.GetInt32(0);
                 _logger.LogDebug("Enriching road segment {0} with european road attributes", segment);
                 if (!lookup.TryGetValue(segment, out var @event))
+                {
                     return;
+                }
 
                 var attributes = new ImportedRoadSegmentEuropeanRoadAttribute
                 {

@@ -23,19 +23,25 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public static IFileErrorBuilder Error(this ZipArchiveEntry entry, string reason)
         {
-            if (reason == null) throw new ArgumentNullException(nameof(reason));
+            if (reason == null)
+            {
+                throw new ArgumentNullException(nameof(reason));
+            }
 
             return new FileProblemBuilder(entry.Name).Error(reason);
         }
 
         public static IFileWarningBuilder Warning(this ZipArchiveEntry entry, string reason)
         {
-            if (reason == null) throw new ArgumentNullException(nameof(reason));
+            if (reason == null)
+            {
+                throw new ArgumentNullException(nameof(reason));
+            }
 
             return new FileProblemBuilder(entry.Name).Warning(reason);
         }
 
-        private class FileProblemBuilder : IFileProblemBuilder, IDbaseFileRecordProblemBuilder, IShapeFileRecordProblemBuilder
+        private sealed class FileProblemBuilder : IFileProblemBuilder, IDbaseFileRecordProblemBuilder, IShapeFileRecordProblemBuilder
         {
             private readonly string _file;
             private readonly ImmutableList<ProblemParameter> _parameters;
@@ -64,14 +70,20 @@ namespace RoadRegistry.BackOffice.Uploads
 
             public IFileErrorBuilder Error(string reason)
             {
-                if (reason == null) throw new ArgumentNullException(nameof(reason));
+                if (reason == null)
+                {
+                    throw new ArgumentNullException(nameof(reason));
+                }
 
                 return new FileErrorBuilder(_file, reason, _parameters);
             }
 
             public IFileWarningBuilder Warning(string reason)
             {
-                if (reason == null) throw new ArgumentNullException(nameof(reason));
+                if (reason == null)
+                {
+                    throw new ArgumentNullException(nameof(reason));
+                }
 
                 return new FileWarningBuilder(_file, reason, _parameters);
             }
@@ -94,14 +106,20 @@ namespace RoadRegistry.BackOffice.Uploads
 
                 public IFileErrorBuilder WithParameter(ProblemParameter parameter)
                 {
-                    if (parameter == null) throw new ArgumentNullException(nameof(parameter));
+                    if (parameter == null)
+                    {
+                        throw new ArgumentNullException(nameof(parameter));
+                    }
 
                     return new FileErrorBuilder(_file, _reason, _parameters.Add(parameter));
                 }
 
                 public IFileErrorBuilder WithParameters(params ProblemParameter[] parameters)
                 {
-                    if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+                    if (parameters == null)
+                    {
+                        throw new ArgumentNullException(nameof(parameters));
+                    }
 
                     return new FileErrorBuilder(_file, _reason, _parameters.AddRange(parameters));
                 }
@@ -112,7 +130,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
             }
 
-            private class FileWarningBuilder : IFileWarningBuilder
+            private sealed class FileWarningBuilder : IFileWarningBuilder
             {
                 private readonly string _file;
                 private readonly string _reason;
@@ -130,14 +148,20 @@ namespace RoadRegistry.BackOffice.Uploads
 
                 public IFileWarningBuilder WithParameter(ProblemParameter parameter)
                 {
-                    if (parameter == null) throw new ArgumentNullException(nameof(parameter));
+                    if (parameter == null)
+                    {
+                        throw new ArgumentNullException(nameof(parameter));
+                    }
 
                     return new FileWarningBuilder(_file, _reason, _parameters.Add(parameter));
                 }
 
                 public IFileWarningBuilder WithParameters(params ProblemParameter[] parameters)
                 {
-                    if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+                    if (parameters == null)
+                    {
+                        throw new ArgumentNullException(nameof(parameters));
+                    }
 
                     return new FileWarningBuilder(_file, _reason, _parameters.AddRange(parameters));
                 }

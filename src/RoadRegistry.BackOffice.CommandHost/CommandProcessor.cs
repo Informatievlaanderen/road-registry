@@ -207,9 +207,9 @@ namespace RoadRegistry.BackOffice.CommandHost
                        dropped.Exception is IOException { InnerException: SqlException { Number: timeout } });
         }
 
-        private class Subscribe { }
+        private sealed class Subscribe { }
 
-        private class SubscriptionDropped
+        private sealed class SubscriptionDropped
         {
             public SubscriptionDropped(SubscriptionDroppedReason reason, Exception exception)
             {
@@ -221,7 +221,7 @@ namespace RoadRegistry.BackOffice.CommandHost
             public Exception Exception { get; }
         }
 
-        private class ProcessStreamMessage
+        private sealed class ProcessStreamMessage
         {
             private readonly TaskCompletionSource<object> _source;
 
