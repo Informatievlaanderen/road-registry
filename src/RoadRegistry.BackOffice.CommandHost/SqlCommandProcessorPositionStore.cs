@@ -19,33 +19,45 @@ namespace RoadRegistry.BackOffice.CommandHost
 
         public async Task<int?> ReadVersion(string name, CancellationToken cancellationToken)
         {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (name.Length > 1024) throw new ArgumentException("The name can not be longer than 1024 characters.", nameof(name));
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (name.Length > 1024)
+            {
+                throw new ArgumentException("The name can not be longer than 1024 characters.", nameof(name));
+            }
+
             var nameParameter = CreateSqlParameter(
                 "@Name",
                 SqlDbType.NVarChar,
                 1024,
                 name);
 
-            using (var connection = new SqlConnection(_builder.ConnectionString))
+            await using var connection = new SqlConnection(_builder.ConnectionString);
+            await connection.OpenAsync(cancellationToken);
+            await using var command = new SqlCommand(_text.ReadVersion(), connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                using (var command = new SqlCommand(_text.ReadVersion(), connection)
-                {
-                    CommandType = CommandType.Text,
-                    Parameters = {nameParameter}
-                })
-                {
-                    var result = await command.ExecuteScalarAsync(cancellationToken);
-                    return result == null || result == DBNull.Value ? default(int?) : (int) result;
-                }
-            }
+                CommandType = CommandType.Text,
+                Parameters = {nameParameter}
+            };
+            var result = await command.ExecuteScalarAsync(cancellationToken);
+            return result == null || result == DBNull.Value ? default(int?) : (int) result;
         }
 
         public async Task WriteVersion(string name, int version, CancellationToken cancellationToken)
         {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (name.Length > 1024) throw new ArgumentException("The name can not be longer than 1024 characters.", nameof(name));
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (name.Length > 1024)
+            {
+                throw new ArgumentException("The name can not be longer than 1024 characters.", nameof(name));
+            }
+
             var nameParameter = CreateSqlParameter(
                 "@Name",
                 SqlDbType.NVarChar,
@@ -56,23 +68,19 @@ namespace RoadRegistry.BackOffice.CommandHost
                 SqlDbType.Int,
                 4,
                 version);
-            using (var connection = new SqlConnection(_builder.ConnectionString))
+            await using var connection = new SqlConnection(_builder.ConnectionString);
+            await connection.OpenAsync(cancellationToken);
+            await using var transaction = connection.BeginTransaction(IsolationLevel.Snapshot);
+            await using (var command = new SqlCommand(_text.WriteVersion(), connection, transaction)
             {
-                await connection.OpenAsync(cancellationToken);
-                using (var transaction = connection.BeginTransaction(IsolationLevel.Snapshot))
-                {
-                    using (var command = new SqlCommand(_text.WriteVersion(), connection, transaction)
-                    {
-                        CommandType = CommandType.Text,
-                        Parameters = {nameParameter, versionParameter}
-                    })
-                    {
-                        await command.ExecuteNonQueryAsync(cancellationToken);
-                    }
-
-                    transaction.Commit();
-                }
+                CommandType = CommandType.Text,
+                Parameters = {nameParameter, versionParameter}
+            })
+            {
+                await command.ExecuteNonQueryAsync(cancellationToken);
             }
+
+            transaction.Commit();
         }
 
         private static SqlParameter CreateSqlParameter(string name, SqlDbType sqlDbType, int size, object value)
@@ -90,7 +98,7 @@ namespace RoadRegistry.BackOffice.CommandHost
                 value);
         }
 
-        private class SqlCommandText
+        private sealed class SqlCommandText
         {
             private readonly string _schema;
 

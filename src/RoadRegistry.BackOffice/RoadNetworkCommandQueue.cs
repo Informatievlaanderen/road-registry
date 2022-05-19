@@ -50,13 +50,13 @@ namespace RoadRegistry.BackOffice
             }, cancellationToken);
         }
 
-        private class Claim
+        private sealed class Claim
         {
             public string Type { get; set; }
             public string Value { get; set; }
         }
 
-        private class CommandMetadata
+        private sealed class CommandMetadata
         {
             public Claim[] Principal { get; set; }
         }

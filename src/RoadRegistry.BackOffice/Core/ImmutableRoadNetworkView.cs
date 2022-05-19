@@ -1457,7 +1457,7 @@ namespace RoadRegistry.BackOffice.Core
                 this);
         }
 
-        private class Builder : IRoadNetworkView
+        private sealed class Builder : IRoadNetworkView
         {
             private readonly ImmutableDictionary<RoadNodeId, RoadNode>.Builder _nodes;
             private readonly ImmutableDictionary<RoadSegmentId, RoadSegment>.Builder _segments;

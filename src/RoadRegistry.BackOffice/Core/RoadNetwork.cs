@@ -122,7 +122,7 @@ namespace RoadRegistry.BackOffice.Core
             return new NextTransactionIdProvider(_view.MaximumTransactionId).Next;
         }
 
-        private class NextTransactionIdProvider
+        private sealed class NextTransactionIdProvider
         {
             private TransactionId _current;
 
@@ -144,7 +144,7 @@ namespace RoadRegistry.BackOffice.Core
             return new NextRoadNodeIdProvider(_view.MaximumNodeId).Next;
         }
 
-        private class NextRoadNodeIdProvider
+        private sealed class NextRoadNodeIdProvider
         {
             private RoadNodeId _current;
 
@@ -166,7 +166,7 @@ namespace RoadRegistry.BackOffice.Core
             return new NextRoadSegmentIdProvider(_view.MaximumSegmentId).Next;
         }
 
-        private class NextRoadSegmentIdProvider
+        private sealed class NextRoadSegmentIdProvider
         {
             private RoadSegmentId _current;
 
@@ -188,7 +188,7 @@ namespace RoadRegistry.BackOffice.Core
             return new NextGradeSeparatedJunctionIdProvider(_view.MaximumGradeSeparatedJunctionId).Next;
         }
 
-        private class NextGradeSeparatedJunctionIdProvider
+        private sealed class NextGradeSeparatedJunctionIdProvider
         {
             private GradeSeparatedJunctionId _current;
 
@@ -220,7 +220,7 @@ namespace RoadRegistry.BackOffice.Core
             return new NextAttributeIdProvider(_view.MaximumNumberedRoadAttributeId).Next;
         }
 
-        private class NextAttributeIdProvider
+        private sealed class NextAttributeIdProvider
         {
             private AttributeId _current;
 
@@ -281,7 +281,7 @@ namespace RoadRegistry.BackOffice.Core
             };
         }
 
-        private class NextReusableAttributeIdProvider
+        private sealed class NextReusableAttributeIdProvider
         {
             private int _index;
             private readonly NextAttributeIdProvider _provider;
