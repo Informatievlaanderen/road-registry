@@ -56,18 +56,15 @@ namespace RoadRegistry.BackOffice.Uploads
 
                                     if (identifiers.TryGetValue(identifier, out var takenBy))
                                     {
-                                        var acceptedRecordTypesCombinations = new List<RecordType[]>
+                                        if (takenBy.RecordType == recordType)
                                         {
-                                            new [] {RecordType.Removed, RecordType.Added}
-                                        };
-
-                                        var actualRecordTypeCombination = new[]
-                                        {
-                                            takenBy.RecordType,
-                                            recordType
-                                        };
-
-                                        if (acceptedRecordTypesCombinations.Any(combination => combination.SequenceEqual(actualRecordTypeCombination)))
+                                            // error
+                                            problems += recordContext.IdentifierNotUnique(
+                                                identifier,
+                                                takenBy.RecordNumber
+                                            );
+                                        }
+                                        else
                                         {
                                             // warning
                                             problems += recordContext.IdentifierNotUniqueButAllowed(
@@ -75,14 +72,6 @@ namespace RoadRegistry.BackOffice.Uploads
                                                 recordType,
                                                 takenBy.RecordNumber,
                                                 takenBy.RecordType
-                                            );
-                                        }
-                                        else
-                                        {
-                                            // error
-                                            problems += recordContext.IdentifierNotUnique(
-                                                identifier,
-                                                takenBy.RecordNumber
                                             );
                                         }
                                     }

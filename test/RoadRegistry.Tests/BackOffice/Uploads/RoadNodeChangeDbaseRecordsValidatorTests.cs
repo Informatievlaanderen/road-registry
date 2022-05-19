@@ -133,45 +133,22 @@ namespace RoadRegistry.BackOffice.Uploads
         }
 
         [Fact]
-        public void ValidateWithRecordsThatHaveTheSameRoadNodeIdentifierReturnsExpectedResult()
+        public void ValidateWithRecordsThatHaveTheSameRoadNodeIdentifierButDifferentRecordTypeReturnsExpectedResult()
         {
-            var expectedContext = ZipArchiveValidationContext.Empty;
-            var records = _fixture
-                .CreateMany<RoadNodeChangeDbaseRecord>(2)
-                .Select(record =>
-                {
-                    record.WEGKNOOPID.Value = 1;
-                    expectedContext = BuildValidationContext(record, expectedContext);
-                    return record;
-                })
-                .ToDbaseRecordEnumerator();
+            var record1 = _fixture.Create<RoadNodeChangeDbaseRecord>();
+            var record2 = _fixture.Create<RoadNodeChangeDbaseRecord>();
 
-            var (result, context) = _sut.Validate(_entry, records, _context);
+            record1.WEGKNOOPID.Value = 1;
+            record2.WEGKNOOPID.Value = 1;
 
-            Assert.Equal(
-                ZipArchiveProblems.Single(
-                    _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierNotUnique(
-                        new RoadNodeId(1),
-                        new RecordNumber(1))
-                ),
-                result);
-            Assert.Equal(expectedContext, context);
-        }
+            record1.RECORDTYPE.Value = (short) RecordType.AddedIdentifier;
+            record2.RECORDTYPE.Value = (short) RecordType.RemovedIdentifier;
 
-        [Theory]
-        [MemberData(nameof(AllowedRecordTypeCombinationsTestHelper))]
-        public void ValidateWithRecordsThatHaveTheSameRoadNodeIdentifierButAllowedRecordTypeCombinationReturnsExpectedResult(
-            RecordType[] allowedCombinationRecordTypeIdentifiers)
-        {
-            var records = _fixture
-                .CreateMany<RoadNodeChangeDbaseRecord>(2)
-                .Select((record, i) =>
-                {
-                    record.WEGKNOOPID.Value = 1;
-                    record.RECORDTYPE.Value = (short) allowedCombinationRecordTypeIdentifiers[i].Translation.Identifier;
-                    return record;
-                })
-                .ToDbaseRecordEnumerator();
+            var records = new[]
+            {
+                record1,
+                record2
+            }.ToDbaseRecordEnumerator();
 
             var (result, _) = _sut.Validate(_entry, records, _context);
 
@@ -179,34 +156,22 @@ namespace RoadRegistry.BackOffice.Uploads
                 ZipArchiveProblems.Single(
                     _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierNotUniqueButAllowed(
                         new RoadNodeId(1),
-                        allowedCombinationRecordTypeIdentifiers[1],
+                        RecordType.Removed,
                         new RecordNumber(1),
-                        allowedCombinationRecordTypeIdentifiers[0])
+                        RecordType.Added)
                 ),
                 result);
         }
 
-        public static IEnumerable<object[]> AllowedRecordTypeCombinationsTestHelper => AllowedRecordTypeCombinations.Select(combination => new object[] {combination});
-
-        private static IEnumerable<RecordType[]> AllowedRecordTypeCombinations
-        {
-            get
-            {
-                yield return new [] { RecordType.Removed, RecordType.Added };
-            }
-        }
-
-        [Theory]
-        [MemberData(nameof(NotAllowedRecordTypeCombinations))]
-        public void ValidateWithRecordsThatHaveTheSameRoadNodeIdentifierButNotAllowedRecordTypeCombinationReturnsExpectedResult(
-            RecordType[] allowedCombinationRecordTypeIdentifiers)
+        [Fact]
+        public void ValidateWithRecordsThatHaveTheSameRoadNodeIdentifierButSameRecordTypeReturnsExpectedResult()
         {
             var records = _fixture
                 .CreateMany<RoadNodeChangeDbaseRecord>(2)
                 .Select((record, i) =>
                 {
                     record.WEGKNOOPID.Value = 1;
-                    record.RECORDTYPE.Value = (short) allowedCombinationRecordTypeIdentifiers[i].Translation.Identifier;
+                    record.RECORDTYPE.Value = (short) RecordType.AddedIdentifier;
                     return record;
                 })
                 .ToDbaseRecordEnumerator();
@@ -220,29 +185,6 @@ namespace RoadRegistry.BackOffice.Uploads
                         new RecordNumber(1))
                 ),
                 result);
-        }
-
-        public static IEnumerable<object[]> NotAllowedRecordTypeCombinations => RecordTypePermutations
-            .Where(permutation => !AllowedRecordTypeCombinations.Any(allowedPermutation => allowedPermutation.SequenceEqual(permutation)))
-            .Select(combination => new object[] {combination});
-
-        private static IEnumerable<RecordType[]> RecordTypePermutations
-        {
-            get
-            {
-                var allPermutations = GetPermutations(new[]
-                {
-                    RecordType.Added,
-                    RecordType.Identical,
-                    RecordType.Modified,
-                    RecordType.Removed
-                }, 2);
-
-                foreach (var permutation in allPermutations)
-                {
-                    yield return permutation.ToArray();
-                }
-            }
         }
 
         [Fact]
@@ -374,18 +316,6 @@ namespace RoadRegistry.BackOffice.Uploads
             }
 
             return context;
-        }
-
-        private static IEnumerable<IEnumerable<T>> GetPermutations<T>(IEnumerable<T> list, int length)
-        {
-            if (length == 1)
-            {
-                return list.Select(t => new[] { t });
-            }
-
-            return GetPermutations(list, length - 1)
-                .SelectMany(t => list,
-                    (t1, t2) => t1.Concat(new T[] { t2 }));
         }
     }
 }
