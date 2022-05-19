@@ -1,3 +1,10 @@
+## [3.1.5](https://github.com/informatievlaanderen/road-registry/compare/v3.1.4...v3.1.5) (2022-05-19)
+
+
+### Bug Fixes
+
+* fix validation errors for identical identifiers but different actions ([2eab15a](https://github.com/informatievlaanderen/road-registry/commit/2eab15afb5f26fc492f323c88b0f5c6f825c912f))
+
 ## [3.1.4](https://github.com/informatievlaanderen/road-registry/compare/v3.1.3...v3.1.4) (2022-05-16)
 
 
