@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
+namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
 {
     using System;
     using System.IO;
@@ -6,6 +6,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Dbase;
     using Product.Schema;
     using Product.Schema.RoadNodes;
     using RoadRegistry.Framework.Containers;
@@ -53,7 +54,7 @@
             await context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo
             {
                 CompletedImport = true,
-                TotalRoadNodeShapeLength = 0,
+                TotalRoadNodeShapeLength = 0
             });
             await context.SaveChangesAsync();
 

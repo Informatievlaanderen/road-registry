@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Information
 {
     using System;
-    using Editor.Schema;
+    using Dbase;
 
     public class RoadNetworkInformationResponse
     {
@@ -19,7 +19,11 @@ namespace RoadRegistry.BackOffice.Api.Information
 
         public static RoadNetworkInformationResponse From(RoadNetworkInfo info)
         {
-            if (info == null) throw new ArgumentNullException(nameof(info));
+            if (info == null)
+            {
+                throw new ArgumentNullException(nameof(info));
+            }
+
             return new RoadNetworkInformationResponse
             {
                 CompletedImport = info.CompletedImport,

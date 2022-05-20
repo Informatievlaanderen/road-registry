@@ -8,6 +8,7 @@ namespace RoadRegistry.Product.Projections
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+    using Dbase;
     using Schema;
     using Framework.Projections;
     using NetTopologySuite.Geometries;

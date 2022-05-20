@@ -1,9 +1,10 @@
 namespace RoadRegistry.Editor.Schema
 {
-using System.Linq;
-using System.Threading;
+    using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+    using Dbase;
     using Extracts;
     using GradeSeparatedJunctions;
     using Microsoft.EntityFrameworkCore;
@@ -42,10 +43,10 @@ using System.Threading;
         {
             return _localRoadNetworkInfo ??=
                 RoadNetworkInfo.Local.SingleOrDefault() ??
-                await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == Schema.RoadNetworkInfo.Identifier, token);
+                await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == Dbase.RoadNetworkInfo.Identifier, token);
         }
 
-        public EditorContext() {}
+        public EditorContext() { }
 
         // This needs to be DbContextOptions<T> for Autofac!
         public EditorContext(DbContextOptions<EditorContext> options)

@@ -98,12 +98,12 @@ namespace RoadRegistry.BackOffice.ExtractHost
                             {
                                 if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null)
                                 {
-                                    throw new Exception("The MINIO_ACCESS_KEY configuration variable was not set.");
+                                    throw new InvalidOperationException("The MINIO_ACCESS_KEY configuration variable was not set.");
                                 }
 
                                 if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null)
                                 {
-                                    throw new Exception("The MINIO_SECRET_KEY configuration variable was not set.");
+                                    throw new InvalidOperationException("The MINIO_SECRET_KEY configuration variable was not set.");
                                 }
 
                                 builder.AddSingleton(new AmazonS3Client(
@@ -124,12 +124,12 @@ namespace RoadRegistry.BackOffice.ExtractHost
                             {
                                 if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null)
                                 {
-                                    throw new Exception("The AWS_ACCESS_KEY_ID configuration variable was not set.");
+                                    throw new InvalidOperationException("The AWS_ACCESS_KEY_ID configuration variable was not set.");
                                 }
 
                                 if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null)
                                 {
-                                    throw new Exception("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
+                                    throw new InvalidOperationException("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
                                 }
 
                                 builder.AddSingleton(new AmazonS3Client(
@@ -168,7 +168,7 @@ namespace RoadRegistry.BackOffice.ExtractHost
                             break;
 
                         default:
-                            throw new Exception(blobOptions.BlobClientType + " is not a supported blob client type.");
+                            throw new InvalidOperationException(blobOptions.BlobClientType + " is not a supported blob client type.");
                     }
 
                     var zipArchiveWriterOptions = new ZipArchiveWriterOptions();
@@ -214,7 +214,7 @@ namespace RoadRegistry.BackOffice.ExtractHost
                                                 .EnableRetryOnFailure()
                                         ).Options)
                         )
-                        .AddSingleton<ZipArchiveWriterOptions>(zipArchiveWriterOptions)
+                        .AddSingleton(zipArchiveWriterOptions)
                         .AddSingleton<IZipArchiveWriter<EditorContext>>(sp =>
                             new RoadNetworkExtractToZipArchiveWriter(
                                 sp.GetService<ZipArchiveWriterOptions>(),
