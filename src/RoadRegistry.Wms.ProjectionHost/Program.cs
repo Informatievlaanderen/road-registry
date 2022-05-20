@@ -92,7 +92,7 @@ namespace RoadRegistry.Wms.ProjectionHost
                             new EventDeserializer((eventData, eventType) =>
                                 JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
                         )
-                        .AddSingleton<Func<WmsContext>>(
+                        .AddSingleton(
                             () =>
                                 new WmsContext(
                                     new DbContextOptionsBuilder<WmsContext>()
@@ -103,7 +103,7 @@ namespace RoadRegistry.Wms.ProjectionHost
                                                 .UseNetTopologySuite()
                                         ).Options)
                         )
-                        .AddSingleton<Func<SyndicationContext>>(
+                        .AddSingleton(
                             () =>
                                 new SyndicationContext(
                                     new DbContextOptionsBuilder<SyndicationContext>()

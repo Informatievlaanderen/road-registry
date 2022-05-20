@@ -1,5 +1,6 @@
-﻿namespace RoadRegistry.Product.Schema
+namespace RoadRegistry.Product.Schema
 {
+    using Dbase;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

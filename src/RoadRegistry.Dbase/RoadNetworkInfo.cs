@@ -1,8 +1,9 @@
-﻿namespace RoadRegistry.Product.Schema
+namespace RoadRegistry.Dbase
 {
     public class RoadNetworkInfo
     {
         public const int Identifier = 0;
+
         public int Id { get; set; } = Identifier;
         public bool CompletedImport { get; set; }
         public int OrganizationCount { get; set; }
