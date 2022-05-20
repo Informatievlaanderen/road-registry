@@ -1,3 +1,10 @@
+## [3.1.6](https://github.com/informatievlaanderen/road-registry/compare/v3.1.5...v3.1.6) (2022-05-20)
+
+
+### Bug Fixes
+
+* seal private classes ([c0d0dd6](https://github.com/informatievlaanderen/road-registry/commit/c0d0dd619f1560728e974586d499da21e5954320))
+
 ## [3.1.5](https://github.com/informatievlaanderen/road-registry/compare/v3.1.4...v3.1.5) (2022-05-19)
 
 
