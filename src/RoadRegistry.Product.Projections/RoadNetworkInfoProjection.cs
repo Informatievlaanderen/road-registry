@@ -46,7 +46,7 @@ namespace RoadRegistry.Product.Projections
                     WidthsLength = envelope.Message.Widths.Length,
                     PartOfEuropeanRoadsLength = envelope.Message.PartOfEuropeanRoads.Length,
                     PartOfNationalRoadsLength = envelope.Message.PartOfNationalRoads.Length,
-                    PartOfNumberedRoadsLength = envelope.Message.PartOfNumberedRoads.Length,
+                    PartOfNumberedRoadsLength = envelope.Message.PartOfNumberedRoads.Length
                 };
 
                 info.TotalRoadSegmentShapeLength += roadNetworkInfoSegmentCache.ShapeLength;

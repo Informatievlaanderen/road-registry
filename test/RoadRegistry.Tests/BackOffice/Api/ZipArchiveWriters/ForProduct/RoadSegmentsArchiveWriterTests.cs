@@ -55,7 +55,7 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForProduct
             await context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo
             {
                 CompletedImport = true,
-                TotalRoadNodeShapeLength = 0,
+                TotalRoadNodeShapeLength = 0
             });
             await context.SaveChangesAsync();
 
