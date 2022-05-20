@@ -1,3 +1,10 @@
+## [3.1.7](https://github.com/informatievlaanderen/road-registry/compare/v3.1.6...v3.1.7) (2022-05-20)
+
+
+### Bug Fixes
+
+* collapse if statements ([847ca9a](https://github.com/informatievlaanderen/road-registry/commit/847ca9a8546c50cacb43d34fab060cf2c676098d))
+
 ## [3.1.6](https://github.com/informatievlaanderen/road-registry/compare/v3.1.5...v3.1.6) (2022-05-20)
 
 
