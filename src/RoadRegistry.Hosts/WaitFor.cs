@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.EventHost
+namespace RoadRegistry.Hosts
 {
     using System;
     using System.Collections.Generic;
@@ -23,7 +23,7 @@ namespace RoadRegistry.BackOffice.EventHost
         public Dictionary<string, string> Args { get; set; }
     }
 
-    internal static class WaitFor
+    public static class WaitFor
     {
         public static async Task SeqToBecomeAvailable(
             IConfiguration configuration,
@@ -46,16 +46,14 @@ namespace RoadRegistry.BackOffice.EventHost
 
                         try
                         {
-                            using (var response = await client.GetAsync("/api", token))
+                            using var response = await client.GetAsync("/api", token);
+                            if (!response.IsSuccessStatusCode)
                             {
-                                if (!response.IsSuccessStatusCode)
-                                {
-                                    await Task.Delay(TimeSpan.FromSeconds(1), token);
-                                }
-                                else
-                                {
-                                    exit = true;
-                                }
+                                await Task.Delay(TimeSpan.FromSeconds(1), token);
+                            }
+                            else
+                            {
+                                exit = true;
                             }
                         }
                         catch (Exception exception)
@@ -72,7 +70,7 @@ namespace RoadRegistry.BackOffice.EventHost
             }
         }
 
-        public static async Task SqlStreamStoreToBecomeAvailable(IStreamStore store, ILogger<Program> logger, CancellationToken cancellationToken = default)
+        public static async Task SqlStreamStoreToBecomeAvailable(IStreamStore store, ILogger logger, CancellationToken cancellationToken = default)
         {
             if (store is MsSqlStreamStoreV3)
             {

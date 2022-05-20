@@ -20,6 +20,7 @@ namespace RoadRegistry.BackOffice.Api
     using Configuration;
     using Core;
     using Editor.Schema;
+    using Hosts;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
@@ -98,12 +99,12 @@ namespace RoadRegistry.BackOffice.Api
                             {
                                 if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null)
                                 {
-                                    throw new Exception("The MINIO_ACCESS_KEY configuration variable was not set.");
+                                    throw new InvalidOperationException("The MINIO_ACCESS_KEY configuration variable was not set.");
                                 }
 
                                 if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null)
                                 {
-                                    throw new Exception("The MINIO_SECRET_KEY configuration variable was not set.");
+                                    throw new InvalidOperationException("The MINIO_SECRET_KEY configuration variable was not set.");
                                 }
 
                                 builder.AddSingleton(new AmazonS3Client(
@@ -124,12 +125,12 @@ namespace RoadRegistry.BackOffice.Api
                             {
                                 if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null)
                                 {
-                                    throw new Exception("The AWS_ACCESS_KEY_ID configuration variable was not set.");
+                                    throw new InvalidOperationException("The AWS_ACCESS_KEY_ID configuration variable was not set.");
                                 }
 
                                 if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null)
                                 {
-                                    throw new Exception("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
+                                    throw new InvalidOperationException("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
                                 }
 
                                 builder.AddSingleton(new AmazonS3Client(
@@ -175,7 +176,7 @@ namespace RoadRegistry.BackOffice.Api
                             break;
 
                         default:
-                            throw new Exception(blobOptions.BlobClientType + " is not a supported blob client type.");
+                            throw new InvalidOperationException(blobOptions.BlobClientType + " is not a supported blob client type.");
                     }
 
                     var zipArchiveWriterOptions = new ZipArchiveWriterOptions();
@@ -188,9 +189,9 @@ namespace RoadRegistry.BackOffice.Api
                     builder
                         .AddSingleton<Extracts.DownloadExtractRequestBodyValidator>()
                         .AddSingleton<ProblemDetailsHelper>()
-                        .AddSingleton<ZipArchiveWriterOptions>(zipArchiveWriterOptions)
-                        .AddSingleton<ExtractDownloadsOptions>(extractDownloadsOptions)
-                        .AddSingleton<ExtractUploadsOptions>(extractUploadsOptions)
+                        .AddSingleton(zipArchiveWriterOptions)
+                        .AddSingleton(extractDownloadsOptions)
+                        .AddSingleton(extractUploadsOptions)
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(
                                 new MsSqlStreamStoreV3Settings(

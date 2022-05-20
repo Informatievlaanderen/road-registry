@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Editor.Projections
+namespace RoadRegistry.Editor.Projections
 {
     using System.Threading.Tasks;
     using BackOffice.Messages;
@@ -6,6 +6,7 @@
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+    using Dbase;
     using Schema;
 
     public class RoadNetworkInfoProjection : ConnectedProjection<EditorContext>
@@ -45,7 +46,7 @@
                     WidthsLength = envelope.Message.Widths.Length,
                     PartOfEuropeanRoadsLength = envelope.Message.PartOfEuropeanRoads.Length,
                     PartOfNationalRoadsLength = envelope.Message.PartOfNationalRoads.Length,
-                    PartOfNumberedRoadsLength = envelope.Message.PartOfNumberedRoads.Length,
+                    PartOfNumberedRoadsLength = envelope.Message.PartOfNumberedRoads.Length
                 };
 
                 info.TotalRoadSegmentShapeLength += roadNetworkInfoSegmentCache.ShapeLength;

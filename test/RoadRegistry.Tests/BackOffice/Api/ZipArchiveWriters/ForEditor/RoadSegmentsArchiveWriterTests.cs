@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
+namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters.ForEditor
 {
     using System;
     using System.IO;
@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Configuration;
+    using Dbase;
     using Editor.Schema;
     using Editor.Schema.RoadSegments;
     using RoadRegistry.Framework.Containers;

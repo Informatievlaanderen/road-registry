@@ -4,6 +4,7 @@ namespace RoadRegistry.Product.Schema
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+    using Dbase;
     using GradeSeparatedJunctions;
     using Microsoft.EntityFrameworkCore;
     using Organizations;
@@ -36,7 +37,7 @@ namespace RoadRegistry.Product.Schema
         {
             return _localRoadNetworkInfo ??=
                 RoadNetworkInfo.Local.SingleOrDefault() ??
-                await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == Schema.RoadNetworkInfo.Identifier, token);
+                await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == Dbase.RoadNetworkInfo.Identifier, token);
         }
 
         public ProductContext() {}

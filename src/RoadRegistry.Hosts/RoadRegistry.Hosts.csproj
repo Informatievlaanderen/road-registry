@@ -6,7 +6,6 @@
     <RootNamespace>RoadRegistry.Hosts</RootNamespace>
     <AssemblyName>RoadRegistry.Hosts</AssemblyName>
     <Nullable>disable</Nullable>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

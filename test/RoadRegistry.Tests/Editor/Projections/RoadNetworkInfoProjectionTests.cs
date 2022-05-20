@@ -7,23 +7,19 @@ namespace RoadRegistry.Editor.Projections
     using BackOffice;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+    using Dbase;
     using Framework.Projections;
     using NetTopologySuite.Geometries;
     using RoadRegistry.Projections;
-    using Schema;
     using Xunit;
     using GeometryTranslator = BackOffice.GeometryTranslator;
 
     public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServices>
     {
-        private readonly ProjectionTestServices _services;
         private readonly Fixture _fixture;
 
         public RoadNetworkInfoProjectionTests(ProjectionTestServices services)
         {
-            _services = services ?? throw new ArgumentNullException(nameof(services));
-
             _fixture = new Fixture();
 
             _fixture.CustomizeRoadNodeType();
@@ -176,7 +172,7 @@ namespace RoadRegistry.Editor.Projections
         [Fact]
         public Task When_organizations_were_imported()
         {
-            var imported_organizations = Enumerable
+            var importedOrganizations = Enumerable
                 .Range(0, new Random().Next(10))
                 .Select(index => new ImportedOrganization
                 {
@@ -190,12 +186,12 @@ namespace RoadRegistry.Editor.Projections
                 .Given(
                     new BeganRoadNetworkImport()
                 )
-                .Given(imported_organizations)
+                .Given(importedOrganizations)
                 .Expect(
                     new RoadNetworkInfo {
                         Id = 0,
                         CompletedImport = false,
-                        OrganizationCount = imported_organizations.Length,
+                        OrganizationCount = importedOrganizations.Length,
                         RoadNodeCount = 0,
                         TotalRoadNodeShapeLength = 0,
                         RoadSegmentCount = 0,
@@ -250,7 +246,7 @@ namespace RoadRegistry.Editor.Projections
         [Fact]
         public Task When_grade_separated_junctions_were_imported()
         {
-            var imported_junctions = Enumerable
+            var importedJunctions = Enumerable
                 .Range(0, new Random().Next(10))
                 .Select(index => new ImportedGradeSeparatedJunction
                 {
@@ -267,7 +263,7 @@ namespace RoadRegistry.Editor.Projections
                 .Given(
                     new BeganRoadNetworkImport()
                 )
-                .Given(imported_junctions)
+                .Given(importedJunctions)
                 .Expect(
                     new RoadNetworkInfo {
                         Id = 0,
@@ -283,7 +279,7 @@ namespace RoadRegistry.Editor.Projections
                         RoadSegmentNationalRoadAttributeCount = 0,
                         RoadSegmentNumberedRoadAttributeCount = 0,
                         TotalRoadSegmentShapeLength = 0,
-                        GradeSeparatedJunctionCount = imported_junctions.Length
+                        GradeSeparatedJunctionCount = importedJunctions.Length
                     }
                 );
         }
@@ -329,7 +325,7 @@ namespace RoadRegistry.Editor.Projections
         [Fact]
         public Task When_road_nodes_were_imported()
         {
-            var imported_nodes = Enumerable
+            var importedNodes = Enumerable
                 .Range(0, new Random().Next(10))
                 .Select(index => new ImportedRoadNode
                 {
@@ -339,7 +335,7 @@ namespace RoadRegistry.Editor.Projections
                     Origin = _fixture.Create<ImportedOriginProperties>()
                 })
                 .ToArray();
-            var givens = Array.ConvertAll(imported_nodes, imported => (object) imported);
+            var givens = Array.ConvertAll(importedNodes, imported => (object) imported);
             return new RoadNetworkInfoProjection()
                 .Scenario()
                 .Given(
@@ -352,8 +348,8 @@ namespace RoadRegistry.Editor.Projections
                         Id = 0,
                         CompletedImport = false,
                         OrganizationCount = 0,
-                        RoadNodeCount = imported_nodes.Length,
-                        TotalRoadNodeShapeLength = imported_nodes.Aggregate(
+                        RoadNodeCount = importedNodes.Length,
+                        TotalRoadNodeShapeLength = importedNodes.Aggregate(
                             new WordLength(0),
                             (current, imported) =>
                                 current
@@ -379,9 +375,9 @@ namespace RoadRegistry.Editor.Projections
         public Task When_a_road_segment_was_imported()
         {
             var geometry = _fixture.Create<MultiLineString>();
-            var european_roads = _fixture.CreateMany<ImportedRoadSegmentEuropeanRoadAttribute>().ToArray();
-            var numbered_roads = _fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttribute>().ToArray();
-            var national_roads = _fixture.CreateMany<ImportedRoadSegmentNationalRoadAttribute>().ToArray();
+            var europeanRoads = _fixture.CreateMany<ImportedRoadSegmentEuropeanRoadAttribute>().ToArray();
+            var numberedRoads = _fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttribute>().ToArray();
+            var nationalRoads = _fixture.CreateMany<ImportedRoadSegmentNationalRoadAttribute>().ToArray();
             var lanes = _fixture.CreateMany<ImportedRoadSegmentLaneAttribute>().ToArray();
             var widths = _fixture.CreateMany<ImportedRoadSegmentWidthAttribute>().ToArray();
             var hardenings = _fixture.CreateMany<ImportedRoadSegmentSurfaceAttribute>().ToArray();
@@ -405,9 +401,9 @@ namespace RoadRegistry.Editor.Projections
                         AccessRestriction = _fixture.Create<RoadSegmentAccessRestriction>(),
                         LeftSide = _fixture.Create<ImportedRoadSegmentSideAttribute>(),
                         RightSide = _fixture.Create<ImportedRoadSegmentSideAttribute>(),
-                        PartOfEuropeanRoads = european_roads,
-                        PartOfNationalRoads = national_roads,
-                        PartOfNumberedRoads = numbered_roads,
+                        PartOfEuropeanRoads = europeanRoads,
+                        PartOfNationalRoads = nationalRoads,
+                        PartOfNumberedRoads = numberedRoads,
                         Lanes = lanes,
                         Widths = widths,
                         Surfaces = hardenings,
@@ -427,9 +423,9 @@ namespace RoadRegistry.Editor.Projections
                         RoadSegmentSurfaceAttributeCount = hardenings.Length,
                         RoadSegmentLaneAttributeCount = lanes.Length,
                         RoadSegmentWidthAttributeCount = widths.Length,
-                        RoadSegmentEuropeanRoadAttributeCount = european_roads.Length,
-                        RoadSegmentNationalRoadAttributeCount = national_roads.Length,
-                        RoadSegmentNumberedRoadAttributeCount = numbered_roads.Length,
+                        RoadSegmentEuropeanRoadAttributeCount = europeanRoads.Length,
+                        RoadSegmentNationalRoadAttributeCount = nationalRoads.Length,
+                        RoadSegmentNumberedRoadAttributeCount = numberedRoads.Length,
                         TotalRoadSegmentShapeLength = ShapeRecord.HeaderLength.Plus(content.ContentLength).ToInt32(),
                         GradeSeparatedJunctionCount = 0
                     }
@@ -439,7 +435,7 @@ namespace RoadRegistry.Editor.Projections
         [Fact]
         public Task When_road_segments_were_imported()
         {
-            var imported_segments = Enumerable
+            var importedSegments = Enumerable
                 .Range(0, new Random().Next(10))
                 .Select(index => new ImportedRoadSegment
                 {
@@ -467,7 +463,7 @@ namespace RoadRegistry.Editor.Projections
                     Origin = _fixture.Create<ImportedOriginProperties>()
                 })
                 .ToArray();
-            var givens = Array.ConvertAll(imported_segments, imported => (object) imported);
+            var givens = Array.ConvertAll(importedSegments, imported => (object) imported);
             return new RoadNetworkInfoProjection()
                 .Scenario()
                 .Given(
@@ -482,20 +478,20 @@ namespace RoadRegistry.Editor.Projections
                         OrganizationCount = 0,
                         RoadNodeCount = 0,
                         TotalRoadNodeShapeLength = 0,
-                        RoadSegmentCount = imported_segments.Length,
-                        RoadSegmentSurfaceAttributeCount = imported_segments.Aggregate(0,
+                        RoadSegmentCount = importedSegments.Length,
+                        RoadSegmentSurfaceAttributeCount = importedSegments.Aggregate(0,
                             (current, imported) => current + imported.Surfaces.Length),
-                        RoadSegmentLaneAttributeCount = imported_segments.Aggregate(0,
+                        RoadSegmentLaneAttributeCount = importedSegments.Aggregate(0,
                             (current, imported) => current + imported.Lanes.Length),
-                        RoadSegmentWidthAttributeCount = imported_segments.Aggregate(0,
+                        RoadSegmentWidthAttributeCount = importedSegments.Aggregate(0,
                             (current, imported) => current + imported.Widths.Length),
-                        RoadSegmentEuropeanRoadAttributeCount = imported_segments.Aggregate(0,
+                        RoadSegmentEuropeanRoadAttributeCount = importedSegments.Aggregate(0,
                             (current, imported) => current + imported.PartOfEuropeanRoads.Length),
-                        RoadSegmentNationalRoadAttributeCount = imported_segments.Aggregate(0,
+                        RoadSegmentNationalRoadAttributeCount = importedSegments.Aggregate(0,
                             (current, imported) => current + imported.PartOfNationalRoads.Length),
-                        RoadSegmentNumberedRoadAttributeCount = imported_segments.Aggregate(0,
+                        RoadSegmentNumberedRoadAttributeCount = importedSegments.Aggregate(0,
                             (current, imported) => current + imported.PartOfNumberedRoads.Length),
-                        TotalRoadSegmentShapeLength = imported_segments.Aggregate(new WordLength(0),
+                        TotalRoadSegmentShapeLength = importedSegments.Aggregate(new WordLength(0),
                                 (current, imported) => current
                                     .Plus(
                                         new PolyLineMShapeContent(

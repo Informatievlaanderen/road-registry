@@ -1,9 +1,10 @@
-﻿namespace RoadRegistry.BackOffice.Api
+namespace RoadRegistry.BackOffice.Api
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Configuration;
+    using Dbase;
     using Downloads;
     using Framework;
     using Microsoft.AspNetCore.Http;
@@ -47,7 +48,7 @@
             var database = await _fixture.CreateDatabaseAsync();
             using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
             {
-                context.RoadNetworkInfo.Add(new Editor.Schema.RoadNetworkInfo
+                context.RoadNetworkInfo.Add(new RoadNetworkInfo
                 {
                     Id = 0,
                     CompletedImport = false
@@ -74,7 +75,7 @@
             var database = await _fixture.CreateDatabaseAsync();
             using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
             {
-                context.RoadNetworkInfo.Add(new Editor.Schema.RoadNetworkInfo
+                context.RoadNetworkInfo.Add(new RoadNetworkInfo
                 {
                     Id = 0,
                     CompletedImport = true
@@ -118,7 +119,7 @@
             var database = await _fixture.CreateDatabaseAsync();
             using (var context = await _fixture.CreateEmptyProductContextAsync(database))
             {
-                context.RoadNetworkInfo.Add(new Product.Schema.RoadNetworkInfo
+                context.RoadNetworkInfo.Add(new RoadNetworkInfo
                 {
                     Id = 0,
                     CompletedImport = false
@@ -146,7 +147,7 @@
             var database = await _fixture.CreateDatabaseAsync();
             using (var context = await _fixture.CreateEmptyProductContextAsync(database))
             {
-                context.RoadNetworkInfo.Add(new Product.Schema.RoadNetworkInfo
+                context.RoadNetworkInfo.Add(new RoadNetworkInfo
                 {
                     Id = 0,
                     CompletedImport = true
@@ -167,11 +168,6 @@
 
     public class StreetNameCacheStub : IStreetNameCache
     {
-
-        public StreetNameCacheStub()
-        {
-        }
-
         public Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds)
         {
             throw new NotImplementedException();
