@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice
     using System;
     using System.Linq;
 
-    public struct NationalRoadNumber : IEquatable<NationalRoadNumber>
+    public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>
     {
         public const int MinimumLength = 2;
         public const int MaximumLength = 5;
@@ -17,7 +17,10 @@ namespace RoadRegistry.BackOffice
 
         public static bool CanParse(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
 
             // Must adhere to the length constraints
             if (!(value.Length >= MinimumLength
@@ -46,13 +49,12 @@ namespace RoadRegistry.BackOffice
                     return false;
                 }
 
-                if (value.Length > 3)
+                if (value.Length > 3
+                    && !Enumerable.Range(2, value.Length - 3)
+                        .All(position => char.IsDigit(value[position])))
                 {
                     // From the third character onwards until the second last character must be all digits
-                    if (!Enumerable.Range(2, value.Length - 3).All(position => char.IsDigit(value[position])))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
@@ -61,7 +63,10 @@ namespace RoadRegistry.BackOffice
 
         public static bool TryParse(string value, out NationalRoadNumber parsed)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
 
             // Must adhere to the length constraints
             if (!(value.Length >= MinimumLength
@@ -94,14 +99,13 @@ namespace RoadRegistry.BackOffice
                     return false;
                 }
 
-                if (value.Length > 3)
+                if (value.Length > 3
+                    && !Enumerable.Range(2, value.Length - 3)
+                        .All(position => char.IsDigit(value[position])))
                 {
                     // From the third character onwards until the second last character must be all digits
-                    if (!Enumerable.Range(2, value.Length - 3).All(position => char.IsDigit(value[position])))
-                    {
-                        parsed = default;
-                        return false;
-                    }
+                    parsed = default;
+                    return false;
                 }
             }
 
@@ -111,7 +115,11 @@ namespace RoadRegistry.BackOffice
 
         public static NationalRoadNumber Parse(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             // Must adhere to the length constraints
             if (!(value.Length >= MinimumLength
                   && value.Length <= MaximumLength))
@@ -139,13 +147,12 @@ namespace RoadRegistry.BackOffice
                     throw new FormatException($"The national road number value must end with a digit or a letter. Actual value was {value}.");
                 }
 
-                if (value.Length > 3)
+                if (value.Length > 3
+                    && !Enumerable.Range(2, value.Length - 3)
+                        .All(position => char.IsDigit(value[position])))
                 {
                     // From the third character onwards until the second last character must be all digits
-                    if (!Enumerable.Range(2, value.Length - 3).All(position => char.IsDigit(value[position])))
-                    {
-                        throw new FormatException($"The national road number value must be all digits as of the third character until the second last character. Actual value was {value}.");
-                    }
+                    throw new FormatException($"The national road number value must be all digits as of the third character until the second last character. Actual value was {value}.");
                 }
             }
 

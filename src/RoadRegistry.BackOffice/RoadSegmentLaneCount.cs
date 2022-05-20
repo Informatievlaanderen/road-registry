@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice
+namespace RoadRegistry.BackOffice
 {
     using System;
     using System.Diagnostics.Contracts;
@@ -16,11 +16,12 @@
 
         public RoadSegmentLaneCount(int value)
         {
-            if (value != UnknownValue && value != NotApplicableValue)
+            if (value != UnknownValue
+                && value != NotApplicableValue
+                && (value < 0 || value > MaximumValue))
             {
-                if (value < 0 || value > MaximumValue)
-                    throw new ArgumentOutOfRangeException(nameof(value), value,
-                        "The road segment lane count must be greater than or equal to 0 and less than or equal to 7.");
+                throw new ArgumentOutOfRangeException(nameof(value), value,
+                    "The road segment lane count must be greater than or equal to 0 and less than or equal to 7.");
             }
 
             _value = value;

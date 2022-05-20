@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Core
 {
     using System;
-    using System.Linq;
 
     public class ModifyGradeSeparatedJunction : IRequestedChange
     {
@@ -30,7 +29,11 @@ namespace RoadRegistry.BackOffice.Core
 
         public Problems VerifyBefore(BeforeVerificationContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             var problems = Problems.None;
 
             if (!context.BeforeView.View.GradeSeparatedJunctions.ContainsKey(Id))
@@ -43,7 +46,10 @@ namespace RoadRegistry.BackOffice.Core
 
         public Problems VerifyAfter(AfterVerificationContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             var problems = Problems.None;
 
@@ -57,12 +63,11 @@ namespace RoadRegistry.BackOffice.Core
                 problems = problems.Add(new LowerRoadSegmentMissing());
             }
 
-            if (upperSegment != null && lowerSegment != null)
+            if (upperSegment != null
+                && lowerSegment != null
+                && !upperSegment.Geometry.Intersects(lowerSegment.Geometry))
             {
-                if (!upperSegment.Geometry.Intersects(lowerSegment.Geometry))
-                {
-                    problems = problems.Add(new UpperAndLowerRoadSegmentDoNotIntersect());
-                }
+                problems = problems.Add(new UpperAndLowerRoadSegmentDoNotIntersect());
             }
 
             return problems;
@@ -70,7 +75,10 @@ namespace RoadRegistry.BackOffice.Core
 
         public void TranslateTo(Messages.AcceptedChange message)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
 
             message.GradeSeparatedJunctionModified = new Messages.GradeSeparatedJunctionModified
             {
@@ -83,7 +91,10 @@ namespace RoadRegistry.BackOffice.Core
 
         public void TranslateTo(Messages.RejectedChange message)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
 
             message.ModifyGradeSeparatedJunction = new Messages.ModifyGradeSeparatedJunction
             {

@@ -10,9 +10,20 @@ namespace RoadRegistry.BackOffice.Uploads
     {
         public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, ZipArchiveValidationContext context)
         {
-            if (entry == null) throw new ArgumentNullException(nameof(entry));
-            if (records == null) throw new ArgumentNullException(nameof(records));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (entry == null)
+            {
+                throw new ArgumentNullException(nameof(entry));
+            }
+
+            if (records == null)
+            {
+                throw new ArgumentNullException(nameof(records));
+            }
+
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             var problems = ZipArchiveProblems.None;
             var recordNumber = RecordNumber.Initial;
@@ -33,12 +44,10 @@ namespace RoadRegistry.BackOffice.Uploads
                                     ShapeType.Point,
                                     record.Content.ShapeType);
                             }
-                            else if (record.Content is PointShapeContent content)
+                            else if (record.Content is PointShapeContent content
+                                && !GeometryTranslator.ToGeometryPoint(content.Shape).IsValid)
                             {
-                                if (!GeometryTranslator.ToGeometryPoint(content.Shape).IsValid)
-                                {
-                                    problems += recordContext.ShapeRecordGeometryMismatch();
-                                }
+                                problems += recordContext.ShapeRecordGeometryMismatch();
                             }
                             recordNumber = record.Header.RecordNumber.Next();
                         }
