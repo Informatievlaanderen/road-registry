@@ -68,7 +68,10 @@ namespace RoadRegistry.BackOffice.Core
 
         public Problems VerifyBefore(BeforeVerificationContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             var problems = Problems.None;
 
@@ -173,15 +176,13 @@ namespace RoadRegistry.BackOffice.Core
                 previousLane = lane;
             }
 
-            if (previousLane != null)
+            if (previousLane != null
+                && Math.Abs(previousLane.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
             {
-                if (Math.Abs(previousLane.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
-                {
-                    problems = problems.Add(new RoadSegmentLaneAttributeToPositionNotEqualToLength(
-                        previousLane.TemporaryId,
-                        previousLane.To,
-                        line.Length));
-                }
+                problems = problems.Add(new RoadSegmentLaneAttributeToPositionNotEqualToLength(
+                    previousLane.TemporaryId,
+                    previousLane.To,
+                    line.Length));
             }
 
             RoadSegmentWidthAttribute previousWidth = null;
@@ -222,15 +223,13 @@ namespace RoadRegistry.BackOffice.Core
                 previousWidth = width;
             }
 
-            if (previousWidth != null)
+            if (previousWidth != null
+                && Math.Abs(previousWidth.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
             {
-                if (Math.Abs(previousWidth.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
-                {
-                    problems = problems.Add(new RoadSegmentWidthAttributeToPositionNotEqualToLength(
-                        previousWidth.TemporaryId,
-                        previousWidth.To,
-                        line.Length));
-                }
+                problems = problems.Add(new RoadSegmentWidthAttributeToPositionNotEqualToLength(
+                    previousWidth.TemporaryId,
+                    previousWidth.To,
+                    line.Length));
             }
 
             RoadSegmentSurfaceAttribute previousSurface = null;
@@ -271,13 +270,11 @@ namespace RoadRegistry.BackOffice.Core
                 previousSurface = surface;
             }
 
-            if (previousSurface != null)
+            if (previousSurface != null
+                && Math.Abs(previousSurface.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
             {
-                if (Math.Abs(previousSurface.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
-                {
-                    problems = problems.Add(new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
-                        previousSurface.TemporaryId, previousSurface.To, line.Length));
-                }
+                problems = problems.Add(new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
+                    previousSurface.TemporaryId, previousSurface.To, line.Length));
             }
 
             return problems;
@@ -285,7 +282,10 @@ namespace RoadRegistry.BackOffice.Core
 
         public Problems VerifyAfter(AfterVerificationContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             var problems = Problems.None;
 
@@ -360,7 +360,10 @@ namespace RoadRegistry.BackOffice.Core
 
         public void TranslateTo(Messages.AcceptedChange message)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
 
             message.RoadSegmentModified = new Messages.RoadSegmentModified
             {
@@ -422,7 +425,10 @@ namespace RoadRegistry.BackOffice.Core
 
         public void TranslateTo(Messages.RejectedChange message)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
 
             message.ModifyRoadSegment = new Messages.ModifyRoadSegment
             {

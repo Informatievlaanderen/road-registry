@@ -9,9 +9,20 @@ namespace RoadRegistry.BackOffice.Uploads
     {
         public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<TransactionZoneDbaseRecord> records, ZipArchiveValidationContext context)
         {
-            if (entry == null) throw new ArgumentNullException(nameof(entry));
-            if (records == null) throw new ArgumentNullException(nameof(records));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (entry == null)
+            {
+                throw new ArgumentNullException(nameof(entry));
+            }
+
+            if (records == null)
+            {
+                throw new ArgumentNullException(nameof(records));
+            }
+
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             var problems = ZipArchiveProblems.None;
             try
@@ -47,12 +58,10 @@ namespace RoadRegistry.BackOffice.Uploads
                             else 
                             {
                                 var expectedDownloadId = context.ZipArchiveMetadata.DownloadId;
-                                if (expectedDownloadId.HasValue)
+                                if (expectedDownloadId.HasValue
+                                    && !DownloadId.Parse(record.DOWNLOADID.Value).Equals(expectedDownloadId.Value))
                                 {
-                                    if (!DownloadId.Parse(record.DOWNLOADID.Value).Equals(expectedDownloadId.Value))
-                                    {
-                                        problems += recordContext.DownloadIdDiffersFromMetadata(record.DOWNLOADID.Value, expectedDownloadId.ToString());
-                                    }
+                                    problems += recordContext.DownloadIdDiffersFromMetadata(record.DOWNLOADID.Value, expectedDownloadId.ToString());
                                 }
 
                             }

@@ -14,11 +14,11 @@ namespace RoadRegistry.BackOffice
 
         public CrabStreetnameId(int value)
         {
-            if (value != UnknownValue && value != NotApplicableValue)
+            if (value != UnknownValue
+                && value != NotApplicableValue
+                && value < 0)
             {
-                if (value < 0)
-                    throw new ArgumentOutOfRangeException(nameof(value), value,
-                        "The crab street name identifier must be greater than or equal to zero.");
+                throw new ArgumentOutOfRangeException(nameof(value), value, "The crab street name identifier must be greater than or equal to zero.");
             }
 
             _value = value;

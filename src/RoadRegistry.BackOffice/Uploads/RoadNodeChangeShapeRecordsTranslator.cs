@@ -10,25 +10,35 @@ namespace RoadRegistry.BackOffice.Uploads
     {
         public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
         {
-            if (entry == null) throw new ArgumentNullException(nameof(entry));
-            if (records == null) throw new ArgumentNullException(nameof(records));
-            if (changes == null) throw new ArgumentNullException(nameof(changes));
+            if (entry == null)
+            {
+                throw new ArgumentNullException(nameof(entry));
+            }
+
+            if (records == null)
+            {
+                throw new ArgumentNullException(nameof(records));
+            }
+
+            if (changes == null)
+            {
+                throw new ArgumentNullException(nameof(changes));
+            }
+
             while (records.MoveNext())
             {
                 var record = records.Current;
-                if (record != null && record.Content is PointShapeContent content)
+                if (record?.Content is PointShapeContent content
+                    && changes.TryFindRoadNodeChangeOfShapeRecord(record.Header.RecordNumber, out var change))
                 {
-                    if(changes.TryFindRoadNodeChangeOfShapeRecord(record.Header.RecordNumber, out var change))
+                    switch (change)
                     {
-                        switch (change)
-                        {
-                            case AddRoadNode addition:
-                                changes = changes.ReplaceChange(addition, addition.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
-                                break;
-                            case ModifyRoadNode modification:
-                                changes = changes.ReplaceChange(modification, modification.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
-                                break;
-                        }
+                        case AddRoadNode addition:
+                            changes = changes.ReplaceChange(addition, addition.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
+                            break;
+                        case ModifyRoadNode modification:
+                            changes = changes.ReplaceChange(modification, modification.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
+                            break;
                     }
                 }
             }
