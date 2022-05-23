@@ -1,3 +1,10 @@
+## [3.1.9](https://github.com/informatievlaanderen/road-registry/compare/v3.1.8...v3.1.9) (2022-05-23)
+
+
+### Bug Fixes
+
+* fix validation for description ([7c9f0dc](https://github.com/informatievlaanderen/road-registry/commit/7c9f0dcfe6b8896df66b0d79c32638eff1189fbf))
+
 ## [3.1.8](https://github.com/informatievlaanderen/road-registry/compare/v3.1.7...v3.1.8) (2022-05-20)
 
 
