@@ -79,9 +79,15 @@
             </button>
           </div>
           <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="submitMunicipalityRequest">
+            <button class="vl-button vl-button--block" vl-button v-on:click="submitMunicipalityRequest" v-bind:class="{ 'vl-button--disabled': !isDescriptionValid(municipalityFlow.description) }" :disabled="!isDescriptionValid(municipalityFlow.description)">
               <span class="vl-button__label">Extract aanvragen</span>
             </button>
+          </div>
+          <div class="vl-form-col--8-12"></div>
+          <div class="vl-form-col--6-12">
+              <span v-if="!isDescriptionValid(municipalityFlow.description)"> 
+                Gelieve een beschrijving mee te geven van maximaal 250 karakters.
+              </span>
           </div>
         </div>
       </div>
@@ -137,9 +143,15 @@
             </button>
           </div>
           <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="submitContourRequest">
+            <button class="vl-button vl-button--block" vl-button v-on:click="submitContourRequest" v-bind:class="{ 'vl-button--disabled': !isDescriptionValid(contourFlow.description) }" :disabled="!isDescriptionValid(contourFlow.description)">
               <span class="vl-button__label">Extract aanvragen</span>
             </button>
+          </div>
+          <div class="vl-form-col--8-12"></div>
+          <div class="vl-form-col--6-12">
+              <span v-if="!isDescriptionValid(contourFlow.description)"> 
+                Gelieve een beschrijving mee te geven van maximaal 250 karakters.
+              </span>
           </div>
         </div>
       </div>
@@ -177,6 +189,12 @@ export default Vue.extend({
         wkt: '',
         buffer: false,
         description: ''
+      },
+      validation: {
+        description: {
+          minLength: 1,
+          maxLength: 250
+        }
       }
     };
   },
@@ -206,6 +224,7 @@ export default Vue.extend({
       const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
       this.$router.push({name: 'activiteit', params: { downloadId: response.downloadId }});
     },
+
     async submitContourRequest() {
       const requestData: RoadRegistry.DownloadExtractByContourRequest = {
         buffer: this.contourFlow.buffer ? 100 : 0,
@@ -215,6 +234,16 @@ export default Vue.extend({
 
       const response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
       this.$router.push({name: 'activiteit', params: { downloadId: response.downloadId }});
+    },
+
+    isDescriptionValid(description: string):boolean {
+      const validationRules = this.validation.description;
+
+      if (!description) return false;
+      if (description.length < validationRules.minLength) return false;
+      if (description.length > validationRules.maxLength) return false;
+
+      return true;
     }
   }
 });
