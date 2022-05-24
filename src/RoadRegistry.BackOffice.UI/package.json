@@ -114,6 +114,7 @@
     "@govflanders/vl-ui-util": "^13.0.7",
     "@govflanders/vl-ui-video-player": "^13.0.7",
     "@govflanders/vl-ui-wizard": "^13.0.7",
+    "@govflanders/vl-ui-vue-components": "^14.0.7",
     "axios": "^0.27.2",
     "core-js": "^3.22.5",
     "vue": "^2.6.14",

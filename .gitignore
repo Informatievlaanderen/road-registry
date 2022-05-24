@@ -19,6 +19,9 @@ elm-stuff/
 [Dd]ist/
 [Tt]est[Rr]esults/
 
+src/RoadRegistry.BackOffice.UI/.env.development
+src/RoadRegistry.BackOffice.UI/.env.staging
+src/RoadRegistry.BackOffice.UI/.env.test
 src/RoadRegistry.BackOffice.UI/output/
 src/RoadRegistry.BackOffice.UI/wwwroot/
 src/RoadRegistry.BackOffice.Simulator/output/
