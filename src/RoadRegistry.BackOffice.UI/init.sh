@@ -6,10 +6,6 @@ echo "window.API_KEY =\"${API_KEY}\"" >> /usr/share/nginx/html/env.js
 echo "window.API_VERSION =\"${API_VERSION}\"" >> /usr/share/nginx/html/env.js
 echo "window.API_ENDPOINT =\"${API_ENDPOINT}\"" >> /usr/share/nginx/html/env.js
 echo "window.API_OLDENDPOINT =\"${API_OLDENDPOINT}\"" >> /usr/share/nginx/html/env.js
-
-echo "" > /etc/nginx/.htpasswd
-echo ${HTPASSWD} >> /etc/nginx/.htpasswd
-
 export DOLLAR=$
 envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
