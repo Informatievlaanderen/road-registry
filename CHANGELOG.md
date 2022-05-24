@@ -1,3 +1,20 @@
+# [3.2.0](https://github.com/informatievlaanderen/road-registry/compare/v3.1.9...v3.2.0) (2022-05-24)
+
+
+### Bug Fixes
+
+* move login details to secure store ([1dbb953](https://github.com/informatievlaanderen/road-registry/commit/1dbb953369e2c232c4aadd5742a03ba967f54a33))
+
+
+### Features
+
+* moved login details to secure store ([c7b0d4c](https://github.com/informatievlaanderen/road-registry/commit/c7b0d4c16cbd4c75366c332edccf51305800942d))
+
+
+### Reverts
+
+* Revert "feat: moved login details to secure store" ([24164cf](https://github.com/informatievlaanderen/road-registry/commit/24164cfc1f5596bf1df4168c0cae1c8d57fd4345))
+
 ## [3.1.9](https://github.com/informatievlaanderen/road-registry/compare/v3.1.8...v3.1.9) (2022-05-23)
 
 
