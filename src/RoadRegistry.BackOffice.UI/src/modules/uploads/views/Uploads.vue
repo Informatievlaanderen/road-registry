@@ -1,116 +1,55 @@
 <template>
-  <div>
-    <div v-if="Object.keys(uploadResult).length !== 0">
-      <div class="vl-alert vl-alert--success" role="alert" v-if="uploadResult.uploadResponseCode == 200">
-        <div class="vl-alert__icon">
-          <i class="vl-vi vl-vi-check-circle" aria-hidden="true"></i>
-        </div>
-        <div class="vl-alert__content">
-          <p class="vl-alert__title">Gelukt!</p>
-          <div class="vl-alert__message">
-            <p>
-              Oplading is gelukt. We gaan nu het bestand inhoudelijk controleren en daarna de wijzigingen toepassen. U
-              kan de vooruitgang volgen via Activiteit.
-            </p>
-          </div>
-        </div>
-      </div>
+  <vl-page>
+    <vl-main>
+      <vl-layout>
+        <vl-grid mod-stacked>
+          <vl-column v-if="uploadResult.uploadResponseCode">
+            <vl-alert
+              :title="alertInfo.title"
+              :mod-success="alertInfo.success"
+              :mod-warning="alertInfo.warning"
+              :mod-error="alertInfo.error"
+            >
+              <p>{{ alertInfo.text }}</p>
+            </vl-alert>
+          </vl-column>
 
-      <div class="vl-alert vl-alert--warning" role="alert" v-else-if="uploadResult.uploadResponseCode == 400">
-        <div class="vl-alert__icon">
-          <i class="vl-vi vl-vi-warning" aria-hidden="true"></i>
-        </div>
-        <div class="vl-alert__content">
-          <p class="vl-alert__title">Technische storing</p>
-          <div class="vl-alert__message">
-            <p>Door een technische storing is dit loket tijdelijk niet beschikbaar.</p>
-          </div>
-        </div>
-      </div>
+          <vl-column>
+            <h2 class="vl-title vl-title--h2">Opladen</h2>
+          </vl-column>
 
-      <div class="vl-alert vl-alert--warning" role="alert" v-else-if="uploadResult.uploadResponseCode == 408">
-        <div class="vl-alert__icon">
-          <i class="vl-vi vl-vi-warning" aria-hidden="true"></i>
-        </div>
-        <div class="vl-alert__content">
-          <p class="vl-alert__title">Technische storing</p>
-          <div class="vl-alert__message">
-            <p>Er was een probleem bij het opladen - de operatie nam teveel tijd in beslag.</p>
-          </div>
-        </div>
-      </div>
+          <vl-column>
+            <vl-image src="https://picsum.photos/1600/400?image=1048" alt="Bouwen in Brussel" />
+          </vl-column>
 
-      <div class="vl-alert vl-alert--warning" role="alert" v-else-if="uploadResult.uploadResponseCode == 415">
-        <div class="vl-alert__icon">
-          <i class="vl-vi vl-vi-warning" aria-hidden="true"></i>
-        </div>
-        <div class="vl-alert__content">
-          <p class="vl-alert__title">Technische storing</p>
-          <div class="vl-alert__message">
-            <p>Opladen is enkel mogelijk op basis van zip bestanden. Probeer het opnieuw met een correct bestand.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="vl-alert vl-alert--warning" role="alert" v-else-if="uploadResult.uploadResponseCode == 503">
-        <div class="vl-alert__icon">
-          <i class="vl-vi vl-vi-warning" aria-hidden="true"></i>
-        </div>
-        <div class="vl-alert__content">
-          <p class="vl-alert__title">Technische storing</p>
-          <div class="vl-alert__message">
-            <p>Opladen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="vl-alert vl-alert--warning" role="alert" v-else>
-        <div class="vl-alert__icon">
-          <i class="vl-vi vl-vi-warning" aria-hidden="true"></i>
-        </div>
-        <div class="vl-alert__content">
-          <p class="vl-alert__title">Technische storing</p>
-          <div class="vl-alert__message">
-            <p>Er was een probleem bij het opladen - dit kan duiden op een probleem met de website.</p>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="vl-typography">
-      <h2>Opladen</h2>
-    </div>
-
-    <div class="vl-doormat__graphic-wrapper">
-      <img class="vl-doormat__graphic" src="https://picsum.photos/1600/400?image=1048" alt="Bouwen in Brussel" />
-    </div>
-
-    <div class="vl-doormat vl-doormat--graphic js-vl-equal-height"  v-if="isUploading">
-      <h2 class="vl-doormat__title" data-vl-clamp="2">Upload bezig</h2>
-          <div class="vl-doormat__text" data-vl-clamp="3">
-            Het door u geselecteerde zip‑bestand wordt geupload.
-          </div>
-    </div>
-    <div class="vl-doormat__content" v-else>
-      <a class="vl-doormat vl-doormat--graphic js-vl-equal-height" href="#">
-        <label for="uploadInput">
-          <span class="vl-doormat__content__arrow" aria-hidden="true"></span>
-          <h2 class="vl-doormat__title" data-vl-clamp="2">Feature compare</h2>
-          <div class="vl-doormat__text" data-vl-clamp="3">
-            Selecteer het zip‑bestand met de op te laden verschillen.
-          </div>
-        </label>
-      </a>
-    </div>
-    <input
-      id="uploadInput"
-      v-on:change="uploadFile($event)"
-      type="file"
-      style="display: none"
-      accept="application/zip"
-    />
-  </div>
+          <vl-column>
+            <!-- <vl-doormat v-if="isUploading" title="Upload bezig">
+              Het door u geselecteerde zip‑bestand wordt geupload.
+            </vl-doormat> -->
+            <vl-upload
+              ref="vlUpload"
+              id="upload-component"
+              name="upload-component"
+              url="#"
+              upload-drag-text="Selecteer het zip‑bestand met de op te laden verschillen."
+              upload-label="Feature compare"
+              :auto-process="false"
+              :options="options"
+              :mod-success="uploadResult.uploadResponseCode && alertInfo.success"
+              :mod-error="uploadResult.uploadResponseCode && (alertInfo.error || alertInfo.warning)"
+              :mod-disabled="isUploading"
+              @upload-success="isUploading = false"
+              @upload-complete="isUploading = false"
+              @upload-canceled="isUploading = false"
+              @upload-file-added="processing"
+              @upload-file-added-manually="processing"
+            />
+            <!-- -->
+          </vl-column>
+        </vl-grid>
+      </vl-layout>
+    </vl-main>
+  </vl-page>
 </template>
 
 <script lang="ts">
@@ -121,24 +60,115 @@ export default Vue.extend({
   data() {
     return {
       isUploading: false,
-      uploadResult: {},
+      uploadResult: { uploadResponseCode: undefined } as { uploadResponseCode: number | undefined },
     };
   },
-  methods: {
-    async uploadFile(event: any) {
-      const file = event.target.files[0];
-
-      this.isUploading = true;
-      this.uploadResult = {};
-      const uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name);
-      this.uploadResult = {
-        uploadResponseCode: uploadResponseCode,
+  computed: {
+    options() {
+      return {
+        uploadMultiple: false,
+        autoQueue: false,
+        autoProcessQueue: false,
+        maxFiles: 1,
+        maxFilesize: 28672000, //28MB
+        acceptedFiles: "application/zip",
+        paramName: "archive",
+        headers: {},
       };
+    },
+    alertInfo(): { success: boolean; warning: boolean; error: boolean; title: string; text: string } {
+      const status = {
+        success: false,
+        warning: false,
+        error: false,
+        title: "",
+        text: "",
+      };
+
+      if (this.uploadResult.uploadResponseCode == 200) {
+        status.success = true;
+        status.title = "Gelukt!";
+        status.text =
+          "Oplading is gelukt. We gaan nu het bestand inhoudelijk controleren en daarna de wijzigingen toepassen. U kan de vooruitgang volgen via Activiteit.";
+        return status;
+      }
+
+      if (this.uploadResult.uploadResponseCode == 400) {
+        status.warning = true;
+        status.title = "Technische storing";
+        status.text = "Door een technische storing is dit loket tijdelijk niet beschikbaar.";
+        return status;
+      }
+
+      if (this.uploadResult.uploadResponseCode == 408) {
+        status.warning = true;
+        status.title = "Technische storing";
+        status.text = "Er was een probleem bij het opladen - de operatie nam teveel tijd in beslag.";
+        return status;
+      }
+
+      if (this.uploadResult.uploadResponseCode == 1) {
+        status.error = true;
+        status.title = "Opgelet!";
+        status.text = "Het max. toegelaten bestand groote is 28MB";
+        return status;
+      }
+
+      if (this.uploadResult.uploadResponseCode == 2 || this.uploadResult.uploadResponseCode == 415) {
+        status.error = true;
+        status.title = "Opgelet!";
+        status.text = "Enkel .zip bestanden zijn toegelaten.";
+        return status;
+      }
+
+      status.error = true;
+      status.title = "Technische storing";
+
+      if (this.uploadResult.uploadResponseCode == 503) {
+        status.text =
+          "Opladen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw.";
+      } else {
+        status.text = "Er was een probleem bij het opladen - dit kan duiden op een probleem met de website.";
+      }
+
+      return status;
+    },
+  },
+  methods: {
+    async processing(file: File) {
+      this.startUpload();
+
+      if (file.type !== "application/zip") {
+        this.uploadResult = { uploadResponseCode: 2 };
+        this.endUpload();
+        return;
+      }
+
+      if (file.size > this.options.maxFilesize) {
+        this.uploadResult = { uploadResponseCode: 1 };
+        this.endUpload();
+        return;
+      }
+
+      const uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name);
+      this.uploadResult = { uploadResponseCode };
+      this.endUpload();
+      return;
+    },
+    emptyQueue(): void {
+      const dropZone = this.$refs.vlUpload as any as { hasFiles: boolean; removeFiles: () => void };
+      if (dropZone.hasFiles) {
+        dropZone.removeFiles();
+      }
+    },
+    startUpload(): void {
+      this.emptyQueue();
+      this.isUploading = true;
+    },
+    endUpload(): void {
+      this.emptyQueue();
       this.isUploading = false;
     },
   },
 });
 </script>
-
-<style lang="scss">
-</style>
