@@ -10,3 +10,4 @@ NodaTime
 
 Serilog.Formatting.Compact
 Serilog.Sinks.Seq
+Swashbuckle.AspNetCore.SwaggerGen

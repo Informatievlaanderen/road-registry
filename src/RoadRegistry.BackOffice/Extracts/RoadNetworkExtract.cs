@@ -27,6 +27,13 @@ namespace RoadRegistry.BackOffice.Extracts
             {
                 Id = ExtractRequestId.FromString(e.RequestId);
                 _externalExtractRequestId = new ExternalExtractRequestId(e.ExternalRequestId);
+                _extractDescription = new ExtractDescription(string.Empty);
+                _requestedDownloads.Add(new DownloadId(e.DownloadId));
+            });
+            On<RoadNetworkExtractGotRequestedV2>(e =>
+            {
+                Id = ExtractRequestId.FromString(e.RequestId);
+                _externalExtractRequestId = new ExternalExtractRequestId(e.ExternalRequestId);
                 _extractDescription = new ExtractDescription(e.Description);
                 _requestedDownloads.Add(new DownloadId(e.DownloadId));
             });
@@ -49,7 +56,7 @@ namespace RoadRegistry.BackOffice.Extracts
             IPolygonal contour)
         {
             var instance = Factory();
-            instance.Apply(new RoadNetworkExtractGotRequested
+            instance.Apply(new RoadNetworkExtractGotRequestedV2
             {
                 RequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId).ToString(),
                 ExternalRequestId = externalExtractRequestId,
@@ -64,7 +71,7 @@ namespace RoadRegistry.BackOffice.Extracts
         {
             if (!_requestedDownloads.Contains(downloadId))
             {
-                Apply(new RoadNetworkExtractGotRequested
+                Apply(new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = Id.ToString(),
                     ExternalRequestId = _externalExtractRequestId,
