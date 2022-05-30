@@ -55,6 +55,9 @@ namespace RoadRegistry.BackOffice
                     case Messages.RoadNetworkExtractGotRequested m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;
+                    case Messages.RoadNetworkExtractGotRequestedV2 m:
+                        m.When = pattern.Format(clock.GetCurrentInstant());
+                        break;
                     case Messages.RoadNetworkExtractDownloadBecameAvailable m:
                         m.When = pattern.Format(clock.GetCurrentInstant());
                         break;

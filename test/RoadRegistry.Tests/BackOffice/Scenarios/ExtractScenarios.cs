@@ -55,7 +55,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             return Run(scenario => scenario
                 .GivenNone()
                 .When(TheExternalSystem.PutsInARoadNetworkExtractRequest(externalExtractRequestId, downloadId, extractDescription, contour))
-                .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
+                .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
@@ -84,7 +84,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             var newContour = Fixture.Create<RoadNetworkExtractGeometry>();
 
             return Run(scenario => scenario
-                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
+                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
@@ -94,7 +94,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheExternalSystem.PutsInARoadNetworkExtractRequest(externalExtractRequestId, newDownloadId, extractDescription, newContour))
-                .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
+                .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
@@ -117,7 +117,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             var newContour = Fixture.Create<RoadNetworkExtractGeometry>();
 
             return Run(scenario => scenario
-                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
+                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
@@ -142,7 +142,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             var contour = Fixture.Create<RoadNetworkExtractGeometry>();
 
             return Run(scenario => scenario
-                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
+                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
@@ -175,7 +175,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             var contour = Fixture.Create<RoadNetworkExtractGeometry>();
 
             return Run(scenario => scenario
-                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
+                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
@@ -212,7 +212,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             await CreateEmptyArchive(archiveId);
 
             await Run(scenario => scenario
-                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
+                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
@@ -229,7 +229,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                     ArchiveId = archiveId,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 },
-                new RoadNetworkExtractGotRequested
+                new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
@@ -293,7 +293,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             await CreateEmptyArchive(archiveId);
 
             await Run(scenario => scenario
-                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
+                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
@@ -329,7 +329,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             await CreateEmptyArchive(archiveId);
 
             await Run(scenario => scenario
-                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
+                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
@@ -384,7 +384,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             await CreateErrorArchive(archiveId);
 
             await Run(scenario => scenario
-                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
+                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
@@ -448,7 +448,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             await CreateErrorArchive(archiveId);
 
             await Run(scenario => scenario
-                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequested
+                .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
                 {
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
