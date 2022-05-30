@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/informatievlaanderen/road-registry/compare/v3.2.0...v3.2.1) (2022-05-30)
+
+
+### Bug Fixes
+
+* fix extract requests ([0ef4f90](https://github.com/informatievlaanderen/road-registry/commit/0ef4f9013d16c5804aafd363b1f97dc3878366cb))
+
 # [3.2.0](https://github.com/informatievlaanderen/road-registry/compare/v3.1.9...v3.2.0) (2022-05-24)
 
 
