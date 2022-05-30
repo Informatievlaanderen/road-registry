@@ -1,3 +1,10 @@
+## [3.2.2](https://github.com/informatievlaanderen/road-registry/compare/v3.2.1...v3.2.2) (2022-05-30)
+
+
+### Bug Fixes
+
+* add vue comp and migrate upload page ([520ffe3](https://github.com/informatievlaanderen/road-registry/commit/520ffe3ed01d5db2a0a068241281adbc681a66e8))
+
 ## [3.2.1](https://github.com/informatievlaanderen/road-registry/compare/v3.2.0...v3.2.1) (2022-05-30)
 
 
