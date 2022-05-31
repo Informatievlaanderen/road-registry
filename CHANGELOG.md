@@ -1,3 +1,10 @@
+## [3.2.3](https://github.com/informatievlaanderen/road-registry/compare/v3.2.2...v3.2.3) (2022-05-31)
+
+
+### Bug Fixes
+
+* api swagger dependency verison mismatch ([9117e4e](https://github.com/informatievlaanderen/road-registry/commit/9117e4e9eb8573458fab18602a0ad6b963f191f6))
+
 ## [3.2.2](https://github.com/informatievlaanderen/road-registry/compare/v3.2.1...v3.2.2) (2022-05-30)
 
 
