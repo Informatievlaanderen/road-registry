@@ -1,3 +1,17 @@
+## [3.2.3](https://github.com/informatievlaanderen/road-registry/compare/v3.2.2...v3.2.3) (2022-05-31)
+
+
+### Bug Fixes
+
+* api swagger dependency verison mismatch ([9117e4e](https://github.com/informatievlaanderen/road-registry/commit/9117e4e9eb8573458fab18602a0ad6b963f191f6))
+
+## [3.2.2](https://github.com/informatievlaanderen/road-registry/compare/v3.2.1...v3.2.2) (2022-05-30)
+
+
+### Bug Fixes
+
+* add vue comp and migrate upload page ([520ffe3](https://github.com/informatievlaanderen/road-registry/commit/520ffe3ed01d5db2a0a068241281adbc681a66e8))
+
 ## [3.2.1](https://github.com/informatievlaanderen/road-registry/compare/v3.2.0...v3.2.1) (2022-05-30)
 
 
