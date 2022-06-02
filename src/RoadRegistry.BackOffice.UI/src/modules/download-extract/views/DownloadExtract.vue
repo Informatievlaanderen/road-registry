@@ -20,14 +20,12 @@
         <h3>Stap 2: Details van de contour</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
-            <label for="select-municipality" class="vl-form__label __field__label">Vul hieronder de gemeente in waarvoor
-              u de contour wenst op te halen</label>
+            <label for="select-municipality" class="vl-form__label __field__label">Vul hieronder de gemeente in waarvoor u de contour wenst op te halen</label>
           </div>
           <div class="vl-form-col--3-12">
             <select id="select-municipality" class="vl-select--block vl-select vl-select--block"
               v-model="municipalityFlow.nisCode">
-              <option v-for="municipality in municipalities" :key="municipality.identificator.objectId"
-                :value="municipality.identificator.objectId">
+              <option v-for="municipality in municipalities" :key="municipality.identificator.objectId" :value="municipality.identificator.objectId">
                 {{ municipality.gemeentenaam.geografischeNaam.spelling }}
               </option>
             </select>
@@ -58,8 +56,7 @@
         <h3>Stap 3: Beschrijving van het extract</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
-            <label for="municipality-description" class="vl-form__label __field__label">Geef een beschrijving op van het
-              extract.</label>
+            <label for="municipality-description" class="vl-form__label __field__label">Geef een beschrijving op van het extract.</label>
           </div>
           <div class="vl-form-col--12-12">
             <vl-textarea id="municipality-description" cols="40" rows="4" v-model="municipalityFlow.description" mod-block></vl-textarea>
@@ -85,12 +82,10 @@
         <h3>Stap 2: Details van de contour</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
-            <label for="contour-wkt" class="vl-form__label __field__label">Geef een contour op (in WKT-formaat,
-              coördinatensysteem Lambert 1972) waarvoor u het extract wenst op te halen:</label>
+            <label for="contour-wkt" class="vl-form__label __field__label">Geef een contour op (in WKT-formaat, coördinatensysteem Lambert 1972) waarvoor u het extract wenst op te halen:</label>
           </div>
           <div class="vl-form-col--3-12">
-            <textarea class="vl-textarea" id="contour-wkt" value="" cols="40" rows="4"
-              v-model="contourFlow.wkt"></textarea>
+            <textarea class="vl-textarea" id="contour-wkt" value="" cols="40" rows="4" v-model="contourFlow.wkt"></textarea>
           </div>
           <div class="vl-form-col--9-12"></div>
           <div class="vl-form-col--12-12">
@@ -123,12 +118,10 @@
         <h3>Stap 3: Beschrijving van het extract</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
-            <label for="municipality-description" class="vl-form__label __field__label">Geef een beschrijving op van het
-              extract.</label>
+            <label for="municipality-description" class="vl-form__label __field__label">Geef een beschrijving op van het extract.</label>
           </div>
           <div class="vl-form-col--3-12">
-            <textarea class="vl-textarea" id="municipality-description" value="" cols="40" rows="4"
-              v-model="contourFlow.description"></textarea>
+            <textarea class="vl-textarea" id="municipality-description" value="" cols="40" rows="4" v-model="contourFlow.description"></textarea>
           </div>
           <div class="vl-form-col--9-12"></div>
           <div class="vl-form-col--2-12">
@@ -137,9 +130,7 @@
             </button>
           </div>
           <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="submitContourRequest"
-              v-bind:class="{ 'vl-button--disabled': !isDescriptionValid(contourFlow.description) }"
-              :disabled="!isDescriptionValid(contourFlow.description)">
+            <button class="vl-button vl-button--block" vl-button v-on:click="submitContourRequest" v-bind:class="{ 'vl-button--disabled': !isDescriptionValid(contourFlow.description) }" :disabled="!isDescriptionValid(contourFlow.description)">
               <span class="vl-button__label">Extract aanvragen</span>
             </button>
           </div>
