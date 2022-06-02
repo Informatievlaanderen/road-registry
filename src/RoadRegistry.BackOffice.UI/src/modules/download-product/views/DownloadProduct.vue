@@ -3,48 +3,8 @@
     <div class="vl-typography">
       <h2>Downloaden</h2>
     </div>
-
-    <div class="vl-form-grid vl-form-grid--is-stacked" :class="{ disabled: isDownloadInProgress }">
-      <div class="vl-form-col--2-12">
-        <label for="date">Datum</label>
-      </div>
-      <div class="vl-form-col--3-12">
-        <input
-          type="date"
-          v-model="selectedDate"
-          id="date"
-          name="date"
-          class="vl-input-field vl-input-field--block"
-          :max="today"
-        />
-      </div>
-      <div class="vl-form-col--7-12"></div>
-      <div class="vl-form-col--5-12">
-        <a
-          class="vl-doormat js-vl-equal-height"
-          href="#"
-          :class="{ disabled: parseDate(selectedDate) == 'Invalid Date' }"
-          v-on:click="download"
-        >
-          <div class="vl-doormat__content">
-            <span class="vl-doormat__content__arrow" aria-hidden="true"></span>
-            <h2 class="vl-doormat__title" data-vl-clamp="2">Register download product</h2>
-            <div class="vl-doormat__text" data-vl-clamp="3">Download het wegenregister product.</div>
-          </div>
-        </a>
-      </div>
-    </div>
-
-    <div v-if="isDownloadInProgress">
-      <div class="vl-col--1-1">
-        <div class="vl-region">
-          <div class="vl-u-align-center">
-            <div class="vl-loader vl-loader--inline" role="status"></div>
-            Download is bezig..
-          </div>
-        </div>
-      </div>
-    </div>
+    <vl-button v-if="isDownloadInProgress" mod-loading>Download het wegenregister product...</vl-button>
+    <vl-button v-else v-on:click="download">Download het wegenregister product</vl-button>
   </div>
 </template>
 
