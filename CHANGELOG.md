@@ -1,3 +1,10 @@
+## [3.2.4](https://github.com/informatievlaanderen/road-registry/compare/v3.2.3...v3.2.4) (2022-06-03)
+
+
+### Bug Fixes
+
+* add missing event handlers to road network view builder ([9539042](https://github.com/informatievlaanderen/road-registry/commit/9539042a6418bff91c8b0daf73ebfe1b736e925c))
+
 ## [3.2.3](https://github.com/informatievlaanderen/road-registry/compare/v3.2.2...v3.2.3) (2022-05-31)
 
 
