@@ -414,7 +414,7 @@ namespace RoadRegistry.BackOffice.Core
         {
             var id = new RoadNodeId(@event.Id);
             return new ImmutableRoadNetworkView(
-                _nodes.TryReplace(id, node => node.WithGeometry(GeometryTranslator.Translate(@event.Geometry))),
+                _nodes.TryReplace(id, node => node.WithGeometry(GeometryTranslator.Translate(@event.Geometry)).WithType(RoadNodeType.Parse(@event.Type))),
                 _segments,
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
@@ -1793,7 +1793,10 @@ namespace RoadRegistry.BackOffice.Core
 
             private void Given(Messages.RoadNodeModified @event)
             {
-                // Place holder
+                var id = new RoadNodeId(@event.Id);
+                _nodes.TryReplace(id, node => node
+                    .WithType(RoadNodeType.Parse(@event.Type))
+                    .WithGeometry(GeometryTranslator.Translate(@event.Geometry)));
             }
 
             private void Given(Messages.RoadNodeRemoved @event)
@@ -1957,40 +1960,61 @@ namespace RoadRegistry.BackOffice.Core
 
             private void Given(Messages.RoadSegmentAddedToEuropeanRoad @event)
             {
-                _maximumEuropeanRoadAttributeId = AttributeId.Max(new AttributeId(@event.AttributeId),
-                    _maximumEuropeanRoadAttributeId);
+                var attributeId = new AttributeId(@event.AttributeId);
+                var roadSegmentId = new RoadSegmentId(@event.SegmentId);
+                var europeanRoadNumber = EuropeanRoadNumber.Parse(@event.Number);
+
+                _maximumEuropeanRoadAttributeId = AttributeId.Max(attributeId, _maximumEuropeanRoadAttributeId);
+                _segments.TryReplace(roadSegmentId, segment => segment.PartOfEuropeanRoad(europeanRoadNumber));
             }
 
             private void Given(Messages.RoadSegmentRemovedFromEuropeanRoad @event)
             {
-                // Place holder
+                var roadSegmentId = new RoadSegmentId(@event.SegmentId);
+                var europeanRoadNumber = EuropeanRoadNumber.Parse(@event.Number);
+
+                _segments.TryReplace(roadSegmentId, segment => segment.NotPartOfEuropeanRoad(europeanRoadNumber));
             }
 
             private void Given(Messages.RoadSegmentAddedToNationalRoad @event)
             {
-                _maximumNationalRoadAttributeId = AttributeId.Max(new AttributeId(@event.AttributeId),
-                    _maximumNationalRoadAttributeId);
+                var attributeId = new AttributeId(@event.AttributeId);
+                var roadSegmentId = new RoadSegmentId(@event.SegmentId);
+                var nationalRoadNumber = NationalRoadNumber.Parse(@event.Number);
+
+                _maximumNationalRoadAttributeId = AttributeId.Max(attributeId, _maximumNationalRoadAttributeId);
+                _segments.TryReplace(roadSegmentId, segment => segment.PartOfNationalRoad(nationalRoadNumber));
             }
 
             private void Given(Messages.RoadSegmentRemovedFromNationalRoad @event)
             {
-                // Place holder
+                var roadSegmentId = new RoadSegmentId(@event.SegmentId);
+                var nationalRoadNumber = NationalRoadNumber.Parse(@event.Number);
+
+                _segments.TryReplace(roadSegmentId, segment => segment.NotPartOfNationalRoad(nationalRoadNumber));
             }
 
             private void Given(Messages.RoadSegmentAddedToNumberedRoad @event)
             {
-                _maximumNumberedRoadAttributeId = AttributeId.Max(new AttributeId(@event.AttributeId),
-                    _maximumNumberedRoadAttributeId);
+                var attributeId = new AttributeId(@event.AttributeId);
+                var roadSegmentId = new RoadSegmentId(@event.SegmentId);
+                var numberedRoadNumber = NumberedRoadNumber.Parse(@event.Number);
+
+                _maximumNumberedRoadAttributeId = AttributeId.Max(attributeId, _maximumNumberedRoadAttributeId);
+                _segments.TryReplace(roadSegmentId, segment => segment.PartOfNumberedRoad(numberedRoadNumber));
             }
 
             private void Given(Messages.RoadSegmentOnNumberedRoadModified @event)
             {
-                // Place holder
+                // no action required
             }
 
             private void Given(Messages.RoadSegmentRemovedFromNumberedRoad @event)
             {
-                // Place holder
+                var roadSegmentId = new RoadSegmentId(@event.SegmentId);
+                var numberedRoadNumber = NumberedRoadNumber.Parse(@event.Number);
+
+                _segments.TryReplace(roadSegmentId, segment => segment.NotPartOfNumberedRoad(numberedRoadNumber));
             }
 
             public IRoadNetworkView With(IReadOnlyCollection<IRequestedChange> changes)
@@ -2174,7 +2198,7 @@ namespace RoadRegistry.BackOffice.Core
 
             private void With(RemoveRoadSegmentFromEuropeanRoad command)
             {
-                //Place holder
+                // not supported/no action required
             }
 
             private void With(AddRoadSegmentToNationalRoad command)
@@ -2184,7 +2208,7 @@ namespace RoadRegistry.BackOffice.Core
 
             private void With(RemoveRoadSegmentFromNationalRoad command)
             {
-                //Place holder
+                // not supported/no action required
             }
 
             private void With(AddRoadSegmentToNumberedRoad command)
@@ -2194,12 +2218,12 @@ namespace RoadRegistry.BackOffice.Core
 
             private void With(ModifyRoadSegmentOnNumberedRoad command)
             {
-                //Place holder
+                // not supported/no action required
             }
 
             private void With(RemoveRoadSegmentFromNumberedRoad command)
             {
-                //Place holder
+                // not supported/no action required
             }
 
             public Messages.RoadNetworkSnapshot TakeSnapshot()
