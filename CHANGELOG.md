@@ -1,3 +1,10 @@
+## [3.2.5](https://github.com/informatievlaanderen/road-registry/compare/v3.2.4...v3.2.5) (2022-06-09)
+
+
+### Bug Fixes
+
+* add missing event handlers for projections ([808830a](https://github.com/informatievlaanderen/road-registry/commit/808830ae1a6d224c64ca712d67bdeeebfba8b8e2))
+
 ## [3.2.4](https://github.com/informatievlaanderen/road-registry/compare/v3.2.3...v3.2.4) (2022-06-03)
 
 
