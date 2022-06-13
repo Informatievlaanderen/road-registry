@@ -1,19 +1,18 @@
 import Vue from "vue";
 import Router, { RawLocation, Route, RouteConfig } from "vue-router";
-import Home from "./views/Home.vue";
 import { ActivityRoutes } from "./modules/activity";
 import { InformationRoutes } from "./modules/information";
 import { DownloadExtractRoutes } from "./modules/download-extract";
 import { DownloadProductRoutes } from "./modules/download-product";
 import { UploadRoutes } from "./modules/uploads";
-import { AuthRoutes, AuthService } from "./auth";
+import { AuthRoutes, AuthService, isAuthenticated } from "./auth";
 
 Vue.use(Router);
 
 const routes: RouteConfig[] = [
     {
         path: "/",
-        redirect: { name: "login" }
+        redirect: { name: "activiteit" }
     },
     ...AuthRoutes,
     ...ActivityRoutes,
@@ -44,10 +43,19 @@ export const router = new Router({
     },
     routes,
 });
-
 router.beforeEach((to, from, next) => {
-    if (to.name !== 'Login' && !AuthService.isAuthenticated) next({ name: 'Login' })
-    else next()
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!isAuthenticated) {
+            next({
+                path: '/login',
+                query: { redirect: to.fullPath }
+            })
+        } else {
+            next()
+        }
+    } else {
+        next()
+    }
 })
 
 export default router;

@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ $route.params.downloadId }}
     <div v-if="activities.length === 0">
       <vl-region>
         <div v-vl-align:center>

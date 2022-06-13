@@ -5,13 +5,15 @@ export const InformationRoutes = [
     {
         path: "/informatie",
         component: Root,
-        meta: {},
         children: [
             {
                 path: "",
                 component: Information,
-                name: "informatie"
-              },
+                name: "informatie",
+                meta: {
+                    requiresAuth: true
+                }
+            }
         ],
     },
 ];
