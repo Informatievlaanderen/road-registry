@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice
     using System.Collections.Generic;
     using System.Linq;
 
-    public class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessRestriction>
+    public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessRestriction>
     {
         public static readonly RoadSegmentAccessRestriction PublicRoad =
             new RoadSegmentAccessRestriction(
@@ -75,36 +75,47 @@ namespace RoadRegistry.BackOffice
             Toll
         };
 
-        public static IReadOnlyDictionary<int, RoadSegmentAccessRestriction> ByIdentifier =
+        public static readonly IReadOnlyDictionary<int, RoadSegmentAccessRestriction> ByIdentifier =
             All.ToDictionary(key => key.Translation.Identifier);
 
         private readonly string _value;
-        private readonly DutchTranslation _dutchTranslation;
 
         private RoadSegmentAccessRestriction(string value, DutchTranslation dutchTranslation)
         {
             _value = value;
-            _dutchTranslation = dutchTranslation;
+            Translation = dutchTranslation;
         }
 
-        public DutchTranslation Translation => _dutchTranslation;
+        public DutchTranslation Translation { get; }
 
         public static bool CanParse(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             return Array.Find(All, candidate => candidate._value == value) != null;
         }
 
         public static bool TryParse(string value, out RoadSegmentAccessRestriction parsed)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             parsed = Array.Find(All, candidate => candidate._value == value);
             return parsed != null;
         }
 
         public static RoadSegmentAccessRestriction Parse(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             if (!TryParse(value, out var parsed))
             {
                 throw new FormatException($"The value {value} is not a well known road segment access restriction.");
