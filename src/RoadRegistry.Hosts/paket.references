@@ -1,3 +1,4 @@
 Be.Vlaanderen.Basisregisters.Shaperon
+FeatureToggle
 Microsoft.Extensions.Hosting
 SqlStreamStore.MsSql

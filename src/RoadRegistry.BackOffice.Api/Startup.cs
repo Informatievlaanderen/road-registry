@@ -15,11 +15,12 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.Extensions.Hosting;
     using System;
     using System.Linq;
+    using Hosts;
+    using Microsoft.Extensions.Options;
     using Microsoft.OpenApi.Models;
-
-    public class Startup
-    {
-        private const string DatabaseTag = "db";
+public class Startup
+{
+private const string DatabaseTag = "db";
 
         private IContainer _applicationContainer;
 
@@ -74,13 +75,16 @@ namespace RoadRegistry.BackOffice.Api
                                 .GetChildren();
 
                             foreach (var connectionString in connectionStrings)
+                            {
                                 health.AddSqlServer(
                                     connectionString.Value,
                                     name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
                                     tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                            }
                         }
                     }
-                });
+                })
+                .AddSingleton(c => new UseSomeFeatureV2Toggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSomeFeatureV2));
 
             var builder = new ContainerBuilder();
             builder.Populate(services);
@@ -118,7 +122,7 @@ namespace RoadRegistry.BackOffice.Api
                     },
                     Tracing =
                     {
-                        ServiceName = _configuration["DataDog:ServiceName"],
+                        ServiceName = _configuration["DataDog:ServiceName"]
                     }
                 })
 
@@ -130,7 +134,7 @@ namespace RoadRegistry.BackOffice.Api
                         ServiceProvider = serviceProvider,
                         HostingEnvironment = env,
                         ApplicationLifetime = appLifetime,
-                        LoggerFactory = loggerFactory,
+                        LoggerFactory = loggerFactory
                     },
                     Api =
                     {
@@ -153,7 +157,7 @@ namespace RoadRegistry.BackOffice.Api
                     },
                     MiddlewareHooks =
                     {
-                        AfterMiddleware = x => x.UseMiddleware<AddNoCacheHeadersMiddleware>(),
+                        AfterMiddleware = x => x.UseMiddleware<AddNoCacheHeadersMiddleware>()
                     }
                 });
         }
