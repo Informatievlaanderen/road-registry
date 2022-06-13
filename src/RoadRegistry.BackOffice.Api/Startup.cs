@@ -15,6 +15,8 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.Extensions.Hosting;
     using System;
     using System.Linq;
+    using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.OpenApi.Models;
 
     public class Startup
@@ -74,10 +76,12 @@ namespace RoadRegistry.BackOffice.Api
                                 .GetChildren();
 
                             foreach (var connectionString in connectionStrings)
+                            {
                                 health.AddSqlServer(
                                     connectionString.Value,
                                     name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
                                     tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                            }
                         }
                     }
                 });
@@ -118,7 +122,7 @@ namespace RoadRegistry.BackOffice.Api
                     },
                     Tracing =
                     {
-                        ServiceName = _configuration["DataDog:ServiceName"],
+                        ServiceName = _configuration["DataDog:ServiceName"]
                     }
                 })
 
@@ -130,7 +134,7 @@ namespace RoadRegistry.BackOffice.Api
                         ServiceProvider = serviceProvider,
                         HostingEnvironment = env,
                         ApplicationLifetime = appLifetime,
-                        LoggerFactory = loggerFactory,
+                        LoggerFactory = loggerFactory
                     },
                     Api =
                     {
@@ -153,7 +157,19 @@ namespace RoadRegistry.BackOffice.Api
                     },
                     MiddlewareHooks =
                     {
-                        AfterMiddleware = x => x.UseMiddleware<AddNoCacheHeadersMiddleware>(),
+                        AfterMiddleware = x =>
+                        {
+                            x.UseMiddleware<AddNoCacheHeadersMiddleware>();
+                            x.UseHealthChecks(new PathString("/health"), Program.HostingPort, new HealthCheckOptions
+                            {
+                                ResultStatusCodes =
+                                {
+                                    [HealthStatus.Healthy] = StatusCodes.Status200OK,
+                                    [HealthStatus.Degraded] = StatusCodes.Status200OK,
+                                    [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+                                }
+                            });
+                        }
                     }
                 });
         }
