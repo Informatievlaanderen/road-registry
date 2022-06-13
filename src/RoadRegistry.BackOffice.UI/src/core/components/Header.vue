@@ -15,10 +15,12 @@
           <div class="vl-functional-header__content">
             <h1 class="vl-title"><a class="vl-functional-header__title" href="#">Wegenregister</a></h1>
           </div>
+          <vl-button v-if="isAuthenticated" mod-secondary v-vl-positioning:float-right v-on:click="logout">Logout
+          </vl-button>
         </div>
         <div class="vl-functional-header__sub">
           <div class="vl-grid">
-            <nav class="vl-col--9-12 vl-col--8-12--m vl-col--1-1--s" data-tabs="">
+            <nav class="vl-col--12-12 vl-col--12-12--m vl-col--1-1--s" data-tabs="">
               <div data-vl-tabs data-vl-tabs-responsive-label="Navigatie">
                 <div class="vl-tabs__wrapper">
                   <div class="vl-tabs" data-vl-tabs-list role="tablist">
@@ -37,6 +39,26 @@
     </header>
   </div>
 </template>
+
+<script lang="ts">
+import Vue from "vue";
+import { AuthService, isAuthenticated as HasAuth } from '@/auth';
+
+export default Vue.extend({
+  name: "Header",
+  computed: {
+    isAuthenticated() {
+      return HasAuth.state
+    }
+  },
+  methods: {
+    logout() {
+      AuthService.logout()
+      AuthService.checkAuthentication()
+    }
+  }
+})
+</script>
 
 <style lang="scss" scoped>
 .vl-tab {
@@ -92,7 +114,7 @@
   background-position: 11px center;
 }
 
-#vlaanderen-link > span {
+#vlaanderen-link>span {
   font-family: flanders-sans;
 }
 

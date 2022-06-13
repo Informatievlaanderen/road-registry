@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ $route.params.downloadId }}
     <div v-if="activities.length === 0">
       <div class="vl-col--1-1">
         <div class="vl-region">

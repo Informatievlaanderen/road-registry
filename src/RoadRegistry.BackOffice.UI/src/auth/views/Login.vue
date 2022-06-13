@@ -30,23 +30,24 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import { AuthService } from "../AuthService";
+import router from "@/router";
+import Vue from "vue"
+import { AuthService } from "@/services/auth-service"
 
 export default Vue.extend({
     data() {
         return {
             apiKey: "",
-            isLoginInProgress: false,
+            isLoginInProgress: false
         };
     },
     methods: {
-        async login() {
+        login() {
             this.isLoginInProgress = true;
-            // await AuthService.login(this.apiKey);
-            // this.isLoginInProgress = false;
-        },
-    },
+            AuthService.login(this.$data.apiKey, this.$route.query.redirect.toString());
+            this.isLoginInProgress = false;
+        }
+    }
 });
 
 </script>

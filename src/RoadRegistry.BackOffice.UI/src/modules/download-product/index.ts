@@ -10,8 +10,11 @@ export const DownloadProductRoutes = [
             {
                 path: "",
                 component: DownloadProduct,
-                name: "download-product"
-              },
+                name: "download-product",
+                meta: {
+                    requiresAuth: true
+                }
+            },
         ],
     },
 ];
