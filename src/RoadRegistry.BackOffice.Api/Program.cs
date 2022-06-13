@@ -36,6 +36,8 @@ namespace RoadRegistry.BackOffice.Api
 
     public class Program
     {
+        public const int HostingPort = 10002;
+        
         private static bool _useSomeFeatureV2;
 
         public static async Task Main(string[] args)
@@ -70,8 +72,24 @@ namespace RoadRegistry.BackOffice.Api
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) => new WebHostBuilder()
-            .UseDefaultForApi<Startup>(
-                new ProgramOptions
+                .UseDefaultForApi<Startup>(
+                    new ProgramOptions
+                    {
+                        Hosting =
+                        {
+                            HttpPort = HostingPort
+                        },
+                        Logging =
+                        {
+                            WriteTextToConsole = false,
+                            WriteJsonToConsole = false
+                        },
+                        Runtime =
+                        {
+                            CommandLineArgs = args
+                        }
+                    })
+                .ConfigureServices((hostContext, builder) =>
                 {
                     Hosting = { HttpPort = 10002 },
                     Logging =

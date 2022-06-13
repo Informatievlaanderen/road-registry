@@ -13,8 +13,8 @@ namespace RoadRegistry.BackOffice.Api
         public IActionResult Get()
         {
             return Request.Headers[HeaderNames.Accept].ToString().Contains("text/html")
-                ? (IActionResult)new RedirectResult("/docs")
-                : new OkObjectResult($"Welcome to the Wegenregister Api v{Assembly.GetEntryAssembly().GetName().Version}.");
+                ? new RedirectResult("/docs")
+                : new OkObjectResult($"Welcome to the Wegenregister Api v{Assembly.GetEntryAssembly()?.GetName().Version}.");
         }
     }
 }
