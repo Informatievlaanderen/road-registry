@@ -28,6 +28,21 @@ namespace RoadRegistry.Editor.Projections
                 await context.ExtractDownloads.AddAsync(record, ct);
             });
 
+            When<Envelope<RoadNetworkExtractGotRequestedV2>>(async (context, envelope, ct) =>
+            {
+                var record = new ExtractDownloadRecord
+                {
+                    ExternalRequestId = envelope.Message.ExternalRequestId,
+                    RequestId = envelope.Message.RequestId,
+                    DownloadId = envelope.Message.DownloadId,
+                    ArchiveId = null,
+                    Available = false,
+                    AvailableOn = 0L,
+                    RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds()
+                };
+                await context.ExtractDownloads.AddAsync(record, ct);
+            });
+
             When<Envelope<RoadNetworkExtractDownloadBecameAvailable>>(async (context, envelope, ct) =>
             {
                 var record =

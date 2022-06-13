@@ -1,14 +1,11 @@
 <template>
   <div>
     <div v-if="activities.length === 0">
-      <div class="vl-col--1-1">
-        <div class="vl-region">
-          <div class="vl-u-align-center">
-            <div class="vl-loader" role="status"></div>
-            <p>Pagina is aan het laden</p>
-          </div>
+      <vl-region>
+        <div v-vl-align:center>
+          <vl-loader message="Uw pagina is aan het laden" />
         </div>
-      </div>
+      </vl-region>
     </div>
     <div v-else>
       <div class="vl-steps vl-steps--timeline">
@@ -25,67 +22,62 @@
                   <div class="vl-grid">
                     <div class="vl-col--11-12">
                       <h3 class="vl-step__title">
-                        <!-- <a href="#" v-on:click="activity.toggleContentVisibility()">{{ activity.changeFeedEntry.title }} {{activity.id}}</a> -->
                         {{ activity.changeFeedEntry.title }}
-                        <div style="background-color: red;" v-if="activity.changeFeedEntry.type === 'RoadNetworkChangesBasedOnArchiveAccepted' ">
+                        <div style="background-color: red;"
+                          v-if="activity.changeFeedEntry.type === 'RoadNetworkChangesBasedOnArchiveAccepted'">
                           {{ activity.changeFeedEntry.type }}
                         </div>
-                        </h3>
+                      </h3>
                     </div>
                     <div class="vl-col--1-12 vl-u-align-right">
-                      <div v-if="activity.hasContent()">
-                        <button class="vl-button vl-button--naked-action vl-button--icon vl-button--large" vl-button v-on:click="activity.toggleContentVisibility()">
-                          <i class="vl-button__icon vl-vi" aria-hidden="true" v-bind:class="{ 'vl-vi-minus': activity.isContentVisible, 'vl-vi-plus': !activity.isContentVisible}"></i>
-                        </button>
-                      </div>
+                      <vl-button :icon="activity.iconSelector" mod-icon mod-naked v-if="activity.hasContent()"
+                        v-on:click="activity.toggleContentVisibility()"></vl-button>
                     </div>
                   </div>
                 </div>
                 <div class="vl-step__content-wrapper" v-if="activity.isContentVisible">
                   <div class="vl-step__content">
                     <div v-if="activity.changeFeedContent">
-                      <div v-if="['RoadNetworkChangesArchiveUploaded', 'RoadNetworkExtractChangesArchiveUploaded', 'NoRoadNetworkChanges'].some(x => x === activity.changeFeedEntry.type)">
-                        Archief: 
-                        <a :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id" target="_blank">
-                          Download {{activity.changeFeedContent.content.archive.filename}}
-                        </a>
+                      <div
+                        v-if="['RoadNetworkChangesArchiveUploaded', 'RoadNetworkExtractChangesArchiveUploaded', 'NoRoadNetworkChanges'].some(x => x === activity.changeFeedEntry.type)">
+                        Archief: <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">
+                          Download {{ activity.changeFeedContent.content.archive.filename }}</vl-link>
                       </div>
-                      <div v-else-if="['RoadNetworkExtractDownloadBecameAvailable'].some(x => x === activity.changeFeedEntry.type)">
-                        Archief: 
-                        <a :href="'/roads/v1/extracts/download/' + activity.changeFeedContent.content.archive.id" target="_blank">
-                          Download {{activity.changeFeedContent.content.archive.filename}}
-                        </a>
+                      <div
+                        v-else-if="['RoadNetworkExtractDownloadBecameAvailable'].some(x => x === activity.changeFeedEntry.type)">
+                        Archief:
+                        <vl-link :href="'/roads/v1/extracts/download/' + activity.changeFeedContent.content.archive.id">
+                          Download {{ activity.changeFeedContent.content.archive.filename }}</vl-link>
                       </div>
-                      <div v-else-if="['RoadNetworkChangesArchiveRejected', 'RoadNetworkChangesArchiveAccepted', 'RoadNetworkExtractChangesArchiveAccepted', 'RoadNetworkExtractChangesArchiveRejected'].some(x => x === activity.changeFeedEntry.type)">
-                        <ul>
-                          <li v-for="file in activity.changeFeedContent.content.files" :key="file.file">
-                            <p><strong>{{file.file}}</strong></p>
-                            <ul class="vl-icon-list">
-                              <li class="vl-icon-list__item" v-for="problem in file.problems" :key="problem.text">
-                                <abbr title="Error" v-if="problem.severity == 'Error'">
-                                  <i class="vl-vi vl-vi-alert-triangle" aria-hidden="true"></i>
-                                </abbr>
-                                <abbr title="Waarschuwing" v-if="problem.severity == 'Warning'">
-                                  <i class="vl-vi vl-vi-alert-small" aria-hidden="true"></i>
-                                </abbr>
-                                {{ problem.text }}
-                              </li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <p>
-                          <a :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id" target="_blank">
-                            Download {{activity.changeFeedContent.content.archive.filename}}
-                          </a>
-                        </p>
+
+                      <div
+                        v-else-if="['RoadNetworkChangesArchiveRejected', 'RoadNetworkChangesArchiveAccepted', 'RoadNetworkExtractChangesArchiveAccepted', 'RoadNetworkExtractChangesArchiveRejected'].some(x => x === activity.changeFeedEntry.type)">
+                        <div v-for="file in activity.changeFeedContent.content.files" :key="file.file">
+                          <h3><strong>{{ file.file }}</strong></h3>
+                          <div v-for="problem in file.problems" :key="problem.text">
+                            <vl-alert icon="warning" title="Error" role="alertdialog" mod-error mod-small
+                              v-if="problem.severity == 'Error'">
+                              <p>{{ problem.text }}</p>
+                            </vl-alert>
+                            <vl-alert icon="warning" title="Waarschuwing" role="alertdialog" mod-small
+                              v-if="problem.severity == 'Warning'">
+                              <p>{{ problem.text }}</p>
+                            </vl-alert>
+                          </div>
+                          <br />
+                        </div>
+                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">Download {{
+                            activity.changeFeedContent.content.archive.filename
+                        }}</vl-link>
                       </div>
                       <div v-else-if="['RoadNetworkChangesAccepted:v2'].some(x => x === activity.changeFeedEntry.type)">
-                      <!-- <div v-if="1 == 1"> -->
                         <div class="vl-grid vl-grid--align-center grid-summary">
                           <div class="vl-col--4-12 vl-u-align-center">
                             <div class="vl-infotext-wrapper">
                               <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>{{ activity.changeFeedContent.content.summary.roadNodes.added }}</div>
+                                <div class="vl-infotext__value" data-vl-infotext-value>{{
+                                    activity.changeFeedContent.content.summary.roadNodes.added
+                                }}</div>
                                 <div class="vl-infotext__text">Toegevoegde wegknopen</div>
                               </div>
                             </div>
@@ -93,7 +85,9 @@
                           <div class="vl-col--4-12 vl-u-align-center">
                             <div class="vl-infotext-wrapper">
                               <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>{{ activity.changeFeedContent.content.summary.roadNodes.modified }}</div>
+                                <div class="vl-infotext__value" data-vl-infotext-value>{{
+                                    activity.changeFeedContent.content.summary.roadNodes.modified
+                                }}</div>
                                 <div class="vl-infotext__text">Gewijzigde wegknopen</div>
                               </div>
                             </div>
@@ -101,7 +95,9 @@
                           <div class="vl-col--4-12 vl-u-align-center">
                             <div class="vl-infotext-wrapper">
                               <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>{{ activity.changeFeedContent.content.summary.roadNodes.removed }}</div>
+                                <div class="vl-infotext__value" data-vl-infotext-value>{{
+                                    activity.changeFeedContent.content.summary.roadNodes.removed
+                                }}</div>
                                 <div class="vl-infotext__text">Verwijderde wegknopen</div>
                               </div>
                             </div>
@@ -109,7 +105,9 @@
                           <div class="vl-col--4-12 vl-u-align-center">
                             <div class="vl-infotext-wrapper">
                               <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>{{ activity.changeFeedContent.content.summary.roadSegments.added }}</div>
+                                <div class="vl-infotext__value" data-vl-infotext-value>{{
+                                    activity.changeFeedContent.content.summary.roadSegments.added
+                                }}</div>
                                 <div class="vl-infotext__text">Toegevoegde wegsegmenten</div>
                               </div>
                             </div>
@@ -117,7 +115,9 @@
                           <div class="vl-col--4-12 vl-u-align-center">
                             <div class="vl-infotext-wrapper">
                               <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>{{ activity.changeFeedContent.content.summary.roadSegments.modified }}</div>
+                                <div class="vl-infotext__value" data-vl-infotext-value>{{
+                                    activity.changeFeedContent.content.summary.roadSegments.modified
+                                }}</div>
                                 <div class="vl-infotext__text">Gewijzigde wegsegmenten</div>
                               </div>
                             </div>
@@ -125,7 +125,9 @@
                           <div class="vl-col--4-12 vl-u-align-center">
                             <div class="vl-infotext-wrapper">
                               <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>{{ activity.changeFeedContent.content.summary.roadSegments.removed }}</div>
+                                <div class="vl-infotext__value" data-vl-infotext-value>{{
+                                    activity.changeFeedContent.content.summary.roadSegments.removed
+                                }}</div>
                                 <div class="vl-infotext__text">Verwijderde wegsegmenten</div>
                               </div>
                             </div>
@@ -133,7 +135,9 @@
                           <div class="vl-col--4-12 vl-u-align-center">
                             <div class="vl-infotext-wrapper">
                               <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>{{ activity.changeFeedContent.content.summary.gradeSeparatedJunctions.added }}</div>
+                                <div class="vl-infotext__value" data-vl-infotext-value>{{
+                                    activity.changeFeedContent.content.summary.gradeSeparatedJunctions.added
+                                }}</div>
                                 <div class="vl-infotext__text">Toegevoegde ongelijkgrondse kruisingen</div>
                               </div>
                             </div>
@@ -141,7 +145,9 @@
                           <div class="vl-col--4-12 vl-u-align-center">
                             <div class="vl-infotext-wrapper">
                               <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>{{ activity.changeFeedContent.content.summary.gradeSeparatedJunctions.modified }}</div>
+                                <div class="vl-infotext__value" data-vl-infotext-value>{{
+                                    activity.changeFeedContent.content.summary.gradeSeparatedJunctions.modified
+                                }}</div>
                                 <div class="vl-infotext__text">Gewijzigde ongelijkgrondse kruisingen</div>
                               </div>
                             </div>
@@ -149,56 +155,49 @@
                           <div class="vl-col--4-12 vl-u-align-center">
                             <div class="vl-infotext-wrapper">
                               <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>{{ activity.changeFeedContent.content.summary.gradeSeparatedJunctions.removed }}</div>
+                                <div class="vl-infotext__value" data-vl-infotext-value>{{
+                                    activity.changeFeedContent.content.summary.gradeSeparatedJunctions.removed
+                                }}</div>
                                 <div class="vl-infotext__text">Verwijderde ongelijkgrondse kruisingen</div>
                               </div>
                             </div>
                           </div>
                         </div>
-                        <ul>
-                          <li v-for="change in activity.changeFeedContent.content.changes" :key="change.change">
-                            <p><strong>{{change.change}}</strong></p>
-                            <ul class="vl-icon-list">
-                              <li class="vl-icon-list__item" v-for="problem in change.problems" :key="problem.text">
-                                <abbr title="Error" v-if="problem.severity == 'Error'">
-                                  <i class="vl-vi vl-vi-alert-triangle" aria-hidden="true"></i>
-                                </abbr>
-                                <abbr title="Waarschuwing" v-if="problem.severity == 'Warning'">
-                                  <i class="vl-vi vl-vi-alert-small" aria-hidden="true"></i>
-                                </abbr>
-                                {{ problem.text }}
-                              </li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <p>
-                          <a :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id" target="_blank">
-                            Download {{activity.changeFeedContent.content.archive.filename}}
-                          </a>
-                        </p>
+                        <div v-for="change in activity.changeFeedContent.content.changes" :key="change.change">
+                          <h3><strong>{{ change.change }}</strong></h3>
+                          <div v-for="problem in change.problems" :key="problem.text">
+                            <vl-alert icon="warning" title="Error" role="alertdialog" mod-error mod-small
+                              v-if="problem.severity == 'Error'">
+                              <p>{{ problem.text }}</p>
+                            </vl-alert>
+                            <vl-alert icon="warning" title="Waarschuwing" role="alertdialog" mod-small
+                              v-if="problem.severity == 'Warning'">
+                              <p>{{ problem.text }}</p>
+                            </vl-alert>
+                          </div>
+                          <br />
+                        </div>
+                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">Download {{
+                            activity.changeFeedContent.content.archive.filename
+                        }}</vl-link>
                       </div>
                       <div v-else-if="['RoadNetworkChangesRejected'].some(x => x === activity.changeFeedEntry.type)">
-                        <ul>
-                          <li v-for="change in activity.changeFeedContent.content.changes" :key="change.change">
-                            <p><strong>{{change.change}}</strong></p>
-                            <ul class="vl-icon-list">
-                              <li class="vl-icon-list__item" v-for="problem in change.problems" :key="problem.text">
-                                <abbr title="Error" v-if="problem.severity == 'Error'">
-                                  <i class="vl-vi vl-vi-alert-triangle" aria-hidden="true"></i>
-                                </abbr>
-                                <abbr title="Waarschuwing" v-if="problem.severity == 'Warning'">
-                                  <i class="vl-vi vl-vi-alert-small" aria-hidden="true"></i>
-                                </abbr>
-                                {{ problem.text }}
-                              </li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <p>
-                          <a :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id" target="_blank">
-                            Download {{activity.changeFeedContent.content.archive.filename}}
-                          </a>
-                        </p>
+                        <div v-for="change in activity.changeFeedContent.content.changes" :key="change.change">
+                          <div v-for="problem in change.problems" :key="problem.text">
+                            <vl-alert icon="warning" title="Error" role="alertdialog" mod-error mod-small
+                              v-if="problem.severity == 'Error'">
+                              <p>{{ problem.text }}</p>
+                            </vl-alert>
+                            <vl-alert icon="warning" title="Waarschuwing" role="alertdialog" mod-small
+                              v-if="problem.severity == 'Warning'">
+                              <p>{{ problem.text }}</p>
+                            </vl-alert>
+                          </div>
+                          <br />
+                        </div>
+                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">Download {{
+                            activity.changeFeedContent.content.archive.filename
+                        }}</vl-link>
                       </div>
                       <div v-else>
                         {{ activity.changeFeedContent }}
@@ -225,23 +224,15 @@
         </ul>
       </div>
 
-      <section class="vl-region">
-        <div class="vl-layout">
-          <div class="vl-grid vl-grid--align-center">
-            <div class="vl-col--6-12 vl-u-align-center">
-              <button
-                class="vl-button vl-button--wide"
-                vl-button
-                v-on:click="loadNextPage()"
-                v-bind:class="{ 'vl-button--disabled': pagination.isLoading }"
-                :disabled="pagination.isLoading">
-                <span class="vl-button__label vl-loader vl-loader--light" v-if="pagination.isLoading"></span>
-                <span class="vl-button__label" v-else>Meer &hellip;</span>
-              </button>
-            </div>
+      <vl-grid mod-stacked>
+        <vl-column>
+          <div v-vl-flex v-vl-flex:align-center>
+            <vl-button mod-loading v-if="pagination.isLoading"></vl-button>
+            <vl-button v-else v-on:click="loadNextPage()">Meer ...</vl-button>
           </div>
-        </div>
-      </section>
+        </vl-column>
+      </vl-grid>
+
     </div>
   </div>
 </template>
@@ -312,6 +303,14 @@ class Activity {
     }
   }
 
+  public get iconSelector(): string {
+    if (this._isChangeFeedContentVisible) {
+      return "minus";
+    } else {
+      return "plus";
+    }
+  }
+
   public hasContent(): boolean {
     return [
       'RoadNetworkChangesArchiveUploaded',
@@ -339,6 +338,7 @@ class Activity {
   padding: 1.5rem;
   margin-left: -1.5rem;
 }
+
 .grid-summary {
   background-color: #e8ebee;
   margin-bottom: 5px;

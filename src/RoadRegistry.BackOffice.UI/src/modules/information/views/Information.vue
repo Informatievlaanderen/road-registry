@@ -1,73 +1,43 @@
 <template>
-  <div>
-    <table class="vl-data-table vl-data-table--grid">
+  <div class="vl-u-table-overflow">
+    <vl-data-table>
       <thead>
         <tr>
           <th>Gegeven</th>
-
           <th>Waarde</th>
         </tr>
       </thead>
       <tbody>
-        
         <tr>
-          <td data-title="Organisaties"># organisaties</td>
+          <td># organisaties</td>
           <td>
-            <div v-if="isLoading">
-              <div class="vl-skeleton" style="">
-                <div class="vl-skeleton-bone"></div>
-              </div>
-            </div>
-            <div v-else>
-              {{ this.information.organizationCount }}
-            </div>
+            <div v-if="isLoading"><vl-loader mod-inline mod-small mod-message-hidden /></div>
+            <div v-else>{{ this.information.organizationCount }}</div>
           </td>
         </tr>
-        
         <tr>
-          <td data-title="Wegknopen"># wegknopen</td>
+          <td># wegknopen</td>
           <td>
-            <div v-if="isLoading">
-              <div class="vl-skeleton" style="">
-                <div class="vl-skeleton-bone"></div>
-              </div>
-            </div>
-            <div v-else>
-              {{ this.information.roadNodeCount }}
-            </div>
+            <div v-if="isLoading"><vl-loader mod-inline mod-small mod-message-hidden /></div>
+            <div v-else>{{ this.information.roadNodeCount }}</div>
           </td>
         </tr>
-        
         <tr>
-          <td data-title="Wegsegmenten"># wegsegmenten</td>
+          <td># wegsegmenten</td>
           <td>
-            <div v-if="isLoading">
-              <div class="vl-skeleton" style="">
-                <div class="vl-skeleton-bone"></div>
-              </div>
-            </div>
-            <div v-else>
-              {{ this.information.roadSegmentCount }}
-            </div>
+            <div v-if="isLoading"><vl-loader mod-inline mod-small mod-message-hidden /></div>
+            <div v-else>{{ this.information.roadSegmentCount }}</div>
           </td>
         </tr>
-        
         <tr>
-          <td data-title="Ongelijkgrondse Kruisingen"># ongelijkgrondse kruisingen</td>
+          <td># ongelijkgrondse kruisingen</td>
           <td>
-            <div v-if="isLoading">
-              <div class="vl-skeleton" style="">
-                <div class="vl-skeleton-bone"></div>
-              </div>
-            </div>
-            <div v-else>
-              {{ this.information.gradeSeparatedJunctionCount }}
-            </div>
+            <div v-if="isLoading"><vl-loader mod-inline mod-small mod-message-hidden /></div>
+            <div v-else>{{ this.information.gradeSeparatedJunctionCount }}</div>
           </td>
         </tr>
-
       </tbody>
-    </table>
+    </vl-data-table>
   </div>
 </template>
 

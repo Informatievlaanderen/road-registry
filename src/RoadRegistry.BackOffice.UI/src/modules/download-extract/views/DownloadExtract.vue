@@ -10,18 +10,10 @@
           Wenst u een extract ter grootte van een gemeente, of een extract ter grootte van een willekeurige contour in
           WKT-formaat?
         </p>
-        <div class="vl-form-grid">
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step2_Municipality">
-              <span class="vl-button__label">Gemeentecontour</span>
-            </button>
-          </div>
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step2_Contour">
-              <span class="vl-button__label">Eigen contour</span>
-            </button>
-          </div>
-        </div>
+        <vl-action-group>
+          <vl-button v-on:click="currentStep = steps.Step2_Municipality">Gemeentecontour</vl-button>
+          <vl-button v-on:click="currentStep = steps.Step2_Contour">Eigen contour</vl-button>
+        </vl-action-group>
       </div>
 
       <div v-else-if="currentStep == steps.Step2_Municipality">
@@ -31,7 +23,8 @@
             <label for="select-municipality" class="vl-form__label __field__label">Vul hieronder de gemeente in waarvoor u de contour wenst op te halen</label>
           </div>
           <div class="vl-form-col--3-12">
-            <select id="select-municipality" class="vl-select--block vl-select vl-select--block" v-model="municipalityFlow.nisCode">
+            <select id="select-municipality" class="vl-select--block vl-select vl-select--block"
+              v-model="municipalityFlow.nisCode">
               <option v-for="municipality in municipalities" :key="municipality.identificator.objectId" :value="municipality.identificator.objectId">
                 {{ municipality.gemeentenaam.geografischeNaam.spelling }}
               </option>
@@ -43,23 +36,19 @@
           </div>
           <div class="vl-form-col--12-12">
             <label class="vl-checkbox" for="municipality-buffer">
-              <input class="vl-checkbox__toggle" type="checkbox" id="municipality-buffer" v-model="municipalityFlow.buffer" />
+              <input class="vl-checkbox__toggle" type="checkbox" id="municipality-buffer"
+                v-model="municipalityFlow.buffer" />
               <span class="vl-checkbox__label">
                 <i class="vl-checkbox__box" aria-hidden="true"></i>
                 Voeg buffer toe
               </span>
             </label>
           </div>
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step1">
-              <span class="vl-button__label">Vorige</span>
-            </button>
-          </div>
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step3_Municipality" v-bind:class="{ 'vl-button--disabled': municipalityFlow.nisCode == '' }" :disabled="municipalityFlow.nisCode == ''">
-              <span class="vl-button__label">Volgende</span>
-            </button>
-          </div>
+          <vl-action-group>
+            <vl-button v-on:click="currentStep = steps.Step1">Vorige</vl-button>
+            <vl-button v-if="municipalityFlow.nisCode == ''" mod-disabled>Volgende</vl-button>
+            <vl-button v-else v-on:click="currentStep = steps.Step3_Municipality">Volgende</vl-button>
+          </vl-action-group>
         </div>
       </div>
 
@@ -69,25 +58,22 @@
           <div class="vl-form-col--12-12">
             <label for="municipality-description" class="vl-form__label __field__label">Geef een beschrijving op van het extract.</label>
           </div>
-          <div class="vl-form-col--3-12">
-            <textarea class="vl-textarea" id="municipality-description" value="" cols="40" rows="4" v-model="municipalityFlow.description"></textarea>
+          <div class="vl-form-col--12-12">
+            <vl-textarea id="municipality-description" cols="40" rows="4" v-model="municipalityFlow.description" mod-block></vl-textarea>
           </div>
-          <div class="vl-form-col--9-12"></div>
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step2_Municipality">
-              <span class="vl-button__label">Vorige</span>
-            </button>
+         <div class="vl-form-col--12-12">
+            <vl-action-group>
+              <vl-button v-on:click="currentStep = steps.Step2_Municipality">Vorige</vl-button>
+              <vl-button v-if="!isDescriptionValid(municipalityFlow.description)" mod-disabled>Extract aanvragen
+              </vl-button>
+              <vl-button v-else v-on:click="submitMunicipalityRequest">Extract aanvragen</vl-button>
+            </vl-action-group>
           </div>
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="submitMunicipalityRequest" v-bind:class="{ 'vl-button--disabled': !isDescriptionValid(municipalityFlow.description) }" :disabled="!isDescriptionValid(municipalityFlow.description)">
-              <span class="vl-button__label">Extract aanvragen</span>
-            </button>
-          </div>
-          <div class="vl-form-col--8-12"></div>
-          <div class="vl-form-col--6-12">
-              <span v-if="!isDescriptionValid(municipalityFlow.description)"> 
-                Gelieve een beschrijving mee te geven van maximaal 250 karakters.
-              </span>
+          <div class="vl-form-col--12-12">
+            <vl-alert icon="warning" title="Opgelet!" mod-small role="alertdialog"
+              v-if="!isDescriptionValid(municipalityFlow.description)">
+              <p>Gelieve een beschrijving mee te geven van maximaal 250 karakters.</p>
+            </vl-alert>
           </div>
         </div>
       </div>
@@ -120,7 +106,8 @@
             </button>
           </div>
           <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step3_Contour" v-bind:class="{ 'vl-button--disabled': contourFlow.wkt == '' }" :disabled="contourFlow.wkt == ''">
+            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step3_Contour"
+              v-bind:class="{ 'vl-button--disabled': contourFlow.wkt == '' }" :disabled="contourFlow.wkt == ''">
               <span class="vl-button__label">Volgende</span>
             </button>
           </div>
@@ -149,9 +136,9 @@
           </div>
           <div class="vl-form-col--8-12"></div>
           <div class="vl-form-col--6-12">
-              <span v-if="!isDescriptionValid(contourFlow.description)"> 
-                Gelieve een beschrijving mee te geven van maximaal 250 karakters.
-              </span>
+            <span v-if="!isDescriptionValid(contourFlow.description)">
+              Gelieve een beschrijving mee te geven van maximaal 250 karakters.
+            </span>
           </div>
         </div>
       </div>
@@ -222,7 +209,7 @@ export default Vue.extend({
       };
 
       const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
-      this.$router.push({name: 'activiteit', params: { downloadId: response.downloadId }});
+      this.$router.push({ name: 'activiteit', params: { downloadId: response.downloadId } });
     },
 
     async submitContourRequest() {
@@ -233,10 +220,10 @@ export default Vue.extend({
       };
 
       const response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
-      this.$router.push({name: 'activiteit', params: { downloadId: response.downloadId }});
+      this.$router.push({ name: 'activiteit', params: { downloadId: response.downloadId } });
     },
 
-    isDescriptionValid(description: string):boolean {
+    isDescriptionValid(description: string): boolean {
       const validationRules = this.validation.description;
 
       if (!description) return false;

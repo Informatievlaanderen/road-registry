@@ -1,3 +1,31 @@
+# [3.3.0](https://github.com/informatievlaanderen/road-registry/compare/v3.2.6...v3.3.0) (2022-06-13)
+
+
+### Features
+
+* add feature toggle ([6f23cca](https://github.com/informatievlaanderen/road-registry/commit/6f23ccae24aa8e75cc3b8258d955b07d23e4a199))
+
+## [3.2.6](https://github.com/informatievlaanderen/road-registry/compare/v3.2.5...v3.2.6) (2022-06-13)
+
+
+### Bug Fixes
+
+* add missing dependency to api paket template ([ab286eb](https://github.com/informatievlaanderen/road-registry/commit/ab286eba75dffdf7d913eee54f635d4f0e8c7d26))
+
+## [3.2.5](https://github.com/informatievlaanderen/road-registry/compare/v3.2.4...v3.2.5) (2022-06-09)
+
+
+### Bug Fixes
+
+* add missing event handlers for projections ([808830a](https://github.com/informatievlaanderen/road-registry/commit/808830ae1a6d224c64ca712d67bdeeebfba8b8e2))
+
+## [3.2.4](https://github.com/informatievlaanderen/road-registry/compare/v3.2.3...v3.2.4) (2022-06-03)
+
+
+### Bug Fixes
+
+* add missing event handlers to road network view builder ([9539042](https://github.com/informatievlaanderen/road-registry/commit/9539042a6418bff91c8b0daf73ebfe1b736e925c))
+
 ## [3.2.3](https://github.com/informatievlaanderen/road-registry/compare/v3.2.2...v3.2.3) (2022-05-31)
 
 

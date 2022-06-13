@@ -51,6 +51,17 @@ namespace RoadRegistry.Editor.Projections
                         When = envelope.Message.When
                     }, ct));
 
+            When<Envelope<RoadNetworkExtractGotRequestedV2>>(async (context, envelope, ct) =>
+                await context.RoadNetworkChanges.AddAsync(
+                    new Schema.RoadNetworkChanges.RoadNetworkChange
+                    {
+                        Id = envelope.Position,
+                        Title = $"Extract aanvraag {envelope.Message.ExternalRequestId} voor download {envelope.Message.DownloadId:N} met omschrijving {envelope.Message.Description} ontvangen",
+                        Type = nameof(RoadNetworkExtractGotRequestedV2),
+                        Content = null,
+                        When = envelope.Message.When
+                    }, ct));
+
             When<Envelope<RoadNetworkExtractDownloadBecameAvailable>>(async (context, envelope, ct) =>
             {
                 var content = new Schema.RoadNetworkChanges.RoadNetworkExtractDownloadBecameAvailableEntry
