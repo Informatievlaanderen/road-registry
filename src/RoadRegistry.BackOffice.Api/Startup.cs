@@ -1,10 +1,13 @@
 namespace RoadRegistry.BackOffice.Api
 {
+    using System;
+    using System.Linq;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
     using Configuration;
+    using Hosts;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -13,10 +16,9 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Hosting;
-    using System;
-    using System.Linq;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.Options;
     using Microsoft.OpenApi.Models;
 
     public class Startup
@@ -84,7 +86,8 @@ namespace RoadRegistry.BackOffice.Api
                             }
                         }
                     }
-                });
+                })
+                .AddSingleton(c => new UseSomeFeatureV2Toggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSomeFeatureV2));
 
             var builder = new ContainerBuilder();
             builder.Populate(services);

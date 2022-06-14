@@ -1,3 +1,10 @@
+# [3.3.0](https://github.com/informatievlaanderen/road-registry/compare/v3.2.6...v3.3.0) (2022-06-13)
+
+
+### Features
+
+* add feature toggle ([6f23cca](https://github.com/informatievlaanderen/road-registry/commit/6f23ccae24aa8e75cc3b8258d955b07d23e4a199))
+
 ## [3.2.6](https://github.com/informatievlaanderen/road-registry/compare/v3.2.5...v3.2.6) (2022-06-13)
 
 
