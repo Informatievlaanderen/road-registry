@@ -90,6 +90,13 @@ namespace RoadRegistry.BackOffice.Api
                     }
                 })
             .ConfigureServices((hostContext, builder) =>
+                    {
+                        WriteTextToConsole = false,
+                        WriteJsonToConsole = false
+                    },
+                    Runtime = { CommandLineArgs = args }
+                })
+            .ConfigureServices((hostContext, builder) =>
             {
                 var blobOptions = new BlobClientOptions();
                 hostContext.Configuration.Bind(blobOptions);
