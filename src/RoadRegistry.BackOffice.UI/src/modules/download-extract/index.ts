@@ -10,8 +10,11 @@ export const DownloadExtractRoutes = [
             {
                 path: "",
                 component: DownloadExtract,
-                name: "download-extract"
-              },
+                name: "download-extract",
+                meta: {
+                    requiresAuth: true
+                }
+            }
         ],
     },
 ];

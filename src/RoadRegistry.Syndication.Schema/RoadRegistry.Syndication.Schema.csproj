@@ -3,6 +3,7 @@
   <PropertyGroup>
     <RootNamespace>RoadRegistry.Syndication.Schema</RootNamespace>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />

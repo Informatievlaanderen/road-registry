@@ -5,6 +5,7 @@
     <RootNamespace>RoadRegistry.Legacy.Extract</RootNamespace>
     <AssemblyName>RoadRegistry.Legacy.Extract</AssemblyName>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

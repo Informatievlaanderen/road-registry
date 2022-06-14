@@ -6,6 +6,7 @@
     <RootNamespace>RoadRegistry.Dbase</RootNamespace>
     <AssemblyName>RoadRegistry.Dbase</AssemblyName>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

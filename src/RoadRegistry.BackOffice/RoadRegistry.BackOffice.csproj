@@ -6,6 +6,7 @@
     <RootNamespace>RoadRegistry.BackOffice</RootNamespace>
     <AssemblyName>RoadRegistry.BackOffice</AssemblyName>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
