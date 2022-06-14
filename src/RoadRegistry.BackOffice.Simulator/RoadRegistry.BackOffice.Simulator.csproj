@@ -5,6 +5,7 @@
     <RootNamespace>RoadRegistry.BackOffice.Simulator</RootNamespace>
     <AssemblyName>RoadRegistry.BackOffice.Simulator</AssemblyName>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
