@@ -60,7 +60,7 @@ nuget Serilog.Settings.Configuration 3.3.0
 nuget Serilog.Sinks.Seq 5.1.1
 nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
 
-nuget FeatureToggle.Net6 1.0.0
+nuget FeatureToggle.Net6 1.0.1
 
 // VBR STUFF
 nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 6.0.4
