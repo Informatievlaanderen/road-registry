@@ -1,11 +1,11 @@
 import Vue from "vue";
 import Router, { RawLocation, Route, RouteConfig } from "vue-router";
-import Home from "./views/Home.vue";
-import { ActivityRoutes } from "./modules/activity/";
-import { InformationRoutes } from "./modules/information/";
+import { ActivityRoutes } from "./modules/activity";
+import { InformationRoutes } from "./modules/information";
 import { DownloadExtractRoutes } from "./modules/download-extract";
 import { DownloadProductRoutes } from "./modules/download-product";
 import { UploadRoutes } from "./modules/uploads";
+import { AuthRoutes, AuthService, isAuthenticated } from "./auth";
 
 Vue.use(Router);
 
@@ -14,6 +14,7 @@ const routes: RouteConfig[] = [
         path: "/",
         redirect: { name: "activiteit" }
     },
+    ...AuthRoutes,
     ...ActivityRoutes,
     ...InformationRoutes,
     ...DownloadExtractRoutes,
@@ -25,13 +26,10 @@ function ensureRouteMetaValue(route: Route, predicate: (meta: any) => boolean) {
     return route.matched.some(m => predicate(m.meta));
 }
 
-
 routes.push({
     path: "*",
     redirect: "/",
 });
-
-
 
 export const router = new Router({
     mode: "history",
@@ -45,12 +43,19 @@ export const router = new Router({
     },
     routes,
 });
-
-// router.beforeEach((to, from, next) => {
-//     Vue.prototype.$prevRoute = from;
-//     //TODO check if authenticated
-//     // IF not redirect to decent login page instead
-//     return next();
-// });
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!isAuthenticated) {
+            next({
+                path: '/login',
+                query: { redirect: to.fullPath }
+            })
+        } else {
+            next()
+        }
+    } else {
+        next()
+    }
+})
 
 export default router;

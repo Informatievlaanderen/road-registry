@@ -5,13 +5,15 @@ export const ActivityRoutes = [
     {
         path: "/activiteit",
         component: Root,
-        meta: {},
         children: [
             {
                 path: "",
                 component: Activities,
-                name: "activiteit"
-              },
+                name: "activiteit",
+                meta: {
+                    requiresAuth: true
+                },
+            }
         ],
     },
 ];

@@ -40,6 +40,7 @@ src/RoadRegistry.StreetNameDatabase/filled/*.bcp
 *.sln.docstates
 *.ntvs*
 *.njsproj
+.env.*
 
 node_modules/
 bower_components/
@@ -67,3 +68,4 @@ appsettings.shelby.json
 # don't check the dev certificates in
 *.cer
 *.pfx
+src/RoadRegistry.BackOffice.UI/.env.staging

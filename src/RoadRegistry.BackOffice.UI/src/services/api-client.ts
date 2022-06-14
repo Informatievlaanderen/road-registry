@@ -1,7 +1,7 @@
 import Vue from "vue";
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from "axios";
-import {API_KEY} from "../environment";
-import { config } from "vue/types/umd";
+import { AuthService } from "@/auth";
+import router from "@/router";
 
 export interface IApiClient {
   get<T = any>(
@@ -45,7 +45,7 @@ class AxiosHttpApiClient implements IApiClient {
 
     this.axios.interceptors.request.use((config: any) => {
       config.withCredentials = true;
-      config.headers["x-api-key"] = API_KEY;
+      config.headers["x-api-key"] = AuthService.getApiKey();
       return config;
     });
 
@@ -65,6 +65,10 @@ class AxiosHttpApiClient implements IApiClient {
         return response;
       },
       (error) => {
+        console.info(error)
+        if(error.response.status == 403 || error.response.status == 401) {
+          router.push("/login?redirect=" + router.currentRoute.fullPath)
+        }
         apiStats.pendingRequests--;
         return Promise.reject(error);
       }

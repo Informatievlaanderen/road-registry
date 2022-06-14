@@ -6,6 +6,7 @@
     <RootNamespace>RoadRegistry</RootNamespace>
     <AssemblyName>RoadRegistry.Tests</AssemblyName>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

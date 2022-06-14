@@ -10,8 +10,11 @@ export const UploadRoutes = [
             {
                 path: "",
                 component: Uploads,
-                name: "uploads"
-              },
+                name: "uploads",
+                meta: {
+                    requiresAuth: true
+                }
+            }
         ],
     },
 ];
