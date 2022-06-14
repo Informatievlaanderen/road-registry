@@ -381,6 +381,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
 
             public void Dispose()
             {
+                // intentionally left blank
             }
 
             public IEnumerator<ImportedRoadSegment> GetEnumerator()

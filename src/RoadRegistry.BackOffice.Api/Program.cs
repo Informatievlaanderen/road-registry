@@ -37,14 +37,14 @@ namespace RoadRegistry.BackOffice.Api
     public class Program
     {
         public const int HostingPort = 10002;
-        
+
         private static bool _useSomeFeatureV2;
 
         public static async Task Main(string[] args)
         {
             var host = CreateWebHostBuilder(args).Build();
             var configuration = host.Services.GetRequiredService<IConfiguration>();
-            
+
             _useSomeFeatureV2 = Convert.ToBoolean(configuration.GetSection(FeatureToggleOptions.ConfigurationKey)[nameof(FeatureToggleOptions.UseSomeFeatureV2)]);
 
             var streamStore = host.Services.GetRequiredService<IStreamStore>();
@@ -72,23 +72,30 @@ namespace RoadRegistry.BackOffice.Api
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) => new WebHostBuilder()
-                .UseDefaultForApi<Startup>(
-                    new ProgramOptions
+            .UseDefaultForApi<Startup>(
+                new ProgramOptions
+                {
+                    Hosting =
                     {
-                        Hosting =
-                        {
-                            HttpPort = HostingPort
-                        },
-                        Logging =
-                        {
-                            WriteTextToConsole = false,
-                            WriteJsonToConsole = false
-                        },
-                        Runtime =
-                        {
-                            CommandLineArgs = args
-                        }
-                    })
+                        HttpPort = HostingPort
+                    },
+                    Logging =
+                    {
+                        WriteTextToConsole = false,
+                        WriteJsonToConsole = false
+                    },
+                    Runtime =
+                    {
+                        CommandLineArgs = args
+                    }
+                })
+            .ConfigureServices((hostContext, builder) =>
+                    {
+                        WriteTextToConsole = false,
+                        WriteJsonToConsole = false
+                    },
+                    Runtime = { CommandLineArgs = args }
+                })
             .ConfigureServices((hostContext, builder) =>
             {
                 var blobOptions = new BlobClientOptions();
@@ -199,7 +206,8 @@ namespace RoadRegistry.BackOffice.Api
                     .AddSingleton<IStreamStore>(sp =>
                         new MsSqlStreamStoreV3(
                             new MsSqlStreamStoreV3Settings(
-                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events)) { Schema = WellknownSchemas.EventSchema }))
+                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events))
+                            { Schema = WellknownSchemas.EventSchema }))
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton(new NetTopologySuite.IO.WKTReader(
                         new NetTopologySuite.NtsGeometryServices(
