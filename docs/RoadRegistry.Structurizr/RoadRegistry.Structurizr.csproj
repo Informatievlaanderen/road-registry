@@ -6,6 +6,7 @@
     <RootNamespace>RoadRegistry.Structurizr</RootNamespace>
     <AssemblyName>RoadRegistry.Structurizr</AssemblyName>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

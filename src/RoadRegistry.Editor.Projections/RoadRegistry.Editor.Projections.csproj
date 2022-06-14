@@ -5,6 +5,7 @@
     <RootNamespace>RoadRegistry.Editor.Projections</RootNamespace>
     <AssemblyName>RoadRegistry.Editor.Projections</AssemblyName>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

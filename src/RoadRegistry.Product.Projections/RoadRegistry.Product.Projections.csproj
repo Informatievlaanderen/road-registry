@@ -5,6 +5,7 @@
     <RootNamespace>RoadRegistry.Product.Projections</RootNamespace>
     <AssemblyName>RoadRegistry.Product.Projections</AssemblyName>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
