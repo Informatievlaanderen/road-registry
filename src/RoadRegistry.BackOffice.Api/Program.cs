@@ -89,16 +89,6 @@ namespace RoadRegistry.BackOffice.Api
                             CommandLineArgs = args
                         }
                     })
-                .ConfigureServices((hostContext, builder) =>
-                {
-                    Hosting = { HttpPort = 10002 },
-                    Logging =
-                    {
-                        WriteTextToConsole = false,
-                        WriteJsonToConsole = false
-                    },
-                    Runtime = { CommandLineArgs = args }
-                })
             .ConfigureServices((hostContext, builder) =>
             {
                 var blobOptions = new BlobClientOptions();
