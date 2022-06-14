@@ -4,5 +4,8 @@ namespace RoadRegistry.Editor.ProjectionHost
     using Schema;
 
     public class AcceptStreamMessage : AcceptStreamMessage<EditorContext>
-    { }
+    {
+        protected AcceptStreamMessage()
+        { }
+    }
 }
