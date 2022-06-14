@@ -5,6 +5,7 @@
     <RootNamespace>RoadRegistry.Product.Schema</RootNamespace>
     <AssemblyName>RoadRegistry.Product.Schema</AssemblyName>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

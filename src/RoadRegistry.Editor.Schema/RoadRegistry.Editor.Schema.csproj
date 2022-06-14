@@ -5,6 +5,7 @@
     <RootNamespace>RoadRegistry.Editor.Schema</RootNamespace>
     <AssemblyName>RoadRegistry.Editor.Schema</AssemblyName>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
