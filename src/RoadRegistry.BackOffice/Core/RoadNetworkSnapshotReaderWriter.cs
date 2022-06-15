@@ -111,7 +111,7 @@ namespace RoadRegistry.BackOffice.Core
             var newSnapshotBlobName = SnapshotPrefix.Append(new BlobName(version.ToString()));
             if (!await _client.BlobExistsAsync(newSnapshotBlobName, cancellationToken))
             {
-                throw new Exception();
+                throw new InvalidOperationException($"Snapshot with name {newSnapshotBlobName} not found");
             }
 
             var newSnapshotHead = new Messages.RoadNetworkSnapshotHead
