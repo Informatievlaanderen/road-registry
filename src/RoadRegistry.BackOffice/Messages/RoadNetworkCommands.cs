@@ -8,7 +8,8 @@ namespace RoadRegistry.BackOffice.Messages
             typeof(UploadRoadNetworkChangesArchive),
             typeof(ChangeRoadNetwork),
             typeof(AnnounceRoadNetworkExtractDownloadBecameAvailable),
-            typeof(RequestRoadNetworkExtract)
+            typeof(RequestRoadNetworkExtract),
+            typeof(RebuildRoadNetworkSnapshot)
         };
     }
 }

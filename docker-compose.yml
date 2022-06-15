@@ -396,7 +396,7 @@ services:
       API_KEY: 00000000-0000-0000-0000-000000000000
 
   public-api:
-    image: dev.local/public-api/api-legacy:latest
+    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/public-api/api-legacy:latest
     volumes:
       - ./docker/public-api/appsettings.json:/app/appsettings.json
     ports:

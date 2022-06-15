@@ -38,14 +38,11 @@ namespace RoadRegistry.BackOffice.Api
     {
         public const int HostingPort = 10002;
 
-        private static bool _useSomeFeatureV2;
 
         public static async Task Main(string[] args)
         {
             var host = CreateWebHostBuilder(args).Build();
             var configuration = host.Services.GetRequiredService<IConfiguration>();
-
-            _useSomeFeatureV2 = Convert.ToBoolean(configuration.GetSection(FeatureToggleOptions.ConfigurationKey)[nameof(FeatureToggleOptions.UseSomeFeatureV2)]);
 
             var streamStore = host.Services.GetRequiredService<IStreamStore>();
             var logger = host.Services.GetRequiredService<ILogger<Program>>();
@@ -88,13 +85,6 @@ namespace RoadRegistry.BackOffice.Api
                     {
                         CommandLineArgs = args
                     }
-                })
-            .ConfigureServices((hostContext, builder) =>
-                    {
-                        WriteTextToConsole = false,
-                        WriteJsonToConsole = false
-                    },
-                    Runtime = { CommandLineArgs = args }
                 })
             .ConfigureServices((hostContext, builder) =>
             {

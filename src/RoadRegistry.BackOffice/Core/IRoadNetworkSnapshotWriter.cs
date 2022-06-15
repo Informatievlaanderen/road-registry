@@ -6,5 +6,6 @@ namespace RoadRegistry.BackOffice.Core
     public interface IRoadNetworkSnapshotWriter
     {
         Task WriteSnapshot(Messages.RoadNetworkSnapshot snapshot, int version, CancellationToken cancellationToken);
+        Task SetHeadToVersion(int version, CancellationToken cancellationToken);
     }
 }

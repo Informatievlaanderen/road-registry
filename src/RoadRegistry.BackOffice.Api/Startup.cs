@@ -86,8 +86,7 @@ namespace RoadRegistry.BackOffice.Api
                             }
                         }
                     }
-                })
-                .AddSingleton(c => new UseSomeFeatureV2Toggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSomeFeatureV2));
+                });
 
             var builder = new ContainerBuilder();
             builder.Populate(services);
