@@ -8,11 +8,24 @@ namespace RoadRegistry.BackOffice.Core
 
     public class RoadNetworkCommandModule : CommandHandlerModule
     {
-        public RoadNetworkCommandModule(IStreamStore store, IRoadNetworkSnapshotReader snapshotReader, IClock clock)
+        public RoadNetworkCommandModule(
+            IStreamStore store,
+            IRoadNetworkSnapshotReader snapshotReader,
+            IRoadNetworkSnapshotWriter snapshotWriter,
+            IClock clock)
         {
             if (store == null) throw new ArgumentNullException(nameof(store));
             if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
             if (clock == null) throw new ArgumentNullException(nameof(clock));
+
+            For<RebuildRoadNetworkSnapshot>()
+                .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
+                .Handle(async (context, command, ct) =>
+                {
+                    await snapshotWriter.SetHeadToVersion(command.Body.StartFromVersion, ct);
+                    var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
+                    await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
+                });
 
             For<ChangeRoadNetwork>()
                 .UseValidator(new ChangeRoadNetworkValidator())

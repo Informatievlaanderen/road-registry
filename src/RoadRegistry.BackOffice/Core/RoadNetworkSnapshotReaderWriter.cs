@@ -105,5 +105,34 @@ namespace RoadRegistry.BackOffice.Core
                 }
             }
         }
+
+        public async Task SetHeadToVersion(int version, CancellationToken cancellationToken)
+        {
+            var newSnapshotBlobName = SnapshotPrefix.Append(new BlobName(version.ToString()));
+            if (!await _client.BlobExistsAsync(newSnapshotBlobName, cancellationToken))
+            {
+                throw new Exception();
+            }
+
+            var newSnapshotHead = new Messages.RoadNetworkSnapshotHead
+            {
+                SnapshotBlobName = newSnapshotBlobName.ToString()
+            };
+
+            using (var stream = _streamManager.GetStream())
+            {
+                await MessagePackSerializer.SerializeAsync(stream, newSnapshotHead,
+                    cancellationToken: cancellationToken);
+
+                stream.Position = 0;
+
+                await _client.CreateBlobAsync(
+                    SnapshotHead,
+                    Metadata.None,
+                    MessagePackContentType,
+                    stream,
+                    cancellationToken);
+            }
+        }
     }
 }
