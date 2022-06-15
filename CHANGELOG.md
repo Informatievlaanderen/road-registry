@@ -1,3 +1,17 @@
+# [3.4.0](https://github.com/informatievlaanderen/road-registry/compare/v3.3.0...v3.4.0) (2022-06-15)
+
+
+### Bug Fixes
+
+* add health check endpoint ([#532](https://github.com/informatievlaanderen/road-registry/issues/532)) ([121c6bc](https://github.com/informatievlaanderen/road-registry/commit/121c6bcaf52e058e6dc59e03c4d310b352b883c0))
+* add missing dependencies ([7988711](https://github.com/informatievlaanderen/road-registry/commit/798871122a25151c913c14199deb1d0d97f36ae2))
+* fix syntax error ([e742553](https://github.com/informatievlaanderen/road-registry/commit/e7425530b8955906d1055db8214248591e53b919))
+
+
+### Features
+
+* add ability to rebuild snapshots ([4b104e2](https://github.com/informatievlaanderen/road-registry/commit/4b104e2fbe3e62430fcee6010d485dd262c54d85))
+
 # [3.3.0](https://github.com/informatievlaanderen/road-registry/compare/v3.2.6...v3.3.0) (2022-06-13)
 
 
