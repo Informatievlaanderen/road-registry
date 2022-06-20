@@ -1,3 +1,10 @@
+## [3.4.1](https://github.com/informatievlaanderen/road-registry/compare/v3.4.0...v3.4.1) (2022-06-20)
+
+
+### Bug Fixes
+
+* remove basic authentication ([9202970](https://github.com/informatievlaanderen/road-registry/commit/9202970356a624c5040c9519dafec93a0f80e849))
+
 # [3.4.0](https://github.com/informatievlaanderen/road-registry/compare/v3.3.0...v3.4.0) (2022-06-15)
 
 
