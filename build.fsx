@@ -106,7 +106,6 @@ Target.create "Publish_Solution" (fun _ ->
   Shell.copyFile dist (source @@ "Dockerfile")
   Shell.copyFile dist (source @@ "default.conf.template")
   Shell.copyFile dist (source @@ "init.sh")
-  Shell.copyFile dist (source @@ ".htpasswd")
 )
 
 Target.create "Pack_Solution" (fun _ ->
