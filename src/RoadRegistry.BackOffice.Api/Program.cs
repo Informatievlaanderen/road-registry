@@ -186,8 +186,12 @@ namespace RoadRegistry.BackOffice.Api
                 hostContext.Configuration.GetSection(nameof(ExtractDownloadsOptions)).Bind(extractDownloadsOptions);
                 var extractUploadsOptions = new ExtractUploadsOptions();
                 hostContext.Configuration.GetSection(nameof(ExtractUploadsOptions)).Bind(extractDownloadsOptions);
+                var featureToggles = new FeatureToggleOptions();
+                hostContext.Configuration.GetSection(FeatureToggleOptions.ConfigurationKey).Bind(featureToggles);
+
 
                 builder
+                    .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(featureToggles.UseSnapshotRebuildFeature))
                     .AddSingleton<Extracts.DownloadExtractRequestBodyValidator>()
                     .AddSingleton<ProblemDetailsHelper>()
                     .AddSingleton(zipArchiveWriterOptions)
@@ -206,12 +210,12 @@ namespace RoadRegistry.BackOffice.Api
                         )
                     ))
                     .AddSingleton(new RecyclableMemoryStreamManager())
+                    .AddSingleton<IBlobClient>(new SqlBlobClient(
+                        new SqlConnectionStringBuilder(
+                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
+                        WellknownSchemas.SnapshotSchema))
                     .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
-                        new RoadNetworkSnapshotsBlobClient(
-                            new SqlBlobClient(
-                                new SqlConnectionStringBuilder(
-                                    hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
-                                WellknownSchemas.SnapshotSchema)),
+                        new RoadNetworkSnapshotsBlobClient(sp.GetService<IBlobClient>()),
                         sp.GetService<RecyclableMemoryStreamManager>()))
                     .AddSingleton<IRoadNetworkSnapshotReader>(sp =>
                         sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
