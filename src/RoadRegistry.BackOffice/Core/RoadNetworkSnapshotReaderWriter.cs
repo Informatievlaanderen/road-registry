@@ -114,6 +114,8 @@ namespace RoadRegistry.BackOffice.Core
                 throw new InvalidOperationException($"Snapshot with name {newSnapshotBlobName} not found");
             }
 
+            await _client.DeleteBlobAsync(SnapshotHead, cancellationToken);
+
             var newSnapshotHead = new Messages.RoadNetworkSnapshotHead
             {
                 SnapshotBlobName = newSnapshotBlobName.ToString()
