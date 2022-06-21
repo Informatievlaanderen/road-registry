@@ -1,3 +1,10 @@
+## [3.4.3](https://github.com/informatievlaanderen/road-registry/compare/v3.4.2...v3.4.3) (2022-06-21)
+
+
+### Bug Fixes
+
+* add missing dependency configuration ([284ad55](https://github.com/informatievlaanderen/road-registry/commit/284ad551376da0206bb97e61136ab2cc92ed136a))
+
 ## [3.4.2](https://github.com/informatievlaanderen/road-registry/compare/v3.4.1...v3.4.2) (2022-06-20)
 
 
