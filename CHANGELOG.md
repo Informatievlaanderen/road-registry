@@ -1,3 +1,10 @@
+## [3.4.4](https://github.com/informatievlaanderen/road-registry/compare/v3.4.3...v3.4.4) (2022-06-21)
+
+
+### Bug Fixes
+
+* remove head blob before creating new one ([3c5bdb3](https://github.com/informatievlaanderen/road-registry/commit/3c5bdb31fa0cba6deba144b63c3f04a1b7aea195))
+
 ## [3.4.3](https://github.com/informatievlaanderen/road-registry/compare/v3.4.2...v3.4.3) (2022-06-21)
 
 
