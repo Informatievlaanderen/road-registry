@@ -137,7 +137,8 @@ export default Vue.extend({
   methods: {
     async processing(file: File) {
       this.startUpload();
-      if (file.type !== "application/x-zip-compressed") {
+      const allowedFileTypes = ["application/zip", "application/x-zip-compressed"];
+      if (!allowedFileTypes.includes(file.type)) {
         this.uploadResult = { uploadResponseCode: 2 };
         this.endUpload();
         return;
@@ -148,7 +149,7 @@ export default Vue.extend({
         this.endUpload();
         return;
       }
-
+      
       const uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name);
       this.uploadResult = { uploadResponseCode };
       this.endUpload();
