@@ -137,8 +137,7 @@ export default Vue.extend({
   methods: {
     async processing(file: File) {
       this.startUpload();
-
-      if (file.type !== "application/zip") {
+      if (file.type !== "application/x-zip-compressed") {
         this.uploadResult = { uploadResponseCode: 2 };
         this.endUpload();
         return;
