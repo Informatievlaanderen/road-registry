@@ -1,3 +1,10 @@
+## [3.4.5](https://github.com/informatievlaanderen/road-registry/compare/v3.4.4...v3.4.5) (2022-06-22)
+
+
+### Bug Fixes
+
+* correct file extension check when uploading extract ([c6f41db](https://github.com/informatievlaanderen/road-registry/commit/c6f41dbf0c20603b327a7e20c2fc75d038bf4a23))
+
 ## [3.4.4](https://github.com/informatievlaanderen/road-registry/compare/v3.4.3...v3.4.4) (2022-06-21)
 
 
