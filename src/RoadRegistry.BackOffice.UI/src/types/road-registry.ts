@@ -52,6 +52,19 @@ export namespace RoadRegistry {
         description: string;
     }
 
+    export interface PerContourErrorResponse {
+        validationErrors: PerContourValidationErrors;
+    }
+
+    export interface PerContourValidationErrors {
+        contour: ContourValidationError[];
+    }
+    
+    export interface ContourValidationError {
+        code: string;
+        reason: string;
+    }
+
     export interface DownloadExtractByNisCodeRequest {
         buffer: number;
         nisCode: string;
