@@ -402,7 +402,9 @@ namespace RoadRegistry.Syndication.Projections
         {
             var streetNameRecord = await context.StreetNames.FindAsync(streetNameId, cancellationToken: token);
             if (streetNameRecord == null)
-                throw new Exception($"No street name with id {streetNameId} was found.");
+            {
+                throw new InvalidOperationException($"No street name with id {streetNameId} was found.");
+            }
 
             return streetNameRecord;
         }
