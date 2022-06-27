@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Framework
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Linq;
 
     public class EventSourcedEntityMap
@@ -13,14 +14,18 @@ namespace RoadRegistry.BackOffice.Framework
         public void Attach(EventSourcedEntityMapEntry entry)
         {
             if (entry == null)
+            {
                 throw new ArgumentNullException(nameof(entry));
+            }
 
             if (!_entries.TryAdd(entry.Stream, entry))
+            {
                 throw new ArgumentException($"The event source of stream {entry.Stream} was already attached.");
+            }
         }
 
         public bool TryGet(StreamName stream, out EventSourcedEntityMapEntry entry) => _entries.TryGetValue(stream, out entry);
 
-        public EventSourcedEntityMapEntry[] Entries => _entries.Values.ToArray();
+        public IEnumerable<EventSourcedEntityMapEntry> Entries => _entries.Values;
     }
 }

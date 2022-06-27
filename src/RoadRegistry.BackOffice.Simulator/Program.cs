@@ -1,7 +1,6 @@
-﻿using System;
-
 namespace RoadRegistry.BackOffice.Simulator
 {
+    using System;
     using System.IO;
     using System.IO.Compression;
     using System.Text;
@@ -11,40 +10,43 @@ namespace RoadRegistry.BackOffice.Simulator
     using Uploads.Schema;
     using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        protected Program()
+        { }
+        
+        public static void Main()
         {
             Directory.CreateDirectory("output");
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            var node1Record = new RoadNodeChangeDbaseRecord();
-            node1Record.TYPE.Value = (short)RoadNodeType.EndNode.Translation.Identifier;
-            node1Record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-            node1Record.WEGKNOOPID.Value = 1;
+            var node1Record = new RoadNodeChangeDbaseRecord { TYPE = { Value = (short)RoadNodeType.EndNode.Translation.Identifier },
+                RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier },
+                WEGKNOOPID = { Value = 1 }
+            };
             var node1Shape = new PointShapeContent(new Point(0.0, 0.0));
 
-            var node2Record = new RoadNodeChangeDbaseRecord();
-            node2Record.TYPE.Value = (short)RoadNodeType.EndNode.Translation.Identifier;
-            node2Record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-            node2Record.WEGKNOOPID.Value = 2;
+            var node2Record = new RoadNodeChangeDbaseRecord { TYPE = { Value = (short)RoadNodeType.EndNode.Translation.Identifier },
+                RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier },
+                WEGKNOOPID = { Value = 2 }
+            };
             var node2Shape = new PointShapeContent(new Point(0.0, 1.0));
 
-            var segment1Record = new RoadSegmentChangeDbaseRecord();
-            segment1Record.WS_OIDN.Value = 1;
-            segment1Record.B_WK_OIDN.Value = 1;
-            segment1Record.E_WK_OIDN.Value = 2;
-            segment1Record.TGBEP.Value = (short) RoadSegmentAccessRestriction.PublicRoad.Translation.Identifier;
-            segment1Record.STATUS.Value = RoadSegmentStatus.InUse.Translation.Identifier;
-            segment1Record.CATEGORIE.Value = RoadSegmentCategory.SecondaryRoad.Translation.Identifier;
-            segment1Record.METHODE.Value = (short)RoadSegmentGeometryDrawMethod.Measured.Translation.Identifier;
-            segment1Record.MORFOLOGIE.Value = (short)RoadSegmentMorphology.Motorway.Translation.Identifier;
-            segment1Record.LSTRNMID.Value = 123;
-            segment1Record.RSTRNMID.Value = 456;
-            segment1Record.BEHEERDER.Value = "-8";
-            segment1Record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-            var segmentShape = new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(new NetTopologySuite.Geometries.MultiLineString(new NetTopologySuite.Geometries.LineString[]
+            var segment1Record = new RoadSegmentChangeDbaseRecord { WS_OIDN = { Value = 1 },
+                B_WK_OIDN = { Value = 1 },
+                E_WK_OIDN = { Value = 2 },
+                TGBEP = { Value = (short) RoadSegmentAccessRestriction.PublicRoad.Translation.Identifier },
+                STATUS = { Value = RoadSegmentStatus.InUse.Translation.Identifier },
+                CATEGORIE = { Value = RoadSegmentCategory.SecondaryRoad.Translation.Identifier },
+                METHODE = { Value = (short)RoadSegmentGeometryDrawMethod.Measured.Translation.Identifier },
+                MORFOLOGIE = { Value = (short)RoadSegmentMorphology.Motorway.Translation.Identifier },
+                LSTRNMID = { Value = 123 },
+                RSTRNMID = { Value = 456 },
+                BEHEERDER = { Value = "-8" },
+                RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
+            };
+            var segmentShape = new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(new NetTopologySuite.Geometries.MultiLineString(new[]
             {
                 new NetTopologySuite.Geometries.LineString(new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(new[]
                 {
@@ -53,30 +55,30 @@ namespace RoadRegistry.BackOffice.Simulator
                 }), GeometryConfiguration.GeometryFactory)
             })));
 
-            var laneRecord = new RoadSegmentLaneChangeDbaseRecord();
-            laneRecord.RS_OIDN.Value = 1;
-            laneRecord.WS_OIDN.Value = 1;
-            laneRecord.RICHTING.Value = (short)RoadSegmentLaneDirection.Independent.Translation.Identifier;
-            laneRecord.AANTAL.Value = 2;
-            laneRecord.VANPOSITIE.Value = 0.0;
-            laneRecord.TOTPOSITIE.Value = 1.0;
-            laneRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+            var laneRecord = new RoadSegmentLaneChangeDbaseRecord { RS_OIDN = { Value = 1 },
+                WS_OIDN = { Value = 1 },
+                RICHTING = { Value = (short)RoadSegmentLaneDirection.Independent.Translation.Identifier },
+                AANTAL = { Value = 2 },
+                VANPOSITIE = { Value = 0.0 },
+                TOTPOSITIE = { Value = 1.0 },
+                RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
+            };
 
-            var surfaceRecord = new RoadSegmentSurfaceChangeDbaseRecord();
-            surfaceRecord.WV_OIDN.Value = 1;
-            surfaceRecord.WS_OIDN.Value = 1;
-            surfaceRecord.TYPE.Value = (short) RoadSegmentSurfaceType.SolidSurface.Translation.Identifier;
-            surfaceRecord.VANPOSITIE.Value = 0.0;
-            surfaceRecord.TOTPOSITIE.Value = 1.0;
-            surfaceRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+            var surfaceRecord = new RoadSegmentSurfaceChangeDbaseRecord { WV_OIDN = { Value = 1 },
+                WS_OIDN = { Value = 1 },
+                TYPE = { Value = (short) RoadSegmentSurfaceType.SolidSurface.Translation.Identifier },
+                VANPOSITIE = { Value = 0.0 },
+                TOTPOSITIE = { Value = 1.0 },
+                RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
+            };
 
-            var widthRecord = new RoadSegmentWidthChangeDbaseRecord();
-            widthRecord.WB_OIDN.Value = 1;
-            widthRecord.WS_OIDN.Value = 1;
-            widthRecord.BREEDTE.Value = 1;
-            widthRecord.VANPOSITIE.Value = 0.0;
-            widthRecord.TOTPOSITIE.Value = 1.0;
-            widthRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+            var widthRecord = new RoadSegmentWidthChangeDbaseRecord { WB_OIDN = { Value = 1 },
+                WS_OIDN = { Value = 1 },
+                BREEDTE = { Value = 1 },
+                VANPOSITIE = { Value = 0.0 },
+                TOTPOSITIE = { Value = 1.0 },
+                RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
+            };
 
             var nodeDbaseHeader = new DbaseFileHeader(
                 DateTime.Now,
@@ -192,11 +194,11 @@ namespace RoadRegistry.BackOffice.Simulator
             }
 
             // european road
-            var europeanRoadRecord = new EuropeanRoadChangeDbaseRecord();
-            europeanRoadRecord.EU_OIDN.Value = 1;
-            europeanRoadRecord.WS_OIDN.Value = 1;
-            europeanRoadRecord.EUNUMMER.Value = EuropeanRoadNumber.E40.ToString();
-            europeanRoadRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+            var europeanRoadRecord = new EuropeanRoadChangeDbaseRecord { EU_OIDN = { Value = 1 },
+                WS_OIDN = { Value = 1 },
+                EUNUMMER = { Value = EuropeanRoadNumber.E40.ToString() },
+                RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
+            };
 
             var europeanDbaseHeader = new DbaseFileHeader(
                 DateTime.Now,
@@ -211,11 +213,11 @@ namespace RoadRegistry.BackOffice.Simulator
             }
 
             // national road
-            var nationalRoadRecord = new NationalRoadChangeDbaseRecord();
-            nationalRoadRecord.NW_OIDN.Value = 1;
-            nationalRoadRecord.WS_OIDN.Value = 1;
-            nationalRoadRecord.IDENT2.Value = NationalRoadNumber.Parse("R0").ToString();
-            nationalRoadRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+            var nationalRoadRecord = new NationalRoadChangeDbaseRecord { NW_OIDN = { Value = 1 },
+                WS_OIDN = { Value = 1 },
+                IDENT2 = { Value = NationalRoadNumber.Parse("R0").ToString() },
+                RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
+            };
 
             var nationalDbaseHeader = new DbaseFileHeader(
                 DateTime.Now,
@@ -230,13 +232,13 @@ namespace RoadRegistry.BackOffice.Simulator
             }
 
             // numbered road
-            var numberedRoadRecord = new NumberedRoadChangeDbaseRecord();
-            numberedRoadRecord.GW_OIDN.Value = 1;
-            numberedRoadRecord.WS_OIDN.Value = 1;
-            numberedRoadRecord.IDENT8.Value = NumberedRoadNumber.Parse("A0001231").ToString();
-            numberedRoadRecord.RICHTING.Value = (short) RoadSegmentNumberedRoadDirection.Backward.Translation.Identifier;
-            numberedRoadRecord.VOLGNUMMER.Value = 1;
-            numberedRoadRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+            var numberedRoadRecord = new NumberedRoadChangeDbaseRecord { GW_OIDN = { Value = 1 },
+                WS_OIDN = { Value = 1 },
+                IDENT8 = { Value = NumberedRoadNumber.Parse("A0001231").ToString() },
+                RICHTING = { Value = (short) RoadSegmentNumberedRoadDirection.Backward.Translation.Identifier },
+                VOLGNUMMER = { Value = 1 },
+                RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
+            };
 
             var numberedDbaseHeader = new DbaseFileHeader(
                 DateTime.Now,
@@ -251,12 +253,12 @@ namespace RoadRegistry.BackOffice.Simulator
             }
 
             // grade separated junction
-            var gradeSeparatedJunctionRecord = new GradeSeparatedJunctionChangeDbaseRecord();
-            gradeSeparatedJunctionRecord.OK_OIDN.Value = 1;
-            gradeSeparatedJunctionRecord.BO_WS_OIDN.Value = 1;
-            gradeSeparatedJunctionRecord.ON_WS_OIDN.Value = 1;
-            gradeSeparatedJunctionRecord.TYPE.Value = (short) GradeSeparatedJunctionType.Unknown.Translation.Identifier;
-            gradeSeparatedJunctionRecord.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+            var gradeSeparatedJunctionRecord = new GradeSeparatedJunctionChangeDbaseRecord { OK_OIDN = { Value = 1 },
+                BO_WS_OIDN = { Value = 1 },
+                ON_WS_OIDN = { Value = 1 },
+                TYPE = { Value = (short) GradeSeparatedJunctionType.Unknown.Translation.Identifier },
+                RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
+            };
 
             var gradeSeparatedJunctionDbaseHeader = new DbaseFileHeader(
                 DateTime.Now,
@@ -272,13 +274,13 @@ namespace RoadRegistry.BackOffice.Simulator
 
 
             // transaction zone
-            var transactionZoneRecord = new TransactionZoneDbaseRecord();
-            transactionZoneRecord.ORG.Value = "11053";
-            transactionZoneRecord.OPERATOR.Value = "Yves Reynhout";
-            transactionZoneRecord.TYPE.Value = 1;
-            transactionZoneRecord.SOURCEID.Value = 1;
-            transactionZoneRecord.BESCHRIJV.Value = "Nieuwe wijk";
-            transactionZoneRecord.APPLICATIE.Value = "Wegenregister BLL";
+            var transactionZoneRecord = new TransactionZoneDbaseRecord { ORG = { Value = "11053" },
+                OPERATOR = { Value = "Yves Reynhout" },
+                TYPE = { Value = 1 },
+                SOURCEID = { Value = 1 },
+                BESCHRIJV = { Value = "Nieuwe wijk" },
+                APPLICATIE = { Value = "Wegenregister BLL" }
+            };
 
             var transactionZoneDbaseHeader = new DbaseFileHeader(
                 DateTime.Now,
@@ -305,11 +307,9 @@ namespace RoadRegistry.BackOffice.Simulator
                         || file.ToLowerInvariant().EndsWith(".shx"))
                     {
                         var entry = archive.CreateEntry(Path.GetFileName(file));
-                        using (var fileStream = File.OpenRead(file))
-                        using (var entryStream = entry.Open())
-                        {
-                            fileStream.CopyTo(entryStream);
-                        }
+                        using var fileStream = File.OpenRead(file);
+                        using var entryStream = entry.Open();
+                        fileStream.CopyTo(entryStream);
                     }
                 }
             }

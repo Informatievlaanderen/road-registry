@@ -11,7 +11,7 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public ZipArchiveProjectionFormatEntryValidator(Encoding encoding)
         {
-            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));;
+            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
         public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)

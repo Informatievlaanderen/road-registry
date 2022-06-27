@@ -7,17 +7,14 @@ namespace RoadRegistry.BackOffice.Api.Extracts
     using Editor.Schema;
     using FluentValidation;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Logging;
 
     public class DownloadExtractByNisCodeRequestBodyValidator : AbstractValidator<DownloadExtractByNisCodeRequestBody>
     {
         private readonly EditorContext _editorContext;
-        private readonly ILogger<DownloadExtractByNisCodeRequestBodyValidator> _logger;
 
-        public DownloadExtractByNisCodeRequestBodyValidator(EditorContext editorContext, ILogger<DownloadExtractByNisCodeRequestBodyValidator> logger)
+        public DownloadExtractByNisCodeRequestBodyValidator(EditorContext editorContext)
         {
             _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             RuleFor(c => c.NisCode)
                 .Cascade(CascadeMode.Stop)

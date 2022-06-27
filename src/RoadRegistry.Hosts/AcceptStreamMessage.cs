@@ -7,7 +7,7 @@ namespace RoadRegistry.Hosts
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 
-    public class AcceptStreamMessage
+    public static class AcceptStreamMessage
     {
         public static AcceptStreamMessageFilter WhenEqualToMessageType(EventHandlerModule[] modules, EventMapping mapping)
         {
