@@ -13,7 +13,9 @@ namespace RoadRegistry.BackOffice
         public TransactionId(int value)
         {
             if (value != UnknownValue && value < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(value), value, "The transaction identifier must be greater than or equal to zero, or -8 (unknown).");
+            }
 
             _value = value;
         }
@@ -40,7 +42,7 @@ namespace RoadRegistry.BackOffice
 
         public int ToInt32() => _value;
         public bool Equals(TransactionId other) => _value == other._value;
-        public override bool Equals(object other) => other is TransactionId id && Equals(id);
+        public override bool Equals(object obj) => obj is TransactionId id && Equals(id);
         public override int GetHashCode() => _value.GetHashCode();
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
         public int CompareTo(TransactionId other) => _value.CompareTo(other._value);

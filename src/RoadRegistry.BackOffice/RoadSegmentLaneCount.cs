@@ -35,7 +35,7 @@ namespace RoadRegistry.BackOffice
         [Pure]
         public int ToInt32() => _value;
         public bool Equals(RoadSegmentLaneCount other) => _value == other._value;
-        public override bool Equals(object other) => other is RoadSegmentLaneCount revision && Equals(revision);
+        public override bool Equals(object obj) => obj is RoadSegmentLaneCount revision && Equals(revision);
         public override int GetHashCode() => _value;
         public override string ToString() => _value.ToString();
         public static bool operator ==(RoadSegmentLaneCount left, RoadSegmentLaneCount right) => left.Equals(right);

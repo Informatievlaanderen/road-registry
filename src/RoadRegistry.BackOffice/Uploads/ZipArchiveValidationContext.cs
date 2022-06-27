@@ -1,9 +1,10 @@
 namespace RoadRegistry.BackOffice.Uploads
 {
+    using System;
     using System.Collections.Immutable;
     using System.Linq;
 
-    public class ZipArchiveValidationContext
+    public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidationContext>
     {
         private readonly ImmutableHashSet<RoadSegmentId> _identicalSegments;
         private readonly ImmutableHashSet<RoadSegmentId> _addedSegments;

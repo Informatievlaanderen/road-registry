@@ -101,19 +101,19 @@ namespace RoadRegistry.BackOffice.Extracts
         {
             if (!_requestedDownloads.Contains(downloadId))
             {
-                throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownload(
+                throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(
                     _externalExtractRequestId, Id, downloadId, uploadId);
             }
 
             if (_requestedDownloads[_requestedDownloads.Count - 1] != downloadId)
             {
-                throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload(
+                throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException(
                     _externalExtractRequestId, Id, downloadId, _requestedDownloads[_requestedDownloads.Count - 1], uploadId);
             }
 
             if (_knownUploads.Count == 1)
             {
-                throw new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce(
+                throw new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException(
                     _externalExtractRequestId, Id, downloadId, uploadId);
             }
 

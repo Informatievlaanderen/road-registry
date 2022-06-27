@@ -113,7 +113,7 @@ namespace RoadRegistry.Hosts
 
         public sealed class Ref<T>
         {
-            public T Value;
+            public T Value { get; set; }
 
             public Ref(T value)
             {
@@ -265,9 +265,7 @@ namespace RoadRegistry.Hosts
         private static bool CanResumeFrom(SubscriptionDropped dropped)
         {
             const int timeout = -2;
-            return dropped.Exception != null
-                && (dropped.Exception is SqlException { Number: timeout }
-                    || dropped.Exception is IOException { InnerException: SqlException { Number: timeout } });
+            return dropped.Exception is SqlException { Number: timeout } or IOException { InnerException: SqlException { Number: timeout } };
         }
 
         private sealed class Subscribe { }

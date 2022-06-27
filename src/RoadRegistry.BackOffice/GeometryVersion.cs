@@ -9,14 +9,16 @@ namespace RoadRegistry.BackOffice
         public GeometryVersion(int value)
         {
             if (value < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(value), value, "The geometry version must be greater than or equal to zero.");
+            }
 
             _value = value;
         }
 
         public int ToInt32() => _value;
         public bool Equals(GeometryVersion other) => _value == other._value;
-        public override bool Equals(object other) => other is GeometryVersion version && Equals(version);
+        public override bool Equals(object obj) => obj is GeometryVersion version && Equals(version);
         public override int GetHashCode() => _value.GetHashCode();
         public override string ToString() => _value.ToString();
 

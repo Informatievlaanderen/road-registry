@@ -27,7 +27,7 @@ namespace RoadRegistry.BackOffice
         }
 
         public bool Equals(Reason other) => _value == other._value;
-        public override bool Equals(object other) => other is Reason reason && Equals(reason);
+        public override bool Equals(object obj) => obj is Reason reason && Equals(reason);
         public override int GetHashCode() => _value?.GetHashCode() ?? 0;
         public override string ToString() => _value;
         public static implicit operator string(Reason instance) => instance._value;

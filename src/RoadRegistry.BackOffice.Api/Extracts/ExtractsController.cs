@@ -81,7 +81,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 {
                     ExternalRequestId = body.RequestId,
                     Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(
-                        (NetTopologySuite.Geometries.IPolygonal) _reader.Read(body.Contour)),
+                        (IPolygonal) _reader.Read(body.Contour)),
                     DownloadId = downloadId,
                     Description = string.Empty
                 });
@@ -101,7 +101,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 {
                     ExternalRequestId = randomExternalRequestId,
                     Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(
-                        _reader.Read(body.Contour) as NetTopologySuite.Geometries.IPolygonal, body.Buffer),
+                        _reader.Read(body.Contour) as IPolygonal, body.Buffer),
                     DownloadId = downloadId,
                     Description = body.Description
                 });
@@ -138,7 +138,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             if (Guid.TryParseExact(downloadid, "N", out var parsed))
             {
                 var record = await context.ExtractDownloads.FindAsync(new object[] { parsed }, HttpContext.RequestAborted);
-                if (record == null || !record.Available)
+                if (record is not { Available: true })
                 {
                     var retryAfterSeconds =
                         await context.ExtractDownloads.TookAverageAssembleDuration(
@@ -193,8 +193,15 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             [FromRoute] string downloadid,
             IFormFile archive)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-            if (downloadid == null) throw new ArgumentNullException(nameof(downloadid));
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (downloadid == null)
+            {
+                throw new ArgumentNullException(nameof(downloadid));
+            }
 
             if (Guid.TryParseExact(downloadid, "N", out var parsedDownloadId))
             {
@@ -258,13 +265,13 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                     {
                         await _dispatcher(message, HttpContext.RequestAborted);
                     }
-                    catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload exception)
+                    catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException exception)
                     {
                         throw new ApiProblemDetailsException(
                             "Can not upload roadnetwork extract changes archive for superseded download",
                             409, new ExceptionProblemDetails(exception), exception);
                     }
-                    catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce exception)
+                    catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException exception)
                     {
                         throw new ApiProblemDetailsException(
                             "Can not upload roadnetwork extract changes archive for same download more than once",

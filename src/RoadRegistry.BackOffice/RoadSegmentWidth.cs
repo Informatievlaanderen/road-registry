@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice
+namespace RoadRegistry.BackOffice
 {
     using System;
     using System.Diagnostics.Contracts;
@@ -17,7 +17,9 @@
         public RoadSegmentWidth(int value)
         {
             if ((value < 0 || value > MaximumValue) && value != -8 && value != -9)
+            {
                 throw new ArgumentOutOfRangeException(nameof(value), value, "The road segment width must be greater than or equal to 0 and less than or equal to 45, or -8 (unknown) or -9 (not applicable).");
+            }
 
             _value = value;
         }
@@ -30,7 +32,7 @@
         [Pure]
         public int ToInt32() => _value;
         public bool Equals(RoadSegmentWidth other) => _value == other._value;
-        public override bool Equals(object other) => other is RoadSegmentWidth revision && Equals(revision);
+        public override bool Equals(object obj) => obj is RoadSegmentWidth revision && Equals(revision);
         public override int GetHashCode() => _value;
         public override string ToString() => _value.ToString();
         public static bool operator ==(RoadSegmentWidth left, RoadSegmentWidth right) => left.Equals(right);

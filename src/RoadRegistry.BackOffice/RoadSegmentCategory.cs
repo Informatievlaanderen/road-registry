@@ -1,10 +1,11 @@
+// ReSharper disable InconsistentNaming
 namespace RoadRegistry.BackOffice
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
-    public class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
+    public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
     {
 
         public static readonly RoadSegmentCategory Unknown =
@@ -214,33 +215,48 @@ namespace RoadRegistry.BackOffice
             All.ToDictionary(key => key.Translation.Identifier, StringComparer.InvariantCultureIgnoreCase);
 
         private readonly string _value;
-        private readonly DutchTranslation _dutchTranslation;
 
         private RoadSegmentCategory(string value, DutchTranslation dutchTranslation)
         {
             _value = value;
-            _dutchTranslation = dutchTranslation;
+            Translation = dutchTranslation;
         }
 
-        public DutchTranslation Translation => _dutchTranslation;
+        public DutchTranslation Translation { get; }
 
         public static bool CanParse(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             return Array.Find(All, candidate => candidate._value == value) != null;
         }
 
         public static bool TryParse(string value, out RoadSegmentCategory parsed)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             parsed = Array.Find(All, candidate => candidate._value == value);
             return parsed != null;
         }
 
         public static RoadSegmentCategory Parse(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment category.");
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            if (!TryParse(value, out var parsed))
+            {
+                throw new FormatException($"The value {value} is not a well known road segment category.");
+            }
+
             return parsed;
         }
 

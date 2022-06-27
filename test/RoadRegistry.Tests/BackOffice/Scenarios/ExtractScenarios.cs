@@ -239,7 +239,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheExternalSystem.UploadsRoadNetworkExtractChangesArchive(extractRequestId, outdatedDownloadId, uploadId, archiveId))
-                .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload(externalExtractRequestId, extractRequestId, outdatedDownloadId, downloadId, uploadId))
+                .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException(externalExtractRequestId, extractRequestId, outdatedDownloadId, downloadId, uploadId))
             );
         }
 
@@ -249,6 +249,7 @@ namespace RoadRegistry.BackOffice.Scenarios
             {
                 using (new ZipArchive(stream, ZipArchiveMode.Create, true))
                 {
+                    // what's the problem?
                 }
 
                 stream.Position = 0;
@@ -311,7 +312,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheExternalSystem.UploadsRoadNetworkExtractChangesArchive(extractRequestId, unknownDownloadId, uploadId, archiveId))
-                .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownload(externalExtractRequestId, extractRequestId, unknownDownloadId, uploadId))
+                .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(externalExtractRequestId, extractRequestId, unknownDownloadId, uploadId))
             );
         }
 
@@ -485,7 +486,7 @@ namespace RoadRegistry.BackOffice.Scenarios
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(TheExternalSystem.UploadsRoadNetworkExtractChangesArchive(extractRequestId, downloadId, uploadId, archiveId))
-                .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce(externalExtractRequestId, extractRequestId, downloadId, uploadId))
+                .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException(externalExtractRequestId, extractRequestId, downloadId, uploadId))
             );
         }
     }

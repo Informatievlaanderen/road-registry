@@ -127,7 +127,11 @@ namespace RoadRegistry.BackOffice.Core
 
         public IRoadNetworkView RestoreFromEvents(IReadOnlyCollection<object> events)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
+            if (events == null)
+            {
+                throw new ArgumentNullException(nameof(events));
+            }
+
             var result = this;
             foreach (var @event in events)
             {
@@ -153,7 +157,10 @@ namespace RoadRegistry.BackOffice.Core
 
         public IRoadNetworkView RestoreFromEvent(object @event)
         {
-            if (@event == null) throw new ArgumentNullException(nameof(@event));
+            if (@event == null)
+            {
+                throw new ArgumentNullException(nameof(@event));
+            }
 
             var result = this;
             switch (@event)
@@ -177,7 +184,11 @@ namespace RoadRegistry.BackOffice.Core
 
         private ImmutableRoadNetworkView Given(Messages.ImportedRoadNode @event)
         {
-            if (@event == null) throw new ArgumentNullException(nameof(@event));
+            if (@event == null)
+            {
+                throw new ArgumentNullException(nameof(@event));
+            }
+
             var id = new RoadNodeId(@event.Id);
             var type = RoadNodeType.Parse(@event.Type);
             var node = new RoadNode(id, type, GeometryTranslator.Translate(@event.Geometry));
@@ -201,7 +212,11 @@ namespace RoadRegistry.BackOffice.Core
 
         private ImmutableRoadNetworkView Given(Messages.ImportedRoadSegment @event)
         {
-            if (@event == null) throw new ArgumentNullException(nameof(@event));
+            if (@event == null)
+            {
+                throw new ArgumentNullException(nameof(@event));
+            }
+
             var id = new RoadSegmentId(@event.Id);
             var start = new RoadNodeId(@event.StartNodeId);
             var end = new RoadNodeId(@event.EndNodeId);
@@ -279,7 +294,11 @@ namespace RoadRegistry.BackOffice.Core
 
         private ImmutableRoadNetworkView Given(Messages.ImportedGradeSeparatedJunction @event)
         {
-            if (@event == null) throw new ArgumentNullException(nameof(@event));
+            if (@event == null)
+            {
+                throw new ArgumentNullException(nameof(@event));
+            }
+
             var id = new GradeSeparatedJunctionId(@event.Id);
             return new ImmutableRoadNetworkView(
                 _nodes,
@@ -310,7 +329,11 @@ namespace RoadRegistry.BackOffice.Core
 
         private ImmutableRoadNetworkView Given(Messages.RoadNetworkChangesAccepted @event)
         {
-            if (@event == null) throw new ArgumentNullException(nameof(@event));
+            if (@event == null)
+            {
+                throw new ArgumentNullException(nameof(@event));
+            }
+
             var result = new ImmutableRoadNetworkView(
                 _nodes,
                 _segments,
@@ -837,7 +860,9 @@ namespace RoadRegistry.BackOffice.Core
         public IRoadNetworkView With(IReadOnlyCollection<IRequestedChange> changes)
         {
             if (changes == null)
+            {
                 throw new ArgumentNullException(nameof(changes));
+            }
 
             var result = this;
             foreach (var change in changes)
@@ -1365,7 +1390,10 @@ namespace RoadRegistry.BackOffice.Core
 
         public IRoadNetworkView RestoreFromSnapshot(Messages.RoadNetworkSnapshot snapshot)
         {
-            if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
+            if (snapshot == null)
+            {
+                throw new ArgumentNullException(nameof(snapshot));
+            }
 
             return new ImmutableRoadNetworkView(
                 snapshot.Nodes.ToImmutableDictionary(node => new RoadNodeId(node.Id),
@@ -1429,28 +1457,31 @@ namespace RoadRegistry.BackOffice.Core
             );
         }
 
-        public IScopedRoadNetworkView CreateScopedView(Envelope scope)
+        public IScopedRoadNetworkView CreateScopedView(Envelope envelope)
         {
-            if (scope == null) throw new ArgumentNullException(nameof(scope));
+            if (envelope == null)
+            {
+                throw new ArgumentNullException(nameof(envelope));
+            }
 
             // Any nodes that the envelope contains
             var nodes = Nodes
-                .Where(pair => scope.Contains(pair.Value.Geometry.Coordinate))
+                .Where(pair => envelope.Contains(pair.Value.Geometry.Coordinate))
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
             // Any segments that intersect the envelope
             var segments = Segments
-                .Where(pair => scope.Intersects(pair.Value.Geometry.EnvelopeInternal))
+                .Where(pair => envelope.Intersects(pair.Value.Geometry.EnvelopeInternal))
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
             // Any junctions for which either the lower or the upper segment intersects the envelope
             var junctions = GradeSeparatedJunctions
                 .Where(pair =>
-                    Segments.TryGetValue(pair.Value.LowerSegment, out var lowerSegment) && scope.Intersects(lowerSegment.Geometry.EnvelopeInternal)
+                    Segments.TryGetValue(pair.Value.LowerSegment, out var lowerSegment) && envelope.Intersects(lowerSegment.Geometry.EnvelopeInternal)
                     ||
-                    Segments.TryGetValue(pair.Value.UpperSegment, out var upperSegment) && scope.Intersects(upperSegment.Geometry.EnvelopeInternal))
+                    Segments.TryGetValue(pair.Value.UpperSegment, out var upperSegment) && envelope.Intersects(upperSegment.Geometry.EnvelopeInternal))
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
 
             return new ImmutableScopedRoadNetworkView(
-                scope,
+                envelope,
                 nodes,
                 segments,
                 junctions,
@@ -1569,7 +1600,11 @@ namespace RoadRegistry.BackOffice.Core
 
             public IRoadNetworkView RestoreFromEvents(IReadOnlyCollection<object> events)
             {
-                if (events == null) throw new ArgumentNullException(nameof(events));
+                if (events == null)
+                {
+                    throw new ArgumentNullException(nameof(events));
+                }
+
                 foreach (var @event in events)
                 {
                     switch (@event)
@@ -1594,7 +1629,10 @@ namespace RoadRegistry.BackOffice.Core
 
             public IRoadNetworkView RestoreFromEvent(object @event)
             {
-                if (@event == null) throw new ArgumentNullException(nameof(@event));
+                if (@event == null)
+                {
+                    throw new ArgumentNullException(nameof(@event));
+                }
 
                 switch (@event)
                 {
@@ -1617,7 +1655,11 @@ namespace RoadRegistry.BackOffice.Core
 
             private void Given(Messages.ImportedRoadNode @event)
             {
-                if (@event == null) throw new ArgumentNullException(nameof(@event));
+                if (@event == null)
+                {
+                    throw new ArgumentNullException(nameof(@event));
+                }
+
                 var id = new RoadNodeId(@event.Id);
                 var type = RoadNodeType.Parse(@event.Type);
                 var node = new RoadNode(id, type, GeometryTranslator.Translate(@event.Geometry));
@@ -1629,7 +1671,11 @@ namespace RoadRegistry.BackOffice.Core
 
             private void Given(Messages.ImportedRoadSegment @event)
             {
-                if (@event == null) throw new ArgumentNullException(nameof(@event));
+                if (@event == null)
+                {
+                    throw new ArgumentNullException(nameof(@event));
+                }
+
                 var id = new RoadSegmentId(@event.Id);
                 var start = new RoadNodeId(@event.StartNodeId);
                 var end = new RoadNodeId(@event.EndNodeId);
@@ -1704,7 +1750,11 @@ namespace RoadRegistry.BackOffice.Core
 
             private void Given(Messages.ImportedGradeSeparatedJunction @event)
             {
-                if (@event == null) throw new ArgumentNullException(nameof(@event));
+                if (@event == null)
+                {
+                    throw new ArgumentNullException(nameof(@event));
+                }
+
                 var id = new GradeSeparatedJunctionId(@event.Id);
                 _maximumTransactionId =
                     TransactionId.Max(new TransactionId(@event.Origin.TransactionId), _maximumTransactionId);
@@ -1722,7 +1772,11 @@ namespace RoadRegistry.BackOffice.Core
 
             private void Given(Messages.RoadNetworkChangesAccepted @event)
             {
-                if (@event == null) throw new ArgumentNullException(nameof(@event));
+                if (@event == null)
+                {
+                    throw new ArgumentNullException(nameof(@event));
+                }
+
                 _maximumTransactionId =
                     TransactionId.Max(new TransactionId(@event.TransactionId), _maximumTransactionId);
 
@@ -2020,7 +2074,9 @@ namespace RoadRegistry.BackOffice.Core
             public IRoadNetworkView With(IReadOnlyCollection<IRequestedChange> changes)
             {
                 if (changes == null)
+                {
                     throw new ArgumentNullException(nameof(changes));
+                }
 
                 foreach (var change in changes)
                 {
@@ -2300,7 +2356,10 @@ namespace RoadRegistry.BackOffice.Core
 
             public IRoadNetworkView RestoreFromSnapshot(Messages.RoadNetworkSnapshot snapshot)
             {
-                if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
+                if (snapshot == null)
+                {
+                    throw new ArgumentNullException(nameof(snapshot));
+                }
 
                 return new Builder(
                     snapshot.Nodes.ToImmutableDictionary(
@@ -2367,25 +2426,28 @@ namespace RoadRegistry.BackOffice.Core
                 );
             }
 
-            public IScopedRoadNetworkView CreateScopedView(Envelope scope)
+            public IScopedRoadNetworkView CreateScopedView(Envelope envelope)
             {
-                if (scope == null) throw new ArgumentNullException(nameof(scope));
+                if (envelope == null)
+                {
+                    throw new ArgumentNullException(nameof(envelope));
+                }
 
                 // Any nodes that the envelope contains
                 var nodes = Nodes
-                    .Where(pair => scope.Contains(pair.Value.Geometry.Coordinate))
+                    .Where(pair => envelope.Contains(pair.Value.Geometry.Coordinate))
                     .ToDictionary(pair => pair.Key, pair => pair.Value);
                 // Any segments that intersect the envelope
                 var segments = Segments
-                    .Where(pair => scope.Intersects(pair.Value.Geometry.EnvelopeInternal))
+                    .Where(pair => envelope.Intersects(pair.Value.Geometry.EnvelopeInternal))
                     .ToDictionary(pair => pair.Key, pair => pair.Value);
                 // Any junctions for which either the lower or the upper segment intersects the envelope
                 var junctions = GradeSeparatedJunctions
-                    .Where(pair => scope.Intersects(Segments[pair.Value.LowerSegment].Geometry.EnvelopeInternal) || scope.Intersects(Segments[pair.Value.UpperSegment].Geometry.EnvelopeInternal))
+                    .Where(pair => envelope.Intersects(Segments[pair.Value.LowerSegment].Geometry.EnvelopeInternal) || envelope.Intersects(Segments[pair.Value.UpperSegment].Geometry.EnvelopeInternal))
                     .ToDictionary(pair => pair.Key, pair => pair.Value);
 
                 return new ImmutableScopedRoadNetworkView(
-                    scope,
+                    envelope,
                     nodes,
                     segments,
                     junctions,
