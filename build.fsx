@@ -55,29 +55,6 @@ Target.create "Build_Solution" (fun _ ->
 
   setVersions "SolutionInfo.cs"
   buildSolution "RoadRegistry")
-//  buildSource "RoadRegistry.Hosts"
-//  buildSource "RoadRegistry.Dbase"
-//  buildSource "RoadRegistry.BackOffice"
-//  buildSource "RoadRegistry.Editor.Schema"
-//  buildSource "RoadRegistry.Editor.Projections"
-//  buildSource "RoadRegistry.Product.Schema"
-//  buildSource "RoadRegistry.Product.Projections"
-//  buildSource "RoadRegistry.Syndication.Schema"
-//  buildSource "RoadRegistry.Syndication.Projections"
-//  buildSource "RoadRegistry.Wms.Schema"
-//  buildSource "RoadRegistry.Wms.Projections"
-//  buildSource "RoadRegistry.Editor.ProjectionHost"
-//  buildSource "RoadRegistry.Product.ProjectionHost"
-//  buildSource "RoadRegistry.Syndication.ProjectionHost"
-//  buildSource "RoadRegistry.Wms.ProjectionHost"
-//  buildSource "RoadRegistry.BackOffice.CommandHost"
-//  buildSource "RoadRegistry.BackOffice.EventHost"
-//  buildSource "RoadRegistry.BackOffice.ExtractHost"
-//  buildSource "RoadRegistry.BackOffice.Api"
-//  buildSource "RoadRegistry.Legacy.Extract"
-//  buildSource "RoadRegistry.Legacy.Import"
-//  buildTest "RoadRegistry.Tests"
-//)
 
 Target.create "Test_Solution" (fun _ ->
   [

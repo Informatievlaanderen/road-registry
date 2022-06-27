@@ -19,7 +19,7 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public IReadOnlyCollection<ProblemParameter> Parameters { get; }
 
-        public bool Equals(FileProblem other) => other != null
+        public virtual bool Equals(FileProblem other) => other != null
             && string.Equals(File, other.File, StringComparison.InvariantCultureIgnoreCase)
             && string.Equals(Reason, other.Reason)
             && Parameters.SequenceEqual(other.Parameters);

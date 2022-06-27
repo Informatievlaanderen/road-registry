@@ -16,7 +16,7 @@ namespace RoadRegistry.BackOffice.Core
 
         public IReadOnlyCollection<ProblemParameter> Parameters { get; }
 
-        public bool Equals(Problem other) => other != null
+        public virtual bool Equals(Problem other) => other != null
             && string.Equals(Reason, other.Reason)
             && Parameters.SequenceEqual(other.Parameters);
 
