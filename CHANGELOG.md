@@ -1,3 +1,10 @@
+## [3.4.9](https://github.com/informatievlaanderen/road-registry/compare/v3.4.8...v3.4.9) (2022-06-27)
+
+
+### Bug Fixes
+
+* fix even more Sonar issues ([a4506e4](https://github.com/informatievlaanderen/road-registry/commit/a4506e41bc93ee6767c340a27a557568d2652423))
+
 ## [3.4.8](https://github.com/informatievlaanderen/road-registry/compare/v3.4.7...v3.4.8) (2022-06-27)
 
 
