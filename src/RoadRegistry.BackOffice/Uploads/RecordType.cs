@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Collections.Generic;
     using System.Linq;
 
-    public class RecordType : IEquatable<RecordType>
+    public sealed class RecordType : IEquatable<RecordType>
     {
         public const int IdenticalIdentifier = 1;
         public static readonly RecordType Identical =
@@ -55,15 +55,14 @@ namespace RoadRegistry.BackOffice.Uploads
             All.ToDictionary(key => key.Translation.Identifier);
 
         private readonly string _value;
-        private readonly DutchTranslation _dutchTranslation;
 
         private RecordType(string value, DutchTranslation dutchTranslation)
         {
             _value = value;
-            _dutchTranslation = dutchTranslation;
+            Translation = dutchTranslation;
         }
 
-        public DutchTranslation Translation => _dutchTranslation;
+        public DutchTranslation Translation { get; }
 
         public bool IsAnyOf(params RecordType[] these)
         {
@@ -72,20 +71,32 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public static bool CanParse(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             return Array.Find(All, candidate => candidate._value == value) != null;
         }
 
         public static bool TryParse(string value, out RecordType parsed)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             parsed = Array.Find(All, candidate => candidate._value == value);
             return parsed != null;
         }
 
         public static RecordType Parse(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             if (!TryParse(value, out var parsed))
             {
                 throw new FormatException($"The value {value} is not a well known type of grade separated junction.");

@@ -185,7 +185,6 @@ namespace RoadRegistry.BackOffice.Uploads
             return new FileProblemBuilder(entry.Name).HasTooManyDbaseRecords(expectedCount, actualCount);
         }
 
-
         public static FileError HasDbaseHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
         {
             return new FileProblemBuilder(entry.Name).HasDbaseHeaderFormatError(exception);

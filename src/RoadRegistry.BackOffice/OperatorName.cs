@@ -27,7 +27,7 @@ namespace RoadRegistry.BackOffice
         }
 
         public bool Equals(OperatorName other) => _value == other._value;
-        public override bool Equals(object other) => other is OperatorName name && Equals(name);
+        public override bool Equals(object obj) => obj is OperatorName name && Equals(name);
         public override int GetHashCode() => _value?.GetHashCode() ?? 0;
         public override string ToString() => _value;
         public static implicit operator string(OperatorName instance) => instance._value;

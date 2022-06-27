@@ -9,7 +9,9 @@ namespace RoadRegistry.BackOffice
         public RoadNetworkRevision(int value)
         {
             if (value < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(value), value, "The road revision must be greater than or equal to zero.");
+            }
 
             _value = value;
         }
@@ -26,7 +28,7 @@ namespace RoadRegistry.BackOffice
         }
 
         public bool Equals(RoadNetworkRevision other) => _value == other._value;
-        public override bool Equals(object other) => other is RoadNetworkRevision revision && Equals(revision);
+        public override bool Equals(object obj) => obj is RoadNetworkRevision revision && Equals(revision);
         public override int GetHashCode() => _value.GetHashCode();
         public static bool operator ==(RoadNetworkRevision left, RoadNetworkRevision right) => left.Equals(right);
         public static bool operator !=(RoadNetworkRevision left, RoadNetworkRevision right) => !left.Equals(right);

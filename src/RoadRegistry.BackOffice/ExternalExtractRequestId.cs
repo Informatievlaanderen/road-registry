@@ -30,7 +30,7 @@ namespace RoadRegistry.BackOffice
         }
 
         public bool Equals(ExternalExtractRequestId other) => _value == other._value;
-        public override bool Equals(object other) => other is ExternalExtractRequestId id && Equals(id);
+        public override bool Equals(object obj) => obj is ExternalExtractRequestId id && Equals(id);
         public override int GetHashCode() => _value.GetHashCode();
         public override string ToString() => _value;
         public static implicit operator string(ExternalExtractRequestId instance) => instance.ToString();

@@ -58,12 +58,12 @@ namespace RoadRegistry.Editor.Schema
             => optionsBuilder
                 .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder);
-            OnModelQueryTypes(builder);
+            base.OnModelCreating(modelBuilder);
+            OnModelQueryTypes(modelBuilder);
 
-            builder.Entity<RoadNetworkChange>()
+            modelBuilder.Entity<RoadNetworkChange>()
                 .Property(x => x.When)
                 .IsRequired(false);
         }

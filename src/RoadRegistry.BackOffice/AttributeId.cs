@@ -11,7 +11,9 @@ namespace RoadRegistry.BackOffice
         public AttributeId(int value)
         {
             if (value < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(value), value, "The attribute identifier must be greater than or equal to zero.");
+            }
 
             _value = value;
         }
@@ -38,13 +40,41 @@ namespace RoadRegistry.BackOffice
 
         [Pure]
         public int ToInt32() => _value;
+        
         public bool Equals(AttributeId other) => _value == other._value;
-        public override bool Equals(object other) => other is AttributeId id && Equals(id);
+        
+        public override bool Equals(object obj) => obj is AttributeId id && Equals(id);
+        
         public override int GetHashCode() => _value.GetHashCode();
+        
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
+        
         public int CompareTo(AttributeId other) => _value.CompareTo(other._value);
+        
         public static bool operator ==(AttributeId left, AttributeId right) => left.Equals(right);
+        
         public static bool operator !=(AttributeId left, AttributeId right) => !left.Equals(right);
+        
         public static implicit operator int(AttributeId instance) => instance._value;
+
+        public static bool operator <(AttributeId left, AttributeId right)
+        {
+            return left.CompareTo(right) < 0;
+        }
+
+        public static bool operator <=(AttributeId left, AttributeId right)
+        {
+            return left.CompareTo(right) <= 0;
+        }
+
+        public static bool operator >(AttributeId left, AttributeId right)
+        {
+            return left.CompareTo(right) > 0;
+        }
+
+        public static bool operator >=(AttributeId left, AttributeId right)
+        {
+            return left.CompareTo(right) >= 0;
+        }
     }
 }

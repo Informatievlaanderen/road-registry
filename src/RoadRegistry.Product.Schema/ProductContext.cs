@@ -49,10 +49,10 @@ namespace RoadRegistry.Product.Schema
         protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder);
-            OnModelQueryTypes(builder);
+            base.OnModelCreating(modelBuilder);
+            OnModelQueryTypes(modelBuilder);
         }
 
         //HACK: Raw sql is not supported when running against in memory - this allows overriding and adjusting behavior

@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice
 {
     using System;
 
-    public class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
+    public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
     {
         private readonly string _value;
         public static readonly EuropeanRoadNumber E17 = new EuropeanRoadNumber(nameof(E17));
@@ -29,20 +29,32 @@ namespace RoadRegistry.BackOffice
 
         public static bool CanParse(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             return Array.Find(All, candidate => candidate._value == value) != null;
         }
 
         public static bool TryParse(string value, out EuropeanRoadNumber parsed)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             parsed = Array.Find(All, candidate => candidate._value == value);
             return parsed != null;
         }
 
         public static EuropeanRoadNumber Parse(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             if (!TryParse(value, out var parsed))
             {
                 throw new FormatException($"The value {value} is not a well known european road number.");

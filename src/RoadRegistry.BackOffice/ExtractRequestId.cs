@@ -17,11 +17,15 @@ namespace RoadRegistry.BackOffice
         public ExtractRequestId(byte[] value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             if (value.Length != ExactLength)
+            {
                 throw new ArgumentOutOfRangeException(nameof(value),
                     $"The extract request identifier must be {ExactLength} bytes.");
+            }
 
             _value = value;
         }
@@ -38,16 +42,20 @@ namespace RoadRegistry.BackOffice
         public static ExtractRequestId FromString(string value)
         {
             if (string.IsNullOrEmpty(value))
+            {
                 throw new ArgumentNullException(nameof(value),
                     "The extract request identifier must not be null or empty.");
+            }
 
             if (value.Length != ExactStringLength)
+            {
                 throw new ArgumentOutOfRangeException(nameof(value),
                     $"The extract request identifier must be {ExactStringLength} characters.");
+            }
 
             if (Enumerable.Range(0, ExactStringLength / 2).Any(index =>
-                !byte.TryParse(new ReadOnlySpan<char>(new [] { value[index*2], value[index*2+1] }), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _)
-            ))
+                    !byte.TryParse(new ReadOnlySpan<char>(new [] { value[index*2], value[index*2+1] }), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _)
+                ))
             {
                 throw new ArgumentException(
                     "The extract request identifier must consist of hexadecimal characters only.", nameof(value));
@@ -74,7 +82,7 @@ namespace RoadRegistry.BackOffice
         public IReadOnlyCollection<byte> ToBytes() => _value;
 
         public bool Equals(ExtractRequestId other) => _value == other._value;
-        public override bool Equals(object other) => other is ExtractRequestId id && Equals(id);
+        public override bool Equals(object obj) => obj is ExtractRequestId id && Equals(id);
         public override int GetHashCode() => _value.GetHashCode();
         public override string ToString() =>
             string.Concat(_value.Select(value => value.ToString("X2"))).ToLowerInvariant();

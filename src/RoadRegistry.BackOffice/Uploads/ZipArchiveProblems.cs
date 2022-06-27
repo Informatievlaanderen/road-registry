@@ -4,11 +4,9 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Immutable;
-    using System.Diagnostics;
-    using System.IO.Compression;
     using System.Linq;
 
-    public class ZipArchiveProblems : IReadOnlyCollection<FileProblem>
+    public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEquatable<ZipArchiveProblems>
     {
         private readonly ImmutableList<FileProblem> _problems;
 
@@ -16,21 +14,30 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public static ZipArchiveProblems Single(FileProblem problem)
         {
-            if (problem == null) throw new ArgumentNullException(nameof(problem));
+            if (problem == null)
+            {
+                throw new ArgumentNullException(nameof(problem));
+            }
 
             return None.Add(problem);
         }
 
         public static ZipArchiveProblems Many(params FileProblem[] problems)
         {
-            if (problems == null) throw new ArgumentNullException(nameof(problems));
+            if (problems == null)
+            {
+                throw new ArgumentNullException(nameof(problems));
+            }
 
             return None.AddRange(problems);
         }
 
         public static ZipArchiveProblems Many(IEnumerable<FileProblem> problems)
         {
-            if (problems == null) throw new ArgumentNullException(nameof(problems));
+            if (problems == null)
+            {
+                throw new ArgumentNullException(nameof(problems));
+            }
 
             return None.AddRange(problems);
         }
@@ -50,13 +57,21 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public ZipArchiveProblems Add(FileProblem problem)
         {
-            if (problem == null) throw new ArgumentNullException(nameof(problem));
+            if (problem == null)
+            {
+                throw new ArgumentNullException(nameof(problem));
+            }
+
             return new ZipArchiveProblems(_problems.Add(problem));
         }
 
         public ZipArchiveProblems AddRange(IEnumerable<FileProblem> problems)
         {
-            if (problems == null) throw new ArgumentNullException(nameof(problems));
+            if (problems == null)
+            {
+                throw new ArgumentNullException(nameof(problems));
+            }
+
             return new ZipArchiveProblems(_problems.AddRange(problems));
         }
 
@@ -71,7 +86,10 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public ZipArchiveProblems RequiredFileMissing(string file)
         {
-            if (file == null) throw new ArgumentNullException(nameof(file));
+            if (file == null)
+            {
+                throw new ArgumentNullException(nameof(file));
+            }
 
             return new ZipArchiveProblems(_problems.Add(
                 new FileError(file.ToUpperInvariant(), nameof(RequiredFileMissing)))

@@ -9,7 +9,9 @@ namespace RoadRegistry.BackOffice
         public UploadId(Guid value)
         {
             if (value == Guid.Empty)
+            {
                 throw new ArgumentNullException(nameof(value), "The upload identifier must not be empty.");
+            }
 
             _value = value;
         }
@@ -20,7 +22,7 @@ namespace RoadRegistry.BackOffice
         }
 
         public bool Equals(UploadId other) => _value == other._value;
-        public override bool Equals(object other) => other is UploadId id && Equals(id);
+        public override bool Equals(object obj) => obj is UploadId id && Equals(id);
         public override int GetHashCode() => _value.GetHashCode();
         public override string ToString() => _value.ToString("N");
         public Guid ToGuid() => _value;

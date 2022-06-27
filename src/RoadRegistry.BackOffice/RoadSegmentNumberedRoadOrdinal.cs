@@ -14,7 +14,9 @@ namespace RoadRegistry.BackOffice
         public RoadSegmentNumberedRoadOrdinal(int value)
         {
             if (value < 0 && value != WellKnownValues.NotKnown)
+            {
                 throw new ArgumentOutOfRangeException(nameof(value), value, $"The road segment numbered road ordinal must be greater than or equal to zero, or the value '{WellKnownValues.NotKnown}' (Not Known)");
+            }
 
             _value = value;
         }
@@ -28,7 +30,7 @@ namespace RoadRegistry.BackOffice
 
         public bool Equals(RoadSegmentNumberedRoadOrdinal other) => _value == other._value;
 
-        public override bool Equals(object other) => other is RoadSegmentNumberedRoadOrdinal revision && Equals(revision);
+        public override bool Equals(object obj) => obj is RoadSegmentNumberedRoadOrdinal revision && Equals(revision);
 
         public override int GetHashCode() => _value;
 

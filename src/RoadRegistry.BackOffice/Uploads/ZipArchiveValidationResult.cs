@@ -6,7 +6,7 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Collections.Immutable;
     using System.Linq;
 
-    public class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem>
+    public sealed class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem>, IEquatable<ZipArchiveValidationResult>
     {
         private readonly ZipArchiveProblems _problems;
         private readonly ImmutableHashSet<RoadSegmentId> _segments;
@@ -37,13 +37,21 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public ZipArchiveValidationResult Add(FileProblem problem)
         {
-            if (problem == null) throw new ArgumentNullException(nameof(problem));
+            if (problem == null)
+            {
+                throw new ArgumentNullException(nameof(problem));
+            }
+
             return new ZipArchiveValidationResult(_problems.Add(problem), _segments);
         }
 
         public ZipArchiveValidationResult AddRange(IEnumerable<FileProblem> problems)
         {
-            if (problems == null) throw new ArgumentNullException(nameof(problems));
+            if (problems == null)
+            {
+                throw new ArgumentNullException(nameof(problems));
+            }
+
             return new ZipArchiveValidationResult(_problems.AddRange(problems), _segments);
         }
 
@@ -70,7 +78,10 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public ZipArchiveValidationResult RequiredFileMissing(string file)
         {
-            if (file == null) throw new ArgumentNullException(nameof(file));
+            if (file == null)
+            {
+                throw new ArgumentNullException(nameof(file));
+            }
 
             return new ZipArchiveValidationResult(
                 _problems.Add(new FileError(file.ToUpperInvariant(), nameof(RequiredFileMissing))),
