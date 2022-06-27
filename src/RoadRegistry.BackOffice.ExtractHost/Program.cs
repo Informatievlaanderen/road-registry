@@ -34,6 +34,9 @@ namespace RoadRegistry.BackOffice.ExtractHost
 
     public class Program
     {
+        protected Program()
+        { }
+        
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting {0}", typeof(Program).Namespace);

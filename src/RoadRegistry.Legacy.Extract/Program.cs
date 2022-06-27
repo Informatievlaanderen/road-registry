@@ -26,6 +26,9 @@ namespace RoadRegistry.Legacy.Extract
 
     public class Program
     {
+        protected Program()
+        { }
+        
         private static async Task Main(string[] args)
         {
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>

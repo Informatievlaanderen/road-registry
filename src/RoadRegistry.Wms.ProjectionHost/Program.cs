@@ -29,6 +29,9 @@ namespace RoadRegistry.Wms.ProjectionHost
 
     public class Program
     {
+        protected Program()
+        { }
+        
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.Wms.ProjectionHost");

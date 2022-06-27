@@ -29,6 +29,9 @@ namespace RoadRegistry.Product.ProjectionHost
     {
         private static readonly Encoding WindowsAnsiEncoding = Encoding.GetEncoding(1252);
 
+        protected Program()
+        { }
+        
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.Product.ProjectionHost");

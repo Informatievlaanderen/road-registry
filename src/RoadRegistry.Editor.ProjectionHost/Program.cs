@@ -36,6 +36,9 @@ namespace RoadRegistry.Editor.ProjectionHost
     {
         private static readonly Encoding WindowsAnsiEncoding = Encoding.GetEncoding(1252);
 
+        protected Program()
+        { }
+        
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.Editor.ProjectionHost");
@@ -174,16 +177,15 @@ namespace RoadRegistry.Editor.ProjectionHost
                             new EventDeserializer((eventData, eventType) =>
                                 JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
                         )
-                        .AddSingleton<Func<EditorContext>>(
-                            () =>
-                                new EditorContext(
-                                    new DbContextOptionsBuilder<EditorContext>()
-                                        .UseSqlServer(
-                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.EditorProjections),
-                                            options => options
-                                                .EnableRetryOnFailure()
-                                                .UseNetTopologySuite()
-                                        ).Options)
+                        .AddSingleton(() =>
+                            new EditorContext(
+                                new DbContextOptionsBuilder<EditorContext>()
+                                    .UseSqlServer(
+                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.EditorProjections),
+                                        options => options
+                                            .EnableRetryOnFailure()
+                                            .UseNetTopologySuite()
+                                    ).Options)
                         )
                         .AddSingleton(sp => new ConnectedProjection<EditorContext>[]
                         {

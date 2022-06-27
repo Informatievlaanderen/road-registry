@@ -31,8 +31,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         {
             using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
             {
-                var logger = new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>();
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context, logger);
+                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
 
                 Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
                 {
@@ -53,8 +52,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         {
             using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
             {
-                var logger = new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>();
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context, logger);
+                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
 
                 Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
                 {
@@ -71,8 +69,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         {
             using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
             {
-                var logger = new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>();
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context, logger);
+                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
 
                 Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
                 {
@@ -99,8 +96,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 });
                 await context.SaveChangesAsync();
 
-                var logger = new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>();
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context, logger);
+                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
 
                 Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
                 {
@@ -128,8 +124,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 });
                 await context.SaveChangesAsync();
 
-                var logger = new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>();
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context, logger);
+                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
 
                 Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
                 {
@@ -164,8 +159,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 });
                 await context.SaveChangesAsync();
 
-                var logger = new NullLogger<DownloadExtractByNisCodeRequestBodyValidator>();
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context, logger);
+                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
 
                 Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
                 {
@@ -180,7 +174,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 
         public static IEnumerable<object[]> InvalidDescriptionCases()
         {
-            yield return new object[] { (string)null };
+            yield return new object[] { null };
             yield return new object[] { new string(Enumerable.Repeat('a', ExtractDescription.MaxLength + 1).ToArray()) };
         }
     }

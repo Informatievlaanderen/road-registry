@@ -29,6 +29,9 @@ namespace RoadRegistry.BackOffice.EventHost
 
     public class Program
     {
+        protected Program()
+        { }
+        
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.BackOffice.EventHost");

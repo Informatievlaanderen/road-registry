@@ -31,6 +31,9 @@ namespace RoadRegistry.Syndication.ProjectionHost
 
     public class Program
     {
+        protected Program()
+        { }
+        
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.Syndication.ProjectionHost");

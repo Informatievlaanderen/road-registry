@@ -88,7 +88,7 @@ namespace RoadRegistry.BackOffice.Uploads
                 return new FileWarningBuilder(_file, reason, _parameters);
             }
 
-            private class FileErrorBuilder : IFileErrorBuilder
+            private sealed class FileErrorBuilder : IFileErrorBuilder
             {
                 private readonly string _file;
                 private readonly string _reason;

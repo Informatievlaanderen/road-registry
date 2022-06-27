@@ -27,7 +27,10 @@ namespace RoadRegistry.Legacy.Import
 
     public class Program
     {
-        private static async Task Main(string[] args)
+        protected Program()
+        { }
+
+        public static async Task Main(string[] args)
         {
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
                 Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);

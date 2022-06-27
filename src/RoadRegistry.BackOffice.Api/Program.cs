@@ -38,7 +38,9 @@ namespace RoadRegistry.BackOffice.Api
     {
         public const int HostingPort = 10002;
 
-
+        protected Program()
+        { }
+        
         public static async Task Main(string[] args)
         {
             var host = CreateWebHostBuilder(args).Build();
