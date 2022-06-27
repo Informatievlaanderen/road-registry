@@ -15,7 +15,7 @@
 
          public string Value { get; }
 
-         public bool Equals(ProblemParameter other) => other != null
+         public virtual bool Equals(ProblemParameter other) => other != null
             && string.Equals(Name, other.Name)
             && string.Equals(Value, other.Value);
 

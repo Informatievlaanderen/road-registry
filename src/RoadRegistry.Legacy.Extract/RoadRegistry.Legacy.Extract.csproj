@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

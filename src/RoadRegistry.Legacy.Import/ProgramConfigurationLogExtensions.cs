@@ -2,33 +2,17 @@ namespace RoadRegistry.Legacy.Import
 {
     using System;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
-    using Be.Vlaanderen.Basisregisters.BlobStore.IO;
     using Configuration;
-    using Microsoft.Data.SqlClient;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
 
     internal static class ProgramConfigurationLogExtensions
     {
-        public static void LogSqlServerConnectionString(
-            this ILogger<Program> logger,
-            IConfiguration configuration,
-            string connectionName)
-        {
-            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
-            if (connectionName == null) throw new ArgumentNullException(nameof(connectionName));
-
-            logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
-                connectionName,
-                new SqlConnectionStringBuilder(configuration.GetConnectionString(connectionName))
-                {
-                    Password = "**REDACTED**"
-                }.ConnectionString);
-        }
-
         public static void LogBlobClientCredentials(this ILogger<Program> logger, BlobClientOptions blobClientOptions)
         {
-            if (blobClientOptions == null) throw new ArgumentNullException(nameof(blobClientOptions));
+            if (blobClientOptions == null)
+            {
+                throw new ArgumentNullException(nameof(blobClientOptions));
+            }
 
             const int revealCharacterCount = 4;
 

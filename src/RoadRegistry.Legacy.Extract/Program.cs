@@ -15,6 +15,7 @@ namespace RoadRegistry.Legacy.Extract
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Configuration;
+    using Hosts;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
