@@ -34,11 +34,13 @@ namespace RoadRegistry.Wms.ProjectionHost.Metadata
                 ns.AddNamespace("csw", "http://www.opengis.net/cat/csw/2.0.2");
                 var totalUpdated = int.Parse(xDoc.XPathSelectElement("csw:TransactionResponse/csw:TransactionSummary/csw:totalUpdated", ns)?.Value ?? string.Empty);
                 if (totalUpdated <= 0)
-                    throw new Exception($"Metadata not updated, response from metadata service: \n{xDoc}");
+                {
+                    throw new InvalidOperationException($"Metadata not updated, response from metadata service: \n{xDoc}");
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Could not update metadata: " + ex.Message);
+                throw new InvalidOperationException("Could not update metadata: " + ex.Message);
             }
         }
 
@@ -101,13 +103,17 @@ namespace RoadRegistry.Wms.ProjectionHost.Metadata
             xsrfPostMessage.Headers.TryGetValues("Set-Cookie", out var setCookieHeaders);
 
             if (setCookieHeaders == null)
-                throw new Exception("Could not find any Set-Cookie header to update metadata");
+            {
+                throw new InvalidOperationException("Could not find any Set-Cookie header to update metadata");
+            }
 
             var token = setCookieHeaders.Select(cookie => cookie.Split(';'))
                 .FirstOrDefault(split => split[0].Contains("XSRF-TOKEN="));
 
             if(token == null)
-                throw new Exception("Could not find any xsrf token in the Set-Cookie headers");
+            {
+                throw new InvalidOperationException("Could not find any xsrf token in the Set-Cookie headers");
+            }
 
             return token[0].Split('=')[1];
         }

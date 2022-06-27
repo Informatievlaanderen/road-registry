@@ -157,7 +157,9 @@ namespace RoadRegistry.Syndication.Projections
         {
             var municipalityRecord = await context.Municipalities.FindAsync(municipalityId);
             if (municipalityRecord == null)
-                throw new Exception($"No municipality with id {municipalityId} was found.");
+            {
+                throw new InvalidOperationException($"No municipality with id {municipalityId} was found.");
+            }
 
             return municipalityRecord;
         }
