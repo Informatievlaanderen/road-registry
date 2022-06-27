@@ -1,6 +1,8 @@
 import apiClient from "./api-client";
 import RoadRegistry from "@/types/road-registry";
+import RoadRegistryExceptions from "@/types/road-registry-exceptions";
 import Municipalities from "@/types/municipalities";
+import axios from "axios";
 
 export const PublicApi = {
     ChangeFeed: {
@@ -71,9 +73,21 @@ export const PublicApi = {
             return response.data;
         },
         postDownloadRequestByContour: async (downloadRequest: RoadRegistry.DownloadExtractByContourRequest): Promise<RoadRegistry.DownloadExtractResponse> => {
-            const path = `/public/v1/wegen/extract/downloadaanvragen/percontour`;
-            const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest)
-            return response.data;
+            try {
+                const path = `/public/v1/wegen/extract/downloadaanvragen/percontour`;
+                const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest)
+                return response.data;
+            } catch (exception) {
+                if (axios.isAxiosError(exception)) {
+                    const response = exception?.response;
+                    if (response && response.status === 400) { // HTTP Bad Request
+                        const error = response?.data as RoadRegistry.PerContourErrorResponse;
+                        throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
+                    }
+                }
+
+                throw new Error('Unknown error');
+            }
         },
         postDownloadRequestByNisCode: async (downloadRequest: RoadRegistry.DownloadExtractByNisCodeRequest): Promise<RoadRegistry.DownloadExtractResponse> => {
             const path = `/public/v1/wegen/extract/downloadaanvragen/perniscode`;

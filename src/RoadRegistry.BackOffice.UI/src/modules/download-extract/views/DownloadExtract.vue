@@ -139,6 +139,12 @@
             <span v-if="!isDescriptionValid(contourFlow.description)">
               Gelieve een beschrijving mee te geven van maximaal 250 karakters.
             </span>
+            <vl-alert v-if="contourFlow.hasValidationErrors" icon="warning" title="Opgelet!" mod-small role="alertdialog">
+              <p>Er zijn validatie errors:</p>
+              <ul>
+                <li v-for="contourValidationError in contourFlow.validationErrors.contour" :key="contourValidationError.code">{{contourValidationError.reason}}</li>
+              </ul>
+            </vl-alert>
           </div>
         </div>
       </div>
@@ -150,6 +156,7 @@
 import { PublicApi } from "../../../services";
 import Municipalities from "../../../types/municipalities";
 import RoadRegistry from "../../../types/road-registry";
+import RoadRegistryExceptions from "../../../types/road-registry-exceptions";
 
 import Vue from "vue";
 
@@ -175,7 +182,9 @@ export default Vue.extend({
       contourFlow: {
         wkt: '',
         buffer: false,
-        description: ''
+        description: '',
+        hasValidationErrors: false,
+        validationErrors: {} as RoadRegistry.PerContourValidationErrors
       },
       validation: {
         description: {
@@ -213,14 +222,22 @@ export default Vue.extend({
     },
 
     async submitContourRequest() {
-      const requestData: RoadRegistry.DownloadExtractByContourRequest = {
-        buffer: this.contourFlow.buffer ? 100 : 0,
-        contour: this.contourFlow.wkt,
-        description: this.contourFlow.description
-      };
+      try {
+        this.contourFlow.hasValidationErrors = false;
+        const requestData: RoadRegistry.DownloadExtractByContourRequest = {
+          buffer: this.contourFlow.buffer ? 100 : 0,
+          contour: this.contourFlow.wkt,
+          description: this.contourFlow.description
+        };
 
-      const response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
-      this.$router.push({ name: 'activiteit', params: { downloadId: response.downloadId } });
+        const response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
+        this.$router.push({ name: 'activiteit', params: { downloadId: response.downloadId } });
+      } catch (exception) {
+        if (exception instanceof RoadRegistryExceptions.RequestExtractPerContourError) {
+          this.contourFlow.hasValidationErrors = true;
+          this.contourFlow.validationErrors = exception.error.validationErrors;
+        } 
+      }
     },
 
     isDescriptionValid(description: string): boolean {
@@ -234,6 +251,7 @@ export default Vue.extend({
     }
   }
 });
+
 </script>
 
 <style lang="scss">
