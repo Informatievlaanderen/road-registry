@@ -1,3 +1,10 @@
+## [3.4.11](https://github.com/informatievlaanderen/road-registry/compare/v3.4.10...v3.4.11) (2022-06-28)
+
+
+### Bug Fixes
+
+* remove more duplications ([6a403dd](https://github.com/informatievlaanderen/road-registry/commit/6a403ddc50ee5a84f61bdb73348b7933493270ea))
+
 ## [3.4.10](https://github.com/informatievlaanderen/road-registry/compare/v3.4.9...v3.4.10) (2022-06-27)
 
 
