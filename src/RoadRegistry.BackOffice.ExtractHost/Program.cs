@@ -19,6 +19,7 @@ namespace RoadRegistry.BackOffice.ExtractHost
     using Extracts;
     using Framework;
     using Hosts;
+    using Hosts.Configuration;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;

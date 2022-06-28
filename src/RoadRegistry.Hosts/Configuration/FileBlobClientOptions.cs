@@ -1,4 +1,4 @@
-namespace RoadRegistry.Editor.ProjectionHost.Configuration
+namespace RoadRegistry.Hosts.Configuration
 {
     public class FileBlobClientOptions
     {

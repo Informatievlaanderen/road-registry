@@ -1,6 +1,7 @@
 namespace RoadRegistry.Product.Schema
 {
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
 
     public class ProductContextMigrationFactory : RunnerDbContextMigrationFactory<ProductContext>

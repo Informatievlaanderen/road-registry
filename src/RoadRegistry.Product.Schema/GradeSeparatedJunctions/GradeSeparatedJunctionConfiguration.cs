@@ -1,5 +1,6 @@
 namespace RoadRegistry.Product.Schema.GradeSeparatedJunctions
 {
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

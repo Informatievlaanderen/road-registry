@@ -1,5 +1,6 @@
 namespace RoadRegistry.Syndication.Schema
 {
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

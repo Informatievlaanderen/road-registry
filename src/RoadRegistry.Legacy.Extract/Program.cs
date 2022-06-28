@@ -14,8 +14,8 @@ namespace RoadRegistry.Legacy.Extract
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using Configuration;
     using Hosts;
+    using Hosts.Configuration;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -163,7 +163,7 @@ namespace RoadRegistry.Legacy.Extract
                         .AddSingleton<LegacyStreamArchiveWriter>()
                         .AddSingleton(
                             new SqlConnection(
-                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Legacy)
+                                hostContext.Configuration.GetConnectionString(Hosts.WellknownConnectionNames.Legacy)
                             )
                         );
                 })
@@ -181,16 +181,16 @@ namespace RoadRegistry.Legacy.Extract
             {
                 await WaitFor.SeqToBecomeAvailable(configuration);
 
-                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Legacy);
+                logger.LogSqlServerConnectionString(configuration, Hosts.WellknownConnectionNames.Legacy);
                 logger.LogBlobClientCredentials(blobClientOptions);
 
                 await WaitFor.SqlServerToBecomeAvailable(
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Legacy))
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(Hosts.WellknownConnectionNames.Legacy))
                     , logger);
 
                 await OptimizeDatabasePerformance(
                     new SqlConnectionStringBuilder(
-                        configuration.GetConnectionString(WellknownConnectionNames.Legacy)), logger);
+                        configuration.GetConnectionString(Hosts.WellknownConnectionNames.Legacy)), logger);
 
                 await blobClient.ProvisionResources(host);
 

@@ -1,6 +1,7 @@
 namespace RoadRegistry.Syndication.Schema
 {
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
 
     public class SyndicationContextMigrationFactory : RunnerDbContextMigrationFactory<SyndicationContext>

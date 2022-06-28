@@ -6,6 +6,7 @@ namespace RoadRegistry.Product.Schema
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Dbase;
     using GradeSeparatedJunctions;
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Organizations;
     using RoadNodes;

@@ -1,8 +1,9 @@
-namespace RoadRegistry.BackOffice.ExtractHost
+namespace RoadRegistry.Hosts
 {
-    internal static class WellknownBuckets
+    public static class WellknownBuckets
     {
         public const string ExtractDownloadsBucket = "ExtractDownloads";
+        public const string ImportLegacyBucket = "ImportLegacy";
         public const string UploadsBucket = "Uploads";
     }
 }

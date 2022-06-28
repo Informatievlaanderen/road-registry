@@ -17,8 +17,8 @@ namespace RoadRegistry.Editor.ProjectionHost
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Configuration;
     using Hosts;
+    using Hosts.Configuration;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
