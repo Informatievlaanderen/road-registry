@@ -19,8 +19,8 @@ namespace RoadRegistry.Legacy.Import
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-    using Configuration;
     using Hosts;
+    using Hosts.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
@@ -139,7 +139,7 @@ namespace RoadRegistry.Legacy.Import
                             builder.AddSingleton<IBlobClient>(sp =>
                                 new S3BlobClient(
                                     sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.ImportLegacyBucket]
+                                    s3Options.Buckets[Hosts.WellknownBuckets.ImportLegacyBucket]
                                 )
                             );
                             break;

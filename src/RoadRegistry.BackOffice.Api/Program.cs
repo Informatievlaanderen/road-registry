@@ -21,6 +21,7 @@ namespace RoadRegistry.BackOffice.Api
     using Core;
     using Editor.Schema;
     using Hosts;
+    using Hosts.Configuration;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;

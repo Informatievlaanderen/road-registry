@@ -13,11 +13,11 @@ namespace RoadRegistry.BackOffice.CommandHost
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
-    using Configuration;
     using Core;
     using Extracts;
     using Framework;
     using Hosts;
+    using Hosts.Configuration;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;

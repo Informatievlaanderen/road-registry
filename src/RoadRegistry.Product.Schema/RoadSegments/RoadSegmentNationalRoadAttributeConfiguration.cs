@@ -1,5 +1,6 @@
 namespace RoadRegistry.Product.Schema.RoadSegments
 {
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

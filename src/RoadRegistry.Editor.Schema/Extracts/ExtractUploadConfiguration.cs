@@ -1,5 +1,6 @@
 namespace RoadRegistry.Editor.Schema.Extracts
 {
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

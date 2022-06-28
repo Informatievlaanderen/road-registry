@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ExtractHost.Configuration
+namespace RoadRegistry.Hosts.Configuration
 {
     public class BlobClientOptions
     {

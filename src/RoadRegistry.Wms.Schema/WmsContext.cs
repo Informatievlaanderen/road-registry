@@ -1,6 +1,7 @@
 namespace RoadRegistry.Wms.Schema
 {
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
 
     public class WmsContext : RunnerDbContext<WmsContext>

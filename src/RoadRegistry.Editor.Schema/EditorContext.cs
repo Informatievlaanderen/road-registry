@@ -7,6 +7,7 @@ namespace RoadRegistry.Editor.Schema
     using Dbase;
     using Extracts;
     using GradeSeparatedJunctions;
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Organizations;
     using RoadNetworkChanges;
