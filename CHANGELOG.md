@@ -1,3 +1,10 @@
+## [3.5.1](https://github.com/informatievlaanderen/road-registry/compare/v3.5.0...v3.5.1) (2022-06-29)
+
+
+### Bug Fixes
+
+* import database with correct name ([04d78c2](https://github.com/informatievlaanderen/road-registry/commit/04d78c24dcd9db7957d645f47d602eb6ed0133c4))
+
 # [3.5.0](https://github.com/informatievlaanderen/road-registry/compare/v3.4.11...v3.5.0) (2022-06-29)
 
 
