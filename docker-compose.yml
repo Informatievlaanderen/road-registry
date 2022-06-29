@@ -139,11 +139,19 @@ services:
       - "21433:1433"
     volumes:
       - mssql-data:/var/opt/mssql
+      - ./src/RoadRegistry.BackupDatabase/filled:/var/lib/backup
 
   mssql-seed:
     build: ./src/RoadRegistry.Database
     depends_on:
       - mssql
+
+  import-backup:
+    build: src/RoadRegistry.BackupDatabase/filled
+    depends_on:
+      - mssql-seed
+    volumes:
+      - ./src/RoadRegistry.BackupDatabase/filled:/var/lib/backup
 
   import-legacy:
     build: dist/RoadRegistry.Legacy.Import/linux
