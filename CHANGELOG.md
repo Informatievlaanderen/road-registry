@@ -1,3 +1,11 @@
+# [3.5.0](https://github.com/informatievlaanderen/road-registry/compare/v3.4.11...v3.5.0) (2022-06-29)
+
+
+### Features
+
+* add error handling for invalid contours in ui ([b9e7642](https://github.com/informatievlaanderen/road-registry/commit/b9e7642b56b56c723928b007259e85652eb9ca19))
+* add restore db functionality ([b79c77f](https://github.com/informatievlaanderen/road-registry/commit/b79c77f64f10d104e423fb5dcff3822eea311129))
+
 ## [3.4.11](https://github.com/informatievlaanderen/road-registry/compare/v3.4.10...v3.4.11) (2022-06-28)
 
 
