@@ -1,3 +1,10 @@
+## [3.5.3](https://github.com/informatievlaanderen/road-registry/compare/v3.5.2...v3.5.3) (2022-06-30)
+
+
+### Bug Fixes
+
+* modify connection strings in docker compose ([cf0916d](https://github.com/informatievlaanderen/road-registry/commit/cf0916dc3026814e135dd1863315c1f099393f2d))
+
 ## [3.5.2](https://github.com/informatievlaanderen/road-registry/compare/v3.5.1...v3.5.2) (2022-06-30)
 
 
