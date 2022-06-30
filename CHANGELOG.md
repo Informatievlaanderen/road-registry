@@ -1,3 +1,10 @@
+## [3.5.2](https://github.com/informatievlaanderen/road-registry/compare/v3.5.1...v3.5.2) (2022-06-30)
+
+
+### Bug Fixes
+
+* add LABEL to Dockerfile (for easier DataDog filtering) ([3499146](https://github.com/informatievlaanderen/road-registry/commit/3499146e822e2df0afea5d47329ff998b1dc2faa))
+
 ## [3.5.1](https://github.com/informatievlaanderen/road-registry/compare/v3.5.0...v3.5.1) (2022-06-29)
 
 
