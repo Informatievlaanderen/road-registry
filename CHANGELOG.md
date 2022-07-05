@@ -1,3 +1,10 @@
+## [3.5.4](https://github.com/informatievlaanderen/road-registry/compare/v3.5.3...v3.5.4) (2022-07-05)
+
+
+### Bug Fixes
+
+* add test CD ([e7755a8](https://github.com/informatievlaanderen/road-registry/commit/e7755a8ca8cc2376c54802952f8da93a4aba63cd))
+
 ## [3.5.3](https://github.com/informatievlaanderen/road-registry/compare/v3.5.2...v3.5.3) (2022-06-30)
 
 
