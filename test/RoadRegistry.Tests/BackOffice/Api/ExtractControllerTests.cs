@@ -1,11 +1,14 @@
 namespace RoadRegistry.BackOffice.Api
 {
+    using System.Collections.Generic;
+    using System.IO;
     using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
     using BackOffice.Extracts;
     using BackOffice.Framework;
     using BackOffice.Uploads;
+    using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Configuration;
@@ -15,11 +18,14 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging.Abstractions;
+    using Microsoft.Extensions.Primitives;
     using NetTopologySuite;
     using NetTopologySuite.IO;
+    using Newtonsoft.Json;
     using NodaTime;
     using RoadRegistry.Framework.Containers;
     using SqlStreamStore;
+    using SqlStreamStore.Streams;
     using Xunit;
     using Xunit.Sdk;
 
@@ -235,6 +241,135 @@ namespace RoadRegistry.BackOffice.Api
                     new ExtractDownloadsOptions(),
                     "not_a_guid_without_dashes");
                 throw new XunitException("Expected a validation exception but did not receive any");
+            }
+            catch (ValidationException)
+            {
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task When_uploading_an_extract_that_is_not_a_zip(bool isFeatureCompare)
+        {
+            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
+            var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
+            var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
+            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
+
+            var controller = new ExtractsController(
+                SystemClock.Instance,
+                Dispatch.Using(_resolver),
+                _downloadClient,
+                _uploadClient,
+                wktReader,
+                downloadExtractRequestBodyValidator,
+                downloadExtractByContourRequestBodyValidator,
+                downloadExtractByNisCodeRequestBodyValidator,
+                _editorContext)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+            var context = new EditorContext();
+
+            var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
+            {
+                Headers = new HeaderDictionary(new Dictionary<string, StringValues>
+                {
+                    { "Content-Type", StringValues.Concat(StringValues.Empty, "application/octet-stream") }
+                })
+            };
+
+            try
+            {
+                await controller.PostUpload(
+                    context,
+                    "not_a_guid_without_dashes",
+                    formFile,
+                    isFeatureCompare);
+                throw new XunitException("Expected a validation exception but did not receive any");
+            }
+            catch (ValidationException)
+            {
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task When_uploading_an_extract_that_is_a_zip(bool isFeatureCompare)
+        {
+            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
+            var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
+            var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
+            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
+
+            var controller = new ExtractsController(
+                SystemClock.Instance,
+                Dispatch.Using(_resolver),
+                _downloadClient,
+                _uploadClient,
+                wktReader,
+                downloadExtractRequestBodyValidator,
+                downloadExtractByContourRequestBodyValidator,
+                downloadExtractByNisCodeRequestBodyValidator,
+                _editorContext)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+            var context = new EditorContext();
+            var client = new RoadNetworkUploadsBlobClient(new MemoryBlobClient());
+            var store = new InMemoryStreamStore();
+
+            try
+            {
+                using (var sourceStream = new MemoryStream())
+                {
+                    using (var embeddedStream =
+                           typeof(ExtractControllerTests).Assembly.GetManifestResourceStream(
+                               typeof(ExtractControllerTests),
+                               "empty.zip"))
+                    {
+                        embeddedStream.CopyTo(sourceStream);
+                    }
+
+                    sourceStream.Position = 0;
+
+                    var formFile = new FormFile(sourceStream, 0L, sourceStream.Length, "name", "name")
+                    {
+                        Headers = new HeaderDictionary(new Dictionary<string, StringValues>
+                        {
+                            { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
+                        })
+                    };
+
+                    var result = await controller.PostUpload(
+                        context,
+                        "not_a_guid_without_dashes",
+                        formFile,
+                        isFeatureCompare);
+
+                    Assert.IsType<OkResult>(result);
+
+                    var page = await store.ReadAllForwards(Position.Start, 1, true);
+                    var message = Assert.Single(page.Messages);
+                    Assert.Equal(nameof(Messages.RoadNetworkExtractChangesArchiveUploaded), message.Type);
+                    var uploaded =
+                        JsonConvert.DeserializeObject<Messages.RoadNetworkExtractChangesArchiveUploaded>(
+                            await message.GetJsonData());
+
+                    Assert.True(await client.BlobExistsAsync(new BlobName(uploaded.ArchiveId)));
+                    var blob = await client.GetBlobAsync(new BlobName(uploaded.ArchiveId));
+                    using (var openStream = await blob.OpenAsync())
+                    {
+                        var resultStream = new MemoryStream();
+                        openStream.CopyTo(resultStream);
+                        resultStream.Position = 0;
+                        sourceStream.Position = 0;
+                        Assert.Equal(sourceStream.ToArray(), resultStream.ToArray());
+                    }
+                }
             }
             catch (ValidationException)
             {

@@ -129,13 +129,13 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             return Accepted(new DownloadExtractResponseBody {DownloadId = downloadId.ToString()});
         }
 
-        [HttpGet("download/{downloadid}")]
+        [HttpGet("download/{downloadId}")]
         public async Task<IActionResult> GetDownload(
             [FromServices]EditorContext context,
             [FromServices]ExtractDownloadsOptions options,
-            [FromRoute]string downloadid)
+            [FromRoute]string downloadId)
         {
-            if (Guid.TryParseExact(downloadid, "N", out var parsed))
+            if (Guid.TryParseExact(downloadId, "N", out var parsed))
             {
                 var record = await context.ExtractDownloads.FindAsync(new object[] { parsed }, HttpContext.RequestAborted);
                 if (record is not { Available: true })
@@ -163,7 +163,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 
                 var blob = await _downloadsClient.GetBlobAsync(blobName, HttpContext.RequestAborted);
 
-                var filename = downloadid + ".zip";
+                var filename = downloadId + ".zip";
 
                 return new FileCallbackResult(
                     new MediaTypeHeaderValue("application/zip"),
@@ -182,28 +182,29 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             // results in BAD REQUEST
             throw new ValidationException(new[]
             {
-                new ValidationFailure("downloadid",
-                    "'DownloadId' path parameter is not a global unique identifier without dashes.")
+                new ValidationFailure(nameof(downloadId),
+                    $"'{nameof(downloadId)}' path parameter is not a global unique identifier without dashes.")
             });
         }
 
-        [HttpPost("download/{downloadid}/uploads")]
+        [HttpPost("download/{downloadId}/uploads")]
         public async Task<IActionResult> PostUpload(
             [FromServices] EditorContext context,
-            [FromRoute] string downloadid,
-            IFormFile archive)
+            [FromRoute] string downloadId,
+            [FromBody] IFormFile archive,
+            [FromBody] bool isFeatureCompare)
         {
             if (context == null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (downloadid == null)
+            if (downloadId == null)
             {
-                throw new ArgumentNullException(nameof(downloadid));
+                throw new ArgumentNullException(nameof(downloadId));
             }
 
-            if (Guid.TryParseExact(downloadid, "N", out var parsedDownloadId))
+            if (Guid.TryParseExact(downloadId, "N", out var parsedDownloadId))
             {
                 var formContentType = HttpContext.Request.ContentType?.Split(';');
                 if (formContentType == null ||
@@ -226,8 +227,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 {
                     throw new ValidationException(new[]
                     {
-                        new ValidationFailure("archive",
-                            "'Archive' body parameter is missing.")
+                        new ValidationFailure(nameof(archive),
+                            $"'{nameof(archive)}' body parameter is missing.")
                     });
                 }
 
@@ -258,7 +259,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                             RequestId = download.RequestId,
                             DownloadId = download.DownloadId,
                             UploadId = uploadId.ToGuid(),
-                            ArchiveId = archiveId.ToString()
+                            ArchiveId = archiveId.ToString(),
+                            IsFeatureCompare = isFeatureCompare
                         });
 
                     try
@@ -285,18 +287,18 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             // results in BAD REQUEST
             throw new ValidationException(new[]
             {
-                new ValidationFailure("downloadid",
-                    "'DownloadId' path parameter is not a global unique identifier without dashes.")
+                new ValidationFailure(nameof(downloadId),
+                    $"'{nameof(downloadId)}' path parameter is not a global unique identifier without dashes.")
             });
         }
 
-        [HttpGet("upload/{uploadid}/status")]
+        [HttpGet("upload/{uploadId}/status")]
         public async Task<IActionResult> GetUploadStatus(
             [FromServices]EditorContext context,
             [FromServices]ExtractUploadsOptions options,
-            [FromRoute]string uploadid)
+            [FromRoute]string uploadId)
         {
-            if (Guid.TryParseExact(uploadid, "N", out var parsed))
+            if (Guid.TryParseExact(uploadId, "N", out var parsed))
             {
                 var record = await context.ExtractUploads.FindAsync(new object[] { parsed }, HttpContext.RequestAborted);
                 if (record == null)
@@ -351,8 +353,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
             // results in BAD REQUEST
             throw new ValidationException(new[]
             {
-                new ValidationFailure("uploadid",
-                    "'UploadId' path parameter is not a global unique identifier without dashes.")
+                new ValidationFailure(nameof(uploadId),
+                    $"'{uploadId}' path parameter is not a global unique identifier without dashes.")
             });
         }
     }

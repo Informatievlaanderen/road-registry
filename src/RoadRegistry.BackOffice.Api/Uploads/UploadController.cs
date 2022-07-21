@@ -81,8 +81,8 @@ public class UploadController : ControllerBase
         if (!ArchiveId.Accepts(identifier))
             throw new ValidationException(new[]
             {
-                new ValidationFailure("identifier",
-                    $"'identifier' path parameter cannot be empty and must be less or equal to {ArchiveId.MaxLength} characters.")
+                new ValidationFailure(nameof(identifier),
+                    $"'{nameof(identifier)}' path parameter cannot be empty and must be less or equal to {ArchiveId.MaxLength} characters.")
             });
 
         var archiveId = new ArchiveId(identifier);
