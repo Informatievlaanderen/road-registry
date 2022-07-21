@@ -13,5 +13,6 @@ namespace RoadRegistry.BackOffice.Messages
         public Guid UploadId { get; set; }
         public string ArchiveId { get; set; }
         public string When { get; set; }
+        public bool IsFeatureCompare { get; set; }
     }
 }

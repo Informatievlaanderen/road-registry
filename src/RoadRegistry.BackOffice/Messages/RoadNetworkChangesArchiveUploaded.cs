@@ -8,5 +8,6 @@ namespace RoadRegistry.BackOffice.Messages
     {
         public string ArchiveId { get; set; }
         public string When { get; set; }
+        public bool IsFeatureCompare { get; set; }
     }
 }

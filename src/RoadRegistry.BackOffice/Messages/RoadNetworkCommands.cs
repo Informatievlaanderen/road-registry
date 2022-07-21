@@ -5,11 +5,12 @@ namespace RoadRegistry.BackOffice.Messages
     public static class RoadNetworkCommands
     {
         public static readonly Type[] All = {
-            typeof(UploadRoadNetworkChangesArchive),
-            typeof(ChangeRoadNetwork),
             typeof(AnnounceRoadNetworkExtractDownloadBecameAvailable),
+            typeof(ChangeRoadNetwork),
             typeof(RequestRoadNetworkExtract),
-            typeof(RebuildRoadNetworkSnapshot)
+            typeof(RebuildRoadNetworkSnapshot),
+            typeof(UploadRoadNetworkChangesArchive),
+            typeof(UploadRoadNetworkExtractChangesArchive),
         };
     }
 }

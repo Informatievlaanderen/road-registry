@@ -8,21 +8,27 @@ namespace RoadRegistry.BackOffice.Uploads
 
     public class RoadNetworkChangesArchive : EventSourcedEntity
     {
+        private bool _isFeatureCompare;
         public static readonly Func<RoadNetworkChangesArchive> Factory = () => new RoadNetworkChangesArchive();
 
         private RoadNetworkChangesArchive()
         {
-            On<RoadNetworkChangesArchiveUploaded>(e => Id = new ArchiveId(e.ArchiveId));
+            On<RoadNetworkChangesArchiveUploaded>(e =>
+            {
+                Id = new ArchiveId(e.ArchiveId);
+                _isFeatureCompare = e.IsFeatureCompare;
+            });
         }
 
         public ArchiveId Id { get; private set; }
 
-        public static RoadNetworkChangesArchive Upload(ArchiveId id)
+        public static RoadNetworkChangesArchive Upload(ArchiveId id, bool isFeatureCompare)
         {
             var instance = new RoadNetworkChangesArchive();
             instance.Apply(new RoadNetworkChangesArchiveUploaded
             {
-                ArchiveId = id
+                ArchiveId = id,
+                IsFeatureCompare = isFeatureCompare
             });
             return instance;
         }
@@ -36,6 +42,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     new RoadNetworkChangesArchiveAccepted
                     {
                         ArchiveId = Id,
+                        IsFeatureCompare = _isFeatureCompare,
                         Problems = problems.Select(problem => problem.Translate()).ToArray()
                     });
             }
@@ -45,6 +52,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     new RoadNetworkChangesArchiveRejected
                     {
                         ArchiveId = Id,
+                        IsFeatureCompare = _isFeatureCompare,
                         Problems = problems.Select(problem => problem.Translate()).ToArray()
                     });
             }
