@@ -18,8 +18,19 @@
             <h2 class="vl-title vl-title--h2">Opladen</h2>
           </vl-column>
 
+          <!-- 
           <vl-column>
             <vl-image src="https://picsum.photos/1600/400?image=1048" alt="Bouwen in Brussel" />
+          </vl-column>
+         -->
+
+          <vl-column>
+            <vl-checkbox
+              v-model="isFeatureCompare"
+              name="feature-compare-component"
+              mod-switch>
+              Feature compare
+            </vl-checkbox>
           </vl-column>
 
           <vl-column>
@@ -32,7 +43,7 @@
               name="upload-component"
               url="#"
               upload-drag-text="Selecteer het zip‑bestand met de op te laden verschillen."
-              upload-label="Feature compare"
+              upload-label="Archief opladen"
               :auto-process="false"
               :options="options"
               :mod-success="uploadResult.uploadResponseCode && alertInfo.success"
@@ -60,6 +71,7 @@ export default Vue.extend({
   data() {
     return {
       isUploading: false,
+      isFeatureCompare: false,
       uploadResult: { uploadResponseCode: undefined } as { uploadResponseCode: number | undefined },
     };
   },
@@ -150,7 +162,7 @@ export default Vue.extend({
         return;
       }
       
-      const uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name);
+      const uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name, this.isFeatureCompare);
       this.uploadResult = { uploadResponseCode };
       this.endUpload();
       return;
