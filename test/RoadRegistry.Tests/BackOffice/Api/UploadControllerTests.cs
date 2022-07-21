@@ -22,8 +22,10 @@ namespace RoadRegistry.BackOffice.Api
 
     public class UploadControllerTests
     {
-        [Fact]
-        public async Task When_uploading_a_file_that_is_not_a_zip()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task When_uploading_a_file_that_is_not_a_zip(bool isFeatureCompare)
         {
             var client = new RoadNetworkUploadsBlobClient(new MemoryBlobClient());
             var store = new InMemoryStreamStore();
@@ -50,15 +52,17 @@ namespace RoadRegistry.BackOffice.Api
                     { "Content-Type", StringValues.Concat(StringValues.Empty, "application/octet-stream")}
                 })
             };
-            var result = await controller.Post(formFile);
+            var result = await controller.PostUpload(formFile, isFeatureCompare);
 
             Assert.IsType<UnsupportedMediaTypeResult>(result);
         }
 
         [Theory]
-        [InlineData("application/zip")]
-        [InlineData("application/x-zip-compressed")]
-        public async Task When_uploading_a_file_that_is_a_zip(string contentType)
+        [InlineData("application/zip", false)]
+        [InlineData("application/x-zip-compressed", false)]
+        [InlineData("application/zip", true)]
+        [InlineData("application/x-zip-compressed", true)]
+        public async Task When_uploading_a_file_that_is_a_zip(string contentType, bool isFeatureCompare)
         {
             var client = new RoadNetworkUploadsBlobClient(new MemoryBlobClient());
             var store = new InMemoryStreamStore();
@@ -99,7 +103,7 @@ namespace RoadRegistry.BackOffice.Api
                         {"Content-Type", StringValues.Concat(StringValues.Empty, contentType)}
                     })
                 };
-                var result = await controller.Post(formFile);
+                var result = await controller.PostUpload(formFile, isFeatureCompare);
 
                 Assert.IsType<OkResult>(result);
 
@@ -123,8 +127,10 @@ namespace RoadRegistry.BackOffice.Api
             }
         }
 
-        [Fact]
-        public async Task When_uploading_an_externally_created_file_that_is_a_zip()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task When_uploading_an_externally_created_file_that_is_a_zip(bool isFeatureCompare)
         {
             var client = new RoadNetworkUploadsBlobClient(new MemoryBlobClient());
             var store = new InMemoryStreamStore();
@@ -163,7 +169,7 @@ namespace RoadRegistry.BackOffice.Api
                         {"Content-Type", StringValues.Concat(StringValues.Empty, "application/zip")}
                     })
                 };
-                var result = await controller.Post(formFile);
+                var result = await controller.PostUpload(formFile, isFeatureCompare);
 
                 Assert.IsType<OkResult>(result);
 
