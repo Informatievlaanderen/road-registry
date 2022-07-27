@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.ExtractHost
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
+    using Abstractions;
     using Amazon;
     using Amazon.Runtime;
     using Amazon.S3;
@@ -13,7 +14,6 @@ namespace RoadRegistry.BackOffice.ExtractHost
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
-    using Configuration;
     using Core;
     using Editor.Schema;
     using Extracts;
@@ -31,7 +31,7 @@ namespace RoadRegistry.BackOffice.ExtractHost
     using SqlStreamStore;
     using Syndication.Schema;
     using Uploads;
-    using ZipArchiveWriters;
+    using ZipArchiveWriters.ExtractHost;
 
     public class Program
     {

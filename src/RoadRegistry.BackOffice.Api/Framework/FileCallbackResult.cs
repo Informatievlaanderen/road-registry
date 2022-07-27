@@ -2,7 +2,9 @@ namespace RoadRegistry.BackOffice.Api.Framework
 {
     using System;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
+    using Contracts;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Infrastructure;
     using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +15,12 @@ namespace RoadRegistry.BackOffice.Api.Framework
     public class FileCallbackResult : FileResult
     {
         private readonly Func<Stream, ActionContext, Task> _callback;
+
+        public FileCallbackResult(FileResponse fileResponse)
+            : this(fileResponse.MediaTypeHeaderValue, async  (stream, actionContext) => await fileResponse.Callback(stream, CancellationToken.None))
+        {
+            FileDownloadName = fileResponse.FileName ?? throw new ArgumentNullException(nameof(fileResponse.FileName));
+        }
 
         public FileCallbackResult(MediaTypeHeaderValue contentType, Func<Stream, ActionContext, Task> callback)
             : base(contentType?.ToString())

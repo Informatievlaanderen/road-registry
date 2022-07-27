@@ -41,7 +41,17 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Compile Remove="BackOffice\Api\ZipArchiveWriters\**" />
+    <EmbeddedResource Remove="BackOffice\Api\ZipArchiveWriters\**" />
+    <None Remove="BackOffice\Api\ZipArchiveWriters\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <Folder Include="BackOffice\ExtractHost\ZipArchiveWriters\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.18.1" />
   </ItemGroup>
   
   <Import Project="..\..\.paket\Paket.Restore.targets" />

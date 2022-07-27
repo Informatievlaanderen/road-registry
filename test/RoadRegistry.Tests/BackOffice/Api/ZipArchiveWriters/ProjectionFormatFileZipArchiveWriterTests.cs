@@ -7,6 +7,8 @@ namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice.Uploads;
+    using BackOffice.ZipArchiveWriters.ExtractHost;
+    using ExtractHost.ZipArchiveWriters;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
     using Xunit;

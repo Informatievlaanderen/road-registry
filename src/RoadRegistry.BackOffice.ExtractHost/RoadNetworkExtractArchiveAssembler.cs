@@ -9,7 +9,7 @@ namespace RoadRegistry.BackOffice.ExtractHost
     using Editor.Schema;
     using Extracts;
     using Microsoft.IO;
-    using ZipArchiveWriters;
+    using ZipArchiveWriters.ExtractHost;
 
     public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAssembler
     {

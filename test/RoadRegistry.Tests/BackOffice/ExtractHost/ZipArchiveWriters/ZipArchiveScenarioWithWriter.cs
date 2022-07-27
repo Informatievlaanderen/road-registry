@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using System.IO.Compression;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice.ZipArchiveWriters.ExtractHost;
     using Extracts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;

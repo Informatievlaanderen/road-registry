@@ -3,8 +3,10 @@ namespace RoadRegistry.BackOffice.ExtractHost
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
+    using RoadRegistry.BackOffice.Abstractions;
     using Syndication.Schema;
 
     public class StreetNameCache : IStreetNameCache
@@ -16,17 +18,16 @@ namespace RoadRegistry.BackOffice.ExtractHost
             _contextFactory = contextFactory;
         }
 
-        public async Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds)
+        public async Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
         {
-            using (var context = _contextFactory())
-            {
-                return await context.StreetNames
-                    .Where(record => record.PersistentLocalId.HasValue)
-                    .Where(record => streetNameIds.Contains(record.PersistentLocalId.Value))
-                    .ToDictionaryAsync(
-                        x => x.PersistentLocalId.Value,
-                        x => x.DutchNameWithHomonymAddition);
-            }
+            await using var context = _contextFactory();
+            return await context.StreetNames
+                .Where(record => record.PersistentLocalId.HasValue)
+                .Where(record => streetNameIds.Contains(record.PersistentLocalId.Value))
+                .ToDictionaryAsync(
+                    x => x.PersistentLocalId.Value,
+                    x => x.DutchNameWithHomonymAddition,
+                    cancellationToken);
         }
     }
 }

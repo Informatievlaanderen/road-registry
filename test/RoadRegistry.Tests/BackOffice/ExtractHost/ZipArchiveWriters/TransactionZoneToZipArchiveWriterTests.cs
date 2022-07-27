@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using System.Text;
     using System.Threading.Tasks;
     using AutoFixture;
+    using BackOffice.ZipArchiveWriters.ExtractHost;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Editor.Schema;
     using Extracts;

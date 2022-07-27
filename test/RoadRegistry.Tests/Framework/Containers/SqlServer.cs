@@ -2,6 +2,7 @@ namespace RoadRegistry.Framework.Containers
 {
     using System;
     using System.Threading.Tasks;
+    using BackOffice.Abstractions;
     using BackOffice.Api;
     using Editor.Schema;
     using Microsoft.Data.SqlClient;

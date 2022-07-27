@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Api
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
+    using Abstractions;
     using Amazon;
     using Amazon.Runtime;
     using Amazon.S3;
@@ -20,6 +21,7 @@ namespace RoadRegistry.BackOffice.Api
     using Configuration;
     using Core;
     using Editor.Schema;
+    using RoadRegistry.BackOffice.ZipArchiveWriters;
     using Hosts;
     using Hosts.Configuration;
     using Microsoft.AspNetCore.Hosting;
@@ -34,6 +36,7 @@ namespace RoadRegistry.BackOffice.Api
     using Serilog;
     using SqlStreamStore;
     using Syndication.Schema;
+    using RoadRegistry.BackOffice.ZipArchiveWriters.ForEditor;
 
     public class Program
     {

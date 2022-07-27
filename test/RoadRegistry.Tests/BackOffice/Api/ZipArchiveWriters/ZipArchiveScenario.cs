@@ -1,13 +1,13 @@
 namespace RoadRegistry.BackOffice.Api.ZipArchiveWriters
 {
+    using BackOffice.ZipArchiveWriters;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.IO;
     using System;
     using System.IO.Compression;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.IO;
-    using RoadRegistry.Framework.Containers;
 
     public class ZipArchiveScenario<TContext> where TContext : DbContext
     {

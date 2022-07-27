@@ -1,24 +1,45 @@
 namespace RoadRegistry.Api.BackOffice.Handlers;
 
-using Abstractions;
-using Exceptions;
-using FluentValidation;
-using MediatR.Pipeline;
+using Microsoft.AspNetCore.Http;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Messages;
 
-internal class DownloadExtractByContourRequestHandler :
-    EndpointRequestHandler<DownloadExtractByContourRequest, DownloadExtractByContourResponse>,
+internal class DownloadExtractByContourRequestHandler : EndpointRequestHandler<DownloadExtractByContourRequest, DownloadExtractByContourResponse>,
     IRequestExceptionHandler<DownloadExtractByContourRequest, DownloadExtractByContourResponse, DownloadExtractByContourNotFoundException>
 {
-    public DownloadExtractByContourRequestHandler(CommandHandlerDispatcher dispatcher, IValidator<DownloadExtractByContourRequest> validator) : base(dispatcher, validator) { }
+    private readonly WKTReader _reader;
 
-    public override Task<DownloadExtractByContourResponse> HandleAsync(DownloadExtractByContourRequest request, CancellationToken cancellationToken)
+    public DownloadExtractByContourRequestHandler(CommandHandlerDispatcher dispatcher, WKTReader reader ) : base(dispatcher)
+    {
+        _reader = reader ?? throw new ArgumentNullException(nameof(reader));
+    }
+
+    public Task Handle(
+        DownloadExtractByContourRequest request,
+        DownloadExtractByContourNotFoundException exception,
+        RequestExceptionHandlerState<DownloadExtractByContourResponse> state,
+        CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task Handle(DownloadExtractByContourRequest request, DownloadExtractByContourNotFoundException exception, RequestExceptionHandlerState<DownloadExtractByContourResponse> state, CancellationToken cancellationToken)
+    public override async Task<DownloadExtractByContourResponse> HandleAsync(DownloadExtractByContourRequest request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var downloadId = new DownloadId(Guid.NewGuid());
+        var randomExternalRequestId = Guid.NewGuid().ToString("N");
+        var message = new Command(
+            new RequestRoadNetworkExtract
+            {
+                ExternalRequestId = randomExternalRequestId,
+                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(_reader.Read(request.Contour) as IPolygonal, request.Buffer),
+                DownloadId = downloadId,
+                Description = request.Description
+            });
+        await Dispatcher(message, cancellationToken);
+
+        return new DownloadExtractByContourResponse(downloadId);
     }
 }

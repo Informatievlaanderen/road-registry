@@ -42,6 +42,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.BackOffice.Contracts\RoadRegistry.BackOffice.Contracts.csproj" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
@@ -54,6 +56,10 @@
     <Content Include="init.sh" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+    <Compile Remove="ZipArchiveWriters\**" />
+    <Content Remove="ZipArchiveWriters\**" />
+    <EmbeddedResource Remove="ZipArchiveWriters\**" />
+    <None Remove="ZipArchiveWriters\**" />
     <Content Include="paket.template" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
@@ -62,32 +68,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ZipArchiveWriters\ForProduct\StaticData" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Data_Wegenregister_v2.0.pdf" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Data_Wegenregister_v2.0.pdf" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Leesmij_Wegenregister_v1.0.pdf" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Leesmij_Wegenregister_v1.0.pdf" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Refpunt.lyr" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Refpunt.lyr" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Refpunt.sld" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Refpunt.sld" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Refpunt.WOR" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Refpunt.WOR" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.lyr" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.lyr" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.sld" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.sld" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.WOR" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.WOR" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.lyr" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.lyr" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.sld" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.sld" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.WOR" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.WOR" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

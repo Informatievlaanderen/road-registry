@@ -7,7 +7,6 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Linq;
     using System.Text;
     using System.Threading;
-    using Api.ZipArchiveWriters;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Core;
