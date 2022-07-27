@@ -67,6 +67,7 @@ Target.create "Publish_Solution" (fun _ ->
     "RoadRegistry.Editor.ProjectionHost"
     "RoadRegistry.Product.ProjectionHost"
     "RoadRegistry.Wms.ProjectionHost"
+    "RoadRegistry.Wfs.ProjectionHost"
     "RoadRegistry.Syndication.ProjectionHost"
     "RoadRegistry.BackOffice.EventHost"
     "RoadRegistry.BackOffice.ExtractHost"
@@ -104,6 +105,9 @@ Target.create "PushContainer_ProductProjectionHost" (fun _ -> push "product-proj
 
 Target.create "Containerize_WmsProjectionHost" (fun _ -> containerize "RoadRegistry.Wms.ProjectionHost" "wms-projectionhost")
 Target.create "PushContainer_WmsProjectionHost" (fun _ -> push "wms-projectionhost")
+
+Target.create "Containerize_WfsProjectionHost" (fun _ -> containerize "RoadRegistry.Wfs.ProjectionHost" "wfs-projectionhost")
+Target.create "PushContainer_WfsProjectionHost" (fun _ -> push "wfs-projectionhost")
 
 Target.create "Containerize_SyndicationProjectionHost" (fun _ -> containerize "RoadRegistry.Syndication.ProjectionHost" "syndication-projectionhost")
 Target.create "PushContainer_SyndicationProjectionHost" (fun _ -> push "syndication-projectionhost")
@@ -157,6 +161,7 @@ Target.create "Push" ignore
   ==> "Containerize_EditorProjectionHost"
   ==> "Containerize_ProductProjectionHost"
   ==> "Containerize_WmsProjectionHost"
+  ==> "Containerize_WfsProjectionHost"
   ==> "Containerize_SyndicationProjectionHost"
   ==> "Containerize_BackOfficeEventHost"
   ==> "Containerize_BackOfficeExtractHost"
@@ -173,6 +178,7 @@ Target.create "Push" ignore
   ==> "PushContainer_EditorProjectionHost"
   ==> "PushContainer_ProductProjectionHost"
   ==> "PushContainer_WmsProjectionHost"
+  ==> "PushContainer_WfsProjectionHost"
   ==> "PushContainer_SyndicationProjectionHost"
   ==> "PushContainer_BackOfficeEventHost"
   ==> "PushContainer_BackOfficeExtractHost"

@@ -50,3 +50,8 @@ updates:
   directory: "/src/RoadRegistry.Wms.ProjectionHost"
   schedule:
     interval: daily
+
+- package-ecosystem: docker
+  directory: "/src/RoadRegistry.Wfs.ProjectionHost"
+  schedule:
+    interval: daily
