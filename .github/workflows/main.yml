@@ -181,6 +181,7 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/wfs-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER
@@ -213,6 +214,7 @@ jobs:
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/wfs-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
@@ -225,6 +227,7 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
@@ -258,6 +261,7 @@ jobs:
         docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
         docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
         docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wfs-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/wfs-projectionhost:$SEMVER
         docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
         docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-extracthost:$SEMVER
         docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
@@ -270,6 +274,7 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/wfs-projectionhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-extracthost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER

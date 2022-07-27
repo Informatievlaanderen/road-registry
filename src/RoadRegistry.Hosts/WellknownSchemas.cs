@@ -15,5 +15,7 @@ namespace RoadRegistry.Hosts
         public const string SyndicationSchema = "RoadRegistrySyndication";
         public const string WmsMetaSchema = "RoadRegistryWmsMeta";
         public const string WmsSchema = "RoadRegistryWms";
+        public const string WfsMetaSchema = "RoadRegistryWfsMeta";
+        public const string WfsSchema = "RoadRegistryWfs";
     }
 }
