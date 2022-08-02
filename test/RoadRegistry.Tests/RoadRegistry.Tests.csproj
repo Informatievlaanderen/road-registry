@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.CommandHost\RoadRegistry.BackOffice.CommandHost.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.EventHost\RoadRegistry.BackOffice.EventHost.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ExtractHost\RoadRegistry.BackOffice.ExtractHost.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Editor.Projections\RoadRegistry.Editor.Projections.csproj" />

@@ -42,7 +42,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RoadRegistry.BackOffice.Contracts\RoadRegistry.BackOffice.Contracts.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
@@ -56,19 +55,11 @@
     <Content Include="init.sh" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
-    <Compile Remove="ZipArchiveWriters\**" />
-    <Content Remove="ZipArchiveWriters\**" />
-    <EmbeddedResource Remove="ZipArchiveWriters\**" />
-    <None Remove="ZipArchiveWriters\**" />
     <Content Include="paket.template" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

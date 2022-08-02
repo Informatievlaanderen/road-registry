@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Api
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using AutoFixture;
     using BackOffice.Extracts;
@@ -30,14 +31,10 @@ namespace RoadRegistry.BackOffice.Api
     using Xunit.Sdk;
 
     [Collection(nameof(SqlServerCollection))]
-    public class ExtractControllerTests : IAsyncLifetime
+    public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyncLifetime
     {
         private readonly SqlServer _sqlServerFixture;
         private readonly Fixture _fixture;
-        private readonly CommandHandlerResolver _resolver;
-        private readonly RoadNetworkExtractDownloadsBlobClient _downloadClient;
-        private readonly RoadNetworkExtractUploadsBlobClient _uploadClient;
-        private EditorContext _editorContext;
 
         public ExtractControllerTests(SqlServer sqlServerFixture)
         {
@@ -45,18 +42,6 @@ namespace RoadRegistry.BackOffice.Api
             _fixture = new Fixture();
             _fixture.CustomizeExternalExtractRequestId();
             _fixture.CustomizeRoadNetworkExtractGeometry();
-            var client = new MemoryBlobClient();
-            _downloadClient = new RoadNetworkExtractDownloadsBlobClient(client);
-            _uploadClient = new RoadNetworkExtractUploadsBlobClient(client);
-            _resolver = Resolve.WhenEqualToMessage(
-                new RoadNetworkExtractCommandModule(
-                    _uploadClient,
-                    new InMemoryStreamStore(),
-                    new FakeRoadNetworkSnapshotReader(),
-                    new ZipArchiveValidator(Encoding.UTF8),
-                    SystemClock.Instance
-                )
-            );
         }
 
         [Fact]
@@ -67,31 +52,13 @@ namespace RoadRegistry.BackOffice.Api
                 PrecisionModel = GeometryConfiguration.GeometryFactory.PrecisionModel
             };
 
-            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
-            var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
-            var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
-
-            var controller = new ExtractsController(
-                SystemClock.Instance,
-                Dispatch.Using(_resolver),
-                _downloadClient,
-                _uploadClient,
-                wktReader,
-                downloadExtractRequestBodyValidator,
-                downloadExtractByContourRequestBodyValidator,
-                downloadExtractByNisCodeRequestBodyValidator,
-                _editorContext)
-            {
-                ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
-            };
             var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
             var contour = _fixture.Create<Messages.RoadNetworkExtractGeometry>();
-            var response = await controller.PostDownloadRequest(new DownloadExtractRequestBody
+            var response = await Controller.PostDownloadRequest(new DownloadExtractRequestBody
             {
                 RequestId = externalExtractRequestId,
                 Contour = writer.Write((NetTopologySuite.Geometries.Geometry)BackOffice.GeometryTranslator.Translate(contour))
-            });
+            }, CancellationToken.None);
             var result = Assert.IsType<AcceptedResult>(response);
             Assert.IsType<DownloadExtractResponseBody>(result.Value);
         }
@@ -103,32 +70,19 @@ namespace RoadRegistry.BackOffice.Api
             {
                 PrecisionModel = GeometryConfiguration.GeometryFactory.PrecisionModel
             };
-            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
-            var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
-            var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
+            //var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
+            //var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
+            //var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
+            //var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
 
-            var controller = new ExtractsController(
-                SystemClock.Instance,
-                Dispatch.Using(_resolver),
-                _downloadClient,
-                _uploadClient,
-                wktReader,
-                downloadExtractRequestBodyValidator,
-                downloadExtractByContourRequestBodyValidator,
-                downloadExtractByNisCodeRequestBodyValidator,
-                _editorContext)
-            {
-                ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
-            };
             var contour = _fixture.Create<Messages.RoadNetworkExtractGeometry>();
             try
             {
-                await controller.PostDownloadRequest(new DownloadExtractRequestBody
+                await Controller.PostDownloadRequest(new DownloadExtractRequestBody
                 {
                     RequestId = null,
                     Contour = writer.Write((NetTopologySuite.Geometries.Geometry)BackOffice.GeometryTranslator.Translate(contour))
-                });
+                }, CancellationToken.None);
                 throw new XunitException("Expected a validation exception but did not receive any");
             }
             catch (ValidationException)
@@ -139,32 +93,20 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_requesting_an_extract_without_contour()
         {
-            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
-            var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
-            var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
+            //var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
+            //var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
+            //var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
+            //var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
 
-            var controller = new ExtractsController(
-                SystemClock.Instance,
-                Dispatch.Using(_resolver),
-                _downloadClient,
-                _uploadClient,
-                wktReader,
-                downloadExtractRequestBodyValidator,
-                downloadExtractByContourRequestBodyValidator,
-                downloadExtractByNisCodeRequestBodyValidator,
-                _editorContext)
-            {
-                ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
-            };
             var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
             try
             {
-                await controller.PostDownloadRequest(new DownloadExtractRequestBody
+                await Controller.PostDownloadRequest(new DownloadExtractRequestBody
                 {
                     RequestId = externalExtractRequestId,
                     Contour = null
-                });
+                },
+                CancellationToken.None);
                 throw new XunitException("Expected a validation exception but did not receive any");
             }
             catch (ValidationException)
@@ -179,32 +121,19 @@ namespace RoadRegistry.BackOffice.Api
             {
                 PrecisionModel = GeometryConfiguration.GeometryFactory.PrecisionModel
             };
-            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
-            var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
-            var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
+            //var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
+            //var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
+            //var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
+            //var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
 
-            var controller = new ExtractsController(
-                SystemClock.Instance,
-                Dispatch.Using(_resolver),
-                _downloadClient,
-                _uploadClient,
-                wktReader,
-                downloadExtractRequestBodyValidator,
-                downloadExtractByContourRequestBodyValidator,
-                downloadExtractByNisCodeRequestBodyValidator,
-                _editorContext)
-            {
-                ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
-            };
             var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
             try
             {
-                await controller.PostDownloadRequest(new DownloadExtractRequestBody
+                await Controller.PostDownloadRequest(new DownloadExtractRequestBody
                 {
                     RequestId = externalExtractRequestId,
                     Contour = writer.Write(new NetTopologySuite.Geometries.Point(1.0, 2.0))
-                });
+                }, CancellationToken.None);
                 throw new XunitException("Expected a validation exception but did not receive any");
             }
             catch (ValidationException)
@@ -215,31 +144,11 @@ namespace RoadRegistry.BackOffice.Api
         [Fact]
         public async Task When_downloading_an_extract_using_an_malformed_download_id()
         {
-            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
-            var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
-            var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
-
-            var controller = new ExtractsController(
-                SystemClock.Instance,
-                Dispatch.Using(_resolver),
-                _downloadClient,
-                _uploadClient,
-                wktReader,
-                downloadExtractRequestBodyValidator,
-                downloadExtractByContourRequestBodyValidator,
-                downloadExtractByNisCodeRequestBodyValidator,
-                _editorContext)
-            {
-                ControllerContext = new ControllerContext {HttpContext = new DefaultHttpContext()}
-            };
-            var context = new EditorContext();
             try
             {
-                await controller.GetDownload(
-                    context,
-                    new ExtractDownloadsOptions(),
-                    "not_a_guid_without_dashes");
+                await Controller.GetDownload(
+                    "not_a_guid_without_dashes",
+                    CancellationToken.None);
                 throw new XunitException("Expected a validation exception but did not receive any");
             }
             catch (ValidationException)
@@ -250,27 +159,12 @@ namespace RoadRegistry.BackOffice.Api
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task When_uploading_an_extract_that_is_not_a_zip(bool isFeatureCompare)
+        public async Task When_uploading_an_extract_that_is_not_a_zip(bool featureCompare)
         {
-            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
-            var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
-            var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
-
-            var controller = new ExtractsController(
-                SystemClock.Instance,
-                Dispatch.Using(_resolver),
-                _downloadClient,
-                _uploadClient,
-                wktReader,
-                downloadExtractRequestBodyValidator,
-                downloadExtractByContourRequestBodyValidator,
-                downloadExtractByNisCodeRequestBodyValidator,
-                _editorContext)
-            {
-                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-            };
-            var context = new EditorContext();
+            //var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
+            //var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
+            //var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
+            //var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
 
             var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
             {
@@ -282,11 +176,11 @@ namespace RoadRegistry.BackOffice.Api
 
             try
             {
-                await controller.PostUpload(
-                    context,
+                await Controller.PostUpload(
                     "not_a_guid_without_dashes",
                     formFile,
-                    isFeatureCompare);
+                    featureCompare,
+                    CancellationToken.None);
                 throw new XunitException("Expected a validation exception but did not receive any");
             }
             catch (ValidationException)
@@ -297,30 +191,12 @@ namespace RoadRegistry.BackOffice.Api
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task When_uploading_an_extract_that_is_a_zip(bool isFeatureCompare)
+        public async Task When_uploading_an_extract_that_is_a_zip(bool featureCompare)
         {
-            var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
-            var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
-            var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-            var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
-
-            var controller = new ExtractsController(
-                SystemClock.Instance,
-                Dispatch.Using(_resolver),
-                _downloadClient,
-                _uploadClient,
-                wktReader,
-                downloadExtractRequestBodyValidator,
-                downloadExtractByContourRequestBodyValidator,
-                downloadExtractByNisCodeRequestBodyValidator,
-                _editorContext)
-            {
-                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-            };
-
-            var context = new EditorContext();
-            var client = new RoadNetworkUploadsBlobClient(new MemoryBlobClient());
-            var store = new InMemoryStreamStore();
+            //var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
+            //var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
+            //var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
+            //var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
 
             try
             {
@@ -344,23 +220,23 @@ namespace RoadRegistry.BackOffice.Api
                         })
                     };
 
-                    var result = await controller.PostUpload(
-                        context,
+                    var result = await Controller.PostUpload(
                         "not_a_guid_without_dashes",
                         formFile,
-                        isFeatureCompare);
+                        featureCompare,
+                        CancellationToken.None);
 
                     Assert.IsType<OkResult>(result);
 
-                    var page = await store.ReadAllForwards(Position.Start, 1, true);
+                    var page = await StreamStore.ReadAllForwards(Position.Start, 1, true);
                     var message = Assert.Single(page.Messages);
                     Assert.Equal(nameof(Messages.RoadNetworkExtractChangesArchiveUploaded), message.Type);
                     var uploaded =
                         JsonConvert.DeserializeObject<Messages.RoadNetworkExtractChangesArchiveUploaded>(
                             await message.GetJsonData());
 
-                    Assert.True(await client.BlobExistsAsync(new BlobName(uploaded.ArchiveId)));
-                    var blob = await client.GetBlobAsync(new BlobName(uploaded.ArchiveId));
+                    Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(uploaded.ArchiveId)));
+                    var blob = await UploadBlobClient.GetBlobAsync(new BlobName(uploaded.ArchiveId));
                     using (var openStream = await blob.OpenAsync())
                     {
                         var resultStream = new MemoryStream();
@@ -404,12 +280,12 @@ namespace RoadRegistry.BackOffice.Api
 
         public async Task InitializeAsync()
         {
-            _editorContext = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
+            //_editorContext = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
         }
 
         public async Task DisposeAsync()
         {
-            await _editorContext.DisposeAsync();
+            //await _editorContext.DisposeAsync();
         }
     }
 }

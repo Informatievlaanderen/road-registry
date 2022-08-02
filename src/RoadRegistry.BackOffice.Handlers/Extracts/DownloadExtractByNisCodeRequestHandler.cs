@@ -1,38 +1,27 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
-using Contracts.Extracts;
+using Abstractions.Extracts;
 using Editor.Schema;
 using Exceptions;
 using Framework;
-using MediatR.Pipeline;
 using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 
-internal class DownloadExtractByNisCodeRequestHandler : EndpointRequestHandler<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse>,
-    IRequestExceptionHandler<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse, DownloadExtractByNisCodeNotFoundException>
+public class DownloadExtractByNisCodeRequestHandler : EndpointRequestHandler<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse>
 {
     private readonly EditorContext _context;
 
     public DownloadExtractByNisCodeRequestHandler(CommandHandlerDispatcher dispatcher, EditorContext context, ILogger<DownloadExtractByNisCodeRequestHandler> logger) : base(dispatcher, logger)
     {
-        _context = context;
-    }
-
-    public Task Handle(
-        DownloadExtractByNisCodeRequest request,
-        DownloadExtractByNisCodeNotFoundException exception,
-        RequestExceptionHandlerState<DownloadExtractByNisCodeResponse> state,
-        CancellationToken cancellationToken)
-    {
-        _logger.LogError(exception, "Could not download the extract presented by this contour");
-        return Task.FromException(exception);
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     public override async Task<DownloadExtractByNisCodeResponse> HandleAsync(DownloadExtractByNisCodeRequest request, CancellationToken cancellationToken)
     {
-        var municipalityGeometry = await _context.MunicipalityGeometries.SingleAsync(x => x.NisCode == request.NisCode, cancellationToken);
+        var municipalityGeometry = await _context.MunicipalityGeometries.SingleOrDefaultAsync(x => x.NisCode == request.NisCode, cancellationToken)
+            ?? throw new DownloadExtractByNisCodeNotFoundException("Could not find details about the supplied NIS code");
 
         var downloadId = new DownloadId(Guid.NewGuid());
         var randomExternalRequestId = Guid.NewGuid().ToString("N");

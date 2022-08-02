@@ -4,7 +4,7 @@ namespace RoadRegistry.BackOffice.Api.Framework
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
-    using Contracts;
+    using Abstractions;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Infrastructure;
     using Microsoft.Extensions.DependencyInjection;

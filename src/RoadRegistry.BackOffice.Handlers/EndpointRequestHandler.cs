@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers;
 
-using Contracts;
+using Abstractions;
 using Framework;
 using MediatR;
 using Microsoft.Extensions.Logging;

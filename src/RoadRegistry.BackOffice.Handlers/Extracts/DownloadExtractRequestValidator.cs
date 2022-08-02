@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
-using Contracts.Extracts;
+using Abstractions.Extracts;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;

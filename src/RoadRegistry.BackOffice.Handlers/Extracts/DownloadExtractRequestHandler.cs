@@ -1,31 +1,19 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
-using Contracts.Extracts;
-using Exceptions;
+using Abstractions.Extracts;
 using Framework;
-using MediatR.Pipeline;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
-internal class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtractRequest, DownloadExtractResponse>,
-    IRequestExceptionHandler<DownloadExtractRequest, DownloadExtractResponse, DownloadExtractNotFoundException>
+public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtractRequest, DownloadExtractResponse>
 {
     private readonly WKTReader _reader;
 
     public DownloadExtractRequestHandler(CommandHandlerDispatcher dispatcher, WKTReader reader, ILogger<DownloadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
-    }
-
-    public Task Handle(
-        DownloadExtractRequest request,
-        DownloadExtractNotFoundException exception,
-        RequestExceptionHandlerState<DownloadExtractResponse> state,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
     }
 
     public override async Task<DownloadExtractResponse> HandleAsync(DownloadExtractRequest request, CancellationToken cancellationToken)
@@ -41,6 +29,7 @@ internal class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadEx
             });
 
         await Dispatcher(message, cancellationToken);
+
         return new DownloadExtractResponse(downloadId);
     }
 }

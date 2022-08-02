@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Downloads;
 using System.IO.Compression;
 using System.Text;
 using Abstractions;
-using Contracts.Downloads;
+using Abstractions.Downloads;
 using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -17,8 +17,7 @@ using NodaTime.Text;
 using Product.Schema;
 using ZipArchiveWriters.ForProduct;
 
-internal class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProductRequest, DownloadProductResponse>,
-    IRequestExceptionHandler<DownloadProductRequest, DownloadProductResponse, DownloadProductNotFoundException>
+public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProductRequest, DownloadProductResponse>, IRequestExceptionHandler<DownloadProductRequest, DownloadProductResponse, DownloadProductNotFoundException>
 {
     private readonly IStreetNameCache _cache;
     private readonly ProductContext _context;
@@ -43,7 +42,7 @@ internal class DownloadProductRequestHandler : EndpointRequestHandler<DownloadPr
         DownloadProductRequest request,
         DownloadProductNotFoundException exception,
         RequestExceptionHandlerState<DownloadProductResponse> state,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken) 
     {
         throw new NotImplementedException();
     }

@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Text;
 using Abstractions;
-using Contracts.Downloads;
+using Abstractions.Downloads;
 using Editor.Schema;
 using Exceptions;
 using Framework;
@@ -15,8 +15,7 @@ using Microsoft.IO;
 using Microsoft.Net.Http.Headers;
 using ZipArchiveWriters.ForEditor;
 
-internal class DownloadEditorRequestHandler : EndpointRequestHandler<DownloadEditorRequest, DownloadEditorResponse>,
-    IRequestExceptionHandler<DownloadEditorRequest, DownloadEditorResponse, DownloadEditorNotFoundException>
+public class DownloadEditorRequestHandler : EndpointRequestHandler<DownloadEditorRequest, DownloadEditorResponse>, IRequestExceptionHandler<DownloadEditorRequest, DownloadEditorResponse, DownloadEditorNotFoundException>
 {
     private readonly IStreetNameCache _cache;
     private readonly EditorContext _context;

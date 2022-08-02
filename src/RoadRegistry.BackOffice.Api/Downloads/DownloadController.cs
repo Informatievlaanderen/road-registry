@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.Downloads;
 
-using Contracts;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
+using Abstractions.Downloads;
 using Be.Vlaanderen.Basisregisters.Api;
-using Contracts.Downloads;
+using Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using FileCallbackResult = Framework.FileCallbackResult;
 
@@ -20,18 +20,32 @@ public class DownloadController : ControllerBase
     public DownloadController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet("for-editor")]
-    public async Task<FileCallbackResult> Get(CancellationToken cancellationToken)
+    public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var request = new DownloadEditorRequest();
-        var response = await _mediator.Send(request, cancellationToken);
-        return new(response);
+        try
+        {
+            var request = new DownloadEditorRequest();
+            var response = await _mediator.Send(request, cancellationToken);
+            return new FileCallbackResult(response);
+        }
+        catch (DownloadEditorNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [HttpGet("for-product/{date}")]
-    public async Task<FileCallbackResult> Get(string date, CancellationToken cancellationToken)
+    public async Task<IActionResult> Get(string date, CancellationToken cancellationToken)
     {
-        var request = new DownloadProductRequest(date);
-        var response = await _mediator.Send(request, cancellationToken);
-        return new(response);
+        try
+        {
+            var request = new DownloadProductRequest(date);
+            var response = await _mediator.Send(request, cancellationToken);
+            return new FileCallbackResult(response);
+        }
+        catch (DownloadProductNotFoundException)
+        {
+            return NotFound();
+        }
     }
 }

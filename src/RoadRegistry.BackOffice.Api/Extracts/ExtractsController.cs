@@ -3,16 +3,17 @@ namespace RoadRegistry.BackOffice.Api.Extracts;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Abstractions.Downloads;
+using Abstractions.Extracts;
+using Abstractions.Uploads;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Contracts;
+using Exceptions;
 using Framework;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.Contracts.Downloads;
-using RoadRegistry.BackOffice.Contracts.Extracts;
-using RoadRegistry.BackOffice.Contracts.Uploads;
+using UploadExtractArchiveRequest = Abstractions.Extracts.UploadExtractArchiveRequest;
 
 [ApiVersion("2.0")]
 [AdvertiseApiVersions("2.0")]
@@ -47,8 +48,15 @@ public class ExtractsController : ControllerBase
     public async Task<ActionResult> PostDownloadRequestByNisCode([FromBody] DownloadExtractByNisCodeRequestBody body, CancellationToken cancellationToken)
     {
         DownloadExtractByNisCodeRequest request = new(body.NisCode, body.Buffer, body.Description);
-        var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(response);
+        try
+        {
+            var response = await _mediator.Send(request, cancellationToken);
+            return Accepted(response);
+        }
+        catch (DownloadExtractByNisCodeNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [HttpGet("download/{downloadId}")]
@@ -68,9 +76,18 @@ public class ExtractsController : ControllerBase
     {
         MemoryStream ms = new();
         await archive.CopyToAsync(ms, cancellationToken);
-        UploadExtractRequest request = new(downloadId, new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType)));
-        var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(response);
+
+        try
+        {
+            Abstractions.Extracts.UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            Abstractions.Extracts.UploadExtractRequest request = new(downloadId, requestArchive);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Accepted(response);
+        }
+        catch (ExtractDownloadNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [HttpGet("upload/{uploadId}/status")]
@@ -78,6 +95,10 @@ public class ExtractsController : ControllerBase
         [FromRoute] string uploadId,
         CancellationToken cancellationToken)
     {
+        try
+        {
+            
+        }
         UploadStatusRequest request = new(uploadId);
         var response = await _mediator.Send(request, cancellationToken);
         return Ok(response);
