@@ -1,58 +1,74 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Extracts;
-using BackOffice.Extracts;
-using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.BlobStore;
+using Editor.Schema;
+using Editor.Schema.Extracts;
 using Exceptions;
+using Extensions;
+using FluentValidation;
+using FluentValidation.Results;
 using Framework;
-using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Handlers;
+using NodaTime;
 
-public class UploadStatusRequestHandler : EndpointRequestHandler<UploadStatusRequest, UploadStatusResponse>, IRequestExceptionHandler<UploadStatusRequest, UploadStatusResponse, UploadStatusNotFoundException>
+public class UploadStatusRequestHandler : EndpointRequestHandler<UploadStatusRequest, UploadStatusResponse>
 {
-    private readonly RoadNetworkUploadsBlobClient _client;
+    private readonly IClock _clock;
+    private readonly EditorContext _context;
 
-    public UploadStatusRequestHandler(CommandHandlerDispatcher dispatcher, RoadNetworkUploadsBlobClient client, ILogger<UploadStatusRequestHandler> logger) : base(dispatcher, logger)
+    public UploadStatusRequestHandler(
+        CommandHandlerDispatcher dispatcher,
+        EditorContext editorContext,
+        IClock clock,
+        ILogger<UploadStatusRequestHandler> logger) : base(dispatcher, logger)
     {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-    }
-
-    public Task Handle(
-        UploadStatusRequest request,
-        UploadStatusNotFoundException exception,
-        RequestExceptionHandlerState<UploadStatusResponse> state,
-        CancellationToken cancellationToken)
-    {
-        _logger.LogError(exception, "Upload status could not be supplied! {Identifier}", request.Identifier);
-        return Task.CompletedTask;
+        _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        _context = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
     }
 
     public override async Task<UploadStatusResponse> HandleAsync(UploadStatusRequest request, CancellationToken cancellationToken)
     {
-        var archiveId = new ArchiveId(request.Identifier);
-        var blobName = new BlobName(archiveId.ToString());
-
-        if (!await _client.BlobExistsAsync(blobName, cancellationToken))
-            throw new UploadStatusNotFoundException($"Could not find details about upload with name {blobName}");
-
-        var blob = await _client.GetBlobAsync(blobName, cancellationToken);
-
-        var metadata = blob.Metadata
-            .Where(pair => pair.Key == new MetadataKey("filename"))
-            .ToArray();
-
-        var fileName = metadata.Length == 1
-            ? metadata[0].Value
-            : archiveId + ".zip";
-
-        return new UploadStatusResponse(fileName, new MediaTypeHeaderValue("application/zip"), async (stream, ct) =>
+        if (Guid.TryParseExact(request.UploadId, "N", out var parsedUploadId))
         {
-            await using var blobStream = await blob.OpenAsync(ct);
-            await blobStream.CopyToAsync(stream, ct);
+            var record = await _context.ExtractUploads.FindAsync(new object[] { parsedUploadId }, cancellationToken);
+            if (record is null)
+            {
+                var retryAfterSeconds = await CalculateRetryAfter(request);
+                throw new UploadExtractNotFoundException(retryAfterSeconds);
+            }
+
+            return new UploadStatusResponse(
+                record.Status switch
+                {
+                    ExtractUploadStatus.Received => "Processing",
+                    ExtractUploadStatus.UploadAccepted => "Processing",
+                    ExtractUploadStatus.UploadRejected => "Rejected",
+                    ExtractUploadStatus.ChangesRejected => "Rejected",
+                    ExtractUploadStatus.ChangesAccepted => "Accepted",
+                    ExtractUploadStatus.NoChanges => "No Changes",
+                    _ => "Unknown"
+                },
+                record.Status switch
+                {
+                    ExtractUploadStatus.Received => await CalculateRetryAfter(request),
+                    ExtractUploadStatus.UploadAccepted => await CalculateRetryAfter(request),
+                    _ => 0
+                });
+        }
+
+        throw new ValidationException(new[]
+        {
+            new ValidationFailure(
+                nameof(request.UploadId),
+                $"'{nameof(request.UploadId)}' path parameter is not a global unique identifier without dashes.")
         });
+    }
+
+    private async Task<int> CalculateRetryAfter(UploadStatusRequest request)
+    {
+        return await _context.ExtractUploads.TookAverageProcessDuration(_clock
+                .GetCurrentInstant()
+                .Minus(Duration.FromDays(request.RetryAfterAverageWindowInDays)),
+            request.DefaultRetryAfter);
     }
 }

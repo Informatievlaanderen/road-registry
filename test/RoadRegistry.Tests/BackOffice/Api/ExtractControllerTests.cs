@@ -148,6 +148,7 @@ namespace RoadRegistry.BackOffice.Api
             {
                 await Controller.GetDownload(
                     "not_a_guid_without_dashes",
+                    default,
                     CancellationToken.None);
                 throw new XunitException("Expected a validation exception but did not receive any");
             }

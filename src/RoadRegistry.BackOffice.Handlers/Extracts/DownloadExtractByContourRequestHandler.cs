@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Extracts;
-using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -11,7 +10,6 @@ using NetTopologySuite.IO;
 public class DownloadExtractByContourRequestHandler : EndpointRequestHandler<DownloadExtractByContourRequest, DownloadExtractByContourResponse>
 {
     private readonly WKTReader _reader;
-    private readonly IValidator<DownloadExtractByContourRequest> _validator;
 
     public DownloadExtractByContourRequestHandler(
         CommandHandlerDispatcher dispatcher,

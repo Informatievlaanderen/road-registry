@@ -1,9 +1,5 @@
 namespace RoadRegistry.BackOffice.Api
 {
-    using System;
-    using System.IO;
-    using System.Text;
-    using System.Threading.Tasks;
     using Abstractions;
     using Amazon;
     using Amazon.Runtime;
@@ -21,7 +17,6 @@ namespace RoadRegistry.BackOffice.Api
     using Configuration;
     using Core;
     using Editor.Schema;
-    using RoadRegistry.BackOffice.ZipArchiveWriters;
     using Hosts;
     using Hosts.Configuration;
     using Microsoft.AspNetCore.Hosting;
@@ -33,10 +28,14 @@ namespace RoadRegistry.BackOffice.Api
     using Microsoft.IO;
     using NodaTime;
     using Product.Schema;
+    using RoadRegistry.BackOffice.ZipArchiveWriters.ForEditor;
     using Serilog;
     using SqlStreamStore;
     using Syndication.Schema;
-    using RoadRegistry.BackOffice.ZipArchiveWriters.ForEditor;
+    using System;
+    using System.IO;
+    using System.Text;
+    using System.Threading.Tasks;
 
     public class Program
     {
@@ -198,7 +197,6 @@ namespace RoadRegistry.BackOffice.Api
 
                 builder
                     .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(featureToggles.UseSnapshotRebuildFeature))
-                    .AddSingleton<Extracts.DownloadExtractRequestBodyValidator>()
                     .AddSingleton<ProblemDetailsHelper>()
                     .AddSingleton(zipArchiveWriterOptions)
                     .AddSingleton(extractDownloadsOptions)

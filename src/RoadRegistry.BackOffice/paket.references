@@ -9,9 +9,12 @@ NodaTime
 SqlStreamStore
 DotSpatial.Projections
 Polly
+Autofac
 
 Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
+
+MediatR.Extensions.Autofac.DependencyInjection

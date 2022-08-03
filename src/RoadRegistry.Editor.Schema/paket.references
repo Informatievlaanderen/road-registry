@@ -2,6 +2,7 @@ Microsoft.EntityFrameworkCore
 Microsoft.EntityFrameworkCore.Design
 Microsoft.EntityFrameworkCore.SqlServer
 
+Autofac
 NetTopologySuite
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
 

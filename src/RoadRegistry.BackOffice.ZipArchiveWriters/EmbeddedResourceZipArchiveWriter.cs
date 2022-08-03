@@ -1,39 +1,35 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters
+namespace RoadRegistry.BackOffice.ZipArchiveWriters;
+
+using System.IO.Compression;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+
+public class EmbeddedResourceZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
 {
-    using System;
-    using System.IO.Compression;
-    using System.Reflection;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
+    private readonly Assembly _assembly;
+    private readonly string _filename;
+    private readonly string _resourceName;
 
-    public class EmbeddedResourceZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
+    public EmbeddedResourceZipArchiveWriter(Assembly assembly, string resourceName, string filename)
     {
-        private readonly Assembly _assembly;
-        private readonly string _resourceName;
-        private readonly string _filename;
+        _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
+        _resourceName = resourceName ?? throw new ArgumentNullException(nameof(resourceName));
+        _filename = filename ?? throw new ArgumentNullException(nameof(filename));
+    }
 
-        public EmbeddedResourceZipArchiveWriter(Assembly assembly, string resourceName, string filename)
+    public async Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken)
+    {
+        if (archive == null) throw new ArgumentNullException(nameof(archive));
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        using (var embeddedResourceStream = _assembly.GetManifestResourceStream(_resourceName))
         {
-            _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
-            _resourceName = resourceName ?? throw new ArgumentNullException(nameof(resourceName));
-            _filename = filename ?? throw new ArgumentNullException(nameof(filename));
-        }
-
-        public async Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken)
-        {
-            if (archive == null) throw new ArgumentNullException(nameof(archive));
-            if (context == null) throw new ArgumentNullException(nameof(context));
-
-            using (var embeddedResourceStream = _assembly.GetManifestResourceStream(_resourceName))
+            if (embeddedResourceStream != null)
             {
-                if (embeddedResourceStream != null)
+                var entry = archive.CreateEntry(_filename);
+                using (var entryStream = entry.Open())
                 {
-                    var entry = archive.CreateEntry(_filename);
-                    using (var entryStream = entry.Open())
-                    {
-                        await embeddedResourceStream.CopyToAsync(entryStream, cancellationToken);
-                    }
+                    await embeddedResourceStream.CopyToAsync(entryStream, cancellationToken);
                 }
             }
         }

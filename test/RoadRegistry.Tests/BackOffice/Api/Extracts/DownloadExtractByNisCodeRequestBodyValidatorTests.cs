@@ -4,9 +4,11 @@ namespace RoadRegistry.BackOffice.Api.Extracts
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Abstractions.Extracts;
     using Editor.Schema;
     using FluentAssertions;
     using FluentValidation;
+    using Handlers.Extracts;
     using Microsoft.Extensions.Logging.Abstractions;
     using NetTopologySuite.Geometries;
     using RoadRegistry.Framework.Containers;
@@ -31,14 +33,9 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         {
             using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
             {
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
+                var validator = new DownloadExtractByNisCodeRequestValidator(context);
 
-                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
-                {
-                    NisCode = givenNisCode,
-                    Buffer = ValidBuffer,
-                    Description = ValidDescription
-                });
+                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(givenNisCode, ValidBuffer, ValidDescription));
                 await act.Should().ThrowAsync<ValidationException>();
             }
         }
@@ -52,14 +49,13 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         {
             using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
             {
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
+                var validator = new DownloadExtractByNisCodeRequestValidator(context);
 
-                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
-                {
-                    NisCode = givenNisCode,
-                    Buffer = ValidBuffer,
-                    Description = ValidDescription
-                });
+                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(
+                    givenNisCode,
+                    ValidBuffer,
+                    ValidDescription
+                ));
                 await act.Should().ThrowAsync<ValidationException>();
             }
         }
@@ -69,15 +65,8 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         {
             using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
             {
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
-
-                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
-                {
-                    NisCode = "12345",
-                    Buffer = ValidBuffer,
-                    Description = ValidDescription
-                });
-
+                var validator = new DownloadExtractByNisCodeRequestValidator(context);
+                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest("12345", ValidBuffer, ValidDescription));
                 await act.Should().ThrowAsync<ValidationException>();
             }
         }
@@ -96,15 +85,9 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 });
                 await context.SaveChangesAsync();
 
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
+                var validator = new DownloadExtractByNisCodeRequestValidator(context);
 
-                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
-                {
-                    NisCode = nisCode,
-                    Buffer = ValidBuffer,
-                    Description = ValidDescription
-                });
-
+                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(nisCode, ValidBuffer, ValidDescription));
                 await act.Should().NotThrowAsync<ValidationException>();
             }
         }
@@ -124,15 +107,9 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 });
                 await context.SaveChangesAsync();
 
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
+                var validator = new DownloadExtractByNisCodeRequestValidator(context);
 
-                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
-                {
-                    NisCode = validNisCode,
-                    Buffer = ValidBuffer,
-                    Description = givenDescription
-                });
-
+                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(validNisCode, ValidBuffer, givenDescription));
                 await act.Should().NotThrowAsync<ValidationException>();
             }
         }
@@ -159,15 +136,9 @@ namespace RoadRegistry.BackOffice.Api.Extracts
                 });
                 await context.SaveChangesAsync();
 
-                var validator = new DownloadExtractByNisCodeRequestBodyValidator(context);
+                var validator = new DownloadExtractByNisCodeRequestValidator(context);
 
-                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequestBody
-                {
-                    NisCode = validNisCode,
-                    Buffer = ValidBuffer,
-                    Description = givenDescription
-                });
-
+                Func<Task> act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(validNisCode, ValidBuffer, givenDescription));
                 await act.Should().ThrowAsync<ValidationException>();
             }
         }

@@ -1,12 +1,11 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
-using Abstractions.Uploads;
+using Abstractions.Extracts;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Editor.Schema;
 using Exceptions;
 using Framework;
-using MediatR.Pipeline;
 using Messages;
 using Microsoft.Extensions.Logging;
 
@@ -29,7 +28,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
     private readonly RoadNetworkExtractUploadsBlobClient _client;
     private readonly EditorContext _context;
-    private readonly ILogger<UploadExtractRequestHandler> _logger;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
@@ -39,10 +37,9 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
         _context = context ?? throw new EditorContextNotFoundException(nameof(context));
-        _logger = logger ?? throw new LoggerNotFoundException<UploadExtractRequestHandler>();
     }
 
-    public override async Task<Abstractions.Extracts.UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
+    public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
     {
         if (request.DownloadId is null) throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
 
@@ -52,7 +49,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 throw new UnsupportedMediaTypeException();
 
             var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
-                ?? throw new ExtractDownloadNotFoundException(DownloadId.Parse(parsedDownloadId.ToString()));
+                           ?? throw new ExtractDownloadNotFoundException(DownloadId.Parse(parsedDownloadId.ToString()));
 
             await using var readStream = request.Archive.ReadStream;
 
@@ -80,19 +77,9 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
             await Dispatcher(message, cancellationToken);
 
-            return new Abstractions.Extracts.UploadExtractResponse(uploadId);
+            return new UploadExtractResponse(uploadId);
         }
 
         throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
     }
-}
-
-public class EditorContextNotFoundException : ApplicationException
-{
-    public EditorContextNotFoundException(string argumentName) : base("Could not resolve an editor context")
-    {
-        ArgumentName = argumentName;
-    }
-
-    public string ArgumentName { get; init; }
 }

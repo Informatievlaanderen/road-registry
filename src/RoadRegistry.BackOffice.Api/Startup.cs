@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.Api
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
     using Configuration;
+    using Handlers;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -85,6 +86,7 @@ namespace RoadRegistry.BackOffice.Api
             var builder = new ContainerBuilder();
             builder.Populate(services);
             builder.RegisterModule(new DataDogModule(_configuration));
+            builder.RegisterModule(new MediatRModule());
             _applicationContainer = builder.Build();
 
             return new AutofacServiceProvider(_applicationContainer);

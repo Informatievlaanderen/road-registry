@@ -2,33 +2,30 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 {
     using System;
     using System.Threading.Tasks;
+    using Abstractions.Extracts;
     using AutoFixture;
     using FluentAssertions;
     using FluentValidation;
+    using Handlers.Extracts;
     using Microsoft.Extensions.Logging.Abstractions;
     using NetTopologySuite.IO;
     using Xunit;
 
-    public class DownloadExtractRequestBodyValidatorTests
+    public class DownloadExtractRequestValidatorTests
     {
-        private readonly DownloadExtractRequestBodyValidator _validator;
+        private readonly DownloadExtractRequestValidator _validator;
 
-        public DownloadExtractRequestBodyValidatorTests()
+        public DownloadExtractRequestValidatorTests()
         {
-            _validator = new DownloadExtractRequestBodyValidator(
+            _validator = new DownloadExtractRequestValidator(
                     new WKTReader(),
-                    new NullLogger<DownloadExtractRequestBodyValidator>());
+                    new NullLogger<DownloadExtractRequestValidator>());
         }
 
         [Fact]
         public async Task Validate_will_not_allow_invalid_geometry()
         {
-            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractRequestBody
-            {
-                RequestId = "request id",
-                Contour = "invalid"
-            });
-
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractRequest("request id", "invalid"));
             await act.Should().ThrowAsync<ValidationException>();
         }
 
@@ -37,24 +34,14 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         [InlineData(null)]
         public async Task Validate_will_not_allow_empty_geometry(string givenContour)
         {
-            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractRequestBody
-            {
-                RequestId = "request id",
-                Contour = givenContour
-            });
-
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractRequest("request id", givenContour));
             await act.Should().ThrowAsync<ValidationException>();
         }
 
         [Fact]
         public async Task Validate_will_allow_valid_geometry()
         {
-            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractRequestBody
-            {
-                RequestId = "request id",
-                Contour = "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)))"
-            });
-
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractRequest("request id", "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)))"));
             await act.Should().NotThrowAsync<ValidationException>();
         }
 
@@ -63,12 +50,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         [InlineData(null)]
         public async Task Validate_will_not_allow_empty_request_id(string givenRequestId)
         {
-            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractRequestBody
-            {
-                RequestId = givenRequestId,
-                Contour = "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)))"
-            });
-
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractRequest(givenRequestId, "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)))"));
             await act.Should().ThrowAsync<ValidationException>();
         }
     }

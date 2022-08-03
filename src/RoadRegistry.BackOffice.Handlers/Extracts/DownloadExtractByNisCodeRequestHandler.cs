@@ -21,7 +21,7 @@ public class DownloadExtractByNisCodeRequestHandler : EndpointRequestHandler<Dow
     public override async Task<DownloadExtractByNisCodeResponse> HandleAsync(DownloadExtractByNisCodeRequest request, CancellationToken cancellationToken)
     {
         var municipalityGeometry = await _context.MunicipalityGeometries.SingleOrDefaultAsync(x => x.NisCode == request.NisCode, cancellationToken)
-            ?? throw new DownloadExtractByNisCodeNotFoundException("Could not find details about the supplied NIS code");
+                                   ?? throw new DownloadExtractByNisCodeNotFoundException("Could not find details about the supplied NIS code");
 
         var downloadId = new DownloadId(Guid.NewGuid());
         var randomExternalRequestId = Guid.NewGuid().ToString("N");

@@ -12,3 +12,4 @@ Newtonsoft.Json
 
 SqlStreamStore
 SqlStreamStore.MsSql
+Autofac

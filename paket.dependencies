@@ -36,6 +36,7 @@ nuget AWSSDK.S3 3.7.8.11
 nuget Docker.DotNet 3.125.5
 nuget NodaTime 3.1.0
 nuget DotSpatial.Projections 4.0.656
+nuget Autofac 6.4.0
 
 nuget System.Collections.Immutable 6.0.0
 nuget System.Text.Encoding.CodePages 6.0.0

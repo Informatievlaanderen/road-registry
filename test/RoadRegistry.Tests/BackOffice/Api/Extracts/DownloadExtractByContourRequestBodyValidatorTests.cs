@@ -4,8 +4,10 @@ namespace RoadRegistry.BackOffice.Api.Extracts
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Abstractions.Extracts;
     using FluentAssertions;
     using FluentValidation;
+    using Handlers.Extracts;
     using Microsoft.Extensions.Logging.Abstractions;
     using NetTopologySuite.IO;
     using Xunit;
@@ -16,25 +18,19 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         private const string ValidDescription = "description";
         private const int ValidBuffer = 50;
 
-        private readonly DownloadExtractByContourRequestBodyValidator _validator;
+        private readonly DownloadExtractByContourRequestValidator _validator;
 
         public DownloadExtractByContourRequestBodyValidatorTests()
         {
-            _validator = new DownloadExtractByContourRequestBodyValidator(
+            _validator = new DownloadExtractByContourRequestValidator(
                 new WKTReader(),
-                new NullLogger<DownloadExtractByContourRequestBodyValidator>());
+                new NullLogger<DownloadExtractByContourRequestValidator>());
         }
 
         [Fact]
         public async Task Validate_will_not_allow_invalid_geometry()
         {
-            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
-            {
-                Contour = "invalid",
-                Buffer = ValidBuffer,
-                Description = ValidDescription
-            });
-
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest("invalid", ValidBuffer, ValidDescription));
             await act.Should().ThrowAsync<ValidationException>();
         }
 
@@ -43,25 +39,14 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         [InlineData(null)]
         public async Task Validate_will_not_allow_empty_geometry(string givenContour)
         {
-            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
-            {
-                Contour = givenContour,
-                Buffer = ValidBuffer,
-                Description = ValidDescription
-            });
-
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(givenContour, ValidBuffer, ValidDescription));
             await act.Should().ThrowAsync<ValidationException>();
         }
 
         [Fact]
         public async Task Validate_will_allow_valid_geometry()
         {
-            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
-            {
-                Contour = ValidContour,
-                Buffer = ValidBuffer,
-                Description = ValidDescription
-            });
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, ValidBuffer, ValidDescription));
 
             await act.Should().NotThrowAsync<ValidationException>();
         }
@@ -73,13 +58,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         [InlineData(int.MaxValue)]
         public async Task Validate_will_not_allow_invalid_buffer(int givenBuffer)
         {
-            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
-            {
-                Contour = ValidContour,
-                Buffer = givenBuffer,
-                Description = ValidDescription
-            });
-
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, givenBuffer, ValidDescription));
             await act.Should().ThrowAsync<ValidationException>();
         }
 
@@ -90,13 +69,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         [InlineData(100)]
         public async Task Validate_will_allow_valid_buffer(int givenBuffer)
         {
-            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
-            {
-                Contour = ValidContour,
-                Buffer = givenBuffer,
-                Description = ValidDescription
-            });
-
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, givenBuffer, ValidDescription));
             await act.Should().NotThrowAsync<ValidationException>();
         }
 
@@ -104,12 +77,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         [MemberData(nameof(ValidDescriptionCases))]
         public async Task Validate_will_allow_valid_description(string givenDescription)
         {
-            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
-            {
-                Contour = ValidContour,
-                Buffer = ValidBuffer,
-                Description = givenDescription
-            });
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, ValidBuffer, givenDescription));
 
             await act.Should().NotThrowAsync<ValidationException>();
         }
@@ -125,12 +93,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts
         [MemberData(nameof(InvalidDescriptionCases))]
         public async Task Validate_will_not_allow_invalid_description(string givenDescription)
         {
-            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequestBody
-            {
-                Contour = ValidContour,
-                Buffer = ValidBuffer,
-                Description = givenDescription
-            });
+            Func<Task> act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, ValidBuffer, givenDescription));
 
             await act.Should().ThrowAsync<ValidationException>();
         }

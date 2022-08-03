@@ -21,5 +21,6 @@ Serilog.Sinks.Seq
 System.Threading.Channels
 
 Polly
+Autofac
 
 Be.Vlaanderen.Basisregisters.Aws.DistributedMutex

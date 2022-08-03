@@ -42,7 +42,7 @@ public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProd
         DownloadProductRequest request,
         DownloadProductNotFoundException exception,
         RequestExceptionHandlerState<DownloadProductResponse> state,
-        CancellationToken cancellationToken) 
+        CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
