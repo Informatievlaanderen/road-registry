@@ -15,20 +15,14 @@ using RoadRegistry.Framework.Containers;
 using Xunit;
 
 [Collection(nameof(SqlServerCollection))]
-public class DownloadControllerTests
+public class DownloadControllerTests : ControllerTests<DownloadController>
 {
-    private readonly DownloadController _controller;
     private readonly SqlServer _fixture;
     private readonly CancellationTokenSource _tokenSource;
 
-    public DownloadControllerTests(SqlServer fixture, IMediator mediator)
+    public DownloadControllerTests(SqlServer fixture)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
-        if(mediator is null) throw new ArgumentNullException(nameof(mediator));
-        _controller = new DownloadController(mediator)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
         _tokenSource = new CancellationTokenSource();
     }
 
@@ -36,7 +30,7 @@ public class DownloadControllerTests
     public async Task When_downloading_editor_archive_before_an_import()
     {
         await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
-        var result = await _controller.Get(_tokenSource.Token);
+        var result = await Controller.Get(_tokenSource.Token);
         var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
     }
@@ -57,7 +51,7 @@ public class DownloadControllerTests
 
         await using (var context = await _fixture.CreateEditorContextAsync(database))
         {
-            var result = await _controller.Get(_tokenSource.Token);
+            var result = await Controller.Get(_tokenSource.Token);
             var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
             Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
         }
@@ -79,7 +73,7 @@ public class DownloadControllerTests
 
         await using (var context = await _fixture.CreateEditorContextAsync(database))
         {
-            var result = await _controller.Get(_tokenSource.Token);
+            var result = await Controller.Get(_tokenSource.Token);
             var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
             Assert.Equal("wegenregister.zip", fileCallbackResult.FileDownloadName);
         }
@@ -90,7 +84,7 @@ public class DownloadControllerTests
     {
         await using var context = await _fixture.CreateEmptyProductContextAsync(await _fixture.CreateDatabaseAsync());
         var version = DateTime.Today.ToString("yyyyMMdd");
-        var result = await _controller.Get(_tokenSource.Token);
+        var result = await Controller.Get(_tokenSource.Token);
 
         var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
@@ -113,7 +107,7 @@ public class DownloadControllerTests
         await using (var context = await _fixture.CreateProductContextAsync(database))
         {
             var version = DateTime.Today.ToString("yyyyMMdd");
-            var result = await _controller.Get(_tokenSource.Token);
+            var result = await Controller.Get(_tokenSource.Token);
             var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
             Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
         }
@@ -136,7 +130,7 @@ public class DownloadControllerTests
         await using (var context = await _fixture.CreateProductContextAsync(database))
         {
             var version = DateTime.Today.ToString("yyyyMMdd");
-            var result = await _controller.Get(_tokenSource.Token);
+            var result = await Controller.Get(_tokenSource.Token);
             var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
             Assert.Equal($"wegenregister-{version}.zip", fileCallbackResult.FileDownloadName);
         }

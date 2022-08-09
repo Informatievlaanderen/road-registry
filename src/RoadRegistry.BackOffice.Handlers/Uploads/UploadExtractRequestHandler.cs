@@ -55,7 +55,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         {
             ArchiveId = archiveId.ToString()
         });
-
         await Dispatcher(message, cancellationToken);
 
         return new UploadExtractResponse(archiveId);

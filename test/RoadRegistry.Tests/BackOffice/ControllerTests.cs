@@ -70,12 +70,12 @@ namespace RoadRegistry.BackOffice
 
         private IContainer ConfigureDependencyInjectionContainer(IServiceCollection services)
         {
-            //services
-            //    .AddDbContext<EditorContext>((sp, options) => options
-            //        .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-            //        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-            //        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            //    );
+            services
+                .AddDbContext<EditorContext>((sp, options) => options
+                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                );
 
             services
                 .AddSingleton<IStreamStore>(sp => new InMemoryStreamStore())

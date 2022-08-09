@@ -88,6 +88,8 @@ nuget Be.Vlaanderen.Basisregisters.CommandHandling 6.0.0
 nuget Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency 6.0.0
 nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore 6.0.0
 
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.2.3
+
 nuget Be.Vlaanderen.Basisregisters.EventHandling 4.0.0
 nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.0.0
 

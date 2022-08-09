@@ -37,7 +37,10 @@ public class UploadController : ControllerBase
         try
         {
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            UploadExtractRequest request = new(archive.FileName, requestArchive, featureCompare);
+
+            var request = featureCompare
+                ? new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive)
+                : new UploadExtractRequest(archive.FileName, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
             return Ok(response);
         }

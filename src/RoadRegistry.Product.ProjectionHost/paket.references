@@ -22,5 +22,6 @@ System.Threading.Channels
 
 Polly
 Autofac
+AWSSDK.Core
 
 Be.Vlaanderen.Basisregisters.Aws.DistributedMutex

@@ -15,7 +15,7 @@ using Microsoft.IO;
 using Microsoft.Net.Http.Headers;
 using ZipArchiveWriters.ForEditor;
 
-public class DownloadEditorRequestHandler : EndpointRequestHandler<DownloadEditorRequest, DownloadEditorResponse>, IRequestExceptionHandler<DownloadEditorRequest, DownloadEditorResponse, DownloadEditorNotFoundException>
+public class DownloadEditorRequestHandler : EndpointRequestHandler<DownloadEditorRequest, DownloadEditorResponse>
 {
     private readonly IStreetNameCache _cache;
     private readonly EditorContext _context;
@@ -34,16 +34,6 @@ public class DownloadEditorRequestHandler : EndpointRequestHandler<DownloadEdito
         _writerOptions = writerOptions;
         _streamManager = streamManager;
         _cache = cache;
-    }
-
-    public Task Handle(
-        DownloadEditorRequest request,
-        DownloadEditorNotFoundException exception,
-        RequestExceptionHandlerState<DownloadEditorResponse> state,
-        CancellationToken cancellationToken)
-    {
-        _logger.LogError(exception, "Could not find all the required information about your requested download");
-        return Task.CompletedTask;
     }
 
     public override async Task<DownloadEditorResponse> HandleAsync(DownloadEditorRequest request, CancellationToken cancellationToken)

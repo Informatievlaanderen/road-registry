@@ -71,8 +71,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                     RequestId = download.RequestId,
                     DownloadId = download.DownloadId,
                     UploadId = uploadId.ToGuid(),
-                    ArchiveId = archiveId.ToString(),
-                    IsFeatureCompare = request.FeatureCompare
+                    ArchiveId = archiveId.ToString()
                 });
 
             await Dispatcher(message, cancellationToken);

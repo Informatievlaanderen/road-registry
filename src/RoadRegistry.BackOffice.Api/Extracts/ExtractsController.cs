@@ -96,8 +96,11 @@ namespace RoadRegistry.BackOffice.Api.Extracts
 
             try
             {
-                Abstractions.Extracts.UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-                Abstractions.Extracts.UploadExtractRequest request = new(downloadId, requestArchive, featureCompare);
+                UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+
+                var request = featureCompare
+                    ? new Abstractions.Extracts.UploadExtractFeatureCompareRequest(downloadId, requestArchive)
+                    : new Abstractions.Extracts.UploadExtractRequest(downloadId, requestArchive);
                 var response = await _mediator.Send(request, cancellationToken);
                 return Accepted(response);
             }

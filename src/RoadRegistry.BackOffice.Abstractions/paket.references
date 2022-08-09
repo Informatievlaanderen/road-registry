@@ -2,3 +2,4 @@ Be.Vlaanderen.Basisregisters.BlobStore
 
 MediatR.Contracts
 Microsoft.Net.Http.Headers
+AWSSDK.Core

@@ -17,7 +17,7 @@ using NodaTime.Text;
 using Product.Schema;
 using ZipArchiveWriters.ForProduct;
 
-public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProductRequest, DownloadProductResponse>, IRequestExceptionHandler<DownloadProductRequest, DownloadProductResponse, DownloadProductNotFoundException>
+public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProductRequest, DownloadProductResponse>
 {
     private readonly IStreetNameCache _cache;
     private readonly ProductContext _context;
@@ -36,15 +36,6 @@ public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProd
         _writerOptions = writerOptions;
         _streamManager = streamManager;
         _cache = cache;
-    }
-
-    public Task Handle(
-        DownloadProductRequest request,
-        DownloadProductNotFoundException exception,
-        RequestExceptionHandlerState<DownloadProductResponse> state,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
     }
 
     public override async Task<DownloadProductResponse> HandleAsync(DownloadProductRequest request, CancellationToken cancellationToken)

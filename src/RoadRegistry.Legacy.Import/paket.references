@@ -3,6 +3,7 @@ Microsoft.Extensions.Logging
 Microsoft.Extensions.Hosting
 
 Autofac
+AWSSDK.Core
 SqlStreamStore.MsSql
 
 Serilog
