@@ -1,11 +1,10 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class NumberedRoadNumberNotFound : Error
 {
-    public class NumberedRoadNumberNotFound : Error
+    public NumberedRoadNumberNotFound(NumberedRoadNumber number)
+        : base(nameof(NumberedRoadNumberNotFound),
+            new ProblemParameter("Number", number.ToString()))
     {
-        public NumberedRoadNumberNotFound(NumberedRoadNumber number)
-            : base(nameof(NumberedRoadNumberNotFound),
-                new ProblemParameter("Number", number.ToString()))
-        {
-        }
     }
 }

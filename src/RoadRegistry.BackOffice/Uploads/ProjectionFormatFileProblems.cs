@@ -1,10 +1,9 @@
-namespace RoadRegistry.BackOffice.Uploads
+namespace RoadRegistry.BackOffice.Uploads;
+
+public static class ProjectionFormatFileProblems
 {
-    public static class ProjectionFormatFileProblems
+    public static FileError ProjectionFormatInvalid(this IFileProblemBuilder builder)
     {
-        public static FileError ProjectionFormatInvalid(this IFileProblemBuilder builder)
-        {
-            return builder.Error(nameof(ProjectionFormatInvalid)).Build();
-        }
+        return builder.Error(nameof(ProjectionFormatInvalid)).Build();
     }
 }

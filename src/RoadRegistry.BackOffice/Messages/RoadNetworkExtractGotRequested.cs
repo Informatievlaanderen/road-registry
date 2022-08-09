@@ -1,16 +1,15 @@
-namespace RoadRegistry.BackOffice.Messages
-{
-    using System;
-    using Be.Vlaanderen.Basisregisters.EventHandling;
+namespace RoadRegistry.BackOffice.Messages;
 
-    [EventName("RoadNetworkExtractGotRequested")]
-    [EventDescription("Indicates a road network extract was requested.")]
-    public class RoadNetworkExtractGotRequested
-    {
-        public string RequestId { get; set; }
-        public string ExternalRequestId { get; set; }
-        public Guid DownloadId { get; set; }
-        public RoadNetworkExtractGeometry Contour { get; set; }
-        public string When { get; set; }
-    }
+using System;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+
+[EventName("RoadNetworkExtractGotRequested")]
+[EventDescription("Indicates a road network extract was requested.")]
+public class RoadNetworkExtractGotRequested
+{
+    public string RequestId { get; set; }
+    public string ExternalRequestId { get; set; }
+    public Guid DownloadId { get; set; }
+    public RoadNetworkExtractGeometry Contour { get; set; }
+    public string When { get; set; }
 }

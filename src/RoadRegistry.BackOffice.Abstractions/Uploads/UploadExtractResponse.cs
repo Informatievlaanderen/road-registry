@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Abstractions.Uploads;
 
-public sealed record UploadExtractResponse(ArchiveId ArchiveId) : EndpointResponse
+public record UploadExtractResponse(ArchiveId ArchiveId) : EndpointResponse
 {
 }
 

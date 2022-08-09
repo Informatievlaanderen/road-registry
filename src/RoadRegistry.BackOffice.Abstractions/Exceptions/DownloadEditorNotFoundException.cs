@@ -1,6 +1,5 @@
-namespace RoadRegistry.BackOffice.Exceptions;
+namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
-using System;
 using System.Net;
 
 public class DownloadEditorNotFoundException : ApplicationException

@@ -1,40 +1,61 @@
-namespace RoadRegistry.BackOffice
+namespace RoadRegistry.BackOffice;
+
+using System;
+
+public readonly struct OrganizationName : IEquatable<OrganizationName>
 {
-    using System;
+    public const int MaxLength = 64;
 
-    public readonly struct OrganizationName : IEquatable<OrganizationName>
+    private readonly string _value;
+
+    public OrganizationName(string value)
     {
-        public const int MaxLength = 64;
+        if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value), "The organization name must not be null or empty.");
 
-        private readonly string _value;
+        if (value.Length > MaxLength)
+            throw new ArgumentOutOfRangeException(nameof(value),
+                $"The organization name must be {MaxLength} characters or less.");
 
-        public OrganizationName(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                throw new ArgumentNullException(nameof(value), "The organization name must not be null or empty.");
-            }
+        _value = value;
+    }
 
-            if (value.Length > MaxLength)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value),
-                    $"The organization name must be {MaxLength} characters or less.");
-            }
+    public static bool AcceptsValue(string value)
+    {
+        return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
+    }
 
-            _value = value;
-        }
+    public bool Equals(OrganizationName other)
+    {
+        return _value == other._value;
+    }
 
-        public static bool AcceptsValue(string value)
-        {
-            return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
-        }
+    public override bool Equals(object obj)
+    {
+        return obj is OrganizationName id && Equals(id);
+    }
 
-        public bool Equals(OrganizationName other) => _value == other._value;
-        public override bool Equals(object obj) => obj is OrganizationName id && Equals(id);
-        public override int GetHashCode() => _value.GetHashCode();
-        public override string ToString() => _value;
-        public static implicit operator string(OrganizationName instance) => instance._value;
-        public static bool operator ==(OrganizationName left, OrganizationName right) => left.Equals(right);
-        public static bool operator !=(OrganizationName left, OrganizationName right) => !left.Equals(right);
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public static implicit operator string(OrganizationName instance)
+    {
+        return instance._value;
+    }
+
+    public static bool operator ==(OrganizationName left, OrganizationName right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(OrganizationName left, OrganizationName right)
+    {
+        return !left.Equals(right);
     }
 }

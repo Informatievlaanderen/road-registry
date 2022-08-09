@@ -1,8 +1,7 @@
-namespace RoadRegistry.BackOffice.Api.Extracts
+namespace RoadRegistry.BackOffice.Api.Extracts;
+
+public class DownloadExtractRequestBody
 {
-    public class DownloadExtractRequestBody
-    {
-        public string RequestId { get; set; }
-        public string Contour { get; set; }
-    }
+    public string RequestId { get; set; }
+    public string Contour { get; set; }
 }

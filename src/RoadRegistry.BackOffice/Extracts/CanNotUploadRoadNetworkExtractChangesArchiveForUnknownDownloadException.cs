@@ -1,26 +1,27 @@
-namespace RoadRegistry.BackOffice.Extracts
+namespace RoadRegistry.BackOffice.Extracts;
+
+using System;
+using System.Runtime.Serialization;
+
+[Serializable]
+public class CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException : Exception
 {
-    using System;
-
-    [Serializable]
-    public class CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException : Exception
+    public CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(ExternalExtractRequestId externalRequestId, ExtractRequestId requestId, DownloadId attemptedDownloadId, UploadId uploadId)
+        : base("Can not upload a road network extract changes archive for the unknown download.")
     {
-        public ExternalExtractRequestId ExternalRequestId { get; }
-        public ExtractRequestId RequestId { get; }
-        public DownloadId AttemptedDownloadId { get; }
-        public UploadId UploadId { get; }
-
-        public CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(ExternalExtractRequestId externalRequestId, ExtractRequestId requestId, DownloadId attemptedDownloadId, UploadId uploadId)
-            : base("Can not upload a road network extract changes archive for the unknown download.")
-        {
-            ExternalRequestId = externalRequestId;
-            RequestId = requestId;
-            AttemptedDownloadId = attemptedDownloadId;
-            UploadId = uploadId;
-        }
-
-        protected CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
-        { }
+        ExternalRequestId = externalRequestId;
+        RequestId = requestId;
+        AttemptedDownloadId = attemptedDownloadId;
+        UploadId = uploadId;
     }
+
+    protected CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(SerializationInfo serializationInfo, StreamingContext streamingContext)
+        : base(serializationInfo, streamingContext)
+    {
+    }
+
+    public ExternalExtractRequestId ExternalRequestId { get; }
+    public ExtractRequestId RequestId { get; }
+    public DownloadId AttemptedDownloadId { get; }
+    public UploadId UploadId { get; }
 }

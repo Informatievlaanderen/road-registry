@@ -1,15 +1,14 @@
-namespace RoadRegistry.BackOffice
-{
-    using Extracts;
-    using FluentValidation;
+namespace RoadRegistry.BackOffice;
 
-    public class PolygonValidator : AbstractValidator<Messages.Polygon>
+using FluentValidation;
+using Messages;
+
+public class PolygonValidator : AbstractValidator<Polygon>
+{
+    public PolygonValidator()
     {
-        public PolygonValidator()
-        {
-            RuleFor(c => c.Shell).NotNull().SetValidator(new RingValidator());
-            RuleFor(c => c.Holes).NotNull();
-            RuleForEach(c => c.Holes).NotNull().SetValidator(new RingValidator());
-        }
+        RuleFor(c => c.Shell).NotNull().SetValidator(new RingValidator());
+        RuleFor(c => c.Holes).NotNull();
+        RuleForEach(c => c.Holes).NotNull().SetValidator(new RingValidator());
     }
 }

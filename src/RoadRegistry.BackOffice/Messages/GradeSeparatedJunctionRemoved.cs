@@ -1,7 +1,6 @@
-namespace RoadRegistry.BackOffice.Messages
+namespace RoadRegistry.BackOffice.Messages;
+
+public class GradeSeparatedJunctionRemoved
 {
-    public class GradeSeparatedJunctionRemoved
-    {
-        public int Id { get; set; }
-    }
+    public int Id { get; set; }
 }

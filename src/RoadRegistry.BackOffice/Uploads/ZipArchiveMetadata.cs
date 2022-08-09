@@ -1,48 +1,39 @@
-namespace RoadRegistry.BackOffice.Uploads
+namespace RoadRegistry.BackOffice.Uploads;
+
+using System;
+
+public sealed class ZipArchiveMetadata
 {
-    using System;
+    public static readonly ZipArchiveMetadata Empty = new(null);
 
-    public sealed class ZipArchiveMetadata
+    private ZipArchiveMetadata(DownloadId? downloadId)
     {
-        private readonly DownloadId? _downloadId;
+        DownloadId = downloadId;
+    }
 
-        private ZipArchiveMetadata(DownloadId? downloadId)
-        {
-            _downloadId = downloadId;
-        }
+    public DownloadId? DownloadId { get; }
 
-        public static readonly ZipArchiveMetadata Empty = new ZipArchiveMetadata(null);
+    public ZipArchiveMetadata WithDownloadId(DownloadId downloadId)
+    {
+        return new ZipArchiveMetadata(downloadId);
+    }
 
-        public DownloadId? DownloadId => _downloadId;
+    private bool Equals(ZipArchiveMetadata other)
+    {
+        return Nullable.Equals(DownloadId, other.DownloadId);
+    }
 
-        public ZipArchiveMetadata WithDownloadId(DownloadId downloadId)
-        {
-            return new ZipArchiveMetadata(downloadId);
-        }
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
 
-        private bool Equals(ZipArchiveMetadata other)
-        {
-            return Nullable.Equals(_downloadId, other._downloadId);
-        }
+        if (ReferenceEquals(this, obj)) return true;
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
+        return obj.GetType() == GetType() && Equals((ZipArchiveMetadata)obj);
+    }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType() && Equals((ZipArchiveMetadata) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return _downloadId.GetHashCode();
-        }
+    public override int GetHashCode()
+    {
+        return DownloadId.GetHashCode();
     }
 }

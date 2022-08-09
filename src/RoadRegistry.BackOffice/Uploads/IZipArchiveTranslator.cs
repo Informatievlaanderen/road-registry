@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.Uploads
-{
-    using System.IO.Compression;
+namespace RoadRegistry.BackOffice.Uploads;
 
-    public interface IZipArchiveTranslator
-    {
-        TranslatedChanges Translate(ZipArchive archive);
-    }
+using System.IO.Compression;
+
+public interface IZipArchiveTranslator
+{
+    TranslatedChanges Translate(ZipArchive archive);
 }

@@ -1,17 +1,16 @@
-namespace RoadRegistry.BackOffice
+namespace RoadRegistry.BackOffice;
+
+using Core;
+using Extracts;
+using Uploads;
+
+public interface IRoadRegistryContext
 {
-    using Core;
-    using Extracts;
-    using Uploads;
+    IRoadNetworks RoadNetworks { get; }
 
-    public interface IRoadRegistryContext
-    {
-        IRoadNetworks RoadNetworks { get; }
+    IRoadNetworkExtracts RoadNetworkExtracts { get; }
 
-        IRoadNetworkExtracts RoadNetworkExtracts { get; }
+    IRoadNetworkChangesArchives RoadNetworkChangesArchives { get; }
 
-        IRoadNetworkChangesArchives RoadNetworkChangesArchives { get; }
-
-        IOrganizations Organizations { get; }
-    }
+    IOrganizations Organizations { get; }
 }

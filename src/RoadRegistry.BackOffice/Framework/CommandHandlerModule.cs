@@ -1,42 +1,41 @@
-namespace RoadRegistry.BackOffice.Framework
+namespace RoadRegistry.BackOffice.Framework;
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+public abstract class CommandHandlerModule
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
+    private readonly List<CommandHandler> _handlers;
 
-    public abstract class CommandHandlerModule
+    protected CommandHandlerModule()
     {
-        private readonly List<CommandHandler> _handlers;
+        _handlers = new List<CommandHandler>();
+    }
 
-        protected CommandHandlerModule()
+    public CommandHandler[] Handlers => _handlers.ToArray();
+
+    protected void Handle<TCommand>(Func<Command<TCommand>, CancellationToken, Task> handler)
+    {
+        if (handler == null)
+            throw new ArgumentNullException(nameof(handler));
+        _handlers.Add(
+            new CommandHandler(
+                typeof(TCommand),
+                (message, ct) => handler(new Command<TCommand>(message), ct)
+            ));
+    }
+
+    protected ICommandHandlerBuilder<TCommand> For<TCommand>()
+    {
+        return new CommandHandlerBuilder<TCommand>(handler =>
         {
-            _handlers = new List<CommandHandler>();
-        }
-
-        public CommandHandler[] Handlers => _handlers.ToArray();
-
-        protected void Handle<TCommand>(Func<Command<TCommand>, CancellationToken, Task> handler)
-        {
-            if (handler == null)
-                throw new ArgumentNullException(nameof(handler));
             _handlers.Add(
                 new CommandHandler(
                     typeof(TCommand),
                     (message, ct) => handler(new Command<TCommand>(message), ct)
-            ));
-        }
-
-        protected ICommandHandlerBuilder<TCommand> For<TCommand>()
-        {
-            return new CommandHandlerBuilder<TCommand>(handler =>
-            {
-                _handlers.Add(
-                    new CommandHandler(
-                        typeof(TCommand),
-                        (message, ct) => handler(new Command<TCommand>(message), ct)
                 ));
-            });
-        }
+        });
     }
 }

@@ -7,8 +7,6 @@ public class MediatRModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
-        //builder.RegisterMediatR(typeof(EndpointRequestHandler<,>).Assembly);
-
         builder
             .RegisterType<Mediator>()
             .As<IMediator>()
@@ -20,6 +18,6 @@ public class MediatRModule : Module
             return type => ctx.Resolve(type);
         });
 
-        builder.RegisterAssemblyTypes(typeof(EndpointRequestHandler<,>).Assembly).AsImplementedInterfaces();
+        builder.RegisterAssemblyTypes(typeof(MediatRModule).Assembly).AsImplementedInterfaces();
     }
 }

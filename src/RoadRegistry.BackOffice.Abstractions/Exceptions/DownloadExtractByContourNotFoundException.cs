@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Exceptions;
+namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
 public class DownloadExtractByContourNotFoundException : DownloadExtractNotFoundException
 {
@@ -6,5 +6,5 @@ public class DownloadExtractByContourNotFoundException : DownloadExtractNotFound
     {
     }
 
-    public string Contour { get; init; }
+    public string Contour { get; set; }
 }

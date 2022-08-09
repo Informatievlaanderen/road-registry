@@ -1,39 +1,36 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+using System;
+using Framework;
+using Messages;
+
+public class Organization : EventSourcedEntity
 {
-    using System;
-    using Framework;
-    using Messages;
+    public static readonly Func<Organization> Factory = () => new Organization();
 
-    public class Organization : EventSourcedEntity
+    private Organization()
     {
-        public static class PredefinedTranslations
+        On<ImportedOrganization>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
+    }
+
+    public DutchTranslation Translation { get; private set; }
+
+    public static class PredefinedTranslations
+    {
+        public static readonly DutchTranslation Other = new(OrganizationId.Other, new OrganizationName("andere"));
+        public static readonly DutchTranslation Unknown = new(OrganizationId.Unknown, new OrganizationName("niet gekend"));
+        public static readonly DutchTranslation[] All = { Other, Unknown };
+    }
+
+    public class DutchTranslation
+    {
+        internal DutchTranslation(OrganizationId identifier, OrganizationName name)
         {
-            public static readonly DutchTranslation Other = new DutchTranslation(OrganizationId.Other, new OrganizationName("andere"));
-            public static readonly DutchTranslation Unknown = new DutchTranslation(OrganizationId.Unknown, new OrganizationName("niet gekend"));
-            public static readonly DutchTranslation[] All = { Other, Unknown };
+            Identifier = identifier;
+            Name = name;
         }
 
-        public static readonly Func<Organization> Factory = () => new Organization();
-
-        private DutchTranslation _translation;
-
-        private Organization()
-        {
-            On<ImportedOrganization>(e => _translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
-        }
-
-        public DutchTranslation Translation => _translation;
-
-        public class DutchTranslation
-        {
-            internal DutchTranslation(OrganizationId identifier, OrganizationName name)
-            {
-                Identifier = identifier;
-                Name = name;
-            }
-
-            public OrganizationId Identifier { get; }
-            public OrganizationName Name { get; }
-        }
+        public OrganizationId Identifier { get; }
+        public OrganizationName Name { get; }
     }
 }

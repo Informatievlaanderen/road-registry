@@ -1,7 +1,6 @@
-namespace RoadRegistry.BackOffice.Api.Extracts
+namespace RoadRegistry.BackOffice.Api.Extracts;
+
+public class GetUploadStatusResponseBody
 {
-    public class GetUploadStatusResponseBody
-    {
-        public string Status { get; set; }
-    }
+    public string Status { get; set; }
 }

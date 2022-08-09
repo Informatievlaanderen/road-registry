@@ -1,53 +1,50 @@
-namespace RoadRegistry.BackOffice.Uploads
+namespace RoadRegistry.BackOffice.Uploads;
+
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Text;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public class ZipArchiveShapeEntryValidator : IZipArchiveEntryValidator
 {
-    using System;
-    using System.IO;
-    using System.IO.Compression;
-    using System.Text;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+    private readonly Encoding _encoding;
+    private readonly IZipArchiveShapeRecordsValidator _recordValidator;
 
-    public class ZipArchiveShapeEntryValidator : IZipArchiveEntryValidator
+    public ZipArchiveShapeEntryValidator(Encoding encoding, IZipArchiveShapeRecordsValidator recordValidator)
     {
-        private readonly Encoding _encoding;
-        private readonly IZipArchiveShapeRecordsValidator _recordValidator;
+        _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
+        _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
+    }
 
-        public ZipArchiveShapeEntryValidator(Encoding encoding, IZipArchiveShapeRecordsValidator recordValidator)
+    public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
+    {
+        if (entry == null) throw new ArgumentNullException(nameof(entry));
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        var problems = ZipArchiveProblems.None;
+        using (var stream = entry.Open())
+        using (var reader = new BinaryReader(stream, _encoding))
         {
-            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-            _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
-        }
-
-        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
-        {
-            if (entry == null) throw new ArgumentNullException(nameof(entry));
-            if (context == null) throw new ArgumentNullException(nameof(context));
-
-            var problems = ZipArchiveProblems.None;
-            using (var stream = entry.Open())
-            using (var reader = new BinaryReader(stream, _encoding))
+            ShapeFileHeader header = null;
+            try
             {
-                ShapeFileHeader header = null;
-                try
-                {
-                    header = ShapeFileHeader.Read(reader);
-                }
-                catch (Exception exception)
-                {
-                    problems += entry.HasShapeHeaderFormatError(exception);
-                }
-
-                if (header != null)
-                {
-                    using (var records = header.CreateShapeRecordEnumerator(reader))
-                    {
-                        var (recordProblems, recordContext) = _recordValidator.Validate(entry, records, context);
-                        problems += recordProblems;
-                        context = recordContext;
-                    }
-                }
+                header = ShapeFileHeader.Read(reader);
+            }
+            catch (Exception exception)
+            {
+                problems += entry.HasShapeHeaderFormatError(exception);
             }
 
-            return (problems, context);
+            if (header != null)
+                using (var records = header.CreateShapeRecordEnumerator(reader))
+                {
+                    var (recordProblems, recordContext) = _recordValidator.Validate(entry, records, context);
+                    problems += recordProblems;
+                    context = recordContext;
+                }
         }
+
+        return (problems, context);
     }
 }

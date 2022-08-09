@@ -1,16 +1,15 @@
-namespace RoadRegistry.BackOffice
-{
-    using System.Collections.Generic;
+namespace RoadRegistry.BackOffice;
 
-    public static class RoadTypes
+using System.Collections.Generic;
+
+public static class RoadTypes
+{
+    public static readonly IReadOnlyCollection<char> All = new[]
     {
-        public static readonly IReadOnlyCollection<char> All = new []
-        {
-            'A',
-            'B',
-            'N',
-            'R',
-            'T'
-        };
-    }
+        'A',
+        'B',
+        'N',
+        'R',
+        'T'
+    };
 }

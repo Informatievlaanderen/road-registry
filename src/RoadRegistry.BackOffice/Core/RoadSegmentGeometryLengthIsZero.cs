@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class RoadSegmentGeometryLengthIsZero : Error
 {
-    public class RoadSegmentGeometryLengthIsZero : Error
+    public RoadSegmentGeometryLengthIsZero() : base(nameof(RoadSegmentGeometryLengthIsZero))
     {
-        public RoadSegmentGeometryLengthIsZero() : base(nameof(RoadSegmentGeometryLengthIsZero))
-        {
-        }
     }
 }

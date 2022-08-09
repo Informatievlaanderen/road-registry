@@ -1,6 +1,5 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public interface IVerifiedChange
 {
-    public interface IVerifiedChange
-    {
-    }
 }

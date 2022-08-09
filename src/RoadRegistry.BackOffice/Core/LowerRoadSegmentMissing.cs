@@ -1,10 +1,9 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class LowerRoadSegmentMissing : Error
 {
-    public class LowerRoadSegmentMissing : Error
+    public LowerRoadSegmentMissing()
+        : base(nameof(LowerRoadSegmentMissing))
     {
-        public LowerRoadSegmentMissing()
-            : base(nameof(LowerRoadSegmentMissing))
-        {
-        }
     }
 }

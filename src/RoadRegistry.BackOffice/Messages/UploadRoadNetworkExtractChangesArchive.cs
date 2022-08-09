@@ -1,15 +1,14 @@
-namespace RoadRegistry.BackOffice.Messages
+namespace RoadRegistry.BackOffice.Messages;
+
+using System;
+
+public class UploadRoadNetworkExtractChangesArchive
 {
-    using System;
+    public string RequestId { get; set; }
 
-    public class UploadRoadNetworkExtractChangesArchive
-    {
-        public string RequestId { get; set; }
+    public Guid DownloadId { get; set; }
 
-        public Guid DownloadId { get; set; }
+    public Guid UploadId { get; set; }
 
-        public Guid UploadId { get; set; }
-
-        public string ArchiveId { get; set; }
-    }
+    public string ArchiveId { get; set; }
 }

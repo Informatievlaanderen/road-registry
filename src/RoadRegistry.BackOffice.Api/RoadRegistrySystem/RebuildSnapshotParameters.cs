@@ -1,7 +1,6 @@
-namespace RoadRegistry.BackOffice.Api.RoadRegistrySystem
+namespace RoadRegistry.BackOffice.Api.RoadRegistrySystem;
+
+public class RebuildSnapshotParameters
 {
-    public class RebuildSnapshotParameters
-    {
-        public int StartFromVersion { get; set; }
-    }
+    public int StartFromVersion { get; set; }
 }

@@ -1,6 +1,4 @@
-namespace RoadRegistry.BackOffice.Exceptions;
-
-using System;
+namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
 public abstract class DownloadExtractException : ApplicationException
 {
@@ -8,5 +6,5 @@ public abstract class DownloadExtractException : ApplicationException
     {
     }
 
-    public string Description { get; init; }
+    public string Description { get; set; }
 }

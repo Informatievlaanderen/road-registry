@@ -1,24 +1,23 @@
-namespace RoadRegistry.BackOffice.Core
-{
-    using FluentValidation;
+namespace RoadRegistry.BackOffice.Core;
 
-    public class AddRoadSegmentToNumberedRoadValidator : AbstractValidator<Messages.AddRoadSegmentToNumberedRoad>
+using FluentValidation;
+
+public class AddRoadSegmentToNumberedRoadValidator : AbstractValidator<Messages.AddRoadSegmentToNumberedRoad>
+{
+    public AddRoadSegmentToNumberedRoadValidator()
     {
-        public AddRoadSegmentToNumberedRoadValidator()
-        {
-            RuleFor(c => c.TemporaryAttributeId).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.SegmentId).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.Number)
-                .NotEmpty()
-                .Must(NumberedRoadNumber.CanParse)
-                .When(c => c.Number != null, ApplyConditionTo.CurrentValidator);
-            RuleFor(c => c.Direction)
-                .NotEmpty()
-                .Must(RoadSegmentNumberedRoadDirection.CanParse)
-                .When(c => c.Direction != null, ApplyConditionTo.CurrentValidator)
-                .WithMessage("The 'Direction' is not a RoadSegmentNumberedRoadDirection.");
-            RuleFor(c => c.Ordinal)
-                .Must(RoadSegmentNumberedRoadOrdinal.Accepts);
-        }
+        RuleFor(c => c.TemporaryAttributeId).GreaterThanOrEqualTo(0);
+        RuleFor(c => c.SegmentId).GreaterThanOrEqualTo(0);
+        RuleFor(c => c.Number)
+            .NotEmpty()
+            .Must(NumberedRoadNumber.CanParse)
+            .When(c => c.Number != null, ApplyConditionTo.CurrentValidator);
+        RuleFor(c => c.Direction)
+            .NotEmpty()
+            .Must(RoadSegmentNumberedRoadDirection.CanParse)
+            .When(c => c.Direction != null, ApplyConditionTo.CurrentValidator)
+            .WithMessage("The 'Direction' is not a RoadSegmentNumberedRoadDirection.");
+        RuleFor(c => c.Ordinal)
+            .Must(RoadSegmentNumberedRoadOrdinal.Accepts);
     }
 }

@@ -1,22 +1,25 @@
-namespace RoadRegistry.BackOffice.Framework
+namespace RoadRegistry.BackOffice.Framework;
+
+using System;
+using System.Collections.Generic;
+
+public class EventRecorder
 {
-    using System;
-    using System.Collections.Generic;
+    private readonly List<object> _recorded = new();
 
-    public class EventRecorder
+    public bool HasRecordedEvents => _recorded.Count != 0;
+    public object[] RecordedEvents => _recorded.ToArray();
+
+    public void Record(object @event)
     {
-        private readonly List<object> _recorded = new List<object>();
+        if (@event == null)
+            throw new ArgumentNullException(nameof(@event));
 
-        public bool HasRecordedEvents => _recorded.Count != 0;
-        public object[] RecordedEvents => _recorded.ToArray();
+        _recorded.Add(@event);
+    }
 
-        public void Record(object @event)
-        {
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
-
-            _recorded.Add(@event);
-        }
-        public void Reset() => _recorded.Clear();
+    public void Reset()
+    {
+        _recorded.Clear();
     }
 }

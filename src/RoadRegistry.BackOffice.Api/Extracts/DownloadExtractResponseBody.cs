@@ -1,7 +1,6 @@
-namespace RoadRegistry.BackOffice.Api.Extracts
+namespace RoadRegistry.BackOffice.Api.Extracts;
+
+public class DownloadExtractResponseBody
 {
-    public class DownloadExtractResponseBody
-    {
-        public string DownloadId { get; set; }
-    }
+    public string DownloadId { get; set; }
 }

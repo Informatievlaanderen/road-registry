@@ -1,6 +1,4 @@
-namespace RoadRegistry.BackOffice.Exceptions;
-
-using System;
+namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
 public class ExtractDownloadNotFoundException : ApplicationException
 {

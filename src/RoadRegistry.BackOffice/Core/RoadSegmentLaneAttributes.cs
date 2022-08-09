@@ -1,43 +1,38 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+public class RoadSegmentLaneAttributes : IEnumerable<RoadSegmentLaneAttribute>
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
+    private readonly IReadOnlyCollection<RoadSegmentLaneAttribute> _attributes;
 
-    public class RoadSegmentLaneAttributes : IEnumerable<RoadSegmentLaneAttribute>
+    public RoadSegmentLaneAttributes(IReadOnlyCollection<RoadSegmentLaneAttribute> attributes)
     {
-        private readonly IReadOnlyCollection<RoadSegmentLaneAttribute> _attributes;
-
-        public RoadSegmentLaneAttributes(IReadOnlyCollection<RoadSegmentLaneAttribute> attributes)
+        if (attributes == null) throw new ArgumentNullException(nameof(attributes));
+        var position = new RoadSegmentPosition(0);
+        var index = 0;
+        foreach (var attribute in attributes)
         {
-            if (attributes == null)
-            {
-                throw new ArgumentNullException(nameof(attributes));
-            }
-            var position = new RoadSegmentPosition(0);
-            var index = 0;
-            foreach(var attribute in attributes)
-            {
-                if(attribute.From != position)
-                {
-                    throw new ArgumentException(
-                        $"The road segment lane attributes are not adjacent. The attribute at index {index} was expected to start from {position} but actually starts from {attribute.From}.",
-                        nameof(attributes));
-                }
-                position = attribute.To;
-                index++;
-            }
-            _attributes = attributes;
+            if (attribute.From != position)
+                throw new ArgumentException(
+                    $"The road segment lane attributes are not adjacent. The attribute at index {index} was expected to start from {position} but actually starts from {attribute.From}.",
+                    nameof(attributes));
+            position = attribute.To;
+            index++;
         }
 
-        public IEnumerator<RoadSegmentLaneAttribute> GetEnumerator()
-        {
-            return _attributes.GetEnumerator();
-        }
+        _attributes = attributes;
+    }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+    public IEnumerator<RoadSegmentLaneAttribute> GetEnumerator()
+    {
+        return _attributes.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

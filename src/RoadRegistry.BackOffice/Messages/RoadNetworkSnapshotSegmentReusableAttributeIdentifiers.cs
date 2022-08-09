@@ -1,13 +1,11 @@
-namespace RoadRegistry.BackOffice.Messages
-{
-    using MessagePack;
+namespace RoadRegistry.BackOffice.Messages;
 
-    [MessagePackObject]
-    public class RoadNetworkSnapshotSegmentReusableAttributeIdentifiers
-    {
-        [Key(0)]
-        public int SegmentId { get; set; }
-        [Key(1)]
-        public int[] ReusableAttributeIdentifiers { get; set; }
-    }
+using MessagePack;
+
+[MessagePackObject]
+public class RoadNetworkSnapshotSegmentReusableAttributeIdentifiers
+{
+    [Key(0)] public int SegmentId { get; set; }
+
+    [Key(1)] public int[] ReusableAttributeIdentifiers { get; set; }
 }

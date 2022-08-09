@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Exceptions;
+namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
 public class DownloadExtractNotFoundException : DownloadExtractException
 {

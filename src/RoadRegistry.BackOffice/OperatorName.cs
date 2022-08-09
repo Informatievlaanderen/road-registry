@@ -1,37 +1,58 @@
-namespace RoadRegistry.BackOffice
+namespace RoadRegistry.BackOffice;
+
+using System;
+
+public readonly struct OperatorName : IEquatable<OperatorName>
 {
-    using System;
+    public static readonly OperatorName None = default;
 
-    public readonly struct OperatorName : IEquatable<OperatorName>
+    public const int MaxLength = 254;
+
+    private readonly string _value;
+
+    public OperatorName(string value)
     {
-        public static readonly OperatorName None = default;
+        if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value), "The operator name must not be null or empty.");
 
-        public const int MaxLength = 254;
+        if (value.Length > MaxLength)
+            throw new ArgumentOutOfRangeException(nameof(value),
+                $"The operator name must be {MaxLength} characters or less.");
 
-        private readonly string _value;
+        _value = value;
+    }
 
-        public OperatorName(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                throw new ArgumentNullException(nameof(value), "The operator name must not be null or empty.");
-            }
+    public bool Equals(OperatorName other)
+    {
+        return _value == other._value;
+    }
 
-            if (value.Length > MaxLength)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value),
-                    $"The operator name must be {MaxLength} characters or less.");
-            }
+    public override bool Equals(object obj)
+    {
+        return obj is OperatorName name && Equals(name);
+    }
 
-            _value = value;
-        }
+    public override int GetHashCode()
+    {
+        return _value?.GetHashCode() ?? 0;
+    }
 
-        public bool Equals(OperatorName other) => _value == other._value;
-        public override bool Equals(object obj) => obj is OperatorName name && Equals(name);
-        public override int GetHashCode() => _value?.GetHashCode() ?? 0;
-        public override string ToString() => _value;
-        public static implicit operator string(OperatorName instance) => instance._value;
-        public static bool operator ==(OperatorName left, OperatorName right) => left.Equals(right);
-        public static bool operator !=(OperatorName left, OperatorName right) => !left.Equals(right);
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public static implicit operator string(OperatorName instance)
+    {
+        return instance._value;
+    }
+
+    public static bool operator ==(OperatorName left, OperatorName right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(OperatorName left, OperatorName right)
+    {
+        return !left.Equals(right);
     }
 }

@@ -1,36 +1,62 @@
-namespace RoadRegistry.BackOffice
+namespace RoadRegistry.BackOffice;
+
+using System;
+
+public readonly struct ArchiveId : IEquatable<ArchiveId>
 {
-    using System;
+    public const int MaxLength = 32;
 
-    public readonly struct ArchiveId : IEquatable<ArchiveId>
+    private readonly string _value;
+
+    public ArchiveId(string value)
     {
-        public const int MaxLength = 32;
+        if (string.IsNullOrEmpty(value))
+            throw new ArgumentNullException(nameof(value), "The archive identifier must not be null or empty.");
 
-        private readonly string _value;
+        if (value.Length > MaxLength)
+            throw new ArgumentOutOfRangeException(nameof(value),
+                $"The archive identifier must be {MaxLength} characters or less.");
 
-        public ArchiveId(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                throw new ArgumentNullException(nameof(value), "The archive identifier must not be null or empty.");
+        _value = value;
+    }
 
-            if (value.Length > MaxLength)
-                throw new ArgumentOutOfRangeException(nameof(value),
-                    $"The archive identifier must be {MaxLength} characters or less.");
+    public static bool Accepts(string value)
+    {
+        return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
+    }
 
-            _value = value;
-        }
+    public bool Equals(ArchiveId other)
+    {
+        return _value == other._value;
+    }
 
-        public static bool Accepts(string value)
-        {
-            return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
-        }
+    public override bool Equals(object obj)
+    {
+        return obj is ArchiveId id && Equals(id);
+    }
 
-        public bool Equals(ArchiveId other) => _value == other._value;
-        public override bool Equals(object obj) => obj is ArchiveId id && Equals(id);
-        public override int GetHashCode() => _value.GetHashCode();
-        public override string ToString() => _value;
-        public static bool operator ==(ArchiveId left, ArchiveId right) => left.Equals(right);
-        public static bool operator !=(ArchiveId left, ArchiveId right) => !left.Equals(right);
-        public static implicit operator string(ArchiveId instance) => instance._value;
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public static bool operator ==(ArchiveId left, ArchiveId right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(ArchiveId left, ArchiveId right)
+    {
+        return !left.Equals(right);
+    }
+
+    public static implicit operator string(ArchiveId instance)
+    {
+        return instance._value;
     }
 }

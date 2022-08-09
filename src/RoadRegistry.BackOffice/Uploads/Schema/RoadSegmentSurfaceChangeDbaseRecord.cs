@@ -1,45 +1,44 @@
-namespace RoadRegistry.BackOffice.Uploads.Schema
+namespace RoadRegistry.BackOffice.Uploads.Schema;
+
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public class RoadSegmentSurfaceChangeDbaseRecord : DbaseRecord
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+    public static readonly RoadSegmentSurfaceChangeDbaseSchema Schema = new();
 
-    public class RoadSegmentSurfaceChangeDbaseRecord : DbaseRecord
+    public RoadSegmentSurfaceChangeDbaseRecord()
     {
-        public static readonly RoadSegmentSurfaceChangeDbaseSchema Schema = new RoadSegmentSurfaceChangeDbaseSchema();
+        WV_OIDN = new DbaseInt32(Schema.WV_OIDN);
+        WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+        VANPOSITIE = new DbaseDouble(Schema.VANPOSITIE);
+        TOTPOSITIE = new DbaseDouble(Schema.TOTPOSITIE);
+        TYPE = new DbaseInt16(Schema.TYPE);
+        TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+        RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 
-        public RoadSegmentSurfaceChangeDbaseRecord()
+        Values = new DbaseFieldValue[]
         {
-            WV_OIDN = new DbaseInt32(Schema.WV_OIDN);
-            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-            VANPOSITIE = new DbaseDouble(Schema.VANPOSITIE);
-            TOTPOSITIE = new DbaseDouble(Schema.TOTPOSITIE);
-            TYPE = new DbaseInt16(Schema.TYPE);
-            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
-            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
-
-            Values = new DbaseFieldValue[]
-            {
-                WV_OIDN,
-                WS_OIDN,
-                VANPOSITIE,
-                TOTPOSITIE,
-                TYPE,
-                TRANSACTID,
-                RECORDTYPE
-            };
-        }
-
-        public DbaseInt32 WV_OIDN { get; }
-
-        public DbaseInt32 WS_OIDN { get; }
-
-        public DbaseDouble VANPOSITIE { get; }
-
-        public DbaseDouble TOTPOSITIE { get; }
-
-        public DbaseInt16 TYPE { get; }
-
-        public DbaseInt16 TRANSACTID { get; }
-
-        public DbaseInt16 RECORDTYPE { get; }
+            WV_OIDN,
+            WS_OIDN,
+            VANPOSITIE,
+            TOTPOSITIE,
+            TYPE,
+            TRANSACTID,
+            RECORDTYPE
+        };
     }
+
+    public DbaseInt32 WV_OIDN { get; }
+
+    public DbaseInt32 WS_OIDN { get; }
+
+    public DbaseDouble VANPOSITIE { get; }
+
+    public DbaseDouble TOTPOSITIE { get; }
+
+    public DbaseInt16 TYPE { get; }
+
+    public DbaseInt16 TRANSACTID { get; }
+
+    public DbaseInt16 RECORDTYPE { get; }
 }

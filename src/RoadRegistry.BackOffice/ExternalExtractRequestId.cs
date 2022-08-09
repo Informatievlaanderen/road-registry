@@ -1,41 +1,66 @@
-namespace RoadRegistry.BackOffice
+namespace RoadRegistry.BackOffice;
+
+using System;
+
+public readonly struct ExternalExtractRequestId : IEquatable<ExternalExtractRequestId>
 {
-    using System;
+    public const int MaxLength = 256;
 
-    public readonly struct ExternalExtractRequestId : IEquatable<ExternalExtractRequestId>
+    private readonly string _value;
+
+    public ExternalExtractRequestId(string value)
     {
-        public const int MaxLength = 256;
+        if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value), "The external extract request identifier must not be null or empty.");
 
-        private readonly string _value;
+        if (value.Length > MaxLength)
+            throw new ArgumentOutOfRangeException(nameof(value),
+                $"The external extract request identifier must be {MaxLength} characters or less.");
 
-        public ExternalExtractRequestId(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                throw new ArgumentNullException(nameof(value), "The external extract request identifier must not be null or empty.");
-            }
+        _value = value;
+    }
 
-            if (value.Length > MaxLength)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value),
-                    $"The external extract request identifier must be {MaxLength} characters or less.");
-            }
+    public static bool AcceptsValue(string value)
+    {
+        return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
+    }
 
-            _value = value;
-        }
+    public bool Equals(ExternalExtractRequestId other)
+    {
+        return _value == other._value;
+    }
 
-        public static bool AcceptsValue(string value)
-        {
-            return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
-        }
+    public override bool Equals(object obj)
+    {
+        return obj is ExternalExtractRequestId id && Equals(id);
+    }
 
-        public bool Equals(ExternalExtractRequestId other) => _value == other._value;
-        public override bool Equals(object obj) => obj is ExternalExtractRequestId id && Equals(id);
-        public override int GetHashCode() => _value.GetHashCode();
-        public override string ToString() => _value;
-        public static implicit operator string(ExternalExtractRequestId instance) => instance.ToString();
-        public static implicit operator ExternalExtractRequestId(string instance) => new ExternalExtractRequestId(instance);
-        public static bool operator ==(ExternalExtractRequestId left, ExternalExtractRequestId right) => left.Equals(right);
-        public static bool operator !=(ExternalExtractRequestId left, ExternalExtractRequestId right) => !left.Equals(right);
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public static implicit operator string(ExternalExtractRequestId instance)
+    {
+        return instance.ToString();
+    }
+
+    public static implicit operator ExternalExtractRequestId(string instance)
+    {
+        return new(instance);
+    }
+
+    public static bool operator ==(ExternalExtractRequestId left, ExternalExtractRequestId right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(ExternalExtractRequestId left, ExternalExtractRequestId right)
+    {
+        return !left.Equals(right);
     }
 }

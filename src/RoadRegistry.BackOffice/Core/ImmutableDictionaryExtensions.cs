@@ -1,99 +1,82 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+
+internal static class ImmutableDictionaryExtensions
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Immutable;
-    using System.Linq;
-
-    internal static class ImmutableDictionaryExtensions
+    public static ImmutableDictionary<TKey, TValue> TryReplace<TKey, TValue>(
+        this ImmutableDictionary<TKey, TValue> dictionary,
+        TKey key,
+        Converter<TValue, TValue> replacer
+    )
     {
-        public static ImmutableDictionary<TKey, TValue> TryReplace<TKey, TValue>(
-            this ImmutableDictionary<TKey, TValue> dictionary,
-            TKey key,
-            Converter<TValue, TValue> replacer
-        )
-        {
-            if(dictionary.TryGetValue(key, out var value))
-            {
-                return dictionary
-                    .Remove(key)
-                    .Add(key, replacer(value));
-            }
-            return dictionary;
-        }
+        if (dictionary.TryGetValue(key, out var value))
+            return dictionary
+                .Remove(key)
+                .Add(key, replacer(value));
+        return dictionary;
+    }
 
-        public static ImmutableDictionary<TKey, TValue> TryReplaceIf<TKey, TValue>(
-            this ImmutableDictionary<TKey, TValue> dictionary,
-            TKey key,
-            Predicate<TValue> predicate,
-            Converter<TValue, TValue> replacer
-        )
-        {
-            if(dictionary.TryGetValue(key, out var value) && predicate(value))
-            {
-                return dictionary
-                    .Remove(key)
-                    .Add(key, replacer(value));
-            }
-            return dictionary;
-        }
+    public static ImmutableDictionary<TKey, TValue> TryReplaceIf<TKey, TValue>(
+        this ImmutableDictionary<TKey, TValue> dictionary,
+        TKey key,
+        Predicate<TValue> predicate,
+        Converter<TValue, TValue> replacer
+    )
+    {
+        if (dictionary.TryGetValue(key, out var value) && predicate(value))
+            return dictionary
+                .Remove(key)
+                .Add(key, replacer(value));
+        return dictionary;
+    }
 
-        public static ImmutableDictionary<TKey, TValue>.Builder TryReplace<TKey, TValue>(
-            this ImmutableDictionary<TKey, TValue>.Builder dictionary,
-            TKey key,
-            Converter<TValue, TValue> replacer
-        )
-        {
-            if(dictionary.TryGetValue(key, out var value))
-            {
-                dictionary[key] = replacer(value);
-            }
+    public static ImmutableDictionary<TKey, TValue>.Builder TryReplace<TKey, TValue>(
+        this ImmutableDictionary<TKey, TValue>.Builder dictionary,
+        TKey key,
+        Converter<TValue, TValue> replacer
+    )
+    {
+        if (dictionary.TryGetValue(key, out var value)) dictionary[key] = replacer(value);
 
-            return dictionary;
-        }
+        return dictionary;
+    }
 
-        public static ImmutableDictionary<TKey, TValue>.Builder TryReplaceIf<TKey, TValue>(
-            this ImmutableDictionary<TKey, TValue>.Builder dictionary,
-            TKey key,
-            Predicate<TValue> predicate,
-            Converter<TValue, TValue> replacer
-        )
-        {
-            if(dictionary.TryGetValue(key, out var value) && predicate(value))
-            {
-                dictionary[key] = replacer(value);
-            }
+    public static ImmutableDictionary<TKey, TValue>.Builder TryReplaceIf<TKey, TValue>(
+        this ImmutableDictionary<TKey, TValue>.Builder dictionary,
+        TKey key,
+        Predicate<TValue> predicate,
+        Converter<TValue, TValue> replacer
+    )
+    {
+        if (dictionary.TryGetValue(key, out var value) && predicate(value)) dictionary[key] = replacer(value);
 
-            return dictionary;
-        }
+        return dictionary;
+    }
 
-        public static ImmutableDictionary<TKey, IReadOnlyList<TValue>> Merge<TKey, TValue>(
-            this ImmutableDictionary<TKey, IReadOnlyList<TValue>> dictionary,
-            TKey key,
-            IEnumerable<TValue> values)
-        {
-            if(dictionary.TryGetValue(key, out var mergeable))
-            {
-                return dictionary
-                    .Remove(key)
-                    .Add(key, values.Concat(mergeable).Distinct().ToArray());
-            }
+    public static ImmutableDictionary<TKey, IReadOnlyList<TValue>> Merge<TKey, TValue>(
+        this ImmutableDictionary<TKey, IReadOnlyList<TValue>> dictionary,
+        TKey key,
+        IEnumerable<TValue> values)
+    {
+        if (dictionary.TryGetValue(key, out var mergeable))
+            return dictionary
+                .Remove(key)
+                .Add(key, values.Concat(mergeable).Distinct().ToArray());
 
-            return dictionary.Add(key, values.Distinct().ToArray());
-        }
+        return dictionary.Add(key, values.Distinct().ToArray());
+    }
 
-        public static void Merge<TKey, TValue>(this ImmutableDictionary<TKey, IReadOnlyList<TValue>>.Builder dictionary,
-            TKey key,
-            IEnumerable<TValue> values)
-        {
-            if(dictionary.TryGetValue(key, out var mergeable))
-            {
-                dictionary[key] = values.Concat(mergeable).Distinct().ToArray();
-            }
-            else
-            {
-                dictionary.Add(key, values.Distinct().ToArray());
-            }
-        }
+    public static void Merge<TKey, TValue>(this ImmutableDictionary<TKey, IReadOnlyList<TValue>>.Builder dictionary,
+        TKey key,
+        IEnumerable<TValue> values)
+    {
+        if (dictionary.TryGetValue(key, out var mergeable))
+            dictionary[key] = values.Concat(mergeable).Distinct().ToArray();
+        else
+            dictionary.Add(key, values.Distinct().ToArray());
     }
 }

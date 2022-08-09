@@ -1,13 +1,13 @@
-namespace RoadRegistry.BackOffice
-{
-    using FluentValidation;
+namespace RoadRegistry.BackOffice;
 
-    public class RingValidator : AbstractValidator<Messages.Ring>
+using FluentValidation;
+using Messages;
+
+public class RingValidator : AbstractValidator<Ring>
+{
+    public RingValidator()
     {
-        public RingValidator()
-        {
-            RuleFor(c => c.Points).NotNull();
-            RuleForEach(c => c.Points).NotNull();
-        }
+        RuleFor(c => c.Points).NotNull();
+        RuleForEach(c => c.Points).NotNull();
     }
 }

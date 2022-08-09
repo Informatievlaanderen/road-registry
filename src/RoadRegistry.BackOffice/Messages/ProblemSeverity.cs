@@ -1,8 +1,7 @@
-namespace RoadRegistry.BackOffice.Messages
+namespace RoadRegistry.BackOffice.Messages;
+
+public enum ProblemSeverity
 {
-    public enum ProblemSeverity
-    {
-        Error,
-        Warning
-    }
+    Error,
+    Warning
 }

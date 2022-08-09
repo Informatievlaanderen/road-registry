@@ -1,8 +1,7 @@
-namespace RoadRegistry.BackOffice.Messages
+namespace RoadRegistry.BackOffice.Messages;
+
+public class Polygon
 {
-    public class Polygon
-    {
-        public Ring Shell { get; set; }
-        public Ring[] Holes { get; set; }
-    }
+    public Ring Shell { get; set; }
+    public Ring[] Holes { get; set; }
 }

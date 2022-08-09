@@ -1,28 +1,28 @@
-namespace RoadRegistry.BackOffice.Messages
-{
-    using System;
+namespace RoadRegistry.BackOffice.Messages;
 
-    public static class RoadNetworkEvents
+using System;
+
+public static class RoadNetworkEvents
+{
+    public static readonly Type[] All =
     {
-        public static readonly Type[] All = {
-            typeof(BeganRoadNetworkImport),
-            typeof(CompletedRoadNetworkImport),
-            typeof(ImportedGradeSeparatedJunction),
-            typeof(ImportedRoadNode),
-            typeof(ImportedRoadSegment),
-            typeof(ImportedOrganization),
-            typeof(RoadNetworkChangesArchiveAccepted),
-            typeof(RoadNetworkChangesArchiveRejected),
-            typeof(RoadNetworkChangesArchiveUploaded),
-            typeof(NoRoadNetworkChanges),
-            typeof(RoadNetworkChangesAccepted),
-            typeof(RoadNetworkChangesRejected),
-            typeof(RoadNetworkExtractGotRequested),
-            typeof(RoadNetworkExtractGotRequestedV2),
-            typeof(RoadNetworkExtractDownloadBecameAvailable),
-            typeof(RoadNetworkExtractChangesArchiveAccepted),
-            typeof(RoadNetworkExtractChangesArchiveRejected),
-            typeof(RoadNetworkExtractChangesArchiveUploaded)
-        };
-    }
+        typeof(BeganRoadNetworkImport),
+        typeof(CompletedRoadNetworkImport),
+        typeof(ImportedGradeSeparatedJunction),
+        typeof(ImportedRoadNode),
+        typeof(ImportedRoadSegment),
+        typeof(ImportedOrganization),
+        typeof(RoadNetworkChangesArchiveAccepted),
+        typeof(RoadNetworkChangesArchiveRejected),
+        typeof(RoadNetworkChangesArchiveUploaded),
+        typeof(NoRoadNetworkChanges),
+        typeof(RoadNetworkChangesAccepted),
+        typeof(RoadNetworkChangesRejected),
+        typeof(RoadNetworkExtractGotRequested),
+        typeof(RoadNetworkExtractGotRequestedV2),
+        typeof(RoadNetworkExtractDownloadBecameAvailable),
+        typeof(RoadNetworkExtractChangesArchiveAccepted),
+        typeof(RoadNetworkExtractChangesArchiveRejected),
+        typeof(RoadNetworkExtractChangesArchiveUploaded)
+    };
 }

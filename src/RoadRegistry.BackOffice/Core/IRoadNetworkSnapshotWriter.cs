@@ -1,11 +1,11 @@
-namespace RoadRegistry.BackOffice.Core
-{
-    using System.Threading;
-    using System.Threading.Tasks;
+namespace RoadRegistry.BackOffice.Core;
 
-    public interface IRoadNetworkSnapshotWriter
-    {
-        Task WriteSnapshot(Messages.RoadNetworkSnapshot snapshot, int version, CancellationToken cancellationToken);
-        Task SetHeadToVersion(int version, CancellationToken cancellationToken);
-    }
+using System.Threading;
+using System.Threading.Tasks;
+using Messages;
+
+public interface IRoadNetworkSnapshotWriter
+{
+    Task WriteSnapshot(RoadNetworkSnapshot snapshot, int version, CancellationToken cancellationToken);
+    Task SetHeadToVersion(int version, CancellationToken cancellationToken);
 }

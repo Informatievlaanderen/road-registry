@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.Uploads
-{
-    using System.IO.Compression;
+namespace RoadRegistry.BackOffice.Uploads;
 
-    public interface IZipArchiveValidator
-    {
-        ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata);
-    }
+using System.IO.Compression;
+
+public interface IZipArchiveValidator
+{
+    ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata);
 }

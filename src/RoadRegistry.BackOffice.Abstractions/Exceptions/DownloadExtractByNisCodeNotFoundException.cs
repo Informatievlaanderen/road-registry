@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Exceptions;
+namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
 public class DownloadExtractByNisCodeNotFoundException : DownloadExtractNotFoundException
 {
@@ -6,5 +6,5 @@ public class DownloadExtractByNisCodeNotFoundException : DownloadExtractNotFound
     {
     }
 
-    public string NisCode { get; init; }
+    public string NisCode { get; set; }
 }

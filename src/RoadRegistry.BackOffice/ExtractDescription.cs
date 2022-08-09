@@ -1,41 +1,66 @@
-namespace RoadRegistry.BackOffice
+namespace RoadRegistry.BackOffice;
+
+using System;
+
+public readonly struct ExtractDescription : IEquatable<ExtractDescription>
 {
-    using System;
+    public const int MaxLength = 256;
 
-    public readonly struct ExtractDescription : IEquatable<ExtractDescription>
+    private readonly string _value;
+
+    public ExtractDescription(string value)
     {
-        public const int MaxLength = 256;
+        if (value == null) throw new ArgumentNullException(nameof(value), "The extract description must not be null");
 
-        private readonly string _value;
+        if (value.Length > MaxLength)
+            throw new ArgumentOutOfRangeException(nameof(value),
+                $"The extract description must be {MaxLength} characters or less.");
 
-        public ExtractDescription(string value)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value), "The extract description must not be null");
-            }
+        _value = value;
+    }
 
-            if (value.Length > MaxLength)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value),
-                    $"The extract description must be {MaxLength} characters or less.");
-            }
+    public static bool AcceptsValue(string value)
+    {
+        return value != null && value.Length <= MaxLength;
+    }
 
-            _value = value;
-        }
+    public bool Equals(ExtractDescription other)
+    {
+        return _value == other._value;
+    }
 
-        public static bool AcceptsValue(string value)
-        {
-            return value != null && value.Length <= MaxLength;
-        }
+    public override bool Equals(object obj)
+    {
+        return obj is ExtractDescription other && Equals(other);
+    }
 
-        public bool Equals(ExtractDescription other) => _value == other._value;
-        public override bool Equals(object obj) => obj is ExtractDescription other && Equals(other);
-        public override int GetHashCode() => (_value != null ? _value.GetHashCode() : 0);
-        public override string ToString() => _value;
-        public static implicit operator string(ExtractDescription instance) => instance.ToString();
-        public static implicit operator ExtractDescription(string instance) => new ExtractDescription(instance);
-        public static bool operator ==(ExtractDescription left, ExtractDescription right) => left.Equals(right);
-        public static bool operator !=(ExtractDescription left, ExtractDescription right) => !left.Equals(right);
+    public override int GetHashCode()
+    {
+        return _value != null ? _value.GetHashCode() : 0;
+    }
+
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public static implicit operator string(ExtractDescription instance)
+    {
+        return instance.ToString();
+    }
+
+    public static implicit operator ExtractDescription(string instance)
+    {
+        return new(instance);
+    }
+
+    public static bool operator ==(ExtractDescription left, ExtractDescription right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(ExtractDescription left, ExtractDescription right)
+    {
+        return !left.Equals(right);
     }
 }

@@ -1,7 +1,6 @@
-namespace RoadRegistry.BackOffice.Messages
+namespace RoadRegistry.BackOffice.Messages;
+
+public class Ring
 {
-    public class Ring
-    {
-        public Point[] Points { get; set; }
-    }
+    public Point[] Points { get; set; }
 }

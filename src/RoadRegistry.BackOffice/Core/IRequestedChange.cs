@@ -1,11 +1,10 @@
-﻿namespace RoadRegistry.BackOffice.Core
-{
-    public interface IRequestedChange
-    {
-        Problems VerifyBefore(BeforeVerificationContext context);
-        Problems VerifyAfter(AfterVerificationContext context);
+﻿namespace RoadRegistry.BackOffice.Core;
 
-        void TranslateTo(Messages.AcceptedChange message);
-        void TranslateTo(Messages.RejectedChange message);
-    }
+public interface IRequestedChange
+{
+    Problems VerifyBefore(BeforeVerificationContext context);
+    Problems VerifyAfter(AfterVerificationContext context);
+
+    void TranslateTo(Messages.AcceptedChange message);
+    void TranslateTo(Messages.RejectedChange message);
 }

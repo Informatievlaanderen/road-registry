@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
+using Abstractions;
 using Abstractions.Extracts;
 using Framework;
 using Messages;

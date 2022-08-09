@@ -1,79 +1,104 @@
-namespace RoadRegistry.BackOffice
+namespace RoadRegistry.BackOffice;
+
+using System;
+using System.Globalization;
+
+public readonly struct GradeSeparatedJunctionId : IEquatable<GradeSeparatedJunctionId>, IComparable<GradeSeparatedJunctionId>
 {
-    using System;
-    using System.Globalization;
+    private readonly int _value;
 
-    public readonly struct GradeSeparatedJunctionId : IEquatable<GradeSeparatedJunctionId>, IComparable<GradeSeparatedJunctionId>
+    public GradeSeparatedJunctionId(int value)
     {
-        private readonly int _value;
+        if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), value, "The grade separated junction identifier must be greater than or equal to zero.");
 
-        public GradeSeparatedJunctionId(int value)
-        {
-            if (value < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), value, "The grade separated junction identifier must be greater than or equal to zero.");
-            }
+        _value = value;
+    }
 
-            _value = value;
-        }
+    public static bool Accepts(int value)
+    {
+        return value >= 0;
+    }
 
-        public static bool Accepts(int value)
-        {
-            return value >= 0;
-        }
+    public GradeSeparatedJunctionId Next()
+    {
+        if (_value == int.MaxValue)
+            throw new NotSupportedException(
+                "There is no next grade separated junction identifier because the maximum of the integer data type has been reached.");
+        return new GradeSeparatedJunctionId(_value + 1);
+    }
 
-        public GradeSeparatedJunctionId Next()
-        {
-            if (_value == int.MaxValue)
-            {
-                throw new NotSupportedException(
-                    "There is no next grade separated junction identifier because the maximum of the integer data type has been reached.");
-            }
-            return new GradeSeparatedJunctionId(_value + 1);
-        }
+    public static GradeSeparatedJunctionId Max(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
+    {
+        return new(Math.Max(left._value, right._value));
+    }
 
-        public static GradeSeparatedJunctionId Max(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right) =>
-            new GradeSeparatedJunctionId(Math.Max(left._value, right._value));
+    public static GradeSeparatedJunctionId Min(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
+    {
+        return new(Math.Min(left._value, right._value));
+    }
 
-        public static GradeSeparatedJunctionId Min(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right) =>
-            new GradeSeparatedJunctionId(Math.Min(left._value, right._value));
+    public int ToInt32()
+    {
+        return _value;
+    }
 
-        public int ToInt32() => _value;
-        
-        public bool Equals(GradeSeparatedJunctionId other) => _value == other._value;
-        
-        public override bool Equals(object obj) => obj is GradeSeparatedJunctionId id && Equals(id);
-        
-        public override int GetHashCode() => _value.GetHashCode();
-        
-        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
-        
-        public int CompareTo(GradeSeparatedJunctionId other) => _value.CompareTo(other._value);
-        
-        public static bool operator ==(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right) => left.Equals(right);
-        
-        public static bool operator !=(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right) => !left.Equals(right);
-        
-        public static implicit operator int(GradeSeparatedJunctionId instance) => instance._value;
+    public bool Equals(GradeSeparatedJunctionId other)
+    {
+        return _value == other._value;
+    }
 
-        public static bool operator <(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
-        {
-            return left.CompareTo(right) < 0;
-        }
+    public override bool Equals(object obj)
+    {
+        return obj is GradeSeparatedJunctionId id && Equals(id);
+    }
 
-        public static bool operator <=(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
-        {
-            return left.CompareTo(right) <= 0;
-        }
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
 
-        public static bool operator >(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
-        {
-            return left.CompareTo(right) > 0;
-        }
+    public override string ToString()
+    {
+        return _value.ToString(CultureInfo.InvariantCulture);
+    }
 
-        public static bool operator >=(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
-        {
-            return left.CompareTo(right) >= 0;
-        }
+    public int CompareTo(GradeSeparatedJunctionId other)
+    {
+        return _value.CompareTo(other._value);
+    }
+
+    public static bool operator ==(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
+    {
+        return !left.Equals(right);
+    }
+
+    public static implicit operator int(GradeSeparatedJunctionId instance)
+    {
+        return instance._value;
+    }
+
+    public static bool operator <(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
+    {
+        return left.CompareTo(right) < 0;
+    }
+
+    public static bool operator <=(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
+
+    public static bool operator >(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
+    {
+        return left.CompareTo(right) > 0;
+    }
+
+    public static bool operator >=(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
+    {
+        return left.CompareTo(right) >= 0;
     }
 }

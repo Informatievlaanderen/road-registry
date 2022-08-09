@@ -1,37 +1,80 @@
-namespace RoadRegistry.BackOffice
+namespace RoadRegistry.BackOffice;
+
+using System;
+
+public readonly struct GeometryVersion : IEquatable<GeometryVersion>, IComparable<GeometryVersion>
 {
-    using System;
+    private readonly int _value;
 
-    public readonly struct GeometryVersion : IEquatable<GeometryVersion>, IComparable<GeometryVersion>
+    public GeometryVersion(int value)
     {
-        private readonly int _value;
+        if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), value, "The geometry version must be greater than or equal to zero.");
 
-        public GeometryVersion(int value)
-        {
-            if (value < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), value, "The geometry version must be greater than or equal to zero.");
-            }
+        _value = value;
+    }
 
-            _value = value;
-        }
+    public int ToInt32()
+    {
+        return _value;
+    }
 
-        public int ToInt32() => _value;
-        public bool Equals(GeometryVersion other) => _value == other._value;
-        public override bool Equals(object obj) => obj is GeometryVersion version && Equals(version);
-        public override int GetHashCode() => _value.GetHashCode();
-        public override string ToString() => _value.ToString();
+    public bool Equals(GeometryVersion other)
+    {
+        return _value == other._value;
+    }
 
-        public int CompareTo(GeometryVersion other) => _value.CompareTo(other._value);
+    public override bool Equals(object obj)
+    {
+        return obj is GeometryVersion version && Equals(version);
+    }
 
-        public static bool operator ==(GeometryVersion left, GeometryVersion right) => left.Equals(right);
-        public static bool operator !=(GeometryVersion left, GeometryVersion right) => !left.Equals(right);
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
 
-        public static bool operator <(GeometryVersion left, GeometryVersion right) => left.CompareTo(right) == -1;
-        public static bool operator <=(GeometryVersion left, GeometryVersion right) => left.CompareTo(right) <= 0;
-        public static bool operator >(GeometryVersion left, GeometryVersion right) => left.CompareTo(right) == 1;
-        public static bool operator >=(GeometryVersion left, GeometryVersion right) => left.CompareTo(right) >= 0;
+    public override string ToString()
+    {
+        return _value.ToString();
+    }
 
-        public static implicit operator int(GeometryVersion instance) => instance._value;
+    public int CompareTo(GeometryVersion other)
+    {
+        return _value.CompareTo(other._value);
+    }
+
+    public static bool operator ==(GeometryVersion left, GeometryVersion right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(GeometryVersion left, GeometryVersion right)
+    {
+        return !left.Equals(right);
+    }
+
+    public static bool operator <(GeometryVersion left, GeometryVersion right)
+    {
+        return left.CompareTo(right) == -1;
+    }
+
+    public static bool operator <=(GeometryVersion left, GeometryVersion right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
+
+    public static bool operator >(GeometryVersion left, GeometryVersion right)
+    {
+        return left.CompareTo(right) == 1;
+    }
+
+    public static bool operator >=(GeometryVersion left, GeometryVersion right)
+    {
+        return left.CompareTo(right) >= 0;
+    }
+
+    public static implicit operator int(GeometryVersion instance)
+    {
+        return instance._value;
     }
 }

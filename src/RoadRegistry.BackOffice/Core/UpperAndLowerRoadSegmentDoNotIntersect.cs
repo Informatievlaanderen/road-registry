@@ -1,10 +1,9 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class UpperAndLowerRoadSegmentDoNotIntersect : Error
 {
-    public class UpperAndLowerRoadSegmentDoNotIntersect : Error
+    public UpperAndLowerRoadSegmentDoNotIntersect()
+        : base(nameof(UpperAndLowerRoadSegmentDoNotIntersect))
     {
-        public UpperAndLowerRoadSegmentDoNotIntersect()
-            : base(nameof(UpperAndLowerRoadSegmentDoNotIntersect))
-        {
-        }
     }
 }

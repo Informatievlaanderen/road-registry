@@ -1,6 +1,5 @@
-namespace RoadRegistry.BackOffice.Handlers;
+namespace RoadRegistry.BackOffice.Abstractions;
 
-using Abstractions;
 using Framework;
 using MediatR;
 using Microsoft.Extensions.Logging;

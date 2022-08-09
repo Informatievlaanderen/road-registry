@@ -1,13 +1,13 @@
 namespace RoadRegistry.BackOffice.Api.Downloads;
 
-using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Downloads;
+using Abstractions.Exceptions;
 using Be.Vlaanderen.Basisregisters.Api;
-using Exceptions;
+using Framework;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using FileCallbackResult = Framework.FileCallbackResult;
 
 [ApiVersion("2.0")]
 [AdvertiseApiVersions("2.0")]
@@ -17,7 +17,10 @@ public class DownloadController : ControllerBase
 {
     private readonly IMediator _mediator;
 
-    public DownloadController(IMediator mediator) => _mediator = mediator;
+    public DownloadController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
 
     [HttpGet("for-editor")]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)

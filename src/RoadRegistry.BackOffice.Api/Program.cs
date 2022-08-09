@@ -1,79 +1,85 @@
-namespace RoadRegistry.BackOffice.Api
+namespace RoadRegistry.BackOffice.Api;
+
+using System;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using Abstractions;
+using Amazon;
+using Amazon.Runtime;
+using Amazon.S3;
+using BackOffice.Extracts;
+using BackOffice.Framework;
+using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.Api;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.BlobStore;
+using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
+using Be.Vlaanderen.Basisregisters.BlobStore.IO;
+using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Configuration;
+using Core;
+using Editor.Schema;
+using Hosts;
+using Hosts.Configuration;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.IO;
+using NetTopologySuite;
+using NetTopologySuite.IO;
+using NodaTime;
+using Product.Schema;
+using Serilog;
+using SqlStreamStore;
+using Syndication.Schema;
+using ZipArchiveWriters.ForEditor;
+
+public class Program
 {
-    using Abstractions;
-    using Amazon;
-    using Amazon.Runtime;
-    using Amazon.S3;
-    using BackOffice.Extracts;
-    using BackOffice.Framework;
-    using BackOffice.Uploads;
-    using Be.Vlaanderen.Basisregisters.Api;
-    using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-    using Be.Vlaanderen.Basisregisters.BlobStore;
-    using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
-    using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-    using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
-    using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-    using Configuration;
-    using Core;
-    using Editor.Schema;
-    using Hosts;
-    using Hosts.Configuration;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Data.SqlClient;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.IO;
-    using NodaTime;
-    using Product.Schema;
-    using RoadRegistry.BackOffice.ZipArchiveWriters.ForEditor;
-    using Serilog;
-    using SqlStreamStore;
-    using Syndication.Schema;
-    using System;
-    using System.IO;
-    using System.Text;
-    using System.Threading.Tasks;
+    public const int HostingPort = 10002;
 
-    public class Program
+    protected Program()
     {
-        public const int HostingPort = 10002;
+    }
 
-        protected Program()
-        { }
-        
-        public static async Task Main(string[] args)
+    public static async Task Main(string[] args)
+    {
+        var host = CreateWebHostBuilder(args).Build();
+        var configuration = host.Services.GetRequiredService<IConfiguration>();
+
+        var streamStore = host.Services.GetRequiredService<IStreamStore>();
+        var logger = host.Services.GetRequiredService<ILogger<Program>>();
+        try
         {
-            var host = CreateWebHostBuilder(args).Build();
-            var configuration = host.Services.GetRequiredService<IConfiguration>();
+            await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
+            await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EditorProjections);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProductProjections);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SyndicationProjections);
 
-            var streamStore = host.Services.GetRequiredService<IStreamStore>();
-            var logger = host.Services.GetRequiredService<ILogger<Program>>();
-            try
-            {
-                await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
-                await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
-                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
-                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
-                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EditorProjections);
-                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProductProjections);
-                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SyndicationProjections);
-
-                await host.RunAsync().ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                logger.LogCritical(e, "Encountered a fatal exception, exiting program.");
-            }
-            finally
-            {
-                Log.CloseAndFlush();
-            }
+            await host.RunAsync().ConfigureAwait(false);
         }
+        catch (Exception e)
+        {
+            logger.LogCritical(e, "Encountered a fatal exception, exiting program.");
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+    }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) => new WebHostBuilder()
+    public static IWebHostBuilder CreateWebHostBuilder(string[] args)
+    {
+        return new WebHostBuilder()
             .UseDefaultForApi<Startup>(
                 new ProgramOptions
                 {
@@ -105,15 +111,9 @@ namespace RoadRegistry.BackOffice.Api
                         // Use MINIO
                         if (hostContext.Configuration.GetValue<string>("MINIO_SERVER") != null)
                         {
-                            if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null)
-                            {
-                                throw new InvalidOperationException("The MINIO_ACCESS_KEY configuration variable was not set.");
-                            }
+                            if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null) throw new InvalidOperationException("The MINIO_ACCESS_KEY configuration variable was not set.");
 
-                            if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null)
-                            {
-                                throw new InvalidOperationException("The MINIO_SECRET_KEY configuration variable was not set.");
-                            }
+                            if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null) throw new InvalidOperationException("The MINIO_SECRET_KEY configuration variable was not set.");
 
                             builder.AddSingleton(new AmazonS3Client(
                                     new BasicAWSCredentials(
@@ -130,15 +130,9 @@ namespace RoadRegistry.BackOffice.Api
                         }
                         else // Use AWS
                         {
-                            if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null)
-                            {
-                                throw new InvalidOperationException("The AWS_ACCESS_KEY_ID configuration variable was not set.");
-                            }
+                            if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null) throw new InvalidOperationException("The AWS_ACCESS_KEY_ID configuration variable was not set.");
 
-                            if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null)
-                            {
-                                throw new InvalidOperationException("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
-                            }
+                            if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null) throw new InvalidOperationException("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
 
                             builder.AddSingleton(new AmazonS3Client(
                                     new BasicAWSCredentials(
@@ -204,13 +198,13 @@ namespace RoadRegistry.BackOffice.Api
                     .AddSingleton<IStreamStore>(sp =>
                         new MsSqlStreamStoreV3(
                             new MsSqlStreamStoreV3Settings(
-                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events))
-                            { Schema = WellknownSchemas.EventSchema }))
+                                    hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events))
+                                { Schema = WellknownSchemas.EventSchema }))
                     .AddSingleton<IClock>(SystemClock.Instance)
-                    .AddSingleton(new NetTopologySuite.IO.WKTReader(
-                        new NetTopologySuite.NtsGeometryServices(
-                            Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory.PrecisionModel,
-                            Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryConfiguration.GeometryFactory.SRID
+                    .AddSingleton(new WKTReader(
+                        new NtsGeometryServices(
+                            GeometryConfiguration.GeometryFactory.PrecisionModel,
+                            GeometryConfiguration.GeometryFactory.SRID
                         )
                     ))
                     .AddSingleton(new RecyclableMemoryStreamManager())

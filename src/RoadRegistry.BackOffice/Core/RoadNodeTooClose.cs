@@ -1,13 +1,12 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class RoadNodeTooClose : Warning
 {
-    public class RoadNodeTooClose : Warning
+    public RoadNodeTooClose(RoadSegmentId toOtherSegment) :
+        base(nameof(RoadNodeTooClose),
+            new ProblemParameter(
+                "ToOtherSegment",
+                toOtherSegment.ToInt32().ToString()))
     {
-        public RoadNodeTooClose(RoadSegmentId toOtherSegment) :
-            base(nameof(RoadNodeTooClose),
-                new ProblemParameter(
-                    "ToOtherSegment",
-                    toOtherSegment.ToInt32().ToString()))
-        {
-        }
     }
 }

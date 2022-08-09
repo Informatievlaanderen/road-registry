@@ -1,4 +1,5 @@
-namespace RoadRegistry.BackOffice.Uploads
+namespace RoadRegistry.BackOffice.Uploads;
+
+public interface IDbaseFileRecordProblemBuilder : IFileRecordProblemBuilder
 {
-    public interface IDbaseFileRecordProblemBuilder : IFileRecordProblemBuilder {}
 }

@@ -1,10 +1,9 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class UpperRoadSegmentMissing : Error
 {
-    public class UpperRoadSegmentMissing : Error
+    public UpperRoadSegmentMissing()
+        : base(nameof(UpperRoadSegmentMissing))
     {
-        public UpperRoadSegmentMissing()
-            : base(nameof(UpperRoadSegmentMissing))
-        {
-        }
     }
 }
