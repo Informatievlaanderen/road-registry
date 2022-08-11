@@ -4,6 +4,7 @@ using Abstractions.Extracts;
 using Editor.Schema;
 using Handlers.Extracts;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Api.Tests.Framework.Containers;
 
 [Collection(nameof(SqlServerCollection))]
 public class DownloadExtractByNisCodeRequestBodyValidatorTests

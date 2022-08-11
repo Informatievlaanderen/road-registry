@@ -8,6 +8,8 @@ using Editor.Schema.GradeSeparatedJunctions;
 using RoadRegistry.Framework.Containers;
 using Xunit;
 using ZipArchiveWriters.ForEditor;
+using SqlServer = Framework.Containers.SqlServer;
+using SqlServerCollection = Framework.Containers.SqlServerCollection;
 
 [Collection(nameof(SqlServerCollection))]
 public class GradeSeparatedJunctionArchiveWriterTests

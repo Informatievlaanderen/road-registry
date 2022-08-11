@@ -11,6 +11,7 @@ using NodaTime.Text;
 using Xunit.Sdk;
 using AcceptedChange = Editor.Schema.RoadNetworkChanges.AcceptedChange;
 using RejectedChange = Editor.Schema.RoadNetworkChanges.RejectedChange;
+using RoadRegistry.BackOffice.Api.Tests.Framework.Containers;
 
 [Collection(nameof(SqlServerCollection))]
 public class ChangeFeedGetPreviousTests

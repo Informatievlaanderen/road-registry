@@ -2,7 +2,8 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests;
 
 using AutoFixture;
 using Microsoft.Data.SqlClient;
-using RoadRegistry.Framework.Containers;
+using SqlServer = Framework.Containers.SqlServer;
+using SqlServerCollection = Framework.Containers.SqlServerCollection;
 
 [Collection(nameof(SqlServerCollection))]
 public class SqlCommandProcessorPositionStoreTests : IAsyncLifetime

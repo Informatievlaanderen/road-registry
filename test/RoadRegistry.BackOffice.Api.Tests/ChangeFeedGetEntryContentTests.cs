@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Text;
+using RoadRegistry.BackOffice.Api.Tests.Framework.Containers;
 
 [Collection(nameof(SqlServerCollection))]
 public class ChangeFeedGetEntryContentTests

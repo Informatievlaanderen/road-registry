@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Tests;
 
 using Changes;
 using Editor.Schema.RoadNetworkChanges;
+using Framework.Containers;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Text;
 using Xunit.Sdk;
+using RoadRegistry.BackOffice.Api.Tests.Framework.Containers;
 
 [Collection(nameof(SqlServerCollection))]
 public class ChangeFeedGetHeadTests

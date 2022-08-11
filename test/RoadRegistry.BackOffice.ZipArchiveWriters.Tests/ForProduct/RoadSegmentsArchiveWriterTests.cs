@@ -10,6 +10,8 @@ using RoadRegistry.Framework;
 using RoadRegistry.Framework.Containers;
 using Xunit;
 using ZipArchiveWriters.ForProduct;
+using SqlServer = Framework.Containers.SqlServer;
+using SqlServerCollection = Framework.Containers.SqlServerCollection;
 
 [Collection(nameof(SqlServerCollection))]
 public class RoadSegmentsArchiveWriterTests

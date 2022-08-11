@@ -3,7 +3,8 @@ namespace RoadRegistry.BackOffice.EventHost.Tests;
 using AutoFixture;
 using Hosts;
 using Microsoft.Data.SqlClient;
-using RoadRegistry.Framework.Containers;
+using SqlServer = Framework.Containers.SqlServer;
+using SqlServerCollection = Framework.Containers.SqlServerCollection;
 
 [Collection(nameof(SqlServerCollection))]
 public class SqlEventProcessorPositionStoreTests : IAsyncLifetime
