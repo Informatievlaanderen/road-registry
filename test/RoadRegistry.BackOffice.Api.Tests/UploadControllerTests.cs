@@ -83,7 +83,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             using (var archive = new ZipArchive(sourceStream, ZipArchiveMode.Create, true, Encoding.UTF8))
             {
                 var entry = archive.CreateEntry("entry");
-                using (var entryStream = entry.Open())
+                await using (var entryStream = entry.Open())
                 {
                     entryStream.Write(new byte[] { 1, 2, 3, 4 });
                     entryStream.Flush();
@@ -114,7 +114,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
 
             Assert.True(await client.BlobExistsAsync(new BlobName(uploaded.ArchiveId)));
             var blob = await client.GetBlobAsync(new BlobName(uploaded.ArchiveId));
-            using (var openStream = await blob.OpenAsync())
+            await using (var openStream = await blob.OpenAsync())
             {
                 var resultStream = new MemoryStream();
                 openStream.CopyTo(resultStream);
@@ -132,9 +132,9 @@ public class UploadControllerTests : ControllerTests<UploadController>
     {
         using (var sourceStream = new MemoryStream())
         {
-            using (var embeddedStream =
-                   typeof(UploadControllerTests).Assembly.GetManifestResourceStream(typeof(UploadControllerTests),
-                       "empty.zip"))
+            await using (var embeddedStream =
+                         typeof(UploadControllerTests).Assembly.GetManifestResourceStream(typeof(UploadControllerTests),
+                             "empty.zip"))
             {
                 embeddedStream.CopyTo(sourceStream);
             }
@@ -163,7 +163,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
 
             Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(uploaded.ArchiveId)));
             var blob = await UploadBlobClient.GetBlobAsync(new BlobName(uploaded.ArchiveId));
-            using (var openStream = await blob.OpenAsync())
+            await using (var openStream = await blob.OpenAsync())
             {
                 var resultStream = new MemoryStream();
                 openStream.CopyTo(resultStream);

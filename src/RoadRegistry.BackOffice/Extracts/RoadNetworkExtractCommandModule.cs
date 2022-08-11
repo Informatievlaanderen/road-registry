@@ -71,7 +71,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 var upload = extract.Upload(forDownloadId, uploadId, archiveId);
 
                 var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
-                using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
+                await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                 using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                 {
                     upload.ValidateArchiveUsing(archive, validator);

@@ -30,7 +30,7 @@ public class ChangeFeedGetHeadTests
                 HttpContext = new DefaultHttpContext()
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             try
             {
@@ -60,7 +60,7 @@ public class ChangeFeedGetHeadTests
                 }
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             try
             {
@@ -90,7 +90,7 @@ public class ChangeFeedGetHeadTests
                 }
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             try
             {
@@ -120,7 +120,7 @@ public class ChangeFeedGetHeadTests
                 }
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             var result = await controller.GetHead(new[] { "5" }, context);
 
@@ -149,7 +149,7 @@ public class ChangeFeedGetHeadTests
         };
         var database = await _fixture.CreateDatabaseAsync();
         var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
         {
             context.RoadNetworkChanges.Add(new RoadNetworkChange
             {
@@ -164,7 +164,7 @@ public class ChangeFeedGetHeadTests
             await context.SaveChangesAsync();
         }
 
-        using (var context = await _fixture.CreateEditorContextAsync(database))
+        await using (var context = await _fixture.CreateEditorContextAsync(database))
         {
             var result = await controller.GetHead(new[] { "5" }, context);
 

@@ -18,7 +18,7 @@ public class ReadCommittedZipArchiveWriter<TContext> : IZipArchiveWriter<TContex
         if (archive == null) throw new ArgumentNullException(nameof(archive));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        using (await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
+        await using (await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
         {
             await _writer.WriteAsync(archive, context, cancellationToken);
         }

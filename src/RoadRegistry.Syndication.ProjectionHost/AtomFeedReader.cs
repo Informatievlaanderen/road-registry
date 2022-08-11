@@ -65,7 +65,7 @@ namespace RoadRegistry.Syndication.ProjectionHost
             _logger.LogInformation("Performing HTTP request GET {FeedUrl} with headers: {@Params}", feedUrl,
                 _httpClient.DefaultRequestHeaders.ToDictionary(x => x.Key, x => x.Value));
             using (var response = await _httpClient.GetAsync(feedUrl))
-            using (var responseStream = await response.Content.ReadAsStreamAsync())
+            await using (var responseStream = await response.Content.ReadAsStreamAsync())
             using (var xmlReader = XmlReader.Create(responseStream, new XmlReaderSettings {Async = true}))
             {
                 var atomReader = new AtomFeedReader(xmlReader);

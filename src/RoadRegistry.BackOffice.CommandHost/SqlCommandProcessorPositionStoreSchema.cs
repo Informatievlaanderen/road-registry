@@ -32,14 +32,14 @@ namespace RoadRegistry.BackOffice.CommandHost
                         CONSTRAINT PK_CommandProcessorPosition   PRIMARY KEY NONCLUSTERED (NameHash)
                     )
                 END";
-            using (var connection = new SqlConnection(_builder.ConnectionString))
+            await using (var connection = new SqlConnection(_builder.ConnectionString))
             {
                 await connection.OpenAsync(cancellationToken);
-                using (var command = new SqlCommand(
-                    text, connection)
-                {
-                    CommandType = CommandType.Text
-                })
+                await using (var command = new SqlCommand(
+                                 text, connection)
+                             {
+                                 CommandType = CommandType.Text
+                             })
                 {
                     await command.ExecuteNonQueryAsync(cancellationToken);
                 }

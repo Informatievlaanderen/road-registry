@@ -22,8 +22,8 @@ public class ProjectionFormatFileZipArchiveWriter<TContext> : IZipArchiveWriter<
         if (context == null) throw new ArgumentNullException(nameof(context));
 
         var prjEntry = archive.CreateEntry(_filename);
-        using (var prjEntryStream = prjEntry.Open())
-        using (var prjEntryStreamWriter = new StreamWriter(prjEntryStream, _encoding))
+        await using (var prjEntryStream = prjEntry.Open())
+        await using (var prjEntryStreamWriter = new StreamWriter(prjEntryStream, _encoding))
         {
             await prjEntryStreamWriter.WriteAsync(ProjectionFormat.BelgeLambert1972.Content);
             await prjEntryStreamWriter.FlushAsync();

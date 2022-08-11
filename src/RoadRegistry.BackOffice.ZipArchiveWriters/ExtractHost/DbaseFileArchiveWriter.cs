@@ -37,7 +37,7 @@ public class DbaseFileArchiveWriter<TContext> : IZipArchiveWriter<TContext> wher
             new DbaseRecordCount(_records.Count),
             _schema
         );
-        using (var dbfEntryStream = dbfEntry.Open())
+        await using (var dbfEntryStream = dbfEntry.Open())
         using (var dbfWriter =
                new DbaseBinaryWriter(
                    dbfHeader,

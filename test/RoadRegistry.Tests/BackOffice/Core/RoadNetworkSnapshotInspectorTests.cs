@@ -17,8 +17,8 @@ public class RoadNetworkSnapshotInspectorTests
         const string connectionString = "";
         const string tempFilePath = @"snapshot.bin";
 
-        using (var connection = new SqlConnection(connectionString))
-        using (var command = connection.CreateCommand())
+        await using (var connection = new SqlConnection(connectionString))
+        await using (var command = connection.CreateCommand())
         {
             await connection.OpenAsync();
 
@@ -27,14 +27,14 @@ public class RoadNetworkSnapshotInspectorTests
             var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess);
             await reader.ReadAsync();
 
-            using (var tempFile = File.Create(tempFilePath))
-            using (var snapshotStream = reader.GetStream(0))
+            await using (var tempFile = File.Create(tempFilePath))
+            await using (var snapshotStream = reader.GetStream(0))
             {
                 await snapshotStream.CopyToAsync(tempFile);
             }
         }
 
-        using (var snapshotStream = File.OpenRead(tempFilePath))
+        await using (var snapshotStream = File.OpenRead(tempFilePath))
         {
             var snapshot = await MessagePackSerializer.DeserializeAsync<RoadNetworkSnapshot>(snapshotStream);
         }

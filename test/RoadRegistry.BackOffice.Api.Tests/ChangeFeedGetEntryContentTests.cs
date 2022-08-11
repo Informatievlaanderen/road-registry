@@ -29,7 +29,7 @@ public class ChangeFeedGetEntryContentTests
                 HttpContext = new DefaultHttpContext()
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             var result = await controller.GetContent(context, 0);
 
@@ -55,7 +55,7 @@ public class ChangeFeedGetEntryContentTests
         };
         var database = await _fixture.CreateDatabaseAsync();
         var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
         {
             context.RoadNetworkChanges.Add(new RoadNetworkChange
             {
@@ -71,7 +71,7 @@ public class ChangeFeedGetEntryContentTests
             await context.SaveChangesAsync();
         }
 
-        using (var context = await _fixture.CreateEditorContextAsync(database))
+        await using (var context = await _fixture.CreateEditorContextAsync(database))
         {
             var result = await controller.GetContent(context, 0);
 

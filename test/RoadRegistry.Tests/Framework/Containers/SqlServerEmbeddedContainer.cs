@@ -24,10 +24,10 @@ public class SqlServerEmbeddedContainer : DockerContainer, ISqlServerDatabase
 CREATE DATABASE [{database}]
 ALTER DATABASE [{database}] SET ALLOW_SNAPSHOT_ISOLATION ON
 ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
-        using (var connection = new SqlConnection(CreateMasterConnectionStringBuilder().ConnectionString))
+        await using (var connection = new SqlConnection(CreateMasterConnectionStringBuilder().ConnectionString))
         {
             await connection.OpenAsync();
-            using (var command = new SqlCommand(text, connection))
+            await using (var command = new SqlCommand(text, connection))
             {
                 await command.ExecuteNonQueryAsync();
             }
@@ -92,7 +92,7 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
                 {
                     try
                     {
-                        using (var connection = new SqlConnection(builder.ConnectionString))
+                        await using (var connection = new SqlConnection(builder.ConnectionString))
                         {
                             await connection.OpenAsync();
                             connection.Close();

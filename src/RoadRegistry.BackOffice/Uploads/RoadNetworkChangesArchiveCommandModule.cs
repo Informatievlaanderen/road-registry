@@ -31,7 +31,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var upload = RoadNetworkChangesArchive.Upload(archiveId, message.Body.IsFeatureCompare);
                 var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
-                using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
+                await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                 using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                 {
                     upload.ValidateArchiveUsing(archive, validator);

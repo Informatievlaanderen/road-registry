@@ -38,7 +38,7 @@ public class ChangeFeedGetPreviousTests
                 }
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             try
             {
@@ -68,7 +68,7 @@ public class ChangeFeedGetPreviousTests
                 }
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             try
             {
@@ -98,7 +98,7 @@ public class ChangeFeedGetPreviousTests
                 }
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             try
             {
@@ -128,7 +128,7 @@ public class ChangeFeedGetPreviousTests
                 }
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             try
             {
@@ -158,7 +158,7 @@ public class ChangeFeedGetPreviousTests
                 }
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             try
             {
@@ -188,7 +188,7 @@ public class ChangeFeedGetPreviousTests
                 }
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             try
             {
@@ -218,7 +218,7 @@ public class ChangeFeedGetPreviousTests
                 }
             }
         };
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
         {
             var result = await controller.GetPrevious(new[] { "0" }, new[] { "5" }, context);
 
@@ -247,7 +247,7 @@ public class ChangeFeedGetPreviousTests
         };
         var database = await _fixture.CreateDatabaseAsync();
         var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
-        using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
         {
             context.RoadNetworkChanges.Add(new RoadNetworkChange
             {
@@ -299,7 +299,7 @@ public class ChangeFeedGetPreviousTests
             await context.SaveChangesAsync();
         }
 
-        using (var context = await _fixture.CreateEditorContextAsync(database))
+        await using (var context = await _fixture.CreateEditorContextAsync(database))
         {
             var result = await controller.GetPrevious(new[] { "2" }, new[] { "2" }, context);
 

@@ -77,7 +77,7 @@ public static class EditorContextScenarioExtensions
                 : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
         });
 
-        using (var context = CreateContextFor(database))
+        await using (var context = CreateContextFor(database))
         {
             var projector = new ConnectedProjector<EditorContext>(specification.Resolver);
             foreach (var message in specification.Messages)
@@ -89,7 +89,7 @@ public static class EditorContextScenarioExtensions
             await context.SaveChangesAsync();
         }
 
-        using (var context = CreateContextFor(database))
+        await using (var context = CreateContextFor(database))
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
@@ -136,7 +136,7 @@ public static class EditorContextScenarioExtensions
                 : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, records));
         });
 
-        using (var context = CreateContextFor(database))
+        await using (var context = CreateContextFor(database))
         {
             var projector = new ConnectedProjector<EditorContext>(specification.Resolver);
             var position = 0L;
@@ -150,7 +150,7 @@ public static class EditorContextScenarioExtensions
             await context.SaveChangesAsync();
         }
 
-        using (var context = CreateContextFor(database))
+        await using (var context = CreateContextFor(database))
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
@@ -246,7 +246,7 @@ public static class EditorContextScenarioExtensions
                 : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, records));
         });
 
-        using (var context = CreateContextFor(database))
+        await using (var context = CreateContextFor(database))
         {
             var projector = new ConnectedProjector<EditorContext>(specification.Resolver);
             var position = 0L;
@@ -260,7 +260,7 @@ public static class EditorContextScenarioExtensions
             await context.SaveChangesAsync();
         }
 
-        using (var context = CreateContextFor(database))
+        await using (var context = CreateContextFor(database))
         {
             var result = await specification.Verification(context, CancellationToken.None);
 

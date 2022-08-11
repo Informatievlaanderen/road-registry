@@ -22,12 +22,12 @@ public class EmbeddedResourceZipArchiveWriter<TContext> : IZipArchiveWriter<TCon
         if (archive == null) throw new ArgumentNullException(nameof(archive));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        using (var embeddedResourceStream = _assembly.GetManifestResourceStream(_resourceName))
+        await using (var embeddedResourceStream = _assembly.GetManifestResourceStream(_resourceName))
         {
             if (embeddedResourceStream != null)
             {
                 var entry = archive.CreateEntry(_filename);
-                using (var entryStream = entry.Open())
+                await using (var entryStream = entry.Open())
                 {
                     await embeddedResourceStream.CopyToAsync(entryStream, cancellationToken);
                 }

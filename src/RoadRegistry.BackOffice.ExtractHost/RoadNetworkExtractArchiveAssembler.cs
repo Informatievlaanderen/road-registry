@@ -35,7 +35,7 @@ namespace RoadRegistry.BackOffice.ExtractHost
             }
 
             var stream = _manager.GetStream();
-            using (var context = _contextFactory())
+            await using (var context = _contextFactory())
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
             {
                 await _writer.WriteAsync(archive, request, context, cancellationToken);

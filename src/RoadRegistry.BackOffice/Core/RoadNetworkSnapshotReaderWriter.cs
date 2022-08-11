@@ -30,7 +30,7 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
         if (!await _client.BlobExistsAsync(SnapshotHead, cancellationToken)) return (null, ExpectedVersion.NoStream);
 
         var snapshotHeadBlob = await _client.GetBlobAsync(SnapshotHead, cancellationToken);
-        using (var headStream = await snapshotHeadBlob.OpenAsync(cancellationToken))
+        await using (var headStream = await snapshotHeadBlob.OpenAsync(cancellationToken))
         {
             var snapshotHead =
                 await MessagePackSerializer.DeserializeAsync<RoadNetworkSnapshotHead>(
@@ -43,7 +43,7 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
             var snapshotBlob = await _client.GetBlobAsync(snapshotBlobName, cancellationToken);
             if (!snapshotBlob.Metadata.TryGetAtVersion(out var version)) return (null, ExpectedVersion.NoStream);
 
-            using (var snapshotStream = await snapshotBlob.OpenAsync(cancellationToken))
+            await using (var snapshotStream = await snapshotBlob.OpenAsync(cancellationToken))
             {
                 var snapshot = await MessagePackSerializer.DeserializeAsync<RoadNetworkSnapshot>(
                     snapshotStream,

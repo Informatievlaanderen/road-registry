@@ -234,10 +234,10 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
         {
             using (var sourceStream = new MemoryStream())
             {
-                using (var embeddedStream =
-                       typeof(ExtractControllerTests).Assembly.GetManifestResourceStream(
-                           typeof(ExtractControllerTests),
-                           "empty.zip"))
+                await using (var embeddedStream =
+                             typeof(ExtractControllerTests).Assembly.GetManifestResourceStream(
+                                 typeof(ExtractControllerTests),
+                                 "empty.zip"))
                 {
                     embeddedStream.CopyTo(sourceStream);
                 }
@@ -273,7 +273,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
 
                 Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(uploaded.ArchiveId)));
                 var blob = await UploadBlobClient.GetBlobAsync(new BlobName(uploaded.ArchiveId));
-                using (var openStream = await blob.OpenAsync())
+                await using (var openStream = await blob.OpenAsync())
                 {
                     var resultStream = new MemoryStream();
                     openStream.CopyTo(resultStream);

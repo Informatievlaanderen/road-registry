@@ -26,7 +26,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var requestId = ChangeRequestId.FromArchiveId(archiveId);
                 var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
-                using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
+                await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                 using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                 {
                     var requestedChanges = new List<RequestedChange>();
