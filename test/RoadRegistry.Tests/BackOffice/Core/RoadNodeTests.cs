@@ -1,179 +1,179 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+using System.Linq;
+using AutoFixture;
+using NetTopologySuite.Geometries;
+using Xunit;
+
+public class FullyDisconnectedRoadNodeTests
 {
-    using System.Linq;
-    using AutoFixture;
-    using Xunit;
+    private readonly Fixture _fixture;
+    private readonly Point _geometry;
+    private readonly RoadNodeId _id;
+    private readonly RoadNode _sut;
+    private readonly RoadNodeType _type;
 
-    public class FullyDisconnectedRoadNodeTests
+    public FullyDisconnectedRoadNodeTests()
     {
-        private readonly Fixture _fixture;
-        private readonly RoadNodeId _id;
-        private readonly RoadNodeType _type;
-        private readonly NetTopologySuite.Geometries.Point _geometry;
-        private readonly RoadNode _sut;
-
-        public FullyDisconnectedRoadNodeTests()
-        {
-            _fixture = new Fixture();
-            _fixture.CustomizePoint();
-            _fixture.CustomizeRoadNodeType();
-            _id = _fixture.Create<RoadNodeId>();
-            _type = _fixture.Create<RoadNodeType>();
-            _geometry = _fixture.Create<NetTopologySuite.Geometries.Point>();
-            _sut = new RoadNode(_id, _type, _geometry);
-        }
-
-        [Fact]
-        public void IdReturnsExpectedResult()
-        {
-            Assert.Equal(_id, _sut.Id);
-        }
-
-        [Fact]
-        public void TypeReturnsExpectedResult()
-        {
-            Assert.Equal(_type, _sut.Type);
-        }
-
-        [Fact]
-        public void GeometryReturnsExpectedResult()
-        {
-            Assert.Equal(_geometry, _sut.Geometry);
-        }
-
-        [Fact]
-        public void SegmentsReturnsExpectedResult()
-        {
-            Assert.Empty(_sut.Segments);
-        }
-
-        [Fact]
-        public void ConnectWithReturnsExpectedResult()
-        {
-            var link = _fixture.Create<RoadSegmentId>();
-
-            var result = _sut.ConnectWith(link);
-
-            Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new[] { link }, result.Segments);
-        }
-
-        [Fact]
-        public void DisconnectFromReturnsExpectedResult()
-        {
-            var result = _sut.DisconnectFrom(_fixture.Create<RoadSegmentId>());
-
-            Assert.Equal(_sut.Id, result.Id);
-            Assert.Empty(result.Segments);
-        }
-
-        [Fact]
-        public void WithGeometryReturnsExpectedResult()
-        {
-            var geometry = new Generator<NetTopologySuite.Geometries.Point>(_fixture).First(candidate => !candidate.EqualsExact(_geometry));
-            var result = _sut.WithGeometry(geometry);
-            Assert.Equal(geometry, result.Geometry);
-        }
-
-        [Fact]
-        public void WithTypeReturnsExpectedResult()
-        {
-            var type = new Generator<RoadNodeType>(_fixture).First(candidate => !candidate.Equals(_type));
-            var result = _sut.WithType(type);
-            Assert.Equal(type, result.Type);
-        }
+        _fixture = new Fixture();
+        _fixture.CustomizePoint();
+        _fixture.CustomizeRoadNodeType();
+        _id = _fixture.Create<RoadNodeId>();
+        _type = _fixture.Create<RoadNodeType>();
+        _geometry = _fixture.Create<Point>();
+        _sut = new RoadNode(_id, _type, _geometry);
     }
 
-    public class ConnectedRoadNodeTests
+    [Fact]
+    public void IdReturnsExpectedResult()
     {
-        private readonly Fixture _fixture;
-        private readonly RoadNodeId _id;
-        private readonly RoadNodeType _type;
-        private readonly RoadSegmentId _link1;
-        private readonly RoadSegmentId _link2;
-        private readonly RoadNode _sut;
-        private readonly NetTopologySuite.Geometries.Point _geometry;
+        Assert.Equal(_id, _sut.Id);
+    }
 
-        public ConnectedRoadNodeTests()
-        {
-            _fixture = new Fixture();
-            _fixture.CustomizePoint();
-            _fixture.CustomizeRoadNodeType();
-            _id = _fixture.Create<RoadNodeId>();
-            _type = _fixture.Create<RoadNodeType>();
-            _geometry = _fixture.Create<NetTopologySuite.Geometries.Point>();
-            _link1 = _fixture.Create<RoadSegmentId>();
-            _link2 = _fixture.Create<RoadSegmentId>();
-            _sut = new RoadNode(_id, _type, _geometry).ConnectWith(_link1).ConnectWith(_link2);
-        }
+    [Fact]
+    public void TypeReturnsExpectedResult()
+    {
+        Assert.Equal(_type, _sut.Type);
+    }
 
-        [Fact]
-        public void IdReturnsExpectedResult()
-        {
-            Assert.Equal(_id, _sut.Id);
-        }
+    [Fact]
+    public void GeometryReturnsExpectedResult()
+    {
+        Assert.Equal(_geometry, _sut.Geometry);
+    }
 
-        [Fact]
-        public void TypeReturnsExpectedResult()
-        {
-            Assert.Equal(_type, _sut.Type);
-        }
+    [Fact]
+    public void SegmentsReturnsExpectedResult()
+    {
+        Assert.Empty(_sut.Segments);
+    }
 
-        [Fact]
-        public void GeometryReturnsExpectedResult()
-        {
-            Assert.Equal(_geometry, _sut.Geometry);
-        }
+    [Fact]
+    public void ConnectWithReturnsExpectedResult()
+    {
+        var link = _fixture.Create<RoadSegmentId>();
 
-        [Fact]
-        public void SegmentsReturnsExpectedResult()
-        {
-            Assert.Equal(new[] { _link1, _link2 }.OrderBy(_ => _), _sut.Segments.OrderBy(_ => _));
-        }
+        var result = _sut.ConnectWith(link);
 
-        [Fact]
-        public void ConnectWithReturnsExpectedResult()
-        {
-            var link = _fixture.Create<RoadSegmentId>();
+        Assert.Equal(_sut.Id, result.Id);
+        Assert.Equal(new[] { link }, result.Segments);
+    }
 
-            var result = _sut.ConnectWith(link);
+    [Fact]
+    public void DisconnectFromReturnsExpectedResult()
+    {
+        var result = _sut.DisconnectFrom(_fixture.Create<RoadSegmentId>());
 
-            Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new[] { _link1, _link2, link }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
-        }
+        Assert.Equal(_sut.Id, result.Id);
+        Assert.Empty(result.Segments);
+    }
 
-        [Fact]
-        public void DisconnectFromUnknownLinkReturnsExpectedResult()
-        {
-            var result = _sut.DisconnectFrom(_fixture.Create<RoadSegmentId>());
+    [Fact]
+    public void WithGeometryReturnsExpectedResult()
+    {
+        var geometry = new Generator<Point>(_fixture).First(candidate => !candidate.EqualsExact(_geometry));
+        var result = _sut.WithGeometry(geometry);
+        Assert.Equal(geometry, result.Geometry);
+    }
 
-            Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new[] { _link1, _link2 }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
-        }
+    [Fact]
+    public void WithTypeReturnsExpectedResult()
+    {
+        var type = new Generator<RoadNodeType>(_fixture).First(candidate => !candidate.Equals(_type));
+        var result = _sut.WithType(type);
+        Assert.Equal(type, result.Type);
+    }
+}
 
-        [Fact]
-        public void DisconnectFromKnownLinkReturnsExpectedResult()
-        {
-            var result = _sut.DisconnectFrom(_link1);
+public class ConnectedRoadNodeTests
+{
+    private readonly Fixture _fixture;
+    private readonly Point _geometry;
+    private readonly RoadNodeId _id;
+    private readonly RoadSegmentId _link1;
+    private readonly RoadSegmentId _link2;
+    private readonly RoadNode _sut;
+    private readonly RoadNodeType _type;
 
-            Assert.Equal(_sut.Id, result.Id);
-            Assert.Equal(new[] { _link2 }, result.Segments);
-        }
+    public ConnectedRoadNodeTests()
+    {
+        _fixture = new Fixture();
+        _fixture.CustomizePoint();
+        _fixture.CustomizeRoadNodeType();
+        _id = _fixture.Create<RoadNodeId>();
+        _type = _fixture.Create<RoadNodeType>();
+        _geometry = _fixture.Create<Point>();
+        _link1 = _fixture.Create<RoadSegmentId>();
+        _link2 = _fixture.Create<RoadSegmentId>();
+        _sut = new RoadNode(_id, _type, _geometry).ConnectWith(_link1).ConnectWith(_link2);
+    }
 
-        [Fact]
-        public void WithGeometryReturnsExpectedResult()
-        {
-            var geometry = new Generator<NetTopologySuite.Geometries.Point>(_fixture).First(candidate => !candidate.EqualsExact(_geometry));
-            var result = _sut.WithGeometry(geometry);
-            Assert.Equal(geometry, result.Geometry);
-        }
+    [Fact]
+    public void IdReturnsExpectedResult()
+    {
+        Assert.Equal(_id, _sut.Id);
+    }
 
-        [Fact]
-        public void WithTypeReturnsExpectedResult()
-        {
-            var type = new Generator<RoadNodeType>(_fixture).First(candidate => !candidate.Equals(_type));
-            var result = _sut.WithType(type);
-            Assert.Equal(type, result.Type);
-        }
+    [Fact]
+    public void TypeReturnsExpectedResult()
+    {
+        Assert.Equal(_type, _sut.Type);
+    }
+
+    [Fact]
+    public void GeometryReturnsExpectedResult()
+    {
+        Assert.Equal(_geometry, _sut.Geometry);
+    }
+
+    [Fact]
+    public void SegmentsReturnsExpectedResult()
+    {
+        Assert.Equal(new[] { _link1, _link2 }.OrderBy(_ => _), _sut.Segments.OrderBy(_ => _));
+    }
+
+    [Fact]
+    public void ConnectWithReturnsExpectedResult()
+    {
+        var link = _fixture.Create<RoadSegmentId>();
+
+        var result = _sut.ConnectWith(link);
+
+        Assert.Equal(_sut.Id, result.Id);
+        Assert.Equal(new[] { _link1, _link2, link }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
+    }
+
+    [Fact]
+    public void DisconnectFromUnknownLinkReturnsExpectedResult()
+    {
+        var result = _sut.DisconnectFrom(_fixture.Create<RoadSegmentId>());
+
+        Assert.Equal(_sut.Id, result.Id);
+        Assert.Equal(new[] { _link1, _link2 }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
+    }
+
+    [Fact]
+    public void DisconnectFromKnownLinkReturnsExpectedResult()
+    {
+        var result = _sut.DisconnectFrom(_link1);
+
+        Assert.Equal(_sut.Id, result.Id);
+        Assert.Equal(new[] { _link2 }, result.Segments);
+    }
+
+    [Fact]
+    public void WithGeometryReturnsExpectedResult()
+    {
+        var geometry = new Generator<Point>(_fixture).First(candidate => !candidate.EqualsExact(_geometry));
+        var result = _sut.WithGeometry(geometry);
+        Assert.Equal(geometry, result.Geometry);
+    }
+
+    [Fact]
+    public void WithTypeReturnsExpectedResult()
+    {
+        var type = new Generator<RoadNodeType>(_fixture).First(candidate => !candidate.Equals(_type));
+        var result = _sut.WithType(type);
+        Assert.Equal(type, result.Type);
     }
 }

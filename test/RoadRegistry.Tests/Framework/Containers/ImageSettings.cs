@@ -1,15 +1,14 @@
-namespace RoadRegistry.Framework.Containers
+namespace RoadRegistry.Framework.Containers;
+
+public class ImageSettings
 {
-    public class ImageSettings
-    {
-        public string Registry { get; set; }
+    public string Registry { get; set; }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public string Tag { get; set; } = "latest";
+    public string Tag { get; set; } = "latest";
 
-        public string TagQualifiedName => Name + ":" + Tag;
-        public string RegistryQualifiedName => Registry + "/" + Name;
-        public string FullyQualifiedName => Registry + "/" + TagQualifiedName;
-    }
+    public string TagQualifiedName => Name + ":" + Tag;
+    public string RegistryQualifiedName => Registry + "/" + Name;
+    public string FullyQualifiedName => Registry + "/" + TagQualifiedName;
 }

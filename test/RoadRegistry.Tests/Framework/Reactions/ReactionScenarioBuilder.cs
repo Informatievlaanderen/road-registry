@@ -1,72 +1,71 @@
-namespace RoadRegistry.Framework.Reactions
+namespace RoadRegistry.Framework.Reactions;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class ReactionScenarioBuilder :
+    IReactionScenarioGivenStateBuilder,
+    IReactionScenarioGivenNoneStateBuilder,
+    IReactionScenarioThenStateBuilder,
+    IReactionScenarioThenNoneStateBuilder
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+    private readonly RecordedEvent[] _givens;
+    private readonly RecordedEvent[] _thens;
 
-    public class ReactionScenarioBuilder :
-        IReactionScenarioGivenStateBuilder,
-        IReactionScenarioGivenNoneStateBuilder,
-        IReactionScenarioThenStateBuilder,
-        IReactionScenarioThenNoneStateBuilder
+    public ReactionScenarioBuilder()
     {
-        private readonly RecordedEvent[] _givens;
-        private readonly RecordedEvent[] _thens;
+        _givens = Array.Empty<RecordedEvent>();
+        _thens = Array.Empty<RecordedEvent>();
+    }
 
-        public ReactionScenarioBuilder()
-        {
-            _givens = new RecordedEvent[0];
-            _thens = new RecordedEvent[0];
-        }
+    private ReactionScenarioBuilder(RecordedEvent[] givens, RecordedEvent[] thens)
+    {
+        _givens = givens;
+        _thens = thens;
+    }
 
-        private ReactionScenarioBuilder(RecordedEvent[] givens, RecordedEvent[] thens)
-        {
-            _givens = givens;
-            _thens = thens;
-        }
+    IReactionScenarioThenStateBuilder IReactionScenarioGivenNoneStateBuilder.Then(IEnumerable<RecordedEvent> events)
+    {
+        if (events == null) throw new ArgumentNullException(nameof(events));
+        return new ReactionScenarioBuilder(_givens, _thens.Concat(events).ToArray());
+    }
 
-        public IReactionScenarioGivenNoneStateBuilder GivenNone()
-        {
-            return new ReactionScenarioBuilder(new RecordedEvent[0], _thens);
-        }
+    IReactionScenarioThenNoneStateBuilder IReactionScenarioGivenNoneStateBuilder.ThenNone()
+    {
+        return new ReactionScenarioBuilder(_givens, Array.Empty<RecordedEvent>());
+    }
 
-        public IReactionScenarioGivenStateBuilder Given(IEnumerable<RecordedEvent> events)
-        {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-            return new ReactionScenarioBuilder(_givens.Concat(events).ToArray(), _thens);
-        }
+    public IReactionScenarioGivenStateBuilder Given(IEnumerable<RecordedEvent> events)
+    {
+        if (events == null) throw new ArgumentNullException(nameof(events));
+        return new ReactionScenarioBuilder(_givens.Concat(events).ToArray(), _thens);
+    }
 
-        IReactionScenarioThenStateBuilder IReactionScenarioGivenStateBuilder.Then(IEnumerable<RecordedEvent> events)
-        {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-            return new ReactionScenarioBuilder(_givens, _thens.Concat(events).ToArray());
-        }
+    IReactionScenarioThenStateBuilder IReactionScenarioGivenStateBuilder.Then(IEnumerable<RecordedEvent> events)
+    {
+        if (events == null) throw new ArgumentNullException(nameof(events));
+        return new ReactionScenarioBuilder(_givens, _thens.Concat(events).ToArray());
+    }
 
-        IReactionScenarioThenStateBuilder IReactionScenarioGivenNoneStateBuilder.Then(IEnumerable<RecordedEvent> events)
-        {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-            return new ReactionScenarioBuilder(_givens, _thens.Concat(events).ToArray());
-        }
+    IReactionScenarioThenNoneStateBuilder IReactionScenarioGivenStateBuilder.ThenNone()
+    {
+        return new ReactionScenarioBuilder(_givens, Array.Empty<RecordedEvent>());
+    }
 
-        IReactionScenarioThenStateBuilder IReactionScenarioThenStateBuilder.Then(IEnumerable<RecordedEvent> events)
-        {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-            return new ReactionScenarioBuilder(_givens, _thens.Concat(events).ToArray());
-        }
+    IReactionScenarioThenStateBuilder IReactionScenarioThenStateBuilder.Then(IEnumerable<RecordedEvent> events)
+    {
+        if (events == null) throw new ArgumentNullException(nameof(events));
+        return new ReactionScenarioBuilder(_givens, _thens.Concat(events).ToArray());
+    }
 
-        IReactionScenarioThenNoneStateBuilder IReactionScenarioGivenNoneStateBuilder.ThenNone()
-        {
-            return new ReactionScenarioBuilder(_givens, new RecordedEvent[0]);
-        }
+    ReactionScenario IReactionScenarioBuilder.Build()
+    {
+        return new ReactionScenario(_givens, _thens);
+    }
 
-        IReactionScenarioThenNoneStateBuilder IReactionScenarioGivenStateBuilder.ThenNone()
-        {
-            return new ReactionScenarioBuilder(_givens, new RecordedEvent[0]);
-        }
-
-        ReactionScenario IReactionScenarioBuilder.Build()
-        {
-            return new ReactionScenario(_givens, _thens);
-        }
+    public IReactionScenarioGivenNoneStateBuilder GivenNone()
+    {
+        return new ReactionScenarioBuilder(Array.Empty<RecordedEvent>(), _thens);
     }
 }

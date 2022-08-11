@@ -1,25 +1,24 @@
-namespace RoadRegistry.BackOffice.Scenarios
-{
-    using Framework;
-    using Messages;
+namespace RoadRegistry.BackOffice.Scenarios;
 
-    public static class TheOperator
+using Framework;
+using Messages;
+
+public static class TheOperator
+{
+    public static Command ChangesTheRoadNetwork(
+        ChangeRequestId requestId,
+        Reason reason,
+        OperatorName @operator,
+        OrganizationId organization,
+        params RequestedChange[] changes)
     {
-        public static Command ChangesTheRoadNetwork(
-            ChangeRequestId requestId,
-            Reason reason,
-            OperatorName @operator,
-            OrganizationId organization,
-            params RequestedChange[] changes)
+        return new Command(new ChangeRoadNetwork
         {
-            return new Command(new ChangeRoadNetwork
-            {
-                RequestId = requestId,
-                Reason = reason,
-                Operator = @operator,
-                OrganizationId = organization,
-                Changes = changes
-            });
-        }
+            RequestId = requestId,
+            Reason = reason,
+            Operator = @operator,
+            OrganizationId = organization,
+            Changes = changes
+        });
     }
 }

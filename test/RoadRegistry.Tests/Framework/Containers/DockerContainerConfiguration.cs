@@ -1,14 +1,13 @@
-namespace RoadRegistry.Framework.Containers
+namespace RoadRegistry.Framework.Containers;
+
+using System;
+using System.Threading.Tasks;
+
+public class DockerContainerConfiguration
 {
-    using System;
-    using System.Threading.Tasks;
+    public ImageSettings Image { get; set; }
 
-    public class DockerContainerConfiguration
-    {
-        public ImageSettings Image { get; set; }
+    public ContainerSettings Container { get; set; }
 
-        public ContainerSettings Container { get; set; }
-
-        public Func<int, Task<TimeSpan>> WaitUntilAvailable { get; set; } = attempts => Task.FromResult(TimeSpan.Zero);
-    }
+    public Func<int, Task<TimeSpan>> WaitUntilAvailable { get; set; } = attempts => Task.FromResult(TimeSpan.Zero);
 }

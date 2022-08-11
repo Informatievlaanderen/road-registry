@@ -1,11 +1,10 @@
-﻿namespace RoadRegistry.Framework.Testing
-{
-    using System.Collections.Generic;
-    using BackOffice.Framework;
+﻿namespace RoadRegistry.Framework.Testing;
 
-    public interface IScenarioGivenStateBuilder
-    {
-        IScenarioGivenStateBuilder Given(IEnumerable<RecordedEvent> events);
-        IScenarioWhenStateBuilder When(Command command);
-    }
+using System.Collections.Generic;
+using BackOffice.Framework;
+
+public interface IScenarioGivenStateBuilder
+{
+    IScenarioGivenStateBuilder Given(IEnumerable<RecordedEvent> events);
+    IScenarioWhenStateBuilder When(Command command);
 }

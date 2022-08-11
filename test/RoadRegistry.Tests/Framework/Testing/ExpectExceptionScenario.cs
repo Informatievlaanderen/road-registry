@@ -1,42 +1,41 @@
-﻿namespace RoadRegistry.Framework.Testing
+﻿namespace RoadRegistry.Framework.Testing;
+
+using System;
+using BackOffice.Framework;
+
+public class ExpectExceptionScenario
 {
-    using System;
-    using BackOffice.Framework;
-
-    public class ExpectExceptionScenario
+    public ExpectExceptionScenario(
+        RecordedEvent[] givens,
+        Command when,
+        Exception throws)
     {
-        public RecordedEvent[] Givens { get; }
-        public Command When { get; }
-        public Exception Throws { get; }
+        Givens = givens ?? throw new ArgumentNullException(nameof(givens));
+        When = when ?? throw new ArgumentNullException(nameof(when));
+        Throws = throws ?? throw new ArgumentNullException(nameof(throws));
+    }
 
-        public ExpectExceptionScenario(
-            RecordedEvent[] givens,
-            Command when,
-            Exception throws)
-        {
-            Givens = givens ?? throw new ArgumentNullException(nameof(givens));
-            When = when ?? throw new ArgumentNullException(nameof(when));
-            Throws = throws ?? throw new ArgumentNullException(nameof(throws));
-        }
+    public RecordedEvent[] Givens { get; }
+    public Command When { get; }
+    public Exception Throws { get; }
 
-        public ExpectExceptionScenarioPassed Pass()
-        {
-            return new ExpectExceptionScenarioPassed(this);
-        }
+    public ExpectExceptionScenarioPassed Pass()
+    {
+        return new ExpectExceptionScenarioPassed(this);
+    }
 
-        public ScenarioExpectedExceptionButThrewOtherException ButThrewException(Exception threw)
-        {
-            return new ScenarioExpectedExceptionButThrewOtherException(this, threw);
-        }
+    public ScenarioExpectedExceptionButThrewOtherException ButThrewException(Exception threw)
+    {
+        return new ScenarioExpectedExceptionButThrewOtherException(this, threw);
+    }
 
-        public ScenarioExpectedExceptionButThrewNoException ButThrewNoException()
-        {
-            return new ScenarioExpectedExceptionButThrewNoException(this);
-        }
+    public ScenarioExpectedExceptionButThrewNoException ButThrewNoException()
+    {
+        return new ScenarioExpectedExceptionButThrewNoException(this);
+    }
 
-        public ScenarioExpectedExceptionButRecordedEvents ButRecordedEvents(RecordedEvent[] events)
-        {
-            return new ScenarioExpectedExceptionButRecordedEvents(this, events);
-        }
+    public ScenarioExpectedExceptionButRecordedEvents ButRecordedEvents(RecordedEvent[] events)
+    {
+        return new ScenarioExpectedExceptionButRecordedEvents(this, events);
     }
 }

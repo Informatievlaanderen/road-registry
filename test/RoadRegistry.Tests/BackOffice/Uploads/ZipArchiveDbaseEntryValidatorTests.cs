@@ -1,374 +1,383 @@
-namespace RoadRegistry.BackOffice.Uploads
+namespace RoadRegistry.BackOffice.Uploads;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Text;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Core;
+using Xunit;
+
+public class ZipArchiveDbaseEntryValidatorTests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.IO.Compression;
-    using System.Text;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Core;
-    using Xunit;
+    private readonly ZipArchiveValidationContext _context;
 
-    public class ZipArchiveDbaseEntryValidatorTests
+    public ZipArchiveDbaseEntryValidatorTests()
     {
-        private readonly ZipArchiveValidationContext _context;
+        _context = ZipArchiveValidationContext.Empty;
+    }
 
-        public ZipArchiveDbaseEntryValidatorTests()
-        {
-            _context = ZipArchiveValidationContext.Empty;
-        }
+    [Fact]
+    public void EncodingCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(
+            () => new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
+                null, DbaseFileHeaderReadBehavior.Default,
+                new FakeDbaseSchema(),
+                new FakeDbaseRecordValidator()));
+    }
 
-        [Fact]
-        public void EncodingCanNotBeNull()
-        {
-            Assert.Throws<ArgumentNullException>(
-                () => new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                    null, DbaseFileHeaderReadBehavior.Default,
-                    new FakeDbaseSchema(),
-                    new FakeDbaseRecordValidator()));
-        }
+    [Fact]
+    public void SchemaCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(
+            () => new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
+                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
+                null,
+                new FakeDbaseRecordValidator()));
+    }
 
-        [Fact]
-        public void SchemaCanNotBeNull()
-        {
-            Assert.Throws<ArgumentNullException>(
-                () => new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                    Encoding.Default, DbaseFileHeaderReadBehavior.Default,
-                    null,
-                    new FakeDbaseRecordValidator()));
-        }
-
-        [Fact]
-        public void ValidatorCanNotBeNull()
-        {
-            Assert.Throws<ArgumentNullException>(
-                () => new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                    Encoding.Default, DbaseFileHeaderReadBehavior.Default,
-                    new FakeDbaseSchema(),
-                    null));
-        }
-
-        [Fact]
-        public void ValidateEntryCanNotBeNull()
-        {
-            var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
+    [Fact]
+    public void ValidatorCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(
+            () => new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
                 Encoding.Default, DbaseFileHeaderReadBehavior.Default,
                 new FakeDbaseSchema(),
-                new FakeDbaseRecordValidator());
+                null));
+    }
 
-            Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _context));
-        }
+    [Fact]
+    public void ValidateEntryCanNotBeNull()
+    {
+        var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
+            Encoding.Default, DbaseFileHeaderReadBehavior.Default,
+            new FakeDbaseSchema(),
+            new FakeDbaseRecordValidator());
 
-        [Fact]
-        public void ValidateContextCanNotBeNull()
+        Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _context));
+    }
+
+    [Fact]
+    public void ValidateContextCanNotBeNull()
+    {
+        var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
+            Encoding.Default, DbaseFileHeaderReadBehavior.Default,
+            new FakeDbaseSchema(),
+            new FakeDbaseRecordValidator());
+        using (var stream = new MemoryStream())
         {
-            var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
-                new FakeDbaseSchema(),
-                new FakeDbaseRecordValidator());
-            using (var stream = new MemoryStream())
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
             {
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
-                {
-                    archive.CreateEntry("entry");
-                }
+                archive.CreateEntry("entry");
+            }
 
-                stream.Flush();
-                stream.Position = 0;
+            stream.Flush();
+            stream.Position = 0;
 
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
-                {
-                    Assert.Throws<ArgumentNullException>(() => sut.Validate(archive.GetEntry("entry"), null));
-                }
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
+            {
+                Assert.Throws<ArgumentNullException>(() => sut.Validate(archive.GetEntry("entry"), null));
             }
         }
+    }
 
-        [Fact]
-        public void ValidateReturnsExpectedResultWhenEntryStreamIsEmpty()
+    [Fact]
+    public void ValidateReturnsExpectedResultWhenEntryStreamIsEmpty()
+    {
+        var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
+            Encoding.Default, DbaseFileHeaderReadBehavior.Default,
+            new FakeDbaseSchema(),
+            new FakeDbaseRecordValidator());
+
+        using (var stream = new MemoryStream())
         {
-            var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
-                new FakeDbaseSchema(),
-                new FakeDbaseRecordValidator());
-
-            using (var stream = new MemoryStream())
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
             {
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
-                {
-                    archive.CreateEntry("entry");
-                }
-                stream.Flush();
-                stream.Position = 0;
+                archive.CreateEntry("entry");
+            }
 
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
-                {
-                    var entry = archive.GetEntry("entry");
+            stream.Flush();
+            stream.Position = 0;
 
-                    var (result, context) = sut.Validate(entry, _context);
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
+            {
+                var entry = archive.GetEntry("entry");
 
-                    Assert.Equal(
-                        ZipArchiveProblems.Single(entry.HasDbaseHeaderFormatError(
-                            new EndOfStreamException("Unable to read beyond the end of the stream."))
-                        ),
-                        result,
-                        new FileProblemComparer());
-                    Assert.Same(_context, context);
-                }
+                var (result, context) = sut.Validate(entry, _context);
+
+                Assert.Equal(
+                    ZipArchiveProblems.Single(entry.HasDbaseHeaderFormatError(
+                        new EndOfStreamException("Unable to read beyond the end of the stream."))
+                    ),
+                    result,
+                    new FileProblemComparer());
+                Assert.Same(_context, context);
             }
         }
+    }
 
-        [Fact]
-        public void ValidateReturnsExpectedResultWhenEntryStreamContainsMalformedDbaseHeader()
+    [Fact]
+    public void ValidateReturnsExpectedResultWhenEntryStreamContainsMalformedDbaseHeader()
+    {
+        var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
+            Encoding.Default, DbaseFileHeaderReadBehavior.Default,
+            new FakeDbaseSchema(),
+            new FakeDbaseRecordValidator());
+
+        using (var stream = new MemoryStream())
         {
-            var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
-                new FakeDbaseSchema(),
-                new FakeDbaseRecordValidator());
-
-            using (var stream = new MemoryStream())
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
             {
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+                var entry = archive.CreateEntry("entry");
+                using (var entryStream = entry.Open())
                 {
-                    var entry = archive.CreateEntry("entry");
-                    using (var entryStream = entry.Open())
-                    {
-                        entryStream.WriteByte(0);
-                        entryStream.Flush();
-                    }
-                }
-                stream.Flush();
-                stream.Position = 0;
-
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
-                {
-                    var entry = archive.GetEntry("entry");
-
-                    var (result, context) = sut.Validate(entry, _context);
-
-                    Assert.Equal(
-                        ZipArchiveProblems.Single(entry.HasDbaseHeaderFormatError(
-                            new DbaseFileHeaderException("The database file type must be 3 (dBase III)."))
-                        ),
-                        result,
-                        new FileProblemComparer());
-                    Assert.Same(_context, context);
+                    entryStream.WriteByte(0);
+                    entryStream.Flush();
                 }
             }
-        }
 
-        [Fact]
-        public void ValidateReturnsExpectedResultWhenDbaseFileHeaderDoesNotMatch()
-        {
-            var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
-                new FakeDbaseSchema(),
-                new FakeDbaseRecordValidator());
-            var date = DateTime.Today;
-            var header = new DbaseFileHeader(
-                date,
-                DbaseCodePage.Western_European_ANSI,
-                new DbaseRecordCount(0),
-                new AnonymousDbaseSchema(new DbaseField[0]));
+            stream.Flush();
+            stream.Position = 0;
 
-            using (var stream = new MemoryStream())
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
             {
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
-                {
-                    var entry = archive.CreateEntry("entry");
-                    using(var entryStream = entry.Open())
-                    using(var writer = new BinaryWriter(entryStream, Encoding.UTF8))
-                    {
-                        header.Write(writer);
-                        entryStream.Flush();
-                    }
-                }
-                stream.Flush();
-                stream.Position = 0;
+                var entry = archive.GetEntry("entry");
 
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
-                {
-                    var entry = archive.GetEntry("entry");
+                var (result, context) = sut.Validate(entry, _context);
 
-                    var (result, context) = sut.Validate(entry, _context);
-
-                    Assert.Equal(
-                        ZipArchiveProblems.Single(entry.HasDbaseSchemaMismatch(
-                            new FakeDbaseSchema(),
-                            new AnonymousDbaseSchema(new DbaseField[0]))
-                        ),
-                        result);
-                    Assert.Same(_context, context);
-                }
+                Assert.Equal(
+                    ZipArchiveProblems.Single(entry.HasDbaseHeaderFormatError(
+                        new DbaseFileHeaderException("The database file type must be 3 (dBase III)."))
+                    ),
+                    result,
+                    new FileProblemComparer());
+                Assert.Same(_context, context);
             }
         }
+    }
 
-        [Fact]
-        public void ValidateReturnsExpectedResultWhenDbaseRecordValidatorReturnsErrors()
+    [Fact]
+    public void ValidateReturnsExpectedResultWhenDbaseFileHeaderDoesNotMatch()
+    {
+        var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
+            Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
+            new FakeDbaseSchema(),
+            new FakeDbaseRecordValidator());
+        var date = DateTime.Today;
+        var header = new DbaseFileHeader(
+            date,
+            DbaseCodePage.Western_European_ANSI,
+            new DbaseRecordCount(0),
+            new AnonymousDbaseSchema(Array.Empty<DbaseField>()));
+
+        using (var stream = new MemoryStream())
         {
-            var problems = new FileProblem[]
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
             {
-                new FileError("file1", "error1", new ProblemParameter("parameter1", "value1")),
-                new FileWarning("file2", "error2", new ProblemParameter("parameter2", "value2"))
+                var entry = archive.CreateEntry("entry");
+                using (var entryStream = entry.Open())
+                using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
+                {
+                    header.Write(writer);
+                    entryStream.Flush();
+                }
+            }
+
+            stream.Flush();
+            stream.Position = 0;
+
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
+            {
+                var entry = archive.GetEntry("entry");
+
+                var (result, context) = sut.Validate(entry, _context);
+
+                Assert.Equal(
+                    ZipArchiveProblems.Single(entry.HasDbaseSchemaMismatch(
+                        new FakeDbaseSchema(),
+                        new AnonymousDbaseSchema(Array.Empty<DbaseField>()))
+                    ),
+                    result);
+                Assert.Same(_context, context);
+            }
+        }
+    }
+
+    [Fact]
+    public void ValidateReturnsExpectedResultWhenDbaseRecordValidatorReturnsErrors()
+    {
+        var problems = new FileProblem[]
+        {
+            new FileError("file1", "error1", new ProblemParameter("parameter1", "value1")),
+            new FileWarning("file2", "error2", new ProblemParameter("parameter2", "value2"))
+        };
+        var schema = new FakeDbaseSchema();
+        var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
+            Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
+            schema,
+            new FakeDbaseRecordValidator(problems));
+        var date = DateTime.Today;
+        var header = new DbaseFileHeader(
+            date,
+            DbaseCodePage.Western_European_ANSI,
+            new DbaseRecordCount(0),
+            schema);
+
+        using (var stream = new MemoryStream())
+        {
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+            {
+                var entry = archive.CreateEntry("entry");
+                using (var entryStream = entry.Open())
+                using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
+                {
+                    header.Write(writer);
+                    entryStream.Flush();
+                }
+            }
+
+            stream.Flush();
+            stream.Position = 0;
+
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
+            {
+                var entry = archive.GetEntry("entry");
+
+                var (result, context) = sut.Validate(entry, _context);
+
+                Assert.Equal(
+                    ZipArchiveProblems.None.AddRange(problems),
+                    result);
+                Assert.Same(_context, context);
+            }
+        }
+    }
+
+    [Fact]
+    public void ValidatePassesExpectedDbaseRecordsToDbaseRecordValidator()
+    {
+        var schema = new FakeDbaseSchema();
+        var validator = new CollectDbaseRecordValidator();
+        var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
+            Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
+            schema,
+            validator);
+        var records = new[]
+        {
+            new FakeDbaseRecord { Field = { Value = 1 } },
+            new FakeDbaseRecord { Field = { Value = 2 } }
+        };
+        var date = DateTime.Today;
+        var header = new DbaseFileHeader(
+            date,
+            DbaseCodePage.Western_European_ANSI,
+            new DbaseRecordCount(records.Length),
+            schema);
+
+        using (var stream = new MemoryStream())
+        {
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+            {
+                var entry = archive.CreateEntry("entry");
+                using (var entryStream = entry.Open())
+                using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
+                {
+                    header.Write(writer);
+                    foreach (var record in records) record.Write(writer);
+                    writer.Write(DbaseRecord.EndOfFile);
+                    entryStream.Flush();
+                }
+            }
+
+            stream.Flush();
+            stream.Position = 0;
+
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
+            {
+                var entry = archive.GetEntry("entry");
+
+                var (result, context) = sut.Validate(entry, _context);
+
+                Assert.Equal(ZipArchiveProblems.None, result);
+                Assert.Equal(records, validator.Collected);
+                Assert.Same(_context, context);
+            }
+        }
+    }
+
+    private class FakeDbaseRecord : DbaseRecord
+    {
+        private static readonly FakeDbaseSchema Schema = new();
+
+        public FakeDbaseRecord()
+        {
+            Field = new DbaseNumber(Schema.Field);
+            Values = new DbaseFieldValue[] { Field };
+        }
+
+        public DbaseNumber Field { get; }
+
+        public bool Equals(FakeDbaseRecord other)
+        {
+            return other != null && Field.Field.Equals(other.Field.Field) &&
+                   Field.Value.Equals(other.Field.Value);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is FakeDbaseRecord other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Field.GetHashCode();
+        }
+    }
+
+    private class FakeDbaseSchema : DbaseSchema
+    {
+        public FakeDbaseSchema()
+        {
+            Fields = new[]
+            {
+                DbaseField.CreateNumberField(
+                    new DbaseFieldName(nameof(Field)),
+                    new DbaseFieldLength(10),
+                    new DbaseDecimalCount(0))
             };
-            var schema = new FakeDbaseSchema();
-            var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
-                schema,
-                new FakeDbaseRecordValidator(problems));
-            var date = DateTime.Today;
-            var header = new DbaseFileHeader(
-                date,
-                DbaseCodePage.Western_European_ANSI,
-                new DbaseRecordCount(0),
-                schema);
-
-            using (var stream = new MemoryStream())
-            {
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
-                {
-                    var entry = archive.CreateEntry("entry");
-                    using(var entryStream = entry.Open())
-                    using(var writer = new BinaryWriter(entryStream, Encoding.UTF8))
-                    {
-                        header.Write(writer);
-                        entryStream.Flush();
-                    }
-                }
-                stream.Flush();
-                stream.Position = 0;
-
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
-                {
-                    var entry = archive.GetEntry("entry");
-
-                    var (result, context) = sut.Validate(entry, _context);
-
-                    Assert.Equal(
-                        ZipArchiveProblems.None.AddRange(problems),
-                        result);
-                    Assert.Same(_context, context);
-                }
-            }
         }
 
-        [Fact]
-        public void ValidatePassesExpectedDbaseRecordsToDbaseRecordValidator()
+        public DbaseField Field => Fields[0];
+    }
+
+    private class FakeDbaseRecordValidator : IZipArchiveDbaseRecordsValidator<FakeDbaseRecord>
+    {
+        private readonly FileProblem[] _problems;
+
+        public FakeDbaseRecordValidator(params FileProblem[] problems)
         {
-            var schema = new FakeDbaseSchema();
-            var validator = new CollectDbaseRecordValidator();
-            var sut = new ZipArchiveDbaseEntryValidator<FakeDbaseRecord>(
-                Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
-                schema,
-                validator);
-            var records = new []
-            {
-                new FakeDbaseRecord {Field = {Value = 1}},
-                new FakeDbaseRecord {Field = {Value = 2}}
-            };
-            var date = DateTime.Today;
-            var header = new DbaseFileHeader(
-                date,
-                DbaseCodePage.Western_European_ANSI,
-                new DbaseRecordCount(records.Length),
-                schema);
-
-            using (var stream = new MemoryStream())
-            {
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
-                {
-                    var entry = archive.CreateEntry("entry");
-                    using(var entryStream = entry.Open())
-                    using(var writer = new BinaryWriter(entryStream, Encoding.UTF8))
-                    {
-                        header.Write(writer);
-                        foreach (var record in records)
-                        {
-                            record.Write(writer);
-                        }
-                        writer.Write(DbaseRecord.EndOfFile);
-                        entryStream.Flush();
-                    }
-                }
-                stream.Flush();
-                stream.Position = 0;
-
-                using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
-                {
-                    var entry = archive.GetEntry("entry");
-
-                    var (result, context) = sut.Validate(entry, _context);
-
-                    Assert.Equal(ZipArchiveProblems.None, result);
-                    Assert.Equal(records, validator.Collected);
-                    Assert.Same(_context, context);
-                }
-            }
+            _problems = problems ?? throw new ArgumentNullException(nameof(problems));
         }
 
-        private class FakeDbaseRecord : DbaseRecord
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, ZipArchiveValidationContext context)
         {
-            private static readonly FakeDbaseSchema Schema = new FakeDbaseSchema();
-
-            public FakeDbaseRecord()
-            {
-                Field = new DbaseNumber(Schema.Field);
-                Values = new DbaseFieldValue[] { Field };
-            }
-
-            public DbaseNumber Field { get; }
-
-            public bool Equals(FakeDbaseRecord other) => other != null && Field.Field.Equals(other.Field.Field) &&
-                                                         Field.Value.Equals(other.Field.Value);
-            public override bool Equals(object obj) => obj is FakeDbaseRecord other && Equals(other);
-            public override int GetHashCode() => Field.GetHashCode();
+            return (ZipArchiveProblems.None.AddRange(_problems), context);
         }
+    }
 
-        private class FakeDbaseSchema : DbaseSchema
+    private class CollectDbaseRecordValidator : IZipArchiveDbaseRecordsValidator<FakeDbaseRecord>
+    {
+        public FakeDbaseRecord[] Collected { get; private set; }
+
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, ZipArchiveValidationContext context)
         {
-            public FakeDbaseSchema()
-            {
-                Fields = new []
-                {
-                    DbaseField.CreateNumberField(
-                        new DbaseFieldName(nameof(Field)),
-                        new DbaseFieldLength(10),
-                        new DbaseDecimalCount(0))
-                };
-            }
+            var collected = new List<FakeDbaseRecord>();
+            while (records.MoveNext()) collected.Add(records.Current);
+            Collected = collected.ToArray();
 
-            public DbaseField Field => Fields[0];
-        }
-
-        private class FakeDbaseRecordValidator : IZipArchiveDbaseRecordsValidator<FakeDbaseRecord>
-        {
-            private readonly FileProblem[] _problems;
-
-            public FakeDbaseRecordValidator(params FileProblem[] problems)
-            {
-                _problems = problems ?? throw new ArgumentNullException(nameof(problems));
-            }
-
-            public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, ZipArchiveValidationContext context)
-            {
-                return (ZipArchiveProblems.None.AddRange(_problems), context);
-            }
-        }
-
-        private class CollectDbaseRecordValidator : IZipArchiveDbaseRecordsValidator<FakeDbaseRecord>
-        {
-            public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, ZipArchiveValidationContext context)
-            {
-                var collected = new List<FakeDbaseRecord>();
-                while (records.MoveNext())
-                {
-                    collected.Add(records.Current);
-                }
-                Collected = collected.ToArray();
-
-                return (ZipArchiveProblems.None, context);
-            }
-
-            public FakeDbaseRecord[] Collected { get; private set; }
+            return (ZipArchiveProblems.None, context);
         }
     }
 }

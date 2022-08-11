@@ -1,110 +1,110 @@
-namespace RoadRegistry.BackOffice.Scenarios
+namespace RoadRegistry.BackOffice.Scenarios;
+
+using System;
+using System.IO.Compression;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoFixture;
+using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Core;
+using Extracts;
+using Framework;
+using KellermanSoftware.CompareNetObjects;
+using Messages;
+using Newtonsoft.Json;
+using NodaTime;
+using NodaTime.Testing;
+using RoadRegistry.Framework.Testing;
+using SqlStreamStore;
+using SqlStreamStore.Streams;
+using Uploads;
+
+public abstract class RoadRegistryFixture : IDisposable
 {
-    using System;
-    using System.IO.Compression;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Amazon.Runtime;
-    using AutoFixture;
-    using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
-    using Be.Vlaanderen.Basisregisters.EventHandling;
-    using Core;
-    using Extracts;
-    using Framework;
-    using KellermanSoftware.CompareNetObjects;
-    using Messages;
-    using Newtonsoft.Json;
-    using NodaTime;
-    using NodaTime.Testing;
-    using RoadRegistry.Framework.Testing;
-    using SqlStreamStore;
-    using SqlStreamStore.Streams;
-    using Uploads;
+    private static readonly JsonSerializerSettings Settings =
+        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-    public abstract class RoadRegistryFixture : IDisposable
+    private static readonly EventMapping Mapping =
+        new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+
+    private readonly ScenarioRunner _runner;
+
+    protected RoadRegistryFixture(ComparisonConfig comparisonConfig = null)
     {
-        private static readonly JsonSerializerSettings Settings =
-            EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        private static readonly EventMapping Mapping =
-            new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+        Fixture = new Fixture();
+        Client = new MemoryBlobClient();
+        Store = new InMemoryStreamStore();
+        Clock = new FakeClock(NodaConstants.UnixEpoch);
+        ZipArchiveValidator = new FakeZipArchiveValidator();
 
-        private readonly ScenarioRunner _runner;
-
-        protected Fixture Fixture { get; }
-        protected IStreamStore Store { get; }
-        protected FakeClock Clock { get; }
-        protected MemoryBlobClient Client { get; }
-        protected IZipArchiveValidator ZipArchiveValidator { get; set; }
-
-        private class FakeRoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
-        {
-            public Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken)
+        _runner = new ScenarioRunner(
+            Resolve.WhenEqualToMessage(new CommandHandlerModule[]
             {
-                return Task.FromResult<(RoadNetworkSnapshot snapshot, int version)>((null, ExpectedVersion.NoStream));
-            }
-        }
-
-        private class FakeRoadNetworkSnapshotWriter : IRoadNetworkSnapshotWriter
+                new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), new FakeRoadNetworkSnapshotWriter(), Clock),
+                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock)
+            }),
+            Store,
+            Settings,
+            Mapping,
+            StreamNameConversions.PassThru
+        )
         {
-            public Task WriteSnapshot(RoadNetworkSnapshot snapshot, int version, CancellationToken cancellationToken)
-            {
-                return Task.CompletedTask;
-            }
+            ComparisonConfig = comparisonConfig
+        };
+    }
 
-            public Task SetHeadToVersion(int version, CancellationToken cancellationToken)
-            {
-                return Task.CompletedTask;
-            }
-        }
+    protected Fixture Fixture { get; }
+    protected IStreamStore Store { get; }
+    protected FakeClock Clock { get; }
+    protected MemoryBlobClient Client { get; }
+    protected IZipArchiveValidator ZipArchiveValidator { get; set; }
 
-        private class FakeZipArchiveValidator : IZipArchiveValidator
-        {
-            public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)
-            {
-                return archive.GetEntry("error") != null
-                    ? ZipArchiveProblems.Single(new FileError("error", "reason"))
-                    : ZipArchiveProblems.None;
-            }
-        }
+    public void Dispose()
+    {
+        Store?.Dispose();
+    }
 
-        protected RoadRegistryFixture(ComparisonConfig comparisonConfig = null)
-        {
-            Fixture = new Fixture();
-            Client = new MemoryBlobClient();
-            Store = new InMemoryStreamStore();
-            Clock = new FakeClock(NodaConstants.UnixEpoch);
-            ZipArchiveValidator = new FakeZipArchiveValidator();
+    protected Task Run(Func<Scenario, IExpectExceptionScenarioBuilder> builder)
+    {
+        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        return builder(new Scenario()).AssertAsync(_runner);
+    }
 
-            _runner = new ScenarioRunner(
-                Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
-                        new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), new FakeRoadNetworkSnapshotWriter(), Clock),
-                        new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock)
-                    }),
-                Store,
-                Settings,
-                Mapping,
-                StreamNameConversions.PassThru
-            )
-            {
-                ComparisonConfig = comparisonConfig
-            };
-        }
+    protected Task Run(Func<Scenario, IExpectEventsScenarioBuilder> builder)
+    {
+        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        return builder(new Scenario()).AssertAsync(_runner);
+    }
+}
 
-        protected Task Run(Func<Scenario, IExpectExceptionScenarioBuilder> builder)
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            return builder(new Scenario()).AssertAsync(_runner);
-        }
+public class FakeRoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
+{
+    public Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken)
+    {
+        return Task.FromResult<(RoadNetworkSnapshot snapshot, int version)>((null, ExpectedVersion.NoStream));
+    }
+}
 
-        protected Task Run(Func<Scenario, IExpectEventsScenarioBuilder> builder)
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            return builder(new Scenario()).AssertAsync(_runner);
-        }
+public class FakeRoadNetworkSnapshotWriter : IRoadNetworkSnapshotWriter
+{
+    public Task WriteSnapshot(RoadNetworkSnapshot snapshot, int version, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
 
-        public void Dispose()
-        {
-            Store?.Dispose();
-        }
+    public Task SetHeadToVersion(int version, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+}
+
+public class FakeZipArchiveValidator : IZipArchiveValidator
+{
+    public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)
+    {
+        return archive.GetEntry("error") != null
+            ? ZipArchiveProblems.Single(new FileError("error", "reason"))
+            : ZipArchiveProblems.None;
     }
 }

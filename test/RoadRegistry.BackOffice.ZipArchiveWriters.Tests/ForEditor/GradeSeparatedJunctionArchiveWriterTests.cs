@@ -1,80 +1,74 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForEditor
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForEditor;
+
+using System.IO.Compression;
+using System.Text;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Editor.Schema;
+using Editor.Schema.GradeSeparatedJunctions;
+using RoadRegistry.Framework.Containers;
+using Xunit;
+using ZipArchiveWriters.ForEditor;
+
+[Collection(nameof(SqlServerCollection))]
+public class GradeSeparatedJunctionArchiveWriterTests
 {
-    using System;
-    using System.IO;
-    using System.IO.Compression;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using RoadRegistry.Editor.Schema;
-    using RoadRegistry.Editor.Schema.GradeSeparatedJunctions;
-    using RoadRegistry.Framework.Containers;
-    using Xunit;
-    using ZipArchiveWriters.ForEditor;
+    private readonly SqlServer _fixture;
 
-    [Collection(nameof(SqlServerCollection))]
-    public class GradeSeparatedJunctionArchiveWriterTests
+    public GradeSeparatedJunctionArchiveWriterTests(SqlServer fixture)
     {
-        private readonly SqlServer _fixture;
+        _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+    }
 
-        public GradeSeparatedJunctionArchiveWriterTests(SqlServer fixture)
-        {
-            _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
-        }
+    [Fact]
+    public Task ArchiveCanNotBeNull()
+    {
+        var sut = new GradeSeparatedJunctionArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+        return Assert.ThrowsAsync<ArgumentNullException>(
+            () => sut.WriteAsync(null, new EditorContext(), default));
+    }
 
-        [Fact]
-        public Task ArchiveCanNotBeNull()
-        {
-            var sut = new GradeSeparatedJunctionArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
-            return Assert.ThrowsAsync<ArgumentNullException>(
-                () => sut.WriteAsync(null, new EditorContext(), default));
-        }
+    [Fact]
+    public Task ContextCanNotBeNull()
+    {
+        var sut = new GradeSeparatedJunctionArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+        return Assert.ThrowsAsync<ArgumentNullException>(
+            () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
+    }
 
-        [Fact]
-        public Task ContextCanNotBeNull()
-        {
-            var sut = new GradeSeparatedJunctionArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
-            return Assert.ThrowsAsync<ArgumentNullException>(
-                () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
-        }
+    [Fact]
+    public async Task WithEmptyDatabaseWritesArchiveWithExpectedEntries()
+    {
+        var sut = new GradeSeparatedJunctionArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
 
-        [Fact]
-        public async Task WithEmptyDatabaseWritesArchiveWithExpectedEntries()
-        {
-            var sut = new GradeSeparatedJunctionArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+        var db = await _fixture.CreateDatabaseAsync();
+        var context = await _fixture.CreateEditorContextAsync(db);
 
-            var db = await _fixture.CreateDatabaseAsync();
-            var context = await _fixture.CreateEditorContextAsync(db);
-
-            await new ZipArchiveScenario<EditorContext>(_fixture.MemoryStreamManager, sut)
-                .WithContext(context)
-                .Assert(readArchive =>
-                {
-                    Assert.Single(readArchive.Entries);
-                    foreach (var entry in readArchive.Entries)
+        await new ZipArchiveScenario<EditorContext>(_fixture.MemoryStreamManager, sut)
+            .WithContext(context)
+            .Assert(readArchive =>
+            {
+                Assert.Single(readArchive.Entries);
+                foreach (var entry in readArchive.Entries)
+                    switch (entry.Name)
                     {
-                        switch (entry.Name)
-                        {
-                            case "RltOgkruising.dbf":
-                                using (var entryStream = entry.Open())
-                                using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
-                                {
-                                    Assert.Equal(
-                                        new DbaseFileHeader(
-                                            DateTime.Now,
-                                            DbaseCodePage.Western_European_ANSI,
-                                            new DbaseRecordCount(0),
-                                            GradeSeparatedJunctionDbaseRecord.Schema),
-                                        DbaseFileHeader.Read(reader));
-                                }
+                        case "RltOgkruising.dbf":
+                            using (var entryStream = entry.Open())
+                            using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
+                            {
+                                Assert.Equal(
+                                    new DbaseFileHeader(
+                                        DateTime.Now,
+                                        DbaseCodePage.Western_European_ANSI,
+                                        new DbaseRecordCount(0),
+                                        GradeSeparatedJunctionDbaseRecord.Schema),
+                                    DbaseFileHeader.Read(reader));
+                            }
 
-                                break;
+                            break;
 
-                            default:
-                                throw new Exception($"File '{entry.Name}' was not expected in this archive.");
-                        }
+                        default:
+                            throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
-                });
-        }
+            });
     }
 }

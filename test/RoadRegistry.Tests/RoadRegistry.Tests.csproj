@@ -27,7 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="BackOffice\Api\empty.zip" />
     <EmbeddedResource Include="BackOffice\ident2.txt" />
     <EmbeddedResource Include="BackOffice\ident8.txt" />
   </ItemGroup>
@@ -40,16 +39,6 @@
     <Content Include="Wms\Projections\TestData\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Compile Remove="BackOffice\Api\ZipArchiveWriters\**" />
-    <EmbeddedResource Remove="BackOffice\Api\ZipArchiveWriters\**" />
-    <None Remove="BackOffice\Api\ZipArchiveWriters\**" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="BackOffice\ExtractHost\ZipArchiveWriters\" />
   </ItemGroup>
   
   <ItemGroup>

@@ -30,19 +30,52 @@ public class UploadController : ControllerBase
 
     [HttpPost("")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUpload([FromBody] IFormFile archive, [FromBody] bool featureCompare, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostUpload([FromBody] IFormFile archive, CancellationToken cancellationToken)
+    {
+        return await Post(archive, async () =>
+        {
+            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var request = new UploadExtractRequest(archive.FileName, requestArchive);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Ok(response);
+        }, cancellationToken);
+    }
+
+    [HttpPost("feature-compare")]
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    public async Task<IActionResult> PostFeatureCompareUpload([FromBody] IFormFile archive, CancellationToken cancellationToken)
+    {
+        return await Post(archive, async () =>
+        {
+            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Ok(response);
+        }, cancellationToken);
+    }
+
+    [HttpGet("{identifier}")]
+    public async Task<ActionResult> Get(string identifier, CancellationToken cancellationToken)
+    {
+        try
+        {
+            DownloadExtractRequest request = new(identifier);
+            var response = await _mediator.Send(request, cancellationToken);
+            return new FileCallbackResult(response);
+        }
+        catch (ExtractDownloadNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback, CancellationToken cancellationToken)
     {
         if (archive == null) throw new ArgumentNullException(nameof(archive));
 
         try
         {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-
-            var request = featureCompare
-                ? new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive)
-                : new UploadExtractRequest(archive.FileName, requestArchive);
-            var response = await _mediator.Send(request, cancellationToken);
-            return Ok(response);
+            return await callback.Invoke();
         }
         catch (UnsupportedMediaTypeException)
         {
@@ -61,21 +94,6 @@ public class UploadController : ControllerBase
                 "Can not upload roadnetwork extract changes archive for same download more than once",
                 409,
                 new ExceptionProblemDetails(exception), exception);
-        }
-    }
-
-    [HttpGet("{identifier}")]
-    public async Task<ActionResult> Get(string identifier, CancellationToken cancellationToken)
-    {
-        try
-        {
-            DownloadExtractRequest request = new(identifier);
-            var response = await _mediator.Send(request, cancellationToken);
-            return new FileCallbackResult(response);
-        }
-        catch (ExtractDownloadNotFoundException)
-        {
-            return NotFound();
         }
     }
 }

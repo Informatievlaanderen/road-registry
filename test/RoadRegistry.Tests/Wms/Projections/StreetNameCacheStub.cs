@@ -1,35 +1,34 @@
-namespace RoadRegistry.Wms.Projections
+namespace RoadRegistry.Wms.Projections;
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Syndication.Schema;
+
+public class StreetNameCacheStub : IStreetNameCache
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Syndication.Schema;
+    private readonly long _position;
+    private readonly StreetNameRecord _stubbedValue;
 
-    public class StreetNameCacheStub : IStreetNameCache
+    public StreetNameCacheStub(StreetNameRecord stubbedValue = null, long position = -1L)
     {
-        private readonly StreetNameRecord _stubbedValue;
-        private readonly long _position;
+        _stubbedValue = stubbedValue;
+        _position = position;
+    }
 
-        public StreetNameCacheStub(StreetNameRecord stubbedValue = null, long position = -1L)
-        {
-            _stubbedValue = stubbedValue;
-            _position = position;
-        }
+    public Task<StreetNameRecord> GetAsync(int streetNameId, CancellationToken token)
+    {
+        return Task.FromResult(_stubbedValue);
+    }
 
-        public Task<StreetNameRecord> GetAsync(int streetNameId, CancellationToken token)
-        {
-            return Task.FromResult(_stubbedValue);
-        }
+    public Task<long> GetMaxPositionAsync(CancellationToken token)
+    {
+        return Task.FromResult(_position);
+    }
 
-        public Task<long> GetMaxPositionAsync(CancellationToken token)
-        {
-            return Task.FromResult(_position);
-        }
-
-        public Task<Dictionary<int, string>> GetStreetNamesByIdAsync(IEnumerable<int> streetNameIds, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
+    public Task<Dictionary<int, string>> GetStreetNamesByIdAsync(IEnumerable<int> streetNameIds, CancellationToken token)
+    {
+        throw new NotImplementedException();
     }
 }

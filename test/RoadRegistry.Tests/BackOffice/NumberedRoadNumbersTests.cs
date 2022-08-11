@@ -1,15 +1,14 @@
-namespace RoadRegistry.BackOffice
-{
-    using Xunit;
+namespace RoadRegistry.BackOffice;
 
-    public class NumberedRoadNumbersTests
+using Xunit;
+
+public class NumberedRoadNumbersTests
+{
+    [Fact]
+    public void AllReturnsExpectedResult()
     {
-        [Fact]
-        public void AllReturnsExpectedResult()
-        {
-            Assert.Equal(
-                5807,
-                NumberedRoadNumbers.All.Length);
-        }
+        Assert.Equal(
+            5807,
+            NumberedRoadNumbers.All.Length);
     }
 }

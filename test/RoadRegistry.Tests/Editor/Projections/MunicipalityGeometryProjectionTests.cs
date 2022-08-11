@@ -1,48 +1,47 @@
-namespace RoadRegistry.Editor.Projections
+namespace RoadRegistry.Editor.Projections;
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoFixture;
+using BackOffice;
+using BackOffice.Messages;
+using Framework.Projections;
+using Xunit;
+using MunicipalityGeometry = Schema.MunicipalityGeometry;
+
+public class MunicipalityGeometryProjectionTests : IClassFixture<ProjectionTestServices>
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using AutoFixture;
-    using BackOffice;
-    using BackOffice.Core;
-    using BackOffice.Messages;
-    using Framework.Projections;
-    using Xunit;
+    private readonly Fixture _fixture;
 
-    public class MunicipalityGeometryProjectionTests : IClassFixture<ProjectionTestServices>
+    public MunicipalityGeometryProjectionTests()
     {
-        private readonly Fixture _fixture;
+        _fixture = new Fixture();
+        _fixture.CustomizeMunicipalityGeometry();
+    }
 
-        public MunicipalityGeometryProjectionTests()
-        {
-            _fixture = new Fixture();
-            _fixture.CustomizeMunicipalityGeometry();
-        }
-
-        [Fact]
-        public Task When_municipalities_are_imported()
-        {
-            var data = _fixture
-                .CreateMany<ImportedMunicipality>(new Random().Next(1, 1))
-                .Select((@event, i) =>
+    [Fact]
+    public Task When_municipalities_are_imported()
+    {
+        var data = _fixture
+            .CreateMany<ImportedMunicipality>(new Random().Next(1, 1))
+            .Select((@event, i) =>
+            {
+                var expected = new MunicipalityGeometry
                 {
-                    var expected = new Schema.MunicipalityGeometry
-                    {
-                        NisCode = @event.NISCode,
-                        Geometry = GeometryTranslator.Translate(@event.Geometry),
-                    };
-                    return new
-                    {
-                        ImportedMunicipality = @event,
-                        Expected = expected
-                    };
-                }).ToList();
+                    NisCode = @event.NISCode,
+                    Geometry = GeometryTranslator.Translate(@event.Geometry)
+                };
+                return new
+                {
+                    ImportedMunicipality = @event,
+                    Expected = expected
+                };
+            }).ToList();
 
-            return new MunicipalityGeometryProjection()
-                .Scenario()
-                .Given(data.Select(d => d.ImportedMunicipality))
-                .Expect(data.Select(d => d.Expected));
-        }
+        return new MunicipalityGeometryProjection()
+            .Scenario()
+            .Given(data.Select(d => d.ImportedMunicipality))
+            .Expect(data.Select(d => d.Expected));
     }
 }

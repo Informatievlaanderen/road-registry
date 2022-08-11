@@ -1,73 +1,71 @@
-namespace RoadRegistry.Editor.Schema.RoadSegments
+namespace RoadRegistry.Editor.Schema.RoadSegments;
+
+using System.Collections.Generic;
+using FluentAssertions;
+using Xunit;
+
+public class RoadSegmentRecordEqualityComparerByIdTests
 {
-    using System.Collections.Generic;
-    using FluentAssertions;
-    using RoadNodes;
-    using Xunit;
+    private readonly RoadSegmentRecordEqualityComparerById _sut;
 
-    public class RoadSegmentRecordEqualityComparerByIdTests
+    public RoadSegmentRecordEqualityComparerByIdTests()
     {
-        private readonly RoadSegmentRecordEqualityComparerById _sut;
+        _sut = new RoadSegmentRecordEqualityComparerById();
+    }
 
-        public RoadSegmentRecordEqualityComparerByIdTests()
+    [Theory]
+    [MemberData(nameof(GetTestCases))]
+    public void Equals_returns_expected_result(RoadSegmentRecord x, RoadSegmentRecord y, bool expected)
+    {
+        var actual = _sut.Equals(x, y);
+        actual.Should().Be(expected);
+    }
+
+    public static IEnumerable<object[]> GetTestCases()
+    {
+        yield return new object[]
         {
-            _sut = new RoadSegmentRecordEqualityComparerById();
-        }
-
-        [Theory]
-        [MemberData(nameof(GetTestCases))]
-        public void Equals_returns_expected_result(RoadSegmentRecord x, RoadSegmentRecord y, bool expected)
+            new RoadSegmentRecord { Id = 1 },
+            new RoadSegmentRecord { Id = 1 },
+            true
+        };
+        yield return new object[]
         {
-            var actual = _sut.Equals(x, y);
-            actual.Should().Be(expected);
-        }
-
-        public static IEnumerable<object[]> GetTestCases()
+            new RoadSegmentRecord { Id = 1 },
+            new RoadSegmentRecord { Id = 2 },
+            false
+        };
+        yield return new object[]
         {
-            yield return new object[]
-            {
-                new RoadSegmentRecord {Id = 1},
-                new RoadSegmentRecord {Id = 1},
-                true
-            };
-            yield return new object[]
-            {
-                new RoadSegmentRecord {Id = 1},
-                new RoadSegmentRecord {Id = 2},
-                false
-            };
-            yield return new object[]
-            {
-                new RoadSegmentRecord {Id = 2},
-                new RoadSegmentRecord {Id = 1},
-                false
-            };
-            yield return new object[]
-            {
-                null,
-                new RoadSegmentRecord {Id = 1},
-                false
-            };
-            yield return new object[]
-            {
-                new RoadSegmentRecord {Id = 1},
-                null,
-                false
-            };
-            yield return new object[] // don't care about properties other than Id
-            {
-                new RoadSegmentRecord {Id = 1, ShapeRecordContentLength = 100},
-                new RoadSegmentRecord {Id = 1, ShapeRecordContentLength = 50},
-                true
-            };
+            new RoadSegmentRecord { Id = 2 },
+            new RoadSegmentRecord { Id = 1 },
+            false
+        };
+        yield return new object[]
+        {
+            null,
+            new RoadSegmentRecord { Id = 1 },
+            false
+        };
+        yield return new object[]
+        {
+            new RoadSegmentRecord { Id = 1 },
+            null,
+            false
+        };
+        yield return new object[] // don't care about properties other than Id
+        {
+            new RoadSegmentRecord { Id = 1, ShapeRecordContentLength = 100 },
+            new RoadSegmentRecord { Id = 1, ShapeRecordContentLength = 50 },
+            true
+        };
 
-            var roadSegmentRecord = new RoadSegmentRecord {Id = 1};
-            yield return new object[]
-            {
-                roadSegmentRecord,
-                roadSegmentRecord,
-                true
-            };
-        }
+        var roadSegmentRecord = new RoadSegmentRecord { Id = 1 };
+        yield return new object[]
+        {
+            roadSegmentRecord,
+            roadSegmentRecord,
+            true
+        };
     }
 }

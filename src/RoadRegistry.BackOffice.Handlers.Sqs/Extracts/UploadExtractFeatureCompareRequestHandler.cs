@@ -5,10 +5,12 @@ using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Editor.Schema;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using static Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple.Sqs;
 
 /// <summary>
 ///     Post upload extract controller
@@ -29,15 +31,18 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
 
     private readonly RoadNetworkExtractUploadsBlobClient _client;
     private readonly EditorContext _context;
+    private readonly SqsOptions _sqsOptions;
 
     public UploadExtractFeatureCompareRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
         EditorContext context,
+        SqsOptions sqsOptions,
         ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
         _context = context ?? throw new EditorContextNotFoundException(nameof(context));
+        _sqsOptions = sqsOptions ?? throw new SqsOptionsNotFoundException(nameof(sqsOptions));
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken)
@@ -66,16 +71,14 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 cancellationToken
             );
 
-            //var message = new Command(
-            //    new UploadRoadNetworkExtractChangesArchive
-            //    {
-            //        RequestId = download.RequestId,
-            //        DownloadId = download.DownloadId,
-            //        UploadId = uploadId.ToGuid(),
-            //        ArchiveId = archiveId.ToString()
-            //    });
-
-            //await Dispatcher(message, cancellationToken);
+            var message = new UploadRoadNetworkExtractChangesArchive
+            {
+                RequestId = download.RequestId,
+                DownloadId = download.DownloadId,
+                UploadId = uploadId.ToGuid(),
+                ArchiveId = archiveId.ToString()
+            };
+            await CopyToQueue(_sqsOptions, SqsQueueName.Value, message, new SqsQueueOptions { MessageGroupId = archiveId }, cancellationToken);
 
             return new UploadExtractResponse(uploadId);
         }

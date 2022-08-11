@@ -1,6 +1,5 @@
-namespace RoadRegistry.Framework.Reactions
+namespace RoadRegistry.Framework.Reactions;
+
+public interface IReactionScenarioThenNoneStateBuilder : IReactionScenarioBuilder
 {
-    public interface IReactionScenarioThenNoneStateBuilder : IReactionScenarioBuilder
-    {
-    }
 }

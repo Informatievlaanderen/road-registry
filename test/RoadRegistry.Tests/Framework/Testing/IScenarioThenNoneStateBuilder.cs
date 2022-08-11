@@ -1,6 +1,5 @@
-﻿namespace RoadRegistry.Framework.Testing
+﻿namespace RoadRegistry.Framework.Testing;
+
+public interface IScenarioThenNoneStateBuilder : IExpectEventsScenarioBuilder
 {
-    public interface IScenarioThenNoneStateBuilder : IExpectEventsScenarioBuilder
-    {
-    }
 }

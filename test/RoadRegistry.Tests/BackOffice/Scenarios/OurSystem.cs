@@ -1,21 +1,20 @@
-namespace RoadRegistry.BackOffice.Scenarios
-{
-    using Framework;
-    using Messages;
+namespace RoadRegistry.BackOffice.Scenarios;
 
-    public static class OurSystem
+using Framework;
+using Messages;
+
+public static class OurSystem
+{
+    public static Command AnnouncesRoadNetworkExtractDownloadBecameAvailable(
+        ExtractRequestId requestId,
+        DownloadId downloadId,
+        ArchiveId archiveId)
     {
-        public static Command AnnouncesRoadNetworkExtractDownloadBecameAvailable(
-            ExtractRequestId requestId,
-            DownloadId downloadId,
-            ArchiveId archiveId)
+        return new Command(new AnnounceRoadNetworkExtractDownloadBecameAvailable
         {
-            return new Command(new AnnounceRoadNetworkExtractDownloadBecameAvailable
-            {
-                RequestId = requestId,
-                DownloadId = downloadId,
-                ArchiveId = archiveId
-            });
-        }
+            RequestId = requestId,
+            DownloadId = downloadId,
+            ArchiveId = archiveId
+        });
     }
 }

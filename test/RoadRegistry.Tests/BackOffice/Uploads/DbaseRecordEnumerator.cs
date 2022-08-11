@@ -1,47 +1,33 @@
-namespace RoadRegistry.BackOffice.Uploads
+namespace RoadRegistry.BackOffice.Uploads;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public class DbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>
+    where TDbaseRecord : DbaseRecord
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+    private readonly IEnumerator<TDbaseRecord> _enumerator;
+    private RecordNumber _number;
+    private State _state;
 
-    public class DbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>
-        where TDbaseRecord : DbaseRecord
+    public DbaseRecordEnumerator(IEnumerator<TDbaseRecord> enumerator)
     {
-        private enum State { Initial, Started, Ended }
-        private readonly IEnumerator<TDbaseRecord> _enumerator;
-        private RecordNumber _number;
-        private State _state;
+        _enumerator = enumerator ?? throw new ArgumentNullException(nameof(enumerator));
+        _number = RecordNumber.Initial;
+        _state = State.Initial;
+    }
 
-        public DbaseRecordEnumerator(IEnumerator<TDbaseRecord> enumerator)
+    public bool MoveNext()
+    {
+        if (_state == State.Ended) return false;
+
+        if (_state == State.Initial)
         {
-            _enumerator = enumerator ?? throw new ArgumentNullException(nameof(enumerator));
-            _number = RecordNumber.Initial;
-            _state = State.Initial;
-        }
-
-        public bool MoveNext()
-        {
-            if (_state == State.Ended)
-            {
-                return false;
-            }
-            
-            if (_state == State.Initial)
-            {
-                if (_enumerator.MoveNext())
-                {
-                    _state = State.Started;
-                    return true;
-                }
-
-                _state = State.Ended;
-                return false;
-            }
-
             if (_enumerator.MoveNext())
             {
-                _number = _number.Next();
+                _state = State.Started;
                 return true;
             }
 
@@ -49,20 +35,36 @@ namespace RoadRegistry.BackOffice.Uploads
             return false;
         }
 
-        public RecordNumber CurrentRecordNumber => _number;
-
-        public void Reset()
+        if (_enumerator.MoveNext())
         {
-            _enumerator.Reset();
+            _number = _number.Next();
+            return true;
         }
 
-        public TDbaseRecord Current => _enumerator.Current;
+        _state = State.Ended;
+        return false;
+    }
 
-        object IEnumerator.Current => Current;
+    public RecordNumber CurrentRecordNumber => _number;
 
-        public void Dispose()
-        {
-            _enumerator.Dispose();
-        }
+    public void Reset()
+    {
+        _enumerator.Reset();
+    }
+
+    public TDbaseRecord Current => _enumerator.Current;
+
+    object IEnumerator.Current => Current;
+
+    public void Dispose()
+    {
+        _enumerator.Dispose();
+    }
+
+    private enum State
+    {
+        Initial,
+        Started,
+        Ended
     }
 }

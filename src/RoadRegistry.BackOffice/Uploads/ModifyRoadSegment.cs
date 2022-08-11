@@ -36,9 +36,9 @@ public class ModifyRoadSegment : ITranslatedChange
         AccessRestriction = accessRestriction ?? throw new ArgumentNullException(nameof(accessRestriction));
         LeftSideStreetNameId = leftSideStreetNameId;
         RightSideStreetNameId = rightSideStreetNameId;
-        Lanes = new RoadSegmentLaneAttribute[0];
-        Widths = new RoadSegmentWidthAttribute[0];
-        Surfaces = new RoadSegmentSurfaceAttribute[0];
+        Lanes = Array.Empty<RoadSegmentLaneAttribute>();
+        Widths = Array.Empty<RoadSegmentWidthAttribute>();
+        Surfaces = Array.Empty<RoadSegmentSurfaceAttribute>();
     }
 
     private ModifyRoadSegment(

@@ -1,122 +1,116 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForProduct
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForProduct;
+
+using System.IO.Compression;
+using System.Text;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Dbase;
+using Product.Schema;
+using Product.Schema.RoadSegments;
+using RoadRegistry.Framework;
+using RoadRegistry.Framework.Containers;
+using Xunit;
+using ZipArchiveWriters.ForProduct;
+
+[Collection(nameof(SqlServerCollection))]
+public class RoadSegmentsArchiveWriterTests
 {
-    using System;
-    using System.IO;
-    using System.IO.Compression;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Api;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using RoadRegistry.Dbase;
-    using RoadRegistry.Framework.Containers;
-    using RoadRegistry.Product.Schema;
-    using RoadRegistry.Product.Schema.RoadSegments;
-    using Xunit;
-    using ZipArchiveWriters.ForProduct;
+    private readonly SqlServer _fixture;
 
-    [Collection(nameof(SqlServerCollection))]
-    public class RoadSegmentsArchiveWriterTests
+    public RoadSegmentsArchiveWriterTests(SqlServer fixture)
     {
-        private readonly SqlServer _fixture;
+        _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+    }
 
-        public RoadSegmentsArchiveWriterTests(SqlServer fixture)
+    [Fact]
+    public Task ArchiveCanNotBeNull()
+    {
+        var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new StreetNameCacheStub(), _fixture.MemoryStreamManager, Encoding.UTF8);
+        return Assert.ThrowsAsync<ArgumentNullException>(
+            () => sut.WriteAsync(null, new ProductContext(), default));
+    }
+
+    [Fact]
+    public Task ContextCanNotBeNull()
+    {
+        var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new StreetNameCacheStub(), _fixture.MemoryStreamManager, Encoding.UTF8);
+        return Assert.ThrowsAsync<ArgumentNullException>(
+            () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
+    }
+
+    [Fact(Skip = "Complete once value objects become available")]
+    public Task WriteAsyncHasExpectedResult()
+    {
+        return Task.CompletedTask;
+    }
+
+    [Fact]
+    public async Task WithEmptyRoadNetworkWritesArchiveWithExpectedEntries()
+    {
+        var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new StreetNameCacheStub(), _fixture.MemoryStreamManager, Encoding.UTF8);
+
+        var db = await _fixture.CreateDatabaseAsync();
+        var context = await _fixture.CreateProductContextAsync(db);
+        await context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo
         {
-            _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
-        }
+            CompletedImport = true,
+            TotalRoadNodeShapeLength = 0
+        });
+        await context.SaveChangesAsync();
 
-        [Fact]
-        public Task ArchiveCanNotBeNull()
-        {
-            var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new StreetNameCacheStub(), _fixture.MemoryStreamManager, Encoding.UTF8);
-            return Assert.ThrowsAsync<ArgumentNullException>(
-                () => sut.WriteAsync(null, new ProductContext(), default));
-        }
-
-        [Fact]
-        public Task ContextCanNotBeNull()
-        {
-            var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new StreetNameCacheStub(), _fixture.MemoryStreamManager, Encoding.UTF8);
-            return Assert.ThrowsAsync<ArgumentNullException>(
-                () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
-        }
-
-        [Fact(Skip = "Complete once value objects become available")]
-        public Task WriteAsyncHasExpectedResult()
-        {
-            return Task.CompletedTask;
-        }
-
-        [Fact]
-        public async Task WithEmptyRoadNetworkWritesArchiveWithExpectedEntries()
-        {
-            var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new StreetNameCacheStub(), _fixture.MemoryStreamManager, Encoding.UTF8);
-
-            var db = await _fixture.CreateDatabaseAsync();
-            var context = await _fixture.CreateProductContextAsync(db);
-            await context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo
+        await new ZipArchiveScenario<ProductContext>(_fixture.MemoryStreamManager, sut)
+            .WithContext(context)
+            .Assert(readArchive =>
             {
-                CompletedImport = true,
-                TotalRoadNodeShapeLength = 0
-            });
-            await context.SaveChangesAsync();
-
-            await new ZipArchiveScenario<ProductContext>(_fixture.MemoryStreamManager, sut)
-                .WithContext(context)
-                .Assert(readArchive =>
-                {
-                    Assert.Equal(3, readArchive.Entries.Count);
-                    foreach (var entry in readArchive.Entries)
+                Assert.Equal(3, readArchive.Entries.Count);
+                foreach (var entry in readArchive.Entries)
+                    switch (entry.Name)
                     {
-                        switch (entry.Name)
-                        {
-                            case "Wegsegment.dbf":
-                                using (var entryStream = entry.Open())
-                                using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
-                                {
-                                    Assert.Equal(
-                                        new DbaseFileHeader(
-                                            DateTime.Now,
-                                            DbaseCodePage.Western_European_ANSI,
-                                            new DbaseRecordCount(0),
-                                            RoadSegmentDbaseRecord.Schema),
-                                        DbaseFileHeader.Read(reader));
-                                }
+                        case "Wegsegment.dbf":
+                            using (var entryStream = entry.Open())
+                            using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
+                            {
+                                Assert.Equal(
+                                    new DbaseFileHeader(
+                                        DateTime.Now,
+                                        DbaseCodePage.Western_European_ANSI,
+                                        new DbaseRecordCount(0),
+                                        RoadSegmentDbaseRecord.Schema),
+                                    DbaseFileHeader.Read(reader));
+                            }
 
-                                break;
+                            break;
 
-                            case "Wegsegment.shp":
-                                using (var entryStream = entry.Open())
-                                using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
-                                {
-                                    Assert.Equal(
-                                        new ShapeFileHeader(
-                                            new WordLength(0),
-                                            ShapeType.PolyLineM,
-                                            BoundingBox3D.Empty),
-                                        ShapeFileHeader.Read(reader));
-                                }
+                        case "Wegsegment.shp":
+                            using (var entryStream = entry.Open())
+                            using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
+                            {
+                                Assert.Equal(
+                                    new ShapeFileHeader(
+                                        new WordLength(0),
+                                        ShapeType.PolyLineM,
+                                        BoundingBox3D.Empty),
+                                    ShapeFileHeader.Read(reader));
+                            }
 
-                                break;
+                            break;
 
-                            case "Wegsegment.shx":
-                                using (var entryStream = entry.Open())
-                                using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
-                                {
-                                    Assert.Equal(
-                                        new ShapeFileHeader(
-                                            ShapeFileHeader.Length,
-                                            ShapeType.PolyLineM,
-                                            BoundingBox3D.Empty),
-                                        ShapeFileHeader.Read(reader));
-                                }
+                        case "Wegsegment.shx":
+                            using (var entryStream = entry.Open())
+                            using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
+                            {
+                                Assert.Equal(
+                                    new ShapeFileHeader(
+                                        ShapeFileHeader.Length,
+                                        ShapeType.PolyLineM,
+                                        BoundingBox3D.Empty),
+                                    ShapeFileHeader.Read(reader));
+                            }
 
-                                break;
+                            break;
 
-                            default:
-                                throw new Exception($"File '{entry.Name}' was not expected in this archive.");
-                        }
+                        default:
+                            throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
-                });
-        }
+            });
     }
 }

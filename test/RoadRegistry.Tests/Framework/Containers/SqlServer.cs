@@ -1,117 +1,111 @@
-namespace RoadRegistry.Framework.Containers
+namespace RoadRegistry.Framework.Containers;
+
+using System;
+using System.Threading.Tasks;
+using BackOffice.Abstractions;
+using Editor.Schema;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IO;
+using Product.Schema;
+
+public class SqlServer : ISqlServerDatabase
 {
-    using System;
-    using System.Threading.Tasks;
-    using BackOffice.Abstractions;
-    using BackOffice.Api;
-    using Editor.Schema;
-    using Microsoft.Data.SqlClient;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.IO;
-    using Product.Schema;
+    private readonly ISqlServerDatabase _inner;
 
-    public class SqlServer : ISqlServerDatabase
+    public SqlServer()
     {
-        private readonly ISqlServerDatabase _inner;
+        if (Environment.GetEnvironmentVariable("CI") == null)
+            _inner = new SqlServerEmbeddedContainer();
+        else
+            _inner = new SqlServerComposedContainer();
 
-        public SqlServer()
-        {
-            if (Environment.GetEnvironmentVariable("CI") == null)
-            {
-                _inner = new SqlServerEmbeddedContainer();
-            }
-            else
-            {
-                _inner = new SqlServerComposedContainer();
-            }
+        MemoryStreamManager = new RecyclableMemoryStreamManager();
+        StreetNameCache = new StreetNameCacheStub();
+    }
 
-            MemoryStreamManager = new RecyclableMemoryStreamManager();
-            StreetNameCache = new StreetNameCacheStub();
-        }
+    public RecyclableMemoryStreamManager MemoryStreamManager { get; }
+    public IStreetNameCache StreetNameCache { get; }
 
-        public RecyclableMemoryStreamManager MemoryStreamManager { get; }
-        public IStreetNameCache StreetNameCache { get; }
+    public Task InitializeAsync()
+    {
+        return _inner.InitializeAsync();
+    }
 
-        public Task InitializeAsync()
-        {
-            return _inner.InitializeAsync();
-        }
+    public Task DisposeAsync()
+    {
+        return _inner.DisposeAsync();
+    }
 
-        public Task DisposeAsync()
-        {
-            return _inner.DisposeAsync();
-        }
+    public Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
+    {
+        return _inner.CreateDatabaseAsync();
+    }
 
-        public Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
-        {
-            return _inner.CreateDatabaseAsync();
-        }
+    public async Task<EditorContext> CreateEditorContextAsync(SqlConnectionStringBuilder builder)
+    {
+        var options = new DbContextOptionsBuilder<EditorContext>()
+            .UseSqlServer(builder.ConnectionString,
+                dbContextOptionsBuilder => dbContextOptionsBuilder.UseNetTopologySuite())
+            .EnableSensitiveDataLogging()
+            .Options;
 
-        public async Task<EditorContext> CreateEditorContextAsync(SqlConnectionStringBuilder builder)
-        {
-            var options = new DbContextOptionsBuilder<EditorContext>()
-                .UseSqlServer(builder.ConnectionString,
-                    dbContextOptionsBuilder => dbContextOptionsBuilder.UseNetTopologySuite())
-                .EnableSensitiveDataLogging()
-                .Options;
+        var context = new EditorContext(options);
+        await context.Database.MigrateAsync();
+        return context;
+    }
 
-            var context = new EditorContext(options);
-            await context.Database.MigrateAsync();
-            return context;
-        }
+    public async Task<EditorContext> CreateEmptyEditorContextAsync(SqlConnectionStringBuilder builder)
+    {
+        var context = await CreateEditorContextAsync(builder);
 
-        public async Task<EditorContext> CreateEmptyEditorContextAsync(SqlConnectionStringBuilder builder)
-        {
-            var context = await CreateEditorContextAsync(builder);
+        context.Organizations.RemoveRange(context.Organizations);
+        context.RoadNodes.RemoveRange(context.RoadNodes);
+        context.RoadSegments.RemoveRange(context.RoadSegments);
+        context.RoadSegmentEuropeanRoadAttributes.RemoveRange(context.RoadSegmentEuropeanRoadAttributes);
+        context.RoadSegmentNationalRoadAttributes.RemoveRange(context.RoadSegmentNationalRoadAttributes);
+        context.RoadSegmentNumberedRoadAttributes.RemoveRange(context.RoadSegmentNumberedRoadAttributes);
+        context.RoadSegmentLaneAttributes.RemoveRange(context.RoadSegmentLaneAttributes);
+        context.RoadSegmentWidthAttributes.RemoveRange(context.RoadSegmentWidthAttributes);
+        context.RoadSegmentSurfaceAttributes.RemoveRange(context.RoadSegmentSurfaceAttributes);
+        context.GradeSeparatedJunctions.RemoveRange(context.GradeSeparatedJunctions);
+        context.RoadNetworkInfo.RemoveRange(context.RoadNetworkInfo);
+        context.ProjectionStates.RemoveRange(context.ProjectionStates);
+        await context.SaveChangesAsync();
 
-            context.Organizations.RemoveRange(context.Organizations);
-            context.RoadNodes.RemoveRange(context.RoadNodes);
-            context.RoadSegments.RemoveRange(context.RoadSegments);
-            context.RoadSegmentEuropeanRoadAttributes.RemoveRange(context.RoadSegmentEuropeanRoadAttributes);
-            context.RoadSegmentNationalRoadAttributes.RemoveRange(context.RoadSegmentNationalRoadAttributes);
-            context.RoadSegmentNumberedRoadAttributes.RemoveRange(context.RoadSegmentNumberedRoadAttributes);
-            context.RoadSegmentLaneAttributes.RemoveRange(context.RoadSegmentLaneAttributes);
-            context.RoadSegmentWidthAttributes.RemoveRange(context.RoadSegmentWidthAttributes);
-            context.RoadSegmentSurfaceAttributes.RemoveRange(context.RoadSegmentSurfaceAttributes);
-            context.GradeSeparatedJunctions.RemoveRange(context.GradeSeparatedJunctions);
-            context.RoadNetworkInfo.RemoveRange(context.RoadNetworkInfo);
-            context.ProjectionStates.RemoveRange(context.ProjectionStates);
-            await context.SaveChangesAsync();
+        return context;
+    }
 
-            return context;
-        }
+    public async Task<ProductContext> CreateProductContextAsync(SqlConnectionStringBuilder builder)
+    {
+        var options = new DbContextOptionsBuilder<ProductContext>()
+            .UseSqlServer(builder.ConnectionString)
+            .EnableSensitiveDataLogging()
+            .Options;
 
-        public async Task<ProductContext> CreateProductContextAsync(SqlConnectionStringBuilder builder)
-        {
-            var options = new DbContextOptionsBuilder<ProductContext>()
-                .UseSqlServer(builder.ConnectionString)
-                .EnableSensitiveDataLogging()
-                .Options;
+        var context = new ProductContext(options);
+        await context.Database.MigrateAsync();
+        return context;
+    }
 
-            var context = new ProductContext(options);
-            await context.Database.MigrateAsync();
-            return context;
-        }
+    public async Task<ProductContext> CreateEmptyProductContextAsync(SqlConnectionStringBuilder builder)
+    {
+        var context = await CreateProductContextAsync(builder);
 
-        public async Task<ProductContext> CreateEmptyProductContextAsync(SqlConnectionStringBuilder builder)
-        {
-            var context = await CreateProductContextAsync(builder);
+        context.Organizations.RemoveRange(context.Organizations);
+        context.RoadNodes.RemoveRange(context.RoadNodes);
+        context.RoadSegments.RemoveRange(context.RoadSegments);
+        context.RoadSegmentEuropeanRoadAttributes.RemoveRange(context.RoadSegmentEuropeanRoadAttributes);
+        context.RoadSegmentNationalRoadAttributes.RemoveRange(context.RoadSegmentNationalRoadAttributes);
+        context.RoadSegmentNumberedRoadAttributes.RemoveRange(context.RoadSegmentNumberedRoadAttributes);
+        context.RoadSegmentLaneAttributes.RemoveRange(context.RoadSegmentLaneAttributes);
+        context.RoadSegmentWidthAttributes.RemoveRange(context.RoadSegmentWidthAttributes);
+        context.RoadSegmentSurfaceAttributes.RemoveRange(context.RoadSegmentSurfaceAttributes);
+        context.GradeSeparatedJunctions.RemoveRange(context.GradeSeparatedJunctions);
+        context.RoadNetworkInfo.RemoveRange(context.RoadNetworkInfo);
+        context.ProjectionStates.RemoveRange(context.ProjectionStates);
+        await context.SaveChangesAsync();
 
-            context.Organizations.RemoveRange(context.Organizations);
-            context.RoadNodes.RemoveRange(context.RoadNodes);
-            context.RoadSegments.RemoveRange(context.RoadSegments);
-            context.RoadSegmentEuropeanRoadAttributes.RemoveRange(context.RoadSegmentEuropeanRoadAttributes);
-            context.RoadSegmentNationalRoadAttributes.RemoveRange(context.RoadSegmentNationalRoadAttributes);
-            context.RoadSegmentNumberedRoadAttributes.RemoveRange(context.RoadSegmentNumberedRoadAttributes);
-            context.RoadSegmentLaneAttributes.RemoveRange(context.RoadSegmentLaneAttributes);
-            context.RoadSegmentWidthAttributes.RemoveRange(context.RoadSegmentWidthAttributes);
-            context.RoadSegmentSurfaceAttributes.RemoveRange(context.RoadSegmentSurfaceAttributes);
-            context.GradeSeparatedJunctions.RemoveRange(context.GradeSeparatedJunctions);
-            context.RoadNetworkInfo.RemoveRange(context.RoadNetworkInfo);
-            context.ProjectionStates.RemoveRange(context.ProjectionStates);
-            await context.SaveChangesAsync();
-
-            return context;
-        }
+        return context;
     }
 }

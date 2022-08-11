@@ -38,6 +38,7 @@ using Product.Schema;
 using Serilog;
 using SqlStreamStore;
 using Syndication.Schema;
+using ZipArchiveWriters;
 using ZipArchiveWriters.ForEditor;
 
 public class Program

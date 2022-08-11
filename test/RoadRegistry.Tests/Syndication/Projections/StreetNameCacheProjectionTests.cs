@@ -1,1023 +1,1022 @@
-namespace RoadRegistry.Syndication.Projections
+namespace RoadRegistry.Syndication.Projections;
+
+using System.Linq;
+using System.Threading.Tasks;
+using AutoFixture;
+using Framework.Projections;
+using Microsoft.OpenApi.Extensions;
+using Schema;
+using StreetNameEvents;
+using Xunit;
+
+public class StreetNameCacheProjectionTests
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-    using AutoFixture;
-    using Framework.Projections;
-    using Microsoft.OpenApi.Extensions;
-    using Schema;
-    using StreetNameEvents;
-    using Xunit;
+    private readonly Fixture _fixture;
 
-    public class StreetNameCacheProjectionTests
+    public StreetNameCacheProjectionTests()
     {
-        private readonly Fixture _fixture;
+        _fixture = new Fixture();
+    }
 
-        public StreetNameCacheProjectionTests()
-        {
-            _fixture = new Fixture();
-        }
+    [Fact]
+    public Task When_street_name_was_registered()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var events = new object[] { streetNameWasRegistered };
 
-        [Fact]
-        public Task When_street_name_was_registered()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                var expected = new StreetNameRecord
                 {
-                    var events = new object[] {streetNameWasRegistered};
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
 
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1
-                    };
-
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_was_named()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                return new
                 {
-                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                    events,
+                    expected
+                };
+            }).ToList();
 
-                    var events = new object[] {streetNameWasRegistered, streetNameWasNamed};
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
 
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = streetNameWasNamed.Name,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1
-                    };
+    [Fact]
+    public Task When_street_name_was_named()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
 
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
+                var events = new object[] { streetNameWasRegistered, streetNameWasNamed };
 
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_homonym_addition_was_defined()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                var expected = new StreetNameRecord
                 {
-                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
-                    var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = streetNameWasNamed.Name,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameWasNamed,
-                        homonymAdditionWasDefined
-                    };
-
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = streetNameWasNamed.Name,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = homonymAdditionWasDefined.HomonymAddition,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1
-                    };
-
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_homonym_addition_was_corrected()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                return new
                 {
-                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
-                    var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
-                    var homonymAdditionWasCorrected = CreateStreetNameHomonymAdditionWasCorrected(streetNameWasRegistered);
+                    events,
+                    expected
+                };
+            }).ToList();
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameWasNamed,
-                        homonymAdditionWasDefined,
-                        homonymAdditionWasCorrected
-                    };
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
 
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = streetNameWasNamed.Name,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = homonymAdditionWasCorrected.HomonymAddition,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1,
-                    };
+    [Fact]
+    public Task When_street_name_homonym_addition_was_defined()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
 
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_homonym_addition_was_cleared()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                var events = new object[]
                 {
-                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
-                    var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
-                    var homonymAdditionWasCleared = CreateStreetNameHomonymAdditionWasCleared(streetNameWasRegistered);
+                    streetNameWasRegistered,
+                    streetNameWasNamed,
+                    homonymAdditionWasDefined
+                };
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameWasNamed,
-                        homonymAdditionWasDefined,
-                        homonymAdditionWasCleared
-                    };
-
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = streetNameWasNamed.Name,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1,
-                    };
-
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_homonym_addition_was_corrected_to_cleared()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                var expected = new StreetNameRecord
                 {
-                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
-                    var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
-                    var homonymAdditionWasCorrectedToCleared = CreateStreetNameHomonymAdditionWasCorrectedToCleared(streetNameWasRegistered);
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = streetNameWasNamed.Name,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = homonymAdditionWasDefined.HomonymAddition,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameWasNamed,
-                        homonymAdditionWasDefined,
-                        homonymAdditionWasCorrectedToCleared
-                    };
-
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = streetNameWasNamed.Name,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1,
-                    };
-
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_was_assigned_a_persistent_local_id()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                return new
                 {
-                    var streetNamePersistentLocalIdWasAssigned = CreateStreetNamePersistentLocalIdWasAssigned(streetNameWasRegistered);
+                    events,
+                    expected
+                };
+            }).ToList();
 
-                    var events = new object[] {streetNameWasRegistered, streetNamePersistentLocalIdWasAssigned};
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
 
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = streetNamePersistentLocalIdWasAssigned.PersistentLocalId,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1,
-                    };
+    [Fact]
+    public Task When_street_name_homonym_addition_was_corrected()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
+                var homonymAdditionWasCorrected = CreateStreetNameHomonymAdditionWasCorrected(streetNameWasRegistered);
 
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_status_was_removed()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                var events = new object[]
                 {
-                    var streetNameBecameCurrent = CreateStreetNameBecameCurrent(streetNameWasRegistered);
-                    var streetNameStatusWasRemoved = CreateStreetNameStatusWasRemoved(streetNameWasRegistered);
+                    streetNameWasRegistered,
+                    streetNameWasNamed,
+                    homonymAdditionWasDefined,
+                    homonymAdditionWasCorrected
+                };
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameBecameCurrent,
-                        streetNameStatusWasRemoved
-                    };
-
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1,
-                    };
-
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_status_was_corrected_to_removed()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                var expected = new StreetNameRecord
                 {
-                    var streetNameBecameCurrent = CreateStreetNameBecameCurrent(streetNameWasRegistered);
-                    var streetNameStatusWasCorrectedToRemoved = CreateStreetNameStatusWasCorrectedToRemoved(streetNameWasRegistered);
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = streetNameWasNamed.Name,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = homonymAdditionWasCorrected.HomonymAddition,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameBecameCurrent,
-                        streetNameStatusWasCorrectedToRemoved
-                    };
-
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1,
-                    };
-
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_name_was_cleared()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                return new
                 {
-                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
-                    var streetNameNameWasCleared = CreateStreetNameNameWasCleared(streetNameWasRegistered);
+                    events,
+                    expected
+                };
+            }).ToList();
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameWasNamed,
-                        streetNameNameWasCleared,
-                    };
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
 
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1,
-                    };
+    [Fact]
+    public Task When_street_name_homonym_addition_was_cleared()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
+                var homonymAdditionWasCleared = CreateStreetNameHomonymAdditionWasCleared(streetNameWasRegistered);
 
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_was_corrected_to_cleared()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                var events = new object[]
                 {
-                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
-                    var streetNameNameWasCorrectedToCleared = CreateStreetNameNameWasCorrectedToCleared(streetNameWasRegistered);
+                    streetNameWasRegistered,
+                    streetNameWasNamed,
+                    homonymAdditionWasDefined,
+                    homonymAdditionWasCleared
+                };
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameWasNamed,
-                        streetNameNameWasCorrectedToCleared,
-                    };
-
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1,
-                    };
-
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_name_was_corrected()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                var expected = new StreetNameRecord
                 {
-                    var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
-                    var streetNameNameWasCorrected = CreateStreetNameNameWasCorrected(streetNameWasRegistered);
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = streetNameWasNamed.Name,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameWasNamed,
-                        streetNameNameWasCorrected,
-                    };
-
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = streetNameNameWasCorrected.Name,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = null,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1,
-                    };
-
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_became_current()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                return new
                 {
-                    var streetNameBecameCurrent = CreateStreetNameBecameCurrent(streetNameWasRegistered);
+                    events,
+                    expected
+                };
+            }).ToList();
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameBecameCurrent
-                    };
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
 
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Current,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1
-                    };
+    [Fact]
+    public Task When_street_name_homonym_addition_was_corrected_to_cleared()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                var homonymAdditionWasDefined = CreateStreetNameHomonymAdditionWasDefined(streetNameWasRegistered);
+                var homonymAdditionWasCorrectedToCleared = CreateStreetNameHomonymAdditionWasCorrectedToCleared(streetNameWasRegistered);
 
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_was_corrected_to_current()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                var events = new object[]
                 {
-                    var streetNameWasCorrectedToCurrent = CreateStreetNameWasCorrectedToCurrent(streetNameWasRegistered);
+                    streetNameWasRegistered,
+                    streetNameWasNamed,
+                    homonymAdditionWasDefined,
+                    homonymAdditionWasCorrectedToCleared
+                };
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameWasCorrectedToCurrent
-                    };
-
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Current,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1
-                    };
-
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_became_proposed()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                var expected = new StreetNameRecord
                 {
-                    var streetNameBecameProposed = CreateStreetNameWasProposed(streetNameWasRegistered);
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = streetNameWasNamed.Name,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameBecameProposed
-                    };
-
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Proposed,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1
-                    };
-
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_was_corrected_to_proposed()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                return new
                 {
-                    var streetNameWasCorrectedToProposed = CreateStreetNameWasCorrectedToProposed(streetNameWasRegistered);
+                    events,
+                    expected
+                };
+            }).ToList();
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameWasCorrectedToProposed
-                    };
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
 
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Proposed,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1
-                    };
+    [Fact]
+    public Task When_street_name_was_assigned_a_persistent_local_id()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNamePersistentLocalIdWasAssigned = CreateStreetNamePersistentLocalIdWasAssigned(streetNameWasRegistered);
 
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
+                var events = new object[] { streetNameWasRegistered, streetNamePersistentLocalIdWasAssigned };
 
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_became_retired()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                var expected = new StreetNameRecord
                 {
-                    var streetNameBecameRetired = CreateStreetNameBecameRetired(streetNameWasRegistered);
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = streetNamePersistentLocalIdWasAssigned.PersistentLocalId,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameBecameRetired
-                    };
-
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Retired,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1,
-                    };
-
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
-
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
-
-        [Fact]
-        public Task When_street_name_was_corrected_to_retired()
-        {
-            var data = _fixture
-                .CreateMany<StreetNameWasRegistered>()
-                .Select((streetNameWasRegistered, counter) =>
+                return new
                 {
-                    var streetNameWasCorrectedToRetired = CreateStreetNameWasCorrectedToRetired(streetNameWasRegistered);
+                    events,
+                    expected
+                };
+            }).ToList();
 
-                    var events = new object[]
-                    {
-                        streetNameWasRegistered,
-                        streetNameWasCorrectedToRetired
-                    };
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
 
-                    var expected = new StreetNameRecord
-                    {
-                        StreetNameId = streetNameWasRegistered.StreetNameId,
-                        PersistentLocalId = null,
-                        MunicipalityId = streetNameWasRegistered.MunicipalityId,
-                        NisCode = streetNameWasRegistered.NisCode,
-                        Name = null,
-                        DutchName = null,
-                        FrenchName = null,
-                        GermanName = null,
-                        EnglishName = null,
-                        StreetNameStatus = StreetNameStatus.Retired,
-                        HomonymAddition = null,
-                        DutchHomonymAddition = null,
-                        FrenchHomonymAddition = null,
-                        GermanHomonymAddition = null,
-                        EnglishHomonymAddition = null,
-                        Position = counter * events.Length + events.Length - 1
-                    };
+    [Fact]
+    public Task When_street_name_status_was_removed()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameBecameCurrent = CreateStreetNameBecameCurrent(streetNameWasRegistered);
+                var streetNameStatusWasRemoved = CreateStreetNameStatusWasRemoved(streetNameWasRegistered);
 
-                    return new
-                    {
-                        events,
-                        expected
-                    };
-                }).ToList();
+                var events = new object[]
+                {
+                    streetNameWasRegistered,
+                    streetNameBecameCurrent,
+                    streetNameStatusWasRemoved
+                };
 
-            return new StreetNameCacheProjection()
-                .Scenario()
-                .Given(data.SelectMany(d => d.events))
-                .Expect(data.Select(d => d.expected));
-        }
+                var expected = new StreetNameRecord
+                {
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
 
-        private StreetNameWasNamed CreateStreetNameWasNamed(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameWasNamed = _fixture.Create<StreetNameWasNamed>();
-            streetNameWasNamed.StreetNameId = streetNameWasRegistered.StreetNameId;
-            streetNameWasNamed.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
-            return streetNameWasNamed;
-        }
+                return new
+                {
+                    events,
+                    expected
+                };
+            }).ToList();
 
-        private StreetNameHomonymAdditionWasDefined CreateStreetNameHomonymAdditionWasDefined(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameWasNamed = _fixture.Create<StreetNameHomonymAdditionWasDefined>();
-            streetNameWasNamed.StreetNameId = streetNameWasRegistered.StreetNameId;
-            streetNameWasNamed.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
-            return streetNameWasNamed;
-        }
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
 
-        private StreetNameHomonymAdditionWasCorrected CreateStreetNameHomonymAdditionWasCorrected(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameWasCorrected = _fixture.Create<StreetNameHomonymAdditionWasCorrected>();
-            streetNameWasCorrected.StreetNameId = streetNameWasRegistered.StreetNameId;
-            streetNameWasCorrected.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
-            return streetNameWasCorrected;
-        }
+    [Fact]
+    public Task When_street_name_status_was_corrected_to_removed()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameBecameCurrent = CreateStreetNameBecameCurrent(streetNameWasRegistered);
+                var streetNameStatusWasCorrectedToRemoved = CreateStreetNameStatusWasCorrectedToRemoved(streetNameWasRegistered);
 
-        private StreetNameHomonymAdditionWasCleared CreateStreetNameHomonymAdditionWasCleared(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameHomonymAdditionWasCleared = _fixture.Create<StreetNameHomonymAdditionWasCleared>();
-            streetNameHomonymAdditionWasCleared.StreetNameId = streetNameWasRegistered.StreetNameId;
-            streetNameHomonymAdditionWasCleared.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
-            return streetNameHomonymAdditionWasCleared;
-        }
+                var events = new object[]
+                {
+                    streetNameWasRegistered,
+                    streetNameBecameCurrent,
+                    streetNameStatusWasCorrectedToRemoved
+                };
 
-        private StreetNameHomonymAdditionWasCorrectedToCleared CreateStreetNameHomonymAdditionWasCorrectedToCleared(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameHomonymAdditionWasCorrectedToCleared = _fixture.Create<StreetNameHomonymAdditionWasCorrectedToCleared>();
-            streetNameHomonymAdditionWasCorrectedToCleared.StreetNameId = streetNameWasRegistered.StreetNameId;
-            streetNameHomonymAdditionWasCorrectedToCleared.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
-            return streetNameHomonymAdditionWasCorrectedToCleared;
-        }
+                var expected = new StreetNameRecord
+                {
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
 
-        private StreetNameNameWasCleared CreateStreetNameNameWasCleared(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameNameWasCleared = _fixture.Create<StreetNameNameWasCleared>();
-            streetNameNameWasCleared.StreetNameId = streetNameWasRegistered.StreetNameId;
-            streetNameNameWasCleared.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
-            return streetNameNameWasCleared;
-        }
+                return new
+                {
+                    events,
+                    expected
+                };
+            }).ToList();
 
-        private StreetNameNameWasCorrected CreateStreetNameNameWasCorrected(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameNameWasCorrected = _fixture.Create<StreetNameNameWasCorrected>();
-            streetNameNameWasCorrected.StreetNameId = streetNameWasRegistered.StreetNameId;
-            streetNameNameWasCorrected.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
-            return streetNameNameWasCorrected;
-        }
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
 
-        private StreetNameNameWasCorrectedToCleared CreateStreetNameNameWasCorrectedToCleared(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameNameWasCorrectedToCleared = _fixture.Create<StreetNameNameWasCorrectedToCleared>();
-            streetNameNameWasCorrectedToCleared.StreetNameId = streetNameWasRegistered.StreetNameId;
-            streetNameNameWasCorrectedToCleared.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
-            return streetNameNameWasCorrectedToCleared;
-        }
+    [Fact]
+    public Task When_street_name_name_was_cleared()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                var streetNameNameWasCleared = CreateStreetNameNameWasCleared(streetNameWasRegistered);
 
-        private StreetNameBecameCurrent CreateStreetNameBecameCurrent(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameBecameCurrent = _fixture.Create<StreetNameBecameCurrent>();
-            streetNameBecameCurrent.StreetNameId = streetNameWasRegistered.StreetNameId;
-            return streetNameBecameCurrent;
-        }
+                var events = new object[]
+                {
+                    streetNameWasRegistered,
+                    streetNameWasNamed,
+                    streetNameNameWasCleared
+                };
 
-        private StreetNameWasCorrectedToCurrent CreateStreetNameWasCorrectedToCurrent(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameWasCorrectedToCurrent = _fixture.Create<StreetNameWasCorrectedToCurrent>();
-            streetNameWasCorrectedToCurrent.StreetNameId = streetNameWasRegistered.StreetNameId;
-            return streetNameWasCorrectedToCurrent;
-        }
+                var expected = new StreetNameRecord
+                {
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
 
-        private StreetNameWasProposed CreateStreetNameWasProposed(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameWasProposed = _fixture.Create<StreetNameWasProposed>();
-            streetNameWasProposed.StreetNameId = streetNameWasRegistered.StreetNameId;
-            return streetNameWasProposed;
-        }
+                return new
+                {
+                    events,
+                    expected
+                };
+            }).ToList();
 
-        private StreetNameWasCorrectedToProposed CreateStreetNameWasCorrectedToProposed(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameWasCorrectedToProposed = _fixture.Create<StreetNameWasCorrectedToProposed>();
-            streetNameWasCorrectedToProposed.StreetNameId = streetNameWasRegistered.StreetNameId;
-            return streetNameWasCorrectedToProposed;
-        }
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
 
-        private StreetNameWasRetired CreateStreetNameBecameRetired(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameWasRetired = _fixture.Create<StreetNameWasRetired>();
-            streetNameWasRetired.StreetNameId = streetNameWasRegistered.StreetNameId;
-            return streetNameWasRetired;
-        }
+    [Fact]
+    public Task When_street_name_was_corrected_to_cleared()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                var streetNameNameWasCorrectedToCleared = CreateStreetNameNameWasCorrectedToCleared(streetNameWasRegistered);
 
-        private StreetNameWasCorrectedToRetired CreateStreetNameWasCorrectedToRetired(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameWasCorrectedToRetired = _fixture.Create<StreetNameWasCorrectedToRetired>();
-            streetNameWasCorrectedToRetired.StreetNameId = streetNameWasRegistered.StreetNameId;
-            return streetNameWasCorrectedToRetired;
-        }
+                var events = new object[]
+                {
+                    streetNameWasRegistered,
+                    streetNameWasNamed,
+                    streetNameNameWasCorrectedToCleared
+                };
 
-        private StreetNamePersistentLocalIdentifierWasAssigned CreateStreetNamePersistentLocalIdWasAssigned(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNamePersistentLocalIdWasAssigned = _fixture.Create<StreetNamePersistentLocalIdentifierWasAssigned>();
-            streetNamePersistentLocalIdWasAssigned.StreetNameId = streetNameWasRegistered.StreetNameId;
-            streetNamePersistentLocalIdWasAssigned.PersistentLocalId = _fixture.Create<int>();
-            return streetNamePersistentLocalIdWasAssigned;
-        }
+                var expected = new StreetNameRecord
+                {
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
 
-        private StreetNameStatusWasRemoved CreateStreetNameStatusWasRemoved(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameStatusWasRemoved = _fixture.Create<StreetNameStatusWasRemoved>();
-            streetNameStatusWasRemoved.StreetNameId = streetNameWasRegistered.StreetNameId;
-            return streetNameStatusWasRemoved;
-        }
+                return new
+                {
+                    events,
+                    expected
+                };
+            }).ToList();
 
-        private StreetNameStatusWasCorrectedToRemoved CreateStreetNameStatusWasCorrectedToRemoved(StreetNameWasRegistered streetNameWasRegistered)
-        {
-            var streetNameStatusWasCorrectedToRemoved = _fixture.Create<StreetNameStatusWasCorrectedToRemoved>();
-            streetNameStatusWasCorrectedToRemoved.StreetNameId = streetNameWasRegistered.StreetNameId;
-            return streetNameStatusWasCorrectedToRemoved;
-        }
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
+    public Task When_street_name_name_was_corrected()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameWasNamed = CreateStreetNameWasNamed(streetNameWasRegistered);
+                var streetNameNameWasCorrected = CreateStreetNameNameWasCorrected(streetNameWasRegistered);
+
+                var events = new object[]
+                {
+                    streetNameWasRegistered,
+                    streetNameWasNamed,
+                    streetNameNameWasCorrected
+                };
+
+                var expected = new StreetNameRecord
+                {
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = streetNameNameWasCorrected.Name,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = null,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
+
+                return new
+                {
+                    events,
+                    expected
+                };
+            }).ToList();
+
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
+    public Task When_street_name_became_current()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameBecameCurrent = CreateStreetNameBecameCurrent(streetNameWasRegistered);
+
+                var events = new object[]
+                {
+                    streetNameWasRegistered,
+                    streetNameBecameCurrent
+                };
+
+                var expected = new StreetNameRecord
+                {
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = StreetNameStatus.Current,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
+
+                return new
+                {
+                    events,
+                    expected
+                };
+            }).ToList();
+
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
+    public Task When_street_name_was_corrected_to_current()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameWasCorrectedToCurrent = CreateStreetNameWasCorrectedToCurrent(streetNameWasRegistered);
+
+                var events = new object[]
+                {
+                    streetNameWasRegistered,
+                    streetNameWasCorrectedToCurrent
+                };
+
+                var expected = new StreetNameRecord
+                {
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = StreetNameStatus.Current,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
+
+                return new
+                {
+                    events,
+                    expected
+                };
+            }).ToList();
+
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
+    public Task When_street_name_became_proposed()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameBecameProposed = CreateStreetNameWasProposed(streetNameWasRegistered);
+
+                var events = new object[]
+                {
+                    streetNameWasRegistered,
+                    streetNameBecameProposed
+                };
+
+                var expected = new StreetNameRecord
+                {
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = StreetNameStatus.Proposed,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
+
+                return new
+                {
+                    events,
+                    expected
+                };
+            }).ToList();
+
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
+    public Task When_street_name_was_corrected_to_proposed()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameWasCorrectedToProposed = CreateStreetNameWasCorrectedToProposed(streetNameWasRegistered);
+
+                var events = new object[]
+                {
+                    streetNameWasRegistered,
+                    streetNameWasCorrectedToProposed
+                };
+
+                var expected = new StreetNameRecord
+                {
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = StreetNameStatus.Proposed,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
+
+                return new
+                {
+                    events,
+                    expected
+                };
+            }).ToList();
+
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
+    public Task When_street_name_became_retired()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameBecameRetired = CreateStreetNameBecameRetired(streetNameWasRegistered);
+
+                var events = new object[]
+                {
+                    streetNameWasRegistered,
+                    streetNameBecameRetired
+                };
+
+                var expected = new StreetNameRecord
+                {
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = StreetNameStatus.Retired,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
+
+                return new
+                {
+                    events,
+                    expected
+                };
+            }).ToList();
+
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
+    public Task When_street_name_was_corrected_to_retired()
+    {
+        var data = _fixture
+            .CreateMany<StreetNameWasRegistered>()
+            .Select((streetNameWasRegistered, counter) =>
+            {
+                var streetNameWasCorrectedToRetired = CreateStreetNameWasCorrectedToRetired(streetNameWasRegistered);
+
+                var events = new object[]
+                {
+                    streetNameWasRegistered,
+                    streetNameWasCorrectedToRetired
+                };
+
+                var expected = new StreetNameRecord
+                {
+                    StreetNameId = streetNameWasRegistered.StreetNameId,
+                    PersistentLocalId = null,
+                    MunicipalityId = streetNameWasRegistered.MunicipalityId,
+                    NisCode = streetNameWasRegistered.NisCode,
+                    Name = null,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null,
+                    StreetNameStatus = StreetNameStatus.Retired,
+                    HomonymAddition = null,
+                    DutchHomonymAddition = null,
+                    FrenchHomonymAddition = null,
+                    GermanHomonymAddition = null,
+                    EnglishHomonymAddition = null,
+                    Position = counter * events.Length + events.Length - 1
+                };
+
+                return new
+                {
+                    events,
+                    expected
+                };
+            }).ToList();
+
+        return new StreetNameCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    private StreetNameWasNamed CreateStreetNameWasNamed(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameWasNamed = _fixture.Create<StreetNameWasNamed>();
+        streetNameWasNamed.StreetNameId = streetNameWasRegistered.StreetNameId;
+        streetNameWasNamed.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+        return streetNameWasNamed;
+    }
+
+    private StreetNameHomonymAdditionWasDefined CreateStreetNameHomonymAdditionWasDefined(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameWasNamed = _fixture.Create<StreetNameHomonymAdditionWasDefined>();
+        streetNameWasNamed.StreetNameId = streetNameWasRegistered.StreetNameId;
+        streetNameWasNamed.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+        return streetNameWasNamed;
+    }
+
+    private StreetNameHomonymAdditionWasCorrected CreateStreetNameHomonymAdditionWasCorrected(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameWasCorrected = _fixture.Create<StreetNameHomonymAdditionWasCorrected>();
+        streetNameWasCorrected.StreetNameId = streetNameWasRegistered.StreetNameId;
+        streetNameWasCorrected.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+        return streetNameWasCorrected;
+    }
+
+    private StreetNameHomonymAdditionWasCleared CreateStreetNameHomonymAdditionWasCleared(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameHomonymAdditionWasCleared = _fixture.Create<StreetNameHomonymAdditionWasCleared>();
+        streetNameHomonymAdditionWasCleared.StreetNameId = streetNameWasRegistered.StreetNameId;
+        streetNameHomonymAdditionWasCleared.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+        return streetNameHomonymAdditionWasCleared;
+    }
+
+    private StreetNameHomonymAdditionWasCorrectedToCleared CreateStreetNameHomonymAdditionWasCorrectedToCleared(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameHomonymAdditionWasCorrectedToCleared = _fixture.Create<StreetNameHomonymAdditionWasCorrectedToCleared>();
+        streetNameHomonymAdditionWasCorrectedToCleared.StreetNameId = streetNameWasRegistered.StreetNameId;
+        streetNameHomonymAdditionWasCorrectedToCleared.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+        return streetNameHomonymAdditionWasCorrectedToCleared;
+    }
+
+    private StreetNameNameWasCleared CreateStreetNameNameWasCleared(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameNameWasCleared = _fixture.Create<StreetNameNameWasCleared>();
+        streetNameNameWasCleared.StreetNameId = streetNameWasRegistered.StreetNameId;
+        streetNameNameWasCleared.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+        return streetNameNameWasCleared;
+    }
+
+    private StreetNameNameWasCorrected CreateStreetNameNameWasCorrected(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameNameWasCorrected = _fixture.Create<StreetNameNameWasCorrected>();
+        streetNameNameWasCorrected.StreetNameId = streetNameWasRegistered.StreetNameId;
+        streetNameNameWasCorrected.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+        return streetNameNameWasCorrected;
+    }
+
+    private StreetNameNameWasCorrectedToCleared CreateStreetNameNameWasCorrectedToCleared(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameNameWasCorrectedToCleared = _fixture.Create<StreetNameNameWasCorrectedToCleared>();
+        streetNameNameWasCorrectedToCleared.StreetNameId = streetNameWasRegistered.StreetNameId;
+        streetNameNameWasCorrectedToCleared.LanguageValue = StreetNameLanguage.Dutch.GetDisplayName();
+        return streetNameNameWasCorrectedToCleared;
+    }
+
+    private StreetNameBecameCurrent CreateStreetNameBecameCurrent(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameBecameCurrent = _fixture.Create<StreetNameBecameCurrent>();
+        streetNameBecameCurrent.StreetNameId = streetNameWasRegistered.StreetNameId;
+        return streetNameBecameCurrent;
+    }
+
+    private StreetNameWasCorrectedToCurrent CreateStreetNameWasCorrectedToCurrent(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameWasCorrectedToCurrent = _fixture.Create<StreetNameWasCorrectedToCurrent>();
+        streetNameWasCorrectedToCurrent.StreetNameId = streetNameWasRegistered.StreetNameId;
+        return streetNameWasCorrectedToCurrent;
+    }
+
+    private StreetNameWasProposed CreateStreetNameWasProposed(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameWasProposed = _fixture.Create<StreetNameWasProposed>();
+        streetNameWasProposed.StreetNameId = streetNameWasRegistered.StreetNameId;
+        return streetNameWasProposed;
+    }
+
+    private StreetNameWasCorrectedToProposed CreateStreetNameWasCorrectedToProposed(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameWasCorrectedToProposed = _fixture.Create<StreetNameWasCorrectedToProposed>();
+        streetNameWasCorrectedToProposed.StreetNameId = streetNameWasRegistered.StreetNameId;
+        return streetNameWasCorrectedToProposed;
+    }
+
+    private StreetNameWasRetired CreateStreetNameBecameRetired(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameWasRetired = _fixture.Create<StreetNameWasRetired>();
+        streetNameWasRetired.StreetNameId = streetNameWasRegistered.StreetNameId;
+        return streetNameWasRetired;
+    }
+
+    private StreetNameWasCorrectedToRetired CreateStreetNameWasCorrectedToRetired(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameWasCorrectedToRetired = _fixture.Create<StreetNameWasCorrectedToRetired>();
+        streetNameWasCorrectedToRetired.StreetNameId = streetNameWasRegistered.StreetNameId;
+        return streetNameWasCorrectedToRetired;
+    }
+
+    private StreetNamePersistentLocalIdentifierWasAssigned CreateStreetNamePersistentLocalIdWasAssigned(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNamePersistentLocalIdWasAssigned = _fixture.Create<StreetNamePersistentLocalIdentifierWasAssigned>();
+        streetNamePersistentLocalIdWasAssigned.StreetNameId = streetNameWasRegistered.StreetNameId;
+        streetNamePersistentLocalIdWasAssigned.PersistentLocalId = _fixture.Create<int>();
+        return streetNamePersistentLocalIdWasAssigned;
+    }
+
+    private StreetNameStatusWasRemoved CreateStreetNameStatusWasRemoved(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameStatusWasRemoved = _fixture.Create<StreetNameStatusWasRemoved>();
+        streetNameStatusWasRemoved.StreetNameId = streetNameWasRegistered.StreetNameId;
+        return streetNameStatusWasRemoved;
+    }
+
+    private StreetNameStatusWasCorrectedToRemoved CreateStreetNameStatusWasCorrectedToRemoved(StreetNameWasRegistered streetNameWasRegistered)
+    {
+        var streetNameStatusWasCorrectedToRemoved = _fixture.Create<StreetNameStatusWasCorrectedToRemoved>();
+        streetNameStatusWasCorrectedToRemoved.StreetNameId = streetNameWasRegistered.StreetNameId;
+        return streetNameStatusWasCorrectedToRemoved;
     }
 }

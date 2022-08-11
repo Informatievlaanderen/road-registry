@@ -1,14 +1,13 @@
-namespace RoadRegistry.Editor.Projections
+namespace RoadRegistry.Editor.Projections;
+
+using Microsoft.IO;
+
+public class ProjectionTestServices
 {
-    using Microsoft.IO;
-
-    public class ProjectionTestServices
+    public ProjectionTestServices()
     {
-        public ProjectionTestServices()
-        {
-            MemoryStreamManager = new RecyclableMemoryStreamManager();
-        }
-
-        public RecyclableMemoryStreamManager MemoryStreamManager { get; }
+        MemoryStreamManager = new RecyclableMemoryStreamManager();
     }
+
+    public RecyclableMemoryStreamManager MemoryStreamManager { get; }
 }

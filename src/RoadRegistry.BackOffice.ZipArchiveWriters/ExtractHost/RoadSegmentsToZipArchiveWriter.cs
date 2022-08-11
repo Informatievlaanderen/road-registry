@@ -9,6 +9,7 @@ using Editor.Schema.RoadSegments;
 using Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
+using RoadRegistry.BackOffice.ZipArchiveWriters;
 
 public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {

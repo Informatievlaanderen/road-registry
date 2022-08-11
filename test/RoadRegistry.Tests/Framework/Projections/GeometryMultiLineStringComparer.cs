@@ -1,30 +1,26 @@
-namespace RoadRegistry.Framework.Projections
+namespace RoadRegistry.Framework.Projections;
+
+using System;
+using KellermanSoftware.CompareNetObjects;
+using KellermanSoftware.CompareNetObjects.TypeComparers;
+using NetTopologySuite.Geometries;
+
+public class GeometryMultiLineStringComparer : BaseTypeComparer
 {
-    using System;
-    using KellermanSoftware.CompareNetObjects;
-    using KellermanSoftware.CompareNetObjects.TypeComparers;
-    using NetTopologySuite.Geometries;
-
-    public class GeometryMultiLineStringComparer : BaseTypeComparer
+    public GeometryMultiLineStringComparer(RootComparer rootComparer) : base(rootComparer)
     {
-        public GeometryMultiLineStringComparer(RootComparer rootComparer) : base(rootComparer)
-        {
-        }
+    }
 
-        public override bool IsTypeMatch(Type type1, Type type2)
-        {
-            return type1 == typeof (MultiLineString);
-        }
+    public override bool IsTypeMatch(Type type1, Type type2)
+    {
+        return type1 == typeof(MultiLineString);
+    }
 
-        public override void CompareType(CompareParms parms)
-        {
-            var left = (MultiLineString)parms.Object1;
-            var right = (MultiLineString)parms.Object2;
+    public override void CompareType(CompareParms parms)
+    {
+        var left = (MultiLineString)parms.Object1;
+        var right = (MultiLineString)parms.Object2;
 
-            if (!left.EqualsExact(right))
-            {
-                AddDifference(parms);
-            }
-        }
+        if (!left.EqualsExact(right)) AddDifference(parms);
     }
 }

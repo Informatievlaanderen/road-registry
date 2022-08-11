@@ -85,19 +85,31 @@ public class ExtractsController : ControllerBase
     public async Task<ActionResult> PostUpload(
         [FromRoute] string downloadId,
         [FromBody] IFormFile archive,
-        [FromBody] bool featureCompare,
         CancellationToken cancellationToken)
     {
-        MemoryStream ms = new();
-        await archive.CopyToAsync(ms, cancellationToken);
-
         try
         {
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var request = new UploadExtractRequest(downloadId, requestArchive);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Accepted(response);
+        }
+        catch (ExtractDownloadNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 
-            var request = featureCompare
-                ? new UploadExtractFeatureCompareRequest(downloadId, requestArchive)
-                : new UploadExtractRequest(downloadId, requestArchive);
+    [HttpPost("download/{downloadId}/uploads/feature-compare")]
+    public async Task<ActionResult> PostFeatureCompareUpload(
+        [FromRoute] string downloadId,
+        [FromBody] IFormFile archive,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var request = new UploadExtractFeatureCompareRequest(downloadId, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(response);
         }

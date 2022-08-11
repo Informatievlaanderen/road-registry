@@ -1,9 +1,8 @@
-﻿namespace RoadRegistry.Framework.Testing
-{
-    using BackOffice.Framework;
+﻿namespace RoadRegistry.Framework.Testing;
 
-    public interface IScenarioGivenNoneStateBuilder
-    {
-        IScenarioWhenStateBuilder When(Command command);
-    }
+using BackOffice.Framework;
+
+public interface IScenarioGivenNoneStateBuilder
+{
+    IScenarioWhenStateBuilder When(Command command);
 }

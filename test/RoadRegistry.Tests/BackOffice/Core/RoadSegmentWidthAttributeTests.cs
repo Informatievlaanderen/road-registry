@@ -1,57 +1,56 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+using System.Linq;
+using AutoFixture;
+using Xunit;
+
+public class RoadSegmentWidthAttributeTests
 {
-    using System.Linq;
-    using AutoFixture;
-    using Xunit;
+    private readonly Fixture _fixture;
 
-    public class RoadSegmentWidthAttributeTests
+    public RoadSegmentWidthAttributeTests()
     {
-        private readonly Fixture _fixture;
+        _fixture = new Fixture();
+        _fixture.CustomizeAttributeId();
+        _fixture.CustomizeRoadSegmentWidth();
+        _fixture.CustomizeRoadSegmentPosition();
+        _fixture.CustomizeRoadSegmentGeometryVersion();
+    }
 
-        public RoadSegmentWidthAttributeTests()
-        {
-            _fixture = new Fixture();
-            _fixture.CustomizeAttributeId();
-            _fixture.CustomizeRoadSegmentWidth();
-            _fixture.CustomizeRoadSegmentPosition();
-            _fixture.CustomizeRoadSegmentGeometryVersion();
-        }
+    [Fact]
+    public void IsDynamicRoadSegmentAttribute()
+    {
+        _fixture.CustomizeRoadSegmentWidthAttribute();
 
-        [Fact]
-        public void IsDynamicRoadSegmentAttribute()
-        {
-            _fixture.CustomizeRoadSegmentWidthAttribute();
+        var sut = _fixture.Create<RoadSegmentWidthAttribute>();
 
-            var sut = _fixture.Create<RoadSegmentWidthAttribute>();
+        Assert.IsAssignableFrom<DynamicRoadSegmentAttribute>(sut);
+    }
 
-            Assert.IsAssignableFrom<DynamicRoadSegmentAttribute>(sut);
-        }
+    [Fact]
+    public void PropertiesReturnExpectedResult()
+    {
+        var generator = new Generator<RoadSegmentPosition>(_fixture);
+        var attributeId = _fixture.Create<AttributeId>();
+        var temporaryId = _fixture.Create<AttributeId>();
+        var width = _fixture.Create<RoadSegmentWidth>();
+        var from = generator.First();
+        var to = generator.First(candidate => candidate > from);
+        var asOfGeometryVersion = _fixture.Create<GeometryVersion>();
 
-        [Fact]
-        public void PropertiesReturnExpectedResult()
-        {
-            var generator = new Generator<RoadSegmentPosition>(_fixture);
-            var attributeId = _fixture.Create<AttributeId>();
-            var temporaryId = _fixture.Create<AttributeId>();
-            var width = _fixture.Create<RoadSegmentWidth>();
-            var from = generator.First();
-            var to = generator.First(candidate => candidate > from);
-            var asOfGeometryVersion = _fixture.Create<GeometryVersion>();
+        var sut = new RoadSegmentWidthAttribute(
+            attributeId,
+            temporaryId,
+            width,
+            from,
+            to,
+            asOfGeometryVersion
+        );
 
-            var sut = new RoadSegmentWidthAttribute(
-                attributeId,
-                temporaryId,
-                width,
-                from,
-                to,
-                asOfGeometryVersion
-            );
-
-            Assert.Equal(attributeId, sut.Id);
-            Assert.Equal(width, sut.Width);
-            Assert.Equal(from, sut.From);
-            Assert.Equal(to, sut.To);
-            Assert.Equal(asOfGeometryVersion, sut.AsOfGeometryVersion);
-        }
+        Assert.Equal(attributeId, sut.Id);
+        Assert.Equal(width, sut.Width);
+        Assert.Equal(from, sut.From);
+        Assert.Equal(to, sut.To);
+        Assert.Equal(asOfGeometryVersion, sut.AsOfGeometryVersion);
     }
 }

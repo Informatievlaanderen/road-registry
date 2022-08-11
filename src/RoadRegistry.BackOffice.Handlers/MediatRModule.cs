@@ -2,22 +2,41 @@ namespace RoadRegistry.BackOffice.Handlers;
 
 using Autofac;
 using MediatR;
+using MediatR.Pipeline;
+using System.Reflection;
 
-public class MediatRModule : Module
+public class MediatRModule : Autofac.Module
 {
     protected override void Load(ContainerBuilder builder)
     {
-        builder
-            .RegisterType<Mediator>()
-            .As<IMediator>()
-            .InstancePerLifetimeScope();
+        builder.RegisterAssemblyTypes(typeof(IMediator).GetTypeInfo().Assembly).AsImplementedInterfaces();
 
-        builder.Register<ServiceFactory>(context =>
+        var mediatrOpenTypes = new[]
         {
-            var ctx = context.Resolve<IComponentContext>();
-            return type => ctx.Resolve(type);
-        });
+            typeof(IRequestHandler<,>),
+            typeof(IRequestExceptionHandler<,,>),
+            typeof(IRequestExceptionAction<,>),
+            typeof(INotificationHandler<>),
+            typeof(IStreamRequestHandler<,>)
+        };
 
-        builder.RegisterAssemblyTypes(typeof(MediatRModule).Assembly).AsImplementedInterfaces();
+        foreach (var mediatrOpenType in mediatrOpenTypes)
+        {
+            builder
+                .RegisterAssemblyTypes(this.GetType().Assembly)
+                .AsClosedTypesOf(mediatrOpenType)
+                // when having a single class implementing several handler types
+                // this call will cause a handler to be called twice
+                // in general you should try to avoid having a class implementing for instance `IRequestHandler<,>` and `INotificationHandler<>`
+                // the other option would be to remove this call
+                // see also https://github.com/jbogard/MediatR/issues/462
+                .AsImplementedInterfaces();
+        }
+
+        builder.Register<ServiceFactory>(ctx =>
+        {
+            var c = ctx.Resolve<IComponentContext>();
+            return t => c.Resolve(t);
+        });
     }
 }

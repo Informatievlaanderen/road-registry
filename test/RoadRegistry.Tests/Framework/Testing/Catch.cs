@@ -1,22 +1,22 @@
-namespace RoadRegistry.Framework.Testing
-{
-    using System;
-    using System.Threading.Tasks;
+namespace RoadRegistry.Framework.Testing;
 
-    public static class Catch
+using System;
+using System.Threading.Tasks;
+
+public static class Catch
+{
+    public static async Task<Exception> Exception(Func<Task> action)
     {
-        public static async Task<Exception> Exception(Func<Task> action)
+        Exception caught = null;
+        try
         {
-            Exception caught = null;
-            try
-            {
-                await action();
-            }
-            catch (Exception exception)
-            {
-                caught = exception;
-            }
-            return caught;
+            await action();
         }
+        catch (Exception exception)
+        {
+            caught = exception;
+        }
+
+        return caught;
     }
 }

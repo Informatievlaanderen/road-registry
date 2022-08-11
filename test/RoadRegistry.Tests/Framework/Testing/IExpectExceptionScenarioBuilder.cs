@@ -1,7 +1,6 @@
-﻿namespace RoadRegistry.Framework.Testing
+﻿namespace RoadRegistry.Framework.Testing;
+
+public interface IExpectExceptionScenarioBuilder
 {
-    public interface IExpectExceptionScenarioBuilder
-    {
-        ExpectExceptionScenario Build();
-    }
+    ExpectExceptionScenario Build();
 }

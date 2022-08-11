@@ -10,6 +10,7 @@ using Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.ZipArchiveWriters;
 
 public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {

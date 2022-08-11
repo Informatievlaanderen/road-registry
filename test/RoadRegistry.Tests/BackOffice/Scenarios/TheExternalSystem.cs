@@ -1,37 +1,36 @@
-namespace RoadRegistry.BackOffice.Scenarios
+namespace RoadRegistry.BackOffice.Scenarios;
+
+using Framework;
+using Messages;
+
+public static class TheExternalSystem
 {
-    using Framework;
-    using Messages;
-
-    public static class TheExternalSystem
+    public static Command PutsInARoadNetworkExtractRequest(ExternalExtractRequestId requestId,
+        DownloadId downloadId,
+        ExtractDescription extractDescription,
+        RoadNetworkExtractGeometry contour)
     {
-        public static Command PutsInARoadNetworkExtractRequest(ExternalExtractRequestId requestId,
-            DownloadId downloadId,
-            ExtractDescription extractDescription,
-            RoadNetworkExtractGeometry contour)
+        return new Command(new RequestRoadNetworkExtract
         {
-            return new Command(new RequestRoadNetworkExtract
-            {
-                ExternalRequestId = requestId,
-                DownloadId = downloadId,
-                Description = extractDescription,
-                Contour = contour
-            });
-        }
+            ExternalRequestId = requestId,
+            DownloadId = downloadId,
+            Description = extractDescription,
+            Contour = contour
+        });
+    }
 
-        public static Command UploadsRoadNetworkExtractChangesArchive(
-            ExtractRequestId requestId,
-            DownloadId downloadId,
-            UploadId uploadId,
-            ArchiveId archiveId)
+    public static Command UploadsRoadNetworkExtractChangesArchive(
+        ExtractRequestId requestId,
+        DownloadId downloadId,
+        UploadId uploadId,
+        ArchiveId archiveId)
+    {
+        return new Command(new UploadRoadNetworkExtractChangesArchive
         {
-            return new Command(new UploadRoadNetworkExtractChangesArchive
-            {
-                RequestId = requestId,
-                DownloadId = downloadId,
-                UploadId = uploadId,
-                ArchiveId = archiveId
-            });
-        }
+            RequestId = requestId,
+            DownloadId = downloadId,
+            UploadId = uploadId,
+            ArchiveId = archiveId
+        });
     }
 }

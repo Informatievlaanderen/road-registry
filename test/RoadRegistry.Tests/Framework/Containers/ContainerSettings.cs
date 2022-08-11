@@ -1,15 +1,16 @@
-namespace RoadRegistry.Framework.Containers
+namespace RoadRegistry.Framework.Containers;
+
+using System;
+
+public class ContainerSettings
 {
-    public class ContainerSettings
-    {
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public PortBinding[] PortBindings { get; set; } = new PortBinding[0];
+    public PortBinding[] PortBindings { get; set; } = Array.Empty<PortBinding>();
 
-        public string[] EnvironmentVariables { get; set; } = new string[0];
+    public string[] EnvironmentVariables { get; set; } = Array.Empty<string>();
 
-        public bool StopContainer { get; set; } = true;
+    public bool StopContainer { get; set; } = true;
 
-        public bool RemoveContainer { get; set; } = true;
-    }
+    public bool RemoveContainer { get; set; } = true;
 }

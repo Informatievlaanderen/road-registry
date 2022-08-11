@@ -1,105 +1,104 @@
-namespace RoadRegistry.BackOffice
+namespace RoadRegistry.BackOffice;
+
+using System;
+using Albedo;
+using AutoFixture;
+using AutoFixture.Idioms;
+using AutoFixture.Kernel;
+using RoadRegistry.Framework.Assertions;
+using Xunit;
+
+public class OrganizationNameTests
 {
-    using System;
-    using Albedo;
-    using AutoFixture;
-    using AutoFixture.Idioms;
-    using AutoFixture.Kernel;
-    using RoadRegistry.Framework.Assertions;
-    using Xunit;
+    private readonly Fixture _fixture;
 
-    public class OrganizationNameTests
+    public OrganizationNameTests()
     {
-        private readonly Fixture _fixture;
+        _fixture = new Fixture();
+        _fixture.CustomizeOrganizationName();
+    }
 
-        public OrganizationNameTests()
-        {
-            _fixture = new Fixture();
-            _fixture.CustomizeOrganizationName();
-        }
-
-        [Fact]
-        public void VerifyBehavior()
-        {
-            var customizedString = new Fixture();
-            customizedString.Customize<string>(customization =>
-                customization.FromFactory(generator =>
-                    new string(
-                        (char) new Random().Next(97, 123), // a-z
-                        generator.Next(1, OrganizationName.MaxLength + 1)
-                    )
-                ));
-            new CompositeIdiomaticAssertion(
-                new ImplicitConversionOperatorAssertion<string>(
-                    new CompositeSpecimenBuilder(customizedString, _fixture)),
-                new EquatableEqualsSelfAssertion(_fixture),
-                new EquatableEqualsOtherAssertion(_fixture),
-                new EqualityOperatorEqualsSelfAssertion(_fixture),
-                new EqualityOperatorEqualsOtherAssertion(_fixture),
-                new InequalityOperatorEqualsSelfAssertion(_fixture),
-                new InequalityOperatorEqualsOtherAssertion(_fixture),
-                new EqualsNewObjectAssertion(_fixture),
-                new EqualsNullAssertion(_fixture),
-                new EqualsSelfAssertion(_fixture),
-                new EqualsOtherAssertion(_fixture),
-                new EqualsSuccessiveAssertion(_fixture),
-                new GetHashCodeSuccessiveAssertion(_fixture)
-            ).Verify(typeof(OrganizationName));
-
-            new GuardClauseAssertion(
-                _fixture,
-                new CompositeBehaviorExpectation(
-                    new NullReferenceBehaviorExpectation(),
-                    new EmptyStringBehaviorExpectation()
+    [Fact]
+    public void VerifyBehavior()
+    {
+        var customizedString = new Fixture();
+        customizedString.Customize<string>(customization =>
+            customization.FromFactory(generator =>
+                new string(
+                    (char)new Random().Next(97, 123), // a-z
+                    generator.Next(1, OrganizationName.MaxLength + 1)
                 )
-            ).Verify(Constructors.Select(() => new OrganizationName(null)));
-        }
+            ));
+        new CompositeIdiomaticAssertion(
+            new ImplicitConversionOperatorAssertion<string>(
+                new CompositeSpecimenBuilder(customizedString, _fixture)),
+            new EquatableEqualsSelfAssertion(_fixture),
+            new EquatableEqualsOtherAssertion(_fixture),
+            new EqualityOperatorEqualsSelfAssertion(_fixture),
+            new EqualityOperatorEqualsOtherAssertion(_fixture),
+            new InequalityOperatorEqualsSelfAssertion(_fixture),
+            new InequalityOperatorEqualsOtherAssertion(_fixture),
+            new EqualsNewObjectAssertion(_fixture),
+            new EqualsNullAssertion(_fixture),
+            new EqualsSelfAssertion(_fixture),
+            new EqualsOtherAssertion(_fixture),
+            new EqualsSuccessiveAssertion(_fixture),
+            new GetHashCodeSuccessiveAssertion(_fixture)
+        ).Verify(typeof(OrganizationName));
 
-        [Fact]
-        public void AcceptsValueReturnsExpectedResultWhenValueLongerThan64Chars()
-        {
-            const int length = OrganizationName.MaxLength + 1;
+        new GuardClauseAssertion(
+            _fixture,
+            new CompositeBehaviorExpectation(
+                new NullReferenceBehaviorExpectation(),
+                new EmptyStringBehaviorExpectation()
+            )
+        ).Verify(Constructors.Select(() => new OrganizationName(null)));
+    }
 
-            var value = new string((char) new Random().Next(97, 123), length);
+    [Fact]
+    public void AcceptsValueReturnsExpectedResultWhenValueLongerThan64Chars()
+    {
+        const int length = OrganizationName.MaxLength + 1;
 
-            Assert.False(OrganizationName.AcceptsValue(value));
-        }
+        var value = new string((char)new Random().Next(97, 123), length);
 
-        [Theory]
-        [InlineData("")]
-        [InlineData(null)]
-        public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmpty(string value)
-        {
-            Assert.False(OrganizationName.AcceptsValue(value));
-        }
+        Assert.False(OrganizationName.AcceptsValue(value));
+    }
 
-        [Fact]
-        public void AcceptsValueReturnsExpectedResult()
-        {
-            var value = _fixture.Create<OrganizationName>().ToString();
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmpty(string value)
+    {
+        Assert.False(OrganizationName.AcceptsValue(value));
+    }
 
-            Assert.True(OrganizationName.AcceptsValue(value));
-        }
+    [Fact]
+    public void AcceptsValueReturnsExpectedResult()
+    {
+        var value = _fixture.Create<OrganizationName>().ToString();
 
-        [Fact]
-        public void ToStringReturnsExpectedResult()
-        {
-            var value = new string(
-                (char) new Random().Next(97, 123), // a-z
-                new Random().Next(1, OrganizationName.MaxLength + 1)
-            );
-            var sut = new OrganizationName(value);
+        Assert.True(OrganizationName.AcceptsValue(value));
+    }
 
-            Assert.Equal(value, sut.ToString());
-        }
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = new string(
+            (char)new Random().Next(97, 123), // a-z
+            new Random().Next(1, OrganizationName.MaxLength + 1)
+        );
+        var sut = new OrganizationName(value);
 
-        [Fact]
-        public void ValueCanNotBeLongerThan64Chars()
-        {
-            const int length = OrganizationName.MaxLength + 1;
+        Assert.Equal(value, sut.ToString());
+    }
 
-            var value = new string((char) new Random().Next(97, 123), length);
-            Assert.Throws<ArgumentOutOfRangeException>(() => new OrganizationName(value));
-        }
+    [Fact]
+    public void ValueCanNotBeLongerThan64Chars()
+    {
+        const int length = OrganizationName.MaxLength + 1;
+
+        var value = new string((char)new Random().Next(97, 123), length);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new OrganizationName(value));
     }
 }

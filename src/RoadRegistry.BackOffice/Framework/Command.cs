@@ -8,7 +8,7 @@ public class Command
     public Command(object body)
     {
         MessageId = Guid.NewGuid();
-        Principal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[0]));
+        Principal = new ClaimsPrincipal(new ClaimsIdentity(Array.Empty<Claim>()));
         Body = body ?? throw new ArgumentNullException(nameof(body));
     }
 

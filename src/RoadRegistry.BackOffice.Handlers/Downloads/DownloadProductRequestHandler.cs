@@ -14,6 +14,7 @@ using Microsoft.IO;
 using Microsoft.Net.Http.Headers;
 using NodaTime.Text;
 using Product.Schema;
+using ZipArchiveWriters;
 using ZipArchiveWriters.ForProduct;
 
 public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProductRequest, DownloadProductResponse>

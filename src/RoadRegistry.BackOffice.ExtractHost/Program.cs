@@ -32,6 +32,7 @@ namespace RoadRegistry.BackOffice.ExtractHost
     using Syndication.Schema;
     using Uploads;
     using ZipArchiveWriters.ExtractHost;
+    using RoadRegistry.BackOffice.ZipArchiveWriters;
 
     public class Program
     {
@@ -219,7 +220,7 @@ namespace RoadRegistry.BackOffice.ExtractHost
                                         ).Options)
                         )
                         .AddSingleton(zipArchiveWriterOptions)
-                        .AddSingleton<IZipArchiveWriter<EditorContext>>(sp =>
+                        .AddSingleton<ZipArchiveWriters.ExtractHost.IZipArchiveWriter<EditorContext>>(sp =>
                             new RoadNetworkExtractToZipArchiveWriter(
                                 sp.GetService<ZipArchiveWriterOptions>(),
                                 sp.GetService<IStreetNameCache>(),
@@ -241,7 +242,7 @@ namespace RoadRegistry.BackOffice.ExtractHost
                             new RoadNetworkExtractArchiveAssembler(
                                 sp.GetService<RecyclableMemoryStreamManager>(),
                                 sp.GetService<Func<EditorContext>>(),
-                                sp.GetService<IZipArchiveWriter<EditorContext>>()))
+                                sp.GetService<ZipArchiveWriters.ExtractHost.IZipArchiveWriter<EditorContext>>()))
                         .AddSingleton(sp => new EventHandlerModule[]
                         {
                             new RoadNetworkExtractEventModule(
