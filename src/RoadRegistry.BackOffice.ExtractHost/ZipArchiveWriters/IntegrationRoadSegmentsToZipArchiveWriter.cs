@@ -8,12 +8,14 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Configuration;
     using Editor.Schema;
     using Editor.Schema.RoadSegments;
     using Extracts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IO;
+    using NetTopologySuite.Geometries;
 
     public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
     {
@@ -43,14 +45,20 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             const int integrationBufferInMeters = 350;
-            var requestedContour = (NetTopologySuite.Geometries.Geometry) request.Contour;
-            var contourWithIntegrationBuffer = requestedContour.Buffer(integrationBufferInMeters);
-            var integrationBuffer = contourWithIntegrationBuffer.Difference(requestedContour);
+            
+            var segmentsInContour = await context.RoadSegments
+                .InsideContour(request.Contour)
+                .ToListAsync(cancellationToken);
+            var geometryForSegmentsInContour = GeometryConfiguration.GeometryFactory
+                .BuildGeometry(segmentsInContour.Select(segment => segment.Geometry));
 
-            var segmentsInContour =
-                await context.RoadSegments.InsideContour(request.Contour).ToListAsync(cancellationToken);
-            var segmentsInIntegrationBuffer =
-                await context.RoadSegments.InsideContour(integrationBuffer as NetTopologySuite.Geometries.IPolygonal).ToListAsync(cancellationToken);
+            var boundaryForSegments = geometryForSegmentsInContour.ConvexHull();
+            var boundaryWithIntegrationBuffer = boundaryForSegments.Buffer(integrationBufferInMeters);
+            var integrationBuffer = boundaryWithIntegrationBuffer.Difference(boundaryForSegments);
+
+            var segmentsInIntegrationBuffer = await context.RoadSegments
+                .InsideContour(integrationBuffer as IPolygonal)
+                .ToListAsync(cancellationToken);
             var integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
 
             var dbfEntry = archive.CreateEntry("iWegsegment.dbf");
