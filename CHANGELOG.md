@@ -1,3 +1,11 @@
+## [3.5.5](https://github.com/informatievlaanderen/road-registry/compare/v3.5.4...v3.5.5) (2022-08-16)
+
+
+### Bug Fixes
+
+* road nodes integration layer now calculated on boundary of nodes instead of contour ([8af6496](https://github.com/informatievlaanderen/road-registry/commit/8af64967b5e2b40da1fa2c755772c41f94e090af))
+* road segment integration layer now calculated on boundary of segments instead of contour ([92d6804](https://github.com/informatievlaanderen/road-registry/commit/92d6804107f84128e4e00a862206f25333ab1141))
+
 ## [3.5.4](https://github.com/informatievlaanderen/road-registry/compare/v3.5.3...v3.5.4) (2022-07-05)
 
 
