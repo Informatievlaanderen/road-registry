@@ -8,6 +8,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Editor.Schema;
     using Editor.Schema.RoadNodes;
     using Extracts;
@@ -36,14 +37,20 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             const int integrationBufferInMeters = 350;
-            var requestedContour = (NetTopologySuite.Geometries.Geometry) request.Contour;
-            var contourWithIntegrationBuffer = requestedContour.Buffer(integrationBufferInMeters);
-            var integrationBuffer = contourWithIntegrationBuffer.Difference(requestedContour);
 
-            var nodesInContour =
-                await context.RoadNodes.InsideContour(request.Contour).ToListAsync(cancellationToken);
-            var nodesInIntegrationBuffer =
-                await context.RoadNodes.InsideContour(integrationBuffer as NetTopologySuite.Geometries.IPolygonal).ToListAsync(cancellationToken);
+            var nodesInContour = await context.RoadNodes
+                .InsideContour(request.Contour)
+                .ToListAsync(cancellationToken);
+            var geometryForNodesInContour = GeometryConfiguration.GeometryFactory
+                .BuildGeometry(nodesInContour.Select(node => node.Geometry));
+
+            var boundaryForNodes = geometryForNodesInContour.ConvexHull();
+            var boundaryWithIntegrationBuffer = boundaryForNodes.Buffer(integrationBufferInMeters);
+            var integrationBuffer = boundaryWithIntegrationBuffer.Difference(boundaryForNodes);
+
+            var nodesInIntegrationBuffer = await context.RoadNodes
+                .InsideContour(integrationBuffer as NetTopologySuite.Geometries.IPolygonal)
+                .ToListAsync(cancellationToken);
             var integrationNodes = nodesInIntegrationBuffer.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
 
 
