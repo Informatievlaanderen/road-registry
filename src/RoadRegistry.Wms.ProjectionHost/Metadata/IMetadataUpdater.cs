@@ -1,10 +1,9 @@
-namespace RoadRegistry.Wms.ProjectionHost.Metadata
-{
-    using System.Threading;
-    using System.Threading.Tasks;
+namespace RoadRegistry.Wms.ProjectionHost.Metadata;
 
-    public interface IMetadataUpdater
-    {
-        Task UpdateAsync(CancellationToken cancellationToken);
-    }
+using System.Threading;
+using System.Threading.Tasks;
+
+public interface IMetadataUpdater
+{
+    Task UpdateAsync(CancellationToken cancellationToken);
 }

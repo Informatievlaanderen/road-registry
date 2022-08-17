@@ -37,16 +37,16 @@ namespace RoadRegistry.Product.Projections
                             RoadSegmentId = envelope.Message.Id,
                             DbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord
                             {
-                                WV_OIDN = {Value = surface.AttributeId},
-                                WS_OIDN = {Value = envelope.Message.Id},
-                                WS_GIDN = {Value = $"{envelope.Message.Id}_{surface.AsOfGeometryVersion}"},
-                                TYPE = {Value = typeTranslation.Identifier},
-                                LBLTYPE = {Value = typeTranslation.Name},
-                                VANPOS = {Value = (double) surface.FromPosition},
-                                TOTPOS = {Value = (double) surface.ToPosition},
-                                BEGINTIJD = {Value = surface.Origin.Since},
-                                BEGINORG = {Value = surface.Origin.OrganizationId},
-                                LBLBGNORG = {Value = surface.Origin.Organization},
+                                WV_OIDN = { Value = surface.AttributeId },
+                                WS_OIDN = { Value = envelope.Message.Id },
+                                WS_GIDN = { Value = $"{envelope.Message.Id}_{surface.AsOfGeometryVersion}" },
+                                TYPE = { Value = typeTranslation.Identifier },
+                                LBLTYPE = { Value = typeTranslation.Name },
+                                VANPOS = { Value = (double)surface.FromPosition },
+                                TOTPOS = { Value = (double)surface.ToPosition },
+                                BEGINTIJD = { Value = surface.Origin.Since },
+                                BEGINORG = { Value = surface.Origin.OrganizationId },
+                                LBLBGNORG = { Value = surface.Origin.Organization }
                             }.ToBytes(manager, encoding)
                         };
                     });
@@ -57,7 +57,6 @@ namespace RoadRegistry.Product.Projections
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
-                {
                     switch (change)
                     {
                         case RoadSegmentAdded segment:
@@ -74,7 +73,6 @@ namespace RoadRegistry.Product.Projections
 
                             break;
                     }
-                }
             });
         }
 
@@ -97,16 +95,16 @@ namespace RoadRegistry.Product.Projections
                             RoadSegmentId = segment.Id,
                             DbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord
                             {
-                                WV_OIDN = {Value = surface.AttributeId},
-                                WS_OIDN = {Value = segment.Id},
-                                WS_GIDN = {Value = $"{segment.Id}_{surface.AsOfGeometryVersion}"},
-                                TYPE = {Value = typeTranslation.Identifier},
-                                LBLTYPE = {Value = typeTranslation.Name},
-                                VANPOS = {Value = (double) surface.FromPosition},
-                                TOTPOS = {Value = (double) surface.ToPosition},
-                                BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)},
-                                BEGINORG = {Value = envelope.Message.OrganizationId},
-                                LBLBGNORG = {Value = envelope.Message.Organization}
+                                WV_OIDN = { Value = surface.AttributeId },
+                                WS_OIDN = { Value = segment.Id },
+                                WS_GIDN = { Value = $"{segment.Id}_{surface.AsOfGeometryVersion}" },
+                                TYPE = { Value = typeTranslation.Identifier },
+                                LBLTYPE = { Value = typeTranslation.Name },
+                                VANPOS = { Value = (double)surface.FromPosition },
+                                TOTPOS = { Value = (double)surface.ToPosition },
+                                BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                BEGINORG = { Value = envelope.Message.OrganizationId },
+                                LBLBGNORG = { Value = envelope.Message.Organization }
                             }.ToBytes(manager, encoding)
                         };
                     });
@@ -155,16 +153,16 @@ namespace RoadRegistry.Product.Projections
                             RoadSegmentId = segment.Id,
                             DbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord
                             {
-                                WV_OIDN = {Value = surface.AttributeId},
-                                WS_OIDN = {Value = segment.Id},
-                                WS_GIDN = {Value = $"{segment.Id}_{surface.AsOfGeometryVersion}"},
-                                TYPE = {Value = typeTranslation.Identifier},
-                                LBLTYPE = {Value = typeTranslation.Name},
-                                VANPOS = {Value = (double) surface.FromPosition},
-                                TOTPOS = {Value = (double) surface.ToPosition},
-                                BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)},
-                                BEGINORG = {Value = envelope.Message.OrganizationId},
-                                LBLBGNORG = {Value = envelope.Message.Organization}
+                                WV_OIDN = { Value = surface.AttributeId },
+                                WS_OIDN = { Value = segment.Id },
+                                WS_GIDN = { Value = $"{segment.Id}_{surface.AsOfGeometryVersion}" },
+                                TYPE = { Value = typeTranslation.Identifier },
+                                LBLTYPE = { Value = typeTranslation.Name },
+                                VANPOS = { Value = (double)surface.FromPosition },
+                                TOTPOS = { Value = (double)surface.ToPosition },
+                                BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                BEGINORG = { Value = envelope.Message.OrganizationId },
+                                LBLBGNORG = { Value = envelope.Message.Organization }
                             }.ToBytes(manager, encoding)
                         };
                     })

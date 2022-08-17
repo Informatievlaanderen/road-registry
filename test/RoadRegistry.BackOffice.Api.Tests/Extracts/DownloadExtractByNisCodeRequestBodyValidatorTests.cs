@@ -2,9 +2,9 @@ namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
 using Abstractions.Extracts;
 using Editor.Schema;
+using Framework.Containers;
 using Handlers.Extracts;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.Api.Tests.Framework.Containers;
 
 [Collection(nameof(SqlServerCollection))]
 public class DownloadExtractByNisCodeRequestBodyValidatorTests

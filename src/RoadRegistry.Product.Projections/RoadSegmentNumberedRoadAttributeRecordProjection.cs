@@ -37,15 +37,15 @@ namespace RoadRegistry.Product.Projections
                             RoadSegmentId = envelope.Message.Id,
                             DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
                             {
-                                GW_OIDN = {Value = numberedRoad.AttributeId},
-                                WS_OIDN = {Value = envelope.Message.Id},
-                                IDENT8 = {Value = numberedRoad.Number},
-                                RICHTING = {Value = directionTranslation.Identifier},
-                                LBLRICHT = {Value = directionTranslation.Name},
-                                VOLGNUMMER = {Value = numberedRoad.Ordinal},
-                                BEGINTIJD = {Value = numberedRoad.Origin.Since},
-                                BEGINORG = {Value = numberedRoad.Origin.OrganizationId},
-                                LBLBGNORG = {Value = numberedRoad.Origin.Organization},
+                                GW_OIDN = { Value = numberedRoad.AttributeId },
+                                WS_OIDN = { Value = envelope.Message.Id },
+                                IDENT8 = { Value = numberedRoad.Number },
+                                RICHTING = { Value = directionTranslation.Identifier },
+                                LBLRICHT = { Value = directionTranslation.Name },
+                                VOLGNUMMER = { Value = numberedRoad.Ordinal },
+                                BEGINTIJD = { Value = numberedRoad.Origin.Since },
+                                BEGINORG = { Value = numberedRoad.Origin.OrganizationId },
+                                LBLBGNORG = { Value = numberedRoad.Origin.Organization }
                             }.ToBytes(manager, encoding)
                         };
                     });
@@ -55,7 +55,6 @@ namespace RoadRegistry.Product.Projections
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
-                {
                     switch (change)
                     {
                         case RoadSegmentAddedToNumberedRoad numberedRoad:
@@ -71,7 +70,6 @@ namespace RoadRegistry.Product.Projections
                             RoadSegmentRemoved(context, roadSegmentRemoved);
                             break;
                     }
-                }
             });
         }
 
@@ -89,15 +87,15 @@ namespace RoadRegistry.Product.Projections
                 RoadSegmentId = numberedRoad.SegmentId,
                 DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
                 {
-                    GW_OIDN = {Value = numberedRoad.AttributeId},
-                    WS_OIDN = {Value = numberedRoad.SegmentId},
-                    IDENT8 = {Value = numberedRoad.Number},
-                    RICHTING = {Value = directionTranslation.Identifier},
-                    LBLRICHT = {Value = directionTranslation.Name},
-                    VOLGNUMMER = {Value = numberedRoad.Ordinal},
-                    BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)},
-                    BEGINORG = {Value = envelope.Message.OrganizationId},
-                    LBLBGNORG = {Value = envelope.Message.Organization}
+                    GW_OIDN = { Value = numberedRoad.AttributeId },
+                    WS_OIDN = { Value = numberedRoad.SegmentId },
+                    IDENT8 = { Value = numberedRoad.Number },
+                    RICHTING = { Value = directionTranslation.Identifier },
+                    LBLRICHT = { Value = directionTranslation.Name },
+                    VOLGNUMMER = { Value = numberedRoad.Ordinal },
+                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                    BEGINORG = { Value = envelope.Message.OrganizationId },
+                    LBLBGNORG = { Value = envelope.Message.Organization }
                 }.ToBytes(manager, encoding)
             });
         }
@@ -118,15 +116,15 @@ namespace RoadRegistry.Product.Projections
             roadSegment.RoadSegmentId = numberedRoad.SegmentId;
             roadSegment.DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
             {
-                GW_OIDN = {Value = numberedRoad.AttributeId},
-                WS_OIDN = {Value = numberedRoad.SegmentId},
-                IDENT8 = {Value = numberedRoad.Number},
-                RICHTING = {Value = directionTranslation.Identifier},
-                LBLRICHT = {Value = directionTranslation.Name},
-                VOLGNUMMER = {Value = numberedRoad.Ordinal},
-                BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)},
-                BEGINORG = {Value = envelope.Message.OrganizationId},
-                LBLBGNORG = {Value = envelope.Message.Organization}
+                GW_OIDN = { Value = numberedRoad.AttributeId },
+                WS_OIDN = { Value = numberedRoad.SegmentId },
+                IDENT8 = { Value = numberedRoad.Number },
+                RICHTING = { Value = directionTranslation.Identifier },
+                LBLRICHT = { Value = directionTranslation.Name },
+                VOLGNUMMER = { Value = numberedRoad.Ordinal },
+                BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                BEGINORG = { Value = envelope.Message.OrganizationId },
+                LBLBGNORG = { Value = envelope.Message.Organization }
             }.ToBytes(manager, encoding);
         }
 

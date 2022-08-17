@@ -1,12 +1,11 @@
-namespace RoadRegistry.BackOffice.CommandHost
+namespace RoadRegistry.BackOffice.CommandHost;
+
+using System.Threading;
+using System.Threading.Tasks;
+
+public interface ICommandProcessorPositionStore
 {
-    using System.Threading;
-    using System.Threading.Tasks;
+    Task<int?> ReadVersion(string name, CancellationToken cancellationToken);
 
-    public interface ICommandProcessorPositionStore
-    {
-        Task<int?> ReadVersion(string name, CancellationToken cancellationToken);
-
-        Task WriteVersion(string name, int version, CancellationToken cancellationToken);
-    }
+    Task WriteVersion(string name, int version, CancellationToken cancellationToken);
 }

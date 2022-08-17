@@ -1,8 +1,7 @@
-namespace RoadRegistry.Editor.Schema.RoadNetworkChanges
+namespace RoadRegistry.Editor.Schema.RoadNetworkChanges;
+
+public class RoadNetworkExtractChangesArchiveRejectedEntry
 {
-    public class RoadNetworkExtractChangesArchiveRejectedEntry
-    {
-        public ArchiveInfo Archive { get; set; }
-        public FileProblems[] Files { get; set; }
-    }
+    public ArchiveInfo Archive { get; set; }
+    public FileProblems[] Files { get; set; }
 }

@@ -39,8 +39,8 @@ namespace RoadRegistry.Wms.Projections
                         streetNamesById.ContainsKey(roadSegment.LeftSideStreetNameId.Value))
                         roadSegment.LeftSideStreetName = streetNamesById[roadSegment.LeftSideStreetNameId.Value];
 
-                    if(roadSegment.RightSideStreetNameId.HasValue &&
-                       streetNamesById.ContainsKey(roadSegment.RightSideStreetNameId.Value))
+                    if (roadSegment.RightSideStreetNameId.HasValue &&
+                        streetNamesById.ContainsKey(roadSegment.RightSideStreetNameId.Value))
                         roadSegment.RightSideStreetName = streetNamesById[roadSegment.RightSideStreetNameId.Value];
 
                     roadSegment.StreetNameCachePosition = streetNameCachePosition;
@@ -108,15 +108,13 @@ namespace RoadRegistry.Wms.Projections
 
                     BeginRoadNodeId = envelope.Message.StartNodeId,
                     EndRoadNodeId = envelope.Message.EndNodeId,
-                    StreetNameCachePosition = streetNameCachePosition,
+                    StreetNameCachePosition = streetNameCachePosition
                 }, token);
             });
 
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
-
                 foreach (var change in envelope.Message.Changes.Flatten())
-                {
                     switch (change)
                     {
                         case RoadSegmentAdded roadSegmentAdded:
@@ -131,7 +129,6 @@ namespace RoadRegistry.Wms.Projections
                             await RemoveRoadSegment(roadSegmentRemoved, context);
                             break;
                     }
-                }
             });
         }
 
@@ -204,7 +201,7 @@ namespace RoadRegistry.Wms.Projections
 
                 BeginRoadNodeId = roadSegmentAdded.StartNodeId,
                 EndRoadNodeId = roadSegmentAdded.EndNodeId,
-                StreetNameCachePosition = streetNameCachePosition,
+                StreetNameCachePosition = streetNameCachePosition
             }, token);
         }
 
@@ -294,9 +291,7 @@ namespace RoadRegistry.Wms.Projections
             int? streetNameId,
             CancellationToken token)
         {
-            return streetNameId.HasValue ?
-                await streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) :
-                null;
+            return streetNameId.HasValue ? await streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) : null;
         }
     }
 }

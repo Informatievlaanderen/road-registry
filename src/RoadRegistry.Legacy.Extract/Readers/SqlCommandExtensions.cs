@@ -10,18 +10,22 @@ namespace RoadRegistry.Legacy.Extract.Readers
         {
             using (command)
             using (var reader = command.ExecuteReader())
+            {
                 if (!reader.IsClosed)
                     while (reader.Read())
                         handler(reader);
+            }
         }
 
         public static IEnumerable<T> YieldEachDataRecord<T>(this SqlCommand command, Func<SqlDataReader, T> handler)
         {
             using (command)
             using (var reader = command.ExecuteReader())
+            {
                 if (!reader.IsClosed)
                     while (reader.Read())
                         yield return handler(reader);
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ namespace RoadRegistry.Product.Projections
     using Schema;
     using Schema.RoadSegments;
 
-    public class RoadSegmentEuropeanRoadAttributeRecordProjection: ConnectedProjection<ProductContext>
+    public class RoadSegmentEuropeanRoadAttributeRecordProjection : ConnectedProjection<ProductContext>
     {
         public RoadSegmentEuropeanRoadAttributeRecordProjection(RecyclableMemoryStreamManager manager,
             Encoding encoding)
@@ -32,12 +32,12 @@ namespace RoadRegistry.Product.Projections
                         RoadSegmentId = envelope.Message.Id,
                         DbaseRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord
                         {
-                            EU_OIDN = {Value = europeanRoad.AttributeId},
-                            WS_OIDN = {Value = envelope.Message.Id},
-                            EUNUMMER = {Value = europeanRoad.Number},
-                            BEGINTIJD = {Value = europeanRoad.Origin.Since},
-                            BEGINORG = {Value = europeanRoad.Origin.OrganizationId},
-                            LBLBGNORG = {Value = europeanRoad.Origin.Organization},
+                            EU_OIDN = { Value = europeanRoad.AttributeId },
+                            WS_OIDN = { Value = envelope.Message.Id },
+                            EUNUMMER = { Value = europeanRoad.Number },
+                            BEGINTIJD = { Value = europeanRoad.Origin.Since },
+                            BEGINORG = { Value = europeanRoad.Origin.OrganizationId },
+                            LBLBGNORG = { Value = europeanRoad.Origin.Organization }
                         }.ToBytes(manager, encoding)
                     });
 
@@ -47,7 +47,6 @@ namespace RoadRegistry.Product.Projections
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
-                {
                     switch (change)
                     {
                         case RoadSegmentAddedToEuropeanRoad europeanRoad:
@@ -57,12 +56,12 @@ namespace RoadRegistry.Product.Projections
                                 RoadSegmentId = europeanRoad.SegmentId,
                                 DbaseRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord
                                 {
-                                    EU_OIDN = {Value = europeanRoad.AttributeId},
-                                    WS_OIDN = {Value = europeanRoad.SegmentId},
-                                    EUNUMMER = {Value = europeanRoad.Number},
-                                    BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
-                                    BEGINORG = {Value = envelope.Message.OrganizationId},
-                                    LBLBGNORG = {Value = envelope.Message.Organization}
+                                    EU_OIDN = { Value = europeanRoad.AttributeId },
+                                    WS_OIDN = { Value = europeanRoad.SegmentId },
+                                    EUNUMMER = { Value = europeanRoad.Number },
+                                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                    BEGINORG = { Value = envelope.Message.OrganizationId },
+                                    LBLBGNORG = { Value = envelope.Message.Organization }
                                 }.ToBytes(manager, encoding)
                             });
                             break;
@@ -84,7 +83,6 @@ namespace RoadRegistry.Product.Projections
                             context.RoadSegmentEuropeanRoadAttributes.RemoveRange(roadSegmentEuropeanRoadAttributeRecords);
                             break;
                     }
-                }
             });
         }
     }

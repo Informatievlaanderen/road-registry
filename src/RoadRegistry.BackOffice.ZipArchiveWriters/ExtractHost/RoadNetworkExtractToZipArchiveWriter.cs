@@ -7,7 +7,6 @@ using Dbase.Lists;
 using Editor.Schema;
 using Extracts;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.ZipArchiveWriters;
 
 public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {

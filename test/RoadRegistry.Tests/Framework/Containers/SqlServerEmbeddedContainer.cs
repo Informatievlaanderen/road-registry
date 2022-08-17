@@ -45,7 +45,7 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
 
     private static SqlConnectionStringBuilder CreateConnectionStringBuilder(string database)
     {
-        return new()
+        return new SqlConnectionStringBuilder
         {
             DataSource = "tcp:localhost," + HostPort,
             InitialCatalog = database,

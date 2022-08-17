@@ -1,7 +1,6 @@
-namespace RoadRegistry.Wms.Schema
+namespace RoadRegistry.Wms.Schema;
+
+public static class MigrationTables
 {
-    public static class MigrationTables
-    {
-        public const string Wms = "__EFMigrationsHistoryWms";
-    }
+    public const string Wms = "__EFMigrationsHistoryWms";
 }

@@ -1,7 +1,6 @@
-namespace RoadRegistry.Hosts.Configuration
+namespace RoadRegistry.Hosts.Configuration;
+
+public class BlobClientOptions
 {
-    public class BlobClientOptions
-    {
-        public string BlobClientType { get; set; }
-    }
+    public string BlobClientType { get; set; }
 }

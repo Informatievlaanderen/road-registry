@@ -3,13 +3,11 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForProduct;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Framework.Containers;
 using Product.Schema;
 using Product.Schema.RoadSegments;
-using RoadRegistry.Framework.Containers;
 using Xunit;
 using ZipArchiveWriters.ForProduct;
-using SqlServer = Framework.Containers.SqlServer;
-using SqlServerCollection = Framework.Containers.SqlServerCollection;
 
 [Collection(nameof(SqlServerCollection))]
 public class RoadSegmentLaneAttributesToZipArchiveWriterTests

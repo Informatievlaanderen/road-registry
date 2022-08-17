@@ -2,7 +2,6 @@ namespace RoadRegistry.Legacy.Extract
 {
     using System;
     using System.Data;
-    using Microsoft.Data.SqlClient;
     using System.IO;
     using System.Text;
     using System.Threading;
@@ -16,6 +15,7 @@ namespace RoadRegistry.Legacy.Extract
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Hosts;
     using Hosts.Configuration;
+    using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -24,12 +24,14 @@ namespace RoadRegistry.Legacy.Extract
     using NodaTime;
     using Readers;
     using Serilog;
+    using Serilog.Debugging;
 
     public class Program
     {
         protected Program()
-        { }
-        
+        {
+        }
+
         public static async Task Main(string[] args)
         {
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
@@ -39,7 +41,8 @@ namespace RoadRegistry.Legacy.Extract
                 Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
 
             var host = new HostBuilder()
-                .ConfigureHostConfiguration(builder => {
+                .ConfigureHostConfiguration(builder =>
+                {
                     builder
                         .AddEnvironmentVariables("DOTNET_")
                         .AddEnvironmentVariables("ASPNETCORE_");
@@ -49,10 +52,8 @@ namespace RoadRegistry.Legacy.Extract
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
                     if (hostContext.HostingEnvironment.IsProduction())
-                    {
                         builder
                             .SetBasePath(Directory.GetCurrentDirectory());
-                    }
 
                     builder
                         .AddJsonFile("appsettings.json", true, false)
@@ -63,7 +64,7 @@ namespace RoadRegistry.Legacy.Extract
                 })
                 .ConfigureLogging((hostContext, builder) =>
                 {
-                    Serilog.Debugging.SelfLog.Enable(Console.WriteLine);
+                    SelfLog.Enable(Console.WriteLine);
 
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(hostContext.Configuration)
@@ -90,15 +91,9 @@ namespace RoadRegistry.Legacy.Extract
                             // Use MINIO
                             if (hostContext.Configuration.GetValue<string>("MINIO_SERVER") != null)
                             {
-                                if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null)
-                                {
-                                    throw new InvalidOperationException("The MINIO_ACCESS_KEY configuration variable was not set.");
-                                }
+                                if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null) throw new InvalidOperationException("The MINIO_ACCESS_KEY configuration variable was not set.");
 
-                                if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null)
-                                {
-                                    throw new InvalidOperationException("The MINIO_SECRET_KEY configuration variable was not set.");
-                                }
+                                if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null) throw new InvalidOperationException("The MINIO_SECRET_KEY configuration variable was not set.");
 
                                 builder.AddSingleton(new AmazonS3Client(
                                         new BasicAWSCredentials(
@@ -112,19 +107,12 @@ namespace RoadRegistry.Legacy.Extract
                                         }
                                     )
                                 );
-
                             }
                             else // Use AWS
                             {
-                                if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null)
-                                {
-                                    throw new InvalidOperationException("The AWS_ACCESS_KEY_ID configuration variable was not set.");
-                                }
+                                if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null) throw new InvalidOperationException("The AWS_ACCESS_KEY_ID configuration variable was not set.");
 
-                                if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null)
-                                {
-                                    throw new InvalidOperationException("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
-                                }
+                                if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null) throw new InvalidOperationException("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
 
                                 builder.AddSingleton(new AmazonS3Client(
                                         new BasicAWSCredentials(
@@ -163,7 +151,7 @@ namespace RoadRegistry.Legacy.Extract
                         .AddSingleton<LegacyStreamArchiveWriter>()
                         .AddSingleton(
                             new SqlConnection(
-                                hostContext.Configuration.GetConnectionString(Hosts.WellknownConnectionNames.Legacy)
+                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Legacy)
                             )
                         );
                 })
@@ -181,16 +169,16 @@ namespace RoadRegistry.Legacy.Extract
             {
                 await WaitFor.SeqToBecomeAvailable(configuration);
 
-                logger.LogSqlServerConnectionString(configuration, Hosts.WellknownConnectionNames.Legacy);
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Legacy);
                 logger.LogBlobClientCredentials(blobClientOptions);
 
                 await WaitFor.SqlServerToBecomeAvailable(
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(Hosts.WellknownConnectionNames.Legacy))
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Legacy))
                     , logger);
 
                 await OptimizeDatabasePerformance(
                     new SqlConnectionStringBuilder(
-                        configuration.GetConnectionString(Hosts.WellknownConnectionNames.Legacy)), logger);
+                        configuration.GetConnectionString(WellknownConnectionNames.Legacy)), logger);
 
                 await blobClient.ProvisionResources(host);
 

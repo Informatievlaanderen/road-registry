@@ -1,23 +1,23 @@
-namespace RoadRegistry.Hosts
+namespace RoadRegistry.Hosts;
+
+using System;
+using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+
+public class SqlEventProcessorPositionStoreSchema
 {
-    using System;
-    using System.Data;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.Data.SqlClient;
+    private readonly SqlConnectionStringBuilder _builder;
 
-    public class SqlEventProcessorPositionStoreSchema
+    public SqlEventProcessorPositionStoreSchema(SqlConnectionStringBuilder builder)
     {
-        private readonly SqlConnectionStringBuilder _builder;
+        _builder = builder ?? throw new ArgumentNullException(nameof(builder));
+    }
 
-        public SqlEventProcessorPositionStoreSchema(SqlConnectionStringBuilder builder)
-        {
-            _builder = builder ?? throw new ArgumentNullException(nameof(builder));
-        }
-
-        public async Task CreateSchemaIfNotExists(string schema, CancellationToken cancellationToken = default)
-        {
-            var text = $@"
+    public async Task CreateSchemaIfNotExists(string schema, CancellationToken cancellationToken = default)
+    {
+        var text = $@"
                 IF NOT EXISTS (SELECT * FROM SYS.SCHEMAS WHERE [Name] = '{schema}')
                 BEGIN
                     EXEC('CREATE SCHEMA [{schema}] AUTHORIZATION [dbo]')
@@ -32,13 +32,12 @@ namespace RoadRegistry.Hosts
                         CONSTRAINT PK_EventProcessorPosition     PRIMARY KEY NONCLUSTERED (NameHash)
                     )
                 END";
-            await using var connection = new SqlConnection(_builder.ConnectionString);
-            await connection.OpenAsync(cancellationToken);
-            await using var command = new SqlCommand(text, connection)
-            {
-                CommandType = CommandType.Text
-            };
-            await command.ExecuteNonQueryAsync(cancellationToken);
-        }
+        await using var connection = new SqlConnection(_builder.ConnectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var command = new SqlCommand(text, connection)
+        {
+            CommandType = CommandType.Text
+        };
+        await command.ExecuteNonQueryAsync(cancellationToken);
     }
 }

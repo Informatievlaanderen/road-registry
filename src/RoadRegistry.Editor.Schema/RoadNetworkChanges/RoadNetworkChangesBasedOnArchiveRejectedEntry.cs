@@ -1,8 +1,7 @@
-namespace RoadRegistry.Editor.Schema.RoadNetworkChanges
+namespace RoadRegistry.Editor.Schema.RoadNetworkChanges;
+
+public class RoadNetworkChangesBasedOnArchiveRejectedEntry
 {
-    public class RoadNetworkChangesBasedOnArchiveRejectedEntry
-    {
-        public ArchiveInfo Archive { get; set; }
-        public RejectedChange[] Changes { get; set; }
-    }
+    public ArchiveInfo Archive { get; set; }
+    public RejectedChange[] Changes { get; set; }
 }

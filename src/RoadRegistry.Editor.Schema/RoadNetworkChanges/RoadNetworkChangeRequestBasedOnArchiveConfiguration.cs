@@ -1,22 +1,21 @@
-namespace RoadRegistry.Editor.Schema.RoadNetworkChanges
+namespace RoadRegistry.Editor.Schema.RoadNetworkChanges;
+
+using Hosts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+public class RoadNetworkChangeRequestBasedOnArchiveConfiguration : IEntityTypeConfiguration<RoadNetworkChangeRequestBasedOnArchive>
 {
-    using Hosts;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    public const string TableName = "RoadNetworkChangeRequestBasedOnArchive";
 
-    public class RoadNetworkChangeRequestBasedOnArchiveConfiguration : IEntityTypeConfiguration<RoadNetworkChangeRequestBasedOnArchive>
+    public void Configure(EntityTypeBuilder<RoadNetworkChangeRequestBasedOnArchive> b)
     {
-        public const string TableName = "RoadNetworkChangeRequestBasedOnArchive";
+        b.ToTable(TableName, WellknownSchemas.EditorSchema)
+            .HasIndex(p => p.ChangeRequestId)
+            .IsClustered(false);
 
-        public void Configure(EntityTypeBuilder<RoadNetworkChangeRequestBasedOnArchive> b)
-        {
-            b.ToTable(TableName, WellknownSchemas.EditorSchema)
-                .HasIndex(p => p.ChangeRequestId)
-                .IsClustered(false);
-
-            b.HasKey(p => p.ChangeRequestId);
-            b.Property(p => p.ChangeRequestId).ValueGeneratedNever().IsRequired().HasMaxLength(32);
-            b.Property(p => p.ArchiveId).IsRequired();
-        }
+        b.HasKey(p => p.ChangeRequestId);
+        b.Property(p => p.ChangeRequestId).ValueGeneratedNever().IsRequired().HasMaxLength(32);
+        b.Property(p => p.ArchiveId).IsRequired();
     }
 }

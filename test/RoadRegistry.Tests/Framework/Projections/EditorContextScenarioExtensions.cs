@@ -62,7 +62,7 @@ public static class EditorContextScenarioExtensions
 {
     public static ConnectedProjectionScenario<EditorContext> Scenario(this ConnectedProjection<EditorContext> projection)
     {
-        return new(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        return new ConnectedProjectionScenario<EditorContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
     }
 
     public static async Task ExpectNone(this ConnectedProjectionScenario<EditorContext> scenario)

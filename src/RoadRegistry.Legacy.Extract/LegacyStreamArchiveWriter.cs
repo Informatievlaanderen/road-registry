@@ -1,4 +1,5 @@
 // ReSharper disable PossibleNullReferenceException
+
 namespace RoadRegistry.Legacy.Extract
 {
     using System;

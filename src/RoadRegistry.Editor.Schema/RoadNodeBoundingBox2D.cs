@@ -1,15 +1,17 @@
-namespace RoadRegistry.Editor.Schema
+namespace RoadRegistry.Editor.Schema;
+
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public class RoadNodeBoundingBox2D
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+    public double MinimumX { get; set; }
+    public double MaximumX { get; set; }
+    public double MinimumY { get; set; }
+    public double MaximumY { get; set; }
 
-    public class RoadNodeBoundingBox2D
+    public BoundingBox3D ToBoundingBox3D(double minimumM = default, double maximumM = default)
     {
-        public double MinimumX { get; set; }
-        public double MaximumX { get; set; }
-        public double MinimumY { get; set; }
-        public double MaximumY { get; set; }
-
-        public BoundingBox3D ToBoundingBox3D(double minimumM = default, double maximumM = default) => new BoundingBox3D(
+        return new(
             MinimumX,
             MinimumY,
             MaximumX,

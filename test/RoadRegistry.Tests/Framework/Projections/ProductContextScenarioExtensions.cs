@@ -61,7 +61,7 @@ public static class ProductContextScenarioExtensions
 {
     public static ConnectedProjectionScenario<ProductContext> Scenario(this ConnectedProjection<ProductContext> projection)
     {
-        return new(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        return new ConnectedProjectionScenario<ProductContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
     }
 
     public static async Task ExpectNone(this ConnectedProjectionScenario<ProductContext> scenario)

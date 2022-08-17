@@ -1,9 +1,8 @@
-namespace RoadRegistry.Product.Schema.RoadSegments
+namespace RoadRegistry.Product.Schema.RoadSegments;
+
+public class RoadSegmentNationalRoadAttributeRecord
 {
-    public class RoadSegmentNationalRoadAttributeRecord
-    {
-        public int Id { get; set; }
-        public int RoadSegmentId { get; set; }
-        public byte[] DbaseRecord { get; set; }
-    }
+    public int Id { get; set; }
+    public int RoadSegmentId { get; set; }
+    public byte[] DbaseRecord { get; set; }
 }

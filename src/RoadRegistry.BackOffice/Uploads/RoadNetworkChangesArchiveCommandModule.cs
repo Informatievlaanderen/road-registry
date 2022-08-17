@@ -29,7 +29,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
             .Handle(async (context, message, ct) =>
             {
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
-                var upload = RoadNetworkChangesArchive.Upload(archiveId, message.Body.IsFeatureCompare);
+                var upload = RoadNetworkChangesArchive.Upload(archiveId);
                 var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
                 await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                 using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))

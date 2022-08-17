@@ -1,26 +1,26 @@
 // ReSharper disable InconsistentNaming
-namespace RoadRegistry.Dbase.Lists
+
+namespace RoadRegistry.Dbase.Lists;
+
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public class NumberedRoadSegmentDirectionDbaseRecord : DbaseRecord
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+    public static readonly NumberedRoadSegmentDirectionDbaseSchema Schema = new();
 
-    public class NumberedRoadSegmentDirectionDbaseRecord : DbaseRecord
+    public NumberedRoadSegmentDirectionDbaseRecord()
     {
-        public static readonly NumberedRoadSegmentDirectionDbaseSchema Schema = new NumberedRoadSegmentDirectionDbaseSchema();
+        RICHTING = new DbaseInt32(Schema.RICHTING);
+        LBLRICHT = new DbaseString(Schema.LBLRICHT);
+        DEFRICHT = new DbaseString(Schema.DEFRICHT);
 
-        public NumberedRoadSegmentDirectionDbaseRecord()
+        Values = new DbaseFieldValue[]
         {
-            RICHTING = new DbaseInt32(Schema.RICHTING);
-            LBLRICHT = new DbaseString(Schema.LBLRICHT);
-            DEFRICHT = new DbaseString(Schema.DEFRICHT);
-
-            Values = new DbaseFieldValue[]
-            {
-                RICHTING, LBLRICHT, DEFRICHT
-            };
-        }
-
-        public DbaseInt32 RICHTING { get; }
-        public DbaseString LBLRICHT { get; }
-        public DbaseString DEFRICHT { get; }
+            RICHTING, LBLRICHT, DEFRICHT
+        };
     }
+
+    public DbaseInt32 RICHTING { get; }
+    public DbaseString LBLRICHT { get; }
+    public DbaseString DEFRICHT { get; }
 }

@@ -1,15 +1,13 @@
 namespace RoadRegistry.BackOffice.CommandHost.Tests.Framework.Containers;
 
+using Abstractions;
+using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.Editor.Schema;
+using Product.Schema;
 using RoadRegistry.Framework;
 using RoadRegistry.Framework.Containers;
-using RoadRegistry.Product.Schema;
-using System;
-using System.Threading.Tasks;
 
 public class SqlServer : ISqlServerDatabase
 {

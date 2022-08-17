@@ -674,6 +674,6 @@ public class RoadNetworkTestHelpers
 
     public static RoadNetworkTestHelpers Create()
     {
-        return new();
+        return new RoadNetworkTestHelpers();
     }
 }

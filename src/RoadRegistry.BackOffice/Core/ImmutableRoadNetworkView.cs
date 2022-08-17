@@ -556,7 +556,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
             SegmentReusableSurfaceAttributeIdentifiers);
-        foreach (var change in ChangeExtensions.Flatten(@event.Changes))
+        foreach (var change in @event.Changes.Flatten())
             switch (change)
             {
                 case RoadNodeAdded roadNodeAdded:
@@ -1959,7 +1959,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _maximumTransactionId =
                 TransactionId.Max(new TransactionId(@event.TransactionId), _maximumTransactionId);
 
-            foreach (var change in ChangeExtensions.Flatten(@event.Changes))
+            foreach (var change in @event.Changes.Flatten())
                 switch (change)
                 {
                     case RoadNodeAdded roadNodeAdded:

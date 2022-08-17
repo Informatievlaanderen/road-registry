@@ -51,7 +51,7 @@ public readonly struct ExtractDescription : IEquatable<ExtractDescription>
 
     public static implicit operator ExtractDescription(string instance)
     {
-        return new(instance);
+        return new ExtractDescription(instance);
     }
 
     public static bool operator ==(ExtractDescription left, ExtractDescription right)

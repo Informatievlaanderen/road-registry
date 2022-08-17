@@ -1,7 +1,6 @@
-namespace RoadRegistry.Syndication.Schema
+namespace RoadRegistry.Syndication.Schema;
+
+public static class MigrationTables
 {
-    public static class MigrationTables
-    {
-        public const string Syndication = "__EFMigrationsHistorySyndication";
-    }
+    public const string Syndication = "__EFMigrationsHistorySyndication";
 }

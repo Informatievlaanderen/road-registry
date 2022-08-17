@@ -30,12 +30,12 @@ public readonly struct AttributeId : IEquatable<AttributeId>, IComparable<Attrib
 
     public static AttributeId Max(AttributeId left, AttributeId right)
     {
-        return new(Math.Max(left._value, right._value));
+        return new AttributeId(Math.Max(left._value, right._value));
     }
 
     public static AttributeId Min(AttributeId left, AttributeId right)
     {
-        return new(Math.Min(left._value, right._value));
+        return new AttributeId(Math.Min(left._value, right._value));
     }
 
     [Pure]

@@ -5,7 +5,6 @@ namespace RoadRegistry.Editor.Projections
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using BackOffice;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -35,15 +34,15 @@ namespace RoadRegistry.Editor.Projections
                         RoadSegmentId = envelope.Message.Id,
                         DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
                         {
-                            WB_OIDN = {Value = width.AttributeId},
-                            WS_OIDN = {Value = envelope.Message.Id},
-                            WS_GIDN = {Value = $"{envelope.Message.Id}_{width.AsOfGeometryVersion}"},
-                            BREEDTE = {Value = width.Width},
-                            VANPOS = {Value = (double) width.FromPosition},
-                            TOTPOS = {Value = (double) width.ToPosition},
-                            BEGINTIJD = {Value = width.Origin.Since},
-                            BEGINORG = {Value = width.Origin.OrganizationId},
-                            LBLBGNORG = {Value = width.Origin.Organization}
+                            WB_OIDN = { Value = width.AttributeId },
+                            WS_OIDN = { Value = envelope.Message.Id },
+                            WS_GIDN = { Value = $"{envelope.Message.Id}_{width.AsOfGeometryVersion}" },
+                            BREEDTE = { Value = width.Width },
+                            VANPOS = { Value = (double)width.FromPosition },
+                            TOTPOS = { Value = (double)width.ToPosition },
+                            BEGINTIJD = { Value = width.Origin.Since },
+                            BEGINORG = { Value = width.Origin.OrganizationId },
+                            LBLBGNORG = { Value = width.Origin.Organization }
                         }.ToBytes(manager, encoding)
                     });
 
@@ -53,7 +52,6 @@ namespace RoadRegistry.Editor.Projections
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
-                {
                     switch (change)
                     {
                         case RoadSegmentAdded segment:
@@ -70,7 +68,6 @@ namespace RoadRegistry.Editor.Projections
 
                             break;
                     }
-                }
             });
         }
 
@@ -90,15 +87,15 @@ namespace RoadRegistry.Editor.Projections
                         RoadSegmentId = segment.Id,
                         DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
                         {
-                            WB_OIDN = {Value = width.AttributeId},
-                            WS_OIDN = {Value = segment.Id},
-                            WS_GIDN = {Value = $"{segment.Id}_{width.AsOfGeometryVersion}"},
-                            BREEDTE = {Value = width.Width},
-                            VANPOS = {Value = (double) width.FromPosition},
-                            TOTPOS = {Value = (double) width.ToPosition},
-                            BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
-                            BEGINORG = {Value = envelope.Message.OrganizationId},
-                            LBLBGNORG = {Value = envelope.Message.Organization}
+                            WB_OIDN = { Value = width.AttributeId },
+                            WS_OIDN = { Value = segment.Id },
+                            WS_GIDN = { Value = $"{segment.Id}_{width.AsOfGeometryVersion}" },
+                            BREEDTE = { Value = width.Width },
+                            VANPOS = { Value = (double)width.FromPosition },
+                            TOTPOS = { Value = (double)width.ToPosition },
+                            BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                            BEGINORG = { Value = envelope.Message.OrganizationId },
+                            LBLBGNORG = { Value = envelope.Message.Organization }
                         }.ToBytes(manager, encoding)
                     });
 
@@ -144,15 +141,15 @@ namespace RoadRegistry.Editor.Projections
                         RoadSegmentId = segment.Id,
                         DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
                         {
-                            WB_OIDN = {Value = width.AttributeId},
-                            WS_OIDN = {Value = segment.Id},
-                            WS_GIDN = {Value = $"{segment.Id}_{width.AsOfGeometryVersion}"},
-                            BREEDTE = {Value = width.Width},
-                            VANPOS = {Value = (double) width.FromPosition},
-                            TOTPOS = {Value = (double) width.ToPosition},
-                            BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
-                            BEGINORG = {Value = envelope.Message.OrganizationId},
-                            LBLBGNORG = {Value = envelope.Message.Organization}
+                            WB_OIDN = { Value = width.AttributeId },
+                            WS_OIDN = { Value = segment.Id },
+                            WS_GIDN = { Value = $"{segment.Id}_{width.AsOfGeometryVersion}" },
+                            BREEDTE = { Value = width.Width },
+                            VANPOS = { Value = (double)width.FromPosition },
+                            TOTPOS = { Value = (double)width.ToPosition },
+                            BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                            BEGINORG = { Value = envelope.Message.OrganizationId },
+                            LBLBGNORG = { Value = envelope.Message.Organization }
                         }.ToBytes(manager, encoding)
                     })
                     .ToDictionary(a => a.Id);

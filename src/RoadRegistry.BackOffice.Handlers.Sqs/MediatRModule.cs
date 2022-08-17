@@ -4,7 +4,7 @@ using Autofac;
 using MediatR;
 using MediatR.Pipeline;
 
-public class MediatRModule : Autofac.Module
+public class MediatRModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
@@ -18,9 +18,8 @@ public class MediatRModule : Autofac.Module
         };
 
         foreach (var mediatrOpenType in mediatrOpenTypes)
-        {
             builder
-                .RegisterAssemblyTypes(this.GetType().Assembly)
+                .RegisterAssemblyTypes(GetType().Assembly)
                 .AsClosedTypesOf(mediatrOpenType)
                 // when having a single class implementing several handler types
                 // this call will cause a handler to be called twice
@@ -28,6 +27,5 @@ public class MediatRModule : Autofac.Module
                 // the other option would be to remove this call
                 // see also https://github.com/jbogard/MediatR/issues/462
                 .AsImplementedInterfaces();
-        }
     }
 }

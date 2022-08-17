@@ -1,26 +1,26 @@
 // ReSharper disable InconsistentNaming
-namespace RoadRegistry.Dbase.Lists
+
+namespace RoadRegistry.Dbase.Lists;
+
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public class RoadSegmentCategoryDbaseRecord : DbaseRecord
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+    public static readonly RoadSegmentCategoryDbaseSchema Schema = new();
 
-    public class RoadSegmentCategoryDbaseRecord : DbaseRecord
+    public RoadSegmentCategoryDbaseRecord()
     {
-        public static readonly RoadSegmentCategoryDbaseSchema Schema = new RoadSegmentCategoryDbaseSchema();
+        WEGCAT = new DbaseString(Schema.WEGCAT);
+        LBLWEGCAT = new DbaseString(Schema.LBLWEGCAT);
+        DEFWEGCAT = new DbaseString(Schema.DEFWEGCAT);
 
-        public RoadSegmentCategoryDbaseRecord()
+        Values = new DbaseFieldValue[]
         {
-            WEGCAT = new DbaseString(Schema.WEGCAT);
-            LBLWEGCAT = new DbaseString(Schema.LBLWEGCAT);
-            DEFWEGCAT = new DbaseString(Schema.DEFWEGCAT);
-
-            Values = new DbaseFieldValue[]
-            {
-                WEGCAT, LBLWEGCAT, DEFWEGCAT
-            };
-        }
-
-        public DbaseString WEGCAT { get; }
-        public DbaseString LBLWEGCAT { get; }
-        public DbaseString DEFWEGCAT { get; }
+            WEGCAT, LBLWEGCAT, DEFWEGCAT
+        };
     }
+
+    public DbaseString WEGCAT { get; }
+    public DbaseString LBLWEGCAT { get; }
+    public DbaseString DEFWEGCAT { get; }
 }

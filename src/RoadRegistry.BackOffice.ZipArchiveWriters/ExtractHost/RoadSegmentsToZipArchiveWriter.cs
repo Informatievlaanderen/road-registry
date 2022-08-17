@@ -9,7 +9,6 @@ using Editor.Schema.RoadSegments;
 using Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.ZipArchiveWriters;
 
 public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
@@ -51,17 +50,16 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         await using (var dbfEntryStream = dbfEntry.Open())
         using (var dbfWriter = new DbaseBinaryWriter(dbfHeader, new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
-            foreach (var batch in segments
+            foreach (var batch in ZipArchiveWriters.EnumerableExtensions.Batch(segments
                          .OrderBy(_ => _.Id)
                          .Select(_ => _.DbaseRecord)
-                         .AsEnumerable()
-                         .Batch(_zipArchiveWriterOptions.RoadSegmentBatchSize))
+                         .AsEnumerable(), _zipArchiveWriterOptions.RoadSegmentBatchSize))
             {
                 var dbfRecords = batch
                     .Select(x =>
                     {
                         var dbfRecord = new RoadSegmentDbaseRecord();
-                        dbfRecord.FromBytes(x, _manager, _encoding);
+                        ZipArchiveWriters.DbaseRecordExtensions.FromBytes(dbfRecord, x, _manager, _encoding);
                         return dbfRecord;
                     })
                     .ToList();

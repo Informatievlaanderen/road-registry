@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Configuration;
 using Editor.Schema;
+using Framework.Containers;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,6 @@ using Xunit.Sdk;
 using GeometryTranslator = BackOffice.GeometryTranslator;
 using Point = NetTopologySuite.Geometries.Point;
 using Position = SqlStreamStore.Streams.Position;
-using RoadRegistry.BackOffice.Api.Tests.Framework.Containers;
 
 [Collection(nameof(SqlServerCollection))]
 public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyncLifetime

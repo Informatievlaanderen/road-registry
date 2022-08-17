@@ -13,7 +13,7 @@ public class FileWarning : FileProblem
 
     public override Messages.FileProblem Translate()
     {
-        return new()
+        return new Messages.FileProblem
         {
             File = File,
             Severity = ProblemSeverity.Warning,

@@ -2,21 +2,22 @@ namespace RoadRegistry.Legacy.Extract.Readers
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
     using BackOffice;
     using BackOffice.Core;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+    using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Logging;
     using NodaTime;
     using NodaTime.Text;
+    using Point = NetTopologySuite.Geometries.Point;
 
     public class ImportedRoadNodesReader : IEventReader
     {
         private readonly IClock _clock;
-        private readonly WellKnownBinaryReader _wkbReader;
         private readonly ILogger<ImportedRoadNodesReader> _logger;
+        private readonly WellKnownBinaryReader _wkbReader;
 
         public ImportedRoadNodesReader(IClock clock, WellKnownBinaryReader wkbReader, ILogger<ImportedRoadNodesReader> logger)
         {
@@ -46,7 +47,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
             {
                 var id = reader.GetInt32(0);
                 _logger.LogDebug("Reading road node with id {0}", id);
-                var geometry = _wkbReader.ReadAs<NetTopologySuite.Geometries.Point>(reader.GetAllBytes(3));
+                var geometry = _wkbReader.ReadAs<Point>(reader.GetAllBytes(3));
                 return new StreamEvent(RoadNetworks.Stream, new ImportedRoadNode
                 {
                     Id = id,

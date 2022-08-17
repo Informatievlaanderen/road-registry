@@ -1,24 +1,23 @@
-namespace RoadRegistry.Editor.Schema.Organizations
+namespace RoadRegistry.Editor.Schema.Organizations;
+
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public class OrganizationDbaseRecord : DbaseRecord
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+    public static readonly OrganizationDbaseSchema Schema = new();
 
-    public class OrganizationDbaseRecord : DbaseRecord
+    public OrganizationDbaseRecord()
     {
-        public static readonly OrganizationDbaseSchema Schema = new OrganizationDbaseSchema();
+        ORG = new DbaseString(Schema.ORG);
+        LBLORG = new DbaseString(Schema.LBLORG);
 
-        public OrganizationDbaseRecord()
+        Values = new DbaseFieldValue[]
         {
-            ORG = new DbaseString(Schema.ORG);
-            LBLORG = new DbaseString(Schema.LBLORG);
-
-            Values = new DbaseFieldValue[]
-            {
-                ORG,
-                LBLORG,
-            };
-        }
-
-        public DbaseString ORG { get; }
-        public DbaseString LBLORG { get; }
+            ORG,
+            LBLORG
+        };
     }
+
+    public DbaseString ORG { get; }
+    public DbaseString LBLORG { get; }
 }

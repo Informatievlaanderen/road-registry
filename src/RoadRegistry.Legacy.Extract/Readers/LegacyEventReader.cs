@@ -2,10 +2,10 @@ namespace RoadRegistry.Legacy.Extract.Readers
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
     using BackOffice.Core;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+    using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Logging;
     using NodaTime;
     using NodaTime.Text;
@@ -64,7 +64,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 When = InstantPattern.ExtendedIso.Format(_clock.GetCurrentInstant())
             });
 
-            foreach(var @event in _reader.ReadEvents(connection))
+            foreach (var @event in _reader.ReadEvents(connection))
                 yield return @event;
 
             yield return new StreamEvent(RoadNetworks.Stream, new CompletedRoadNetworkImport

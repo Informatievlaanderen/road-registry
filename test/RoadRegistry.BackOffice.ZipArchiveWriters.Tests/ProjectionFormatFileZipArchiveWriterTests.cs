@@ -5,8 +5,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Xunit;
-using SqlServer = Framework.Containers.SqlServer;
-using SqlServerCollection = Framework.Containers.SqlServerCollection;
 
 public class ProjectionFormatFileZipArchiveWriterTests
 {

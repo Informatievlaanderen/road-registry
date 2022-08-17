@@ -1,20 +1,19 @@
-namespace RoadRegistry.BackOffice.CommandHost
-{
-    using Framework;
-    using Hosts;
-    using Microsoft.Extensions.Logging;
-    using SqlStreamStore;
+namespace RoadRegistry.BackOffice.CommandHost;
 
-    public class RoadNetworkCommandProcessor : CommandProcessor
+using Framework;
+using Hosts;
+using Microsoft.Extensions.Logging;
+using SqlStreamStore;
+
+public class RoadNetworkCommandProcessor : CommandProcessor
+{
+    public RoadNetworkCommandProcessor(
+        IStreamStore streamStore,
+        ICommandProcessorPositionStore positionStore,
+        CommandHandlerDispatcher dispatcher,
+        Scheduler scheduler,
+        ILogger<RoadNetworkCommandProcessor> logger)
+        : base(streamStore, RoadNetworkCommandQueue.Stream, positionStore, dispatcher, scheduler, logger)
     {
-        public RoadNetworkCommandProcessor(
-            IStreamStore streamStore,
-            ICommandProcessorPositionStore positionStore, 
-            CommandHandlerDispatcher dispatcher, 
-            Scheduler scheduler, 
-            ILogger<RoadNetworkCommandProcessor> logger) 
-            : base(streamStore, RoadNetworkCommandQueue.Stream, positionStore, dispatcher, scheduler, logger)
-        {
-        }
     }
 }

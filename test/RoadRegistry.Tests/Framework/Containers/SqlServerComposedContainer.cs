@@ -102,7 +102,7 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
 
     private SqlConnectionStringBuilder CreateConnectionStringBuilder(string database)
     {
-        return new(_builder.ConnectionString)
+        return new SqlConnectionStringBuilder(_builder.ConnectionString)
         {
             InitialCatalog = database
         };

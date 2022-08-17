@@ -18,12 +18,8 @@ namespace RoadRegistry.Legacy.Extract.Readers
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
             foreach (var reader in _readers)
-            {
-                foreach (var @event in reader.ReadEvents(connection))
-                {
-                    yield return @event;
-                }
-            }
+            foreach (var @event in reader.ReadEvents(connection))
+                yield return @event;
         }
     }
 }

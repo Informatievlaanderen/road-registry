@@ -18,7 +18,7 @@ public class Error : Problem
 
     public override Messages.Problem Translate()
     {
-        return new()
+        return new Messages.Problem
         {
             Severity = ProblemSeverity.Error,
             Reason = Reason,

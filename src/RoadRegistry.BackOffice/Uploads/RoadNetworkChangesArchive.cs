@@ -9,26 +9,20 @@ using Messages;
 public class RoadNetworkChangesArchive : EventSourcedEntity
 {
     public static readonly Func<RoadNetworkChangesArchive> Factory = () => new RoadNetworkChangesArchive();
-    private bool _isFeatureCompare;
 
     private RoadNetworkChangesArchive()
     {
-        On<RoadNetworkChangesArchiveUploaded>(e =>
-        {
-            Id = new ArchiveId(e.ArchiveId);
-            _isFeatureCompare = e.IsFeatureCompare;
-        });
+        On<RoadNetworkChangesArchiveUploaded>(e => { Id = new ArchiveId(e.ArchiveId); });
     }
 
     public ArchiveId Id { get; private set; }
 
-    public static RoadNetworkChangesArchive Upload(ArchiveId id, bool isFeatureCompare)
+    public static RoadNetworkChangesArchive Upload(ArchiveId id)
     {
         var instance = new RoadNetworkChangesArchive();
         instance.Apply(new RoadNetworkChangesArchiveUploaded
         {
-            ArchiveId = id,
-            IsFeatureCompare = isFeatureCompare
+            ArchiveId = id
         });
         return instance;
     }
@@ -41,7 +35,6 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
                 new RoadNetworkChangesArchiveAccepted
                 {
                     ArchiveId = Id,
-                    IsFeatureCompare = _isFeatureCompare,
                     Problems = problems.Select(problem => problem.Translate()).ToArray()
                 });
         else
@@ -49,7 +42,6 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
                 new RoadNetworkChangesArchiveRejected
                 {
                     ArchiveId = Id,
-                    IsFeatureCompare = _isFeatureCompare,
                     Problems = problems.Select(problem => problem.Translate()).ToArray()
                 });
     }

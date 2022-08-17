@@ -1,20 +1,19 @@
-namespace RoadRegistry.Hosts
+namespace RoadRegistry.Hosts;
+
+using FeatureToggle;
+
+public class FeatureToggleOptions
 {
-    using FeatureToggle;
+    public const string ConfigurationKey = "FeatureToggles";
+    public bool UseSnapshotRebuildFeature { get; set; }
+}
 
-    public class FeatureToggleOptions
+public class UseSnapshotRebuildFeatureToggle : IFeatureToggle
+{
+    public UseSnapshotRebuildFeatureToggle(bool featureEnabled)
     {
-        public const string ConfigurationKey = "FeatureToggles";
-        public bool UseSnapshotRebuildFeature { get; set; }
+        FeatureEnabled = featureEnabled;
     }
 
-    public class UseSnapshotRebuildFeatureToggle : IFeatureToggle
-    {
-        public bool FeatureEnabled { get; }
-
-        public UseSnapshotRebuildFeatureToggle(bool featureEnabled)
-        {
-            FeatureEnabled = featureEnabled;
-        }
-    }
+    public bool FeatureEnabled { get; }
 }

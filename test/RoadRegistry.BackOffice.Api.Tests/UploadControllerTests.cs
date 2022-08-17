@@ -19,7 +19,6 @@ using Scenarios;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using Uploads;
-using RoadRegistry.BackOffice.Api.Tests.Framework.Containers;
 
 public class UploadControllerTests : ControllerTests<UploadController>
 {

@@ -1,13 +1,14 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Uploads;
 
+using System.IO.Compression;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Extracts;
+using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Framework;
-using Messages;
 using Microsoft.Extensions.Logging;
 using static Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple.Sqs;
 
@@ -24,15 +25,18 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
 
     private readonly RoadNetworkExtractUploadsBlobClient _client;
     private readonly SqsOptions _sqsOptions;
+    private readonly IZipArchiveValidator _validator;
 
     public UploadExtractFeatureCompareRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
         SqsOptions sqsOptions,
+        IZipArchiveValidator validator,
         ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
         _sqsOptions = sqsOptions ?? throw new SqsOptionsNotFoundException(nameof(sqsOptions));
+        _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken)
@@ -57,10 +61,14 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
             cancellationToken
         );
 
-        var message = new UploadRoadNetworkChangesArchive
+        var message = RoadNetworkChangesArchive.Upload(archiveId);
+
+        readStream.Position = 0;
+        using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
-            ArchiveId = archiveId.ToString()
-        };
+            message.ValidateArchiveUsing(archive, _validator);
+        }
+
         await CopyToQueue(_sqsOptions, SqsQueueName.Value, message, new SqsQueueOptions { MessageGroupId = archiveId }, cancellationToken);
 
         return new UploadExtractResponse(archiveId);

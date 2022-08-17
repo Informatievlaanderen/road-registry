@@ -9,7 +9,6 @@ namespace RoadRegistry.Product.Projections
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Microsoft.IO;
     using Schema;
     using Schema.RoadNodes;
@@ -27,13 +26,13 @@ namespace RoadRegistry.Product.Projections
                 var typeTranslation = RoadNodeType.Parse(envelope.Message.Type).Translation;
                 var dbaseRecord = new RoadNodeDbaseRecord
                 {
-                    WK_OIDN = {Value = envelope.Message.Id},
-                    WK_UIDN = {Value = envelope.Message.Id + "_" + envelope.Message.Version},
-                    TYPE = {Value = typeTranslation.Identifier},
-                    LBLTYPE = {Value = typeTranslation.Name},
-                    BEGINTIJD = {Value = envelope.Message.Origin.Since},
-                    BEGINORG = {Value = envelope.Message.Origin.OrganizationId},
-                    LBLBGNORG = {Value = envelope.Message.Origin.Organization}
+                    WK_OIDN = { Value = envelope.Message.Id },
+                    WK_UIDN = { Value = envelope.Message.Id + "_" + envelope.Message.Version },
+                    TYPE = { Value = typeTranslation.Identifier },
+                    LBLTYPE = { Value = typeTranslation.Name },
+                    BEGINTIJD = { Value = envelope.Message.Origin.Since },
+                    BEGINORG = { Value = envelope.Message.Origin.OrganizationId },
+                    LBLBGNORG = { Value = envelope.Message.Origin.Organization }
                 };
 
                 var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry));
@@ -52,7 +51,6 @@ namespace RoadRegistry.Product.Projections
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var message in envelope.Message.Changes.Flatten())
-                {
                     switch (message)
                     {
                         case RoadNodeAdded node:
@@ -67,7 +65,6 @@ namespace RoadRegistry.Product.Projections
                             await RemoveRoadNode(context, node);
                             break;
                     }
-                }
             });
         }
 
@@ -81,13 +78,13 @@ namespace RoadRegistry.Product.Projections
             var typeTranslation = RoadNodeType.Parse(node.Type).Translation;
             var dbaseRecord = new RoadNodeDbaseRecord
             {
-                WK_OIDN = {Value = node.Id},
-                WK_UIDN = {Value = node.Id + "_0"}, // 1?
-                TYPE = {Value = typeTranslation.Identifier},
-                LBLTYPE = {Value = typeTranslation.Name},
-                BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)},
-                BEGINORG = {Value = envelope.Message.OrganizationId},
-                LBLBGNORG = {Value = envelope.Message.Organization}
+                WK_OIDN = { Value = node.Id },
+                WK_UIDN = { Value = node.Id + "_0" }, // 1?
+                TYPE = { Value = typeTranslation.Identifier },
+                LBLTYPE = { Value = typeTranslation.Name },
+                BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                BEGINORG = { Value = envelope.Message.OrganizationId },
+                LBLBGNORG = { Value = envelope.Message.Organization }
             };
 
             var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(node.Geometry));
@@ -112,13 +109,13 @@ namespace RoadRegistry.Product.Projections
             var typeTranslation = RoadNodeType.Parse(node.Type).Translation;
             var dbaseRecord = new RoadNodeDbaseRecord
             {
-                WK_OIDN = {Value = node.Id},
-                WK_UIDN = {Value = node.Id + "_0"}, // 1?
-                TYPE = {Value = typeTranslation.Identifier},
-                LBLTYPE = {Value = typeTranslation.Name},
-                BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)},
-                BEGINORG = {Value = envelope.Message.OrganizationId},
-                LBLBGNORG = {Value = envelope.Message.Organization}
+                WK_OIDN = { Value = node.Id },
+                WK_UIDN = { Value = node.Id + "_0" }, // 1?
+                TYPE = { Value = typeTranslation.Identifier },
+                LBLTYPE = { Value = typeTranslation.Name },
+                BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                BEGINORG = { Value = envelope.Message.OrganizationId },
+                LBLBGNORG = { Value = envelope.Message.Organization }
             };
 
             var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(node.Geometry));

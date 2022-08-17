@@ -5,10 +5,13 @@ namespace RoadRegistry.Wms.Projections
     using System.Linq;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+    using NetTopologySuite.Geometries;
+    using NetTopologySuite.Geometries.Implementation;
+    using LineString = NetTopologySuite.Geometries.LineString;
 
     public static class WmsGeometryTranslator
     {
-        public static NetTopologySuite.Geometries.LineString Translate2D(RoadSegmentGeometry geometry)
+        public static LineString Translate2D(RoadSegmentGeometry geometry)
         {
             if (geometry == null)
                 throw new ArgumentNullException(nameof(geometry));
@@ -19,18 +22,19 @@ namespace RoadRegistry.Wms.Projections
                     nameof(geometry));
 
             var fromLineString = geometry.MultiLineString.Single();
-            var toPoints = new List<NetTopologySuite.Geometries.Coordinate>();
+            var toPoints = new List<Coordinate>();
             for (var index = 0; index < fromLineString.Points.Length && index < fromLineString.Measures.Length; index++)
             {
                 var fromPoint = fromLineString.Points[index];
-                toPoints.Add(new NetTopologySuite.Geometries.Coordinate(fromPoint.X, fromPoint.Y));
+                toPoints.Add(new Coordinate(fromPoint.X, fromPoint.Y));
             }
-            return new NetTopologySuite.Geometries.LineString(
-                new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(toPoints.ToArray()),
+
+            return new LineString(
+                new CoordinateArraySequence(toPoints.ToArray()),
                 GeometryConfiguration.GeometryFactory)
-                {
-                    SRID = geometry.SpatialReferenceSystemIdentifier
-                };
+            {
+                SRID = geometry.SpatialReferenceSystemIdentifier
+            };
         }
     }
 }

@@ -10,7 +10,6 @@ using Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.ZipArchiveWriters;
 
 public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
@@ -60,17 +59,16 @@ public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<Edito
         await using (var dbfEntryStream = dbfEntry.Open())
         using (var dbfWriter = new DbaseBinaryWriter(dbfHeader, new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
-            foreach (var batch in integrationSegments
+            foreach (var batch in ZipArchiveWriters.EnumerableExtensions.Batch(integrationSegments
                          .OrderBy(_ => _.Id)
                          .Select(_ => _.DbaseRecord)
-                         .AsEnumerable()
-                         .Batch(_zipArchiveWriterOptions.RoadSegmentBatchSize))
+                         .AsEnumerable(), _zipArchiveWriterOptions.RoadSegmentBatchSize))
             {
                 var dbfRecords = batch
                     .Select(x =>
                     {
                         var dbfRecord = new RoadSegmentDbaseRecord();
-                        dbfRecord.FromBytes(x, _manager, _encoding);
+                        ZipArchiveWriters.DbaseRecordExtensions.FromBytes(dbfRecord, x, _manager, _encoding);
                         return dbfRecord;
                     })
                     .ToList();

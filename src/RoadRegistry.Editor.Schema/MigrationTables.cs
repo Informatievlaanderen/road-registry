@@ -1,7 +1,6 @@
-namespace RoadRegistry.Editor.Schema
+namespace RoadRegistry.Editor.Schema;
+
+public static class MigrationTables
 {
-    public static class MigrationTables
-    {
-        public const string Editor = "__EFMigrationsHistoryEditor";
-    }
+    public const string Editor = "__EFMigrationsHistoryEditor";
 }

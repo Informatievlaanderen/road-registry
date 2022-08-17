@@ -3,10 +3,9 @@ namespace RoadRegistry.BackOffice.Api.Tests;
 using Api.Downloads;
 using Api.Framework;
 using Dbase;
-using Framework;
+using Framework.Containers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.Api.Tests.Framework.Containers;
 
 [Collection(nameof(SqlServerCollection))]
 public class DownloadControllerTests : ControllerTests<DownloadController>

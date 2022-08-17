@@ -62,7 +62,7 @@ internal class RequestedChangeTranslator
             throw new ArgumentNullException(nameof(organizations));
 
         var translated = RequestedChanges.Start(_nextTransactionId());
-        foreach (var change in ChangeExtensions.Flatten(changes)
+        foreach (var change in changes.Flatten()
                      .Select((change, ordinal) => new SortableChange(change, ordinal))
                      .OrderBy(_ => _, new RankChangeBeforeTranslation())
                      .Select(_ => _.Change))

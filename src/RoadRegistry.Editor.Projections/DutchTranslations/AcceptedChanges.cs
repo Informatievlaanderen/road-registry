@@ -2,7 +2,6 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
 {
     using System;
     using BackOffice.Messages;
-    using Schema;
     using Schema.RoadNetworkChanges;
 
     public static class AcceptedChanges
@@ -18,7 +17,6 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                 };
 
                 foreach (var change in changes)
-                {
                     switch (change.Flatten())
                     {
                         case RoadNodeAdded _:
@@ -49,7 +47,6 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                             summary.GradeSeparatedJunctions.Removed += 1;
                             break;
                     }
-                }
 
                 return summary;
             };

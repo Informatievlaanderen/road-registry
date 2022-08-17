@@ -1,24 +1,23 @@
-namespace RoadRegistry.Editor.Schema.RoadSegments
+namespace RoadRegistry.Editor.Schema.RoadSegments;
+
+using Hosts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+public class RoadSegmentEuropeanRoadAttributeConfiguration : IEntityTypeConfiguration<RoadSegmentEuropeanRoadAttributeRecord>
 {
-    using Hosts;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    private const string TableName = "RoadSegmentEuropeanRoadAttribute";
 
-    public class RoadSegmentEuropeanRoadAttributeConfiguration : IEntityTypeConfiguration<RoadSegmentEuropeanRoadAttributeRecord>
+    public void Configure(EntityTypeBuilder<RoadSegmentEuropeanRoadAttributeRecord> b)
     {
-        private const string TableName = "RoadSegmentEuropeanRoadAttribute";
+        b.ToTable(TableName, WellknownSchemas.EditorSchema)
+            .HasKey(p => p.Id)
+            .IsClustered(false);
 
-        public void Configure(EntityTypeBuilder<RoadSegmentEuropeanRoadAttributeRecord> b)
-        {
-            b.ToTable(TableName, WellknownSchemas.EditorSchema)
-                .HasKey(p => p.Id)
-                .IsClustered(false);
+        b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
+        b.Property(p => p.RoadSegmentId).IsRequired();
+        b.Property(p => p.DbaseRecord).IsRequired();
 
-            b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
-            b.Property(p => p.RoadSegmentId).IsRequired();
-            b.Property(p => p.DbaseRecord).IsRequired();
-
-            b.HasIndex(p => p.RoadSegmentId);
-        }
+        b.HasIndex(p => p.RoadSegmentId);
     }
 }

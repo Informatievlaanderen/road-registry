@@ -1,20 +1,22 @@
-namespace RoadRegistry.Editor.Schema.RoadSegments
+namespace RoadRegistry.Editor.Schema.RoadSegments;
+
+using System.Linq;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using NetTopologySuite.Geometries;
+
+public class RoadSegmentBoundingBox
 {
-    using System.Linq;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using NetTopologySuite.Geometries;
+    public double MinimumX { get; set; }
+    public double MaximumX { get; set; }
+    public double MinimumY { get; set; }
+    public double MaximumY { get; set; }
+    public double MinimumM { get; set; }
+    public double MaximumM { get; set; }
 
-    public class RoadSegmentBoundingBox
+    public static RoadSegmentBoundingBox From(PolyLineM shape)
     {
-        public double MinimumX { get; set; }
-        public double MaximumX { get; set; }
-        public double MinimumY { get; set; }
-        public double MaximumY { get; set; }
-        public double MinimumM { get; set; }
-        public double MaximumM { get; set; }
-
-        public static RoadSegmentBoundingBox From(PolyLineM shape) => new RoadSegmentBoundingBox
+        return new()
         {
             MinimumX = GeometryTranslator.ToGeometryMultiLineString(shape).EnvelopeInternal.MinX,
             MinimumY = GeometryTranslator.ToGeometryMultiLineString(shape).EnvelopeInternal.MinY,
@@ -23,8 +25,11 @@ namespace RoadRegistry.Editor.Schema.RoadSegments
             MinimumM = GeometryTranslator.ToGeometryMultiLineString(shape).GetOrdinates(Ordinate.M).DefaultIfEmpty(double.NegativeInfinity).Min(),
             MaximumM = GeometryTranslator.ToGeometryMultiLineString(shape).GetOrdinates(Ordinate.M).DefaultIfEmpty(double.PositiveInfinity).Max()
         };
+    }
 
-        public BoundingBox3D ToBoundingBox3D() => new BoundingBox3D(
+    public BoundingBox3D ToBoundingBox3D()
+    {
+        return new(
             MinimumX,
             MinimumY,
             MaximumX,

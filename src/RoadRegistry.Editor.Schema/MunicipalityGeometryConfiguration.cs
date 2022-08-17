@@ -1,21 +1,20 @@
-namespace RoadRegistry.Editor.Schema
+namespace RoadRegistry.Editor.Schema;
+
+using Hosts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+public class MunicipalityGeometryConfiguration : IEntityTypeConfiguration<MunicipalityGeometry>
 {
-    using Hosts;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    public const string TableName = "MunicipalityGeometry";
 
-    public class MunicipalityGeometryConfiguration : IEntityTypeConfiguration<MunicipalityGeometry>
+    public void Configure(EntityTypeBuilder<MunicipalityGeometry> b)
     {
-        public const string TableName = "MunicipalityGeometry";
+        b.ToTable(TableName, WellknownSchemas.EditorSchema)
+            .HasKey(p => p.NisCode)
+            .IsClustered();
 
-        public void Configure(EntityTypeBuilder<MunicipalityGeometry> b)
-        {
-            b.ToTable(TableName, WellknownSchemas.EditorSchema)
-                .HasKey(p => p.NisCode)
-                .IsClustered();
-
-            b.Property(p => p.NisCode).ValueGeneratedNever().IsRequired().HasMaxLength(5).IsFixedLength();
-            b.Property(p => p.Geometry).HasColumnType("Geometry").IsRequired();
-        }
+        b.Property(p => p.NisCode).ValueGeneratedNever().IsRequired().HasMaxLength(5).IsFixedLength();
+        b.Property(p => p.Geometry).HasColumnType("Geometry").IsRequired();
     }
 }

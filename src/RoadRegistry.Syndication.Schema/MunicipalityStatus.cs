@@ -1,9 +1,8 @@
-namespace RoadRegistry.Syndication.Schema
+namespace RoadRegistry.Syndication.Schema;
+
+public enum MunicipalityStatus
 {
-    public enum MunicipalityStatus
-    {
-        Registered = 0,
-        Current = 1,
-        Retired = 2
-    }
+    Registered = 0,
+    Current = 1,
+    Retired = 2
 }

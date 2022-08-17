@@ -29,12 +29,12 @@ public readonly struct RoadNodeId : IEquatable<RoadNodeId>, IComparable<RoadNode
 
     public static RoadNodeId Max(RoadNodeId left, RoadNodeId right)
     {
-        return new(Math.Max(left._value, right._value));
+        return new RoadNodeId(Math.Max(left._value, right._value));
     }
 
     public static RoadNodeId Min(RoadNodeId left, RoadNodeId right)
     {
-        return new(Math.Min(left._value, right._value));
+        return new RoadNodeId(Math.Min(left._value, right._value));
     }
 
     public int ToInt32()

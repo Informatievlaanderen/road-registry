@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Text;
 using Xunit.Sdk;
-using RoadRegistry.BackOffice.Api.Tests.Framework.Containers;
 
 [Collection(nameof(SqlServerCollection))]
 public class ChangeFeedGetHeadTests

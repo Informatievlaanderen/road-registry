@@ -121,7 +121,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
 
     public static RequestedChanges Start(TransactionId transactionId)
     {
-        return new(
+        return new RequestedChanges(
             transactionId,
             ImmutableList<IRequestedChange>.Empty,
             ImmutableDictionary<RoadNodeId, RoadNodeId>.Empty,

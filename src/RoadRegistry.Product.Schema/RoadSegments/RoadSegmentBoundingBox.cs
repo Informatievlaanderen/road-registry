@@ -1,20 +1,22 @@
-namespace RoadRegistry.Product.Schema.RoadSegments
+namespace RoadRegistry.Product.Schema.RoadSegments;
+
+using System.Linq;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using NetTopologySuite.Geometries;
+
+public class RoadSegmentBoundingBox
 {
-    using System.Linq;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using NetTopologySuite.Geometries;
+    public double MinimumX { get; set; }
+    public double MaximumX { get; set; }
+    public double MinimumY { get; set; }
+    public double MaximumY { get; set; }
+    public double MinimumM { get; set; }
+    public double MaximumM { get; set; }
 
-    public class RoadSegmentBoundingBox
+    public static RoadSegmentBoundingBox From(PolyLineM shape)
     {
-        public double MinimumX { get; set; }
-        public double MaximumX { get; set; }
-        public double MinimumY { get; set; }
-        public double MaximumY { get; set; }
-        public double MinimumM { get; set; }
-        public double MaximumM { get; set; }
-
-        public static RoadSegmentBoundingBox From(PolyLineM shape) => new RoadSegmentBoundingBox
+        return new()
         {
             MinimumX = GeometryTranslator.ToGeometryMultiLineString(shape).EnvelopeInternal.MinX,
             MinimumY = GeometryTranslator.ToGeometryMultiLineString(shape).EnvelopeInternal.MinY,

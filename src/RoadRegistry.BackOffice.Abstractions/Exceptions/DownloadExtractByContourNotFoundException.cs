@@ -6,5 +6,5 @@ public class DownloadExtractByContourNotFoundException : DownloadExtractNotFound
     {
     }
 
-    public string Contour { get; set; }
+    public string Contour { get; init; }
 }

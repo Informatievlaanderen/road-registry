@@ -27,7 +27,7 @@ namespace RoadRegistry.Syndication.Projections
                         GermanName = null,
                         EnglishName = null,
                         StreetNameStatus = null,
-                        Position = envelope.Position,
+                        Position = envelope.Position
                     }, token);
             });
 
@@ -37,10 +37,7 @@ namespace RoadRegistry.Syndication.Projections
                     context,
                     envelope,
                     envelope.Message.StreetNameId,
-                    record =>
-                    {
-                        record.StreetNameStatus = StreetNameStatus.Current;
-                    },
+                    record => { record.StreetNameStatus = StreetNameStatus.Current; },
                     token);
             });
 
@@ -260,10 +257,7 @@ namespace RoadRegistry.Syndication.Projections
                     context,
                     envelope,
                     envelope.Message.StreetNameId,
-                    streetNameRecord =>
-                    {
-                        streetNameRecord.PersistentLocalId = envelope.Message.PersistentLocalId;
-                    },
+                    streetNameRecord => { streetNameRecord.PersistentLocalId = envelope.Message.PersistentLocalId; },
                     token);
             });
 
@@ -273,10 +267,7 @@ namespace RoadRegistry.Syndication.Projections
                     context,
                     envelope,
                     envelope.Message.StreetNameId,
-                    streetNameRecord =>
-                    {
-                        streetNameRecord.StreetNameStatus = null;
-                    },
+                    streetNameRecord => { streetNameRecord.StreetNameStatus = null; },
                     token);
             });
 
@@ -286,10 +277,7 @@ namespace RoadRegistry.Syndication.Projections
                     context,
                     envelope,
                     envelope.Message.StreetNameId,
-                    streetNameRecord =>
-                    {
-                        streetNameRecord.StreetNameStatus = null;
-                    },
+                    streetNameRecord => { streetNameRecord.StreetNameStatus = null; },
                     token);
             });
 
@@ -299,10 +287,7 @@ namespace RoadRegistry.Syndication.Projections
                     context,
                     envelope,
                     envelope.Message.StreetNameId,
-                    streetNameRecord =>
-                    {
-                        streetNameRecord.StreetNameStatus = StreetNameStatus.Current;
-                    },
+                    streetNameRecord => { streetNameRecord.StreetNameStatus = StreetNameStatus.Current; },
                     token);
             });
 
@@ -312,10 +297,7 @@ namespace RoadRegistry.Syndication.Projections
                     context,
                     envelope,
                     envelope.Message.StreetNameId,
-                    streetNameRecord =>
-                    {
-                        streetNameRecord.StreetNameStatus = StreetNameStatus.Proposed;
-                    },
+                    streetNameRecord => { streetNameRecord.StreetNameStatus = StreetNameStatus.Proposed; },
                     token);
             });
 
@@ -325,10 +307,7 @@ namespace RoadRegistry.Syndication.Projections
                     context,
                     envelope,
                     envelope.Message.StreetNameId,
-                    streetNameRecord =>
-                    {
-                        streetNameRecord.StreetNameStatus = StreetNameStatus.Retired;
-                    },
+                    streetNameRecord => { streetNameRecord.StreetNameStatus = StreetNameStatus.Retired; },
                     token);
             });
 
@@ -338,10 +317,7 @@ namespace RoadRegistry.Syndication.Projections
                     context,
                     envelope,
                     envelope.Message.StreetNameId,
-                    streetNameRecord =>
-                    {
-                        streetNameRecord.StreetNameStatus = StreetNameStatus.Proposed;
-                    },
+                    streetNameRecord => { streetNameRecord.StreetNameStatus = StreetNameStatus.Proposed; },
                     token);
             });
 
@@ -351,10 +327,7 @@ namespace RoadRegistry.Syndication.Projections
                     context,
                     envelope,
                     envelope.Message.StreetNameId,
-                    streetNameRecord =>
-                    {
-                        streetNameRecord.StreetNameStatus = StreetNameStatus.Retired;
-                    },
+                    streetNameRecord => { streetNameRecord.StreetNameStatus = StreetNameStatus.Retired; },
                     token);
             });
 
@@ -401,10 +374,7 @@ namespace RoadRegistry.Syndication.Projections
         private static async Task<StreetNameRecord> FindOrThrow(SyndicationContext context, Guid streetNameId, CancellationToken token)
         {
             var streetNameRecord = await context.StreetNames.FindAsync(streetNameId, cancellationToken: token);
-            if (streetNameRecord == null)
-            {
-                throw new InvalidOperationException($"No street name with id {streetNameId} was found.");
-            }
+            if (streetNameRecord == null) throw new InvalidOperationException($"No street name with id {streetNameId} was found.");
 
             return streetNameRecord;
         }

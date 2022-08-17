@@ -2,7 +2,6 @@ namespace RoadRegistry.Legacy.Import
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.Linq;
     using System.Net.Http;
     using System.Threading;
@@ -49,13 +48,9 @@ namespace RoadRegistry.Legacy.Import
                             using (var response = await client.GetAsync("/api", token))
                             {
                                 if (!response.IsSuccessStatusCode)
-                                {
                                     await Task.Delay(TimeSpan.FromSeconds(1), token);
-                                }
                                 else
-                                {
                                     exit = true;
-                                }
                             }
                         }
                         catch (Exception exception)
@@ -78,8 +73,7 @@ namespace RoadRegistry.Legacy.Import
             CancellationToken token = default)
         {
             var exit = false;
-            while(!exit)
-            {
+            while (!exit)
                 try
                 {
                     logger.LogInformation("Waiting for sql server to become available");
@@ -91,12 +85,11 @@ namespace RoadRegistry.Legacy.Import
 
                     exit = true;
                 }
-                catch(Exception exception)
+                catch (Exception exception)
                 {
                     logger.LogWarning(exception, "Encountered an exception while waiting for sql server to become available");
                     await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
                 }
-            }
         }
 
         public static async Task SqlServerDatabaseToBecomeAvailable(
@@ -106,8 +99,7 @@ namespace RoadRegistry.Legacy.Import
             CancellationToken token = default)
         {
             var exit = false;
-            while(!exit)
-            {
+            while (!exit)
                 try
                 {
                     logger.LogInformation($"Waiting for sql database {eventsConnectionStringBuilder.InitialCatalog} to become available");
@@ -115,24 +107,20 @@ namespace RoadRegistry.Legacy.Import
                     {
                         await connection.OpenAsync(token).ConfigureAwait(false);
                         var text = $"SELECT COUNT(*) FROM [SYS].[DATABASES] WHERE [Name] = N'{eventsConnectionStringBuilder.InitialCatalog}'";
-                        using(var command = new SqlCommand(text, connection))
+                        using (var command = new SqlCommand(text, connection))
                         {
                             var value = await command.ExecuteScalarAsync(token);
-                            exit = (int) value == 1;
+                            exit = (int)value == 1;
                         }
 
-                        if (!exit)
-                        {
-                            await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-                        }
+                        if (!exit) await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
                     }
                 }
-                catch(Exception exception)
+                catch (Exception exception)
                 {
                     logger.LogWarning(exception, $"Encountered exception while waiting for sql database {eventsConnectionStringBuilder.InitialCatalog} to become available");
                     await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
                 }
-            }
         }
     }
 }

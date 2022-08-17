@@ -29,12 +29,12 @@ public readonly struct GradeSeparatedJunctionId : IEquatable<GradeSeparatedJunct
 
     public static GradeSeparatedJunctionId Max(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
     {
-        return new(Math.Max(left._value, right._value));
+        return new GradeSeparatedJunctionId(Math.Max(left._value, right._value));
     }
 
     public static GradeSeparatedJunctionId Min(GradeSeparatedJunctionId left, GradeSeparatedJunctionId right)
     {
-        return new(Math.Min(left._value, right._value));
+        return new GradeSeparatedJunctionId(Math.Min(left._value, right._value));
     }
 
     public int ToInt32()

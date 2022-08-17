@@ -19,7 +19,7 @@ public static class SyndicationContextScenarioExtensions
 {
     public static ConnectedProjectionScenario<SyndicationContext> Scenario(this ConnectedProjection<SyndicationContext> projection)
     {
-        return new(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        return new ConnectedProjectionScenario<SyndicationContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
     }
 
     public static async Task ExpectNone(this ConnectedProjectionScenario<SyndicationContext> scenario)

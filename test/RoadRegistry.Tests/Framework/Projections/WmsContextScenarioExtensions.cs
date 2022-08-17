@@ -19,7 +19,7 @@ public static class WmsContextScenarioExtensions
 {
     public static ConnectedProjectionScenario<WmsContext> Scenario(this ConnectedProjection<WmsContext> projection)
     {
-        return new(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        return new ConnectedProjectionScenario<WmsContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
     }
 
     public static async Task ExpectNone(this ConnectedProjectionScenario<WmsContext> scenario)

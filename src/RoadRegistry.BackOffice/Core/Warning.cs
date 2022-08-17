@@ -18,7 +18,7 @@ public class Warning : Problem
 
     public override Messages.Problem Translate()
     {
-        return new()
+        return new Messages.Problem
         {
             Severity = ProblemSeverity.Warning,
             Reason = Reason,

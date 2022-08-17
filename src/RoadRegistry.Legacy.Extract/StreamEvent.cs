@@ -5,13 +5,13 @@ namespace RoadRegistry.Legacy.Extract
 
     public class StreamEvent
     {
-        public StreamName Stream { get; }
-        public object Event { get; }
-
         public StreamEvent(StreamName stream, object @event)
         {
             Stream = stream;
             Event = @event ?? throw new ArgumentNullException(nameof(@event));
         }
+
+        public StreamName Stream { get; }
+        public object Event { get; }
     }
 }

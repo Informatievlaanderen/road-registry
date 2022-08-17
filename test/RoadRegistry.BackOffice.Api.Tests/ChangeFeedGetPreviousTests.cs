@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Tests;
 
 using Changes;
 using Editor.Schema.RoadNetworkChanges;
+using Framework.Containers;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,6 @@ using NodaTime.Text;
 using Xunit.Sdk;
 using AcceptedChange = Editor.Schema.RoadNetworkChanges.AcceptedChange;
 using RejectedChange = Editor.Schema.RoadNetworkChanges.RejectedChange;
-using RoadRegistry.BackOffice.Api.Tests.Framework.Containers;
 
 [Collection(nameof(SqlServerCollection))]
 public class ChangeFeedGetPreviousTests

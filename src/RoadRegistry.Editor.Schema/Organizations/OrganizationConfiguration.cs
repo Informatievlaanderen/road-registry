@@ -1,23 +1,22 @@
-namespace RoadRegistry.Editor.Schema.Organizations
+namespace RoadRegistry.Editor.Schema.Organizations;
+
+using Hosts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+public class OrganizationConfiguration : IEntityTypeConfiguration<OrganizationRecord>
 {
-    using Hosts;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    public const string TableName = "Organization";
 
-    public class OrganizationConfiguration : IEntityTypeConfiguration<OrganizationRecord>
+    public void Configure(EntityTypeBuilder<OrganizationRecord> b)
     {
-        public const string TableName = "Organization";
+        b.ToTable(TableName, WellknownSchemas.EditorSchema)
+            .HasIndex(p => p.Id)
+            .IsClustered(false);
 
-        public void Configure(EntityTypeBuilder<OrganizationRecord> b)
-        {
-            b.ToTable(TableName, WellknownSchemas.EditorSchema)
-                .HasIndex(p => p.Id)
-                .IsClustered(false);
-
-            b.Property(p => p.Id).ValueGeneratedOnAdd().IsRequired();
-            b.Property(p => p.Code).IsRequired();
-            b.Property(p => p.SortableCode).IsRequired();
-            b.Property(p => p.DbaseRecord).IsRequired();
-        }
+        b.Property(p => p.Id).ValueGeneratedOnAdd().IsRequired();
+        b.Property(p => p.Code).IsRequired();
+        b.Property(p => p.SortableCode).IsRequired();
+        b.Property(p => p.DbaseRecord).IsRequired();
     }
 }

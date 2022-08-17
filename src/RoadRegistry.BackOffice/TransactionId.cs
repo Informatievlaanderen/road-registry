@@ -32,12 +32,12 @@ public readonly struct TransactionId : IEquatable<TransactionId>, IComparable<Tr
 
     public static TransactionId Max(TransactionId left, TransactionId right)
     {
-        return new(Math.Max(left._value, right._value));
+        return new TransactionId(Math.Max(left._value, right._value));
     }
 
     public static TransactionId Min(TransactionId left, TransactionId right)
     {
-        return new(Math.Min(left._value, right._value));
+        return new TransactionId(Math.Min(left._value, right._value));
     }
 
     public int ToInt32()

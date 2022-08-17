@@ -53,7 +53,7 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
 
     public Messages.ProblemParameter Translate()
     {
-        return new()
+        return new Messages.ProblemParameter
         {
             Name = Name, Value = Value
         };

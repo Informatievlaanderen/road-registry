@@ -4,8 +4,6 @@ using System.IO.Compression;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using SqlServer = Framework.Containers.SqlServer;
-using SqlServerCollection = Framework.Containers.SqlServerCollection;
 
 public class ZipArchiveScenario<TContext> where TContext : DbContext
 {

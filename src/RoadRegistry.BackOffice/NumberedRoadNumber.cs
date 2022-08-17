@@ -86,7 +86,7 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>
 
     public override string ToString()
     {
-        return new(_value ?? Array.Empty<char>());
+        return new string(_value ?? Array.Empty<char>());
     }
 
     public static implicit operator string(NumberedRoadNumber instance)
