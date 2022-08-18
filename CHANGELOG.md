@@ -1,3 +1,10 @@
+## [3.5.6](https://github.com/informatievlaanderen/road-registry/compare/v3.5.5...v3.5.6) (2022-08-18)
+
+
+### Bug Fixes
+
+* expand integration layer inwards when building extracts ([c2a472c](https://github.com/informatievlaanderen/road-registry/commit/c2a472c42ec70c0d3829aeaf65b0d6915adfd6af))
+
 ## [3.5.5](https://github.com/informatievlaanderen/road-registry/compare/v3.5.4...v3.5.5) (2022-08-16)
 
 
