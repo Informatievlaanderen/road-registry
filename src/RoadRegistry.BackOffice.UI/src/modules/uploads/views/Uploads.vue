@@ -4,12 +4,8 @@
       <vl-layout>
         <vl-grid mod-stacked>
           <vl-column v-if="uploadResult.uploadResponseCode">
-            <vl-alert
-              :title="alertInfo.title"
-              :mod-success="alertInfo.success"
-              :mod-warning="alertInfo.warning"
-              :mod-error="alertInfo.error"
-            >
+            <vl-alert :title="alertInfo.title" :mod-success="alertInfo.success" :mod-warning="alertInfo.warning"
+              :mod-error="alertInfo.error">
               <p>{{ alertInfo.text }}</p>
             </vl-alert>
           </vl-column>
@@ -25,38 +21,20 @@
          -->
 
           <vl-column>
-            <vl-checkbox
-              v-model="isFeatureCompare"
-              name="feature-compare-component"
-              mod-switch>
-              Feature compare
-            </vl-checkbox>
-          </vl-column>
-
-          <vl-column>
             <!-- <vl-doormat v-if="isUploading" title="Upload bezig">
               Het door u geselecteerde zip‑bestand wordt geupload.
             </vl-doormat> -->
-            <vl-upload
-              ref="vlUpload"
-              id="upload-component"
-              name="upload-component"
-              url="#"
+            <vl-upload ref="vlUpload" id="upload-component" name="upload-component" url="#"
               upload-drag-text="Selecteer het zip‑bestand met de op te laden verschillen."
-              upload-label="Archief opladen"
-              :auto-process="false"
-              :options="options"
+              upload-label="Archief opladen" :auto-process="false" :options="options"
               :mod-success="uploadResult.uploadResponseCode && alertInfo.success"
               :mod-error="uploadResult.uploadResponseCode && (alertInfo.error || alertInfo.warning)"
-              :mod-disabled="isUploading"
-              @upload-success="isUploading = false"
-              @upload-complete="isUploading = false"
-              @upload-canceled="isUploading = false"
-              @upload-file-added="processing"
-              @upload-file-added-manually="processing"
-            />
+              :mod-disabled="isUploading" @upload-success="isUploading = false" @upload-complete="isUploading = false"
+              @upload-canceled="isUploading = false" @upload-file-added="processing"
+              @upload-file-added-manually="processing" />
             <!-- -->
           </vl-column>
+
         </vl-grid>
       </vl-layout>
     </vl-main>
@@ -71,7 +49,6 @@ export default Vue.extend({
   data() {
     return {
       isUploading: false,
-      isFeatureCompare: false,
       uploadResult: { uploadResponseCode: undefined } as { uploadResponseCode: number | undefined },
     };
   },
@@ -161,8 +138,8 @@ export default Vue.extend({
         this.endUpload();
         return;
       }
-      
-      const uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name, this.isFeatureCompare);
+
+      const uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name);
       this.uploadResult = { uploadResponseCode };
       this.endUpload();
       return;

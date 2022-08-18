@@ -35,11 +35,10 @@ export const BackOfficeApi = {
         },
     },
     Uploads: {
-        upload: async (file: string | Blob, filename: string, isFeatureCompare: boolean): Promise<number> => {
+        upload: async (file: string | Blob, filename: string): Promise<number> => {
             const path = `/roads/v1/upload`;
             const data = new FormData();
             data.append("archive", file, filename);
-            data.append("isFeatureCompare", isFeatureCompare.toString());
             const response = await apiClient.post(path,data)
             return response.status;
         },
