@@ -27,5 +27,8 @@ public class MediatRModule : Module
                 // the other option would be to remove this call
                 // see also https://github.com/jbogard/MediatR/issues/462
                 .AsImplementedInterfaces();
+
+        builder.RegisterGeneric(typeof(Extracts.UploadExtractFeatureCompareRequestValidator)).As(typeof(IPipelineBehavior<,>));
+        builder.RegisterGeneric(typeof(Uploads.UploadExtractFeatureCompareRequestValidator)).As(typeof(IPipelineBehavior<,>));
     }
 }

@@ -32,6 +32,19 @@ public class MediatRModule : Module
                 // see also https://github.com/jbogard/MediatR/issues/462
                 .AsImplementedInterfaces();
 
+        builder.RegisterGeneric(typeof(Downloads.DownloadEditorRequestValidator)).As(typeof(IPipelineBehavior<,>));
+        builder.RegisterGeneric(typeof(Downloads.DownloadProductRequestValidator)).As(typeof(IPipelineBehavior<,>));
+
+        builder.RegisterGeneric(typeof(Extracts.DownloadExtractByContourRequestValidator)).As(typeof(IPipelineBehavior<,>));
+        builder.RegisterGeneric(typeof(Extracts.DownloadExtractByNisCodeRequestValidator)).As(typeof(IPipelineBehavior<,>));
+        builder.RegisterGeneric(typeof(Extracts.DownloadExtractRequestValidator)).As(typeof(IPipelineBehavior<,>));
+        builder.RegisterGeneric(typeof(Extracts.DownloadFileContentRequestValidator)).As(typeof(IPipelineBehavior<,>));
+        builder.RegisterGeneric(typeof(Extracts.UploadExtractRequestValidator)).As(typeof(IPipelineBehavior<,>));
+        builder.RegisterGeneric(typeof(Extracts.UploadStatusRequestValidator)).As(typeof(IPipelineBehavior<,>));
+
+        builder.RegisterGeneric(typeof(Uploads.DownloadExtractRequestValidator)).As(typeof(IPipelineBehavior<,>));
+        builder.RegisterGeneric(typeof(Uploads.UploadExtractRequestValidator)).As(typeof(IPipelineBehavior<,>));
+
         builder.Register<ServiceFactory>(ctx =>
         {
             var c = ctx.Resolve<IComponentContext>();

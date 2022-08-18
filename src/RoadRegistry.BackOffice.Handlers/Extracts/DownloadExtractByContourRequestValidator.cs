@@ -2,11 +2,12 @@ namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Extracts;
 using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
-public sealed class DownloadExtractByContourRequestValidator : AbstractValidator<DownloadExtractByContourRequest>
+public sealed class DownloadExtractByContourRequestValidator : AbstractValidator<DownloadExtractByContourRequest>, IPipelineBehavior<DownloadExtractByContourRequest, DownloadExtractByContourResponse>
 {
     private readonly ILogger<DownloadExtractByContourRequestValidator> _logger;
     private readonly WKTReader _reader;
@@ -46,5 +47,12 @@ public sealed class DownloadExtractByContourRequestValidator : AbstractValidator
             _logger.LogWarning(exception, "The download extract request body validation encountered a problem while trying to parse the contour as well-known text");
             return false;
         }
+    }
+
+    public async Task<DownloadExtractByContourResponse> Handle(DownloadExtractByContourRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<DownloadExtractByContourResponse> next)
+    {
+        await this.ValidateAndThrowAsync(request, cancellationToken);
+        var response = await next();
+        return response;
     }
 }

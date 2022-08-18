@@ -4,9 +4,10 @@ using System.Text.RegularExpressions;
 using Abstractions.Extracts;
 using Editor.Schema;
 using FluentValidation;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator<DownloadExtractByNisCodeRequest>
+public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator<DownloadExtractByNisCodeRequest>, IPipelineBehavior<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse>
 {
     private readonly EditorContext _editorContext;
 
@@ -36,5 +37,12 @@ public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator
     private Task<bool> BeKnownNisCode(string nisCode, CancellationToken cancellationToken)
     {
         return _editorContext.MunicipalityGeometries.AnyAsync(x => x.NisCode == nisCode, cancellationToken);
+    }
+
+    public async Task<DownloadExtractByNisCodeResponse> Handle(DownloadExtractByNisCodeRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<DownloadExtractByNisCodeResponse> next)
+    {
+        await this.ValidateAndThrowAsync(request, cancellationToken);
+        var response = await next();
+        return response;
     }
 }
