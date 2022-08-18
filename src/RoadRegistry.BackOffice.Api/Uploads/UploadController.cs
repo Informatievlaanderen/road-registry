@@ -28,22 +28,22 @@ public class UploadController : ControllerBase
         _mediator = mediator;
     }
 
+    //[HttpPost("")]
+    //[RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    //public async Task<IActionResult> PostUpload([FromBody] IFormFile archive, CancellationToken cancellationToken)
+    //{
+    //    return await Post(archive, async () =>
+    //    {
+    //        UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+    //        var request = new UploadExtractRequest(archive.FileName, requestArchive);
+    //        var response = await _mediator.Send(request, cancellationToken);
+    //        return Ok(response);
+    //    }, cancellationToken);
+    //}
+
     [HttpPost("")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
     public async Task<IActionResult> PostUpload([FromBody] IFormFile archive, CancellationToken cancellationToken)
-    {
-        return await Post(archive, async () =>
-        {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractRequest(archive.FileName, requestArchive);
-            var response = await _mediator.Send(request, cancellationToken);
-            return Ok(response);
-        }, cancellationToken);
-    }
-
-    [HttpPost("feature-compare")]
-    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostFeatureCompareUpload([FromBody] IFormFile archive, CancellationToken cancellationToken)
     {
         return await Post(archive, async () =>
         {

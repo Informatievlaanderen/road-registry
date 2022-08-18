@@ -135,3 +135,9 @@ nuget CompareNETObjects 4.76.0
 nuget NodaTime.Testing 3.1.0
 nuget CsvHelper 27.2.1
 nuget FluentAssertions 6.5.1.0
+
+// Amazon Lambda
+nuget Amazon.Lambda.Core 2.1.0
+nuget Amazon.Lambda.Serialization.SystemTextJson 2.3.0
+nuget Amazon.Lambda.TestUtilities 2.0.0
+nuget Amazon.Lambda.SQSEvents 2.1.0

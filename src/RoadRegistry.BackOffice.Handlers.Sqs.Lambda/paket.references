@@ -1,0 +1,3 @@
+Amazon.Lambda.Core
+Amazon.Lambda.Serialization.SystemTextJson
+Amazon.Lambda.SQSEvents

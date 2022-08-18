@@ -2,6 +2,12 @@ RESTRICTION: == net6.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
     Albedo (2.0)
+    Amazon.Lambda.Core (2.1)
+    Amazon.Lambda.Serialization.SystemTextJson (2.3)
+      Amazon.Lambda.Core (>= 2.1)
+    Amazon.Lambda.SQSEvents (2.1)
+    Amazon.Lambda.TestUtilities (2.0)
+      Amazon.Lambda.Core (>= 2.0)
     AspNetCore.HealthChecks.SqlServer (6.0.2)
       Microsoft.Data.SqlClient (>= 3.0.1)
       Microsoft.Extensions.Diagnostics.HealthChecks (>= 6.0)

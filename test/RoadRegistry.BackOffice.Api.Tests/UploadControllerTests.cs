@@ -39,10 +39,8 @@ public class UploadControllerTests : ControllerTests<UploadController>
         return mock;
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task When_uploading_a_file_that_is_not_a_zip(bool featureCompare)
+    [Fact]
+    public async Task When_uploading_a_file_that_is_not_a_zip()
     {
         var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
         {
@@ -52,18 +50,14 @@ public class UploadControllerTests : ControllerTests<UploadController>
             })
         };
 
-        var result = featureCompare
-            ? await Controller.PostFeatureCompareUpload(formFile, CancellationToken.None)
-            : await Controller.PostUpload(formFile, CancellationToken.None);
+        var result = await Controller.PostUpload(formFile, CancellationToken.None);
         Assert.IsType<UnsupportedMediaTypeResult>(result);
     }
 
     [Theory]
-    [InlineData("application/zip", false)]
-    [InlineData("application/x-zip-compressed", false)]
-    [InlineData("application/zip", true)]
-    [InlineData("application/x-zip-compressed", true)]
-    public async Task When_uploading_a_file_that_is_a_zip(string contentType, bool featureCompare)
+    [InlineData("application/zip")]
+    [InlineData("application/x-zip-compressed")]
+    public async Task When_uploading_a_file_that_is_a_zip(string contentType)
     {
         var client = new RoadNetworkUploadsBlobClient(new MemoryBlobClient());
         var store = new InMemoryStreamStore();
@@ -99,9 +93,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
                     { "Content-Type", StringValues.Concat(StringValues.Empty, contentType) }
                 })
             };
-            var result = featureCompare
-                ? await Controller.PostFeatureCompareUpload(formFile, CancellationToken.None)
-                : await Controller.PostUpload(formFile, CancellationToken.None);
+            var result = await Controller.PostUpload(formFile, CancellationToken.None);
 
             Assert.IsType<OkResult>(result);
 
@@ -125,10 +117,8 @@ public class UploadControllerTests : ControllerTests<UploadController>
         }
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task When_uploading_an_externally_created_file_that_is_a_zip(bool featureCompare)
+    [Fact]
+    public async Task When_uploading_an_externally_created_file_that_is_a_zip()
     {
         using (var sourceStream = new MemoryStream())
         {
@@ -148,9 +138,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
                     { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
                 })
             };
-            var result = featureCompare
-                ? await Controller.PostFeatureCompareUpload(formFile, CancellationToken.None)
-                : await Controller.PostUpload(formFile, CancellationToken.None);
+            var result = await Controller.PostUpload(formFile, CancellationToken.None);
 
             Assert.IsType<OkResult>(result);
 
