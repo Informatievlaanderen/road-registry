@@ -1,14 +1,14 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
-using System.IO.Compression;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
 using Editor.Schema.RoadNodes;
 using Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using NetTopologySuite.Geometries;
+using System.IO.Compression;
+using System.Text;
 
 public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
@@ -30,14 +30,19 @@ public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorCo
         if (context == null) throw new ArgumentNullException(nameof(context));
 
         const int integrationBufferInMeters = 350;
-        var requestedContour = (Geometry)request.Contour;
-        var contourWithIntegrationBuffer = requestedContour.Buffer(integrationBufferInMeters);
-        var integrationBuffer = contourWithIntegrationBuffer.Difference(requestedContour);
 
-        var nodesInContour =
-            await context.RoadNodes.InsideContour(request.Contour).ToListAsync(cancellationToken);
-        var nodesInIntegrationBuffer =
-            await context.RoadNodes.InsideContour(integrationBuffer as IPolygonal).ToListAsync(cancellationToken);
+        var nodesInContour = await context.RoadNodes
+            .InsideContour(request.Contour)
+            .ToListAsync(cancellationToken);
+        var geometryForNodesInContour = GeometryConfiguration.GeometryFactory
+            .BuildGeometry(nodesInContour.Select(node => node.Geometry));
+
+        var boundaryForNodes = geometryForNodesInContour.ConvexHull();
+        var boundaryWithIntegrationBuffer = boundaryForNodes.Buffer(integrationBufferInMeters);
+
+        var nodesInIntegrationBuffer = await context.RoadNodes
+            .InsideContour(boundaryWithIntegrationBuffer as NetTopologySuite.Geometries.IPolygonal)
+            .ToListAsync(cancellationToken);
         var integrationNodes = nodesInIntegrationBuffer.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
 
 
@@ -50,9 +55,9 @@ public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorCo
         );
         await using (var dbfEntryStream = dbfEntry.Open())
         using (var dbfWriter =
-               new DbaseBinaryWriter(
-                   dbfHeader,
-                   new BinaryWriter(dbfEntryStream, _encoding, true)))
+            new DbaseBinaryWriter(
+                dbfHeader,
+                new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
             var dbfRecord = new RoadNodeDbaseRecord();
             foreach (var data in integrationNodes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
@@ -60,7 +65,6 @@ public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorCo
                 dbfRecord.FromBytes(data, _manager, _encoding);
                 dbfWriter.Write(dbfRecord);
             }
-
             dbfWriter.Writer.Flush();
             await dbfEntryStream.FlushAsync(cancellationToken);
         }
@@ -78,9 +82,9 @@ public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorCo
             shpBoundingBox);
         await using (var shpEntryStream = shpEntry.Open())
         using (var shpWriter =
-               new ShapeBinaryWriter(
-                   shpHeader,
-                   new BinaryWriter(shpEntryStream, _encoding, true)))
+            new ShapeBinaryWriter(
+                shpHeader,
+                new BinaryWriter(shpEntryStream, _encoding, true)))
         {
             var number = RecordNumber.Initial;
             foreach (var data in integrationNodes.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
@@ -92,7 +96,6 @@ public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorCo
                 );
                 number = number.Next();
             }
-
             shpWriter.Writer.Flush();
             await shpEntryStream.FlushAsync(cancellationToken);
         }
@@ -101,9 +104,9 @@ public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorCo
         var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(integrationNodes.Count));
         await using (var shxEntryStream = shxEntry.Open())
         using (var shxWriter =
-               new ShapeIndexBinaryWriter(
-                   shxHeader,
-                   new BinaryWriter(shxEntryStream, _encoding, true)))
+            new ShapeIndexBinaryWriter(
+                shxHeader,
+                new BinaryWriter(shxEntryStream, _encoding, true)))
         {
             var offset = ShapeIndexRecord.InitialOffset;
             var number = RecordNumber.Initial;
@@ -116,7 +119,6 @@ public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorCo
                 number = number.Next();
                 offset = offset.Plus(shpRecord.Length);
             }
-
             shxWriter.Writer.Flush();
             await shxEntryStream.FlushAsync(cancellationToken);
         }
