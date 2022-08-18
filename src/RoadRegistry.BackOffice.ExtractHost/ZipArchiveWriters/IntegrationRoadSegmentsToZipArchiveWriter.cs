@@ -54,10 +54,9 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
 
             var boundaryForSegments = geometryForSegmentsInContour.ConvexHull();
             var boundaryWithIntegrationBuffer = boundaryForSegments.Buffer(integrationBufferInMeters);
-            var integrationBuffer = boundaryWithIntegrationBuffer.Difference(boundaryForSegments);
 
             var segmentsInIntegrationBuffer = await context.RoadSegments
-                .InsideContour(integrationBuffer as IPolygonal)
+                .InsideContour(boundaryWithIntegrationBuffer as IPolygonal)
                 .ToListAsync(cancellationToken);
             var integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
 

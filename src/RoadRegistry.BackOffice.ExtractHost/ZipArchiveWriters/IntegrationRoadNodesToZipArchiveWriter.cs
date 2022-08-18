@@ -46,10 +46,9 @@ namespace RoadRegistry.BackOffice.ExtractHost.ZipArchiveWriters
 
             var boundaryForNodes = geometryForNodesInContour.ConvexHull();
             var boundaryWithIntegrationBuffer = boundaryForNodes.Buffer(integrationBufferInMeters);
-            var integrationBuffer = boundaryWithIntegrationBuffer.Difference(boundaryForNodes);
 
             var nodesInIntegrationBuffer = await context.RoadNodes
-                .InsideContour(integrationBuffer as NetTopologySuite.Geometries.IPolygonal)
+                .InsideContour(boundaryWithIntegrationBuffer as NetTopologySuite.Geometries.IPolygonal)
                 .ToListAsync(cancellationToken);
             var integrationNodes = nodesInIntegrationBuffer.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
 
