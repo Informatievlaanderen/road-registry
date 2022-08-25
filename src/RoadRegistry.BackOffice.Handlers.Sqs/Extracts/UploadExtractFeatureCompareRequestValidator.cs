@@ -6,10 +6,6 @@ using MediatR;
 
 public sealed class UploadExtractFeatureCompareRequestValidator : AbstractValidator<UploadExtractFeatureCompareRequest>, IPipelineBehavior<UploadExtractFeatureCompareRequest, UploadExtractResponse>
 {
-    public UploadExtractFeatureCompareRequestValidator()
-    {
-    }
-
     public async Task<UploadExtractResponse> Handle(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<UploadExtractResponse> next)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);

@@ -1,24 +1,19 @@
-namespace RoadRegistry.BackOffice.Scenarios;
+namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
-using System;
-using System.IO.Compression;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using Core;
-using Extracts;
-using Framework;
 using KellermanSoftware.CompareNetObjects;
-using Messages;
 using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Testing;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Framework.Testing;
 using SqlStreamStore;
-using SqlStreamStore.Streams;
-using Uploads;
 
 public abstract class RoadRegistryFixture : IDisposable
 {
@@ -75,36 +70,5 @@ public abstract class RoadRegistryFixture : IDisposable
     {
         if (builder == null) throw new ArgumentNullException(nameof(builder));
         return builder(new Scenario()).AssertAsync(_runner);
-    }
-}
-
-public class FakeRoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
-{
-    public Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken)
-    {
-        return Task.FromResult<(RoadNetworkSnapshot snapshot, int version)>((null, ExpectedVersion.NoStream));
-    }
-}
-
-public class FakeRoadNetworkSnapshotWriter : IRoadNetworkSnapshotWriter
-{
-    public Task WriteSnapshot(RoadNetworkSnapshot snapshot, int version, CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
-
-    public Task SetHeadToVersion(int version, CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
-}
-
-public class FakeZipArchiveValidator : IZipArchiveValidator
-{
-    public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)
-    {
-        return archive.GetEntry("error") != null
-            ? ZipArchiveProblems.Single(new FileError("error", "reason"))
-            : ZipArchiveProblems.None;
     }
 }

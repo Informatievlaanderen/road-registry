@@ -1,6 +1,5 @@
 namespace RoadRegistry.Framework.Assertions;
 
-using System;
 using System.Globalization;
 using System.Reflection;
 using AutoFixture.Idioms;

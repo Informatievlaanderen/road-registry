@@ -1,42 +1,29 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
-using System.IO.Compression;
-using System.Text;
 using BackOffice.Framework;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
-using Editor.Schema;
-using Editor.Schema.Extracts;
+using MediatR;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
-using Moq;
 using Newtonsoft.Json;
 using NodaTime;
-using Scenarios;
+using RoadRegistry.BackOffice.Api.Tests.Abstractions;
+using RoadRegistry.BackOffice.Extracts;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
+using System.IO.Compression;
+using System.Text;
 using Uploads;
 
 public class UploadControllerTests : ControllerTests<UploadController>
 {
-    protected override Mock<EditorContext> ConfigureEditorContextMock()
+    public UploadControllerTests(IMediator mediator, IStreamStore streamStore, RoadNetworkUploadsBlobClient uploadClient, RoadNetworkExtractUploadsBlobClient extractUploadClient)
+        : base(mediator, streamStore, uploadClient, extractUploadClient)
     {
-        var mock = base.ConfigureEditorContextMock();
-        mock.Setup(context => context.ExtractDownloads.FindAsync(It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ExtractDownloadRecord
-            {
-                RequestId = "",
-                RequestedOn = DateTime.UtcNow.Ticks,
-                ArchiveId = "",
-                Available = true,
-                AvailableOn = DateTime.UtcNow.Ticks,
-                DownloadId = Guid.Empty,
-                ExternalRequestId = ""
-            });
-        return mock;
     }
 
     [Fact]
@@ -140,7 +127,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             };
             var result = await Controller.PostUpload(formFile, CancellationToken.None);
 
-            Assert.IsType<OkResult>(result);
+            Assert.IsType<OkObjectResult>(result);
 
             var page = await StreamStore.ReadAllForwards(Position.Start, 1);
             var message = Assert.Single(page.Messages);

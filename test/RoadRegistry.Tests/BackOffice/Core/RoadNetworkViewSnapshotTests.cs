@@ -1,12 +1,13 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
-using System.Linq;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using KellermanSoftware.CompareNetObjects;
-using Messages;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
-using Point = Messages.Point;
+using Point = RoadRegistry.BackOffice.Messages.Point;
 
 public class RoadNetworkViewSnapshotTests
 {

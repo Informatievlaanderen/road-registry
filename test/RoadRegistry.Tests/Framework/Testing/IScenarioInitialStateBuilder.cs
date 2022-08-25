@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.Framework.Testing;
 
-using System.Collections.Generic;
 using BackOffice.Framework;
 
 public interface IScenarioInitialStateBuilder

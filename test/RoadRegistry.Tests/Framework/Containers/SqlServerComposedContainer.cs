@@ -1,8 +1,5 @@
 namespace RoadRegistry.Framework.Containers;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
 public class SqlServerComposedContainer : ISqlServerDatabase

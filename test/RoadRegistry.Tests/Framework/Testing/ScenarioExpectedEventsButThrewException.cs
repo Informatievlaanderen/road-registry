@@ -1,7 +1,5 @@
 ﻿namespace RoadRegistry.Framework.Testing;
 
-using System;
-
 public class ScenarioExpectedEventsButThrewException
 {
     public ScenarioExpectedEventsButThrewException(ExpectEventsScenario scenario, Exception actual)

@@ -1,8 +1,7 @@
-namespace RoadRegistry.BackOffice.Uploads;
+namespace RoadRegistry.Tests.BackOffice.Uploads;
 
-using System.Collections.Generic;
-using System.Linq;
-using Core;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Uploads;
 
 public class FileProblemComparer : IEqualityComparer<FileProblem>
 {

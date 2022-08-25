@@ -1,6 +1,5 @@
 namespace RoadRegistry.Framework.Assertions;
 
-using System;
 using System.Runtime.Serialization;
 
 /// <summary>

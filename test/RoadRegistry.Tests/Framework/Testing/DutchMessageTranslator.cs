@@ -1,7 +1,5 @@
 namespace RoadRegistry.Framework.Testing;
 
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 
 public class DutchMessageTranslator : IMessageTranslator

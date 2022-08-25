@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Framework.Projections;
+using RoadRegistry.Tests.BackOffice;
 
 public class TransactionZoneToZipArchiveWriterTests
 {

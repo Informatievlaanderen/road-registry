@@ -1,15 +1,13 @@
-namespace RoadRegistry.BackOffice.Scenarios;
+namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
-using System;
-using System.IO;
 using System.IO.Compression;
-using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Extracts;
 using KellermanSoftware.CompareNetObjects;
-using Messages;
 using NodaTime.Text;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Framework.Projections;
 using RoadRegistry.Framework.Testing;
 using Xunit;

@@ -32,7 +32,6 @@ using Serilog.Debugging;
 using SqlStreamStore;
 using Syndication.Schema;
 using Uploads;
-using ZipArchiveWriters;
 using ZipArchiveWriters.ExtractHost;
 
 public class Program
@@ -209,7 +208,7 @@ public class Program
                                     ).Options)
                     )
                     .AddSingleton(zipArchiveWriterOptions)
-                    .AddSingleton<ZipArchiveWriters.ExtractHost.IZipArchiveWriter<EditorContext>>(sp =>
+                    .AddSingleton<IZipArchiveWriter<EditorContext>>(sp =>
                         new RoadNetworkExtractToZipArchiveWriter(
                             sp.GetService<ZipArchiveWriterOptions>(),
                             sp.GetService<IStreetNameCache>(),
@@ -231,7 +230,7 @@ public class Program
                         new RoadNetworkExtractArchiveAssembler(
                             sp.GetService<RecyclableMemoryStreamManager>(),
                             sp.GetService<Func<EditorContext>>(),
-                            sp.GetService<ZipArchiveWriters.ExtractHost.IZipArchiveWriter<EditorContext>>()))
+                            sp.GetService<IZipArchiveWriter<EditorContext>>()))
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
                         new RoadNetworkExtractEventModule(

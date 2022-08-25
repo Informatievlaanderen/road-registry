@@ -1,6 +1,5 @@
 namespace RoadRegistry;
 
-using System;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 

@@ -21,7 +21,7 @@ public class WmsContextMigrationFactory : RunnerDbContextMigrationFactory<WmsCon
 
     protected override WmsContext CreateContext(DbContextOptions<WmsContext> migrationContextOptions)
     {
-        return new(migrationContextOptions);
+        return new WmsContext(migrationContextOptions);
     }
 
     protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)

@@ -1,26 +1,5 @@
-Albedo
-AutoFixture
-AutoFixture.Idioms
-AutoFixture.Xunit2
-CompareNETObjects
-NodaTime.Testing
-Moq
-
-Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing
-
-Docker.DotNet
-
-Microsoft.Data.SqlClient
-Microsoft.IO.RecyclableMemoryStream
 Microsoft.NET.Test.Sdk
 
 xunit
 xunit.runner.visualstudio
 xunit.categories
-
-SqlStreamStore.MsSql
-Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
-NetTopologySuite.IO.GeoJSON
-CsvHelper
-FluentAssertions
-Autofac

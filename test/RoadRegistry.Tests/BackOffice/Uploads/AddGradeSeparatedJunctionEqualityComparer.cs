@@ -1,7 +1,6 @@
-namespace RoadRegistry.BackOffice.Uploads;
+namespace RoadRegistry.Tests.BackOffice.Uploads;
 
-using System;
-using System.Collections.Generic;
+using RoadRegistry.BackOffice.Uploads;
 
 public class AddGradeSeparatedJunctionEqualityComparer : IEqualityComparer<AddGradeSeparatedJunction>
 {

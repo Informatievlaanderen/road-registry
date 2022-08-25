@@ -1,23 +1,21 @@
-namespace RoadRegistry.BackOffice.Scenarios;
+namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Core;
-using Messages;
 using NodaTime.Text;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Framework.Testing;
 using Xunit;
-using ModifyGradeSeparatedJunction = Messages.ModifyGradeSeparatedJunction;
-using ModifyRoadNode = Messages.ModifyRoadNode;
-using ModifyRoadSegment = Messages.ModifyRoadSegment;
-using ModifyRoadSegmentOnNumberedRoad = Messages.ModifyRoadSegmentOnNumberedRoad;
-using Point = Messages.Point;
-using Problem = Messages.Problem;
-using ProblemParameter = Messages.ProblemParameter;
-using RejectedChange = Messages.RejectedChange;
+using ModifyGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.ModifyGradeSeparatedJunction;
+using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
+using ModifyRoadSegment = RoadRegistry.BackOffice.Messages.ModifyRoadSegment;
+using ModifyRoadSegmentOnNumberedRoad = RoadRegistry.BackOffice.Messages.ModifyRoadSegmentOnNumberedRoad;
+using Point = RoadRegistry.BackOffice.Messages.Point;
+using Problem = RoadRegistry.BackOffice.Messages.Problem;
+using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
+using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
 
 public class ModifyTheNonExisting : RoadRegistryFixture
 {

@@ -31,9 +31,9 @@ public class DownloadController : ControllerBase
             var response = await _mediator.Send(request, cancellationToken);
             return new FileCallbackResult(response);
         }
-        catch (DownloadEditorNotFoundException)
+        catch (DownloadEditorNotFoundException ex)
         {
-            return NotFound();
+            return new StatusCodeResult((int)ex.HttpStatusCode);
         }
     }
 
@@ -46,7 +46,7 @@ public class DownloadController : ControllerBase
             var response = await _mediator.Send(request, cancellationToken);
             return new FileCallbackResult(response);
         }
-        catch (DownloadProductNotFoundException)
+        catch (DownloadProductNotFoundException ex)
         {
             return NotFound();
         }

@@ -1,6 +1,7 @@
 System.Collections.Immutable
 
 Microsoft.IO.RecyclableMemoryStream
+Microsoft.Extensions.Logging.Abstractions
 
 FluentValidation
 MessagePack
@@ -10,11 +11,13 @@ SqlStreamStore
 DotSpatial.Projections
 Polly
 Autofac
+AWSSDK.Core
 
 Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
+Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
 
 MediatR.Extensions.Autofac.DependencyInjection

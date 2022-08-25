@@ -4,11 +4,6 @@ xunit
 xunit.runner.visualstudio
 xunit.categories
 
-Autofac
-AutoFixture
-FluentAssertions
-Moq
-
 Amazon.Lambda.Core
 Amazon.Lambda.Serialization.SystemTextJson
 Amazon.Lambda.TestUtilities

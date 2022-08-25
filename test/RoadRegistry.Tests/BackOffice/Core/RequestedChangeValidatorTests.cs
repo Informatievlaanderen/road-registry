@@ -1,6 +1,7 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
 using FluentValidation.TestHelper;
+using RoadRegistry.BackOffice.Core;
 using Xunit;
 
 public class RequestedChangeValidatorTests

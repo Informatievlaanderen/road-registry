@@ -1,9 +1,9 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
-using System;
-using System.Linq;
 using AutoFixture;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using Xunit;
 
 public class RoadSegmentTests

@@ -1,8 +1,10 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
 using FluentValidation;
 using FluentValidation.TestHelper;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using Xunit;
 
 public class AddRoadSegmentToNumberedRoadValidatorTests
@@ -61,7 +63,7 @@ public class AddRoadSegmentToNumberedRoadValidatorTests
     [Fact]
     public void VerifyValid()
     {
-        var data = new Messages.AddRoadSegmentToNumberedRoad
+        var data = new RoadRegistry.BackOffice.Messages.AddRoadSegmentToNumberedRoad
         {
             TemporaryAttributeId = Fixture.Create<AttributeId>(),
             Number = Fixture.Create<NumberedRoadNumber>(),

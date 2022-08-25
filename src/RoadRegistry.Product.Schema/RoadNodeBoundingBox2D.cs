@@ -11,7 +11,7 @@ public class RoadNodeBoundingBox2D
 
     public BoundingBox3D ToBoundingBox3D(double minimumM = default, double maximumM = default)
     {
-        return new(
+        return new BoundingBox3D(
             MinimumX,
             MinimumY,
             MaximumX,

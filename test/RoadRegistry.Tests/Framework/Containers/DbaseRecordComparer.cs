@@ -1,8 +1,5 @@
 namespace RoadRegistry.Framework.Containers;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class DbaseRecordComparer<TDbaseRecord> : IEqualityComparer<TDbaseRecord>

@@ -12,7 +12,7 @@ public class RoadNodeBoundingBox
 
     public static RoadNodeBoundingBox From(Point shape)
     {
-        return new()
+        return new RoadNodeBoundingBox
         {
             MinimumX = GeometryTranslator.ToGeometryPoint(shape).EnvelopeInternal.MinX,
             MinimumY = GeometryTranslator.ToGeometryPoint(shape).EnvelopeInternal.MinY,
@@ -23,7 +23,7 @@ public class RoadNodeBoundingBox
 
     public BoundingBox3D ToBoundingBox3D(double minimumM = default, double maximumM = default)
     {
-        return new(
+        return new BoundingBox3D(
             MinimumX,
             MinimumY,
             MaximumX,

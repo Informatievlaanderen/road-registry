@@ -19,7 +19,6 @@ using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Configuration;
 using Core;
 using Editor.Schema;
 using Hosts;
@@ -38,7 +37,6 @@ using Product.Schema;
 using Serilog;
 using SqlStreamStore;
 using Syndication.Schema;
-using ZipArchiveWriters;
 
 public class Program
 {
@@ -79,7 +77,7 @@ public class Program
 
     public static IWebHostBuilder CreateWebHostBuilder(string[] args)
     {
-        return new WebHostBuilder()
+        var webHostBuilder = new WebHostBuilder()
             .UseDefaultForApi<Startup>(
                 new ProgramOptions
                 {
@@ -101,7 +99,6 @@ public class Program
             {
                 var blobOptions = new BlobClientOptions();
                 hostContext.Configuration.Bind(blobOptions);
-
                 switch (blobOptions.BlobClientType)
                 {
                     case nameof(S3BlobClient):
@@ -280,5 +277,6 @@ public class Program
                         .UseSqlServer(
                             sp.GetRequiredService<TraceDbConnection<ProductContext>>()));
             });
+        return webHostBuilder;
     }
 }

@@ -1,10 +1,9 @@
-﻿namespace RoadRegistry.BackOffice;
+﻿namespace RoadRegistry.Tests.BackOffice;
 
-using System;
-using System.Collections.Generic;
 using Albedo;
 using AutoFixture;
 using AutoFixture.Idioms;
+using RoadRegistry.BackOffice;
 using RoadRegistry.Framework.Assertions;
 using Xunit;
 

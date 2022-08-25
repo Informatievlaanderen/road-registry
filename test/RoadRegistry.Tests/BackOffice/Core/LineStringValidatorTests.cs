@@ -1,13 +1,12 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
-using System;
-using System.Linq;
 using AutoFixture;
 using FluentValidation;
 using FluentValidation.TestHelper;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice;
 using Xunit;
-using Point = Messages.Point;
+using Point = RoadRegistry.BackOffice.Messages.Point;
 
 public class LineStringValidatorTests
 {

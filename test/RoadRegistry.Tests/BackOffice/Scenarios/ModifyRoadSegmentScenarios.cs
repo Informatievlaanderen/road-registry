@@ -1,31 +1,29 @@
-namespace RoadRegistry.BackOffice.Scenarios;
+namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Core;
-using Messages;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime.Text;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Framework.Testing;
 using Xunit;
-using AcceptedChange = Messages.AcceptedChange;
-using AddRoadNode = Messages.AddRoadNode;
-using GeometryTranslator = BackOffice.GeometryTranslator;
+using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
+using AddRoadNode = RoadRegistry.BackOffice.Messages.AddRoadNode;
+using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
-using ModifyRoadNode = Messages.ModifyRoadNode;
-using ModifyRoadSegment = Messages.ModifyRoadSegment;
+using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
+using ModifyRoadSegment = RoadRegistry.BackOffice.Messages.ModifyRoadSegment;
 using Point = NetTopologySuite.Geometries.Point;
-using Problem = Messages.Problem;
-using ProblemParameter = Messages.ProblemParameter;
-using RejectedChange = Messages.RejectedChange;
-using RoadSegmentLaneAttributes = Messages.RoadSegmentLaneAttributes;
-using RoadSegmentSurfaceAttributes = Messages.RoadSegmentSurfaceAttributes;
-using RoadSegmentWidthAttributes = Messages.RoadSegmentWidthAttributes;
+using Problem = RoadRegistry.BackOffice.Messages.Problem;
+using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
+using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
+using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
+using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
+using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
 public class ModifyRoadSegmentScenarios : RoadRegistryFixture
 {

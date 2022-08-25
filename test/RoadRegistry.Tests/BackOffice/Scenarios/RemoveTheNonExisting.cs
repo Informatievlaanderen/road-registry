@@ -1,25 +1,23 @@
-namespace RoadRegistry.BackOffice.Scenarios;
+namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Core;
-using Messages;
 using NodaTime.Text;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Framework.Testing;
 using Xunit;
-using Point = Messages.Point;
-using Problem = Messages.Problem;
-using ProblemParameter = Messages.ProblemParameter;
-using RejectedChange = Messages.RejectedChange;
-using RemoveGradeSeparatedJunction = Messages.RemoveGradeSeparatedJunction;
-using RemoveRoadNode = Messages.RemoveRoadNode;
-using RemoveRoadSegment = Messages.RemoveRoadSegment;
-using RemoveRoadSegmentFromEuropeanRoad = Messages.RemoveRoadSegmentFromEuropeanRoad;
-using RemoveRoadSegmentFromNationalRoad = Messages.RemoveRoadSegmentFromNationalRoad;
-using RemoveRoadSegmentFromNumberedRoad = Messages.RemoveRoadSegmentFromNumberedRoad;
+using Point = RoadRegistry.BackOffice.Messages.Point;
+using Problem = RoadRegistry.BackOffice.Messages.Problem;
+using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
+using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
+using RemoveGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.RemoveGradeSeparatedJunction;
+using RemoveRoadNode = RoadRegistry.BackOffice.Messages.RemoveRoadNode;
+using RemoveRoadSegment = RoadRegistry.BackOffice.Messages.RemoveRoadSegment;
+using RemoveRoadSegmentFromEuropeanRoad = RoadRegistry.BackOffice.Messages.RemoveRoadSegmentFromEuropeanRoad;
+using RemoveRoadSegmentFromNationalRoad = RoadRegistry.BackOffice.Messages.RemoveRoadSegmentFromNationalRoad;
+using RemoveRoadSegmentFromNumberedRoad = RoadRegistry.BackOffice.Messages.RemoveRoadSegmentFromNumberedRoad;
 
 public class RemoveTheNonExisting : RoadRegistryFixture
 {

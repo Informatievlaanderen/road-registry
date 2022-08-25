@@ -2,10 +2,19 @@ namespace RoadRegistry.BackOffice.Api.Tests;
 
 using Api.Downloads;
 using Api.Framework;
+using Autofac;
+using Autofac.Core;
+using BackOffice.Extracts;
+using BackOffice.Uploads;
 using Dbase;
+using Editor.Schema;
 using Framework.Containers;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using RoadRegistry.BackOffice.Api.Tests.Abstractions;
+using SqlStreamStore;
 
 [Collection(nameof(SqlServerCollection))]
 public class DownloadControllerTests : ControllerTests<DownloadController>
@@ -13,7 +22,8 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
     private readonly SqlServer _fixture;
     private readonly CancellationTokenSource _tokenSource;
 
-    public DownloadControllerTests(SqlServer fixture)
+    public DownloadControllerTests(SqlServer fixture, IMediator mediator, IStreamStore streamStore, RoadNetworkUploadsBlobClient uploadClient, RoadNetworkExtractUploadsBlobClient extractUploadClient)
+        : base(mediator, streamStore, uploadClient, extractUploadClient)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         _tokenSource = new CancellationTokenSource();

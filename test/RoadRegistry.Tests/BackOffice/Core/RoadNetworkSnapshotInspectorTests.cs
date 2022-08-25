@@ -1,11 +1,9 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
 using System.Data;
-using System.IO;
-using System.Threading.Tasks;
 using MessagePack;
-using Messages;
 using Microsoft.Data.SqlClient;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 
 public class RoadNetworkSnapshotInspectorTests

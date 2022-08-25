@@ -1,13 +1,16 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
-using Abstractions.Extracts;
 using Api.Extracts;
 using AutoFixture;
+using BackOffice.Abstractions;
+using BackOffice.Abstractions.Exceptions;
+using BackOffice.Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Configuration;
 using Editor.Schema;
+using FluentValidation;
 using Framework.Containers;
+using MediatR;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +18,11 @@ using Microsoft.Extensions.Primitives;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.Tests.Abstractions;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Tests.BackOffice;
+using SqlStreamStore;
 using Xunit.Sdk;
 using GeometryTranslator = BackOffice.GeometryTranslator;
 using Point = NetTopologySuite.Geometries.Point;
@@ -27,7 +35,8 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
     private readonly SqlServer _sqlServerFixture;
     private EditorContext _editorContext;
 
-    public ExtractControllerTests(SqlServer sqlServerFixture)
+    public ExtractControllerTests(SqlServer sqlServerFixture, IMediator mediator, IStreamStore streamStore, RoadNetworkUploadsBlobClient uploadClient, RoadNetworkExtractUploadsBlobClient extractUploadClient)
+        : base(mediator, streamStore, uploadClient, extractUploadClient)
     {
         _sqlServerFixture = sqlServerFixture;
         _fixture = new Fixture();
@@ -129,10 +138,10 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
         try
         {
             await Controller.PostDownloadRequest(new DownloadExtractRequestBody
-                {
-                    RequestId = externalExtractRequestId,
-                    Contour = null
-                },
+            {
+                RequestId = externalExtractRequestId,
+                Contour = null
+            },
                 CancellationToken.None);
             throw new XunitException("Expected a validation exception but did not receive any");
         }
@@ -184,16 +193,9 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
         }
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task When_uploading_an_extract_that_is_not_a_zip(bool featureCompare)
+    [Fact]
+    public async Task When_uploading_an_extract_that_is_not_a_zip()
     {
-        //var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
-        //var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
-        //var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-        //var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
-
         var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
         {
             Headers = new HeaderDictionary(new Dictionary<string, StringValues>
@@ -204,27 +206,26 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
 
         try
         {
-            if (featureCompare)
-                await Controller.PostFeatureCompareUpload(
-                    "not_a_guid_without_dashes",
-                    formFile,
-                    CancellationToken.None);
-            else
-                await Controller.PostUpload(
-                    "not_a_guid_without_dashes",
-                    formFile,
-                    CancellationToken.None);
+            //await Controller.PostUpload(
+            //    "not_a_guid_without_dashes",
+            //    formFile,
+            //    CancellationToken.None);
+            await Controller.PostFeatureCompareUpload(
+                "not_a_guid_without_dashes",
+                formFile,
+                CancellationToken.None);
             throw new XunitException("Expected a validation exception but did not receive any");
+        }
+        catch (UploadExtractNotFoundException)
+        {
         }
         catch (ValidationException)
         {
         }
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task When_uploading_an_extract_that_is_a_zip(bool featureCompare)
+    [Fact]
+    public async Task When_uploading_an_extract_that_is_a_zip()
     {
         //var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
         //var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
@@ -253,12 +254,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
                     })
                 };
 
-                var result = featureCompare
-                    ? await Controller.PostFeatureCompareUpload(
-                        "not_a_guid_without_dashes",
-                        formFile,
-                        CancellationToken.None)
-                    : await Controller.PostUpload(
+                var result = await Controller.PostFeatureCompareUpload(
                         "not_a_guid_without_dashes",
                         formFile,
                         CancellationToken.None);
@@ -284,6 +280,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
                 }
             }
         }
+        catch (UploadExtractNotFoundException) { }
         catch (ValidationException)
         {
         }

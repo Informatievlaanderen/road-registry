@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import
-    Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
+  <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -12,8 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference
-      Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
@@ -21,6 +19,10 @@
 
   <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Behaviors\" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

@@ -1,7 +1,5 @@
 namespace RoadRegistry.Framework.Reactions;
 
-using System;
-
 public class ReactionScenario
 {
     public ReactionScenario(RecordedEvent[] givens, RecordedEvent[] thens)

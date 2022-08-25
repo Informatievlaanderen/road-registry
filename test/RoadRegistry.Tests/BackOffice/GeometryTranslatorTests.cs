@@ -1,8 +1,9 @@
-namespace RoadRegistry.BackOffice;
+namespace RoadRegistry.Tests.BackOffice;
 
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using RoadRegistry.BackOffice;
 using Xunit;
 
 public class GeometryTranslatorTests

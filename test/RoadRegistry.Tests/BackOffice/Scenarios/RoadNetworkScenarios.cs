@@ -1,37 +1,34 @@
-namespace RoadRegistry.BackOffice.Scenarios;
+namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Core;
-using Messages;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime.Text;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Framework.Testing;
 using Xunit;
-using AcceptedChange = Messages.AcceptedChange;
-using AddGradeSeparatedJunction = Messages.AddGradeSeparatedJunction;
-using AddRoadNode = Messages.AddRoadNode;
-using AddRoadSegment = Messages.AddRoadSegment;
-using AddRoadSegmentToEuropeanRoad = Messages.AddRoadSegmentToEuropeanRoad;
-using AddRoadSegmentToNationalRoad = Messages.AddRoadSegmentToNationalRoad;
-using AddRoadSegmentToNumberedRoad = Messages.AddRoadSegmentToNumberedRoad;
-using GeometryTranslator = BackOffice.GeometryTranslator;
+using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
+using AddGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction;
+using AddRoadNode = RoadRegistry.BackOffice.Messages.AddRoadNode;
+using AddRoadSegment = RoadRegistry.BackOffice.Messages.AddRoadSegment;
+using AddRoadSegmentToEuropeanRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToEuropeanRoad;
+using AddRoadSegmentToNationalRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNationalRoad;
+using AddRoadSegmentToNumberedRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNumberedRoad;
+using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
-using ModifyRoadNode = Messages.ModifyRoadNode;
+using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
 using Point = NetTopologySuite.Geometries.Point;
-using Problem = Messages.Problem;
-using ProblemParameter = Messages.ProblemParameter;
-using RejectedChange = Messages.RejectedChange;
-using RoadSegmentLaneAttributes = Messages.RoadSegmentLaneAttributes;
-using RoadSegmentSurfaceAttributes = Messages.RoadSegmentSurfaceAttributes;
-using RoadSegmentWidthAttributes = Messages.RoadSegmentWidthAttributes;
+using Problem = RoadRegistry.BackOffice.Messages.Problem;
+using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
+using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
+using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
+using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
+using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
 public class RoadNetworkScenarios : RoadRegistryFixture
 {
@@ -1213,13 +1210,13 @@ public class RoadNetworkScenarios : RoadRegistryFixture
         var nextWidthsAttributeId = AddSegment1.Widths.Length + 1;
         var nextSurfacesAttributeId = AddSegment1.Surfaces.Length + 1;
 
-        StartNode1Added.Geometry = new RoadNodeGeometry { Point = new Messages.Point { X = 0, Y = 0 } };
-        EndNode1Added.Geometry = new RoadNodeGeometry { Point = new Messages.Point { X = 0, Y = 10 } };
+        StartNode1Added.Geometry = new RoadNodeGeometry { Point = new RoadRegistry.BackOffice.Messages.Point { X = 0, Y = 0 } };
+        EndNode1Added.Geometry = new RoadNodeGeometry { Point = new RoadRegistry.BackOffice.Messages.Point { X = 0, Y = 10 } };
         Segment1Added.Geometry = new RoadSegmentGeometry
         {
             MultiLineString = new[]
             {
-                new Messages.LineString
+                new RoadRegistry.BackOffice.Messages.LineString
                 {
                     Measures = new[] { 0.0, 10 },
                     Points = new[] { StartNode1Added.Geometry.Point, EndNode1Added.Geometry.Point }
@@ -1238,12 +1235,12 @@ public class RoadNetworkScenarios : RoadRegistryFixture
 
         ModifyEndNode1.Type = RoadNodeType.FakeNode;
         ModifyEndNode1.Geometry = EndNode1Added.Geometry;
-        AddEndNode2.Geometry = new RoadNodeGeometry { Point = new Messages.Point { X = 0, Y = 20 } };
+        AddEndNode2.Geometry = new RoadNodeGeometry { Point = new RoadRegistry.BackOffice.Messages.Point { X = 0, Y = 20 } };
         AddSegment2.Geometry = new RoadSegmentGeometry
         {
             MultiLineString = new[]
             {
-                new Messages.LineString
+                new RoadRegistry.BackOffice.Messages.LineString
                 {
                     Measures = new[] { 0.0, 10 },
                     Points = new[] { ModifyEndNode1.Geometry.Point, AddEndNode2.Geometry.Point }

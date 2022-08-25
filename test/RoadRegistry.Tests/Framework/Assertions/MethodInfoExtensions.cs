@@ -1,6 +1,5 @@
 namespace RoadRegistry.Framework.Assertions;
 
-using System;
 using System.Reflection;
 
 internal static class MethodInfoExtensions

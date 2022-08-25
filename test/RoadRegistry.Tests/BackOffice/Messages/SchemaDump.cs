@@ -1,9 +1,7 @@
-namespace RoadRegistry.BackOffice.Messages;
+namespace RoadRegistry.Tests.BackOffice.Messages;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 using Xunit.Abstractions;
 

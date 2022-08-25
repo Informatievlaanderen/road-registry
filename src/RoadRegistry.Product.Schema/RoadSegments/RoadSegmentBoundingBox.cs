@@ -16,7 +16,7 @@ public class RoadSegmentBoundingBox
 
     public static RoadSegmentBoundingBox From(PolyLineM shape)
     {
-        return new()
+        return new RoadSegmentBoundingBox
         {
             MinimumX = GeometryTranslator.ToGeometryMultiLineString(shape).EnvelopeInternal.MinX,
             MinimumY = GeometryTranslator.ToGeometryMultiLineString(shape).EnvelopeInternal.MinY,

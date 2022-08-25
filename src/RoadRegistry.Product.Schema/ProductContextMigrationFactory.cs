@@ -20,6 +20,6 @@ public class ProductContextMigrationFactory : RunnerDbContextMigrationFactory<Pr
 
     protected override ProductContext CreateContext(DbContextOptions<ProductContext> migrationContextOptions)
     {
-        return new(migrationContextOptions);
+        return new ProductContext(migrationContextOptions);
     }
 }

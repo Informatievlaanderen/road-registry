@@ -1,8 +1,6 @@
 // ReSharper disable UnusedMember.Global
 
-namespace RoadRegistry.BackOffice.Core;
-
-using System.Collections.Generic;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
 public static class DynamicAttributePositionCases
 {

@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.Framework.Reactions;
 
-using System;
 using BackOffice.Framework;
 
 public class RecordedEvent

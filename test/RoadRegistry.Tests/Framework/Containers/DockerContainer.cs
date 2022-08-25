@@ -1,10 +1,6 @@
 namespace RoadRegistry.Framework.Containers;
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Xunit;

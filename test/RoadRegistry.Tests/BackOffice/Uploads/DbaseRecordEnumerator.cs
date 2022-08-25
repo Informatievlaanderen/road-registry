@@ -1,8 +1,6 @@
-namespace RoadRegistry.BackOffice.Uploads;
+namespace RoadRegistry.Tests.BackOffice.Uploads;
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class DbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>

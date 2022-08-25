@@ -9,11 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.CommandHost\RoadRegistry.BackOffice.CommandHost.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
+    <Using Include="Xunit" />
+    <Using Include="RoadRegistry.Tests" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

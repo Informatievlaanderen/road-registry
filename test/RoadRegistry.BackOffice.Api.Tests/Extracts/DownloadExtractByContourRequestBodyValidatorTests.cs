@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
-using Abstractions.Extracts;
+using BackOffice.Abstractions.Extracts;
+using FluentAssertions;
+using FluentValidation;
 using Handlers.Extracts;
 using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.IO;

@@ -1,11 +1,13 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using FluentValidation;
 using FluentValidation.TestHelper;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using Xunit;
-using Point = Messages.Point;
+using Point = RoadRegistry.BackOffice.Messages.Point;
 
 public class RoadNodeGeometryValidatorTests
 {

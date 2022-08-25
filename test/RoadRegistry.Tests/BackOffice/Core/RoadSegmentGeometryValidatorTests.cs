@@ -1,14 +1,14 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
-using System;
-using System.Linq;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using FluentValidation;
 using FluentValidation.TestHelper;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using Xunit;
-using LineString = Messages.LineString;
+using LineString = RoadRegistry.BackOffice.Messages.LineString;
 
 public class RoadSegmentGeometryValidatorTests
 {

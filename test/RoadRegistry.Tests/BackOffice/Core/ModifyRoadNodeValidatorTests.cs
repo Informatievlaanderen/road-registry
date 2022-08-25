@@ -1,9 +1,11 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
 using FluentValidation;
 using FluentValidation.TestHelper;
-using Messages;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 
 public class ModifyRoadNodeValidatorTests
@@ -52,7 +54,7 @@ public class ModifyRoadNodeValidatorTests
     {
         Fixture.CustomizePoint();
 
-        var data = new Messages.ModifyRoadNode
+        var data = new RoadRegistry.BackOffice.Messages.ModifyRoadNode
         {
             Id = Fixture.Create<RoadNodeId>(),
             Type = Fixture.Create<RoadNodeType>(),

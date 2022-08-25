@@ -8,6 +8,7 @@ using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using Exceptions;
 using Framework;
 using Microsoft.Extensions.Logging;
 using static Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple.Sqs;
@@ -24,19 +25,19 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
     };
 
     private readonly RoadNetworkExtractUploadsBlobClient _client;
-    private readonly SqsOptions _sqsOptions;
     private readonly IZipArchiveValidator _validator;
+    private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
     public UploadExtractFeatureCompareRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
-        SqsOptions sqsOptions,
+        ISqsQueuePublisher sqsQueuePublisher,
         IZipArchiveValidator validator,
         ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
-        _sqsOptions = sqsOptions ?? throw new SqsOptionsNotFoundException(nameof(sqsOptions));
         _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
+        _sqsQueuePublisher = sqsQueuePublisher ?? throw new SqsQueuePublisherNotFoundException(nameof(sqsQueuePublisher));
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken)
@@ -69,7 +70,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
             message.ValidateArchiveUsing(archive, _validator);
         }
 
-        await CopyToQueue(_sqsOptions, SqsQueueName.Value, message, new SqsQueueOptions { MessageGroupId = archiveId }, cancellationToken);
+        await _sqsQueuePublisher.CopyToQueue(SqsQueueName.Value, message, new SqsQueueOptions { MessageGroupId = archiveId }, cancellationToken);
 
         return new UploadExtractResponse(archiveId);
     }

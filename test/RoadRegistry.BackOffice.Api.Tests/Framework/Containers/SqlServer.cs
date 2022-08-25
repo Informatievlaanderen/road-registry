@@ -1,12 +1,14 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Framework.Containers;
 
 using Abstractions;
+using BackOffice.Abstractions;
 using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Product.Schema;
 using RoadRegistry.Framework;
+using RoadRegistry.Framework.Containers;
 
 public class SqlServer : ISqlServerDatabase
 {
@@ -20,7 +22,7 @@ public class SqlServer : ISqlServerDatabase
             _inner = new SqlServerComposedContainer();
 
         MemoryStreamManager = new RecyclableMemoryStreamManager();
-        StreetNameCache = new StreetNameCacheStub();
+        StreetNameCache = new FakeStreetNameCache();
     }
 
     public RecyclableMemoryStreamManager MemoryStreamManager { get; }

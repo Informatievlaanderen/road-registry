@@ -1,7 +1,5 @@
 namespace RoadRegistry.Framework.Containers;
 
-using System;
-
 public class ContainerSettings
 {
     public string Name { get; set; }

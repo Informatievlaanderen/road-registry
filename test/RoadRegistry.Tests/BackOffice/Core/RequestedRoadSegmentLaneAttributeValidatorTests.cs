@@ -1,10 +1,11 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
-using System.Linq;
 using AutoFixture;
 using FluentValidation;
 using FluentValidation.TestHelper;
-using Messages;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 
 public class RequestedRoadSegmentLaneAttributeValidatorTests

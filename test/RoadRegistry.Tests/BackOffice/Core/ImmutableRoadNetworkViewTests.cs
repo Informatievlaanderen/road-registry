@@ -1,9 +1,10 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
-using System;
 using AutoFixture;
 using FluentAssertions;
-using Messages;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 
 public class ImmutableRoadNetworkViewTests
@@ -36,7 +37,7 @@ public class ImmutableRoadNetworkViewTests
                         OrganizationId = Fixture.Create<string>(),
                         RequestId = Fixture.Create<string>(),
                         TransactionId = Fixture.Create<int>(),
-                        Changes = Array.Empty<Messages.AcceptedChange>()
+                        Changes = Array.Empty<RoadRegistry.BackOffice.Messages.AcceptedChange>()
                     }));
 
         RoadNetworkFixtures = RoadNetworkTestHelpers.Create();
@@ -54,10 +55,10 @@ public class ImmutableRoadNetworkViewTests
         var given = Fixture.Create<RoadNetworkChangesAccepted>();
         given.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         roadNetwork = roadNetwork.RestoreFromEvent(given);
@@ -73,10 +74,10 @@ public class ImmutableRoadNetworkViewTests
         var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
         acceptedChange.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAddedToNationalRoad = roadSegmentAddedToNationalRoad,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         var result = roadNetwork.RestoreFromEvent(acceptedChange);
@@ -103,15 +104,15 @@ public class ImmutableRoadNetworkViewTests
 
         given.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             },
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAddedToNationalRoad = roadSegmentAddedToNationalRoad,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         roadNetwork = roadNetwork.RestoreFromEvent(given);
@@ -126,10 +127,10 @@ public class ImmutableRoadNetworkViewTests
         };
         acceptedChange.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentRemovedFromNationalRoad = roadSegmentRemovedFromNationalRoad,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         var result = roadNetwork.RestoreFromEvent(acceptedChange);
@@ -148,10 +149,10 @@ public class ImmutableRoadNetworkViewTests
         var given = Fixture.Create<RoadNetworkChangesAccepted>();
         given.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         roadNetwork = roadNetwork.RestoreFromEvent(given);
@@ -167,10 +168,10 @@ public class ImmutableRoadNetworkViewTests
         var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
         acceptedChange.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAddedToNumberedRoad = roadSegmentAddedToNumberedRoad,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         var result = roadNetwork.RestoreFromEvent(acceptedChange);
@@ -197,15 +198,15 @@ public class ImmutableRoadNetworkViewTests
 
         given.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             },
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAddedToNumberedRoad = roadSegmentAddedToNumberedRoad,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         roadNetwork = roadNetwork.RestoreFromEvent(given);
@@ -220,10 +221,10 @@ public class ImmutableRoadNetworkViewTests
         };
         acceptedChange.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentRemovedFromNumberedRoad = roadSegmentRemovedFromNumberedRoad,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         var result = roadNetwork.RestoreFromEvent(acceptedChange);
@@ -242,10 +243,10 @@ public class ImmutableRoadNetworkViewTests
         var given = Fixture.Create<RoadNetworkChangesAccepted>();
         given.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         roadNetwork = roadNetwork.RestoreFromEvent(given);
@@ -261,10 +262,10 @@ public class ImmutableRoadNetworkViewTests
         var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
         acceptedChange.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAddedToEuropeanRoad = roadSegmentAddedToEuropeanRoad,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         var result = roadNetwork.RestoreFromEvent(acceptedChange);
@@ -291,15 +292,15 @@ public class ImmutableRoadNetworkViewTests
 
         given.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             },
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentAddedToEuropeanRoad = roadSegmentAddedToEuropeanRoad,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         roadNetwork = roadNetwork.RestoreFromEvent(given);
@@ -314,10 +315,10 @@ public class ImmutableRoadNetworkViewTests
         };
         acceptedChange.Changes = new[]
         {
-            new Messages.AcceptedChange
+            new RoadRegistry.BackOffice.Messages.AcceptedChange
             {
                 RoadSegmentRemovedFromEuropeanRoad = roadSegmentRemovedFromEuropeanRoad,
-                Problems = Array.Empty<Messages.Problem>()
+                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
             }
         };
         var result = roadNetwork.RestoreFromEvent(acceptedChange);

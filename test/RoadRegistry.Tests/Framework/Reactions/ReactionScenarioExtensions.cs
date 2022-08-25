@@ -1,7 +1,5 @@
 namespace RoadRegistry.Framework.Reactions;
 
-using System;
-using System.Linq;
 using BackOffice.Framework;
 
 public static class ReactionScenarioExtensions

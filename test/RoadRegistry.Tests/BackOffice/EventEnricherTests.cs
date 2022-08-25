@@ -1,10 +1,10 @@
-namespace RoadRegistry.BackOffice;
+namespace RoadRegistry.Tests.BackOffice;
 
-using System;
-using Messages;
 using NodaTime;
 using NodaTime.Testing;
 using NodaTime.Text;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 
 public class EnrichEventTests

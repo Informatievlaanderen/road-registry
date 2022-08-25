@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
+using System.IO.Compression;
+using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
@@ -9,8 +11,6 @@ using Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
-using System.IO.Compression;
-using System.Text;
 
 public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
@@ -66,10 +66,10 @@ public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<Edito
         using (var dbfWriter = new DbaseBinaryWriter(dbfHeader, new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
             foreach (var batch in integrationSegments
-                .OrderBy(_ => _.Id)
-                .Select(_ => _.DbaseRecord)
-                .AsEnumerable()
-                .Batch(_zipArchiveWriterOptions.RoadSegmentBatchSize))
+                         .OrderBy(_ => _.Id)
+                         .Select(_ => _.DbaseRecord)
+                         .AsEnumerable()
+                         .Batch(_zipArchiveWriterOptions.RoadSegmentBatchSize))
             {
                 var dbfRecords = batch
                     .Select(x =>
@@ -99,6 +99,7 @@ public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<Edito
                     dbfWriter.Write(dbfRecord);
                 }
             }
+
             dbfWriter.Writer.Flush();
             await dbfEntryStream.FlushAsync(cancellationToken);
         }
@@ -115,20 +116,21 @@ public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<Edito
             shpBoundingBox);
         await using (var shpEntryStream = shpEntry.Open())
         using (var shpWriter =
-            new ShapeBinaryWriter(
-                shpHeader,
-                new BinaryWriter(shpEntryStream, _encoding, true)))
+               new ShapeBinaryWriter(
+                   shpHeader,
+                   new BinaryWriter(shpEntryStream, _encoding, true)))
         {
             var number = RecordNumber.Initial;
             foreach (var data in integrationSegments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
             {
                 shpWriter.Write(
-                    BackOffice.ZipArchiveWriters.ExtractHost.ShapeContentFactory
+                    ShapeContentFactory
                         .FromBytes(data, _manager, _encoding)
                         .RecordAs(number)
                 );
                 number = number.Next();
             }
+
             shpWriter.Writer.Flush();
             await shpEntryStream.FlushAsync(cancellationToken);
         }
@@ -137,21 +139,22 @@ public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<Edito
         var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(integrationSegments.Count));
         await using (var shxEntryStream = shxEntry.Open())
         using (var shxWriter =
-            new ShapeIndexBinaryWriter(
-                shxHeader,
-                new BinaryWriter(shxEntryStream, _encoding, true)))
+               new ShapeIndexBinaryWriter(
+                   shxHeader,
+                   new BinaryWriter(shxEntryStream, _encoding, true)))
         {
             var offset = ShapeIndexRecord.InitialOffset;
             var number = RecordNumber.Initial;
             foreach (var data in integrationSegments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
             {
-                var shpRecord = BackOffice.ZipArchiveWriters.ExtractHost.ShapeContentFactory
+                var shpRecord = ShapeContentFactory
                     .FromBytes(data, _manager, _encoding)
                     .RecordAs(number);
                 shxWriter.Write(shpRecord.IndexAt(offset));
                 number = number.Next();
                 offset = offset.Plus(shpRecord.Length);
             }
+
             shxWriter.Writer.Flush();
             await shxEntryStream.FlushAsync(cancellationToken);
         }

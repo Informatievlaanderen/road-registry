@@ -13,11 +13,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
+    <Using Include="Xunit" />
+    <Using Include="RoadRegistry.Tests" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

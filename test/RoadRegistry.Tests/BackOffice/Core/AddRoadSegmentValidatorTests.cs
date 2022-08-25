@@ -1,12 +1,12 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
-using System;
-using System.Linq;
 using AutoFixture;
 using FluentValidation;
 using FluentValidation.TestHelper;
-using Messages;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 
 public class AddRoadSegmentValidatorTests
@@ -116,7 +116,7 @@ public class AddRoadSegmentValidatorTests
     public void StartNodeMustNotBeEndNodeId()
     {
         var id = Fixture.Create<RoadNodeId>();
-        var data = new Messages.AddRoadSegment
+        var data = new RoadRegistry.BackOffice.Messages.AddRoadSegment
         {
             StartNodeId = id, EndNodeId = id
         };
@@ -302,7 +302,7 @@ public class AddRoadSegmentValidatorTests
     {
         Fixture.CustomizePolylineM();
 
-        var data = new Messages.AddRoadSegment
+        var data = new RoadRegistry.BackOffice.Messages.AddRoadSegment
         {
             TemporaryId = Fixture.Create<RoadSegmentId>(),
             StartNodeId = Fixture.Create<RoadNodeId>(),

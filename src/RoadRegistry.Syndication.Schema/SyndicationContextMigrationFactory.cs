@@ -20,6 +20,6 @@ public class SyndicationContextMigrationFactory : RunnerDbContextMigrationFactor
 
     protected override SyndicationContext CreateContext(DbContextOptions<SyndicationContext> migrationContextOptions)
     {
-        return new(migrationContextOptions);
+        return new SyndicationContext(migrationContextOptions);
     }
 }

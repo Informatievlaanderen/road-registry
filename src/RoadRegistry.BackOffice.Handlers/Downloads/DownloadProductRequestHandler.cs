@@ -14,7 +14,6 @@ using Microsoft.IO;
 using Microsoft.Net.Http.Headers;
 using NodaTime.Text;
 using Product.Schema;
-using ZipArchiveWriters;
 using ZipArchiveWriters.ForProduct;
 
 public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProductRequest, DownloadProductResponse>
@@ -52,18 +51,12 @@ public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProd
                     "'date' path parameter is not a valid date according to format yyyyMMdd.")
             });
 
-        return new DownloadProductResponse(
-            $"wegenregister-{request.Date}.zip",
-            new MediaTypeHeaderValue("application/zip"),
-            CallbackInternal
-        );
-
-        async Task CallbackInternal(Stream stream, CancellationToken cancellationToken)
+        return new DownloadProductResponse($"wegenregister-{request.Date}.zip", new MediaTypeHeaderValue("application/zip"), async (stream, ct) =>
         {
             var encoding = Encoding.GetEncoding(1252);
             var writer = new RoadNetworkForProductToZipArchiveWriter(result.Value, _writerOptions, _cache, _streamManager, encoding);
             using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
             await writer.WriteAsync(archive, _context, cancellationToken);
-        }
+        });
     }
 }

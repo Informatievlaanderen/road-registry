@@ -1,9 +1,9 @@
-namespace RoadRegistry.BackOffice;
+namespace RoadRegistry.Tests.BackOffice;
 
-using System;
 using AutoFixture;
 using AutoFixture.Idioms;
 using AutoFixture.Kernel;
+using RoadRegistry.BackOffice;
 using RoadRegistry.Framework.Assertions;
 using Xunit;
 

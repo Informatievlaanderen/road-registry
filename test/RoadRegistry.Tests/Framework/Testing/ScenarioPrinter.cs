@@ -1,9 +1,5 @@
 namespace RoadRegistry.Framework.Testing;
 
-using System;
-using System.IO;
-using System.Threading.Tasks;
-
 public class ScenarioPrinter
 {
     public ScenarioPrinter(TextWriter writer, IMessageTranslator translator)

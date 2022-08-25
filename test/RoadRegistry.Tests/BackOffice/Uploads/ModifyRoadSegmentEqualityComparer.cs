@@ -1,8 +1,6 @@
-namespace RoadRegistry.BackOffice.Uploads;
+namespace RoadRegistry.Tests.BackOffice.Uploads;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using RoadRegistry.BackOffice.Uploads;
 
 public class ModifyRoadSegmentEqualityComparer : IEqualityComparer<ModifyRoadSegment>
 {

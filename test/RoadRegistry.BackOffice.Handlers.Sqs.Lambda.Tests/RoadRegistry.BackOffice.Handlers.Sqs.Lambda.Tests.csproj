@@ -4,16 +4,18 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Handlers.Sqs.Lambda\RoadRegistry.BackOffice.Handlers.Sqs.Lambda.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
-    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Handlers.Sqs.Lambda\RoadRegistry.BackOffice.Handlers.Sqs.Lambda.csproj" />
+    <Using Include="Xunit" />
+    <Using Include="RoadRegistry.Tests" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

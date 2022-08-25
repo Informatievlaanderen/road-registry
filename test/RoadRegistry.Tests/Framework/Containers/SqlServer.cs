@@ -1,7 +1,5 @@
 namespace RoadRegistry.Framework.Containers;
 
-using System;
-using System.Threading.Tasks;
 using BackOffice.Abstractions;
 using Editor.Schema;
 using Microsoft.Data.SqlClient;
@@ -21,7 +19,7 @@ public class SqlServer : ISqlServerDatabase
             _inner = new SqlServerComposedContainer();
 
         MemoryStreamManager = new RecyclableMemoryStreamManager();
-        StreetNameCache = new StreetNameCacheStub();
+        StreetNameCache = new FakeStreetNameCache();
     }
 
     public RecyclableMemoryStreamManager MemoryStreamManager { get; }

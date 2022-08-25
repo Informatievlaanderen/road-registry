@@ -1,10 +1,10 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
-using System;
-using System.Linq;
 using AutoFixture;
 using FluentValidation;
 using FluentValidation.TestHelper;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using Xunit;
 
 public class AddRoadSegmentToEuropeanRoadValidatorTests
@@ -39,7 +39,7 @@ public class AddRoadSegmentToEuropeanRoadValidatorTests
     [Fact]
     public void VerifyValid()
     {
-        var data = new Messages.AddRoadSegmentToEuropeanRoad
+        var data = new RoadRegistry.BackOffice.Messages.AddRoadSegmentToEuropeanRoad
         {
             TemporaryAttributeId = Fixture.Create<AttributeId>(),
             Number = EuropeanRoadNumber.All[new Random().Next(0, EuropeanRoadNumber.All.Length)].ToString()

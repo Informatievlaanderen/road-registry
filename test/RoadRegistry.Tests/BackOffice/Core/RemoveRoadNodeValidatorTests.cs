@@ -1,8 +1,10 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
 using FluentValidation;
 using FluentValidation.TestHelper;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using Xunit;
 
 public class RemoveRoadNodeValidatorTests
@@ -31,7 +33,7 @@ public class RemoveRoadNodeValidatorTests
     [Fact]
     public void VerifyValid()
     {
-        var data = new Messages.RemoveRoadNode
+        var data = new RoadRegistry.BackOffice.Messages.RemoveRoadNode
         {
             Id = Fixture.Create<RoadNodeId>()
         };

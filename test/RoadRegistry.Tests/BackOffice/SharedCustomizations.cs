@@ -1,22 +1,21 @@
-namespace RoadRegistry.BackOffice;
+namespace RoadRegistry.Tests.BackOffice;
 
-using System;
-using System.Linq;
 using AutoFixture;
 using AutoFixture.Dsl;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Core;
-using Messages;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using Uploads;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.BackOffice.Uploads;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
-using Polygon = Messages.Polygon;
-using RoadSegmentLaneAttribute = Core.RoadSegmentLaneAttribute;
-using RoadSegmentSurfaceAttribute = Core.RoadSegmentSurfaceAttribute;
-using RoadSegmentWidthAttribute = Core.RoadSegmentWidthAttribute;
+using Polygon = RoadRegistry.BackOffice.Messages.Polygon;
+using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.Core.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.Core.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = RoadRegistry.BackOffice.Core.RoadSegmentWidthAttribute;
 
 public static class SharedCustomizations
 {
@@ -305,7 +304,7 @@ public static class SharedCustomizations
             {
                 var ring = new Ring
                 {
-                    Points = fixture.CreateMany<Messages.Point>().ToArray()
+                    Points = fixture.CreateMany<RoadRegistry.BackOffice.Messages.Point>().ToArray()
                 };
 
                 ring.Points = ring.Points.Append(ring.Points[0]).ToArray();
@@ -340,7 +339,7 @@ public static class SharedCustomizations
             {
                 var ring = new Ring
                 {
-                    Points = fixture.CreateMany<Messages.Point>().ToArray()
+                    Points = fixture.CreateMany<RoadRegistry.BackOffice.Messages.Point>().ToArray()
                 };
 
                 ring.Points = ring.Points.Append(ring.Points[0]).ToArray();
@@ -387,7 +386,7 @@ public static class SharedCustomizations
             {
                 var ring = new Ring
                 {
-                    Points = fixture.CreateMany<Messages.Point>().ToArray()
+                    Points = fixture.CreateMany<RoadRegistry.BackOffice.Messages.Point>().ToArray()
                 };
 
                 ring.Points = ring.Points.Append(ring.Points[0]).ToArray();

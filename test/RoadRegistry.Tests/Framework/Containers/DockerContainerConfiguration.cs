@@ -1,8 +1,5 @@
 namespace RoadRegistry.Framework.Containers;
 
-using System;
-using System.Threading.Tasks;
-
 public class DockerContainerConfiguration
 {
     public ImageSettings Image { get; set; }

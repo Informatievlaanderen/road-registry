@@ -1,8 +1,10 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
 using FluentValidation;
 using FluentValidation.TestHelper;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using Xunit;
 
 public class AddGradeSeparatedJunctionValidatorTests
@@ -55,7 +57,7 @@ public class AddGradeSeparatedJunctionValidatorTests
     {
         Fixture.CustomizePoint();
 
-        var data = new Messages.AddGradeSeparatedJunction
+        var data = new RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction
         {
             TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
             UpperSegmentId = Fixture.Create<RoadSegmentId>(),

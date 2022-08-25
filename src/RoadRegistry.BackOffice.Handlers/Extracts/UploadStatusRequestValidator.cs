@@ -6,10 +6,6 @@ using MediatR;
 
 public sealed class UploadStatusRequestValidator : AbstractValidator<UploadStatusRequest>, IPipelineBehavior<UploadStatusRequest, UploadStatusResponse>
 {
-    public UploadStatusRequestValidator()
-    {
-    }
-
     public async Task<UploadStatusResponse> Handle(UploadStatusRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<UploadStatusResponse> next)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);

@@ -126,6 +126,8 @@ nuget Microsoft.NET.Test.Sdk 17.1.0
 nuget xunit 2.4.1
 nuget xunit.runner.visualstudio 2.4.3
 nuget xunit.categories 2.0.6
+nuget xunit.DependencyInjection 8.5.0
+nuget xunit.DependencyInjection.Logging 8.0.1
 
 nuget Albedo
 nuget AutoFixture 4.17.0

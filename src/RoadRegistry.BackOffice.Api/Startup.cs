@@ -7,7 +7,6 @@ using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
-using Handlers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -84,7 +83,7 @@ public class Startup
         var builder = new ContainerBuilder();
         builder.Populate(services);
         builder.RegisterModule(new DataDogModule(_configuration));
-        builder.RegisterModule(new MediatRModule());
+        builder.RegisterModule(new MediatorModule());
         _applicationContainer = builder.Build();
 
         return new AutofacServiceProvider(_applicationContainer);

@@ -1,7 +1,5 @@
 ﻿namespace RoadRegistry.Framework.Testing;
 
-using System;
-
 public class ExpectEventsScenarioPassed
 {
     public ExpectEventsScenarioPassed(ExpectEventsScenario scenario)

@@ -1,11 +1,6 @@
 namespace RoadRegistry.Framework.Projections;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;

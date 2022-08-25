@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Scenarios;
+namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
 public class PendingScenarios
 {

@@ -1,13 +1,14 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForProduct;
 
-using System.IO.Compression;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase;
 using Framework.Containers;
 using Product.Schema;
 using Product.Schema.RoadSegments;
 using RoadRegistry.Framework;
+using System.IO.Compression;
+using System.Text;
+using Abstractions;
 using Xunit;
 using ZipArchiveWriters.ForProduct;
 
@@ -24,7 +25,7 @@ public class RoadSegmentsArchiveWriterTests
     [Fact]
     public Task ArchiveCanNotBeNull()
     {
-        var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new StreetNameCacheStub(), _fixture.MemoryStreamManager, Encoding.UTF8);
+        var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new FakeStreetNameCache(), _fixture.MemoryStreamManager, Encoding.UTF8);
         return Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.WriteAsync(null, new ProductContext(), default));
     }
@@ -32,7 +33,7 @@ public class RoadSegmentsArchiveWriterTests
     [Fact]
     public Task ContextCanNotBeNull()
     {
-        var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new StreetNameCacheStub(), _fixture.MemoryStreamManager, Encoding.UTF8);
+        var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new FakeStreetNameCache(), _fixture.MemoryStreamManager, Encoding.UTF8);
         return Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
     }
@@ -46,7 +47,7 @@ public class RoadSegmentsArchiveWriterTests
     [Fact]
     public async Task WithEmptyRoadNetworkWritesArchiveWithExpectedEntries()
     {
-        var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new StreetNameCacheStub(), _fixture.MemoryStreamManager, Encoding.UTF8);
+        var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new FakeStreetNameCache(), _fixture.MemoryStreamManager, Encoding.UTF8);
 
         var db = await _fixture.CreateDatabaseAsync();
         var context = await _fixture.CreateProductContextAsync(db);

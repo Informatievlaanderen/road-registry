@@ -13,7 +13,7 @@ public class RoadSegmentBoundingBox3D
 
     public BoundingBox3D ToBoundingBox3D()
     {
-        return new(
+        return new BoundingBox3D(
             MinimumX,
             MinimumY,
             MaximumX,

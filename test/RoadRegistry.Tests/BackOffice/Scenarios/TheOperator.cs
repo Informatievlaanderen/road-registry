@@ -1,7 +1,8 @@
-namespace RoadRegistry.BackOffice.Scenarios;
+namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
-using Framework;
-using Messages;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Messages;
 
 public static class TheOperator
 {

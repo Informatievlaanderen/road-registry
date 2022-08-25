@@ -11,3 +11,6 @@ NodaTime
 
 Serilog.Formatting.Compact
 Serilog.Sinks.Seq
+
+Autofac
+Autofac.Extensions.DependencyInjection

@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Uploads;
 
 using Abstractions.Uploads;
-using Azure;
 using FluentValidation;
 using MediatR;
 

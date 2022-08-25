@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice;
+namespace RoadRegistry.Tests.BackOffice;
 
 public static class GeometryTranslatorTestCases
 {

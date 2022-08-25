@@ -1,9 +1,6 @@
 namespace RoadRegistry.Framework.Testing;
 
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using KellermanSoftware.CompareNetObjects;
 using Newtonsoft.Json;
 using Xunit.Sdk;

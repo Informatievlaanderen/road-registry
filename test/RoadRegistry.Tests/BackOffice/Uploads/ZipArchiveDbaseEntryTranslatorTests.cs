@@ -1,11 +1,10 @@
-namespace RoadRegistry.BackOffice.Uploads;
+namespace RoadRegistry.Tests.BackOffice.Uploads;
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Uploads;
 using Xunit;
 
 public class ZipArchiveDbaseEntryTranslatorTests

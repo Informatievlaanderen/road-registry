@@ -1,9 +1,11 @@
-namespace RoadRegistry.BackOffice.Extracts;
+namespace RoadRegistry.Tests.BackOffice.Extracts;
 
 using FluentAssertions;
-using Messages;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 
 public class RoadNetworkExtractGeometryValidatorTests

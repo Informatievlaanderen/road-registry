@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.Uploads;
+namespace RoadRegistry.Tests.BackOffice.Uploads;
 
-using System;
-using System.Linq;
 using AutoFixture;
 using AutoFixture.Idioms;
+using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Framework.Assertions;
 using Xunit;
 
