@@ -122,23 +122,15 @@ namespace RoadRegistry.BackOffice.Uploads
                     {
                         "TRANSACTIEZONES.DBF",
                         new ZipArchiveVersionedDbaseEntryValidator(
-                            encoding, new DbaseFileHeaderReadBehavior(true), new Dictionary<DbaseSchema, IZipArchiveEntryValidator>
-                            {
-                                {
-                                    Schema.V1.TransactionZoneDbaseRecord.Schema,
-                                    new ZipArchiveDbaseEntryValidator<Schema.V1.TransactionZoneDbaseRecord>(
-                                        encoding, new DbaseFileHeaderReadBehavior(true),
-                                        Schema.V1.TransactionZoneDbaseRecord.Schema,
-                                        new Schema.V1.TransactionZoneDbaseRecordsValidator())
-                                },
-                                {
-                                    Schema.V2.TransactionZoneDbaseRecord.Schema,
-                                    new ZipArchiveDbaseEntryValidator<Schema.V2.TransactionZoneDbaseRecord>(
-                                        encoding, new DbaseFileHeaderReadBehavior(true),
-                                        Schema.V2.TransactionZoneDbaseRecord.Schema,
-                                        new Schema.V2.TransactionZoneDbaseRecordsValidator())
-                                }
-                            })
+                            new ZipArchiveDbaseEntryValidator<Schema.V1.TransactionZoneDbaseRecord>(
+                                encoding, new DbaseFileHeaderReadBehavior(true),
+                                Schema.V1.TransactionZoneDbaseRecord.Schema,
+                                new Schema.V1.TransactionZoneDbaseRecordsValidator()),
+                            new ZipArchiveDbaseEntryValidator<Schema.V2.TransactionZoneDbaseRecord>(
+                                encoding, new DbaseFileHeaderReadBehavior(true),
+                                Schema.V2.TransactionZoneDbaseRecord.Schema,
+                                new Schema.V2.TransactionZoneDbaseRecordsValidator())
+                        )
                     }
                 };
         }
