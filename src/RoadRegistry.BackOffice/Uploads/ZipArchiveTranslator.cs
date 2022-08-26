@@ -98,10 +98,22 @@ namespace RoadRegistry.BackOffice.Uploads
                     },
                     {
                         "TRANSACTIEZONES.DBF",
-                        new ZipArchiveDbaseEntryTranslator<TransactionZoneDbaseRecord>(
-                            encoding, new DbaseFileHeaderReadBehavior(true),
-                            new TransactionZoneDbaseRecordsTranslator()
-                        )
+                        new ZipArchiveVersionedDbaseEntryTranslator(
+                            encoding, new DbaseFileHeaderReadBehavior(true), new Dictionary<DbaseSchema, IZipArchiveEntryTranslator>
+                            {
+                                {
+                                    Schema.V1.TransactionZoneDbaseRecord.Schema,
+                                    new ZipArchiveDbaseEntryTranslator<Schema.V1.TransactionZoneDbaseRecord>(
+                                        encoding, new DbaseFileHeaderReadBehavior(true),
+                                        new Schema.V1.TransactionZoneDbaseRecordsTranslator())
+                                },
+                                {
+                                    Schema.V2.TransactionZoneDbaseRecord.Schema,
+                                    new ZipArchiveDbaseEntryTranslator<Schema.V2.TransactionZoneDbaseRecord>(
+                                        encoding, new DbaseFileHeaderReadBehavior(true),
+                                        new Schema.V2.TransactionZoneDbaseRecordsTranslator())
+                                }
+                            })
                     }
                 };
         }
