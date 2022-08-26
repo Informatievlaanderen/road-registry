@@ -6,13 +6,14 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Text;
     using Be.Vlaanderen.Basisregisters.Shaperon;
 
-    public class ZipArchiveDbaseEntryValidator<TDbaseRecord> : IZipArchiveEntryValidator
+    public class ZipArchiveDbaseEntryValidator<TDbaseRecord> : IZipArchiveDbaseEntryValidator
         where TDbaseRecord : DbaseRecord, new()
     {
-        private readonly Encoding _encoding;
-        private readonly DbaseSchema _schema;
-        private readonly DbaseFileHeaderReadBehavior _readBehavior;
         private readonly IZipArchiveDbaseRecordsValidator<TDbaseRecord> _recordValidator;
+
+        public Encoding Encoding { get; }
+        public DbaseSchema Schema { get; }
+        public DbaseFileHeaderReadBehavior HeaderReadBehavior { get; }
 
         public ZipArchiveDbaseEntryValidator(
             Encoding encoding,
@@ -20,9 +21,9 @@ namespace RoadRegistry.BackOffice.Uploads
             DbaseSchema schema,
             IZipArchiveDbaseRecordsValidator<TDbaseRecord> recordValidator)
         {
-            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-            _readBehavior = readBehavior ?? throw new ArgumentNullException(nameof(readBehavior));
-            _schema = schema ?? throw new ArgumentNullException(nameof(schema));
+            Encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
+            HeaderReadBehavior = readBehavior ?? throw new ArgumentNullException(nameof(readBehavior));
+            Schema = schema ?? throw new ArgumentNullException(nameof(schema));
             _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
         }
 
@@ -33,12 +34,12 @@ namespace RoadRegistry.BackOffice.Uploads
 
             var problems = ZipArchiveProblems.None;
             using (var stream = entry.Open())
-            using (var reader = new BinaryReader(stream, _encoding))
+            using (var reader = new BinaryReader(stream, Encoding))
             {
                 DbaseFileHeader header = null;
                 try
                 {
-                    header = DbaseFileHeader.Read(reader, _readBehavior);
+                    header = DbaseFileHeader.Read(reader, HeaderReadBehavior);
                 }
                 catch (Exception exception)
                 {
@@ -47,9 +48,9 @@ namespace RoadRegistry.BackOffice.Uploads
 
                 if (header != null)
                 {
-                    if (!header.Schema.Equals(_schema))
+                    if (!header.Schema.Equals(Schema))
                     {
-                        problems += entry.HasDbaseSchemaMismatch(_schema, header.Schema);
+                        problems += entry.HasDbaseSchemaMismatch(Schema, header.Schema);
                     }
                     else
                     {
