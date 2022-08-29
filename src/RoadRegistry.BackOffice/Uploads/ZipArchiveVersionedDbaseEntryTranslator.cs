@@ -1,12 +1,11 @@
 namespace RoadRegistry.BackOffice.Uploads
 {
+    using Be.Vlaanderen.Basisregisters.Shaperon;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
-    using System.Linq;
     using System.Text;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class ZipArchiveVersionedDbaseEntryTranslator : IZipArchiveEntryTranslator
     {
@@ -33,10 +32,22 @@ namespace RoadRegistry.BackOffice.Uploads
             using (var reader = new BinaryReader(stream, _encoding))
             {
                 var header = DbaseFileHeader.Read(reader, _readBehavior);
-
-                var translator = _versionedTranslators.Single(v => v.Key == header.Schema).Value;
-                return translator.Translate(entry, changes);
+                if(_versionedTranslators.TryGetValue(header.Schema, out var translator))
+                {
+                    return translator.Translate(entry, changes);
+                }
+                else
+                {
+                    throw new TranslatorNotFoundException();
+                }
             }
+        }
+    }
+
+    public class TranslatorNotFoundException : ApplicationException
+    {
+        public TranslatorNotFoundException() : base()
+        {
         }
     }
 }
