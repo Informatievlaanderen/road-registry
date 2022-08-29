@@ -5,8 +5,6 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
-    using System.Linq;
-    using System.Text;
 
     public class ZipArchiveVersionedDbaseEntryValidator : IZipArchiveEntryValidator
     {
@@ -35,11 +33,9 @@ namespace RoadRegistry.BackOffice.Uploads
                     try
                     {
                         var header = DbaseFileHeader.Read(reader, validatorCandidate.HeaderReadBehavior);
-                        if (header.Schema.Equals(validatorCandidate.Schema))
-                        {
-                            validator = validatorCandidate;
-                            break;
-                        }
+                        if (!header.Schema.Equals(validatorCandidate.Schema)) continue;
+                        validator = validatorCandidate;
+                        break;
                     }
                     finally
                     {
@@ -49,6 +45,7 @@ namespace RoadRegistry.BackOffice.Uploads
 
             if (validator != null)
                 (problems, context) = validator.Validate(entry, context);
+
             return (problems, context);
         }
     }
