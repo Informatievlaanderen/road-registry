@@ -8,6 +8,7 @@ namespace RoadRegistry.BackOffice.Uploads
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Schema;
+    using Schema.V2;
     using Xunit;
 
     public class TransactionZoneDbaseRecordsValidatorTests : IDisposable

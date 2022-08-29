@@ -8,6 +8,7 @@ namespace RoadRegistry.BackOffice.Simulator
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Uploads;
     using Uploads.Schema;
+    using Uploads.Schema.V2;
     using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
     public class Program
