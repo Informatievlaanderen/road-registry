@@ -10,45 +10,44 @@ namespace RoadRegistry.BackOffice.Uploads
 
     public class ZipArchiveVersionedDbaseEntryValidator : IZipArchiveEntryValidator
     {
-        private readonly Encoding _encoding;
-        private readonly DbaseFileHeaderReadBehavior _readBehavior;
-        private readonly IReadOnlyDictionary<DbaseSchema, IZipArchiveEntryValidator> _versionedValidators;
+        private readonly IEnumerable<IZipArchiveDbaseEntryValidator> _versionedValidators;
 
-        public ZipArchiveVersionedDbaseEntryValidator(
-            Encoding encoding,
-            DbaseFileHeaderReadBehavior readBehavior,
-            IReadOnlyDictionary<DbaseSchema, IZipArchiveEntryValidator> versionedValidators)
+        public ZipArchiveVersionedDbaseEntryValidator(params IZipArchiveDbaseEntryValidator[] validators)
         {
-            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-            _readBehavior = readBehavior ?? throw new ArgumentNullException(nameof(readBehavior));
-            _versionedValidators = versionedValidators ?? throw new ArgumentNullException(nameof(versionedValidators));
+            _versionedValidators = validators;
         }
 
-        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry,
+            ZipArchiveValidationContext context)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var problems = ZipArchiveProblems.None;
-            using (var stream = entry.Open())
-            using (var reader = new BinaryReader(stream, _encoding))
-            {
-                DbaseFileHeader header = null;
-                try
-                {
-                    header = DbaseFileHeader.Read(reader, _readBehavior);
-                }
-                catch (Exception exception)
-                {
-                    problems += entry.HasDbaseHeaderFormatError(exception);
-                }
+            IZipArchiveDbaseEntryValidator validator = null;
 
-                if (_versionedValidators.ContainsKey(header.Schema))
+            var problems = ZipArchiveProblems.None;
+            foreach (var validatorCandidate in _versionedValidators)
+            {
+                using (var stream = entry.Open())
+                using (var reader = new BinaryReader(stream, validatorCandidate.Encoding))
                 {
-                    var validator = _versionedValidators.Single(v => v.Key == header.Schema).Value;
-                    (problems, context) = validator.Validate(entry, context);
+                    try
+                    {
+                        var header = DbaseFileHeader.Read(reader, validatorCandidate.HeaderReadBehavior);
+                        if (header.Schema.Equals(validatorCandidate.Schema))
+                        {
+                            validator = validatorCandidate;
+                            break;
+                        }
+                    }
+                    finally
+                    {
+                    }
                 }
             }
+
+            if (validator != null)
+                (problems, context) = validator.Validate(entry, context);
 
             return (problems, context);
         }
