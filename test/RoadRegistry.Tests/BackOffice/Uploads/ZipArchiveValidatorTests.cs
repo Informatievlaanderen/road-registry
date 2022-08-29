@@ -16,6 +16,7 @@ namespace RoadRegistry.BackOffice.Uploads
     using NetTopologySuite.Geometries;
     using NetTopologySuite.Geometries.Implementation;
     using Schema;
+    using Schema.V2;
     using Xunit;
 
     public class ZipArchiveValidatorTests
