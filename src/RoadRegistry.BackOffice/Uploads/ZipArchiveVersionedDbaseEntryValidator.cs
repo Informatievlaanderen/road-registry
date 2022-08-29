@@ -28,26 +28,29 @@ namespace RoadRegistry.BackOffice.Uploads
             var problems = ZipArchiveProblems.None;
             foreach (var validatorCandidate in _versionedValidators)
             {
-                using (var stream = entry.Open())
+            using (var stream = entry.Open())
                 using (var reader = new BinaryReader(stream, validatorCandidate.Encoding))
+            {
+                DbaseFileHeader header = null;
+                try
                 {
-                    try
-                    {
                         var header = DbaseFileHeader.Read(reader, validatorCandidate.HeaderReadBehavior);
                         if (header.Schema.Equals(validatorCandidate.Schema))
                         {
                             validator = validatorCandidate;
                             break;
                         }
-                    }
+                }
                     finally
-                    {
+                {
                     }
                 }
-            }
+                }
 
             if (validator != null)
-                (problems, context) = validator.Validate(entry, context);
+                    (problems, context) = validator.Validate(entry, context);
+                }
+            }
 
             return (problems, context);
         }
