@@ -1,3 +1,15 @@
+# [3.7.0](https://github.com/informatievlaanderen/road-registry/compare/v3.6.0...v3.7.0) (2022-08-29)
+
+
+### Bug Fixes
+
+* build trigger ([a643b3f](https://github.com/informatievlaanderen/road-registry/commit/a643b3f71b697653c64919f1a052aadb8dc4ae48))
+
+
+### Features
+
+* Support multiple versions for transactiezones.dbf ([96e6ded](https://github.com/informatievlaanderen/road-registry/commit/96e6ded1b0cfb3a1aca908494a9545edfb75f067))
+
 # [3.6.0](https://github.com/informatievlaanderen/road-registry/compare/v3.5.6...v3.6.0) (2022-08-29)
 
 
