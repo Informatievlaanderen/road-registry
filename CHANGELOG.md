@@ -1,3 +1,11 @@
+## [3.7.1](https://github.com/informatievlaanderen/road-registry/compare/v3.7.0...v3.7.1) (2022-08-29)
+
+
+### Bug Fixes
+
+* build trigger ([0adb63d](https://github.com/informatievlaanderen/road-registry/commit/0adb63de117fc2a52f0d13f76854016b6f5d44c8))
+* Updated validator and translator indexer ([3a5e17b](https://github.com/informatievlaanderen/road-registry/commit/3a5e17b466f20f213447dfc505f964b63cf0649c))
+
 # [3.7.0](https://github.com/informatievlaanderen/road-registry/compare/v3.6.0...v3.7.0) (2022-08-29)
 
 
