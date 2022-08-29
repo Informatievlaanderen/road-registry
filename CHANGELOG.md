@@ -1,3 +1,15 @@
+# [3.6.0](https://github.com/informatievlaanderen/road-registry/compare/v3.5.6...v3.6.0) (2022-08-29)
+
+
+### Bug Fixes
+
+* add migration ([96e2028](https://github.com/informatievlaanderen/road-registry/commit/96e2028dcd360e65afd12a84a72ab07f43a79fcb))
+
+
+### Features
+
+* create wfs projection ([126e3fc](https://github.com/informatievlaanderen/road-registry/commit/126e3fcf96983cdedb77b8d36b8c94532ff14654))
+
 ## [3.5.6](https://github.com/informatievlaanderen/road-registry/compare/v3.5.5...v3.5.6) (2022-08-18)
 
 
