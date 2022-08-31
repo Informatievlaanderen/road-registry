@@ -48,26 +48,40 @@ namespace RoadRegistry.Wfs.ProjectionHost.Metadata
         {
             var shortDate = currentInstant.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var description = $"Toestand {shortDate}";
-
-            return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                   "<csw:Transaction service=\"CSW\" version=\"2.0.2\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"" +
-                   " xmlns:ogc=\"http://www.opengis.net/ogc\"" +
-                   " xmlns:apiso=\"http://www.opengis.net/cat/csw/apiso/1.0\">" + "<csw:Update>" +
-                   "<csw:RecordProperty>" +
-                   "<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date[gmd:dateType/gmd:CI_DateTypeCode/@codeListValue=\"publication\"]/gmd:date/gco:Date</csw:Name>" +
-                   $"<csw:Value>{shortDate}</csw:Value>" + "</csw:RecordProperty>" + "<csw:RecordProperty>" +
-                   "<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date[gmd:dateType/gmd:CI_DateTypeCode/@codeListValue=\"revision\"]/gmd:date/gco:Date</csw:Name>" +
-                   $"<csw:Value>{shortDate}</csw:Value>" + "</csw:RecordProperty>" + "<csw:RecordProperty>" +
-                   "<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:edition/gco:CharacterString</csw:Name>" +
-                   $"<csw:Value>{description}</csw:Value>" + "</csw:RecordProperty>" + "<csw:RecordProperty>" +
-                   "<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/gml:endPosition</csw:Name>" +
-                   $"<csw:Value>{shortDate}</csw:Value>" + "</csw:RecordProperty>" + "<csw:RecordProperty>" +
-                   "<csw:Name>gmd:dateStamp/gco:date</csw:Name>" +
-                   $"<csw:Value>{shortDate}</csw:Value>" +
-                   "</csw:RecordProperty>" + "<csw:Constraint version=\"1.1.0\">" + "<ogc:Filter>" +
-                   "<ogc:PropertyIsEqualTo>" + "<ogc:PropertyName>Identifier</ogc:PropertyName>" +
-                   $"<ogc:Literal>{id}</ogc:Literal>" + "</ogc:PropertyIsEqualTo>" + "</ogc:Filter>" +
-                   "</csw:Constraint>" + "</csw:Update>" + "</csw:Transaction>";
+            return $@"<?xml version=""1.0"" encoding=""UTF-8""?>
+<csw:Transaction service=""CSW"" version=""2.0.2""
+	xmlns:csw=""http://www.opengis.net/cat/csw/2.0.2""
+	xmlns:ogc=""http://www.opengis.net/ogc""
+	xmlns:apiso=""http://www.opengis.net/cat/csw/apiso/1.0"">
+	<csw:Update>
+		<csw:RecordProperty>
+			<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date[gmd:dateType/gmd:CI_DateTypeCode/@codeListValue=""publication""]/gmd:date/gco:Date</csw:Name>
+			<csw:Value>{shortDate}</csw:Value>
+		</csw:RecordProperty>
+		<csw:RecordProperty>
+			<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date[gmd:dateType/gmd:CI_DateTypeCode/@codeListValue=""revision""]/gmd:date/gco:Date</csw:Name>
+			<csw:Value>{shortDate}</csw:Value>
+		</csw:RecordProperty>
+		<csw:RecordProperty>
+			<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:edition/gco:CharacterString</csw:Name>
+			<csw:Value>{description}</csw:Value>
+		</csw:RecordProperty>
+		<csw:Constraint version=""1.1.0"">
+			<ogc:Filter>
+				<ogc:And>
+					<ogc:PropertyIsEqualTo>
+						<ogc:PropertyName>Identifier</ogc:PropertyName>
+						<ogc:Literal>{id}</ogc:Literal>
+					</ogc:PropertyIsEqualTo>
+					<ogc:PropertyIsEqualTo>
+						<ogc:PropertyName>_isWorkspace</ogc:PropertyName>
+						<ogc:Literal>true</ogc:Literal>
+					</ogc:PropertyIsEqualTo>
+				</ogc:And>
+			</ogc:Filter>
+		</csw:Constraint>
+	</csw:Update>
+</csw:Transaction>";
         }
 
         private async Task<XDocument> PerformCswRequest(string uri, string bodyXml, CancellationToken cancellationToken)
