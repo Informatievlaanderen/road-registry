@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RoadRegistry.BackOffice.EventHost": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

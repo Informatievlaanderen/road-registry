@@ -1,0 +1,19 @@
+/*
+    This is a configuration file for the SwitchStartupProject Visual Studio Extension
+    See https://heptapod.host/thirteen/switchstartupproject/blob/branch/current/Configuration.md
+*/
+{
+  "Version": 3,
+  "ListAllProjects": false,
+  "MultiProjectConfigurations": {
+    "BackOffice": {
+      "Projects": {
+        "RoadRegistry.BackOffice.Api": { "ProfileName": "RoadRegistry.Api" },
+        "RoadRegistry.BackOffice.CommandHost": { "ProfileName": "RoadRegistry.BackOffice.CommandHost" },
+        "RoadRegistry.BackOffice.EventHost": { "ProfileName": "RoadRegistry.BackOffice.EventHost" },
+        "RoadRegistry.Editor.ProjectionHost": { "ProfileName": "RoadRegistry.Editor.ProjectionHost" },
+        "RoadRegistry.Product.ProjectionHost": { "ProfileName": "RoadRegistry.Product.ProjectionHost" }
+      }
+    }
+  }
+}

@@ -7,17 +7,18 @@ services:
     environment:
       ACCEPT_EULA: 'Y'
     volumes:
-    - seq-data:/data
+      - seq-data:/data
 
   minio:
     image: minio/minio:latest
     ports:
-    - "9010:9000"
+      - "9010:9000"
+      - "9011:9001"
     environment:
       MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
     volumes:
-    - minio-data:/data
+      - minio-data:/data
     command: server --console-address :9001 /data
 
   legacy-mssql:
@@ -388,7 +389,7 @@ services:
       CORS__1: "http://localhost:1234"
 
   backoffice-ui:
-    build: 
+    build:
       context: dist/RoadRegistry.BackOffice.UI/linux
       args:
         build_number: 2.38.0

@@ -70,3 +70,4 @@ appsettings.shelby.json
 *.cer
 *.pfx
 src/RoadRegistry.BackOffice.UI/.env.staging
+appsettings.RIK-LAPTOP.json
