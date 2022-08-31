@@ -1,3 +1,10 @@
+## [3.7.2](https://github.com/informatievlaanderen/road-registry/compare/v3.7.1...v3.7.2) (2022-08-31)
+
+
+### Bug Fixes
+
+* metaupdater request body ([616c9ea](https://github.com/informatievlaanderen/road-registry/commit/616c9eac45f5332c1c3b8a35b019abfd3af8d26d))
+
 ## [3.7.1](https://github.com/informatievlaanderen/road-registry/compare/v3.7.0...v3.7.1) (2022-08-29)
 
 
