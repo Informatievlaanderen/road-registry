@@ -349,14 +349,17 @@ namespace RoadRegistry.BackOffice.Core
             {
                 throw new ArgumentNullException(nameof(message));
             }
-
+            
             message.RoadSegmentAdded = new Messages.RoadSegmentAdded
             {
                 Id = Id,
+                //TODO-rik DONE bij een addsegment moet ook de version/geometryversion op 1 worden gezet, kan het zijn dat dit nu niet het geval is?
+                Version = 1,
                 TemporaryId = TemporaryId,
                 StartNodeId = StartNodeId,
                 EndNodeId = EndNodeId,
                 Geometry = GeometryTranslator.Translate(Geometry),
+                GeometryVersion = 1,
                 MaintenanceAuthority = new Messages.MaintenanceAuthority
                 {
                     Code = MaintenanceAuthorityId,

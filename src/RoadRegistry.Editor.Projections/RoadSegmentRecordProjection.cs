@@ -124,7 +124,7 @@ namespace RoadRegistry.Editor.Projections
                     DbaseRecord = new RoadSegmentDbaseRecord
                     {
                         WS_OIDN = {Value = segment.Id},
-                        WS_UIDN = {Value = $"{segment.Id}_{segment.Version}"},
+                        WS_UIDN = {Value = $"{segment.Id}_{segment.Version}"}, //TODO-rik moet hier de Version en GeometryVersion expliciet worden opgeslagen?
                         WS_GIDN = {Value = $"{segment.Id}_{segment.GeometryVersion}"},
                         B_WK_OIDN = {Value = segment.StartNodeId},
                         E_WK_OIDN = {Value = segment.EndNodeId},

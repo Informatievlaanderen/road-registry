@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Core
     using System.Collections.Immutable;
     using System.Linq;
     using Framework;
+    using NetTopologySuite.Geometries;
 
     public class RoadNetwork : EventSourcedEntity
     {
@@ -297,6 +298,69 @@ namespace RoadRegistry.BackOffice.Core
             public AttributeId Next()
             {
                 return _index < _reusableAttributeIdentifiers.Count ? _reusableAttributeIdentifiers[_index++] : _provider.Next();
+            }
+        }
+
+        public Func<RoadSegmentId, RoadSegmentVersion> ProvidesNextRoadSegmentVersion()
+        {
+            return id =>
+            {
+                if (_view.Segments.TryGetValue(id, out var roadSegment) && roadSegment != null)
+                {
+                    return new NextRoadSegmentVersionProvider(roadSegment.Version).Next();
+                }
+
+                return new NextRoadSegmentVersionProvider(0).Next();
+            };
+        }
+        private sealed class NextRoadSegmentVersionProvider
+        {
+            private RoadSegmentVersion _current;
+
+            public NextRoadSegmentVersionProvider(int current)
+            {
+                _current = new RoadSegmentVersion(current);
+            }
+
+            public RoadSegmentVersion Next()
+            {
+                var next = _current.Next();
+                _current = next;
+                return next;
+            }
+        }
+
+        public Func<RoadSegmentId, MultiLineString, GeometryVersion> ProvidesNextRoadSegmentGeometryVersion()
+        {
+            return (id, geometry) =>
+            {
+                if (_view.Segments.TryGetValue(id, out var roadSegment) && roadSegment != null)
+                {
+                    if (roadSegment.Geometry != geometry)
+                    {
+                        return new NextRoadSegmentGeometryVersionProvider(roadSegment.GeometryVersion).Next();
+                    }
+
+                    return roadSegment.GeometryVersion;
+                }
+
+                return new NextRoadSegmentGeometryVersionProvider(0).Next();
+            };
+        }
+        private sealed class NextRoadSegmentGeometryVersionProvider
+        {
+            private GeometryVersion _current;
+            
+            public NextRoadSegmentGeometryVersionProvider(int current)
+            {
+                _current = new GeometryVersion(current);
+            }
+
+            public GeometryVersion Next()
+            {
+                var next = _current.Next();
+                _current = next;
+                return next;
             }
         }
 

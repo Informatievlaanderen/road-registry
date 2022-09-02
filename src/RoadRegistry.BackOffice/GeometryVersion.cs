@@ -17,6 +17,16 @@ namespace RoadRegistry.BackOffice
         }
 
         public int ToInt32() => _value;
+        public GeometryVersion Next()
+        {
+            if (_value == int.MaxValue)
+            {
+                throw new NotSupportedException(
+                    "There is no next geometry version because the maximum of the integer data type has been reached.");
+            }
+            return new GeometryVersion(_value + 1);
+        }
+
         public bool Equals(GeometryVersion other) => _value == other._value;
         public override bool Equals(object obj) => obj is GeometryVersion version && Equals(version);
         public override int GetHashCode() => _value.GetHashCode();

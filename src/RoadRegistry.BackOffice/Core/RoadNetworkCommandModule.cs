@@ -50,7 +50,9 @@ namespace RoadRegistry.BackOffice.Core
                         network.ProvidesNextNumberedRoadAttributeId(),
                         network.ProvidesNextRoadSegmentLaneAttributeId(),
                         network.ProvidesNextRoadSegmentWidthAttributeId(),
-                        network.ProvidesNextRoadSegmentSurfaceAttributeId()
+                        network.ProvidesNextRoadSegmentSurfaceAttributeId(),
+                        network.ProvidesNextRoadSegmentVersion(),
+                        network.ProvidesNextRoadSegmentGeometryVersion()
                     );
                     var requestedChanges = await translator.Translate(message.Body.Changes, context.Organizations, ct);
                     network.Change(request, reason, @operator, translation, requestedChanges);

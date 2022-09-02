@@ -9,10 +9,12 @@ namespace RoadRegistry.BackOffice.Core
     public class RoadSegmentTests
     {
         private readonly RoadSegmentId _id;
+        private readonly RoadSegmentVersion _version;
         private readonly RoadNodeId _start;
         private readonly RoadNodeId _end;
         private readonly RoadSegment _sut;
         private readonly MultiLineString _geometry;
+        private readonly GeometryVersion _geometryVersion;
         private readonly AttributeHash _attributeHash;
 
         public RoadSegmentTests()
@@ -28,11 +30,13 @@ namespace RoadRegistry.BackOffice.Core
             fixture.CustomizeOrganizationId();
             fixture.CustomizeAttributeHash();
             _id = fixture.Create<RoadSegmentId>();
+            _version = fixture.Create<RoadSegmentVersion>();
             _start = fixture.Create<RoadNodeId>();
             _end = fixture.Create<RoadNodeId>();
             _geometry = fixture.Create<MultiLineString>();
+            _geometryVersion = fixture.Create<GeometryVersion>();
             _attributeHash = fixture.Create<AttributeHash>();
-            _sut = new RoadSegment(_id, _geometry, _start, _end, _attributeHash);
+            _sut = new RoadSegment(_id, _version, _geometry, _geometryVersion, _start, _end, _attributeHash);
         }
 
         [Fact]
@@ -68,7 +72,7 @@ namespace RoadRegistry.BackOffice.Core
         [Fact]
         public void ThrowsWhenStartIsSameAsEnd()
         {
-            Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start, _attributeHash));
+            Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _version, _geometry, _geometryVersion, _start, _start, _attributeHash));
         }
 
         [Fact]
@@ -90,7 +94,9 @@ namespace RoadRegistry.BackOffice.Core
         {
             var sut = new RoadSegment(
                 _id,
+                _version,
                 _geometry,
+                _geometryVersion,
                 new RoadNodeId(start),
                 new RoadNodeId(end),
                 _attributeHash);

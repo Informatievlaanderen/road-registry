@@ -218,9 +218,11 @@ namespace RoadRegistry.BackOffice.Core
             }
 
             var id = new RoadSegmentId(@event.Id);
+            var version = new RoadSegmentVersion(@event.Version);
             var start = new RoadNodeId(@event.StartNodeId);
             var end = new RoadNodeId(@event.EndNodeId);
-
+            var geometryVersion = new GeometryVersion(@event.GeometryVersion);
+            
             var attributeHash = new AttributeHash(
                 RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
                 RoadSegmentCategory.Parse(@event.Category),
@@ -236,7 +238,9 @@ namespace RoadRegistry.BackOffice.Core
 
             var segment = new RoadSegment(
                 id,
+                version,
                 GeometryTranslator.Translate(@event.Geometry),
+                geometryVersion,
                 start,
                 end,
                 attributeHash);
@@ -480,8 +484,10 @@ namespace RoadRegistry.BackOffice.Core
         private ImmutableRoadNetworkView Given(Messages.RoadSegmentAdded @event)
         {
             var id = new RoadSegmentId(@event.Id);
+            var version = new RoadSegmentVersion(@event.Version);
             var start = new RoadNodeId(@event.StartNodeId);
             var end = new RoadNodeId(@event.EndNodeId);
+            var geometryVersion = new GeometryVersion(@event.GeometryVersion);
 
             var attributeHash = new AttributeHash(
                 RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
@@ -498,7 +504,9 @@ namespace RoadRegistry.BackOffice.Core
 
             var segment = new RoadSegment(
                 id,
+                version,
                 GeometryTranslator.Translate(@event.Geometry),
+                geometryVersion,
                 start,
                 end,
                 attributeHash);
@@ -545,6 +553,8 @@ namespace RoadRegistry.BackOffice.Core
             var id = new RoadSegmentId(@event.Id);
             var start = new RoadNodeId(@event.StartNodeId);
             var end = new RoadNodeId(@event.EndNodeId);
+            var version = new RoadSegmentVersion(@event.Version);
+            var geometryVersion = new GeometryVersion(@event.GeometryVersion);
 
             var attributeHash = new AttributeHash(
                 RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
@@ -565,6 +575,8 @@ namespace RoadRegistry.BackOffice.Core
                     .TryReplace(end, node => node.ConnectWith(id)),
                 _segments
                     .TryReplace(id, segment => segment
+                        .WithVersion(version)
+                        .WithGeometryVersion(geometryVersion)
                         .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
                         .WithStart(start)
                         .WithEnd(end)
@@ -998,12 +1010,15 @@ namespace RoadRegistry.BackOffice.Core
                 command.RightSideStreetNameId,
                 command.MaintenanceAuthorityId);
 
+            var version = new RoadSegmentVersion();
+            var geometryVersion = new GeometryVersion();
+
             return new ImmutableRoadNetworkView(
                 _nodes
                     .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
                     .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id)),
                 _segments.Add(command.Id,
-                    new RoadSegment(command.Id, command.Geometry, command.StartNodeId, command.EndNodeId,
+                    new RoadSegment(command.Id, version, command.Geometry, geometryVersion, command.StartNodeId, command.EndNodeId,
                         attributeHash)),
                 _gradeSeparatedJunctions,
                 _maximumTransactionId,
@@ -1035,7 +1050,7 @@ namespace RoadRegistry.BackOffice.Core
                 command.LeftSideStreetNameId,
                 command.RightSideStreetNameId,
                 command.MaintenanceAuthorityId);
-
+            
             var segmentBefore = _segments[command.Id];
 
             return new ImmutableRoadNetworkView(
@@ -1046,6 +1061,8 @@ namespace RoadRegistry.BackOffice.Core
                     .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id)),
                 _segments.
                     TryReplace(command.Id, segment => segment
+                        .WithVersion(command.Version)
+                        .WithGeometryVersion(command.GeometryVersion)
                         .WithGeometry(command.Geometry)
                         .WithStart(command.StartNodeId)
                         .WithEnd(command.EndNodeId)
@@ -1332,9 +1349,11 @@ namespace RoadRegistry.BackOffice.Core
                 Segments = _segments.Select(segment => new Messages.RoadNetworkSnapshotSegment
                 {
                     Id = segment.Value.Id.ToInt32(),
+                    Version = segment.Value.Version.ToInt32(),
                     StartNodeId = segment.Value.Start.ToInt32(),
                     EndNodeId = segment.Value.End.ToInt32(),
                     Geometry = GeometryTranslator.Translate(segment.Value.Geometry),
+                    GeometryVersion = segment.Value.GeometryVersion.ToInt32(),
                     AttributeHash = new Messages.RoadNetworkSnapshotSegmentAttributeHash
                     {
                         AccessRestriction = segment.Value.AttributeHash.AccessRestriction,
@@ -1407,8 +1426,8 @@ namespace RoadRegistry.BackOffice.Core
                 snapshot.Segments.ToImmutableDictionary(segment => new RoadSegmentId(segment.Id),
                     segment =>
                     {
-                        var roadSegment = new RoadSegment(new RoadSegmentId(segment.Id),
-                            GeometryTranslator.Translate(segment.Geometry), new RoadNodeId(segment.StartNodeId),
+                        var roadSegment = new RoadSegment(new RoadSegmentId(segment.Id), new RoadSegmentVersion(segment.Version),
+                            GeometryTranslator.Translate(segment.Geometry), new GeometryVersion(segment.GeometryVersion), new RoadNodeId(segment.StartNodeId),
                             new RoadNodeId(segment.EndNodeId), new AttributeHash(
                                 RoadSegmentAccessRestriction.Parse(segment.AttributeHash.AccessRestriction),
                                 RoadSegmentCategory.Parse(segment.AttributeHash.Category),
@@ -1679,6 +1698,8 @@ namespace RoadRegistry.BackOffice.Core
                 var id = new RoadSegmentId(@event.Id);
                 var start = new RoadNodeId(@event.StartNodeId);
                 var end = new RoadNodeId(@event.EndNodeId);
+                var version = new RoadSegmentVersion(@event.Version);
+                var geometryVersion = new GeometryVersion(@event.GeometryVersion);
 
                 var attributeHash = new AttributeHash(
                     RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
@@ -1695,7 +1716,9 @@ namespace RoadRegistry.BackOffice.Core
 
                 var segment = new RoadSegment(
                     id,
+                    version,
                     GeometryTranslator.Translate(@event.Geometry),
+                    geometryVersion,
                     start,
                     end,
                     attributeHash);
@@ -1864,6 +1887,8 @@ namespace RoadRegistry.BackOffice.Core
                 var id = new RoadSegmentId(@event.Id);
                 var start = new RoadNodeId(@event.StartNodeId);
                 var end = new RoadNodeId(@event.EndNodeId);
+                var version = new RoadSegmentVersion(@event.Version);
+                var geometryVersion = new GeometryVersion(@event.GeometryVersion);
 
                 var attributeHash = new AttributeHash(
                     RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
@@ -1880,7 +1905,9 @@ namespace RoadRegistry.BackOffice.Core
 
                 var segment = new RoadSegment(
                     id,
+                    version,
                     GeometryTranslator.Translate(@event.Geometry),
+                    geometryVersion,
                     start,
                     end,
                     attributeHash);
@@ -1919,6 +1946,8 @@ namespace RoadRegistry.BackOffice.Core
                 var id = new RoadSegmentId(@event.Id);
                 var start = new RoadNodeId(@event.StartNodeId);
                 var end = new RoadNodeId(@event.EndNodeId);
+                var version = new RoadSegmentVersion(@event.Version);
+                var geometryVersion = new GeometryVersion(@event.GeometryVersion);
 
                 var attributeHash = new AttributeHash(
                     RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
@@ -1938,6 +1967,8 @@ namespace RoadRegistry.BackOffice.Core
                     .TryReplace(end, node => node.ConnectWith(id));
                 _segments.TryReplace(id, segment =>
                     segment
+                        .WithVersion(version)
+                        .WithGeometryVersion(geometryVersion)
                         .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
                         .WithStart(start)
                         .WithEnd(end)
@@ -2155,6 +2186,9 @@ namespace RoadRegistry.BackOffice.Core
 
             private void With(AddRoadSegment command)
             {
+                var version = new RoadSegmentVersion();
+                var geometryVersion = new GeometryVersion();
+
                 var attributeHash = new AttributeHash(
                     command.AccessRestriction,
                     command.Category,
@@ -2168,7 +2202,7 @@ namespace RoadRegistry.BackOffice.Core
                     .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
                     .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id));
                 _segments.Add(command.Id,
-                    new RoadSegment(command.Id, command.Geometry, command.StartNodeId, command.EndNodeId,
+                    new RoadSegment(command.Id, version, command.Geometry, geometryVersion, command.StartNodeId, command.EndNodeId,
                         attributeHash));
                 _maximumSegmentId = RoadSegmentId.Max(command.Id, _maximumSegmentId);
                 _segmentReusableLaneAttributeIdentifiers.Merge(command.Id,
@@ -2199,6 +2233,8 @@ namespace RoadRegistry.BackOffice.Core
                     .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id));
                 _segments.TryReplace(command.Id, segment =>
                     segment
+                        .WithVersion(command.Version)
+                        .WithGeometryVersion(command.GeometryVersion)
                         .WithGeometry(command.Geometry)
                         .WithStart(command.StartNodeId)
                         .WithEnd(command.EndNodeId)
@@ -2296,9 +2332,11 @@ namespace RoadRegistry.BackOffice.Core
                     Segments = _segments.Select(segment => new Messages.RoadNetworkSnapshotSegment
                     {
                         Id = segment.Value.Id.ToInt32(),
+                        Version = segment.Value.Version.ToInt32(),
                         StartNodeId = segment.Value.Start.ToInt32(),
                         EndNodeId = segment.Value.End.ToInt32(),
                         Geometry = GeometryTranslator.Translate(segment.Value.Geometry),
+                        GeometryVersion = segment.Value.GeometryVersion.ToInt32(),
                         AttributeHash = new Messages.RoadNetworkSnapshotSegmentAttributeHash
                         {
                             AccessRestriction = segment.Value.AttributeHash.AccessRestriction,
@@ -2375,8 +2413,8 @@ namespace RoadRegistry.BackOffice.Core
                         segment => new RoadSegmentId(segment.Id),
                         segment =>
                         {
-                            var roadSegment = new RoadSegment(new RoadSegmentId(segment.Id),
-                                GeometryTranslator.Translate(segment.Geometry), new RoadNodeId(segment.StartNodeId),
+                            var roadSegment = new RoadSegment(new RoadSegmentId(segment.Id), new RoadSegmentVersion(segment.Version),
+                                GeometryTranslator.Translate(segment.Geometry), new GeometryVersion(segment.GeometryVersion), new RoadNodeId(segment.StartNodeId),
                                 new RoadNodeId(segment.EndNodeId),
                                 new AttributeHash(
                                     RoadSegmentAccessRestriction.Parse(segment.AttributeHash.AccessRestriction),

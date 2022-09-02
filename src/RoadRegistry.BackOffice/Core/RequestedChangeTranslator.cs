@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Core
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using NetTopologySuite.Geometries;
 
     internal class RequestedChangeTranslator
     {
@@ -18,6 +19,8 @@ namespace RoadRegistry.BackOffice.Core
         private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentLaneAttributeId;
         private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentWidthAttributeId;
         private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentSurfaceAttributeId;
+        private readonly Func<RoadSegmentId, RoadSegmentVersion> _nextRoadSegmentVersion;
+        private readonly Func<RoadSegmentId, MultiLineString, GeometryVersion> _nextRoadSegmentGeometryVersion;
 
         public RequestedChangeTranslator(
             Func<TransactionId> nextTransactionId,
@@ -29,7 +32,9 @@ namespace RoadRegistry.BackOffice.Core
             Func<AttributeId> nextNumberedRoadAttributeId,
             Func<RoadSegmentId, Func<AttributeId>> nextRoadSegmentLaneAttributeId,
             Func<RoadSegmentId, Func<AttributeId>> nextRoadSegmentWidthAttributeId,
-            Func<RoadSegmentId, Func<AttributeId>> nextRoadSegmentSurfaceAttributeId)
+            Func<RoadSegmentId, Func<AttributeId>> nextRoadSegmentSurfaceAttributeId,
+            Func<RoadSegmentId, RoadSegmentVersion> nextRoadSegmentVersion,
+            Func<RoadSegmentId, MultiLineString, GeometryVersion> nextRoadSegmentGeometryVersion)
         {
             _nextTransactionId =
                 nextTransactionId ?? throw new ArgumentNullException(nameof(nextTransactionId));
@@ -51,6 +56,10 @@ namespace RoadRegistry.BackOffice.Core
                 nextRoadSegmentWidthAttributeId ?? throw new ArgumentNullException(nameof(nextRoadSegmentWidthAttributeId));
             _nextRoadSegmentSurfaceAttributeId =
                 nextRoadSegmentSurfaceAttributeId ?? throw new ArgumentNullException(nameof(nextRoadSegmentSurfaceAttributeId));
+            _nextRoadSegmentVersion =
+                nextRoadSegmentVersion ?? throw new ArgumentNullException(nameof(nextRoadSegmentVersion));
+            _nextRoadSegmentGeometryVersion =
+                nextRoadSegmentGeometryVersion ?? throw new ArgumentNullException(nameof(nextRoadSegmentGeometryVersion));
         }
 
         public async Task<RequestedChanges> Translate(IReadOnlyCollection<Messages.RequestedChange> changes, IOrganizations organizations, CancellationToken ct = default)
@@ -288,7 +297,10 @@ namespace RoadRegistry.BackOffice.Core
                 temporaryEndNodeId = null;
             }
 
+            //TODO-rik DONE de providers oproepen om 1) de Version te incrementen, en 2) de GeometryVersion te incrementen wanneer de geometry is gewijzigd
+            var version = _nextRoadSegmentVersion(permanent);
             var geometry = GeometryTranslator.Translate(command.Geometry);
+            var geometryVersion = _nextRoadSegmentGeometryVersion(permanent, geometry);
             var maintainerId = new OrganizationId(command.MaintenanceAuthority);
             var maintainer = await organizations.TryGet(maintainerId, ct);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
@@ -343,11 +355,13 @@ namespace RoadRegistry.BackOffice.Core
             return new ModifyRoadSegment
             (
                 permanent,
+                version,
                 startNodeId,
                 temporaryStartNodeId,
                 endNodeId,
                 temporaryEndNodeId,
                 geometry,
+                geometryVersion,
                 maintainerId,
                 maintainer?.Translation.Name,
                 geometryDrawMethod,

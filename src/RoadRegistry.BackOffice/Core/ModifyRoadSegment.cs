@@ -9,11 +9,13 @@ namespace RoadRegistry.BackOffice.Core
     {
         public ModifyRoadSegment(
             RoadSegmentId id,
+            RoadSegmentVersion version,
             RoadNodeId startNodeId,
             RoadNodeId? temporaryStartNodeId,
             RoadNodeId endNodeId,
             RoadNodeId? temporaryEndNodeId,
             MultiLineString geometry,
+            GeometryVersion geometryVersion,
             OrganizationId maintenanceAuthorityId,
             OrganizationName? maintenanceAuthorityName,
             RoadSegmentGeometryDrawMethod geometryDrawMethod,
@@ -28,11 +30,13 @@ namespace RoadRegistry.BackOffice.Core
             IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces)
         {
             Id = id;
+            Version = version;
             StartNodeId = startNodeId;
             TemporaryStartNodeId = temporaryStartNodeId;
             EndNodeId = endNodeId;
             TemporaryEndNodeId = temporaryEndNodeId;
             Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
+            GeometryVersion = geometryVersion;
             MaintenanceAuthorityId = maintenanceAuthorityId;
             MaintenanceAuthorityName = maintenanceAuthorityName;
             GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
@@ -48,11 +52,13 @@ namespace RoadRegistry.BackOffice.Core
         }
 
         public RoadSegmentId Id { get; }
+        public RoadSegmentVersion Version { get; }
         public RoadNodeId StartNodeId { get; }
         public RoadNodeId? TemporaryStartNodeId { get; }
         public RoadNodeId EndNodeId { get; }
         public RoadNodeId? TemporaryEndNodeId { get; }
         public MultiLineString Geometry { get; }
+        public GeometryVersion GeometryVersion { get; }
         public OrganizationId MaintenanceAuthorityId { get; }
         public OrganizationName? MaintenanceAuthorityName { get; }
         public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
@@ -364,13 +370,15 @@ namespace RoadRegistry.BackOffice.Core
             {
                 throw new ArgumentNullException(nameof(message));
             }
-
+            
             message.RoadSegmentModified = new Messages.RoadSegmentModified
             {
                 Id = Id,
+                Version = Version,
                 StartNodeId = StartNodeId,
                 EndNodeId = EndNodeId,
                 Geometry = GeometryTranslator.Translate(Geometry),
+                GeometryVersion = GeometryVersion,
                 MaintenanceAuthority = new Messages.MaintenanceAuthority
                 {
                     Code = MaintenanceAuthorityId,

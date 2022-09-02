@@ -21,5 +21,9 @@ namespace RoadRegistry.BackOffice.Messages
         public string[] PartOfNationalRoads { get; set; }
         [Key(7)]
         public string[] PartOfNumberedRoads { get; set; }
+        [Key(8)]
+        public int Version { get; set; }
+        [Key(9)]
+        public int GeometryVersion { get; set; }
     }
 }
