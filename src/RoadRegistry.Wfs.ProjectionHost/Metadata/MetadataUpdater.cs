@@ -55,11 +55,11 @@ namespace RoadRegistry.Wfs.ProjectionHost.Metadata
 	xmlns:apiso=""http://www.opengis.net/cat/csw/apiso/1.0"">
 	<csw:Update>
 		<csw:RecordProperty>
-			<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date[gmd:dateType/gmd:CI_DateTypeCode/@codeListValue=""publication""]/gmd:date/gco:Date</csw:Name>
+			<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date/gco:Date[../../gmd:dateType/gmd:CI_DateTypeCode/@codeListValue=""publication""]</csw:Name>
 			<csw:Value>{shortDate}</csw:Value>
 		</csw:RecordProperty>
 		<csw:RecordProperty>
-			<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date[gmd:dateType/gmd:CI_DateTypeCode/@codeListValue=""revision""]/gmd:date/gco:Date</csw:Name>
+			<csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date/gco:Date[../../gmd:dateType/gmd:CI_DateTypeCode/@codeListValue=""revision""]</csw:Name>
 			<csw:Value>{shortDate}</csw:Value>
 		</csw:RecordProperty>
 		<csw:RecordProperty>
@@ -68,16 +68,10 @@ namespace RoadRegistry.Wfs.ProjectionHost.Metadata
 		</csw:RecordProperty>
 		<csw:Constraint version=""1.1.0"">
 			<ogc:Filter>
-				<ogc:And>
-					<ogc:PropertyIsEqualTo>
-						<ogc:PropertyName>Identifier</ogc:PropertyName>
-						<ogc:Literal>{id}</ogc:Literal>
-					</ogc:PropertyIsEqualTo>
-					<ogc:PropertyIsEqualTo>
-						<ogc:PropertyName>_isWorkspace</ogc:PropertyName>
-						<ogc:Literal>true</ogc:Literal>
-					</ogc:PropertyIsEqualTo>
-				</ogc:And>
+				<ogc:PropertyIsEqualTo>
+					<ogc:PropertyName>Identifier</ogc:PropertyName>
+					<ogc:Literal>{id}</ogc:Literal>
+				</ogc:PropertyIsEqualTo>
 			</ogc:Filter>
 		</csw:Constraint>
 	</csw:Update>
