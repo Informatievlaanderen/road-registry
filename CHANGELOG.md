@@ -1,3 +1,42 @@
+## [3.7.2](https://github.com/informatievlaanderen/road-registry/compare/v3.7.1...v3.7.2) (2022-08-31)
+
+
+### Bug Fixes
+
+* metaupdater request body ([616c9ea](https://github.com/informatievlaanderen/road-registry/commit/616c9eac45f5332c1c3b8a35b019abfd3af8d26d))
+
+## [3.7.1](https://github.com/informatievlaanderen/road-registry/compare/v3.7.0...v3.7.1) (2022-08-29)
+
+
+### Bug Fixes
+
+* build trigger ([0adb63d](https://github.com/informatievlaanderen/road-registry/commit/0adb63de117fc2a52f0d13f76854016b6f5d44c8))
+* Updated validator and translator indexer ([3a5e17b](https://github.com/informatievlaanderen/road-registry/commit/3a5e17b466f20f213447dfc505f964b63cf0649c))
+
+# [3.7.0](https://github.com/informatievlaanderen/road-registry/compare/v3.6.0...v3.7.0) (2022-08-29)
+
+
+### Bug Fixes
+
+* build trigger ([a643b3f](https://github.com/informatievlaanderen/road-registry/commit/a643b3f71b697653c64919f1a052aadb8dc4ae48))
+
+
+### Features
+
+* Support multiple versions for transactiezones.dbf ([96e6ded](https://github.com/informatievlaanderen/road-registry/commit/96e6ded1b0cfb3a1aca908494a9545edfb75f067))
+
+# [3.6.0](https://github.com/informatievlaanderen/road-registry/compare/v3.5.6...v3.6.0) (2022-08-29)
+
+
+### Bug Fixes
+
+* add migration ([96e2028](https://github.com/informatievlaanderen/road-registry/commit/96e2028dcd360e65afd12a84a72ab07f43a79fcb))
+
+
+### Features
+
+* create wfs projection ([126e3fc](https://github.com/informatievlaanderen/road-registry/commit/126e3fcf96983cdedb77b8d36b8c94532ff14654))
+
 ## [3.5.6](https://github.com/informatievlaanderen/road-registry/compare/v3.5.5...v3.5.6) (2022-08-18)
 
 

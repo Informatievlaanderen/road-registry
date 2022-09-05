@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Uploads
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.IO.Compression;
     using System.Linq;
     using System.Text;
@@ -120,10 +121,16 @@ namespace RoadRegistry.BackOffice.Uploads
                     },
                     {
                         "TRANSACTIEZONES.DBF",
-                        new ZipArchiveDbaseEntryValidator<TransactionZoneDbaseRecord>(
-                            encoding, new DbaseFileHeaderReadBehavior(true),
-                            TransactionZoneDbaseRecord.Schema,
-                            new TransactionZoneDbaseRecordsValidator())
+                        new ZipArchiveVersionedDbaseEntryValidator(
+                            new ZipArchiveDbaseEntryValidator<Schema.V1.TransactionZoneDbaseRecord>(
+                                encoding, new DbaseFileHeaderReadBehavior(true),
+                                Schema.V1.TransactionZoneDbaseRecord.Schema,
+                                new Schema.V1.TransactionZoneDbaseRecordsValidator()),
+                            new ZipArchiveDbaseEntryValidator<Schema.V2.TransactionZoneDbaseRecord>(
+                                encoding, new DbaseFileHeaderReadBehavior(true),
+                                Schema.V2.TransactionZoneDbaseRecord.Schema,
+                                new Schema.V2.TransactionZoneDbaseRecordsValidator())
+                        )
                     }
                 };
         }
@@ -144,7 +151,6 @@ namespace RoadRegistry.BackOffice.Uploads
             "ATTGENUMWEG_ALL.DBF",
             "RLTOGKRUISING_ALL.DBF"
         };
-
 
         public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)
         {

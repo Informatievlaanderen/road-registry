@@ -9,6 +9,7 @@ namespace RoadRegistry.BackOffice.Uploads
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Core;
     using Schema;
+    using Schema.V2;
     using Xunit;
 
     public class TransactionZoneDbaseRecordsTranslatorTests : IDisposable
