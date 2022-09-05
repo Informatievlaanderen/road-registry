@@ -19,8 +19,15 @@ namespace RoadRegistry.BackOffice.Uploads
         public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry,
             ZipArchiveValidationContext context)
         {
-            if (entry == null) throw new ArgumentNullException(nameof(entry));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (entry == null)
+            {
+                throw new ArgumentNullException(nameof(entry));
+            }
+
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             IZipArchiveDbaseEntryValidator validator = null;
 
@@ -30,21 +37,21 @@ namespace RoadRegistry.BackOffice.Uploads
                 using (var stream = entry.Open())
                 using (var reader = new BinaryReader(stream, validatorCandidate.Encoding))
                 {
-                    try
+                    var header = DbaseFileHeader.Read(reader, validatorCandidate.HeaderReadBehavior);
+                    if (!header.Schema.Equals(validatorCandidate.Schema))
                     {
-                        var header = DbaseFileHeader.Read(reader, validatorCandidate.HeaderReadBehavior);
-                        if (!header.Schema.Equals(validatorCandidate.Schema)) continue;
-                        validator = validatorCandidate;
-                        break;
+                        continue;
                     }
-                    finally
-                    {
-                    }
+
+                    validator = validatorCandidate;
+                    break;
                 }
             }
 
             if (validator != null)
+            {
                 (problems, context) = validator.Validate(entry, context);
+            }
 
             return (problems, context);
         }
