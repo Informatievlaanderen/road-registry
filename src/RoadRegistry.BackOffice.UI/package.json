@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "NODE_ENV=development vue-cli-service serve --mode development",
+    "serve-lcl": "NODE_ENV=development vue-cli-service serve --mode local",
     "serve-tst": "NODE_ENV=test vue-cli-service serve --mode test",
     "serve-stg": "NODE_ENV=staging vue-cli-service serve --mode staging",
     "serve-prd": "NODE_ENV=production vue-cli-service serve --mode production",
