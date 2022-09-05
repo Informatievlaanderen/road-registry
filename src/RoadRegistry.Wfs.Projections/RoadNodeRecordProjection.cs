@@ -63,10 +63,12 @@ namespace RoadRegistry.Wfs.Projections
             RoadNodeModified roadNodeModified,
             CancellationToken token)
         {
-            var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeModified.Id).ConfigureAwait(false);
+            var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeModified.Id, token).ConfigureAwait(false);
 
             if (roadNodeRecord == null)
-                throw new Exception($"RoadNodeRecord with id {roadNodeModified.Id} is not found!");
+            {
+                throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeModified.Id} is not found!");
+            }
 
             roadNodeRecord.Id = roadNodeModified.Id;
             roadNodeRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
