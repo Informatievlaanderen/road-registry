@@ -1,11 +1,12 @@
 namespace RoadRegistry.BackOffice.Uploads
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
+    using System.Runtime.Serialization;
     using System.Text;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class ZipArchiveVersionedDbaseEntryTranslator : IZipArchiveEntryTranslator
     {
@@ -25,8 +26,15 @@ namespace RoadRegistry.BackOffice.Uploads
 
         public TranslatedChanges Translate(ZipArchiveEntry entry, TranslatedChanges changes)
         {
-            if (entry == null) throw new ArgumentNullException(nameof(entry));
-            if (changes == null) throw new ArgumentNullException(nameof(changes));
+            if (entry == null)
+            {
+                throw new ArgumentNullException(nameof(entry));
+            }
+
+            if (changes == null)
+            {
+                throw new ArgumentNullException(nameof(changes));
+            }
 
             using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, _encoding))
@@ -36,18 +44,21 @@ namespace RoadRegistry.BackOffice.Uploads
                 {
                     return translator.Translate(entry, changes);
                 }
-                else
-                {
-                    throw new TranslatorNotFoundException();
-                }
+
+                throw new TranslatorNotFoundException();
             }
         }
     }
 
-    public class TranslatorNotFoundException : ApplicationException
+    [Serializable]
+    public sealed class TranslatorNotFoundException : ApplicationException
     {
-        public TranslatorNotFoundException() : base()
-        {
-        }
+        public TranslatorNotFoundException()
+        { }
+
+        private TranslatorNotFoundException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        { }
+
     }
 }

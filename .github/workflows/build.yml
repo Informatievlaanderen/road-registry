@@ -1,8 +1,8 @@
 name: Build
 
 on:
-#  push:
-#    branches: [ main ]
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -10,6 +10,16 @@ jobs:
     if: github.repository_owner == 'Informatievlaanderen'
     name: Build
     runs-on: ubuntu-latest
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: E@syP@ssw0rd
+          MSSQL_TCP_PORT: 1433
+        ports:
+          - 1433:1433
 
     steps:
     - name: Checkout Code
@@ -37,6 +47,12 @@ jobs:
     - name: .NET version
       shell: bash
       run: dotnet --info
+
+    - name: Restore packages
+      shell: bash
+      run: |
+        dotnet tool restore
+        dotnet paket install
 
     - name: Cache SonarCloud packages
       uses: actions/cache@v1
@@ -72,8 +88,6 @@ jobs:
     - name: Build
       shell: bash
       run: |
-        dotnet tool restore
-        dotnet paket install
         dotnet build --nologo --no-restore --configuration Debug
         
     - name: Sonar end build & analyze

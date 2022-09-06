@@ -31,16 +31,16 @@ namespace RoadRegistry.Wfs.Projections
                 {
                     switch (change)
                     {
-                        case GradeSeparatedJunctionAdded GradeSeparatedJunctionAdded:
-                            await AddGradeSeparatedJunction(context, envelope, GradeSeparatedJunctionAdded, token);
+                        case GradeSeparatedJunctionAdded gradeSeparatedJunctionAdded:
+                            await AddGradeSeparatedJunction(context, envelope, gradeSeparatedJunctionAdded, token);
                             break;
 
-                        case GradeSeparatedJunctionModified GradeSeparatedJunctionModified:
-                            await ModifyGradeSeparatedJunction(context, envelope, GradeSeparatedJunctionModified, token);
+                        case GradeSeparatedJunctionModified gradeSeparatedJunctionModified:
+                            await ModifyGradeSeparatedJunction(context, envelope, gradeSeparatedJunctionModified, token);
                             break;
 
-                        case GradeSeparatedJunctionRemoved GradeSeparatedJunctionRemoved:
-                            await RemoveGradeSeparatedJunction(GradeSeparatedJunctionRemoved, context);
+                        case GradeSeparatedJunctionRemoved gradeSeparatedJunctionRemoved:
+                            await RemoveGradeSeparatedJunction(gradeSeparatedJunctionRemoved, context);
                             break;
                     }
                 }
@@ -67,10 +67,12 @@ namespace RoadRegistry.Wfs.Projections
             GradeSeparatedJunctionModified gradeSeparatedJunctionModified,
             CancellationToken token)
         {
-            var gradeSeparatedJunctionRecord = await context.GradeSeparatedJunctions.FindAsync(gradeSeparatedJunctionModified.Id).ConfigureAwait(false);
+            var gradeSeparatedJunctionRecord = await context.GradeSeparatedJunctions.FindAsync(gradeSeparatedJunctionModified.Id, token).ConfigureAwait(false);
 
             if (gradeSeparatedJunctionRecord == null)
-                throw new Exception($"GradeSeparatedJunctionRecord with id {gradeSeparatedJunctionModified.Id} is not found!");
+            {
+                throw new InvalidOperationException($"GradeSeparatedJunctionRecord with id {gradeSeparatedJunctionModified.Id} is not found!");
+            }
 
             gradeSeparatedJunctionRecord.Id = gradeSeparatedJunctionModified.Id;
             gradeSeparatedJunctionRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);

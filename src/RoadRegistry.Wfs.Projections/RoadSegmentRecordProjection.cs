@@ -38,11 +38,15 @@ namespace RoadRegistry.Wfs.Projections
                 {
                     if (roadSegment.LeftSideStreetNameId.HasValue &&
                         streetNamesById.ContainsKey(roadSegment.LeftSideStreetNameId.Value))
+                    {
                         roadSegment.LeftSideStreetName = streetNamesById[roadSegment.LeftSideStreetNameId.Value];
+                    }
 
                     if(roadSegment.RightSideStreetNameId.HasValue &&
                        streetNamesById.ContainsKey(roadSegment.RightSideStreetNameId.Value))
+                    {
                         roadSegment.RightSideStreetName = streetNamesById[roadSegment.RightSideStreetNameId.Value];
+                    }
 
                     roadSegment.StreetNameCachePosition = streetNameCachePosition;
                 }
@@ -79,7 +83,7 @@ namespace RoadRegistry.Wfs.Projections
                                           envelope.Message.RightSide.StreetName,
                     BeginRoadNodeId = envelope.Message.StartNodeId,
                     EndRoadNodeId = envelope.Message.EndNodeId,
-                    StreetNameCachePosition = streetNameCachePosition,
+                    StreetNameCachePosition = streetNameCachePosition
                 }, token);
             });
 
@@ -145,7 +149,7 @@ namespace RoadRegistry.Wfs.Projections
                 RightSideStreetName = rightSideStreetNameRecord?.DutchName,
                 BeginRoadNodeId = roadSegmentAdded.StartNodeId,
                 EndRoadNodeId = roadSegmentAdded.EndNodeId,
-                StreetNameCachePosition = streetNameCachePosition,
+                StreetNameCachePosition = streetNameCachePosition
             }, token);
         }
 
@@ -174,7 +178,9 @@ namespace RoadRegistry.Wfs.Projections
             var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id).ConfigureAwait(false);
 
             if (roadSegmentRecord == null)
-                throw new Exception($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found!");
+            {
+                throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found!");
+            }
 
             roadSegmentRecord.Id = roadSegmentModified.Id;
             roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
