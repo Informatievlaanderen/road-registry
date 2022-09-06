@@ -18,6 +18,7 @@ elm-stuff/
 [Xx]64/
 [Dd]ist/
 [Tt]est[Rr]esults/
+
 src/RoadRegistry.BackOffice.UI/output/
 src/RoadRegistry.BackOffice.UI/wwwroot/
 src/RoadRegistry.BackOffice.Simulator/output/
@@ -61,10 +62,12 @@ run-local.bat
 docker_local.sh
 appsettings.seawolf.json
 appsettings.shelby.json
+appsettings.RIK-LAPTOP.json
 
 # don't check the dev certificates in
 *.cer
 *.pfx
 src/RoadRegistry.BackOffice.UI/.env.staging
 src/RoadRegistry.BackOffice.UI/.env.development
+src/RoadRegistry.BackOffice.UI/.env.staging
 src/RoadRegistry.BackOffice.UI/.env.test
