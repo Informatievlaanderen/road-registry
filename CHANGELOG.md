@@ -1,3 +1,13 @@
+## [3.7.4](https://github.com/informatievlaanderen/road-registry/compare/v3.7.3...v3.7.4) (2022-09-06)
+
+
+### Bug Fixes
+
+* don't throw Exception ([7bcc8b1](https://github.com/informatievlaanderen/road-registry/commit/7bcc8b17ff471d63fda311ea7740516eda4396c7))
+* remove empty finally block ([053e41a](https://github.com/informatievlaanderen/road-registry/commit/053e41a9f88a7d5cf349db582a90b17cbce060b6))
+* serializable exceptions ([7ae1e1f](https://github.com/informatievlaanderen/road-registry/commit/7ae1e1f1a5dc4c8f883d3e91a7a404d71952aca2))
+* use CancellationToken ([756add2](https://github.com/informatievlaanderen/road-registry/commit/756add2cac3d705b789babb82081bd9212369582))
+
 ## [3.7.3](https://github.com/informatievlaanderen/road-registry/compare/v3.7.2...v3.7.3) (2022-09-05)
 
 
