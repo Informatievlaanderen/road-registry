@@ -56,8 +56,8 @@
                       >
                         Archief:
                         <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">
-                          Download {{ activity.changeFeedContent.content.archive.filename }}</vl-link
-                        >
+                          Download {{ activity.changeFeedContent.content.archive.filename }}
+                        </vl-link>
                       </div>
                       <div
                         v-else-if="
@@ -66,8 +66,8 @@
                       >
                         Archief:
                         <vl-link :href="'/roads/v1/extracts/download/' + activity.changeFeedContent.content.archive.id">
-                          Download {{ activity.changeFeedContent.content.archive.filename }}</vl-link
-                        >
+                          Download {{ activity.changeFeedContent.content.archive.filename }}
+                        </vl-link>
                       </div>
 
                       <div
@@ -84,32 +84,15 @@
                           <h3>
                             <strong>{{ file.file }}</strong>
                           </h3>
-                          <div v-for="problem in file.problems" :key="problem.text">
-                            <vl-alert
-                              icon="warning"
-                              :title="file.change"
-                              role="alertdialog"
-                              mod-error
-                              mod-small
-                              v-if="problem.severity == 'Error'"
-                            >
-                              <p>{{ problem.text }}</p>
-                            </vl-alert>
-                            <vl-alert
-                              icon="warning"
-                              :title="file.change"
-                              role="alertdialog"
-                              mod-small
-                              v-if="problem.severity == 'Warning'"
-                            >
-                              <p>{{ problem.text }}</p>
-                            </vl-alert>
-                          </div>
+                          <h3 v-if="file.change">
+                            <strong>{{ file.change }}</strong>
+                          </h3>
+                          <ActivityProblems :problems="file.problems" />
                           <br />
                         </div>
-                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id"
-                          >Download {{ activity.changeFeedContent.content.archive.filename }}</vl-link
-                        >
+                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">
+                          Download {{ activity.changeFeedContent.content.archive.filename }}
+                        </vl-link>
                       </div>
                       <div
                         v-else-if="['RoadNetworkChangesAccepted:v2'].some((x) => x === activity.changeFeedEntry.type)"
@@ -210,61 +193,24 @@
                           <h3>
                             <strong>{{ change.change }}</strong>
                           </h3>
-                          <div v-for="problem in change.problems" :key="problem.text">
-                            <vl-alert
-                              icon="warning"
-                              title="Error"
-                              role="alertdialog"
-                              mod-error
-                              mod-small
-                              v-if="problem.severity == 'Error'"
-                            >
-                              <p>{{ problem.text }}</p>
-                            </vl-alert>
-                            <vl-alert
-                              icon="warning"
-                              title="Waarschuwing"
-                              role="alertdialog"
-                              mod-small
-                              v-if="problem.severity == 'Warning'"
-                            >
-                              <p>{{ problem.text }}</p>
-                            </vl-alert>
-                          </div>
+                          <ActivityProblems :problems="change.problems" />
                           <br />
                         </div>
-                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id"
-                          >Download {{ activity.changeFeedContent.content.archive.filename }}</vl-link
-                        >
+                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">
+                          Download {{ activity.changeFeedContent.content.archive.filename }}
+                        </vl-link>
                       </div>
                       <div v-else-if="['RoadNetworkChangesRejected'].some((x) => x === activity.changeFeedEntry.type)">
                         <div v-for="change in activity.changeFeedContent.content.changes" :key="change.change">
-                          <div v-for="problem in change.problems" :key="problem.text">
-                            <vl-alert
-                              icon="warning"
-                              :title="change.change"
-                              role="alertdialog"
-                              mod-error
-                              mod-small
-                              v-if="problem.severity == 'Error'"
-                            >
-                              <p>{{ problem.text }}</p>
-                            </vl-alert>
-                            <vl-alert
-                              icon="warning"
-                              :title="change.change"
-                              role="alertdialog"
-                              mod-small
-                              v-if="problem.severity == 'Warning'"
-                            >
-                              <p>{{ problem.text }}</p>
-                            </vl-alert>
-                          </div>
+                          <h3>
+                            <strong>{{ change.change }}</strong>
+                          </h3>
+                          <ActivityProblems :problems="change.problems" />
                           <br />
                         </div>
-                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id"
-                          >Download {{ activity.changeFeedContent.content.archive.filename }}</vl-link
-                        >
+                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">
+                          Download {{ activity.changeFeedContent.content.archive.filename }}
+                        </vl-link>
                       </div>
                       <div v-else>
                         {{ activity.changeFeedContent }}
@@ -307,8 +253,12 @@
 import Vue from "vue";
 import { PublicApi } from "../../../services";
 import RoadRegistry from "../../../types/road-registry";
+import ActivityProblems from "../components/ActivityProblems.vue";
 
 export default Vue.extend({
+  components: {
+    ActivityProblems,
+  },
   data() {
     return {
       activities: [] as Activity[],
