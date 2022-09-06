@@ -102,3 +102,6 @@ jobs:
     - name: Test
       shell: bash
       run: dotnet test --nologo --no-build
+      env:
+        SA_PASSWORD: E@syP@ssw0rd
+      
