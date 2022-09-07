@@ -1,3 +1,14 @@
+## [3.7.5](https://github.com/informatievlaanderen/road-registry/compare/v3.7.4...v3.7.5) (2022-09-07)
+
+
+### Bug Fixes
+
+* add enabled property to metadata updater ([0c0f58d](https://github.com/informatievlaanderen/road-registry/commit/0c0f58d0568c51cd8a3e7bc6562db5972105f687))
+* include env var for sql server ([31348a6](https://github.com/informatievlaanderen/road-registry/commit/31348a6dee03a83e497c5db8a846a2deadd3eb91))
+* include sqlserver ([6f706ba](https://github.com/informatievlaanderen/road-registry/commit/6f706badec340ea53e03368e1751d49d782242ef))
+* make build.yml ci ([9629306](https://github.com/informatievlaanderen/road-registry/commit/96293065d0155c93a52611465a59a6d0cdf77e73))
+* remove release check ([37922f4](https://github.com/informatievlaanderen/road-registry/commit/37922f469836fef1700ad4570ff139d552e98fc9))
+
 ## [3.7.4](https://github.com/informatievlaanderen/road-registry/compare/v3.7.3...v3.7.4) (2022-09-06)
 
 
