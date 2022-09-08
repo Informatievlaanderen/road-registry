@@ -1,18 +1,19 @@
-namespace RoadRegistry.BackOffice.Uploads;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 
-using System;
-using System.Collections.Generic;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Schema;
+using Uploads;
+using Uploads.Schema;
+using Uploads.Schema.V1;
 
-public class ZipArchiveValidator : IZipArchiveValidator
+/// <summary>
+///     POST FEATURE COMPARE
+/// </summary>
+public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveValidator
 {
     private static readonly string[] ValidationOrder =
     {
-        // MC Hammer Style
         "TRANSACTIEZONES.DBF",
         "WEGKNOOP_ALL.DBF",
         "WEGKNOOP_ALL.SHP",
@@ -31,7 +32,7 @@ public class ZipArchiveValidator : IZipArchiveValidator
 
     private readonly Dictionary<string, IZipArchiveEntryValidator> _validators;
 
-    public ZipArchiveValidator(Encoding encoding)
+    public ZipArchiveAfterFeatureCompareValidator(Encoding encoding)
     {
         if (encoding == null)
             throw new ArgumentNullException(nameof(encoding));
@@ -139,14 +140,19 @@ public class ZipArchiveValidator : IZipArchiveValidator
                 },
                 {
                     "TRANSACTIEZONES.DBF",
-                    new ZipArchiveDbaseEntryValidator<TransactionZoneDbaseRecord>(
-                        encoding, new DbaseFileHeaderReadBehavior(true),
-                        TransactionZoneDbaseRecord.Schema,
-                        new TransactionZoneDbaseRecordsValidator())
+                    new ZipArchiveVersionedDbaseEntryValidator(
+                        new ZipArchiveDbaseEntryValidator<TransactionZoneDbaseRecord>(
+                            encoding, new DbaseFileHeaderReadBehavior(true),
+                            TransactionZoneDbaseRecord.Schema,
+                            new Uploads.Schema.V1.TransactionZoneDbaseRecordsValidator()),
+                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V2.TransactionZoneDbaseRecord>(
+                            encoding, new DbaseFileHeaderReadBehavior(true),
+                            Uploads.Schema.V2.TransactionZoneDbaseRecord.Schema,
+                            new Uploads.Schema.V2.TransactionZoneDbaseRecordsValidator())
+                    )
                 }
             };
     }
-
 
     public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)
     {

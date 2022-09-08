@@ -1,10 +1,11 @@
-namespace RoadRegistry.Tests.BackOffice.Uploads;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice;
 
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Tests.BackOffice.Uploads;
+using Uploads;
 using Xunit;
 
 public class ZipArchiveDbaseEntryValidatorTests

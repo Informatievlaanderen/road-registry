@@ -57,20 +57,12 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                     : request.Archive.FileName)
         );
 
-        await _client.CreateBlobAsync(
-            new BlobName(archiveId.ToString()),
-            metadata,
-            ContentType.Parse("application/zip"),
-            readStream,
-            cancellationToken
-        );
-
         var message = RoadNetworkChangesArchive.Upload(archiveId);
 
-        readStream.Position = 0;
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
             var problems = message.ValidateArchiveUsing(archive, _validator);
+
             var fileProblems = problems.OfType<FileError>();
             if (fileProblems.Any())
             {
@@ -78,9 +70,19 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 throw new ValidationException(translatedProblems.Select(s => new ValidationFailure(s.File, $"{s.Reason} - {s.File}")));
             }
 
+            readStream.Position = 0;
+            await _client.CreateBlobAsync(
+                new BlobName(archiveId.ToString()),
+                metadata,
+                ContentType.Parse("application/zip"),
+                readStream,
+                cancellationToken
+            );
+
             await _sqsQueuePublisher.CopyToQueue(SqsQueueName.Value, message, new SqsQueueOptions { MessageGroupId = archiveId }, cancellationToken);
+
         }
 
-        return new UploadExtractFeatureCompareResponse(archiveId, message);
+        return new UploadExtractFeatureCompareResponse(archiveId);
     }
 }

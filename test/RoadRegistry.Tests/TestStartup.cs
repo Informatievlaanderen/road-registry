@@ -25,6 +25,7 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using RoadRegistry.BackOffice;
 using Xunit.DependencyInjection;
 using Xunit.DependencyInjection.Logging;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 
 public abstract class TestStartup
 {
@@ -64,7 +65,7 @@ public abstract class TestStartup
                     .AddSingleton(_ => new ExtractDownloadsOptions())
                     .AddSingleton<ExtractUploadsOptions>(_ => new ExtractUploadsOptions())
                     //.AddSingleton<SqsOptions>(_ => new SqsOptions("", "", RegionEndpoint.EUWest1))
-                    .AddTransient<IZipArchiveValidator>(sp => new ZipArchiveFeatureCompareValidator(Encoding.UTF8))
+                    .AddTransient<IZipArchiveValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
                     .AddLogging();
 

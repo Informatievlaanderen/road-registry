@@ -38,6 +38,7 @@ using Product.Schema;
 using Serilog;
 using SqlStreamStore;
 using Syndication.Schema;
+using ZipArchiveWriters.Validation;
 
 public class Program
 {
@@ -193,7 +194,7 @@ public class Program
                     .AddSingleton<ISqsQueuePublisher>(sp =>
                         new SqsQueuePublisher(sqsOptions, sp.GetService<ILogger<SqsQueuePublisher>>())
                     )
-                    .AddSingleton<IZipArchiveValidator>(sp => new ZipArchiveFeatureCompareValidator(Encoding.UTF8));
+                    .AddSingleton<IZipArchiveValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8));
 
                 builder
                     .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(featureToggles.UseSnapshotRebuildFeature))
@@ -233,7 +234,7 @@ public class Program
                                 sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
-                                new ZipArchiveValidator(Encoding.GetEncoding(1252)),
+                                new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
                                 sp.GetService<IClock>()
                             ),
                             new RoadNetworkCommandModule(
@@ -246,7 +247,7 @@ public class Program
                                 sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
-                                new ZipArchiveValidator(Encoding.GetEncoding(1252)),
+                                new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
                                 sp.GetService<IClock>()
                             )
                         })))

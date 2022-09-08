@@ -1,9 +1,9 @@
-namespace RoadRegistry.Tests.BackOffice.Uploads;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice;
 
 using System.Collections.Immutable;
 using FluentAssertions;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Uploads;
+using Uploads;
 using Xunit;
 
 public class ZipArchiveValidationContextTests

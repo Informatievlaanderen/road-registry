@@ -84,6 +84,8 @@ public class Startup
         builder.Populate(services);
         builder.RegisterModule(new DataDogModule(_configuration));
         builder.RegisterModule(new MediatorModule());
+        builder.RegisterModule(new BackOffice.Handlers.MediatorModule());
+        builder.RegisterModule(new BackOffice.Handlers.Sqs.MediatorModule());
         _applicationContainer = builder.Build();
 
         return new AutofacServiceProvider(_applicationContainer);

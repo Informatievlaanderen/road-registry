@@ -30,6 +30,8 @@ public class Startup : TestStartup
     public override void ConfigureContainer(ContainerBuilder builder)
     {
         builder.RegisterModule<RoadRegistry.BackOffice.MediatorModule>();
+        builder.RegisterModule<RoadRegistry.BackOffice.Handlers.MediatorModule>();
+        builder.RegisterModule<RoadRegistry.BackOffice.Handlers.Sqs.MediatorModule>();
         builder.Register<SqlServer>(sp => new SqlServer());
         builder.Register(ctx =>
         {

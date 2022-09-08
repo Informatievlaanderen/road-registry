@@ -287,6 +287,25 @@ services:
       METADATA__URI: http://wiremock:8080/metadatacenter/srv/dut/csw-publication
       METADATA__LOGINURI: http://wiremock:8080/metadatacenter/srv/dut/info?info=me
 
+  wfs-projection-host:
+    build: dist/RoadRegistry.Wfs.ProjectionHost/linux
+    depends_on:
+      - mssql-seed
+      - seq
+      - wiremock
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      SERILOG__WRITETO__0__NAME: "Seq"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
+      SERILOG__WRITETO__1__NAME: "Console"
+      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__WFSPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__WFSPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      METADATA__URI: http://wiremock:8080/metadatacenter/srv/dut/csw-publication
+      METADATA__LOGINURI: http://wiremock:8080/metadatacenter/srv/dut/info?info=me
+
   backoffice-event-host:
     build: dist/RoadRegistry.BackOffice.EventHost/linux
     depends_on:

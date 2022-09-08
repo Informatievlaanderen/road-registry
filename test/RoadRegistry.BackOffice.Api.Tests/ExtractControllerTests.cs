@@ -225,13 +225,8 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
     }
 
     [Fact]
-    public async Task When_uploading_an_extract_that_is_a_zip()
+    public async Task When_uploading_an_extract_that_is_an_empty_zip()
     {
-        //var wktReader = new WKTReader(new NtsGeometryServices(GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID));
-        //var downloadExtractRequestBodyValidator = new DownloadExtractRequestBodyValidator(wktReader, new NullLogger<DownloadExtractRequestBodyValidator>());
-        //var downloadExtractByContourRequestBodyValidator = new DownloadExtractByContourRequestBodyValidator(wktReader, new NullLogger<DownloadExtractByContourRequestBodyValidator>());
-        //var downloadExtractByNisCodeRequestBodyValidator = new DownloadExtractByNisCodeRequestBodyValidator(_editorContext);
-
         try
         {
             using (var sourceStream = new MemoryStream())

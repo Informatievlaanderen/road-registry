@@ -24,6 +24,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using Serilog;
 using Serilog.Debugging;
 using SqlStreamStore;
@@ -198,7 +199,7 @@ public class Program
                                 sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
-                                new ZipArchiveValidator(Encoding.GetEncoding(1252)),
+                                new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
                                 sp.GetService<IClock>()
                             ),
                             new RoadNetworkCommandModule(
@@ -211,7 +212,7 @@ public class Program
                                 sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
-                                new ZipArchiveValidator(Encoding.GetEncoding(1252)),
+                                new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
                                 sp.GetService<IClock>()
                             )
                         })));

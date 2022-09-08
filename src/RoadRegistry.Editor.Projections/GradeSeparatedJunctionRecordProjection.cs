@@ -14,8 +14,15 @@ namespace RoadRegistry.Editor.Projections
     {
         public GradeSeparatedJunctionRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
-            if (manager == null) throw new ArgumentNullException(nameof(manager));
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+            if (manager == null)
+            {
+                throw new ArgumentNullException(nameof(manager));
+            }
+
+            if (encoding == null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
 
             When<Envelope<ImportedGradeSeparatedJunction>>(async (context, envelope, token) =>
             {
@@ -27,14 +34,14 @@ namespace RoadRegistry.Editor.Projections
                     LowerRoadSegmentId = envelope.Message.LowerRoadSegmentId,
                     DbaseRecord = new GradeSeparatedJunctionDbaseRecord
                     {
-                        OK_OIDN = { Value = envelope.Message.Id },
-                        TYPE = { Value = translation.Identifier },
-                        LBLTYPE = { Value = translation.Name },
-                        BO_WS_OIDN = { Value = envelope.Message.UpperRoadSegmentId },
-                        ON_WS_OIDN = { Value = envelope.Message.LowerRoadSegmentId },
-                        BEGINTIJD = { Value = envelope.Message.Origin.Since },
-                        BEGINORG = { Value = envelope.Message.Origin.OrganizationId },
-                        LBLBGNORG = { Value = envelope.Message.Origin.Organization }
+                        OK_OIDN = {Value = envelope.Message.Id},
+                        TYPE = {Value = translation.Identifier},
+                        LBLTYPE = {Value = translation.Name},
+                        BO_WS_OIDN = {Value = envelope.Message.UpperRoadSegmentId},
+                        ON_WS_OIDN = {Value = envelope.Message.LowerRoadSegmentId},
+                        BEGINTIJD = {Value = envelope.Message.Origin.Since},
+                        BEGINORG = {Value = envelope.Message.Origin.OrganizationId},
+                        LBLBGNORG = {Value = envelope.Message.Origin.Organization}
                     }.ToBytes(manager, encoding)
                 };
 
@@ -92,8 +99,8 @@ namespace RoadRegistry.Editor.Projections
                                 {
                                     Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
                                 },
-                                BEGINORG = { Value = envelope.Message.OrganizationId },
-                                LBLBGNORG = { Value = envelope.Message.Organization }
+                                BEGINORG = {Value = envelope.Message.OrganizationId},
+                                LBLBGNORG = {Value = envelope.Message.Organization}
                             }.ToBytes(manager, encoding);
                         }
                             break;

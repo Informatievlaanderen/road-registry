@@ -16,8 +16,15 @@ namespace RoadRegistry.Product.Projections
     {
         public GradeSeparatedJunctionRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
-            if (manager == null) throw new ArgumentNullException(nameof(manager));
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+            if (manager == null)
+            {
+                throw new ArgumentNullException(nameof(manager));
+            }
+
+            if (encoding == null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
 
             When<Envelope<ImportedGradeSeparatedJunction>>(async (context, envelope, token) =>
             {
@@ -27,14 +34,14 @@ namespace RoadRegistry.Product.Projections
                     Id = envelope.Message.Id,
                     DbaseRecord = new GradeSeparatedJunctionDbaseRecord
                     {
-                        OK_OIDN = { Value = envelope.Message.Id },
-                        TYPE = { Value = translation.Identifier },
-                        LBLTYPE = { Value = translation.Name },
-                        BO_WS_OIDN = { Value = envelope.Message.UpperRoadSegmentId },
-                        ON_WS_OIDN = { Value = envelope.Message.LowerRoadSegmentId },
-                        BEGINTIJD = { Value = envelope.Message.Origin.Since },
-                        BEGINORG = { Value = envelope.Message.Origin.OrganizationId },
-                        LBLBGNORG = { Value = envelope.Message.Origin.Organization }
+                        OK_OIDN = {Value = envelope.Message.Id},
+                        TYPE = {Value = translation.Identifier},
+                        LBLTYPE = {Value = translation.Name},
+                        BO_WS_OIDN = {Value = envelope.Message.UpperRoadSegmentId},
+                        ON_WS_OIDN = {Value = envelope.Message.LowerRoadSegmentId},
+                        BEGINTIJD = {Value = envelope.Message.Origin.Since},
+                        BEGINORG = {Value = envelope.Message.Origin.OrganizationId},
+                        LBLBGNORG = {Value = envelope.Message.Origin.Organization}
                     }.ToBytes(manager, encoding)
                 };
 
@@ -44,6 +51,7 @@ namespace RoadRegistry.Product.Projections
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
+                {
                     switch (change)
                     {
                         case GradeSeparatedJunctionAdded junctionAdded:
@@ -56,6 +64,7 @@ namespace RoadRegistry.Product.Projections
                             await RemoveJunction(context, junctionRemoved);
                             break;
                     }
+                }
             });
         }
 
@@ -72,17 +81,17 @@ namespace RoadRegistry.Product.Projections
                 Id = junction.Id,
                 DbaseRecord = new GradeSeparatedJunctionDbaseRecord
                 {
-                    OK_OIDN = { Value = junction.Id },
-                    TYPE = { Value = translation.Identifier },
-                    LBLTYPE = { Value = translation.Name },
-                    BO_WS_OIDN = { Value = junction.UpperRoadSegmentId },
-                    ON_WS_OIDN = { Value = junction.LowerRoadSegmentId },
+                    OK_OIDN = {Value = junction.Id},
+                    TYPE = {Value = translation.Identifier},
+                    LBLTYPE = {Value = translation.Name},
+                    BO_WS_OIDN = {Value = junction.UpperRoadSegmentId},
+                    ON_WS_OIDN = {Value = junction.LowerRoadSegmentId},
                     BEGINTIJD =
                     {
                         Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
                     },
-                    BEGINORG = { Value = envelope.Message.OrganizationId },
-                    LBLBGNORG = { Value = envelope.Message.Organization }
+                    BEGINORG = {Value = envelope.Message.OrganizationId},
+                    LBLBGNORG = {Value = envelope.Message.Organization}
                 }.ToBytes(manager, encoding)
             };
 
@@ -98,27 +107,30 @@ namespace RoadRegistry.Product.Projections
             var junctionRecord = await context.GradeSeparatedJunctions.FindAsync(junction.Id);
 
             var translation = GradeSeparatedJunctionType.Parse(junction.Type).Translation;
-            junctionRecord.DbaseRecord = new GradeSeparatedJunctionDbaseRecord
+            if (junctionRecord != null)
             {
-                OK_OIDN = { Value = junction.Id },
-                TYPE = { Value = translation.Identifier },
-                LBLTYPE = { Value = translation.Name },
-                BO_WS_OIDN = { Value = junction.UpperRoadSegmentId },
-                ON_WS_OIDN = { Value = junction.LowerRoadSegmentId },
-                BEGINTIJD =
+                junctionRecord.DbaseRecord = new GradeSeparatedJunctionDbaseRecord
                 {
-                    Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
-                },
-                BEGINORG = { Value = envelope.Message.OrganizationId },
-                LBLBGNORG = { Value = envelope.Message.Organization }
-            }.ToBytes(manager, encoding);
+                    OK_OIDN = { Value = junction.Id },
+                    TYPE = { Value = translation.Identifier },
+                    LBLTYPE = { Value = translation.Name },
+                    BO_WS_OIDN = { Value = junction.UpperRoadSegmentId },
+                    ON_WS_OIDN = { Value = junction.LowerRoadSegmentId },
+                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                    BEGINORG = { Value = envelope.Message.OrganizationId },
+                    LBLBGNORG = { Value = envelope.Message.Organization }
+                }.ToBytes(manager, encoding);
+            }
         }
 
         private static async Task RemoveJunction(ProductContext context, GradeSeparatedJunctionRemoved junction)
         {
             var junctionRecord = await context.GradeSeparatedJunctions.FindAsync(junction.Id);
 
-            context.GradeSeparatedJunctions.Remove(junctionRecord);
+            if (junctionRecord != null)
+            {
+                context.GradeSeparatedJunctions.Remove(junctionRecord);
+            }
         }
     }
 }

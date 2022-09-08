@@ -6,58 +6,63 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
-public class ZipArchiveDbaseEntryValidator<TDbaseRecord> : IZipArchiveEntryValidator
-    where TDbaseRecord : DbaseRecord, new()
-{
-    private readonly Encoding _encoding;
-    private readonly DbaseFileHeaderReadBehavior _readBehavior;
-    private readonly IZipArchiveDbaseRecordsValidator<TDbaseRecord> _recordValidator;
-    private readonly DbaseSchema _schema;
-
-    public ZipArchiveDbaseEntryValidator(
-        Encoding encoding,
-        DbaseFileHeaderReadBehavior readBehavior,
-        DbaseSchema schema,
-        IZipArchiveDbaseRecordsValidator<TDbaseRecord> recordValidator)
+    public class ZipArchiveDbaseEntryValidator<TDbaseRecord> : IZipArchiveDbaseEntryValidator
+        where TDbaseRecord : DbaseRecord, new()
     {
-        _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-        _readBehavior = readBehavior ?? throw new ArgumentNullException(nameof(readBehavior));
-        _schema = schema ?? throw new ArgumentNullException(nameof(schema));
-        _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
-    }
+        private readonly IZipArchiveDbaseRecordsValidator<TDbaseRecord> _recordValidator;
+
+        public Encoding Encoding { get; }
+        public DbaseSchema Schema { get; }
+        public DbaseFileHeaderReadBehavior HeaderReadBehavior { get; }
+
+        public ZipArchiveDbaseEntryValidator(
+            Encoding encoding,
+            DbaseFileHeaderReadBehavior readBehavior,
+            DbaseSchema schema,
+            IZipArchiveDbaseRecordsValidator<TDbaseRecord> recordValidator)
+        {
+            Encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
+            HeaderReadBehavior = readBehavior ?? throw new ArgumentNullException(nameof(readBehavior));
+            Schema = schema ?? throw new ArgumentNullException(nameof(schema));
+            _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
+        }
 
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
     {
         if (entry == null) throw new ArgumentNullException(nameof(entry));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var problems = ZipArchiveProblems.None;
-        using (var stream = entry.Open())
-        using (var reader = new BinaryReader(stream, _encoding))
-        {
-            DbaseFileHeader header = null;
-            try
+            var problems = ZipArchiveProblems.None;
+            using (var stream = entry.Open())
+            using (var reader = new BinaryReader(stream, Encoding))
             {
-                header = DbaseFileHeader.Read(reader, _readBehavior);
-            }
-            catch (Exception exception)
-            {
-                problems += entry.HasDbaseHeaderFormatError(exception);
-            }
+                DbaseFileHeader header = null;
+                try
+                {
+                    header = DbaseFileHeader.Read(reader, HeaderReadBehavior);
+                }
+                catch (Exception exception)
+                {
+                    problems += entry.HasDbaseHeaderFormatError(exception);
+                }
 
-            if (header != null)
-            {
-                if (!header.Schema.Equals(_schema))
-                    problems += entry.HasDbaseSchemaMismatch(_schema, header.Schema);
-                else
-                    using (var records = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader))
+                if (header != null)
+                {
+                    if (!header.Schema.Equals(Schema))
                     {
-                        var (recordProblems, recordContext) = _recordValidator.Validate(entry, records, context);
-                        problems += recordProblems;
-                        context = recordContext;
+                        problems += entry.HasDbaseSchemaMismatch(Schema, header.Schema);
                     }
+                    else
+                    {
+                        using (var records = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader))
+                        {
+                            var (recordProblems, recordContext) = _recordValidator.Validate(entry, records, context);
+                            problems += recordProblems;
+                            context = recordContext;
+                        }
+                    }
+                }
             }
-        }
 
         return (problems, context);
     }

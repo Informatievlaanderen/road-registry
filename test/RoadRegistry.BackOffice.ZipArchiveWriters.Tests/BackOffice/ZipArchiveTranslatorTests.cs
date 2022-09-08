@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.BackOffice.Uploads;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice;
 
 using System.IO.Compression;
 using System.Text;
@@ -8,8 +8,10 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Schema;
+using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Uploads;
+using Uploads;
 using Xunit;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 using Point = NetTopologySuite.Geometries.Point;
