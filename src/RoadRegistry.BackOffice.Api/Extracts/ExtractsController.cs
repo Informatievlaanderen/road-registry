@@ -83,7 +83,7 @@ public class ExtractsController : ControllerBase
     [HttpPost("download/{downloadId}/uploads")]
     public async Task<ActionResult> PostUpload(
         [FromRoute] string downloadId,
-        [FromBody] IFormFile archive,
+        IFormFile archive,
         CancellationToken cancellationToken)
     {
         try
@@ -102,7 +102,7 @@ public class ExtractsController : ControllerBase
     [HttpPost("download/{downloadId}/uploads/feature-compare")]
     public async Task<ActionResult> PostFeatureCompareUpload(
         [FromRoute] string downloadId,
-        [FromBody] IFormFile archive,
+        IFormFile archive,
         CancellationToken cancellationToken)
     {
         try

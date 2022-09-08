@@ -10,6 +10,7 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using FluentValidation;
 using Framework;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -43,19 +44,27 @@ public class UploadController : ControllerBase
 
     [HttpPost("")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUpload([FromBody] IFormFile archive, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostUpload(IFormFile archive, CancellationToken cancellationToken)
     {
         return await Post(archive, async () =>
         {
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
-            var response = await _mediator.Send(request, cancellationToken);
-            return Ok(response);
+
+            try
+            {
+                var response = await _mediator.Send(request, cancellationToken);
+                return Ok(response);
+            }
+            catch (ValidationException ex)
+            {
+                return new BadRequestObjectResult(ex);
+            }
         }, cancellationToken);
     }
 
     [HttpGet("{identifier}")]
-    public async Task<ActionResult> Get(string identifier, CancellationToken cancellationToken)
+    public async Task<IActionResult> Get(string identifier, CancellationToken cancellationToken)
     {
         try
         {

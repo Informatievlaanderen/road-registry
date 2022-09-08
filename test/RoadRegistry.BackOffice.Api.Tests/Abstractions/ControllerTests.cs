@@ -17,13 +17,16 @@ public abstract class ControllerTests<TController> where TController : Controlle
         Controller = (TController)Activator.CreateInstance(typeof(TController), mediator);
         Controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
+        Mediator = mediator;
         StreamStore = streamStore;
         UploadBlobClient = uploadClient;
         ExtractUploadClient = extractUploadClient;
     }
 
+    protected IMediator Mediator { get; }
     protected IStreamStore StreamStore { get; }
     public RoadNetworkUploadsBlobClient UploadBlobClient { get; }
     protected RoadNetworkExtractUploadsBlobClient ExtractUploadClient { get; }
+
     protected TController Controller { get; init; }
 }

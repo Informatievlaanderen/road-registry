@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="empty.zip" />
+    <EmbeddedResource Include="valid.zip" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,7 +4,7 @@ using Abstractions.Uploads;
 using FluentValidation;
 using MediatR;
 
-public sealed class UploadExtractFeatureCompareRequestValidator : AbstractValidator<UploadExtractFeatureCompareRequest>, IPipelineBehavior<UploadExtractFeatureCompareRequest, UploadExtractResponse>
+public sealed class UploadExtractFeatureCompareRequestValidator : AbstractValidator<UploadExtractFeatureCompareRequest>, IPipelineBehavior<UploadExtractFeatureCompareRequest, UploadExtractFeatureCompareResponse>
 {
     public UploadExtractFeatureCompareRequestValidator()
     {
@@ -12,7 +12,7 @@ public sealed class UploadExtractFeatureCompareRequestValidator : AbstractValida
         RuleFor(req => req.Archive).NotNull();
     }
 
-    public async Task<UploadExtractResponse> Handle(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<UploadExtractResponse> next)
+    public async Task<UploadExtractFeatureCompareResponse> Handle(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<UploadExtractFeatureCompareResponse> next)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);
         var response = await next();

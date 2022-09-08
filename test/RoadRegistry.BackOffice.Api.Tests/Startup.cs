@@ -16,13 +16,14 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
 using SqlStreamStore;
+using FakeSqsQueuePublisher = RoadRegistry.Tests.FakeSqsQueuePublisher;
 using IClock = NodaTime.IClock;
 
 public class Startup : TestStartup
 {
     public override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services) => services
         .AddSingleton<SqsOptions>(_ => new SqsOptions("", "", RegionEndpoint.EUWest1))
-        .AddSingleton<ISqsQueuePublisher>(sp => MockStartup.ConfigureMockQueuePublisher().Object)
+        .AddSingleton<ISqsQueuePublisher>(sp => new FakeSqsQueuePublisher(sp.GetService<SqsOptions>(), sp.GetService<ILogger<FakeSqsQueuePublisher>>()))
         .AddSingleton<ISqsQueueConsumer>(sp => MockStartup.ConfigureMockQueueConsumer().Object)
     ;
 

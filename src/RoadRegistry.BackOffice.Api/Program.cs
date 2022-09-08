@@ -18,6 +18,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Core;
 using Editor.Schema;
@@ -185,6 +186,14 @@ public class Program
                 var featureToggles = new FeatureToggleOptions();
                 hostContext.Configuration.GetSection(FeatureToggleOptions.ConfigurationKey).Bind(featureToggles);
 
+                var sqsOptions = new SqsOptions();
+                hostContext.Configuration.GetSection(nameof(SqsOptions)).Bind(sqsOptions);
+
+                builder
+                    .AddSingleton<ISqsQueuePublisher>(sp =>
+                        new SqsQueuePublisher(sqsOptions, sp.GetService<ILogger<SqsQueuePublisher>>())
+                    )
+                    .AddSingleton<IZipArchiveValidator>(sp => new ZipArchiveFeatureCompareValidator(Encoding.UTF8));
 
                 builder
                     .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(featureToggles.UseSnapshotRebuildFeature))
@@ -192,6 +201,7 @@ public class Program
                     .AddSingleton(zipArchiveWriterOptions)
                     .AddSingleton(extractDownloadsOptions)
                     .AddSingleton(extractUploadsOptions)
+                    .AddSingleton(sqsOptions)
                     .AddSingleton<IStreamStore>(sp =>
                         new MsSqlStreamStoreV3(
                             new MsSqlStreamStoreV3Settings(
