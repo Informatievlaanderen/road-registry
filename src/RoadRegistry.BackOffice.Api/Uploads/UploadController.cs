@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
@@ -50,16 +51,8 @@ public class UploadController : ControllerBase
         {
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
-
-            try
-            {
-                var response = await _mediator.Send(request, cancellationToken);
-                return Ok(response);
-            }
-            catch (ValidationException ex)
-            {
-                return new BadRequestObjectResult(ex);
-            }
+            var response = await _mediator.Send(request, cancellationToken);
+            return Ok(response);
         }, cancellationToken);
     }
 
@@ -89,6 +82,13 @@ public class UploadController : ControllerBase
         catch (UnsupportedMediaTypeException)
         {
             return new UnsupportedMediaTypeResult();
+        }
+        catch (ValidationException exception)
+        {
+            throw new ApiProblemDetailsException(
+                "Could not upload roadnetwork extract because of validation errors",
+                400,
+                new ExceptionProblemDetails(exception), exception);
         }
         catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException exception)
         {

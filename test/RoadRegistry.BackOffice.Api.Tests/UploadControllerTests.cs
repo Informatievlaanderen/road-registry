@@ -18,6 +18,7 @@ using SqlStreamStore.Streams;
 using System.IO.Compression;
 using System.Text;
 using BackOffice.Abstractions.Uploads;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using FluentValidation;
 using Uploads;
 
@@ -67,27 +68,30 @@ public class UploadControllerTests : ControllerTests<UploadController>
                     { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
                 })
             };
-            var result = await Controller.PostUpload(formFile, CancellationToken.None);
 
-            Assert.IsType<BadRequestObjectResult>(result);
+            try
+            {
+                var result = await Controller.PostUpload(formFile, CancellationToken.None);
+                throw new ValidationException("This should not be reachable");
+            }
+            catch (ApiProblemDetailsException ex)
+            {
+                var validationException = Assert.IsType<ValidationException>(ex.InnerException);
+                var validationFileProblems = validationException.Errors.Select(ex => ex.PropertyName);
 
-            var typedResult = (BadRequestObjectResult)result;
-            var validationException = typedResult.Value as ValidationException;
-
-            var validationFileProblems = validationException.Errors.Select(ex => ex.PropertyName);
-
-            Assert.Contains("WEGKNOOP.SHP", validationFileProblems);
-            Assert.Contains("WEGKNOOP.DBF", validationFileProblems);
-            Assert.Contains("WEGSEGMENT.SHP", validationFileProblems);
-            Assert.Contains("WEGSEGMENT.DBF", validationFileProblems);
-            Assert.Contains("ATTEUROPWEG.DBF", validationFileProblems);
-            Assert.Contains("ATTNATIONWEG.DBF", validationFileProblems);
-            Assert.Contains("ATTGENUMWEG.DBF", validationFileProblems);
-            Assert.Contains("ATTRIJSTROKEN.DBF", validationFileProblems);
-            Assert.Contains("ATTWEGBREEDTE.DBF", validationFileProblems);
-            Assert.Contains("ATTWEGVERHARDING.DBF", validationFileProblems);
-            Assert.Contains("RLTOGKRUISING.DBF", validationFileProblems);
-            Assert.Contains("TRANSACTIEZONES.DBF", validationFileProblems);
+                Assert.Contains("WEGKNOOP.SHP", validationFileProblems);
+                Assert.Contains("WEGKNOOP.DBF", validationFileProblems);
+                Assert.Contains("WEGSEGMENT.SHP", validationFileProblems);
+                Assert.Contains("WEGSEGMENT.DBF", validationFileProblems);
+                Assert.Contains("ATTEUROPWEG.DBF", validationFileProblems);
+                Assert.Contains("ATTNATIONWEG.DBF", validationFileProblems);
+                Assert.Contains("ATTGENUMWEG.DBF", validationFileProblems);
+                Assert.Contains("ATTRIJSTROKEN.DBF", validationFileProblems);
+                Assert.Contains("ATTWEGBREEDTE.DBF", validationFileProblems);
+                Assert.Contains("ATTWEGVERHARDING.DBF", validationFileProblems);
+                Assert.Contains("RLTOGKRUISING.DBF", validationFileProblems);
+                Assert.Contains("TRANSACTIEZONES.DBF", validationFileProblems);
+            }
         }
     }
 

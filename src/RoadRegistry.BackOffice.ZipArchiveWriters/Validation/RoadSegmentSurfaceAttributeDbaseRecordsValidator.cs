@@ -16,11 +16,6 @@ public class RoadSegmentSurfaceAttributeDbaseRecordsValidator : IZipArchiveDbase
         var problems = ZipArchiveProblems.None;
         try
         {
-            var segments =
-                context
-                    .KnownRoadSegments
-                    .ToDictionary(segment => segment, segment => 0);
-            var identifiers = new Dictionary<AttributeId, RecordNumber>();
             var moved = records.MoveNext();
             if (moved)
             {
@@ -61,20 +56,9 @@ public class RoadSegmentSurfaceAttributeDbaseRecordsValidator : IZipArchiveDbase
                             problems += recordContext.RequiredFieldIsNull(record.WS_OIDN.Field);
                         else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value))
                             problems += recordContext.RoadSegmentIdOutOfRange(record.WS_OIDN.Value);
-                        else if (!segments.ContainsKey(new RoadSegmentId(record.WS_OIDN.Value)))
-                            problems += recordContext.RoadSegmentMissing(record.WS_OIDN.Value);
-                        else
-                            segments[new RoadSegmentId(record.WS_OIDN.Value)] += 1;
                     }
-
                     moved = records.MoveNext();
                 }
-
-                var segmentsWithoutAttributes = segments
-                    .Where(pair => pair.Value == 0)
-                    .Select(pair => pair.Key)
-                    .ToArray();
-                if (segmentsWithoutAttributes.Length > 0) problems += entry.RoadSegmentsWithoutSurfaceAttributes(segmentsWithoutAttributes);
             }
             else
             {
