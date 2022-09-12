@@ -1,3 +1,10 @@
+## [3.7.6](https://github.com/informatievlaanderen/road-registry/compare/v3.7.5...v3.7.6) (2022-09-12)
+
+
+### Bug Fixes
+
+* show the error message title in the alert container ([f8e235f](https://github.com/informatievlaanderen/road-registry/commit/f8e235f26e1c0963ea707cc94a81989b8f94e5bf))
+
 ## [3.7.5](https://github.com/informatievlaanderen/road-registry/compare/v3.7.4...v3.7.5) (2022-09-07)
 
 
