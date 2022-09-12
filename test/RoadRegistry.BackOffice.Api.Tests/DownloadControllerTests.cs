@@ -13,6 +13,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Product.Schema;
 using RoadRegistry.BackOffice.Api.Tests.Abstractions;
 using SqlStreamStore;
 
@@ -20,19 +21,29 @@ using SqlStreamStore;
 public class DownloadControllerTests : ControllerTests<DownloadController>
 {
     private readonly SqlServer _fixture;
+    private readonly EditorContext _editorContext;
+    private readonly ProductContext _productContext;
     private readonly CancellationTokenSource _tokenSource;
 
-    public DownloadControllerTests(SqlServer fixture, IMediator mediator, IStreamStore streamStore, RoadNetworkUploadsBlobClient uploadClient, RoadNetworkExtractUploadsBlobClient extractUploadClient)
+    public DownloadControllerTests(
+        SqlServer fixture,
+        EditorContext editorContext,
+        ProductContext productContext,
+        IMediator mediator,
+        IStreamStore streamStore,
+        RoadNetworkUploadsBlobClient uploadClient,
+        RoadNetworkExtractUploadsBlobClient extractUploadClient)
         : base(mediator, streamStore, uploadClient, extractUploadClient)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         _tokenSource = new CancellationTokenSource();
+        _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
+        _productContext = productContext ?? throw new ArgumentNullException(nameof(productContext));
     }
 
     [Fact]
     public async Task When_downloading_editor_archive_before_an_import()
     {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
         var result = await Controller.Get(_tokenSource.Token);
         var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
@@ -41,54 +52,39 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
     [Fact]
     public async Task When_downloading_editor_archive_during_an_import()
     {
-        var database = await _fixture.CreateDatabaseAsync();
-        await using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
+        _editorContext.RoadNetworkInfo.Add(new RoadNetworkInfo
         {
-            context.RoadNetworkInfo.Add(new RoadNetworkInfo
-            {
-                Id = 0,
-                CompletedImport = false
-            });
-            await context.SaveChangesAsync();
-        }
+            Id = 0,
+            CompletedImport = false
+        });
+        await _editorContext.SaveChangesAsync();
 
-        await using (var context = await _fixture.CreateEditorContextAsync(database))
-        {
-            var result = await Controller.Get(_tokenSource.Token);
-            var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
-            Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
-        }
+        var result = await Controller.Get(_tokenSource.Token);
+        var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
+        Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
     }
 
     [Fact]
     public async Task When_downloading_editor_archive_after_an_import()
     {
-        var database = await _fixture.CreateDatabaseAsync();
-        await using (var context = await _fixture.CreateEmptyEditorContextAsync(database))
+        _editorContext.RoadNetworkInfo.Add(new RoadNetworkInfo
         {
-            context.RoadNetworkInfo.Add(new RoadNetworkInfo
-            {
-                Id = 0,
-                CompletedImport = true
-            });
-            await context.SaveChangesAsync();
-        }
+            Id = 0,
+            CompletedImport = true
+        });
+        await _editorContext.SaveChangesAsync();
 
-        await using (var context = await _fixture.CreateEditorContextAsync(database))
-        {
-            var result = await Controller.Get(_tokenSource.Token);
-            var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
-            Assert.Equal("wegenregister.zip", fileCallbackResult.FileDownloadName);
-        }
+        var result = await Controller.Get(_tokenSource.Token);
+        var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
+
+        var filename = $"wegenregister-{DateTime.Today.ToString("yyyyMMdd")}.zip";
+        Assert.Equal(filename, fileCallbackResult.FileDownloadName);
     }
 
     [Fact]
     public async Task When_downloading_product_archive_before_an_import()
     {
-        await using var context = await _fixture.CreateEmptyProductContextAsync(await _fixture.CreateDatabaseAsync());
-        var version = DateTime.Today.ToString("yyyyMMdd");
         var result = await Controller.Get(_tokenSource.Token);
-
         var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
     }
@@ -96,46 +92,31 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
     [Fact]
     public async Task When_downloading_product_archive_during_an_import()
     {
-        var database = await _fixture.CreateDatabaseAsync();
-        await using (var context = await _fixture.CreateEmptyProductContextAsync(database))
+        _productContext.RoadNetworkInfo.Add(new RoadNetworkInfo
         {
-            context.RoadNetworkInfo.Add(new RoadNetworkInfo
-            {
-                Id = 0,
-                CompletedImport = false
-            });
-            await context.SaveChangesAsync();
-        }
+            Id = 0,
+            CompletedImport = false
+        });
+        await _productContext.SaveChangesAsync();
 
-        await using (var context = await _fixture.CreateProductContextAsync(database))
-        {
-            var version = DateTime.Today.ToString("yyyyMMdd");
-            var result = await Controller.Get(_tokenSource.Token);
-            var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
-            Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
-        }
+        var result = await Controller.Get(_tokenSource.Token);
+        var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
+        Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
     }
 
     [Fact]
     public async Task When_downloading_product_archive_after_an_import()
     {
-        var database = await _fixture.CreateDatabaseAsync();
-        await using (var context = await _fixture.CreateEmptyProductContextAsync(database))
+        _productContext.RoadNetworkInfo.Add(new RoadNetworkInfo
         {
-            context.RoadNetworkInfo.Add(new RoadNetworkInfo
-            {
-                Id = 0,
-                CompletedImport = true
-            });
-            await context.SaveChangesAsync();
-        }
+            Id = 0,
+            CompletedImport = true
+        });
+        await _productContext.SaveChangesAsync();
 
-        await using (var context = await _fixture.CreateProductContextAsync(database))
-        {
-            var version = DateTime.Today.ToString("yyyyMMdd");
-            var result = await Controller.Get(_tokenSource.Token);
-            var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
-            Assert.Equal($"wegenregister-{version}.zip", fileCallbackResult.FileDownloadName);
-        }
+        var version = DateTime.Today.ToString("yyyyMMdd");
+        var result = await Controller.Get(version, _tokenSource.Token);
+        var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
+        Assert.Equal($"wegenregister-{version}.zip", fileCallbackResult.FileDownloadName);
     }
 }

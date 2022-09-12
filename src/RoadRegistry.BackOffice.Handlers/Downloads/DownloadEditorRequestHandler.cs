@@ -42,7 +42,8 @@ public class DownloadEditorRequestHandler : EndpointRequestHandler<DownloadEdito
         if (info is null || !info.CompletedImport)
             throw new DownloadEditorNotFoundException("Could not find the requested information", HttpStatusCode.ServiceUnavailable);
 
-        return new DownloadEditorResponse("wegenregister.zip", new MediaTypeHeaderValue("application/zip"), async (stream, ct) =>
+        var filename = $"wegenregister-{DateTime.Today.ToString("yyyyMMdd")}.zip";
+        return new DownloadEditorResponse(filename, new MediaTypeHeaderValue("application/zip"), async (stream, ct) =>
         {
             var encoding = Encoding.GetEncoding(1252);
             var writer = new RoadNetworkForEditorToZipArchiveWriter(_writerOptions, _cache, _streamManager, encoding);
