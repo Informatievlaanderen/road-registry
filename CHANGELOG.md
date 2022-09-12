@@ -1,3 +1,17 @@
+# [3.8.0](https://github.com/informatievlaanderen/road-registry/compare/v3.7.6...v3.8.0) (2022-09-12)
+
+
+### Bug Fixes
+
+* build.fsx file ([ea85208](https://github.com/informatievlaanderen/road-registry/commit/ea85208e54623033e3e3f9df70148259a6ff91b8))
+* dockerfile projector ([b548142](https://github.com/informatievlaanderen/road-registry/commit/b548142afb41b25c53236c589e3d2af99369c37d))
+* remove duplicate code ([abccbf9](https://github.com/informatievlaanderen/road-registry/commit/abccbf9f4e2e41b5dc6c3a7d17cd767f080150e4))
+
+
+### Features
+
+* create projector service for status page ([#590](https://github.com/informatievlaanderen/road-registry/issues/590)) ([0c00db7](https://github.com/informatievlaanderen/road-registry/commit/0c00db748fdff88d1912e44932b071bb1ab5e6ff))
+
 ## [3.7.6](https://github.com/informatievlaanderen/road-registry/compare/v3.7.5...v3.7.6) (2022-09-12)
 
 
