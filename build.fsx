@@ -89,7 +89,7 @@ Target.create "Publish_Solution" (fun _ ->
 
 Target.create "Pack_Solution" (fun _ ->
   [
-    "StreetNameRegistry.Projector"
+    "RoadRegistry.Projector"
     "RoadRegistry.BackOffice.Api"
   ] |> List.iter pack)
 
