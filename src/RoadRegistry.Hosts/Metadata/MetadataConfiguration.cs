@@ -1,4 +1,4 @@
-namespace RoadRegistry.Wfs.ProjectionHost.Metadata
+namespace RoadRegistry.Hosts.Metadata
 {
     public class MetadataConfiguration
     {

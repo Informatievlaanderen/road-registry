@@ -1,4 +1,4 @@
-namespace RoadRegistry.Wms.ProjectionHost.Metadata
+namespace RoadRegistry.Hosts.Metadata
 {
     using System;
     using System.Globalization;
