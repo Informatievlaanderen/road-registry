@@ -30,7 +30,6 @@ on:
       version:
         description: 'Version'     
         required: true
-
 jobs:
   deployment:
     runs-on: ubuntu-latest
