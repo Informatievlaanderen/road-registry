@@ -70,14 +70,14 @@ namespace RoadRegistry.Projector.Infrastructure.Modules
             RegisterProjection<WmsContext>(new ProjectionDetail
             {
                 Id = "roadregistry-wms-projectionhost",
-                Description = "",
+                Description = "Projectie die de wegen data voor het WMS wegenregister voorziet.",
                 Name = "WMS Wegenregister",
                 WellKnownConnectionName = WellknownConnectionNames.WmsProjections
             });
             RegisterProjection<WfsContext>(new ProjectionDetail
             {
                 Id = "roadregistry-wfs-projectionhost",
-                Description = "",
+                Description = "Projectie die de wegen data voor het WFS wegenregister voorziet.",
                 Name = "WFS Wegenregister",
                 WellKnownConnectionName = WellknownConnectionNames.WfsProjections
             });
