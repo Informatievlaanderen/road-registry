@@ -18,4 +18,13 @@ namespace RoadRegistry.Hosts
         public const string WfsMetaSchema = "RoadRegistryWfsMeta";
         public const string WfsSchema = "RoadRegistryWfs";
     }
+
+    public static class MigrationTables
+    {
+        public const string Syndication = "__EFMigrationsHistorySyndication";
+        public const string Product = "__EFMigrationsHistoryProduct";
+        public const string Editor = "__EFMigrationsHistoryEditor";
+        public const string Wms = "__EFMigrationsHistoryWms";
+        public const string Wfs = "__EFMigrationsHistoryWfs";
+    }
 }

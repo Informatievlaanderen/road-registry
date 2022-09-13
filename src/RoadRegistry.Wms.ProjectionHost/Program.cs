@@ -12,7 +12,7 @@ namespace RoadRegistry.Wms.ProjectionHost
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Hosts;
-    using Metadata;
+    using Hosts.Metadata;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +31,7 @@ namespace RoadRegistry.Wms.ProjectionHost
     {
         protected Program()
         { }
-        
+
         public static async Task Main(string[] args)
         {
             Console.WriteLine("Starting RoadRegistry.Wms.ProjectionHost");

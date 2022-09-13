@@ -64,6 +64,7 @@ Target.create "Test_Solution" (fun _ ->
 
 Target.create "Publish_Solution" (fun _ ->
   [
+    "RoadRegistry.Projector"
     "RoadRegistry.Editor.ProjectionHost"
     "RoadRegistry.Product.ProjectionHost"
     "RoadRegistry.Wms.ProjectionHost"
@@ -88,8 +89,12 @@ Target.create "Publish_Solution" (fun _ ->
 
 Target.create "Pack_Solution" (fun _ ->
   [
+    "RoadRegistry.Projector"
     "RoadRegistry.BackOffice.Api"
   ] |> List.iter pack)
+
+Target.create "Containerize_Projector" (fun _ -> containerize "RoadRegistry.Projector" "projector")
+Target.create "PushContainer_Projector" (fun _ -> push "projector")
 
 Target.create "Containerize_BackOfficeApi" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
 Target.create "PushContainer_BackOfficeApi" (fun _ -> push "backoffice-api")
@@ -156,6 +161,7 @@ Target.create "Push" ignore
   ==> "Pack"
 
 "Pack"
+  ==> "Containerize_Projector"
   ==> "Containerize_BackOfficeApi"
   ==> "Containerize_BackOfficeUI"
   ==> "Containerize_EditorProjectionHost"
@@ -173,6 +179,7 @@ Target.create "Push" ignore
 
 "Containerize"
   ==> "DockerLogin"
+  ==> "PushContainer_Projector"
   ==> "PushContainer_BackOfficeApi"
   ==> "PushContainer_BackOfficeUI"
   ==> "PushContainer_EditorProjectionHost"

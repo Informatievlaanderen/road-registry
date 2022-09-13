@@ -1,4 +1,4 @@
-namespace RoadRegistry.Wfs.ProjectionHost.Metadata
+namespace RoadRegistry.Hosts.Metadata
 {
     using System;
     using System.Globalization;
@@ -25,6 +25,11 @@ namespace RoadRegistry.Wfs.ProjectionHost.Metadata
 
         public async Task UpdateAsync(CancellationToken cancellationToken)
         {
+            if (!_configuration.Enabled)
+            {
+                return;
+            }
+
             try
             {
                 var makeBody = MakeBody(_clock.GetCurrentInstant(), _configuration.Id);

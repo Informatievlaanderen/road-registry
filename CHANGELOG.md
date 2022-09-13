@@ -1,3 +1,53 @@
+## [3.8.1](https://github.com/informatievlaanderen/road-registry/compare/v3.8.0...v3.8.1) (2022-09-12)
+
+
+### Bug Fixes
+
+* build trigger ([3e850d8](https://github.com/informatievlaanderen/road-registry/commit/3e850d8f5228f33986d01ce765733a843bc4ca3a))
+* update CI ([269eac2](https://github.com/informatievlaanderen/road-registry/commit/269eac2784d56adde906dbf40499dd2ad549aec4))
+
+# [3.8.0](https://github.com/informatievlaanderen/road-registry/compare/v3.7.6...v3.8.0) (2022-09-12)
+
+
+### Bug Fixes
+
+* build.fsx file ([ea85208](https://github.com/informatievlaanderen/road-registry/commit/ea85208e54623033e3e3f9df70148259a6ff91b8))
+* dockerfile projector ([b548142](https://github.com/informatievlaanderen/road-registry/commit/b548142afb41b25c53236c589e3d2af99369c37d))
+* remove duplicate code ([abccbf9](https://github.com/informatievlaanderen/road-registry/commit/abccbf9f4e2e41b5dc6c3a7d17cd767f080150e4))
+
+
+### Features
+
+* create projector service for status page ([#590](https://github.com/informatievlaanderen/road-registry/issues/590)) ([0c00db7](https://github.com/informatievlaanderen/road-registry/commit/0c00db748fdff88d1912e44932b071bb1ab5e6ff))
+
+## [3.7.6](https://github.com/informatievlaanderen/road-registry/compare/v3.7.5...v3.7.6) (2022-09-12)
+
+
+### Bug Fixes
+
+* show the error message title in the alert container ([f8e235f](https://github.com/informatievlaanderen/road-registry/commit/f8e235f26e1c0963ea707cc94a81989b8f94e5bf))
+
+## [3.7.5](https://github.com/informatievlaanderen/road-registry/compare/v3.7.4...v3.7.5) (2022-09-07)
+
+
+### Bug Fixes
+
+* add enabled property to metadata updater ([0c0f58d](https://github.com/informatievlaanderen/road-registry/commit/0c0f58d0568c51cd8a3e7bc6562db5972105f687))
+* include env var for sql server ([31348a6](https://github.com/informatievlaanderen/road-registry/commit/31348a6dee03a83e497c5db8a846a2deadd3eb91))
+* include sqlserver ([6f706ba](https://github.com/informatievlaanderen/road-registry/commit/6f706badec340ea53e03368e1751d49d782242ef))
+* make build.yml ci ([9629306](https://github.com/informatievlaanderen/road-registry/commit/96293065d0155c93a52611465a59a6d0cdf77e73))
+* remove release check ([37922f4](https://github.com/informatievlaanderen/road-registry/commit/37922f469836fef1700ad4570ff139d552e98fc9))
+
+## [3.7.4](https://github.com/informatievlaanderen/road-registry/compare/v3.7.3...v3.7.4) (2022-09-06)
+
+
+### Bug Fixes
+
+* don't throw Exception ([7bcc8b1](https://github.com/informatievlaanderen/road-registry/commit/7bcc8b17ff471d63fda311ea7740516eda4396c7))
+* remove empty finally block ([053e41a](https://github.com/informatievlaanderen/road-registry/commit/053e41a9f88a7d5cf349db582a90b17cbce060b6))
+* serializable exceptions ([7ae1e1f](https://github.com/informatievlaanderen/road-registry/commit/7ae1e1f1a5dc4c8f883d3e91a7a404d71952aca2))
+* use CancellationToken ([756add2](https://github.com/informatievlaanderen/road-registry/commit/756add2cac3d705b789babb82081bd9212369582))
+
 ## [3.7.3](https://github.com/informatievlaanderen/road-registry/compare/v3.7.2...v3.7.3) (2022-09-05)
 
 

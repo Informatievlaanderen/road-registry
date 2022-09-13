@@ -7,6 +7,7 @@ on:
         type: choice
         description: 'service:'
         options:
+        - road-registry-projector
         - road-registry-backoffice-api
         - road-registry-backoffice-ui
         - road-registry-backoffice-extracthost
@@ -29,7 +30,6 @@ on:
       version:
         description: 'Version'     
         required: true
-
 jobs:
   deployment:
     runs-on: ubuntu-latest

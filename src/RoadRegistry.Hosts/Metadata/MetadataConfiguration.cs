@@ -1,4 +1,4 @@
-namespace RoadRegistry.Wms.ProjectionHost.Metadata
+namespace RoadRegistry.Hosts.Metadata
 {
     public class MetadataConfiguration
     {
@@ -9,5 +9,6 @@ namespace RoadRegistry.Wms.ProjectionHost.Metadata
         public string Username { get; set; }
         public string Password { get; set; }
         public string Id { get; set; }
+        public bool Enabled { get; set; }
     }
 }
