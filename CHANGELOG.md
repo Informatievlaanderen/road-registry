@@ -1,3 +1,10 @@
+## [3.8.3](https://github.com/informatievlaanderen/road-registry/compare/v3.8.2...v3.8.3) (2022-09-13)
+
+
+### Bug Fixes
+
+* register projections in projector ([e413491](https://github.com/informatievlaanderen/road-registry/commit/e413491e7b3200d7d64a730479036422fb7ae26b))
+
 ## [3.8.2](https://github.com/informatievlaanderen/road-registry/compare/v3.8.1...v3.8.2) (2022-09-13)
 
 
