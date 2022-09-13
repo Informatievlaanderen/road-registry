@@ -14,6 +14,7 @@ namespace RoadRegistry.Projector.Infrastructure.Modules
     using Microsoft.Extensions.Logging;
     using Product.Schema;
     using SqlStreamStore;
+    using Syndication.Schema;
     using Wfs.Schema;
     using Wms.Schema;
     using Module = Autofac.Module;
@@ -22,16 +23,13 @@ namespace RoadRegistry.Projector.Infrastructure.Modules
     {
         private readonly IConfiguration _configuration;
         private readonly IServiceCollection _services;
-        private readonly ILoggerFactory _loggerFactory;
         private readonly Dictionary<ProjectionDetail, Func<DbContext>> _listOfProjections = new();
         public ApiModule(
             IConfiguration configuration,
-            IServiceCollection services,
-            ILoggerFactory loggerFactory)
+            IServiceCollection services)
         {
             _configuration = configuration;
             _services = services;
-            _loggerFactory = loggerFactory;
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -75,7 +73,8 @@ namespace RoadRegistry.Projector.Infrastructure.Modules
                 Description = "",
                 Name = "Product",
                 WellKnownConnectionName = WellknownConnectionNames.ProductProjections,
-                FallbackDesiredState = "subscribed"
+                FallbackDesiredState = "subscribed",
+                IsSyndication = false
             });
             RegisterProjection<EditorContext>(new ProjectionDetail
             {
@@ -83,7 +82,8 @@ namespace RoadRegistry.Projector.Infrastructure.Modules
                 Description = "",
                 Name = "Editor",
                 WellKnownConnectionName = WellknownConnectionNames.EditorProjections,
-                FallbackDesiredState = "subscribed"
+                FallbackDesiredState = "subscribed",
+                IsSyndication = false
             });
             RegisterProjection<WmsContext>(new ProjectionDetail
             {
@@ -91,7 +91,8 @@ namespace RoadRegistry.Projector.Infrastructure.Modules
                 Description = "Projectie die de wegen data voor het WMS wegenregister voorziet.",
                 Name = "WMS Wegen",
                 WellKnownConnectionName = WellknownConnectionNames.WmsProjections,
-                FallbackDesiredState = "subscribed"
+                FallbackDesiredState = "subscribed",
+                IsSyndication = false
             });
             RegisterProjection<WfsContext>(new ProjectionDetail
             {
@@ -99,7 +100,24 @@ namespace RoadRegistry.Projector.Infrastructure.Modules
                 Description = "Projectie die de wegen data voor het WFS wegenregister voorziet.",
                 Name = "WFS Wegen",
                 WellKnownConnectionName = WellknownConnectionNames.WfsProjections,
-                FallbackDesiredState = "subscribed"
+                FallbackDesiredState = "subscribed",
+                IsSyndication = false
+            });
+
+            RegisterProjection<SyndicationContext>(new ProjectionDetail
+            {
+                Id = "roadregistry-syndication-projectionhost-Gemeente",
+                Name = "municipality",
+                WellKnownConnectionName = WellknownConnectionNames.SyndicationProjections,
+                IsSyndication = true
+            });
+
+            RegisterProjection<SyndicationContext>(new ProjectionDetail
+            {
+                Id = "roadregistry-syndication-projectionhost-StraatNaam",
+                Name = "streetName",
+                WellKnownConnectionName = WellknownConnectionNames.SyndicationProjections,
+                IsSyndication = true
             });
         }
     }

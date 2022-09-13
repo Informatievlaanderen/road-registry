@@ -7,5 +7,6 @@ namespace RoadRegistry.Projector.Infrastructure
         public string Description { get; set; }
         public string WellKnownConnectionName { get; set; }
         public string FallbackDesiredState { get; set; }
+        public bool IsSyndication { get; set; }
     }
 }

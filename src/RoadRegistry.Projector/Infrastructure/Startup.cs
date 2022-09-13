@@ -17,9 +17,12 @@ namespace RoadRegistry.Projector.Infrastructure
     using System;
     using System.Linq;
     using System.Reflection;
+    using Editor.Schema;
     using Wfs.Schema;
     using Wms.Schema;
     using Microsoft.OpenApi.Models;
+    using Product.Schema;
+    using Syndication.Schema;
 
     /// <summary>Represents the startup process for the application.</summary>
     public class Startup
@@ -97,13 +100,16 @@ namespace RoadRegistry.Projector.Infrastructure
 
                             health.AddDbContextCheck<WfsContext>();
                             health.AddDbContextCheck<WmsContext>();
+                            health.AddDbContextCheck<EditorContext>();
+                            health.AddDbContextCheck<ProductContext>();
+                            health.AddDbContextCheck<SyndicationContext>();
                         }
                     }
                 });
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule(new LoggingModule(_configuration, services));
-            containerBuilder.RegisterModule(new ApiModule(_configuration, services, _loggerFactory));
+            containerBuilder.RegisterModule(new ApiModule(_configuration, services));
             _applicationContainer = containerBuilder.Build();
 
             return new AutofacServiceProvider(_applicationContainer);
@@ -176,16 +182,6 @@ namespace RoadRegistry.Projector.Infrastructure
                         AfterMiddleware = x => x.UseMiddleware<AddNoCacheHeadersMiddleware>()
                     }
                 });
-
-            appLifetime.ApplicationStopping.Register(() =>
-            {
-                // _projectionsCancellationTokenSource.Cancel();
-            });
-            appLifetime.ApplicationStarted.Register(() =>
-            {
-                // var projectionsManager = _applicationContainer.Resolve<IConnectedProjectionsManager>();
-                // projectionsManager.Resume(_projectionsCancellationTokenSource.Token);
-            });
         }
 
         private static string GetApiLeadingText(ApiVersionDescription description)
