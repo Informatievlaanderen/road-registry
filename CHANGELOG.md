@@ -1,3 +1,10 @@
+## [3.8.4](https://github.com/informatievlaanderen/road-registry/compare/v3.8.3...v3.8.4) (2022-09-13)
+
+
+### Bug Fixes
+
+* add syndication controller to projector ([9b545be](https://github.com/informatievlaanderen/road-registry/commit/9b545bebe4fdb0023f504800d20f4941829ed9cd))
+
 ## [3.8.3](https://github.com/informatievlaanderen/road-registry/compare/v3.8.2...v3.8.3) (2022-09-13)
 
 
