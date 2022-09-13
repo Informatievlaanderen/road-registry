@@ -1,3 +1,10 @@
+## [3.8.2](https://github.com/informatievlaanderen/road-registry/compare/v3.8.1...v3.8.2) (2022-09-13)
+
+
+### Bug Fixes
+
+* build trigger ([07d4f94](https://github.com/informatievlaanderen/road-registry/commit/07d4f9472aa64c2168d7ca8bd87343506e73c408))
+
 ## [3.8.1](https://github.com/informatievlaanderen/road-registry/compare/v3.8.0...v3.8.1) (2022-09-12)
 
 
