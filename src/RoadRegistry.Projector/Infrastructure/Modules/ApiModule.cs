@@ -6,11 +6,13 @@ namespace RoadRegistry.Projector.Infrastructure.Modules
     using Autofac.Extensions.DependencyInjection;
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
+    using Editor.Schema;
     using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using Product.Schema;
     using SqlStreamStore;
     using Wfs.Schema;
     using Wms.Schema;
@@ -67,19 +69,37 @@ namespace RoadRegistry.Projector.Infrastructure.Modules
 
         private void RegisterProjections()
         {
+            RegisterProjection<ProductContext>(new ProjectionDetail
+            {
+                Id = "roadregistry-product-projectionhost",
+                Description = "",
+                Name = "Product",
+                WellKnownConnectionName = WellknownConnectionNames.ProductProjections,
+                FallbackDesiredState = "subscribed"
+            });
+            RegisterProjection<EditorContext>(new ProjectionDetail
+            {
+                Id = "roadregistry-editor-projectionhost",
+                Description = "",
+                Name = "Editor",
+                WellKnownConnectionName = WellknownConnectionNames.EditorProjections,
+                FallbackDesiredState = "subscribed"
+            });
             RegisterProjection<WmsContext>(new ProjectionDetail
             {
                 Id = "roadregistry-wms-projectionhost",
                 Description = "Projectie die de wegen data voor het WMS wegenregister voorziet.",
-                Name = "WMS Wegenregister",
-                WellKnownConnectionName = WellknownConnectionNames.WmsProjections
+                Name = "WMS Wegen",
+                WellKnownConnectionName = WellknownConnectionNames.WmsProjections,
+                FallbackDesiredState = "subscribed"
             });
             RegisterProjection<WfsContext>(new ProjectionDetail
             {
                 Id = "roadregistry-wfs-projectionhost",
                 Description = "Projectie die de wegen data voor het WFS wegenregister voorziet.",
-                Name = "WFS Wegenregister",
-                WellKnownConnectionName = WellknownConnectionNames.WfsProjections
+                Name = "WFS Wegen",
+                WellKnownConnectionName = WellknownConnectionNames.WfsProjections,
+                FallbackDesiredState = "subscribed"
             });
         }
     }

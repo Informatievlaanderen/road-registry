@@ -48,7 +48,7 @@ namespace RoadRegistry.Projector.Projections
                 {
                     continue;
                 }
-
+                var state = projection.DesiredState ?? detail.FallbackDesiredState;
                 response.Projections.Add(new ProjectionStatus
                 {
                     CurrentPosition = projection.Position,
@@ -56,7 +56,7 @@ namespace RoadRegistry.Projector.Projections
                     ErrorMessage = projection.ErrorMessage ?? string.Empty,
                     Id = detail.Id,
                     Name = detail.Name,
-                    State = projection.DesiredState ?? "Unknown"
+                    State = state ?? "unknown"
                 });
             }
             return Ok(response);

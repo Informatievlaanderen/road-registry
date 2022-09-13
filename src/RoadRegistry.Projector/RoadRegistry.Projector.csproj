@@ -28,6 +28,8 @@
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
     <ProjectReference Include="..\RoadRegistry.Wfs.Schema\RoadRegistry.Wfs.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Wms.Schema\RoadRegistry.Wms.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
   </ItemGroup>
 
   <ItemGroup>
