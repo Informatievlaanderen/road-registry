@@ -9,6 +9,9 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Newtonsoft.Json;
+using Uploads;
 
 public class Function
 {
@@ -37,7 +40,37 @@ public class Function
 
     private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
     {
+        //
         context.Logger.LogInformation($"Processed message {message.Body}");
+
+        // Retrieve the actual archive identifier
+        var archiveId = message.Body;
+
+        /*
+         *  1.  Run feature compare inside Docker container
+         *
+         *      1.1 Pickup arguments inside Docker container
+         *      1.2 Download input from S3
+         *      1.2 Run feature compare
+         *      1.3 Upload output to S3
+         *      1.4 Dispatcher sends command
+         *      1.5 Terminate feature compare and shutdown container
+         *
+         *  2.  Detect if there is still an active container running
+         *
+         *  3.  Catch output from Docker container
+         *
+         *      3.1 Continue with normal flow through Dispatch
+         */
+
+
+        //TODO-rik download archive from S3: messageEvent.Id
+        //TODO-rik start feature-compare docker container
+        //docker run -e "INPUTBLOBNAME=foo" -e "OUTPUTBLOBNAME=bar" feature-compare-console
+        //TODO-rik zip result and upload to S3
+        //TODO-rik de originele upload logica moet worden uitgevoerd, launch event?
+        //POST /v1/upload/afterfeaturecompare (met archiveid ipv file te uploaden) of UploadExtractRequest toevoegen aan SQS?
+        //var request = new UploadExtractRequest() { ArchiveId = "" };
 
         // TODO: Do interesting work based on the new message
         await Task.CompletedTask;
