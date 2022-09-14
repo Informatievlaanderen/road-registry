@@ -22,10 +22,7 @@ namespace RoadRegistry.Projector.Projections
         [HttpGet]
         public async Task<IActionResult> ListSyndicationProjections(CancellationToken cancellationToken)
         {
-            var response = new SyndicationStatusList
-            {
-                Syndications = new List<SyndicationStatus>()
-            };
+            var response = new List<SyndicationStatus>();
 
             foreach (var p in _listOfProjections)
             {
@@ -43,7 +40,7 @@ namespace RoadRegistry.Projector.Projections
                     continue;
                 }
 
-                response.Syndications.Add(new SyndicationStatus
+                response.Add(new SyndicationStatus
                 {
                     CurrentPosition = projection.Position,
                     Name = detail.Name,
