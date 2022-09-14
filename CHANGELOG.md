@@ -1,3 +1,10 @@
+## [3.8.6](https://github.com/informatievlaanderen/road-registry/compare/v3.8.5...v3.8.6) (2022-09-14)
+
+
+### Bug Fixes
+
+* syndication response projector ([3a62be3](https://github.com/informatievlaanderen/road-registry/commit/3a62be33668c0a6c771a6e3a7ea9770c8710eec8))
+
 ## [3.8.5](https://github.com/informatievlaanderen/road-registry/compare/v3.8.4...v3.8.5) (2022-09-14)
 
 
