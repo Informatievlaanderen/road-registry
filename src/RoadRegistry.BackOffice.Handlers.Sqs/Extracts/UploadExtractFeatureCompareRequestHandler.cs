@@ -79,7 +79,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 ArchiveId = archiveId.ToString()
             };
 
-            await _sqsQueuePublisher.CopyToQueue(SqsQueueName.Value, archiveId.ToString(), new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
+            await _sqsQueuePublisher.CopyToQueue(SqsQueueName.ManualQueue, archiveId.ToString(), new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
 
             return new UploadExtractResponse(uploadId);
         }

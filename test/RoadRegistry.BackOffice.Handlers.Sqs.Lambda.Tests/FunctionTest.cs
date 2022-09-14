@@ -12,8 +12,11 @@ using Uploads;
 
 public class FunctionTest
 {
-    public FunctionTest()
+    private readonly SqsOptions _sqsOptions;
+
+    public FunctionTest(SqsOptions sqsOptions)
     {
+        _sqsOptions = sqsOptions;
     }
 
     [Fact]
@@ -30,7 +33,8 @@ public class FunctionTest
                 {
                     new SQSEvent.SQSMessage
                     {
-                        Body = message.Id.ToString()
+                        //Body = message.Id.ToString()
+                        Body = JsonConvert.SerializeObject(message, _sqsOptions.JsonSerializerSettings)
                     }
                 }
             };
@@ -38,10 +42,12 @@ public class FunctionTest
             var logger = new TestLambdaLogger();
             var context = new TestLambdaContext
             {
-                Logger = logger
+                Logger = logger,
+                MemoryLimitInMB = 256,
+                RemainingTime = new TimeSpan(0, 15, 0)
             };
 
-            var function = new Function();
+            var function = new FeatureCompareDockerStartupFunction();
             await function.FunctionHandler(sqsEvent, context);
 
             Assert.Contains("Processed message foobar", logger.Buffer.ToString());
@@ -65,7 +71,8 @@ public class FunctionTest
             {
                 new SQSEvent.SQSMessage
                 {
-                    Body = message.ArchiveId
+                    //Body = message.ArchiveId
+                    Body = JsonConvert.SerializeObject(message)
                 }
             }
         };
@@ -76,7 +83,7 @@ public class FunctionTest
             Logger = logger
         };
 
-        var function = new Function();
+        var function = new FeatureCompareDockerStartupFunction();
         await function.FunctionHandler(sqsEvent, context);
 
         Assert.Contains("Processed message foobar", logger.Buffer.ToString());
