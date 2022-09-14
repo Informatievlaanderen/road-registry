@@ -1,3 +1,10 @@
+## [3.8.5](https://github.com/informatievlaanderen/road-registry/compare/v3.8.4...v3.8.5) (2022-09-14)
+
+
+### Bug Fixes
+
+* syndication status endpoint response ([1b4c60b](https://github.com/informatievlaanderen/road-registry/commit/1b4c60b7234f1a3f9fb5792d12e7150a1219c1dd))
+
 ## [3.8.4](https://github.com/informatievlaanderen/road-registry/compare/v3.8.3...v3.8.4) (2022-09-13)
 
 
