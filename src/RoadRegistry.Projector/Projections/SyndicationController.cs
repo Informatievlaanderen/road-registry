@@ -42,8 +42,8 @@ namespace RoadRegistry.Projector.Projections
 
                 response.Add(new SyndicationStatus
                 {
-                    CurrentPosition = projection.Position,
-                    Name = detail.Name,
+                    Position = projection.Position,
+                    ProjectionName = detail.Name,
                 });
             }
             return Ok(response);

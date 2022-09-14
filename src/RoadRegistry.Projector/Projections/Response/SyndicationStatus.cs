@@ -2,8 +2,8 @@ namespace RoadRegistry.Projector.Projections.Response
 {
     public class SyndicationStatus
     {
-        public string Name { get; set; }
+        public string ProjectionName { get; set; }
 
-        public long CurrentPosition { get; set; }
+        public long Position { get; set; }
     }
 }
