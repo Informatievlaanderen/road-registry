@@ -57,11 +57,11 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                     : request.Archive.FileName)
         );
 
-        var message = RoadNetworkChangesArchive.Upload(archiveId);
+        var entity = RoadNetworkChangesArchive.Upload(archiveId);
 
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
-            var problems = message.ValidateArchiveUsing(archive, _validator);
+            var problems = entity.ValidateArchiveUsing(archive, _validator);
 
             var fileProblems = problems.OfType<FileError>();
             if (fileProblems.Any())
@@ -79,7 +79,12 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 cancellationToken
             );
 
-            await _sqsQueuePublisher.CopyToQueue(SqsQueueName.ManualQueue, archiveId.ToString(), new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
+            var message = new SimpleQueueCommand(new UploadRoadNetworkChangesArchive()
+            {
+                ArchiveId = archiveId.ToString()
+            });
+
+            await _sqsQueuePublisher.CopyToQueue(SqsQueueName.ManualQueue, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
 
         }
 

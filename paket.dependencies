@@ -38,6 +38,8 @@ nuget NodaTime 3.1.0
 nuget DotSpatial.Projections 4.0.656
 nuget Autofac 6.4.0
 nuget Moq 4.18.1
+nuget Ductus.FluentDocker 2.10.56
+nuget Ductus.FluentDocker.Xunit 2.10.56
 
 nuget System.Collections.Immutable 6.0.0
 nuget System.Text.Encoding.CodePages 6.0.0

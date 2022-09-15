@@ -4,6 +4,8 @@ using Albedo;
 using AutoFixture;
 using AutoFixture.Idioms;
 using AutoFixture.Kernel;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using RoadRegistry.Framework.Assertions;
 using Xunit;
@@ -11,6 +13,7 @@ using Xunit;
 public class ArchiveIdTests
 {
     private readonly Fixture _fixture;
+    private static readonly JsonSerializerSettings _serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     public ArchiveIdTests()
     {
@@ -92,4 +95,22 @@ public class ArchiveIdTests
 
         Assert.Equal(expected, result);
     }
+
+    //[Fact]
+    //public void ShouldSerialize()
+    //{
+    //    var archiveIdValue = "9573539e13aa439d949762efa1351f80";
+    //    var archiveId = new ArchiveId(archiveIdValue);
+    //    var sut = JsonConvert.SerializeObject(archiveId, _serializerSettings);
+    //    Assert.Equal(archiveIdValue, sut);
+    //}
+
+    //[Fact]
+    //public void ShouldDeserialize()
+    //{
+    //    var archiveIdValue = "9573539e13aa439d949762efa1351f80";
+    //    var archiveId = new ArchiveId(archiveIdValue);
+    //    var sut = JsonConvert.DeserializeObject<ArchiveId>(archiveIdValue, _serializerSettings);
+    //    Assert.Equal(archiveId, sut);
+    //}
 }
