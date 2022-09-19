@@ -4,7 +4,7 @@ namespace RoadRegistry.Wfs.Schema
 
     public class RoadNodeRecord
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public DateTime? BeginTime { get; set; }
         public string Type { get; set; }
     }

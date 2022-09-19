@@ -29,7 +29,8 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OngelijkgrondseKruising", x => x.objectId);
+                    table.PrimaryKey("PK_OngelijkgrondseKruising", x => x.objectId)
+                        .Annotation("SqlServer:Clustered", false);
                 });
 
             migrationBuilder.CreateTable(
@@ -60,7 +61,8 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Wegknoop", x => x.objectId);
+                    table.PrimaryKey("PK_Wegknoop", x => x.objectId)
+                        .Annotation("SqlServer:Clustered", false);
                 });
 
             migrationBuilder.CreateTable(
@@ -88,29 +90,9 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Wegsegment", x => x.objectId);
+                    table.PrimaryKey("PK_Wegsegment", x => x.objectId)
+                        .Annotation("SqlServer:Clustered", false);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OngelijkgrondseKruising_objectId",
-                schema: "RoadRegistryWfs",
-                table: "OngelijkgrondseKruising",
-                column: "objectId")
-                .Annotation("SqlServer:Clustered", false);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Wegknoop_objectId",
-                schema: "RoadRegistryWfs",
-                table: "Wegknoop",
-                column: "objectId")
-                .Annotation("SqlServer:Clustered", false);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Wegsegment_objectId",
-                schema: "RoadRegistryWfs",
-                table: "Wegsegment",
-                column: "objectId")
-                .Annotation("SqlServer:Clustered", false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

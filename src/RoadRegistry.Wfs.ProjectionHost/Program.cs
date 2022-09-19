@@ -95,7 +95,7 @@ namespace RoadRegistry.Wfs.ProjectionHost
                             new EventDeserializer((eventData, eventType) =>
                                 JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
                         )
-                        .AddSingleton(
+                        .AddSingleton<Func<WfsContext>>(
                             () =>
                                 new WfsContext(
                                     new DbContextOptionsBuilder<WfsContext>()
@@ -106,7 +106,7 @@ namespace RoadRegistry.Wfs.ProjectionHost
                                                 .UseNetTopologySuite()
                                         ).Options)
                         )
-                        .AddSingleton(
+                        .AddSingleton<Func<SyndicationContext>>(
                             () =>
                                 new SyndicationContext(
                                     new DbContextOptionsBuilder<SyndicationContext>()

@@ -49,7 +49,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
             modelBuilder.Entity("RoadRegistry.Wfs.Schema.GradeSeparatedJunctionRecord", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .HasColumnType("int")
                         .HasColumnName("objectId");
 
@@ -71,16 +71,14 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Id"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
                     b.ToTable("OngelijkgrondseKruising", "RoadRegistryWfs");
                 });
 
             modelBuilder.Entity("RoadRegistry.Wfs.Schema.RoadNodeRecord", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .HasColumnType("int")
                         .HasColumnName("objectId");
 
@@ -94,16 +92,14 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Id"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
                     b.ToTable("Wegknoop", "RoadRegistryWfs");
                 });
 
             modelBuilder.Entity("RoadRegistry.Wfs.Schema.RoadSegmentRecord", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .HasColumnType("int")
                         .HasColumnName("objectId");
 
@@ -172,9 +168,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Id"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
                     b.ToTable("Wegsegment", "RoadRegistryWfs");
                 });

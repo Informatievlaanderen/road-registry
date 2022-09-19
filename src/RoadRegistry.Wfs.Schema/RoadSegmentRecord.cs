@@ -5,7 +5,7 @@ namespace RoadRegistry.Wfs.Schema
 
     public class RoadSegmentRecord
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public DateTime? BeginTime { get; set; }
         public Geometry Geometry2D { get; set; }
         public int? BeginRoadNodeId { get; set; }
