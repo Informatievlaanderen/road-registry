@@ -10,14 +10,12 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <!-- Generate ready to run images during publishing to improve cold start time. -->
     <PublishReadyToRun>true</PublishReadyToRun>
+    <NoWarn>CS8618</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="2.1.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.3.0" />
     <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.4.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Handlers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />

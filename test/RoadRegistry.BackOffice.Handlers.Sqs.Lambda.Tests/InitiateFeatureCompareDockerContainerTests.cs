@@ -1,40 +1,31 @@
-using Xunit;
-using Amazon.Lambda.Core;
-using Amazon.Lambda.TestUtilities;
-using Amazon.Lambda.APIGatewayEvents;
-
-
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
 using Amazon.Lambda.SQSEvents;
+using Amazon.Lambda.TestUtilities;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework;
 using Messages;
 using Newtonsoft.Json;
+using Xunit;
 
-public class FunctionTest
+public class InitiateFeatureCompareDockerContainerTests
 {
-    private readonly TestLambdaContext _context;
-    private readonly Functions _functions;
-    private readonly JsonSerializerSettings _jsonSerializerSettings;
     private readonly CancellationTokenSource _cancellationTokenSource;
+    private readonly TestLambdaContext _context;
+    private readonly FeatureCompareFunctions _functions;
+    private readonly JsonSerializerSettings _jsonSerializerSettings;
 
-    public FunctionTest()
+    public InitiateFeatureCompareDockerContainerTests()
     {
         _context = new TestLambdaContext
         {
             Logger = new TestLambdaLogger(),
-            MemoryLimitInMB = 256,
+            MemoryLimitInMB = 256
         };
-        _functions = new();
-        _jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        _cancellationTokenSource = new();
-    }
 
-    [Fact]
-    public async Task When_checking_message_dequeue_availability()
-    {
-        await _functions.CheckSQSMessageAvailableForProcessing(_context, _cancellationTokenSource.Token);
+        _functions = new FeatureCompareFunctions();
+        _jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+        _cancellationTokenSource = new CancellationTokenSource();
     }
 
     [Fact]
@@ -46,7 +37,7 @@ public class FunctionTest
         };
         var command = new SimpleQueueCommand(message);
 
-        var @event = new SQSEvent()
+        var @event = new SQSEvent
         {
             Records = new List<SQSEvent.SQSMessage>
             {
@@ -57,7 +48,11 @@ public class FunctionTest
             }
         };
 
-        await _functions.InitiateDockerFeatureCompare(@event, _context, _cancellationTokenSource.Token);
+        Environment.SetEnvironmentVariable("MINIO_SERVER", "http://localhost:9010");
+        Environment.SetEnvironmentVariable("MINIO_ROOT_USER", "Q3AM3UQ867SPQQA43P2F");
+        Environment.SetEnvironmentVariable("MINIO_ROOT_PASSWORD", "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG");
+
+        await _functions.InitiateFeatureCompareDockerContainer(@event, _context, _cancellationTokenSource.Token);
     }
 
     [Fact]
@@ -69,7 +64,7 @@ public class FunctionTest
         };
         var command = new SimpleQueueCommand(message);
 
-        var @event = new SQSEvent()
+        var @event = new SQSEvent
         {
             Records = new List<SQSEvent.SQSMessage>
             {
@@ -80,6 +75,6 @@ public class FunctionTest
             }
         };
 
-        await _functions.InitiateDockerFeatureCompare(@event, _context, _cancellationTokenSource.Token);
+        await _functions.InitiateFeatureCompareDockerContainer(@event, _context, _cancellationTokenSource.Token);
     }
 }

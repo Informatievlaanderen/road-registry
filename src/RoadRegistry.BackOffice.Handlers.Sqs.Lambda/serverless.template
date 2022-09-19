@@ -3,10 +3,10 @@
   "Transform": "AWS::Serverless-2016-10-31",
   "Description": "An AWS Serverless Application.",
   "Resources": {
-    "InitiateDockerFeatureCompare": {
+    "InitiateFeatureCompareDockerContainer": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
-        "Handler": "RoadRegistry.BackOffice.Handlers.Sqs.Lambda::RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Functions::InitiateDockerFeatureCompare",
+        "Handler": "RoadRegistry.BackOffice.Handlers.Sqs.Lambda::RoadRegistry.BackOffice.Handlers.Sqs.Lambda.FeatureCompareFunctions::InitiateFeatureCompareDockerContainer",
         "Runtime": "dotnet6",
         "CodeUri": "",
         "MemorySize": 256,
@@ -14,22 +14,13 @@
         "Role": null,
         "Policies": [
           "AWSLambdaBasicExecutionRole"
-        ],
-        "Events": {
-          "RootGet": {
-            "Type": "Api",
-            "Properties": {
-              "Path": "/",
-              "Method": "GET"
-            }
-          }
-        }
+        ]
       }
     },
-    "CheckSQSMessageAvailableForProcessing": {
+    "CheckFeatureCompareDockerContainer": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
-        "Handler": "RoadRegistry.BackOffice.Handlers.Sqs.Lambda::RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Functions::CheckSQSMessageAvailableForProcessing",
+        "Handler": "RoadRegistry.BackOffice.Handlers.Sqs.Lambda::RoadRegistry.BackOffice.Handlers.Sqs.Lambda.FeatureCompareFunctions::CheckFeatureCompareDockerContainer",
         "Runtime": "dotnet6",
         "CodeUri": "",
         "MemorySize": 256,
@@ -37,24 +28,7 @@
         "Role": null,
         "Policies": [
           "AWSLambdaBasicExecutionRole"
-        ],
-        "Events": {        
-          "RootGet": {
-            "Type": "Api",
-            "Properties": {
-              "Path": "/",
-              "Method": "GET"
-            }
-          }
-        }
-      }
-    }
-  },
-  "Outputs": {
-    "ApiURL": {
-      "Description": "API endpoint URL for Prod environment",
-      "Value": {
-        "Fn::Sub": "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+        ]
       }
     }
   }
