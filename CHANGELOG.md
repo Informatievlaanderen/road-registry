@@ -1,3 +1,10 @@
+## [3.8.7](https://github.com/informatievlaanderen/road-registry/compare/v3.8.6...v3.8.7) (2022-09-19)
+
+
+### Bug Fixes
+
+* wfs duplicate records ([ab056a3](https://github.com/informatievlaanderen/road-registry/commit/ab056a31ae1c5f88f87124b07c3f7b3f83c9ff69))
+
 ## [3.8.6](https://github.com/informatievlaanderen/road-registry/compare/v3.8.5...v3.8.6) (2022-09-14)
 
 
