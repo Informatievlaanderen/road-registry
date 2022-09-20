@@ -1,3 +1,11 @@
+## [3.8.8](https://github.com/informatievlaanderen/road-registry/compare/v3.8.7...v3.8.8) (2022-09-20)
+
+
+### Bug Fixes
+
+* bugfix wfs ([70f78d1](https://github.com/informatievlaanderen/road-registry/commit/70f78d18029893a021bef9ce84bb3bda43a7d189))
+* translate wfs types ([d37da19](https://github.com/informatievlaanderen/road-registry/commit/d37da194bb9872d196f4797d06d8ef64978eda98))
+
 ## [3.8.7](https://github.com/informatievlaanderen/road-registry/compare/v3.8.6...v3.8.7) (2022-09-19)
 
 
