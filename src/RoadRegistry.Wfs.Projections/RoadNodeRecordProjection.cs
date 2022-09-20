@@ -6,6 +6,7 @@ namespace RoadRegistry.Wfs.Projections
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Microsoft.EntityFrameworkCore;
     using Schema;
 
     public class RoadNodeRecordProjection : ConnectedProjection<WfsContext>
@@ -63,7 +64,7 @@ namespace RoadRegistry.Wfs.Projections
             RoadNodeModified roadNodeModified,
             CancellationToken token)
         {
-            var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeModified.Id, token).ConfigureAwait(false);
+            var roadNodeRecord = await context.RoadNodes.SingleAsync(i => i.Id == roadNodeModified.Id, token).ConfigureAwait(false);
 
             if (roadNodeRecord == null)
             {
