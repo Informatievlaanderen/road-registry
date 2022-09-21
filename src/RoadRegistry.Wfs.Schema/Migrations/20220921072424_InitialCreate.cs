@@ -83,6 +83,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                     rechterstraatnaamObjectId = table.Column<int>(type: "int", nullable: true),
                     rechterstraatnaam = table.Column<string>(type: "varchar(128)", nullable: true),
                     toegangsbeperking = table.Column<int>(type: "int", nullable: true),
+                    labelToegangsbeperking = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     methodeWegsegmentgeometrie = table.Column<string>(type: "varchar(64)", nullable: true),
                     wegbeheerder = table.Column<string>(type: "varchar(18)", nullable: true),
                     labelWegbeheerder = table.Column<string>(type: "varchar(64)", nullable: true),

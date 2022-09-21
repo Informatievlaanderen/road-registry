@@ -18,6 +18,7 @@ namespace RoadRegistry.Wfs.Schema
         public int? RightSideStreetNameId { get; set; }
         public string RightSideStreetName { get; set; }
         public int? AccessRestrictionId { get; set; }
+        public string AccessRestriction { get; set; }
         public string MethodDutchName { get; set; }
         public string MaintainerId { get; set; }
         public string MaintainerName { get; set; }

@@ -75,6 +75,7 @@ namespace RoadRegistry.Wfs.Projections
                     MorphologyDutchName = morphology.Translation.Name,
                     StatusDutchName = status.Translation.Name,
                     AccessRestrictionId = accessRestriction.Translation.Identifier,
+                    AccessRestriction = accessRestriction.Translation.Name,
                     LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
                     LeftSideStreetName = leftSideStreetNameRecord?.DutchNameWithHomonymAddition ??
                                          envelope.Message.LeftSide.StreetName,
@@ -143,6 +144,7 @@ namespace RoadRegistry.Wfs.Projections
                 MorphologyDutchName = morphology.Translation.Name,
                 StatusDutchName = status.Translation.Name,
                 AccessRestrictionId = accessRestriction.Translation.Identifier,
+                AccessRestriction = accessRestriction.Translation.Name,
                 LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId,
                 LeftSideStreetName = leftSideStreetNameRecord?.DutchName,
                 RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId,
@@ -192,6 +194,7 @@ namespace RoadRegistry.Wfs.Projections
             roadSegmentRecord.MorphologyDutchName = morphology.Translation.Name;
             roadSegmentRecord.StatusDutchName = status.Translation.Name;
             roadSegmentRecord.AccessRestrictionId = accessRestriction.Translation.Identifier;
+            roadSegmentRecord.AccessRestriction = accessRestriction.Translation.Name;
             roadSegmentRecord.LeftSideStreetNameId = roadSegmentModified.LeftSide.StreetNameId;
             roadSegmentRecord.LeftSideStreetName = leftSideStreetNameRecord?.DutchName;
             roadSegmentRecord.RightSideStreetNameId = roadSegmentModified.RightSide.StreetNameId;
