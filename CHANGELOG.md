@@ -1,3 +1,10 @@
+## [3.8.9](https://github.com/informatievlaanderen/road-registry/compare/v3.8.8...v3.8.9) (2022-09-21)
+
+
+### Bug Fixes
+
+* add label AccessRestriction to wfs ([e562c6b](https://github.com/informatievlaanderen/road-registry/commit/e562c6b5f8ebdecf2be5d63a279791279708f8a8))
+
 ## [3.8.8](https://github.com/informatievlaanderen/road-registry/compare/v3.8.7...v3.8.8) (2022-09-20)
 
 
