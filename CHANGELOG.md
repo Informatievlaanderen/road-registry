@@ -1,3 +1,10 @@
+## [3.8.11](https://github.com/informatievlaanderen/road-registry/compare/v3.8.10...v3.8.11) (2022-09-21)
+
+
+### Bug Fixes
+
+* make wegsegmentid not nullable id & primary key in db ([0c26fc0](https://github.com/informatievlaanderen/road-registry/commit/0c26fc0e0e3c64a66418b08647a7e084c621c952))
+
 ## [3.8.10](https://github.com/informatievlaanderen/road-registry/compare/v3.8.9...v3.8.10) (2022-09-21)
 
 
