@@ -5,7 +5,7 @@ namespace RoadRegistry.Wms.Schema
 
     public class RoadSegmentRecord
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public int? MethodId { get; set; }
         public string MaintainerId { get; set; }
         public DateTime? BeginTime { get; set; }

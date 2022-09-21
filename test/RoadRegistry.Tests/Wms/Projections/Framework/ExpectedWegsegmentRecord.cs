@@ -4,7 +4,7 @@ namespace RoadRegistry.Wms.Projections.Framework
 
     public class ExpectedWegsegmentRecord
     {
-        public int? wegsegmentID { get; set; }
+        public int wegsegmentID { get; set; }
         public int? methode {get;set;}
         public string beheerder {get;set;}
         public DateTime? begintijd {get;set;}

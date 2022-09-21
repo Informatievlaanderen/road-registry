@@ -11,13 +11,14 @@ namespace RoadRegistry.Wms.Schema
         public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
         {
             b.ToTable(TableName, WellknownSchemas.WmsSchema)
-                .HasIndex(p => p.Id)
+                .HasKey(p => p.Id)
                 .IsClustered(false);
 
             b.Property(p => p.Id)
                 .ValueGeneratedNever()
                 .IsRequired()
                 .HasColumnName("wegsegmentID");
+
             b.Property(p => p.RoadSegmentVersion).HasColumnName("wegsegmentversie");
             b.Property(p => p.Geometry2D).HasColumnName("geometrie2D").HasColumnType("Geometry");
             b.Property(p => p.GeometryVersion).HasColumnName("geometrieversie");

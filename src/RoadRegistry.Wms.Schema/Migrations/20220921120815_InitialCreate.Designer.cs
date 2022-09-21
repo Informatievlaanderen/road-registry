@@ -8,19 +8,22 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Wms.Schema;
 
+#nullable disable
+
 namespace RoadRegistry.Wms.Schema.Migrations
 {
     [DbContext(typeof(WmsContext))]
-    [Migration("20210302093557_AddIndicesToWegsegmentDenorm")]
-    partial class AddIndicesToWegsegmentDenorm
+    [Migration("20220921120815_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseIdentityColumns()
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.2");
+                .HasAnnotation("ProductVersion", "6.0.3")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates.ProjectionStateItem", b =>
                 {
@@ -39,15 +42,16 @@ namespace RoadRegistry.Wms.Schema.Migrations
                     b.Property<long>("Position")
                         .HasColumnType("bigint");
 
-                    b.HasKey("Name")
-                        .IsClustered();
+                    b.HasKey("Name");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Name"));
 
                     b.ToTable("ProjectionStates", "RoadRegistryWmsMeta");
                 });
 
             modelBuilder.Entity("RoadRegistry.Wms.Schema.RoadSegmentRecord", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .HasColumnType("int")
                         .HasColumnName("wegsegmentID");
 
@@ -185,8 +189,11 @@ namespace RoadRegistry.Wms.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id")
-                        .IsClustered(false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("StreetNameCachePosition");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StreetNameCachePosition"), false);
 
                     b.ToTable("wegsegmentDenorm", "RoadRegistryWms");
                 });
