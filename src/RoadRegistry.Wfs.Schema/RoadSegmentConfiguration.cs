@@ -60,11 +60,8 @@ namespace RoadRegistry.Wfs.Schema
                 .HasColumnName("rechterstraatnaam")
                 .HasColumnType("varchar(128)");
 
-            b.Property(p => p.AccessRestrictionId)
-                .HasColumnName("toegangsbeperking");
-
             b.Property(p => p.AccessRestriction)
-                .HasColumnName("labelToegangsbeperking");
+                .HasColumnName("toegangsbeperking");
 
             b.Property(p => p.MethodDutchName)
                 .HasColumnName("methodeWegsegmentgeometrie")

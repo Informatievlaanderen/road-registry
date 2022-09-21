@@ -13,7 +13,7 @@ using RoadRegistry.Wfs.Schema;
 namespace RoadRegistry.Wfs.Schema.Migrations
 {
     [DbContext(typeof(WfsContext))]
-    [Migration("20220921072424_InitialCreate")]
+    [Migration("20220921084643_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -107,10 +107,6 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     b.Property<string>("AccessRestriction")
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnName("labelToegangsbeperking");
-
-                    b.Property<int?>("AccessRestrictionId")
-                        .HasColumnType("int")
                         .HasColumnName("toegangsbeperking");
 
                     b.Property<int?>("BeginRoadNodeId")

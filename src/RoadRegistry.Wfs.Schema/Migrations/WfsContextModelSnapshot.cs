@@ -105,10 +105,6 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     b.Property<string>("AccessRestriction")
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnName("labelToegangsbeperking");
-
-                    b.Property<int?>("AccessRestrictionId")
-                        .HasColumnType("int")
                         .HasColumnName("toegangsbeperking");
 
                     b.Property<int?>("BeginRoadNodeId")
