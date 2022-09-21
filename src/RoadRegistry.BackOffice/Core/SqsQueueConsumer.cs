@@ -1,5 +1,8 @@
 namespace RoadRegistry.BackOffice;
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Exceptions;
 using Microsoft.Extensions.Logging;
@@ -13,5 +16,11 @@ public class SqsQueueConsumer : ISqsQueueConsumer
     {
         _sqsOptions = sqsOptions ?? throw new SqsOptionsNotFoundException(nameof(sqsOptions));
         _logger = logger ?? throw new LoggerNotFoundException<SqsQueuePublisher>();
+    }
+
+    public async Task<Result<SqsJsonMessage>> Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken)
+    {
+        var result = await SqsConsumer.Consume(_sqsOptions, queueUrl, messageHandler, cancellationToken);
+        return result;
     }
 }

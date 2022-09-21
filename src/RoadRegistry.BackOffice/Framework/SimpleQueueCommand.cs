@@ -1,9 +1,4 @@
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RoadRegistry.BackOffice.Framework
 {
@@ -11,9 +6,14 @@ namespace RoadRegistry.BackOffice.Framework
 
     public class SimpleQueueCommand
     {
-        public SimpleQueueCommand(object body)
+        public SimpleQueueCommand(object body) : this(body, $"{body.GetType().FullName}, {body.GetType().Assembly.FullName}")
         {
-            Type = $"{body.GetType().FullName}, {body.GetType().Assembly.FullName}";
+        }
+
+        [JsonConstructor]
+        public SimpleQueueCommand(object body, string type)
+        {
+            Type = type;
             Body = body;
         }
 
