@@ -1,3 +1,10 @@
+## [3.8.10](https://github.com/informatievlaanderen/road-registry/compare/v3.8.9...v3.8.10) (2022-09-21)
+
+
+### Bug Fixes
+
+* remove accessrestriction id column ([c9014ed](https://github.com/informatievlaanderen/road-registry/commit/c9014ed7087b0f527fb90d4e3d3204e8c434d918))
+
 ## [3.8.9](https://github.com/informatievlaanderen/road-registry/compare/v3.8.8...v3.8.9) (2022-09-21)
 
 
