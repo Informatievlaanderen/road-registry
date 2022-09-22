@@ -10,6 +10,7 @@
     <DefaultNamespace>RoadRegistry.Tests</DefaultNamespace>
     <Nullable>disable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <NoWarn>CS0618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

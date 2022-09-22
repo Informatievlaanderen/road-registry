@@ -9,6 +9,7 @@ using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Commands;
 using Core;
 using Extracts;
@@ -46,14 +47,13 @@ public class FeatureCompareFunctions
     /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
     public async Task InitiateFeatureCompareDockerContainer(SQSEvent @event, ILambdaContext context, CancellationToken cancellationToken)
     {
-        var message = @event.Records.Single();
-        var queueCommand = JsonConvert.DeserializeObject<SimpleQueueCommand>(message.Body, _serializerSettings);
+        var message = JsonConvert.DeserializeObject<SqsJsonMessage>(@event.Records.Single().Body, _serializerSettings).Map();
 
         await _serviceProvider
             .GetRequiredService<IMediator>()
             .Send(new InitiateFeatureCompareDockerContainerCommand(context)
             {
-                ArchiveId = RetrieveArchiveId(queueCommand, context)
+                ArchiveId = RetrieveArchiveId(message)
             }, cancellationToken);
     }
 
@@ -72,18 +72,16 @@ public class FeatureCompareFunctions
     /// <summary>
     /// Retrieves the archive identifier.
     /// </summary>
-    /// <param name="command">The command.</param>
+    /// <param name="message">The message.</param>
     /// <param name="context">The context.</param>
     /// <returns><see cref="ArchiveId"/> which will be used to find blob inside the bucket.</returns>
-    private ArchiveId RetrieveArchiveId(SimpleQueueCommand command, ILambdaContext context)
+    private static ArchiveId RetrieveArchiveId(object message)
     {
-        var actualMessage = command.ToActualType(_serializerSettings);
-
-        var archiveId = actualMessage switch
+        var archiveId = message switch
         {
             UploadRoadNetworkChangesArchive uploadRoadNetworkChangesArchive => new ArchiveId(uploadRoadNetworkChangesArchive.ArchiveId),
             UploadRoadNetworkExtractChangesArchive uploadRoadNetworkExtractChangesArchive => new ArchiveId(uploadRoadNetworkExtractChangesArchive.ArchiveId),
-            _ => throw new NotImplementedException($"Could not find an archive ID from type {command.Type}")
+            _ => throw new NotImplementedException($"Could not find an archive ID from type {message.GetType().FullName}")
         };
 
         return archiveId;

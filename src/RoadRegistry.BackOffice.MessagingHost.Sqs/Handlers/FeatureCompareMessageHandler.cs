@@ -7,9 +7,9 @@ namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Handlers
     using RoadRegistry.BackOffice.MessagingHost.Sqs.Responses;
     using System.Threading;
 
-    public class FeatureCompareMessageRequestHandler : SqsMessageRequestHandler<FeatureCompareMessageRequest, FeatureCompareMessageResponse>
+    public class FeatureCompareMessageHandler : SqsMessageRequestHandler<FeatureCompareMessageRequest, FeatureCompareMessageResponse>
     {
-        public FeatureCompareMessageRequestHandler(CommandHandlerDispatcher dispatcher, ILogger<FeatureCompareMessageRequestHandler> logger) : base(dispatcher, logger) {
+        public FeatureCompareMessageHandler(CommandHandlerDispatcher dispatcher, ILogger<FeatureCompareMessageHandler> logger) : base(dispatcher, logger) {
         }
 
         public override async Task<FeatureCompareMessageResponse> HandleAsync(FeatureCompareMessageRequest request, CancellationToken cancellationToken)

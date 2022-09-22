@@ -79,12 +79,12 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 cancellationToken
             );
 
-            var message = new SimpleQueueCommand(new UploadRoadNetworkChangesArchive()
+            var message = new UploadRoadNetworkChangesArchive()
             {
                 ArchiveId = archiveId.ToString()
-            });
+            };
 
-            await _sqsQueuePublisher.CopyToQueue(SqsQueueName.ManualQueue, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
+            await _sqsQueuePublisher.CopyToQueue(SqsQueueName.FeatureCompare.RequestQueue, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
 
         }
 

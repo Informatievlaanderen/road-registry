@@ -10,6 +10,12 @@ public readonly struct ArchiveId : IEquatable<ArchiveId>
 
     private readonly string _value;
 
+    //public ArchiveId(Guid value)
+    //    : this(value.ToString("N"))
+    //{
+    //    if (value == Guid.Empty) throw new ArgumentNullException(nameof(value), "The archive identifier must not be empty.");
+    //}
+
     public ArchiveId(string value)
     {
         if (string.IsNullOrEmpty(value))
@@ -61,4 +67,10 @@ public readonly struct ArchiveId : IEquatable<ArchiveId>
     {
         return instance._value;
     }
+
+    public static implicit operator Guid(ArchiveId instance)
+    {
+        return Guid.Parse(instance._value);
+    }
+
 }

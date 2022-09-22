@@ -7,5 +7,5 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 
 public interface ISqsQueueConsumer
 {
-    public Task<Result<SqsJsonMessage>> Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken);
+    public Task Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken);
 }

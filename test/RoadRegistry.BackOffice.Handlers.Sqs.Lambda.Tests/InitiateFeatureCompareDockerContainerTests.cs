@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 using Amazon.Lambda.SQSEvents;
 using Amazon.Lambda.TestUtilities;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Framework;
 using Messages;
 using Newtonsoft.Json;
@@ -31,11 +32,12 @@ public class InitiateFeatureCompareDockerContainerTests
     [Fact]
     public async Task When_container_instance_should_be_started_after_upload()
     {
+        var serializer = JsonSerializer.Create(_jsonSerializerSettings);
         var message = new UploadRoadNetworkChangesArchive
         {
             ArchiveId = "a096806de4dc4677bb27370331f85869"
         };
-        var command = new SimpleQueueCommand(message);
+        var sqsJsonMessage = SqsJsonMessage.Create(message, serializer);
 
         var @event = new SQSEvent
         {
@@ -43,7 +45,7 @@ public class InitiateFeatureCompareDockerContainerTests
             {
                 new()
                 {
-                    Body = JsonConvert.SerializeObject(command, _jsonSerializerSettings)
+                    Body = JsonConvert.SerializeObject(sqsJsonMessage, _jsonSerializerSettings)
                 }
             }
         };
@@ -58,11 +60,12 @@ public class InitiateFeatureCompareDockerContainerTests
     [Fact]
     public async Task When_container_instance_should_be_started_after_upload_extract()
     {
+        var serializer = JsonSerializer.Create(_jsonSerializerSettings);
         var message = new UploadRoadNetworkExtractChangesArchive
         {
             ArchiveId = "a096806de4dc4677bb27370331f85869"
         };
-        var command = new SimpleQueueCommand(message);
+        var sqsJsonMessage = SqsJsonMessage.Create(message, serializer);
 
         var @event = new SQSEvent
         {
@@ -70,7 +73,7 @@ public class InitiateFeatureCompareDockerContainerTests
             {
                 new()
                 {
-                    Body = JsonConvert.SerializeObject(command, _jsonSerializerSettings)
+                    Body = JsonConvert.SerializeObject(sqsJsonMessage, _jsonSerializerSettings)
                 }
             }
         };

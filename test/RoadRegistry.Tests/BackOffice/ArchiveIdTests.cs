@@ -62,6 +62,18 @@ public class ArchiveIdTests
         ).Verify(Constructors.Select(() => new ArchiveId("")));
     }
 
+    //[Fact]
+    //public void CtorGuidValueCanNotBeEmpty()
+    //{
+    //    new GuardClauseAssertion(
+    //        _fixture,
+    //        new CompositeBehaviorExpectation(
+    //            new NullReferenceBehaviorExpectation(),
+    //            new EmptyStringBehaviorExpectation()
+    //        )
+    //    ).Verify(Constructors.Select(() => new ArchiveId(Guid.Empty)));
+    //}
+
     [Fact]
     public void ToStringReturnsExpectedResult()
     {

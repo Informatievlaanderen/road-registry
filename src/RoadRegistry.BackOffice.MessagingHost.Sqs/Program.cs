@@ -38,6 +38,7 @@ namespace RoadRegistry.BackOffice.MessagingHost.Sqs
     using System.ComponentModel;
     using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
     using System.IO.Pipes;
+    using RoadRegistry.BackOffice.MessagingHost.Sqs.Responses;
 
     public class Program
     {
@@ -178,7 +179,7 @@ namespace RoadRegistry.BackOffice.MessagingHost.Sqs
 
                     services
                         .AddSingleton<Scheduler>()
-                        .AddHostedService<FeatureCompareResponseConsumer>()
+                        .AddHostedService<FeatureCompareMessageResponseConsumer>()
                         .AddTransient<ISqsQueueConsumer>(sp => new SqsQueueConsumer(sqsOptions, sp.GetRequiredService<ILogger<SqsQueueConsumer>>()))
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(

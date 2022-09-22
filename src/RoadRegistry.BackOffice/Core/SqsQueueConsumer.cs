@@ -18,9 +18,6 @@ public class SqsQueueConsumer : ISqsQueueConsumer
         _logger = logger ?? throw new LoggerNotFoundException<SqsQueuePublisher>();
     }
 
-    public async Task<Result<SqsJsonMessage>> Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken)
-    {
-        var result = await SqsConsumer.Consume(_sqsOptions, queueUrl, messageHandler, cancellationToken);
-        return result;
-    }
+    public Task Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken)
+        => SqsConsumer.Consume(_sqsOptions, queueUrl, messageHandler, cancellationToken);
 }

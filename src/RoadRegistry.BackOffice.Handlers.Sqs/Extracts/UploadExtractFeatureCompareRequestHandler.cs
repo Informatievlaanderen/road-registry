@@ -71,15 +71,15 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 cancellationToken
             );
 
-            var message = new SimpleQueueCommand(new UploadRoadNetworkExtractChangesArchive
+            var message = new UploadRoadNetworkExtractChangesArchive
             {
                 RequestId = download.RequestId,
                 DownloadId = download.DownloadId,
                 UploadId = uploadId.ToGuid(),
                 ArchiveId = archiveId.ToString()
-            });
+            };
 
-            await _sqsQueuePublisher.CopyToQueue(SqsQueueName.ManualQueue, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
+            await _sqsQueuePublisher.CopyToQueue(SqsQueueName.FeatureCompare.RequestQueue, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
 
             return new UploadExtractResponse(uploadId);
         }

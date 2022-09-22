@@ -1,12 +1,10 @@
-namespace RoadRegistry.BackOffice.Api.Tests;
+namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Tests;
 
 using Amazon;
 using Autofac;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Editor.Schema;
 using Framework;
-using Framework.Containers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,8 +13,8 @@ using Moq;
 using Product.Schema;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Tests;
 using SqlStreamStore;
 using IClock = NodaTime.IClock;
 
@@ -34,13 +32,15 @@ public class Startup : TestStartup
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
-    ;
+        .AddSingleton<SqsQueueOptions>(sp => new SqsQueueOptions()
+        {
+            CreateQueueIfNotExists = true,
+            MessageGroupId = "TEST"
+        });
 
     public override void ConfigureContainer(ContainerBuilder builder)
     {
-        builder.RegisterModule<RoadRegistry.BackOffice.MediatorModule>();
-        builder.RegisterModule<RoadRegistry.BackOffice.Handlers.MediatorModule>();
-        builder.RegisterModule<RoadRegistry.BackOffice.Handlers.Sqs.MediatorModule>();
+        builder.RegisterModule<RoadRegistry.BackOffice.MessagingHost.Sqs.MediatorModule>();
 
         //builder.Register<SqlServer>(sp => new SqlServer());
         //builder.Register(ctx =>

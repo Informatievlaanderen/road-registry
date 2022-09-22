@@ -2,8 +2,11 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs;
 
 internal static class SqsQueueName
 {
-    public const string ManualQueue = "road-registry-feature-compare";
-    public const string LambdaQueue = "road-registry-feature-compare-lambda";
+    public static class FeatureCompare
+    {
+        public const string RequestQueue = "sqs-road-registry-feature-compare-request.fifo";
+        public const string ResponseQueue = "sqs-road-registry-feature-compare-response.fifo";
+    }
 }
 
 internal static class SqsFeatureCompare

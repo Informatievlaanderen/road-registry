@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Exceptions;
 using Microsoft.Extensions.Logging;
-using static Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple.Sqs;
 
 public class SqsQueuePublisher : ISqsQueuePublisher
 {
@@ -21,12 +20,7 @@ public class SqsQueuePublisher : ISqsQueuePublisher
             _sqsOptions = sqsOptions ?? throw new SqsOptionsNotFoundException(nameof(sqsOptions));
             _logger = logger ?? throw new LoggerNotFoundException<SqsQueuePublisher>();
         }
-
-        public T GetLatestMessage<T>()
-        {
-            throw new System.NotImplementedException();
-        }
-
+    
         public virtual async Task<bool> CopyToQueue<T>(string queueName, T message, SqsQueueOptions sqsQueueOptions, CancellationToken cancellationToken) where T : class
         {
             var result = await Sqs.CopyToQueue(_sqsOptions, queueName, message, sqsQueueOptions, cancellationToken);
