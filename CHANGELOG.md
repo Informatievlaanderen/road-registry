@@ -1,3 +1,103 @@
+## [3.8.11](https://github.com/informatievlaanderen/road-registry/compare/v3.8.10...v3.8.11) (2022-09-21)
+
+
+### Bug Fixes
+
+* make wegsegmentid not nullable id & primary key in db ([0c26fc0](https://github.com/informatievlaanderen/road-registry/commit/0c26fc0e0e3c64a66418b08647a7e084c621c952))
+
+## [3.8.10](https://github.com/informatievlaanderen/road-registry/compare/v3.8.9...v3.8.10) (2022-09-21)
+
+
+### Bug Fixes
+
+* remove accessrestriction id column ([c9014ed](https://github.com/informatievlaanderen/road-registry/commit/c9014ed7087b0f527fb90d4e3d3204e8c434d918))
+
+## [3.8.9](https://github.com/informatievlaanderen/road-registry/compare/v3.8.8...v3.8.9) (2022-09-21)
+
+
+### Bug Fixes
+
+* add label AccessRestriction to wfs ([e562c6b](https://github.com/informatievlaanderen/road-registry/commit/e562c6b5f8ebdecf2be5d63a279791279708f8a8))
+
+## [3.8.8](https://github.com/informatievlaanderen/road-registry/compare/v3.8.7...v3.8.8) (2022-09-20)
+
+
+### Bug Fixes
+
+* bugfix wfs ([70f78d1](https://github.com/informatievlaanderen/road-registry/commit/70f78d18029893a021bef9ce84bb3bda43a7d189))
+* translate wfs types ([d37da19](https://github.com/informatievlaanderen/road-registry/commit/d37da194bb9872d196f4797d06d8ef64978eda98))
+
+## [3.8.7](https://github.com/informatievlaanderen/road-registry/compare/v3.8.6...v3.8.7) (2022-09-19)
+
+
+### Bug Fixes
+
+* wfs duplicate records ([ab056a3](https://github.com/informatievlaanderen/road-registry/commit/ab056a31ae1c5f88f87124b07c3f7b3f83c9ff69))
+
+## [3.8.6](https://github.com/informatievlaanderen/road-registry/compare/v3.8.5...v3.8.6) (2022-09-14)
+
+
+### Bug Fixes
+
+* syndication response projector ([3a62be3](https://github.com/informatievlaanderen/road-registry/commit/3a62be33668c0a6c771a6e3a7ea9770c8710eec8))
+
+## [3.8.5](https://github.com/informatievlaanderen/road-registry/compare/v3.8.4...v3.8.5) (2022-09-14)
+
+
+### Bug Fixes
+
+* syndication status endpoint response ([1b4c60b](https://github.com/informatievlaanderen/road-registry/commit/1b4c60b7234f1a3f9fb5792d12e7150a1219c1dd))
+
+## [3.8.4](https://github.com/informatievlaanderen/road-registry/compare/v3.8.3...v3.8.4) (2022-09-13)
+
+
+### Bug Fixes
+
+* add syndication controller to projector ([9b545be](https://github.com/informatievlaanderen/road-registry/commit/9b545bebe4fdb0023f504800d20f4941829ed9cd))
+
+## [3.8.3](https://github.com/informatievlaanderen/road-registry/compare/v3.8.2...v3.8.3) (2022-09-13)
+
+
+### Bug Fixes
+
+* register projections in projector ([e413491](https://github.com/informatievlaanderen/road-registry/commit/e413491e7b3200d7d64a730479036422fb7ae26b))
+
+## [3.8.2](https://github.com/informatievlaanderen/road-registry/compare/v3.8.1...v3.8.2) (2022-09-13)
+
+
+### Bug Fixes
+
+* build trigger ([07d4f94](https://github.com/informatievlaanderen/road-registry/commit/07d4f9472aa64c2168d7ca8bd87343506e73c408))
+
+## [3.8.1](https://github.com/informatievlaanderen/road-registry/compare/v3.8.0...v3.8.1) (2022-09-12)
+
+
+### Bug Fixes
+
+* build trigger ([3e850d8](https://github.com/informatievlaanderen/road-registry/commit/3e850d8f5228f33986d01ce765733a843bc4ca3a))
+* update CI ([269eac2](https://github.com/informatievlaanderen/road-registry/commit/269eac2784d56adde906dbf40499dd2ad549aec4))
+
+# [3.8.0](https://github.com/informatievlaanderen/road-registry/compare/v3.7.6...v3.8.0) (2022-09-12)
+
+
+### Bug Fixes
+
+* build.fsx file ([ea85208](https://github.com/informatievlaanderen/road-registry/commit/ea85208e54623033e3e3f9df70148259a6ff91b8))
+* dockerfile projector ([b548142](https://github.com/informatievlaanderen/road-registry/commit/b548142afb41b25c53236c589e3d2af99369c37d))
+* remove duplicate code ([abccbf9](https://github.com/informatievlaanderen/road-registry/commit/abccbf9f4e2e41b5dc6c3a7d17cd767f080150e4))
+
+
+### Features
+
+* create projector service for status page ([#590](https://github.com/informatievlaanderen/road-registry/issues/590)) ([0c00db7](https://github.com/informatievlaanderen/road-registry/commit/0c00db748fdff88d1912e44932b071bb1ab5e6ff))
+
+## [3.7.6](https://github.com/informatievlaanderen/road-registry/compare/v3.7.5...v3.7.6) (2022-09-12)
+
+
+### Bug Fixes
+
+* show the error message title in the alert container ([f8e235f](https://github.com/informatievlaanderen/road-registry/commit/f8e235f26e1c0963ea707cc94a81989b8f94e5bf))
+
 ## [3.7.5](https://github.com/informatievlaanderen/road-registry/compare/v3.7.4...v3.7.5) (2022-09-07)
 
 

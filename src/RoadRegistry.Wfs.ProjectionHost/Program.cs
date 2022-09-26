@@ -12,7 +12,7 @@ namespace RoadRegistry.Wfs.ProjectionHost
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Hosts;
-    using Metadata;
+    using Hosts.Metadata;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -95,7 +95,7 @@ namespace RoadRegistry.Wfs.ProjectionHost
                             new EventDeserializer((eventData, eventType) =>
                                 JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
                         )
-                        .AddSingleton(
+                        .AddSingleton<Func<WfsContext>>(
                             () =>
                                 new WfsContext(
                                     new DbContextOptionsBuilder<WfsContext>()
@@ -106,7 +106,7 @@ namespace RoadRegistry.Wfs.ProjectionHost
                                                 .UseNetTopologySuite()
                                         ).Options)
                         )
-                        .AddSingleton(
+                        .AddSingleton<Func<SyndicationContext>>(
                             () =>
                                 new SyndicationContext(
                                     new DbContextOptionsBuilder<SyndicationContext>()

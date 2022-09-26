@@ -3,6 +3,7 @@ namespace RoadRegistry.Wfs.Projections
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -18,7 +19,7 @@ namespace RoadRegistry.Wfs.Projections
                 {
                     Id = envelope.Message.Id,
                     BeginTime = envelope.Message.Origin.Since,
-                    Type = envelope.Message.Type,
+                    Type = GetGradeSeparatedJunctionTypeDutchTranslation(envelope.Message.Type),
                     LowerRoadSegmentId = envelope.Message.LowerRoadSegmentId,
                     UpperRoadSegmentId = envelope.Message.UpperRoadSegmentId
                 }, token);
@@ -56,7 +57,7 @@ namespace RoadRegistry.Wfs.Projections
             {
                 Id = gradeSeparatedJunctionAdded.Id,
                 BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-                Type = gradeSeparatedJunctionAdded.Type,
+                Type = GetGradeSeparatedJunctionTypeDutchTranslation(gradeSeparatedJunctionAdded.Type),
                 LowerRoadSegmentId = gradeSeparatedJunctionAdded.LowerRoadSegmentId,
                 UpperRoadSegmentId = gradeSeparatedJunctionAdded.UpperRoadSegmentId
             }, token);
@@ -76,7 +77,7 @@ namespace RoadRegistry.Wfs.Projections
 
             gradeSeparatedJunctionRecord.Id = gradeSeparatedJunctionModified.Id;
             gradeSeparatedJunctionRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-            gradeSeparatedJunctionRecord.Type = gradeSeparatedJunctionModified.Type;
+            gradeSeparatedJunctionRecord.Type = GetGradeSeparatedJunctionTypeDutchTranslation(gradeSeparatedJunctionModified.Type);
             gradeSeparatedJunctionRecord.LowerRoadSegmentId = gradeSeparatedJunctionModified.LowerRoadSegmentId;
             gradeSeparatedJunctionRecord.UpperRoadSegmentId = gradeSeparatedJunctionModified.UpperRoadSegmentId;
         }
@@ -93,5 +94,9 @@ namespace RoadRegistry.Wfs.Projections
             context.GradeSeparatedJunctions.Remove(gradeSeparatedJunctionRecord);
         }
 
+        private static string GetGradeSeparatedJunctionTypeDutchTranslation(string gradeSeparatedJunctionType) =>
+            GradeSeparatedJunctionType.CanParse(gradeSeparatedJunctionType)
+                ? GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionType).Translation.Name
+                : gradeSeparatedJunctionType;
     }
 }

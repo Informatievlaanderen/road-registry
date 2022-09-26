@@ -64,6 +64,7 @@ Target.create "Test_Solution" (fun _ ->
 
 Target.create "Publish_Solution" (fun _ ->
   [
+    "RoadRegistry.Projector"
     "RoadRegistry.Editor.ProjectionHost"
     "RoadRegistry.Product.ProjectionHost"
     "RoadRegistry.Wms.ProjectionHost"
@@ -72,6 +73,7 @@ Target.create "Publish_Solution" (fun _ ->
     "RoadRegistry.BackOffice.EventHost"
     "RoadRegistry.BackOffice.ExtractHost"
     "RoadRegistry.BackOffice.CommandHost"
+    "RoadRegistry.BackOffice.MessagingHost.Sqs"
     "RoadRegistry.Legacy.Extract"
     "RoadRegistry.Legacy.Import"
     "RoadRegistry.BackOffice.Api"
@@ -88,8 +90,12 @@ Target.create "Publish_Solution" (fun _ ->
 
 Target.create "Pack_Solution" (fun _ ->
   [
+    "RoadRegistry.Projector"
     "RoadRegistry.BackOffice.Api"
   ] |> List.iter pack)
+
+Target.create "Containerize_Projector" (fun _ -> containerize "RoadRegistry.Projector" "projector")
+Target.create "PushContainer_Projector" (fun _ -> push "projector")
 
 Target.create "Containerize_BackOfficeApi" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
 Target.create "PushContainer_BackOfficeApi" (fun _ -> push "backoffice-api")
@@ -120,6 +126,9 @@ Target.create "PushContainer_BackOfficeExtractHost" (fun _ -> push "backoffice-e
 
 Target.create "Containerize_BackOfficeCommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
 Target.create "PushContainer_BackOfficeCommandHost" (fun _ -> push "backoffice-commandhost")
+
+Target.create "Containerize_BackOfficeMessagingHostSqs" (fun _ -> containerize "RoadRegistry.BackOffice.MessagingHost.Sqs" "backoffice-messaginghost-sqs")
+Target.create "PushContainer_BackOfficeMessagingHostSqs" (fun _ -> push "backoffice-messaginghost-sqs")
 
 Target.create "Containerize_ImportLegacy" (fun _ -> containerize "RoadRegistry.Legacy.Import" "import-legacy")
 Target.create "PushContainer_ImportLegacy" (fun _ -> push "import-legacy")
@@ -156,6 +165,7 @@ Target.create "Push" ignore
   ==> "Pack"
 
 "Pack"
+  ==> "Containerize_Projector"
   ==> "Containerize_BackOfficeApi"
   ==> "Containerize_BackOfficeUI"
   ==> "Containerize_EditorProjectionHost"
@@ -166,6 +176,7 @@ Target.create "Push" ignore
   ==> "Containerize_BackOfficeEventHost"
   ==> "Containerize_BackOfficeExtractHost"
   ==> "Containerize_BackOfficeCommandHost"
+  ==> "Containerize_BackOfficeMessagingHostSqs"
   ==> "Containerize_ImportLegacy"
   ==> "Containerize_ExtractLegacy"
   ==> "Containerize"
@@ -173,6 +184,7 @@ Target.create "Push" ignore
 
 "Containerize"
   ==> "DockerLogin"
+  ==> "PushContainer_Projector"
   ==> "PushContainer_BackOfficeApi"
   ==> "PushContainer_BackOfficeUI"
   ==> "PushContainer_EditorProjectionHost"
@@ -183,6 +195,7 @@ Target.create "Push" ignore
   ==> "PushContainer_BackOfficeEventHost"
   ==> "PushContainer_BackOfficeExtractHost"
   ==> "PushContainer_BackOfficeCommandHost"
+  ==> "PushContainer_BackOfficeMessagingHostSqs"
   ==> "PushContainer_ImportLegacy"
   ==> "PushContainer_ExtractLegacy"
   ==> "Push"

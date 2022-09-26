@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <NoWarn>8625</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

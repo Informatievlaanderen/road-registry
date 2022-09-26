@@ -11,7 +11,7 @@ namespace RoadRegistry.Wfs.Schema
         public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
         {
             b.ToTable(TableName, WellknownSchemas.WfsSchema)
-                .HasIndex(p => p.Id)
+                .HasKey(p => p.Id)
                 .IsClustered(false);
 
             b.Property(p => p.Id)
@@ -60,7 +60,7 @@ namespace RoadRegistry.Wfs.Schema
                 .HasColumnName("rechterstraatnaam")
                 .HasColumnType("varchar(128)");
 
-            b.Property(p => p.AccessRestrictionId)
+            b.Property(p => p.AccessRestriction)
                 .HasColumnName("toegangsbeperking");
 
             b.Property(p => p.MethodDutchName)

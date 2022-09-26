@@ -6,11 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <NoWarn>1701;1702;1705;1591;8618</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
     <DocumentationFile>bin\Debug\net6.0\RoadRegistry.BackOffice.Abstractions.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

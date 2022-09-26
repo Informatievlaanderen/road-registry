@@ -11,7 +11,7 @@ namespace RoadRegistry.Wfs.Schema
         public void Configure(EntityTypeBuilder<RoadNodeRecord> b)
         {
             b.ToTable(TableName, WellknownSchemas.WfsSchema)
-                .HasIndex(p => p.Id)
+                .HasKey(i => i.Id)
                 .IsClustered(false);
 
             b.Property(p => p.Id)

@@ -7,6 +7,7 @@ on:
         type: choice
         description: 'service:'
         options:
+        - road-registry-projector
         - road-registry-backoffice-api
         - road-registry-backoffice-ui
         - road-registry-backoffice-extracthost
@@ -29,7 +30,6 @@ on:
       version:
         description: 'Version'     
         required: true
-
 jobs:
   deployment:
     runs-on: ubuntu-latest
@@ -38,7 +38,7 @@ jobs:
       env:
         BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{ github.event.inputs.service }}
         STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{ github.event.inputs.service }}
-      uses: informatievlaanderen/awscurl-polling-action@main
+      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
       with:
           environment: ${{ github.event.inputs.env }}
           version: ${{ github.event.inputs.version }}
