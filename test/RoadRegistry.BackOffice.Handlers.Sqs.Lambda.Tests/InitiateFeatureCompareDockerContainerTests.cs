@@ -4,6 +4,7 @@ using Amazon.Lambda.SQSEvents;
 using Amazon.Lambda.TestUtilities;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using Ductus.FluentDocker.Builders;
 using Framework;
 using Messages;
 using Newtonsoft.Json;
@@ -13,7 +14,7 @@ public class InitiateFeatureCompareDockerContainerTests
 {
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly TestLambdaContext _context;
-    private readonly FeatureCompareFunctions _functions;
+    private readonly SqsBackOfficeHandlerFunctions _functions;
     private readonly JsonSerializerSettings _jsonSerializerSettings;
 
     public InitiateFeatureCompareDockerContainerTests()
@@ -24,7 +25,7 @@ public class InitiateFeatureCompareDockerContainerTests
             MemoryLimitInMB = 256
         };
 
-        _functions = new FeatureCompareFunctions();
+        _functions = new SqsBackOfficeHandlerFunctions();
         _jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
         _cancellationTokenSource = new CancellationTokenSource();
     }
@@ -49,10 +50,6 @@ public class InitiateFeatureCompareDockerContainerTests
                 }
             }
         };
-
-        Environment.SetEnvironmentVariable("MINIO_SERVER", "http://localhost:9010");
-        Environment.SetEnvironmentVariable("MINIO_ROOT_USER", "Q3AM3UQ867SPQQA43P2F");
-        Environment.SetEnvironmentVariable("MINIO_ROOT_PASSWORD", "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG");
 
         await _functions.InitiateFeatureCompareDockerContainer(@event, _context, _cancellationTokenSource.Token);
     }

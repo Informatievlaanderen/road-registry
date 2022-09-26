@@ -22,12 +22,12 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers
 
                 if (!running)
                 {
-                    context.Logger.LogCritical($"Feature compare docker container exited on startup! Input: {command.ArchiveId.ToString()}");
+                    context.Logger.LogCritical($"Feature compare docker container exited on startup! Input: {command.ArchiveId}");
                     throw new FeatureCompareDockerContainerNotRunningException("Feature compare docker container exited on startup!", command.ArchiveId);
                 }
             }
 
-            context.Logger.LogInformation($"Feature compare container started for {command.ArchiveId.ToString()}");
+            context.Logger.LogInformation($"Feature compare container started for {command.ArchiveId}");
             return Task.CompletedTask;
 
             string[] GetEnvironmentVariableCollection()
@@ -39,7 +39,8 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers
                     { "MINIO_ROOT_USER", Environment.GetEnvironmentVariable("MINIO_ROOT_USER") },
                     { "MINIO_ROOT_PASSWORD", Environment.GetEnvironmentVariable("MINIO_ROOT_PASSWORD") },
                     { "AWS_ACCESS_KEY_ID", Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") },
-                    { "AWS_SECRET_ACCESS_KEY", Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") }
+                    { "AWS_SECRET_ACCESS_KEY", Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") },
+                    { "SQS_RESPONSE_QUEUE_URL", Environment.GetEnvironmentVariable("SQS_RESPONSE_QUEUE_URL") }
                 };
                 return collection.Select(kvp => $"{kvp.Key}={kvp.Value}").ToArray();
             }

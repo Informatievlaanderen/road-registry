@@ -28,7 +28,11 @@
         "Role": null,
         "Policies": [
           "AWSLambdaBasicExecutionRole"
-        ]
+        ],
+        "Environment" : {
+          "Variables" : {
+          }
+        }
       }
     }
   }

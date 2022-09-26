@@ -6,7 +6,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda
     {
         public static ContainerBuilder Default => new Builder()
             .UseContainer()
-            .WithName("road-registry-feature-compare")
+            .WithName("basisregisters-road-registry-feature-compare")
             .UseImage("road-registry/feature-compare:latest")
             .IsWindowsImage()
             .ReuseIfExists()

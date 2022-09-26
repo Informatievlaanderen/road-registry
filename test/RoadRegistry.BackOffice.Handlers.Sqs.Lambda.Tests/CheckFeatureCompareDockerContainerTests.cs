@@ -9,7 +9,7 @@ public class CheckFeatureCompareDockerContainerTests
 {
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly TestLambdaContext _context;
-    private readonly FeatureCompareFunctions _functions;
+    private readonly SqsBackOfficeHandlerFunctions _functions;
     private readonly JsonSerializerSettings _jsonSerializerSettings;
 
     public CheckFeatureCompareDockerContainerTests()
@@ -20,7 +20,7 @@ public class CheckFeatureCompareDockerContainerTests
             MemoryLimitInMB = 256
         };
 
-        _functions = new FeatureCompareFunctions();
+        _functions = new SqsBackOfficeHandlerFunctions();
         _jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
         _cancellationTokenSource = new CancellationTokenSource();
     }

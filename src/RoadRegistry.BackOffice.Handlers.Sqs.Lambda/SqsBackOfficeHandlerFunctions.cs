@@ -24,12 +24,12 @@ using SqlStreamStore;
 using Uploads;
 using ZipArchiveWriters.Validation;
 
-public class FeatureCompareFunctions
+public class SqsBackOfficeHandlerFunctions
 {
     private readonly JsonSerializerSettings _serializerSettings;
     private readonly IServiceProvider _serviceProvider;
 
-    public FeatureCompareFunctions()
+    public SqsBackOfficeHandlerFunctions()
     {
         var services = new ServiceCollection();
         var builder = new ContainerBuilder();
