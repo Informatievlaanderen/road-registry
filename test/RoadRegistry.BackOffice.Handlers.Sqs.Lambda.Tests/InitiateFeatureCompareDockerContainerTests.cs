@@ -30,7 +30,7 @@ public class InitiateFeatureCompareDockerContainerTests
         _cancellationTokenSource = new CancellationTokenSource();
     }
 
-    [Fact]
+    [Fact(Skip = "TODO: Configuration pipeline")]
     public async Task When_container_instance_should_be_started_after_upload()
     {
         var serializer = JsonSerializer.Create(_jsonSerializerSettings);
@@ -54,7 +54,7 @@ public class InitiateFeatureCompareDockerContainerTests
         await _functions.InitiateFeatureCompareDockerContainer(@event, _context, _cancellationTokenSource.Token);
     }
 
-    [Fact]
+    [Fact(Skip = "TODO: Configuration pipeline")]
     public async Task When_container_instance_should_be_started_after_upload_extract()
     {
         var serializer = JsonSerializer.Create(_jsonSerializerSettings);
