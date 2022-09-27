@@ -76,7 +76,6 @@ namespace RoadRegistry.Editor.Projections
             {
                 var info = await context.GetRoadNetworkInfo(token);
                 foreach (var change in envelope.Message.Changes.Flatten())
-                {
                     switch (change)
                     {
                         case RoadNodeAdded _:
@@ -135,7 +134,6 @@ namespace RoadRegistry.Editor.Projections
                             info.GradeSeparatedJunctionCount -= 1;
                             break;
                     }
-                }
             });
         }
 

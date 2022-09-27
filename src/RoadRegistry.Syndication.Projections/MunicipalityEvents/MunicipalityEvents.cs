@@ -19,8 +19,7 @@ namespace RoadRegistry.Syndication.Projections.MunicipalityEvents
         [DataMember(Name = "MunicipalityId", Order = 1)]
         public Guid MunicipalityId { get; set; }
 
-        [DataMember(Name = "Name", Order = 2)]
-        public string Name { get; set; }
+        [DataMember(Name = "Name", Order = 2)] public string Name { get; set; }
 
         [DataMember(Name = "Language", Order = 3)]
         public MunicipalityLanguage Language { get; set; }
@@ -42,8 +41,7 @@ namespace RoadRegistry.Syndication.Projections.MunicipalityEvents
         [DataMember(Name = "MunicipalityId", Order = 1)]
         public Guid MunicipalityId { get; set; }
 
-        [DataMember(Name = "Name", Order = 2)]
-        public string Name { get; set; }
+        [DataMember(Name = "Name", Order = 2)] public string Name { get; set; }
 
         [DataMember(Name = "Language", Order = 3)]
         public MunicipalityLanguage Language { get; set; }

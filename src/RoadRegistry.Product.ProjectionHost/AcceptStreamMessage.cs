@@ -1,8 +1,8 @@
-namespace RoadRegistry.Product.ProjectionHost
-{
-    using Hosts;
-    using Schema;
+namespace RoadRegistry.Product.ProjectionHost;
 
-    public class AcceptStreamMessage : AcceptStreamMessage<ProductContext>
-    { }
+using Hosts;
+using Schema;
+
+public class AcceptStreamMessage : AcceptStreamMessage<ProductContext>
+{
 }

@@ -1,75 +1,74 @@
-namespace RoadRegistry.Syndication.ProjectionHost
+namespace RoadRegistry.Syndication.ProjectionHost;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Xml;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication;
+using Mapping;
+using Microsoft.SyndicationFeed;
+using Projections.Syndication;
+
+public class AtomEnvelopeFactory
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.Serialization;
-    using System.Xml;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication;
-    using Mapping;
-    using Microsoft.SyndicationFeed;
-    using Projections.Syndication;
+    private readonly DataContractSerializer _dataContractSerializer;
+    private readonly EventSerializerMapping _eventSerializers;
 
-    public class AtomEnvelopeFactory
+    public AtomEnvelopeFactory(
+        EventSerializerMapping eventSerializerMapping,
+        DataContractSerializer dataContractSerializer)
     {
-        private readonly EventSerializerMapping _eventSerializers;
-        private readonly DataContractSerializer _dataContractSerializer;
+        _eventSerializers = eventSerializerMapping;
+        _dataContractSerializer = dataContractSerializer;
+    }
 
-        public AtomEnvelopeFactory(
-            EventSerializerMapping eventSerializerMapping,
-            DataContractSerializer dataContractSerializer)
+    public object CreateEnvelope<T>(IAtomEntry message)
+    {
+        using (var contentXmlReader =
+               XmlReader.Create(
+                   new StringReader(message.Description),
+                   new XmlReaderSettings { Async = true }))
         {
-            _eventSerializers = eventSerializerMapping;
-            _dataContractSerializer = dataContractSerializer;
-        }
+            var atomEntry = new AtomEntry(message, _dataContractSerializer.ReadObject(contentXmlReader));
 
-        public object CreateEnvelope<T>(IAtomEntry message)
-        {
-            using (var contentXmlReader =
-                XmlReader.Create(
-                    new StringReader(message.Description),
-                    new XmlReaderSettings {Async = true}))
+            using (var eventXmlReader =
+                   XmlReader.Create(
+                       new StringReader(((SyndicationContent<T>)atomEntry.Content).Event.OuterXml)))
             {
-                var atomEntry = new AtomEntry(message, _dataContractSerializer.ReadObject(contentXmlReader));
+                var serializer = FindEventSerializer(atomEntry);
+                if (serializer == null)
+                    return null;
 
-                using (var eventXmlReader =
-                    XmlReader.Create(
-                        new StringReader(((SyndicationContent<T>) atomEntry.Content).Event.OuterXml)))
+                var @event = serializer.ReadObject(eventXmlReader);
+
+                var metadata = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
                 {
-                    var serializer = FindEventSerializer(atomEntry);
-                    if (serializer == null)
-                        return null;
+                    [Envelope.PositionMetadataKey] = Convert.ToInt64(atomEntry.FeedEntry.Id),
+                    [Envelope.EventNameMetadataKey] = atomEntry.FeedEntry.Title,
+                    [Envelope.CreatedUtcMetadataKey] = atomEntry.FeedEntry.Published
+                };
 
-                    var @event = serializer.ReadObject(eventXmlReader);
+                var envelope =
+                    new Envelope(
+                            @event,
+                            metadata)
+                        .ToGenericEnvelope();
 
-                    var metadata = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        [Envelope.PositionMetadataKey] = Convert.ToInt64(atomEntry.FeedEntry.Id),
-                        [Envelope.EventNameMetadataKey] = atomEntry.FeedEntry.Title,
-                        [Envelope.CreatedUtcMetadataKey] = atomEntry.FeedEntry.Published
-                    };
-
-                    var envelope =
-                        new Envelope(
-                                @event,
-                                metadata)
-                            .ToGenericEnvelope();
-
-                    return envelope;
-                }
+                return envelope;
             }
         }
+    }
 
-        private DataContractSerializer FindEventSerializer(AtomEntry atomEntry)
-        {
-            var splitTitle = atomEntry.FeedEntry.Title.Split('-');
-            if(!splitTitle.Any())
-                throw new FormatException($"Could not find event name in atom entry with id {atomEntry.FeedEntry.Id}. Title was '{atomEntry.FeedEntry.Title}'.");
+    private DataContractSerializer FindEventSerializer(AtomEntry atomEntry)
+    {
+        var splitTitle = atomEntry.FeedEntry.Title.Split('-');
+        if (!splitTitle.Any())
+            throw new FormatException($"Could not find event name in atom entry with id {atomEntry.FeedEntry.Id}. Title was '{atomEntry.FeedEntry.Title}'.");
 
-            var eventName = splitTitle[0];
-            return _eventSerializers.HasSerializerFor(eventName) ? _eventSerializers.GetSerializerFor(eventName) : null;
-        }
+        var eventName = splitTitle[0];
+        return _eventSerializers.HasSerializerFor(eventName) ? _eventSerializers.GetSerializerFor(eventName) : null;
     }
 }

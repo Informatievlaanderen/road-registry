@@ -1,14 +1,11 @@
-﻿namespace RoadRegistry.Framework.Testing
+﻿namespace RoadRegistry.Framework.Testing;
+
+public class ExpectEventsScenarioPassed
 {
-    using System;
-
-    public class ExpectEventsScenarioPassed
+    public ExpectEventsScenarioPassed(ExpectEventsScenario scenario)
     {
-        public ExpectEventsScenarioPassed(ExpectEventsScenario scenario)
-        {
-            Scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
-        }
-
-        public ExpectEventsScenario Scenario { get; }
+        Scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
     }
+
+    public ExpectEventsScenario Scenario { get; }
 }

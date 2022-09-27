@@ -1,0 +1,9 @@
+Be.Vlaanderen.Basisregisters.EventHandling
+Be.Vlaanderen.Basisregisters.Aws.Lambda
+
+Amazon.Lambda.Core
+Amazon.Lambda.Serialization.SystemTextJson
+Amazon.Lambda.SQSEvents
+Autofac.Extensions.DependencyInjection
+
+Ductus.FluentDocker

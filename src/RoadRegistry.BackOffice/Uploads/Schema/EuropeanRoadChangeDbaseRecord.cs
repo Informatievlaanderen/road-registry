@@ -1,37 +1,36 @@
-namespace RoadRegistry.BackOffice.Uploads.Schema
+namespace RoadRegistry.BackOffice.Uploads.Schema;
+
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public class EuropeanRoadChangeDbaseRecord : DbaseRecord
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+    public static readonly EuropeanRoadChangeDbaseSchema Schema = new();
 
-    public class EuropeanRoadChangeDbaseRecord : DbaseRecord
+    public EuropeanRoadChangeDbaseRecord()
     {
-        public static readonly EuropeanRoadChangeDbaseSchema Schema = new EuropeanRoadChangeDbaseSchema();
+        EU_OIDN = new DbaseInt32(Schema.EU_OIDN);
+        WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
+        EUNUMMER = new DbaseString(Schema.EUNUMMER);
+        TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
+        RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 
-        public EuropeanRoadChangeDbaseRecord()
+        Values = new DbaseFieldValue[]
         {
-            EU_OIDN = new DbaseInt32(Schema.EU_OIDN);
-            WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-            EUNUMMER = new DbaseString(Schema.EUNUMMER);
-            TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
-            RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
-
-            Values = new DbaseFieldValue[]
-            {
-                EU_OIDN,
-                WS_OIDN,
-                EUNUMMER,
-                TRANSACTID,
-                RECORDTYPE
-            };
-        }
-
-        public DbaseInt32 EU_OIDN { get; }
-
-        public DbaseInt32 WS_OIDN { get; }
-
-        public DbaseString EUNUMMER { get; }
-
-        public DbaseInt16 TRANSACTID { get; }
-
-        public DbaseInt16 RECORDTYPE { get; }
+            EU_OIDN,
+            WS_OIDN,
+            EUNUMMER,
+            TRANSACTID,
+            RECORDTYPE
+        };
     }
+
+    public DbaseInt32 EU_OIDN { get; }
+
+    public DbaseInt32 WS_OIDN { get; }
+
+    public DbaseString EUNUMMER { get; }
+
+    public DbaseInt16 TRANSACTID { get; }
+
+    public DbaseInt16 RECORDTYPE { get; }
 }

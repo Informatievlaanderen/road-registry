@@ -2,8 +2,8 @@ namespace RoadRegistry.Legacy.Extract.Readers
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
     using System.Diagnostics;
+    using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Logging;
 
     public class TimedEventReader : IEventReader
@@ -38,12 +38,10 @@ namespace RoadRegistry.Legacy.Extract.Readers
             foreach (var @event in _inner.ReadEvents(connection))
             {
                 readCount++;
-                if (readCount % _threshold == 0)
-                {
-                    _logger.LogInformation("Read {0} {1} within {2}ms so far ...", readCount, _name, watch.ElapsedMilliseconds);
-                }
+                if (readCount % _threshold == 0) _logger.LogInformation("Read {0} {1} within {2}ms so far ...", readCount, _name, watch.ElapsedMilliseconds);
                 yield return @event;
             }
+
             _logger.LogInformation("Reading {0} {1} took {2}ms.", readCount, _name, watch.ElapsedMilliseconds);
         }
     }

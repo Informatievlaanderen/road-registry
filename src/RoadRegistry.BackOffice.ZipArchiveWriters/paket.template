@@ -1,0 +1,38 @@
+type file
+version 1.0.0
+
+id Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters
+title Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters
+
+authors Basisregisters.Vlaanderen
+owners Vlaamse overheid
+copyright Copyright (c) Vlaamse overheid
+requireLicenseAcceptance false
+projectUrl https://vlaanderen.be/digitaal-vlaanderen
+iconUrl https://raw.githubusercontent.com/Informatievlaanderen/build-pipeline/master/logo.png
+licenseUrl https://opensource.org/licenses/EUPL-1.2
+
+description Road Registry.
+
+dependencies
+  framework: net6.0
+    Be.Vlaanderen.Basisregisters.BlobStore >= LOCKEDVERSION
+    Microsoft.IO.RecyclableMemoryStream >= LOCKEDVERSION
+
+files
+  RoadRegistry.BackOffice.Api.dll => lib\net6.0
+  RoadRegistry.BackOffice.Api.pdb => lib\net6.0
+  RoadRegistry.BackOffice.Api.xml => lib\net6.0
+  RoadRegistry.BackOffice.Api.xml => content
+
+  RoadRegistry.Product.Schema.dll => lib\net6.0
+  RoadRegistry.Product.Schema.pdb => lib\net6.0
+
+  RoadRegistry.Editor.Schema.dll => lib\net6.0
+  RoadRegistry.Editor.Schema.pdb => lib\net6.0
+
+  RoadRegistry.BackOffice.dll => lib\net6.0
+  RoadRegistry.BackOffice.pdb => lib\net6.0
+
+  RoadRegistry.Dbase.dll => lib\net6.0
+  RoadRegistry.Dbase.pdb => lib\net6.0

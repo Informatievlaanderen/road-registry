@@ -1,10 +1,8 @@
-﻿namespace RoadRegistry.Framework.Testing
-{
-    using System.Collections.Generic;
-    using BackOffice.Framework;
+﻿namespace RoadRegistry.Framework.Testing;
 
-    public interface IScenarioThenStateBuilder : IExpectEventsScenarioBuilder
-    {
-        IScenarioThenStateBuilder Then(IEnumerable<RecordedEvent> events);
-    }
+using BackOffice.Framework;
+
+public interface IScenarioThenStateBuilder : IExpectEventsScenarioBuilder
+{
+    IScenarioThenStateBuilder Then(IEnumerable<RecordedEvent> events);
 }

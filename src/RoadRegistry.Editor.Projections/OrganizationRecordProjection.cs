@@ -12,6 +12,13 @@ namespace RoadRegistry.Editor.Projections
 
     public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
     {
+        private static readonly IDictionary<string, string> SortableCodeAnomalies =
+            new Dictionary<string, string>
+            {
+                { "-7", "00007" },
+                { "-8", "00008" }
+            };
+
         public OrganizationRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
             if (manager == null) throw new ArgumentNullException(nameof(manager));
@@ -25,8 +32,8 @@ namespace RoadRegistry.Editor.Projections
                     SortableCode = GetSortableCodeFor(envelope.Message.Code),
                     DbaseRecord = new OrganizationDbaseRecord
                     {
-                        ORG = {Value = envelope.Message.Code},
-                        LBLORG = {Value = envelope.Message.Name},
+                        ORG = { Value = envelope.Message.Code },
+                        LBLORG = { Value = envelope.Message.Name }
                     }.ToBytes(manager, encoding)
                 };
 
@@ -34,19 +41,11 @@ namespace RoadRegistry.Editor.Projections
             });
         }
 
-        private static readonly IDictionary<string, string> SortableCodeAnomalies =
-            new Dictionary<string, string>
-            {
-                { "-7", "00007" },
-                { "-8", "00008" },
-            };
-
         public static string GetSortableCodeFor(string code)
         {
             return SortableCodeAnomalies.ContainsKey(code)
                 ? SortableCodeAnomalies[code]
                 : code;
         }
-
     }
 }

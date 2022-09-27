@@ -1,7 +1,6 @@
-namespace RoadRegistry.BackOffice.Api.Changes
+namespace RoadRegistry.BackOffice.Api.Changes;
+
+public class ChangeFeedResponse
 {
-    public class ChangeFeedResponse
-    {
-        public ChangeFeedEntry[] Entries { get; set; }
-    }
+    public ChangeFeedEntry[] Entries { get; set; }
 }

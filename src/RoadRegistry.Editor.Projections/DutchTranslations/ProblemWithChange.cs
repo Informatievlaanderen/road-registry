@@ -4,10 +4,11 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
     using System.Linq;
     using BackOffice;
     using BackOffice.Core;
+    using Problem = BackOffice.Messages.Problem;
 
     public static class ProblemWithChange
     {
-        public static readonly Converter<BackOffice.Messages.Problem, string> Translator =
+        public static readonly Converter<Problem, string> Translator =
             problem =>
             {
                 string translation;
@@ -43,13 +44,9 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                     case nameof(RoadNodeTypeMismatch):
                         translation = $"Het opgegeven wegknoop type {RoadNodeType.Parse(problem.Parameters.Single(p => p.Name == "Actual").Value).Translation.Name} van knoop {problem.Parameters.Single(p => p.Name == "RoadNodeId").Value} komt niet overeen met een van de verwachte wegknoop types: {string.Join(',', problem.Parameters.Where(p => p.Name == "Expected").Select(parameter => RoadNodeType.Parse(parameter.Value).Translation.Name))}. De wegknoop is verbonden met {problem.Parameters[1].Value} wegsegment(-en)";
                         if (problem.Parameters.Any(p => p.Name == "ConnectedSegmentId"))
-                        {
                             translation += $": {string.Join(',', problem.Parameters.Where(p => p.Name == "ConnectedSegmentId").Select(parameter => parameter.Value))}.";
-                        }
                         else
-                        {
                             translation += ".";
-                        }
 
                         break;
                     case nameof(FakeRoadNodeConnectedSegmentsDoNotDiffer):

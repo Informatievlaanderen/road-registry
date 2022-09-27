@@ -10,6 +10,8 @@ namespace RoadRegistry.BackOffice.Uploads
     using Core;
     using Schema;
     using Schema.V2;
+    using Tests.BackOffice;
+    using Tests.BackOffice.Uploads;
     using Xunit;
 
     public class TransactionZoneDbaseRecordsTranslatorTests : IDisposable

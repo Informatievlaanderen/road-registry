@@ -1,103 +1,53 @@
-namespace RoadRegistry.BackOffice.Api.Downloads
+namespace RoadRegistry.BackOffice.Api.Downloads;
+
+using System.Threading;
+using System.Threading.Tasks;
+using Abstractions.Downloads;
+using Abstractions.Exceptions;
+using Be.Vlaanderen.Basisregisters.Api;
+using Framework;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+[ApiVersion("2.0")]
+[AdvertiseApiVersions("2.0")]
+[ApiRoute("download")]
+[ApiExplorerSettings(GroupName = "Downloads")]
+public class DownloadController : ControllerBase
 {
-    using System;
-    using System.IO.Compression;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Be.Vlaanderen.Basisregisters.Api;
-    using Configuration;
-    using Editor.Schema;
-    using FluentValidation;
-    using FluentValidation.Results;
-    using Framework;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.IO;
-    using Microsoft.Net.Http.Headers;
-    using NodaTime.Text;
-    using Product.Schema;
-    using ZipArchiveWriters.ForEditor;
-    using ZipArchiveWriters.ForProduct;
+    private readonly IMediator _mediator;
 
-    [ApiVersion("1.0")]
-    [AdvertiseApiVersions("1.0")]
-    [ApiRoute("download")]
-    [ApiExplorerSettings(GroupName = "Downloads")]
-    public class DownloadController : ControllerBase
+    public DownloadController(IMediator mediator)
     {
-        private readonly RecyclableMemoryStreamManager _manager;
+        _mediator = mediator;
+    }
 
-        public DownloadController(RecyclableMemoryStreamManager manager)
+    [HttpGet("for-editor")]
+    public async Task<IActionResult> Get(CancellationToken cancellationToken)
+    {
+        try
         {
-            _manager = manager ?? throw new ArgumentNullException(nameof(manager));
+            var request = new DownloadEditorRequest();
+            var response = await _mediator.Send(request, cancellationToken);
+            return new FileCallbackResult(response);
         }
-
-        [HttpGet("for-editor")]
-        public async Task<IActionResult> Get(
-            [FromServices] EditorContext context,
-            [FromServices] ZipArchiveWriterOptions zipArchiveWriterOptions,
-            [FromServices] IStreetNameCache streetNameCache)
+        catch (DownloadEditorNotFoundException ex)
         {
-            var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
-            if (info == null || !info.CompletedImport)
-            {
-                return StatusCode(StatusCodes.Status503ServiceUnavailable);
-            }
-
-            return new FileCallbackResult(
-                new MediaTypeHeaderValue("application/zip"),
-                async (stream, actionContext) =>
-                {
-                    var encoding = Encoding.GetEncoding(1252);
-                    var writer = new RoadNetworkForEditorToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, _manager, encoding);
-                    using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
-                    {
-                        await writer.WriteAsync(archive, context, HttpContext.RequestAborted);
-                    }
-                })
-            {
-                FileDownloadName = "wegenregister.zip"
-            };
+            return new StatusCodeResult((int)ex.HttpStatusCode);
         }
+    }
 
-        [HttpGet("for-product/{date}")]
-        public async Task<IActionResult> Get(
-            string date,
-            [FromServices] ProductContext context,
-            [FromServices] ZipArchiveWriterOptions zipArchiveWriterOptions,
-            [FromServices] IStreetNameCache streetNameCache)
+    [HttpGet("for-product/{date}")]
+    public async Task<IActionResult> Get(string date, CancellationToken cancellationToken)
+    {
+        try
         {
-            var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
-            if (info == null || !info.CompletedImport)
-            {
-                return StatusCode(StatusCodes.Status503ServiceUnavailable);
-            }
-
-            var result = LocalDatePattern.CreateWithInvariantCulture("yyyyMMdd").Parse(date);
-            if (!result.Success)
-            {
-                throw new ValidationException(new[]
-                {
-                    new ValidationFailure("date",
-                        "'date' path parameter is not a valid date according to format yyyyMMdd.")
-                });
-            }
-
-            return new FileCallbackResult(
-                new MediaTypeHeaderValue("application/zip"),
-                async (stream, actionContext) =>
-                {
-                    var encoding = Encoding.GetEncoding(1252);
-                    var writer = new RoadNetworkForProductToZipArchiveWriter(result.Value, zipArchiveWriterOptions, streetNameCache, _manager, encoding);
-                    using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
-                    {
-                        await writer.WriteAsync(archive, context, HttpContext.RequestAborted);
-                    }
-                })
-            {
-                FileDownloadName = $"wegenregister-{date}.zip"
-            };
+            var request = new DownloadProductRequest(date);
+            var response = await _mediator.Send(request, cancellationToken);
+            return new FileCallbackResult(response);
+        }
+        catch (DownloadProductNotFoundException) {
+            return NotFound();
         }
     }
 }

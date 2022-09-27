@@ -1,9 +1,8 @@
-namespace RoadRegistry.Framework.Containers
-{
-    using Xunit;
+namespace RoadRegistry.Framework.Containers;
 
-    [CollectionDefinition(nameof(SqlServerCollection))]
-    public class SqlServerCollection : ICollectionFixture<SqlServer>
-    {
-    }
+using Xunit;
+
+[CollectionDefinition(nameof(SqlServerCollection))]
+internal class SqlServerCollection : ICollectionFixture<SqlServer>
+{
 }

@@ -1,9 +1,9 @@
 namespace RoadRegistry.BackOffice.Uploads.Schema
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-
     namespace V1
     {
+        using Be.Vlaanderen.Basisregisters.Shaperon;
+
         public class TransactionZoneDbaseSchema : DbaseSchema
         {
             public TransactionZoneDbaseSchema()
@@ -44,36 +44,38 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
     namespace V2
     {
+        using Be.Vlaanderen.Basisregisters.Shaperon;
+
         public class TransactionZoneDbaseSchema : DbaseSchema
         {
             public TransactionZoneDbaseSchema()
             {
                 Fields = new[]
                 {
-                DbaseField.CreateNumberField(
-                    new DbaseFieldName(nameof(SOURCEID)),
-                    new DbaseFieldLength(5),
-                    new DbaseDecimalCount(0)),
-                DbaseField.CreateNumberField(
-                    new DbaseFieldName(nameof(TYPE)),
-                    new DbaseFieldLength(5),
-                    new DbaseDecimalCount(0)),
-                DbaseField.CreateCharacterField(
-                    new DbaseFieldName(nameof(BESCHRIJV)),
-                    new DbaseFieldLength(254)),
-                DbaseField.CreateCharacterField(
-                    new DbaseFieldName(nameof(OPERATOR)),
-                    new DbaseFieldLength(254)),
-                DbaseField.CreateCharacterField(
-                    new DbaseFieldName(nameof(ORG)),
-                    new DbaseFieldLength(18)),
-                DbaseField.CreateCharacterField(
-                    new DbaseFieldName(nameof(APPLICATIE)),
-                    new DbaseFieldLength(18)),
-                DbaseField.CreateCharacterField(
-                new DbaseFieldName(nameof(DOWNLOADID)),
-                new DbaseFieldLength(32))
-            };
+                    DbaseField.CreateNumberField(
+                        new DbaseFieldName(nameof(SOURCEID)),
+                        new DbaseFieldLength(5),
+                        new DbaseDecimalCount(0)),
+                    DbaseField.CreateNumberField(
+                        new DbaseFieldName(nameof(TYPE)),
+                        new DbaseFieldLength(5),
+                        new DbaseDecimalCount(0)),
+                    DbaseField.CreateCharacterField(
+                        new DbaseFieldName(nameof(BESCHRIJV)),
+                        new DbaseFieldLength(254)),
+                    DbaseField.CreateCharacterField(
+                        new DbaseFieldName(nameof(OPERATOR)),
+                        new DbaseFieldLength(254)),
+                    DbaseField.CreateCharacterField(
+                        new DbaseFieldName(nameof(ORG)),
+                        new DbaseFieldLength(18)),
+                    DbaseField.CreateCharacterField(
+                        new DbaseFieldName(nameof(APPLICATIE)),
+                        new DbaseFieldLength(18)),
+                    DbaseField.CreateCharacterField(
+                        new DbaseFieldName(nameof(DOWNLOADID)),
+                        new DbaseFieldLength(32))
+                };
             }
 
             public DbaseField SOURCEID => Fields[0];

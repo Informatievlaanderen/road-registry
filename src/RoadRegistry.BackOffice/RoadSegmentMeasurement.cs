@@ -61,3 +61,6 @@
 //         public static implicit operator decimal(RoadSegmentMeasurement instance) => instance._value;
 //     }
 // }
+
+
+

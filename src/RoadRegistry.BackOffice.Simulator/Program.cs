@@ -6,38 +6,48 @@ namespace RoadRegistry.BackOffice.Simulator
     using System.Text;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+    using NetTopologySuite.Geometries;
+    using NetTopologySuite.Geometries.Implementation;
     using Uploads;
     using Uploads.Schema;
     using Uploads.Schema.V2;
     using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
+    using Point = Be.Vlaanderen.Basisregisters.Shaperon.Point;
 
     public class Program
     {
         protected Program()
-        { }
-        
+        {
+        }
+
         public static void Main()
         {
             Directory.CreateDirectory("output");
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            var node1Record = new RoadNodeChangeDbaseRecord { TYPE = { Value = (short)RoadNodeType.EndNode.Translation.Identifier },
+            var node1Record = new RoadNodeChangeDbaseRecord
+            {
+                TYPE = { Value = (short)RoadNodeType.EndNode.Translation.Identifier },
                 RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier },
                 WEGKNOOPID = { Value = 1 }
             };
             var node1Shape = new PointShapeContent(new Point(0.0, 0.0));
 
-            var node2Record = new RoadNodeChangeDbaseRecord { TYPE = { Value = (short)RoadNodeType.EndNode.Translation.Identifier },
+            var node2Record = new RoadNodeChangeDbaseRecord
+            {
+                TYPE = { Value = (short)RoadNodeType.EndNode.Translation.Identifier },
                 RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier },
                 WEGKNOOPID = { Value = 2 }
             };
             var node2Shape = new PointShapeContent(new Point(0.0, 1.0));
 
-            var segment1Record = new RoadSegmentChangeDbaseRecord { WS_OIDN = { Value = 1 },
+            var segment1Record = new RoadSegmentChangeDbaseRecord
+            {
+                WS_OIDN = { Value = 1 },
                 B_WK_OIDN = { Value = 1 },
                 E_WK_OIDN = { Value = 2 },
-                TGBEP = { Value = (short) RoadSegmentAccessRestriction.PublicRoad.Translation.Identifier },
+                TGBEP = { Value = (short)RoadSegmentAccessRestriction.PublicRoad.Translation.Identifier },
                 STATUS = { Value = RoadSegmentStatus.InUse.Translation.Identifier },
                 CATEGORIE = { Value = RoadSegmentCategory.SecondaryRoad.Translation.Identifier },
                 METHODE = { Value = (short)RoadSegmentGeometryDrawMethod.Measured.Translation.Identifier },
@@ -47,16 +57,18 @@ namespace RoadRegistry.BackOffice.Simulator
                 BEHEERDER = { Value = "-8" },
                 RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
             };
-            var segmentShape = new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(new NetTopologySuite.Geometries.MultiLineString(new[]
+            var segmentShape = new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(new MultiLineString(new[]
             {
-                new NetTopologySuite.Geometries.LineString(new NetTopologySuite.Geometries.Implementation.CoordinateArraySequence(new[]
+                new LineString(new CoordinateArraySequence(new[]
                 {
-                    new NetTopologySuite.Geometries.CoordinateM(0.0, 0.0, 0.0),
-                    new NetTopologySuite.Geometries.CoordinateM(0.0, 1.0, 1.0)
+                    new CoordinateM(0.0, 0.0, 0.0),
+                    new CoordinateM(0.0, 1.0, 1.0)
                 }), GeometryConfiguration.GeometryFactory)
             })));
 
-            var laneRecord = new RoadSegmentLaneChangeDbaseRecord { RS_OIDN = { Value = 1 },
+            var laneRecord = new RoadSegmentLaneChangeDbaseRecord
+            {
+                RS_OIDN = { Value = 1 },
                 WS_OIDN = { Value = 1 },
                 RICHTING = { Value = (short)RoadSegmentLaneDirection.Independent.Translation.Identifier },
                 AANTAL = { Value = 2 },
@@ -65,15 +77,19 @@ namespace RoadRegistry.BackOffice.Simulator
                 RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
             };
 
-            var surfaceRecord = new RoadSegmentSurfaceChangeDbaseRecord { WV_OIDN = { Value = 1 },
+            var surfaceRecord = new RoadSegmentSurfaceChangeDbaseRecord
+            {
+                WV_OIDN = { Value = 1 },
                 WS_OIDN = { Value = 1 },
-                TYPE = { Value = (short) RoadSegmentSurfaceType.SolidSurface.Translation.Identifier },
+                TYPE = { Value = (short)RoadSegmentSurfaceType.SolidSurface.Translation.Identifier },
                 VANPOSITIE = { Value = 0.0 },
                 TOTPOSITIE = { Value = 1.0 },
                 RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
             };
 
-            var widthRecord = new RoadSegmentWidthChangeDbaseRecord { WB_OIDN = { Value = 1 },
+            var widthRecord = new RoadSegmentWidthChangeDbaseRecord
+            {
+                WB_OIDN = { Value = 1 },
                 WS_OIDN = { Value = 1 },
                 BREEDTE = { Value = 1 },
                 VANPOSITIE = { Value = 0.0 },
@@ -94,7 +110,7 @@ namespace RoadRegistry.BackOffice.Simulator
                     .ExpandWith(
                         BoundingBox3D.FromGeometry(node2Shape.Shape)
                     )
-                );
+            );
 
             // node
 
@@ -104,11 +120,12 @@ namespace RoadRegistry.BackOffice.Simulator
                 nodeDbaseWriter.Write(node1Record);
                 nodeDbaseWriter.Write(node2Record);
             }
+
             using (var nodeShapeIndexFile = new BinaryWriter(File.OpenWrite("output/WEGKNOOP_ALL.shx")))
             using (var nodeShapeFile = new BinaryWriter(File.OpenWrite("output/WEGKNOOP_ALL.shp")))
             using (var nodeShapeWriter = new ShapeBinaryWriter(nodeShapeHeader, nodeShapeFile))
             using (var nodeShapeIndexWriter =
-                new ShapeIndexBinaryWriter(nodeShapeHeader.ForIndex(new ShapeRecordCount(2)), nodeShapeIndexFile))
+                   new ShapeIndexBinaryWriter(nodeShapeHeader.ForIndex(new ShapeRecordCount(2)), nodeShapeIndexFile))
             {
                 var node1ShapeRecord = node1Shape.RecordAs(RecordNumber.Initial);
                 nodeShapeWriter.Write(node1ShapeRecord);
@@ -141,11 +158,12 @@ namespace RoadRegistry.BackOffice.Simulator
             {
                 segmentDbaseWriter.Write(segment1Record);
             }
+
             using (var segmentShapeIndexFile = new BinaryWriter(File.OpenWrite("output/WEGSEGMENT_ALL.shx")))
             using (var segmentShapeFile = new BinaryWriter(File.OpenWrite("output/WEGSEGMENT_ALL.shp")))
             using (var segmentShapeWriter = new ShapeBinaryWriter(segmentShapeHeader, segmentShapeFile))
             using (var segmentShapeIndexWriter =
-                new ShapeIndexBinaryWriter(segmentShapeHeader.ForIndex(new ShapeRecordCount(2)), segmentShapeIndexFile))
+                   new ShapeIndexBinaryWriter(segmentShapeHeader.ForIndex(new ShapeRecordCount(2)), segmentShapeIndexFile))
             {
                 var segment1ShapeRecord = segmentShape.RecordAs(RecordNumber.Initial);
                 segmentShapeWriter.Write(segment1ShapeRecord);
@@ -195,7 +213,9 @@ namespace RoadRegistry.BackOffice.Simulator
             }
 
             // european road
-            var europeanRoadRecord = new EuropeanRoadChangeDbaseRecord { EU_OIDN = { Value = 1 },
+            var europeanRoadRecord = new EuropeanRoadChangeDbaseRecord
+            {
+                EU_OIDN = { Value = 1 },
                 WS_OIDN = { Value = 1 },
                 EUNUMMER = { Value = EuropeanRoadNumber.E40.ToString() },
                 RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
@@ -214,7 +234,9 @@ namespace RoadRegistry.BackOffice.Simulator
             }
 
             // national road
-            var nationalRoadRecord = new NationalRoadChangeDbaseRecord { NW_OIDN = { Value = 1 },
+            var nationalRoadRecord = new NationalRoadChangeDbaseRecord
+            {
+                NW_OIDN = { Value = 1 },
                 WS_OIDN = { Value = 1 },
                 IDENT2 = { Value = NationalRoadNumber.Parse("R0").ToString() },
                 RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
@@ -233,10 +255,12 @@ namespace RoadRegistry.BackOffice.Simulator
             }
 
             // numbered road
-            var numberedRoadRecord = new NumberedRoadChangeDbaseRecord { GW_OIDN = { Value = 1 },
+            var numberedRoadRecord = new NumberedRoadChangeDbaseRecord
+            {
+                GW_OIDN = { Value = 1 },
                 WS_OIDN = { Value = 1 },
                 IDENT8 = { Value = NumberedRoadNumber.Parse("A0001231").ToString() },
-                RICHTING = { Value = (short) RoadSegmentNumberedRoadDirection.Backward.Translation.Identifier },
+                RICHTING = { Value = (short)RoadSegmentNumberedRoadDirection.Backward.Translation.Identifier },
                 VOLGNUMMER = { Value = 1 },
                 RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
             };
@@ -254,10 +278,12 @@ namespace RoadRegistry.BackOffice.Simulator
             }
 
             // grade separated junction
-            var gradeSeparatedJunctionRecord = new GradeSeparatedJunctionChangeDbaseRecord { OK_OIDN = { Value = 1 },
+            var gradeSeparatedJunctionRecord = new GradeSeparatedJunctionChangeDbaseRecord
+            {
+                OK_OIDN = { Value = 1 },
                 BO_WS_OIDN = { Value = 1 },
                 ON_WS_OIDN = { Value = 1 },
-                TYPE = { Value = (short) GradeSeparatedJunctionType.Unknown.Translation.Identifier },
+                TYPE = { Value = (short)GradeSeparatedJunctionType.Unknown.Translation.Identifier },
                 RECORDTYPE = { Value = (short)RecordType.Added.Translation.Identifier }
             };
 
@@ -275,7 +301,9 @@ namespace RoadRegistry.BackOffice.Simulator
 
 
             // transaction zone
-            var transactionZoneRecord = new TransactionZoneDbaseRecord { ORG = { Value = "11053" },
+            var transactionZoneRecord = new TransactionZoneDbaseRecord
+            {
+                ORG = { Value = "11053" },
                 OPERATOR = { Value = "Yves Reynhout" },
                 TYPE = { Value = 1 },
                 SOURCEID = { Value = 1 },
@@ -302,7 +330,6 @@ namespace RoadRegistry.BackOffice.Simulator
             using (var archive = new ZipArchive(archiveStream, ZipArchiveMode.Create))
             {
                 foreach (var file in Directory.EnumerateFiles("output"))
-                {
                     if (file.ToLowerInvariant().EndsWith(".dbf")
                         || file.ToLowerInvariant().EndsWith(".shp")
                         || file.ToLowerInvariant().EndsWith(".shx"))
@@ -312,7 +339,6 @@ namespace RoadRegistry.BackOffice.Simulator
                         using var entryStream = entry.Open();
                         fileStream.CopyTo(entryStream);
                     }
-                }
             }
         }
     }

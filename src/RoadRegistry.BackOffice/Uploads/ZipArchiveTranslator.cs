@@ -1,20 +1,37 @@
-namespace RoadRegistry.BackOffice.Uploads
+namespace RoadRegistry.BackOffice.Uploads;
+
+using System;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Linq;
+using System.Text;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Schema;
+
+public class ZipArchiveTranslator : IZipArchiveTranslator
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO.Compression;
-    using System.Linq;
-    using System.Text;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Schema;
-
-    public class ZipArchiveTranslator : IZipArchiveTranslator
+    private static readonly string[] TranslationOrder =
     {
-        private readonly Dictionary<string, IZipArchiveEntryTranslator> _translators;
+        // MC Hammer Style
+        "TRANSACTIEZONES.DBF",
+        "WEGKNOOP_ALL.DBF",
+        "WEGKNOOP_ALL.SHP",
+        "WEGSEGMENT_ALL.DBF",
+        "ATTRIJSTROKEN_ALL.DBF",
+        "ATTWEGBREEDTE_ALL.DBF",
+        "ATTWEGVERHARDING_ALL.DBF",
+        "WEGSEGMENT_ALL.SHP",
+        "ATTEUROPWEG_ALL.DBF",
+        "ATTNATIONWEG_ALL.DBF",
+        "ATTGENUMWEG_ALL.DBF",
+        "RLTOGKRUISING_ALL.DBF"
+    };
 
-        public ZipArchiveTranslator(Encoding encoding)
-        {
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+    private readonly Dictionary<string, IZipArchiveEntryTranslator> _translators;
+
+    public ZipArchiveTranslator(Encoding encoding)
+    {
+        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
             _translators =
                 new Dictionary<string, IZipArchiveEntryTranslator>(StringComparer.InvariantCultureIgnoreCase)
@@ -118,33 +135,17 @@ namespace RoadRegistry.BackOffice.Uploads
                 };
         }
 
-        private static readonly string[] TranslationOrder = { // MC Hammer Style
-            "TRANSACTIEZONES.DBF",
-            "WEGKNOOP_ALL.DBF",
-            "WEGKNOOP_ALL.SHP",
-            "WEGSEGMENT_ALL.DBF",
-            "ATTRIJSTROKEN_ALL.DBF",
-            "ATTWEGBREEDTE_ALL.DBF",
-            "ATTWEGVERHARDING_ALL.DBF",
-            "WEGSEGMENT_ALL.SHP",
-            "ATTEUROPWEG_ALL.DBF",
-            "ATTNATIONWEG_ALL.DBF",
-            "ATTGENUMWEG_ALL.DBF",
-            "RLTOGKRUISING_ALL.DBF"
-        };
+    public TranslatedChanges Translate(ZipArchive archive)
+    {
+        if (archive == null)
+            throw new ArgumentNullException(nameof(archive));
 
-        public TranslatedChanges Translate(ZipArchive archive)
-        {
-            if (archive == null)
-                throw new ArgumentNullException(nameof(archive));
-
-            return archive
-                .Entries
-                .Where(entry => Array.IndexOf(TranslationOrder, entry.FullName.ToUpperInvariant()) != -1)
-                .OrderBy(entry => Array.IndexOf(TranslationOrder, entry.FullName.ToUpperInvariant()))
-                .Aggregate(
-                    TranslatedChanges.Empty,
-                    (changes, entry) => _translators[entry.FullName].Translate(entry, changes));
-        }
+        return archive
+            .Entries
+            .Where(entry => Array.IndexOf(TranslationOrder, entry.FullName.ToUpperInvariant()) != -1)
+            .OrderBy(entry => Array.IndexOf(TranslationOrder, entry.FullName.ToUpperInvariant()))
+            .Aggregate(
+                TranslatedChanges.Empty,
+                (changes, entry) => _translators[entry.FullName].Translate(entry, changes));
     }
 }

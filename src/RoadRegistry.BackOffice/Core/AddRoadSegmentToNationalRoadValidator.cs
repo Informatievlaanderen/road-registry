@@ -1,17 +1,16 @@
-namespace RoadRegistry.BackOffice.Core
-{
-    using FluentValidation;
+namespace RoadRegistry.BackOffice.Core;
 
-    public class AddRoadSegmentToNationalRoadValidator : AbstractValidator<Messages.AddRoadSegmentToNationalRoad>
+using FluentValidation;
+
+public class AddRoadSegmentToNationalRoadValidator : AbstractValidator<Messages.AddRoadSegmentToNationalRoad>
+{
+    public AddRoadSegmentToNationalRoadValidator()
     {
-        public AddRoadSegmentToNationalRoadValidator()
-        {
-            RuleFor(c => c.TemporaryAttributeId).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.SegmentId).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.Number)
-                .NotEmpty()
-                .Must(NationalRoadNumber.CanParse)
-                .When(c => c.Number != null, ApplyConditionTo.CurrentValidator);
-        }
+        RuleFor(c => c.TemporaryAttributeId).GreaterThanOrEqualTo(0);
+        RuleFor(c => c.SegmentId).GreaterThanOrEqualTo(0);
+        RuleFor(c => c.Number)
+            .NotEmpty()
+            .Must(NationalRoadNumber.CanParse)
+            .When(c => c.Number != null, ApplyConditionTo.CurrentValidator);
     }
 }

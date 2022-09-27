@@ -80,7 +80,7 @@ namespace RoadRegistry.Projector.Infrastructure
                                 Url = new Uri("https://legacy.basisregisters.vlaanderen")
                             }
                         },
-                        XmlCommentPaths = new[] {typeof(Startup).GetTypeInfo().Assembly.GetName().Name}
+                        XmlCommentPaths = new[] {typeof(Startup).GetTypeInfo().Assembly.GetName()?.Name ?? "RoadRegistry.Projector"}
                     },
                     MiddlewareHooks =
                     {

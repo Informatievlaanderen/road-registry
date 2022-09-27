@@ -1,7 +1,8 @@
-namespace RoadRegistry.BackOffice.Uploads
+namespace RoadRegistry.BackOffice.Uploads;
+
+using Messages;
+
+public interface ITranslatedChange
 {
-    public interface ITranslatedChange
-    {
-        void TranslateTo(Messages.RequestedChange message);
-    }
+    void TranslateTo(RequestedChange message);
 }

@@ -1,26 +1,24 @@
-namespace RoadRegistry.Product.Schema.RoadNodes
+namespace RoadRegistry.Product.Schema.RoadNodes;
+
+using Hosts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+public class RoadNodeConfiguration : IEntityTypeConfiguration<RoadNodeRecord>
 {
-    using Hosts;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    private const string TableName = "RoadNode";
 
-    public class RoadNodeConfiguration : IEntityTypeConfiguration<RoadNodeRecord>
+    public void Configure(EntityTypeBuilder<RoadNodeRecord> b)
     {
-        private const string TableName = "RoadNode";
+        b.ToTable(TableName, WellknownSchemas.ProductSchema)
+            .HasKey(p => p.Id)
+            .IsClustered(false);
 
-        public void Configure(EntityTypeBuilder<RoadNodeRecord> b)
-        {
-            b.ToTable(TableName, WellknownSchemas.ProductSchema)
-                .HasKey(p => p.Id)
-                .IsClustered(false);
+        b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
+        b.Property(p => p.ShapeRecordContent).IsRequired();
+        b.Property(p => p.ShapeRecordContentLength).IsRequired();
+        b.Property(p => p.DbaseRecord).IsRequired();
 
-            b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
-            b.Property(p => p.ShapeRecordContent).IsRequired();
-            b.Property(p => p.ShapeRecordContentLength).IsRequired();
-            b.Property(p => p.DbaseRecord).IsRequired();
-
-            b.OwnsOne(p => p.BoundingBox);
-        }
-
+        b.OwnsOne(p => p.BoundingBox);
     }
 }

@@ -1,12 +1,11 @@
-namespace RoadRegistry.BackOffice.Core
-{
-    using FluentValidation;
+namespace RoadRegistry.BackOffice.Core;
 
-    public class RemoveGradeSeparatedJunctionValidator : AbstractValidator<Messages.RemoveGradeSeparatedJunction>
+using FluentValidation;
+
+public class RemoveGradeSeparatedJunctionValidator : AbstractValidator<Messages.RemoveGradeSeparatedJunction>
+{
+    public RemoveGradeSeparatedJunctionValidator()
     {
-        public RemoveGradeSeparatedJunctionValidator()
-        {
-            RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
-        }
+        RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
     }
 }

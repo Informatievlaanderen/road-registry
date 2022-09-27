@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class RoadSegmentStartNodeMissing : Error
 {
-    public class RoadSegmentStartNodeMissing : Error
+    public RoadSegmentStartNodeMissing() : base(nameof(RoadSegmentStartNodeMissing))
     {
-        public RoadSegmentStartNodeMissing() : base(nameof(RoadSegmentStartNodeMissing))
-        {
-        }
     }
 }

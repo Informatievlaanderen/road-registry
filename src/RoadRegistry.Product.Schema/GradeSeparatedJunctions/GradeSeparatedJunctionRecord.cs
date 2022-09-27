@@ -1,8 +1,7 @@
-namespace RoadRegistry.Product.Schema.GradeSeparatedJunctions
+namespace RoadRegistry.Product.Schema.GradeSeparatedJunctions;
+
+public class GradeSeparatedJunctionRecord
 {
-    public class GradeSeparatedJunctionRecord
-    {
-        public int Id { get; set; }
-        public byte[] DbaseRecord { get; set; }
-    }
+    public int Id { get; set; }
+    public byte[] DbaseRecord { get; set; }
 }

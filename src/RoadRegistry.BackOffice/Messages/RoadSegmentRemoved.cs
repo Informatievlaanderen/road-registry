@@ -1,7 +1,6 @@
-namespace RoadRegistry.BackOffice.Messages
+namespace RoadRegistry.BackOffice.Messages;
+
+public class RoadSegmentRemoved
 {
-    public class RoadSegmentRemoved
-    {
-        public int Id { get; set; }
-    }
+    public int Id { get; set; }
 }

@@ -1,12 +1,11 @@
-namespace RoadRegistry.Editor.Schema.Extracts
+namespace RoadRegistry.Editor.Schema.Extracts;
+
+public enum ExtractUploadStatus
 {
-    public enum ExtractUploadStatus
-    {
-        Received,
-        UploadAccepted,
-        UploadRejected,
-        ChangesAccepted,
-        ChangesRejected,
-        NoChanges
-    }
+    Received,
+    UploadAccepted,
+    UploadRejected,
+    ChangesAccepted,
+    ChangesRejected,
+    NoChanges
 }

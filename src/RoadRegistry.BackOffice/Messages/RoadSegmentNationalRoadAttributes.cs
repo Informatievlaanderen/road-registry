@@ -1,8 +1,7 @@
-﻿namespace RoadRegistry.BackOffice.Messages
+﻿namespace RoadRegistry.BackOffice.Messages;
+
+public class RoadSegmentNationalRoadAttributes
 {
-    public class RoadSegmentNationalRoadAttributes
-    {
-        public int AttributeId { get; set; }
-        public string Number { get; set; }
-    }
+    public int AttributeId { get; set; }
+    public string Number { get; set; }
 }

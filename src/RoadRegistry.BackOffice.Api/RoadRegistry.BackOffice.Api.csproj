@@ -8,40 +8,15 @@
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <Nullable>disable</Nullable>
+    <DocumentationFile>RoadRegistry.BackOffice.Api.xml</DocumentationFile>
+    <NoWarn>1701;1702;1705;1591</NoWarn>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\net6.0\RoadRegistry.BackOffice.Api.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP;NET5_0</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <DocumentationFile>bin\Debug\net6.0\RoadRegistry.BackOffice.Api.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP;NET5_0</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <DocumentationFile>bin\Debug\net6.0\RoadRegistry.BackOffice.Api.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP;NET5_0</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\net6.0\RoadRegistry.BackOffice.Api.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <DocumentationFile>bin\Release\net6.0\RoadRegistry.BackOffice.Api.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <DocumentationFile>bin\Release\net6.0\RoadRegistry.BackOffice.Api.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-  </PropertyGroup>
-
   <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers.Sqs\RoadRegistry.BackOffice.Handlers.Sqs.csproj" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
@@ -59,35 +34,6 @@
 
   <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ZipArchiveWriters\ForProduct\StaticData" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Data_Wegenregister_v2.0.pdf" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Data_Wegenregister_v2.0.pdf" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Leesmij_Wegenregister_v1.0.pdf" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Leesmij_Wegenregister_v1.0.pdf" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Refpunt.lyr" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Refpunt.lyr" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Refpunt.sld" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Refpunt.sld" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Refpunt.WOR" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Refpunt.WOR" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.lyr" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.lyr" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.sld" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.sld" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.WOR" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegknoop.WOR" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.lyr" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.lyr" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.sld" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.sld" />
-    <None Remove="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.WOR" />
-    <EmbeddedResource Include="ZipArchiveWriters\ForProduct\StaticData\Wegsegment.WOR" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

@@ -1,16 +1,15 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+using System.Collections.Generic;
+using NetTopologySuite.Geometries;
+
+public interface IScopedRoadNetworkView
 {
-    using System.Collections.Generic;
-    using NetTopologySuite.Geometries;
+    Envelope Scope { get; }
 
-    public interface IScopedRoadNetworkView
-    {
-        Envelope Scope { get; }
+    IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes { get; }
+    IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments { get; }
+    IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
 
-        IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes { get; }
-        IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments { get; }
-        IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
-
-        IRoadNetworkView View { get; }
-    }
+    IRoadNetworkView View { get; }
 }

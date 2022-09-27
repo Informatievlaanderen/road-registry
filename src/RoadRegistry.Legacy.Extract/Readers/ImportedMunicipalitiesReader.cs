@@ -8,14 +8,17 @@ namespace RoadRegistry.Legacy.Extract.Readers
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Logging;
+    using NetTopologySuite.Geometries;
     using NodaTime;
     using NodaTime.Text;
+    using Point = BackOffice.Messages.Point;
+    using Polygon = NetTopologySuite.Geometries.Polygon;
 
     public class ImportedMunicipalitiesReader : IEventReader
     {
         private readonly IClock _clock;
-        private readonly WellKnownBinaryReader _wkbReader;
         private readonly ILogger<ImportedMunicipalitiesReader> _logger;
+        private readonly WellKnownBinaryReader _wkbReader;
 
         public ImportedMunicipalitiesReader(IClock clock,
             WellKnownBinaryReader wkbReader,
@@ -42,9 +45,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 var nisCode = reader.GetString(1);
                 var wellKnownBinary = reader.GetAllBytes(2);
                 var multiPolygon = _wkbReader
-                    .TryReadAs(wellKnownBinary, out NetTopologySuite.Geometries.Polygon polygon)
-                    ? new NetTopologySuite.Geometries.MultiPolygon(new[] {polygon})
-                    : _wkbReader.ReadAs<NetTopologySuite.Geometries.MultiPolygon>(wellKnownBinary);
+                    .TryReadAs(wellKnownBinary, out Polygon polygon)
+                    ? new MultiPolygon(new[] { polygon })
+                    : _wkbReader.ReadAs<MultiPolygon>(wellKnownBinary);
 
                 _logger.LogDebug("Reading organization with NIS code {0}", nisCode);
                 return new StreamEvent(new StreamName("municipality-" + nisCode), new ImportedMunicipality
@@ -53,14 +56,14 @@ namespace RoadRegistry.Legacy.Extract.Readers
                     {
                         MultiPolygon = Array.ConvertAll(multiPolygon.Geometries, geometry =>
                         {
-                            var polygonGeometry = (NetTopologySuite.Geometries.Polygon) geometry;
+                            var polygonGeometry = (Polygon)geometry;
                             return new BackOffice.Messages.Polygon
                             {
                                 Shell = new Ring
                                 {
                                     Points = Array.ConvertAll(polygonGeometry.ExteriorRing.Coordinates,
                                         coordinate =>
-                                            new BackOffice.Messages.Point
+                                            new Point
                                             {
                                                 X = coordinate.X,
                                                 Y = coordinate.Y
@@ -70,7 +73,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                                     new Ring
                                     {
                                         Points = Array.ConvertAll(hole.Coordinates, coordinate =>
-                                            new BackOffice.Messages.Point
+                                            new Point
                                             {
                                                 X = coordinate.X,
                                                 Y = coordinate.Y
@@ -78,7 +81,7 @@ namespace RoadRegistry.Legacy.Extract.Readers
                                     })
                             };
                         }),
-                        SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
+                        SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
                     },
                     DutchName = name,
                     NISCode = nisCode,

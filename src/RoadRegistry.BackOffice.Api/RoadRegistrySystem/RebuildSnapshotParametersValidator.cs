@@ -1,12 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.RoadRegistrySystem;
 
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Core;
 using FluentValidation;
 
 public class RebuildSnapshotParametersValidator : AbstractValidator<RebuildSnapshotParameters>
 {
-    private static readonly BlobName SnapshotPrefix = new BlobName("roadnetworksnapshot-");
+    private static readonly BlobName SnapshotPrefix = new("roadnetworksnapshot-");
 
     public RebuildSnapshotParametersValidator(IBlobClient client)
     {

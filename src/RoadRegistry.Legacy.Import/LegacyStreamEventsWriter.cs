@@ -21,8 +21,9 @@ namespace RoadRegistry.Legacy.Import
         private static readonly EventMapping Mapping =
             new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
-        private readonly IStreamStore _streamStore;
         private readonly ILogger<LegacyStreamEventsWriter> _logger;
+
+        private readonly IStreamStore _streamStore;
 
         public LegacyStreamEventsWriter(IStreamStore streamStore, ILogger<LegacyStreamEventsWriter> logger)
         {
@@ -36,36 +37,31 @@ namespace RoadRegistry.Legacy.Import
             var expectedVersions = new ConcurrentDictionary<StreamId, int>();
 
             foreach (var batch in events.Batch(1000))
+            foreach (var stream in batch.GroupBy(item => item.Stream, item => item.Event))
             {
-                foreach (var stream in batch.GroupBy(item => item.Stream, item => item.Event))
-                {
-                    if (!expectedVersions.TryGetValue(stream.Key, out var expectedVersion))
-                    {
-                        expectedVersion = ExpectedVersion.NoStream;
-                    }
+                if (!expectedVersions.TryGetValue(stream.Key, out var expectedVersion)) expectedVersion = ExpectedVersion.NoStream;
 
-                    var watch = Stopwatch.StartNew();
+                var watch = Stopwatch.StartNew();
 
-                    var appendResult = await _streamStore.AppendToStream(
-                        stream.Key,
-                        expectedVersion,
-                        stream
-                            .Select(@event => new NewStreamMessage(
-                                Deterministic.Create(Deterministic.Namespaces.Events,$"{stream.Key}-{expectedVersion++}"),
-                                Mapping.GetEventName(@event.GetType()),
-                                JsonConvert.SerializeObject(@event, SerializerSettings),
-                                JsonConvert.SerializeObject(new Dictionary<string, string>{ {"$version", "0"} }, SerializerSettings)
-                            ))
-                            .ToArray()
-                    );
+                var appendResult = await _streamStore.AppendToStream(
+                    stream.Key,
+                    expectedVersion,
+                    stream
+                        .Select(@event => new NewStreamMessage(
+                            Deterministic.Create(Deterministic.Namespaces.Events, $"{stream.Key}-{expectedVersion++}"),
+                            Mapping.GetEventName(@event.GetType()),
+                            JsonConvert.SerializeObject(@event, SerializerSettings),
+                            JsonConvert.SerializeObject(new Dictionary<string, string> { { "$version", "0" } }, SerializerSettings)
+                        ))
+                        .ToArray()
+                );
 
-                    _logger.LogInformation("Append took {0}ms for stream {1}@{2}",
-                        watch.ElapsedMilliseconds,
-                        stream.Key,
-                        appendResult.CurrentVersion);
+                _logger.LogInformation("Append took {0}ms for stream {1}@{2}",
+                    watch.ElapsedMilliseconds,
+                    stream.Key,
+                    appendResult.CurrentVersion);
 
-                    expectedVersions[stream.Key] = appendResult.CurrentVersion;
-                }
+                expectedVersions[stream.Key] = appendResult.CurrentVersion;
             }
         }
     }

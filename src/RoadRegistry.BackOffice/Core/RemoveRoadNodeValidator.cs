@@ -1,12 +1,11 @@
-namespace RoadRegistry.BackOffice.Core
-{
-    using FluentValidation;
+namespace RoadRegistry.BackOffice.Core;
 
-    public class RemoveRoadNodeValidator : AbstractValidator<Messages.RemoveRoadNode>
+using FluentValidation;
+
+public class RemoveRoadNodeValidator : AbstractValidator<Messages.RemoveRoadNode>
+{
+    public RemoveRoadNodeValidator()
     {
-        public RemoveRoadNodeValidator()
-        {
-            RuleFor(c => c.Id).GreaterThanOrEqualTo(1);
-        }
+        RuleFor(c => c.Id).GreaterThanOrEqualTo(1);
     }
 }

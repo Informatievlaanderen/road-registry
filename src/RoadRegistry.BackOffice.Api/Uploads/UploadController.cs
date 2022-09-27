@@ -1,123 +1,108 @@
-namespace RoadRegistry.BackOffice.Api.Uploads
+namespace RoadRegistry.BackOffice.Api.Uploads;
+
+using System;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using Abstractions.Exceptions;
+using Abstractions.Uploads;
+using BackOffice.Extracts;
+using Be.Vlaanderen.Basisregisters.Api;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.BasicApiProblem;
+using Be.Vlaanderen.Basisregisters.BlobStore;
+using FluentValidation;
+using Framework;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+[ApiVersion("2.0")]
+[AdvertiseApiVersions("2.0")]
+[ApiRoute("upload")]
+[ApiExplorerSettings(GroupName = "Uploads")]
+public class UploadController : ControllerBase
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using BackOffice;
-    using BackOffice.Framework;
-    using BackOffice.Uploads;
-    using Be.Vlaanderen.Basisregisters.Api;
-    using Be.Vlaanderen.Basisregisters.BlobStore;
-    using FluentValidation;
-    using FluentValidation.Results;
-    using Framework;
-    using Messages;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Net.Http.Headers;
+    private readonly IMediator _mediator;
 
-    [ApiVersion("1.0")]
-    [AdvertiseApiVersions("1.0")]
-    [ApiRoute("upload")]
-    [ApiExplorerSettings(GroupName = "Uploads")]
-    public class UploadController : ControllerBase
+    public UploadController(IMediator mediator)
     {
-        private static readonly ContentType[] SupportedContentTypes =
-            {
-                ContentType.Parse("application/zip"),
-                ContentType.Parse("application/x-zip-compressed")
-            };
-        private readonly CommandHandlerDispatcher _dispatcher;
-        private readonly RoadNetworkUploadsBlobClient _client;
+        _mediator = mediator;
+    }
 
-        public UploadController(CommandHandlerDispatcher dispatcher, RoadNetworkUploadsBlobClient client)
+    //[HttpPost("")]
+    //[RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    //public async Task<IActionResult> PostUpload([FromBody] IFormFile archive, CancellationToken cancellationToken)
+    //{
+    //    return await Post(archive, async () =>
+    //    {
+    //        UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+    //        var request = new UploadExtractRequest(archive.FileName, requestArchive);
+    //        var response = await _mediator.Send(request, cancellationToken);
+    //        return Ok(response);
+    //    }, cancellationToken);
+    //}
+
+    [HttpPost("")]
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    public async Task<IActionResult> PostUpload(IFormFile archive, CancellationToken cancellationToken)
+    {
+        return await Post(archive, async () =>
         {
-            _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-            _client = client ?? throw new ArgumentNullException(nameof(client));
+            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Ok(response);
+        }, cancellationToken);
+    }
+
+    [HttpGet("{identifier}")]
+    public async Task<IActionResult> Get(string identifier, CancellationToken cancellationToken)
+    {
+        try
+        {
+            DownloadExtractRequest request = new(identifier);
+            var response = await _mediator.Send(request, cancellationToken);
+            return new FileCallbackResult(response);
         }
-
-        [HttpPost("")]
-        [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-        public async Task<IActionResult> Post(IFormFile archive)
+        catch (ExtractDownloadNotFoundException)
         {
-            if (archive == null)
-            {
-                throw new ArgumentNullException(nameof(archive));
-            }
-
-            if (!ContentType.TryParse(archive.ContentType, out var parsed) ||
-                !SupportedContentTypes.Contains(parsed))
-            {
-                return new UnsupportedMediaTypeResult();
-            }
-
-            await using (var readStream = archive.OpenReadStream())
-            {
-                var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
-
-                var metadata = Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"),
-                    string.IsNullOrEmpty(archive.FileName) ? archiveId + ".zip" : archive.FileName));
-
-                await _client.CreateBlobAsync(
-                    new BlobName(archiveId.ToString()),
-                    metadata,
-                    ContentType.Parse("application/zip"),
-                    readStream,
-                    HttpContext.RequestAborted
-                );
-
-                var message = new Command(
-                    new UploadRoadNetworkChangesArchive
-                    {
-                        ArchiveId = archiveId.ToString()
-                    });
-
-                await _dispatcher(message, HttpContext.RequestAborted);
-            }
-
-            return Ok();
+            return NotFound();
         }
+    }
 
-        [HttpGet("{identifier}")]
-        public async Task<IActionResult> Get(string identifier)
+    private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback, CancellationToken cancellationToken)
+    {
+        if (archive == null) throw new ArgumentNullException(nameof(archive));
+
+        try
         {
-            if (!ArchiveId.Accepts(identifier))
-            {
-                throw new ValidationException(new[]
-                {
-                    new ValidationFailure("identifier",
-                        $"'identifier' path parameter cannot be empty and must be less or equal to {ArchiveId.MaxLength} characters.")
-                });
-            }
-
-            var archiveId = new ArchiveId(identifier);
-            var blobName = new BlobName(archiveId.ToString());
-
-            if(!await _client.BlobExistsAsync(blobName, HttpContext.RequestAborted))
-            {
-                return NotFound();
-            }
-
-            var blob = await _client.GetBlobAsync(blobName, HttpContext.RequestAborted);
-
-            var metadata = blob.Metadata
-                .Where(pair => pair.Key == new MetadataKey("filename"))
-                .ToArray();
-            var filename = metadata.Length == 1
-                ? metadata[0].Value
-                : archiveId + ".zip";
-
-            return new FileCallbackResult(
-                new MediaTypeHeaderValue("application/zip"),
-                async (stream, actionContext) =>
-                {
-                    await using var blobStream = await blob.OpenAsync(actionContext.HttpContext.RequestAborted);
-                    await blobStream.CopyToAsync(stream, actionContext.HttpContext.RequestAborted);
-                })
-            {
-                FileDownloadName = filename
-            };
+            return await callback.Invoke();
+        }
+        catch (UnsupportedMediaTypeException)
+        {
+            return new UnsupportedMediaTypeResult();
+        }
+        catch (ValidationException exception)
+        {
+            throw new ApiProblemDetailsException(
+                "Could not upload roadnetwork extract because of validation errors",
+                400,
+                new ExceptionProblemDetails(exception), exception);
+        }
+        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException exception)
+        {
+            throw new ApiProblemDetailsException(
+                "Can not upload roadnetwork extract changes archive for superseded download",
+                409,
+                new ExceptionProblemDetails(exception), exception);
+        }
+        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException exception)
+        {
+            throw new ApiProblemDetailsException(
+                "Can not upload roadnetwork extract changes archive for same download more than once",
+                409,
+                new ExceptionProblemDetails(exception), exception);
         }
     }
 }

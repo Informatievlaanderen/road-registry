@@ -1,109 +1,107 @@
-namespace RoadRegistry.Framework.Containers
+namespace RoadRegistry.Framework.Containers;
+
+using Microsoft.Data.SqlClient;
+
+public class SqlServerComposedContainer : ISqlServerDatabase
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.Data.SqlClient;
+    private readonly SqlConnectionStringBuilder _builder;
+    private int _db;
 
-    public class SqlServerComposedContainer : ISqlServerDatabase
+    public SqlServerComposedContainer()
     {
-        private readonly SqlConnectionStringBuilder _builder;
-        private int _db;
+        if (Environment.GetEnvironmentVariable("SA_PASSWORD") == null) throw new Exception("The SA_PASSWORD environment variable is missing.");
 
-        public SqlServerComposedContainer()
-        {
-            if (Environment.GetEnvironmentVariable("SA_PASSWORD") == null)
+        _builder =
+            new SqlConnectionStringBuilder
             {
-                throw new Exception("The SA_PASSWORD environment variable is missing.");
-            }
+                DataSource = "tcp:localhost,1433",
+                InitialCatalog = "master",
+                UserID = "sa",
+                Password = Environment.GetEnvironmentVariable("SA_PASSWORD"),
+                Encrypt = false,
+                Enlist = false,
+                IntegratedSecurity = false
+            };
+        ;
+    }
 
-            _builder =
-                new SqlConnectionStringBuilder
-                {
-                    DataSource = "tcp:localhost,1433",
-                    InitialCatalog = "master",
-                    UserID = "sa",
-                    Password = Environment.GetEnvironmentVariable("SA_PASSWORD"),
-                    Encrypt = false,
-                    Enlist = false,
-                    IntegratedSecurity = false
-                };;
-        }
+    public async Task InitializeAsync()
+    {
+        var builder = CreateMasterConnectionStringBuilder();
 
-        public async Task InitializeAsync()
+        async Task<TimeSpan> WaitUntilAvailable(int current)
         {
-            var builder = CreateMasterConnectionStringBuilder();
-
-            async Task<TimeSpan> WaitUntilAvailable(int current)
+            if (current <= 30)
             {
-                if (current <= 30)
+                try
                 {
-                    try
+                    await using (var connection = new SqlConnection(builder.ConnectionString))
                     {
-                        using (var connection = new SqlConnection(builder.ConnectionString))
-                        {
-                            await connection.OpenAsync();
-                            connection.Close();
-                        }
-
-                        return TimeSpan.Zero;
-                    }
-                    catch
-                    {
+                        await connection.OpenAsync();
+                        connection.Close();
                     }
 
-                    return TimeSpan.FromSeconds(1);
+                    return TimeSpan.Zero;
+                }
+                catch
+                {
                 }
 
-                throw new TimeoutException(
-                    $"The sql server container did not become available in a timely fashion.");
+                return TimeSpan.FromSeconds(1);
             }
 
-            var attempt = 0;
-            var result = await WaitUntilAvailable(attempt++);
-            while (result > TimeSpan.Zero)
-            {
-                await Task.Delay(result);
-                result = await WaitUntilAvailable(attempt++);
-            }
+            throw new TimeoutException(
+                "The sql server container did not become available in a timely fashion.");
         }
 
-        public Task DisposeAsync()
+        var attempt = 0;
+        var result = await WaitUntilAvailable(attempt++);
+        while (result > TimeSpan.Zero)
         {
-            return Task.CompletedTask;
+            await Task.Delay(result);
+            result = await WaitUntilAvailable(attempt++);
         }
+    }
 
-        private SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
-        {
-            return new SqlConnectionStringBuilder(_builder.ConnectionString)
-            {
-                InitialCatalog = "master"
-            };
-        }
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
 
-        private SqlConnectionStringBuilder CreateConnectionStringBuilder(string database) =>
-            new SqlConnectionStringBuilder(_builder.ConnectionString)
-            {
-                InitialCatalog = database
-            };
-
-        public async Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
-        {
-            var database = $"DB{Interlocked.Increment(ref _db)}";
-            var text = $@"
+    public async Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
+    {
+        var database = $"DB{Interlocked.Increment(ref _db)}";
+        var text = $@"
 CREATE DATABASE [{database}]
 ALTER DATABASE [{database}] SET ALLOW_SNAPSHOT_ISOLATION ON
 ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
-            using (var connection = new SqlConnection(CreateMasterConnectionStringBuilder().ConnectionString))
+        await using (var connection = new SqlConnection(CreateMasterConnectionStringBuilder().ConnectionString))
+        {
+            await connection.OpenAsync();
+            await using (var command = new SqlCommand(text, connection))
             {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand(text, connection))
-                {
-                    await command.ExecuteNonQueryAsync();
-                }
-                connection.Close();
+                await command.ExecuteNonQueryAsync();
             }
-            return CreateConnectionStringBuilder(database);
+
+            connection.Close();
         }
+
+        return CreateConnectionStringBuilder(database);
+    }
+
+    private SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
+    {
+        return new SqlConnectionStringBuilder(_builder.ConnectionString)
+        {
+            InitialCatalog = "master"
+        };
+    }
+
+    private SqlConnectionStringBuilder CreateConnectionStringBuilder(string database)
+    {
+        return new SqlConnectionStringBuilder(_builder.ConnectionString)
+        {
+            InitialCatalog = database
+        };
     }
 }

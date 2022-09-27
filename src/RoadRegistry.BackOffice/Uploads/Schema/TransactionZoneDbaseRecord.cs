@@ -1,12 +1,12 @@
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
 namespace RoadRegistry.BackOffice.Uploads.Schema
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-
     namespace V1
     {
         public class TransactionZoneDbaseRecord : DbaseRecord
         {
-            public static readonly TransactionZoneDbaseSchema Schema = new TransactionZoneDbaseSchema();
+            public static readonly TransactionZoneDbaseSchema Schema = new();
 
             public TransactionZoneDbaseRecord()
             {
@@ -36,7 +36,7 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
     {
         public class TransactionZoneDbaseRecord : DbaseRecord
         {
-            public static readonly TransactionZoneDbaseSchema Schema = new TransactionZoneDbaseSchema();
+            public static readonly TransactionZoneDbaseSchema Schema = new();
 
             public TransactionZoneDbaseRecord()
             {
@@ -50,7 +50,7 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
                 Values = new DbaseFieldValue[]
                 {
-                SOURCEID, TYPE, BESCHRIJV, OPERATOR, ORG, APPLICATIE, DOWNLOADID
+                    SOURCEID, TYPE, BESCHRIJV, OPERATOR, ORG, APPLICATIE, DOWNLOADID
                 };
             }
 

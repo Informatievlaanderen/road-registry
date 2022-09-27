@@ -1,12 +1,11 @@
-namespace RoadRegistry.BackOffice.Uploads
+namespace RoadRegistry.BackOffice.Uploads;
+
+using Core;
+
+public interface IFileWarningBuilder
 {
-    using Core;
+    IFileWarningBuilder WithParameter(ProblemParameter parameter);
+    IFileWarningBuilder WithParameters(params ProblemParameter[] parameters);
 
-    public interface IFileWarningBuilder
-    {
-        IFileWarningBuilder WithParameter(ProblemParameter parameter);
-        IFileWarningBuilder WithParameters(params ProblemParameter[] parameters);
-
-        FileWarning Build();
-    }
+    FileWarning Build();
 }

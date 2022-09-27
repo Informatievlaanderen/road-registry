@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class RoadNodeNotFound : Error
 {
-    public class RoadNodeNotFound : Error
+    public RoadNodeNotFound() : base(nameof(RoadNodeNotFound))
     {
-        public RoadNodeNotFound() : base(nameof(RoadNodeNotFound))
-        {
-        }
     }
 }

@@ -1,9 +1,8 @@
-namespace RoadRegistry.Syndication.Schema
+namespace RoadRegistry.Syndication.Schema;
+
+public enum StreetNameStatus
 {
-    public enum StreetNameStatus
-    {
-        Proposed = 0,
-        Current = 1,
-        Retired = 2
-    }
+    Proposed = 0,
+    Current = 1,
+    Retired = 2
 }

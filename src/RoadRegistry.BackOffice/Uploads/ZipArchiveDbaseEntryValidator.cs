@@ -1,10 +1,10 @@
-namespace RoadRegistry.BackOffice.Uploads
-{
-    using System;
-    using System.IO;
-    using System.IO.Compression;
-    using System.Text;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+namespace RoadRegistry.BackOffice.Uploads;
+
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Text;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 
     public class ZipArchiveDbaseEntryValidator<TDbaseRecord> : IZipArchiveDbaseEntryValidator
         where TDbaseRecord : DbaseRecord, new()
@@ -27,10 +27,10 @@ namespace RoadRegistry.BackOffice.Uploads
             _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
         }
 
-        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
-        {
-            if (entry == null) throw new ArgumentNullException(nameof(entry));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+    public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
+    {
+        if (entry == null) throw new ArgumentNullException(nameof(entry));
+        if (context == null) throw new ArgumentNullException(nameof(context));
 
             var problems = ZipArchiveProblems.None;
             using (var stream = entry.Open())
@@ -64,7 +64,6 @@ namespace RoadRegistry.BackOffice.Uploads
                 }
             }
 
-            return (problems, context);
-        }
+        return (problems, context);
     }
 }

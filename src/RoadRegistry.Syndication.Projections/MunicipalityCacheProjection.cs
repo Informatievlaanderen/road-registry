@@ -156,10 +156,7 @@ namespace RoadRegistry.Syndication.Projections
         private static async Task<MunicipalityRecord> FindOrThrow(SyndicationContext context, Guid municipalityId)
         {
             var municipalityRecord = await context.Municipalities.FindAsync(municipalityId);
-            if (municipalityRecord == null)
-            {
-                throw new InvalidOperationException($"No municipality with id {municipalityId} was found.");
-            }
+            if (municipalityRecord == null) throw new InvalidOperationException($"No municipality with id {municipalityId} was found.");
 
             return municipalityRecord;
         }

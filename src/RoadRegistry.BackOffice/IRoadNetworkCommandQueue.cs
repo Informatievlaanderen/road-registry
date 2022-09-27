@@ -1,12 +1,10 @@
-namespace RoadRegistry.BackOffice
-{
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Framework;
-    using Messages;
+namespace RoadRegistry.BackOffice;
 
-    public interface IRoadNetworkCommandQueue
-    {
-        Task Write(Command command, CancellationToken cancellationToken);
-    }
+using System.Threading;
+using System.Threading.Tasks;
+using Framework;
+
+public interface IRoadNetworkCommandQueue
+{
+    Task Write(Command command, CancellationToken cancellationToken);
 }

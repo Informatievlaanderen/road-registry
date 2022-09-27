@@ -1,7 +1,6 @@
-﻿namespace RoadRegistry.Framework.Testing
+﻿namespace RoadRegistry.Framework.Testing;
+
+public interface IExpectEventsScenarioBuilder
 {
-    public interface IExpectEventsScenarioBuilder
-    {
-        ExpectEventsScenario Build();
-    }
+    ExpectEventsScenario Build();
 }

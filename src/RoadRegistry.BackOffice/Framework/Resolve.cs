@@ -1,64 +1,63 @@
-namespace RoadRegistry.BackOffice.Framework
+namespace RoadRegistry.BackOffice.Framework;
+
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+public static class Resolve
 {
-    using System;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    public static class Resolve
+    public static CommandHandlerResolver WhenEqualToMessage(CommandHandlerModule[] modules)
     {
-        public static CommandHandlerResolver WhenEqualToMessage(CommandHandlerModule[] modules) =>
-            WhenEqualToMessage(modules.SelectMany(module => module.Handlers).ToArray());
-        public static CommandHandlerResolver WhenEqualToMessage(CommandHandlerModule module) =>
-            WhenEqualToMessage(module.Handlers);
+        return WhenEqualToMessage(modules.SelectMany(module => module.Handlers).ToArray());
+    }
 
-        public static CommandHandlerResolver WhenEqualToMessage(CommandHandler[] handlers)
+    public static CommandHandlerResolver WhenEqualToMessage(CommandHandlerModule module)
+    {
+        return WhenEqualToMessage(module.Handlers);
+    }
+
+    public static CommandHandlerResolver WhenEqualToMessage(CommandHandler[] handlers)
+    {
+        if (handlers == null) throw new ArgumentNullException(nameof(handlers));
+
+        var cache = handlers.ToDictionary(handler => handler.Command);
+
+        return message =>
         {
-            if (handlers == null)
-            {
-                throw new ArgumentNullException(nameof(handlers));
-            }
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
 
-            var cache = handlers.ToDictionary(handler => handler.Command);
+            if (!cache.TryGetValue(message.Body.GetType(), out var handler)) throw new InvalidOperationException($"The command handler for {message.Body.GetType()} could not be found.");
+            return handler.Handler;
+        };
+    }
 
-            return message => {
-                if(message == null)
-                    throw new ArgumentNullException(nameof(message));
+    public static EventHandlerResolver WhenEqualToMessage(EventHandlerModule[] modules)
+    {
+        return WhenEqualToMessage(modules.SelectMany(module => module.Handlers).ToArray());
+    }
 
-                if(!cache.TryGetValue(message.Body.GetType(), out var handler))
-                {
-                    throw new InvalidOperationException($"The command handler for {message.Body.GetType()} could not be found.");
-                }
-                return handler.Handler;
-            };
-        }
+    public static EventHandlerResolver WhenEqualToMessage(EventHandlerModule module)
+    {
+        return WhenEqualToMessage(module.Handlers);
+    }
 
-        public static EventHandlerResolver WhenEqualToMessage(EventHandlerModule[] modules) =>
-            WhenEqualToMessage(modules.SelectMany(module => module.Handlers).ToArray());
-        public static EventHandlerResolver WhenEqualToMessage(EventHandlerModule module) =>
-            WhenEqualToMessage(module.Handlers);
+    public static EventHandlerResolver WhenEqualToMessage(EventHandler[] handlers)
+    {
+        if (handlers == null) throw new ArgumentNullException(nameof(handlers));
 
-        public static EventHandlerResolver WhenEqualToMessage(EventHandler[] handlers)
+        var cache = handlers
+            .GroupBy(handler => handler.Event)
+            .ToDictionary(grouped => grouped.Key, grouped => grouped.ToArray());
+
+        return message =>
         {
-            if (handlers == null)
-            {
-                throw new ArgumentNullException(nameof(handlers));
-            }
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
 
-            var cache = handlers
-                .GroupBy(handler => handler.Event)
-                .ToDictionary(grouped => grouped.Key, grouped => grouped.ToArray());
-
-            return message => {
-                if(message == null)
-                    throw new ArgumentNullException(nameof(message));
-
-                if(!cache.TryGetValue(message.Body.GetType(), out var resolved))
-                {
-                    return Array.Empty<Func<Event, CancellationToken, Task>>();
-                }
-                return Array.ConvertAll(resolved, handler => handler.Handler);
-            };
-        }
+            if (!cache.TryGetValue(message.Body.GetType(), out var resolved)) return Array.Empty<Func<Event, CancellationToken, Task>>();
+            return Array.ConvertAll(resolved, handler => handler.Handler);
+        };
     }
 }

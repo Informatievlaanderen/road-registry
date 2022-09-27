@@ -1,20 +1,27 @@
-namespace RoadRegistry.BackOffice.Framework
+namespace RoadRegistry.BackOffice.Framework;
+
+public static class StreamNameConversions
 {
-    public static class StreamNameConversions
+    public static StreamNameConverter PassThru =>
+        name => name;
+
+    public static StreamNameConverter WithSuffix(string suffix)
     {
-        public static StreamNameConverter WithSuffix(string suffix) =>
-            name => name.WithSuffix(suffix);
+        return name => name.WithSuffix(suffix);
+    }
 
-        public static StreamNameConverter WithPrefix(string prefix) =>
-            name => name.WithPrefix(prefix);
+    public static StreamNameConverter WithPrefix(string prefix)
+    {
+        return name => name.WithPrefix(prefix);
+    }
 
-        public static StreamNameConverter WithoutSuffix(string suffix) =>
-            name => name.WithoutSuffix(suffix);
+    public static StreamNameConverter WithoutSuffix(string suffix)
+    {
+        return name => name.WithoutSuffix(suffix);
+    }
 
-        public static StreamNameConverter WithoutPrefix(string prefix) =>
-            name => name.WithoutPrefix(prefix);
-
-        public static StreamNameConverter PassThru =>
-            name => name;
+    public static StreamNameConverter WithoutPrefix(string prefix)
+    {
+        return name => name.WithoutPrefix(prefix);
     }
 }

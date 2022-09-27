@@ -49,13 +49,9 @@ namespace RoadRegistry.Legacy.Extract
                             using (var response = await client.GetAsync("/api", token))
                             {
                                 if (!response.IsSuccessStatusCode)
-                                {
                                     await Task.Delay(TimeSpan.FromSeconds(1), token);
-                                }
                                 else
-                                {
                                     exit = true;
-                                }
                             }
                         }
                         catch (Exception exception)
@@ -78,8 +74,7 @@ namespace RoadRegistry.Legacy.Extract
             CancellationToken token = default)
         {
             var exit = false;
-            while(!exit)
-            {
+            while (!exit)
                 try
                 {
                     logger.LogInformation("Waiting for sql server to become available ...");
@@ -103,23 +98,16 @@ namespace RoadRegistry.Legacy.Extract
                             command.CommandType = CommandType.Text;
                             using (var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false))
                             {
-                                if (!reader.IsClosed && reader.HasRows)
-                                {
-                                    exit = true;
-                                }
+                                if (!reader.IsClosed && reader.HasRows) exit = true;
                             }
                         }
                     }
                 }
-                catch(Exception exception)
+                catch (Exception exception)
                 {
-                    if (logger.IsEnabled(LogLevel.Debug))
-                    {
-                        logger.LogDebug(exception, "Sql server still not available because: {0}", exception.Message);
-                    }
+                    if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug(exception, "Sql server still not available because: {0}", exception.Message);
                     await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
                 }
-            }
 
             logger.LogInformation("Sql server became available.");
         }

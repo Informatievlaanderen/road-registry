@@ -1,21 +1,20 @@
-namespace RoadRegistry.Product.Schema.GradeSeparatedJunctions
+namespace RoadRegistry.Product.Schema.GradeSeparatedJunctions;
+
+using Hosts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+public class GradeSeparatedJunctionConfiguration : IEntityTypeConfiguration<GradeSeparatedJunctionRecord>
 {
-    using Hosts;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    private const string TableName = "GradeSeparatedJunction";
 
-    public class GradeSeparatedJunctionConfiguration : IEntityTypeConfiguration<GradeSeparatedJunctionRecord>
+    public void Configure(EntityTypeBuilder<GradeSeparatedJunctionRecord> b)
     {
-        private const string TableName = "GradeSeparatedJunction";
+        b.ToTable(TableName, WellknownSchemas.ProductSchema)
+            .HasKey(p => p.Id)
+            .IsClustered(false);
 
-        public void Configure(EntityTypeBuilder<GradeSeparatedJunctionRecord> b)
-        {
-            b.ToTable(TableName, WellknownSchemas.ProductSchema)
-                .HasKey(p => p.Id)
-                .IsClustered(false);
-
-            b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
-            b.Property(p => p.DbaseRecord).IsRequired();
-        }
+        b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
+        b.Property(p => p.DbaseRecord).IsRequired();
     }
 }

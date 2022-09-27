@@ -2,9 +2,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
     using BackOffice.Framework;
     using BackOffice.Messages;
+    using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Logging;
     using NodaTime;
     using NodaTime.Text;

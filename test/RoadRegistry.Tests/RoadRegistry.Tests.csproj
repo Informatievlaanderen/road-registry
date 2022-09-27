@@ -1,49 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
 
   <PropertyGroup>
-    <RootNamespace>RoadRegistry</RootNamespace>
-    <AssemblyName>RoadRegistry.Tests</AssemblyName>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>RoadRegistry.Tests</RootNamespace>
+    <DefaultNamespace>RoadRegistry.Tests</DefaultNamespace>
     <Nullable>disable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <NoWarn>CS0618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.CommandHost\RoadRegistry.BackOffice.CommandHost.csproj" />
-    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.EventHost\RoadRegistry.BackOffice.EventHost.csproj" />
-    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ExtractHost\RoadRegistry.BackOffice.ExtractHost.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
-    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
-    <ProjectReference Include="..\..\src\RoadRegistry.Editor.Projections\RoadRegistry.Editor.Projections.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
-    <ProjectReference Include="..\..\src\RoadRegistry.Product.Projections\RoadRegistry.Product.Projections.csproj" />
-    <ProjectReference Include="..\..\src\RoadRegistry.Syndication.ProjectionHost\RoadRegistry.Syndication.ProjectionHost.csproj" />
-    <ProjectReference Include="..\..\src\RoadRegistry.Syndication.Projections\RoadRegistry.Syndication.Projections.csproj" />
-    <ProjectReference Include="..\..\src\RoadRegistry.Wms.Projections\RoadRegistry.Wms.Projections.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Syndication.Schema\RoadRegistry.Syndication.Schema.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Wms.Schema\RoadRegistry.Wms.Schema.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="BackOffice\Api\empty.zip" />
     <EmbeddedResource Include="BackOffice\ident2.txt" />
     <EmbeddedResource Include="BackOffice\ident8.txt" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Content Include="Wms\Projections\TestData\*.*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="BackOffice\ExtractHost\ZipArchiveWriters\" />
-  </ItemGroup>
-  
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

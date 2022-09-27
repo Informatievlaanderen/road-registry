@@ -1,16 +1,13 @@
-﻿namespace RoadRegistry.Framework.Testing
+﻿namespace RoadRegistry.Framework.Testing;
+
+public class ScenarioExpectedEventsButThrewException
 {
-    using System;
-
-    public class ScenarioExpectedEventsButThrewException
+    public ScenarioExpectedEventsButThrewException(ExpectEventsScenario scenario, Exception actual)
     {
-        public ScenarioExpectedEventsButThrewException(ExpectEventsScenario scenario, Exception actual)
-        {
-            Scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
-            Actual = actual ?? throw new ArgumentNullException(nameof(actual));
-        }
-
-        public ExpectEventsScenario Scenario { get; }
-        public Exception Actual { get; }
+        Scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
+        Actual = actual ?? throw new ArgumentNullException(nameof(actual));
     }
+
+    public ExpectEventsScenario Scenario { get; }
+    public Exception Actual { get; }
 }

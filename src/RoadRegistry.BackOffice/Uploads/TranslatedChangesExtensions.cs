@@ -1,11 +1,12 @@
-namespace RoadRegistry.BackOffice.Uploads
-{
-    using System.Collections.Generic;
-    using System.Linq;
+namespace RoadRegistry.BackOffice.Uploads;
 
-    internal static class TranslatedChangesExtensions
+using System.Collections.Generic;
+using System.Linq;
+
+internal static class TranslatedChangesExtensions
+{
+    public static ITranslatedChange Flatten(this IEnumerable<ITranslatedChange> changes)
     {
-        public static ITranslatedChange Flatten(this IEnumerable<ITranslatedChange> changes) =>
-            changes.SingleOrDefault(_ => !ReferenceEquals(_, null));
+        return changes.SingleOrDefault(_ => !ReferenceEquals(_, null));
     }
 }

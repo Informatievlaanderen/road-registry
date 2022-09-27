@@ -1,11 +1,11 @@
-namespace RoadRegistry.Editor.ProjectionHost
-{
-    using Hosts;
-    using Schema;
+namespace RoadRegistry.Editor.ProjectionHost;
 
-    public class AcceptStreamMessage : AcceptStreamMessage<EditorContext>
+using Hosts;
+using Schema;
+
+public class AcceptStreamMessage : AcceptStreamMessage<EditorContext>
+{
+    protected AcceptStreamMessage()
     {
-        protected AcceptStreamMessage()
-        { }
     }
 }

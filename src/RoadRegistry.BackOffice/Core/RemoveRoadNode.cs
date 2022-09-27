@@ -1,76 +1,64 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+using System;
+using Messages;
+
+public class RemoveRoadNode : IRequestedChange
 {
-    using System;
-    using System.Linq;
-
-    public class RemoveRoadNode : IRequestedChange
+    public RemoveRoadNode(RoadNodeId id)
     {
-        public RemoveRoadNode(RoadNodeId id)
-        {
-            Id = id;
-        }
+        Id = id;
+    }
 
-        public RoadNodeId Id { get; }
+    public RoadNodeId Id { get; }
 
-        public Problems VerifyBefore(BeforeVerificationContext context)
-        {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+    public Problems VerifyBefore(BeforeVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var problems = Problems.None;
+        var problems = Problems.None;
 
-            if (!context.BeforeView.View.Nodes.ContainsKey(Id))
+        if (!context.BeforeView.View.Nodes.ContainsKey(Id)) problems = problems.Add(new RoadNodeNotFound());
+
+        return problems;
+    }
+
+    public Problems VerifyAfter(AfterVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        var problems = Problems.None;
+
+        var nodeBefore = context.BeforeView.Nodes[Id];
+
+        foreach (var segment in nodeBefore.Segments)
+            if (context.AfterView.View.Segments.TryGetValue(segment, out var foundSegment))
             {
-                problems = problems.Add(new RoadNodeNotFound());
+                if (foundSegment.Start == Id) problems = problems.Add(new RoadSegmentStartNodeRefersToRemovedNode(foundSegment.Id, Id));
+
+                if (foundSegment.End == Id) problems = problems.Add(new RoadSegmentEndNodeRefersToRemovedNode(foundSegment.Id, Id));
             }
 
-            return problems;
-        }
+        return problems;
+    }
 
-        public Problems VerifyAfter(AfterVerificationContext context)
+    public void TranslateTo(Messages.AcceptedChange message)
+    {
+        if (message == null) throw new ArgumentNullException(nameof(message));
+
+        message.RoadNodeRemoved = new RoadNodeRemoved
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            Id = Id
+        };
+    }
 
-            var problems = Problems.None;
+    public void TranslateTo(Messages.RejectedChange message)
+    {
+        if (message == null) throw new ArgumentNullException(nameof(message));
 
-            var nodeBefore = context.BeforeView.Nodes[Id];
-
-            foreach (var segment in nodeBefore.Segments)
-            {
-                if (context.AfterView.View.Segments.TryGetValue(segment, out var foundSegment))
-                {
-                    if (foundSegment.Start == Id)
-                    {
-                        problems = problems.Add(new RoadSegmentStartNodeRefersToRemovedNode(foundSegment.Id, Id));
-                    }
-
-                    if (foundSegment.End == Id)
-                    {
-                        problems = problems.Add(new RoadSegmentEndNodeRefersToRemovedNode(foundSegment.Id, Id));
-                    }
-                }
-            }
-
-            return problems;
-        }
-
-        public void TranslateTo(Messages.AcceptedChange message)
+        message.RemoveRoadNode = new Messages.RemoveRoadNode
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
-
-            message.RoadNodeRemoved = new Messages.RoadNodeRemoved
-            {
-                Id = Id
-            };
-        }
-
-        public void TranslateTo(Messages.RejectedChange message)
-        {
-            if (message == null) throw new ArgumentNullException(nameof(message));
-
-            message.RemoveRoadNode = new Messages.RemoveRoadNode
-            {
-                Id = Id
-            };
-        }
+            Id = Id
+        };
     }
 }

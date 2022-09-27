@@ -1,9 +1,8 @@
-namespace RoadRegistry.Editor.Schema.RoadNetworkChanges
-{
-    public class RoadNetworkChangeRequestBasedOnArchive
-    {
-        public byte[] ChangeRequestId { get; set; }
+namespace RoadRegistry.Editor.Schema.RoadNetworkChanges;
 
-        public string ArchiveId { get; set; }
-    }
+public class RoadNetworkChangeRequestBasedOnArchive
+{
+    public byte[] ChangeRequestId { get; set; }
+
+    public string ArchiveId { get; set; }
 }

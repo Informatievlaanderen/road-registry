@@ -1,17 +1,16 @@
-namespace RoadRegistry.BackOffice.Core
-{
-    using FluentValidation;
+namespace RoadRegistry.BackOffice.Core;
 
-    public class RemoveRoadSegmentFromNumberedRoadValidator : AbstractValidator<Messages.RemoveRoadSegmentFromNumberedRoad>
+using FluentValidation;
+
+public class RemoveRoadSegmentFromNumberedRoadValidator : AbstractValidator<Messages.RemoveRoadSegmentFromNumberedRoad>
+{
+    public RemoveRoadSegmentFromNumberedRoadValidator()
     {
-        public RemoveRoadSegmentFromNumberedRoadValidator()
-        {
-            RuleFor(c => c.AttributeId).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.SegmentId).GreaterThanOrEqualTo(0);
-            RuleFor(c => c.Number)
-                .NotEmpty()
-                .Must(NumberedRoadNumber.CanParse)
-                .When(c => c.Number != null, ApplyConditionTo.CurrentValidator);
-        }
+        RuleFor(c => c.AttributeId).GreaterThanOrEqualTo(0);
+        RuleFor(c => c.SegmentId).GreaterThanOrEqualTo(0);
+        RuleFor(c => c.Number)
+            .NotEmpty()
+            .Must(NumberedRoadNumber.CanParse)
+            .When(c => c.Number != null, ApplyConditionTo.CurrentValidator);
     }
 }

@@ -1,16 +1,15 @@
-namespace RoadRegistry.Hosts.Configuration
+namespace RoadRegistry.Hosts.Configuration;
+
+using System;
+using System.Collections.Generic;
+
+public class S3BlobClientOptions
 {
-    using System;
-    using System.Collections.Generic;
+    private IDictionary<string, string> _buckets;
 
-    public class S3BlobClientOptions
+    public IDictionary<string, string> Buckets
     {
-        private IDictionary<string, string> _buckets;
-
-        public IDictionary<string, string> Buckets
-        {
-            get => _buckets;
-            set => _buckets = new Dictionary<string, string>(value, StringComparer.OrdinalIgnoreCase);
-        }
+        get => _buckets;
+        set => _buckets = new Dictionary<string, string>(value, StringComparer.OrdinalIgnoreCase);
     }
 }

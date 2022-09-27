@@ -6,10 +6,8 @@ namespace RoadRegistry.Syndication.Projections.Syndication
     [DataContract(Name = "Content", Namespace = "")]
     public class SyndicationContent<T>
     {
-        [DataMember(Name = "Event")]
-        public XmlElement Event { get; set; }
+        [DataMember(Name = "Event")] public XmlElement Event { get; set; }
 
-        [DataMember(Name = "Object")]
-        public T Object { get; set; }
+        [DataMember(Name = "Object")] public T Object { get; set; }
     }
 }

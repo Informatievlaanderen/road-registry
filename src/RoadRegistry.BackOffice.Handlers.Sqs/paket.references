@@ -1,0 +1,4 @@
+Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
+
+MediatR
+AWSSDK.Core

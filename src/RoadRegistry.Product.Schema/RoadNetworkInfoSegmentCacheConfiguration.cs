@@ -1,29 +1,28 @@
-namespace RoadRegistry.Product.Schema
+namespace RoadRegistry.Product.Schema;
+
+using Hosts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+public class RoadNetworkInfoSegmentCacheConfiguration : IEntityTypeConfiguration<RoadNetworkInfoSegmentCache>
 {
-    using Hosts;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    public const string TableName = "RoadNetworkInfoSegmentCache";
 
-    public class RoadNetworkInfoSegmentCacheConfiguration : IEntityTypeConfiguration<RoadNetworkInfoSegmentCache>
+    public void Configure(EntityTypeBuilder<RoadNetworkInfoSegmentCache> b)
     {
-        public const string TableName = "RoadNetworkInfoSegmentCache";
+        b.ToTable(TableName, WellknownSchemas.ProductSchema)
+            .HasIndex(p => p.RoadSegmentId)
+            .IsClustered(false);
 
-        public void Configure(EntityTypeBuilder<RoadNetworkInfoSegmentCache> b)
-        {
-            b.ToTable(TableName, WellknownSchemas.ProductSchema)
-                .HasIndex(p => p.RoadSegmentId)
-                .IsClustered(false);
+        b.HasKey(p => p.RoadSegmentId);
+        b.Property(p => p.RoadSegmentId).ValueGeneratedNever().IsRequired();
 
-            b.HasKey(p => p.RoadSegmentId);
-            b.Property(p => p.RoadSegmentId).ValueGeneratedNever().IsRequired();
-
-            b.Property(p => p.SurfacesLength);
-            b.Property(p => p.LanesLength);
-            b.Property(p => p.ShapeLength);
-            b.Property(p => p.WidthsLength);
-            b.Property(p => p.PartOfEuropeanRoadsLength);
-            b.Property(p => p.PartOfNationalRoadsLength);
-            b.Property(p => p.PartOfNumberedRoadsLength);
-        }
+        b.Property(p => p.SurfacesLength);
+        b.Property(p => p.LanesLength);
+        b.Property(p => p.ShapeLength);
+        b.Property(p => p.WidthsLength);
+        b.Property(p => p.PartOfEuropeanRoadsLength);
+        b.Property(p => p.PartOfNationalRoadsLength);
+        b.Property(p => p.PartOfNumberedRoadsLength);
     }
 }

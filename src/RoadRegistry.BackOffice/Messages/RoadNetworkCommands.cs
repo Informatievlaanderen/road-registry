@@ -1,15 +1,16 @@
-namespace RoadRegistry.BackOffice.Messages
-{
-    using System;
+namespace RoadRegistry.BackOffice.Messages;
 
-    public static class RoadNetworkCommands
+using System;
+
+public static class RoadNetworkCommands
+{
+    public static readonly Type[] All =
     {
-        public static readonly Type[] All = {
-            typeof(UploadRoadNetworkChangesArchive),
-            typeof(ChangeRoadNetwork),
-            typeof(AnnounceRoadNetworkExtractDownloadBecameAvailable),
-            typeof(RequestRoadNetworkExtract),
-            typeof(RebuildRoadNetworkSnapshot)
-        };
-    }
+        typeof(AnnounceRoadNetworkExtractDownloadBecameAvailable),
+        typeof(ChangeRoadNetwork),
+        typeof(RequestRoadNetworkExtract),
+        typeof(RebuildRoadNetworkSnapshot),
+        typeof(UploadRoadNetworkChangesArchive),
+        typeof(UploadRoadNetworkExtractChangesArchive)
+    };
 }

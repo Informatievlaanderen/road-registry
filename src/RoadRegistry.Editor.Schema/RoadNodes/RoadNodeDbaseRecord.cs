@@ -1,33 +1,32 @@
-namespace RoadRegistry.Editor.Schema.RoadNodes
+namespace RoadRegistry.Editor.Schema.RoadNodes;
+
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public class RoadNodeDbaseRecord : DbaseRecord
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+    public static readonly RoadNodeDbaseSchema Schema = new();
 
-    public class RoadNodeDbaseRecord : DbaseRecord
+    public RoadNodeDbaseRecord()
     {
-        public static readonly RoadNodeDbaseSchema Schema = new RoadNodeDbaseSchema();
+        WK_OIDN = new DbaseInt32(Schema.WK_OIDN);
+        WK_UIDN = new DbaseString(Schema.WK_UIDN);
+        TYPE = new DbaseInt32(Schema.TYPE);
+        LBLTYPE = new DbaseString(Schema.LBLTYPE);
+        BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
+        BEGINORG = new DbaseString(Schema.BEGINORG);
+        LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
 
-        public RoadNodeDbaseRecord()
+        Values = new DbaseFieldValue[]
         {
-            WK_OIDN = new DbaseInt32(Schema.WK_OIDN);
-            WK_UIDN = new DbaseString(Schema.WK_UIDN);
-            TYPE = new DbaseInt32(Schema.TYPE);
-            LBLTYPE = new DbaseString(Schema.LBLTYPE);
-            BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-            BEGINORG = new DbaseString(Schema.BEGINORG);
-            LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
-
-            Values = new DbaseFieldValue[]
-            {
-                WK_OIDN,WK_UIDN,TYPE,LBLTYPE,BEGINTIJD,BEGINORG,LBLBGNORG
-            };
-        }
-
-        public DbaseInt32 WK_OIDN { get; }
-        public DbaseString WK_UIDN { get; }
-        public DbaseInt32 TYPE { get; }
-        public DbaseString LBLTYPE { get; }
-        public DbaseDateTime BEGINTIJD { get; }
-        public DbaseString BEGINORG { get; }
-        public DbaseString LBLBGNORG { get; }
+            WK_OIDN, WK_UIDN, TYPE, LBLTYPE, BEGINTIJD, BEGINORG, LBLBGNORG
+        };
     }
+
+    public DbaseInt32 WK_OIDN { get; }
+    public DbaseString WK_UIDN { get; }
+    public DbaseInt32 TYPE { get; }
+    public DbaseString LBLTYPE { get; }
+    public DbaseDateTime BEGINTIJD { get; }
+    public DbaseString BEGINORG { get; }
+    public DbaseString LBLBGNORG { get; }
 }

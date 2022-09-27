@@ -1,24 +1,23 @@
-namespace RoadRegistry.Editor.Schema.RoadNetworkChanges
+namespace RoadRegistry.Editor.Schema.RoadNetworkChanges;
+
+using Hosts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+public class RoadNetworkChangeConfiguration : IEntityTypeConfiguration<RoadNetworkChange>
 {
-    using Hosts;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    public const string TableName = "RoadNetworkChange";
 
-    public class RoadNetworkChangeConfiguration : IEntityTypeConfiguration<RoadNetworkChange>
+    public void Configure(EntityTypeBuilder<RoadNetworkChange> b)
     {
-        public const string TableName = "RoadNetworkChange";
+        b.ToTable(TableName, WellknownSchemas.EditorSchema)
+            .HasIndex(p => p.Id)
+            .IsClustered(false);
 
-        public void Configure(EntityTypeBuilder<RoadNetworkChange> b)
-        {
-            b.ToTable(TableName, WellknownSchemas.EditorSchema)
-                .HasIndex(p => p.Id)
-                .IsClustered(false);
-
-            b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
-            b.Property(p => p.Title).IsRequired();
-            b.Property(p => p.Type).IsRequired();
-            b.Property(p => p.Content).IsRequired(false);
-            b.Property(p => p.When).IsRequired();
-        }
+        b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
+        b.Property(p => p.Title).IsRequired();
+        b.Property(p => p.Type).IsRequired();
+        b.Property(p => p.Content).IsRequired(false);
+        b.Property(p => p.When).IsRequired();
     }
 }

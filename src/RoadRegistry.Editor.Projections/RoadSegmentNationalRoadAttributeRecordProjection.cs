@@ -33,12 +33,12 @@ namespace RoadRegistry.Editor.Projections
                         RoadSegmentId = envelope.Message.Id,
                         DbaseRecord = new RoadSegmentNationalRoadAttributeDbaseRecord
                         {
-                            NW_OIDN = {Value = nationalRoad.AttributeId},
-                            WS_OIDN = {Value = envelope.Message.Id},
-                            IDENT2 = {Value = nationalRoad.Number},
-                            BEGINTIJD = {Value = nationalRoad.Origin.Since},
-                            BEGINORG = {Value = nationalRoad.Origin.OrganizationId},
-                            LBLBGNORG = {Value = nationalRoad.Origin.Organization},
+                            NW_OIDN = { Value = nationalRoad.AttributeId },
+                            WS_OIDN = { Value = envelope.Message.Id },
+                            IDENT2 = { Value = nationalRoad.Number },
+                            BEGINTIJD = { Value = nationalRoad.Origin.Since },
+                            BEGINORG = { Value = nationalRoad.Origin.OrganizationId },
+                            LBLBGNORG = { Value = nationalRoad.Origin.Organization }
                         }.ToBytes(manager, encoding)
                     });
 
@@ -48,7 +48,6 @@ namespace RoadRegistry.Editor.Projections
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
-                {
                     switch (change)
                     {
                         case RoadSegmentAddedToNationalRoad nationalRoad:
@@ -58,12 +57,12 @@ namespace RoadRegistry.Editor.Projections
                                 RoadSegmentId = nationalRoad.SegmentId,
                                 DbaseRecord = new RoadSegmentNationalRoadAttributeDbaseRecord
                                 {
-                                    NW_OIDN = {Value = nationalRoad.AttributeId},
-                                    WS_OIDN = {Value = nationalRoad.SegmentId},
-                                    IDENT2 = {Value = nationalRoad.Number},
-                                    BEGINTIJD = {Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
-                                    BEGINORG = {Value = envelope.Message.OrganizationId},
-                                    LBLBGNORG = {Value = envelope.Message.Organization}
+                                    NW_OIDN = { Value = nationalRoad.AttributeId },
+                                    WS_OIDN = { Value = nationalRoad.SegmentId },
+                                    IDENT2 = { Value = nationalRoad.Number },
+                                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                                    BEGINORG = { Value = envelope.Message.OrganizationId },
+                                    LBLBGNORG = { Value = envelope.Message.Organization }
                                 }.ToBytes(manager, encoding)
                             });
                             break;
@@ -85,7 +84,6 @@ namespace RoadRegistry.Editor.Projections
                             context.RoadSegmentNationalRoadAttributes.RemoveRange(roadSegmentNationalRoadAttributeRecords);
                             break;
                     }
-                }
             });
         }
     }

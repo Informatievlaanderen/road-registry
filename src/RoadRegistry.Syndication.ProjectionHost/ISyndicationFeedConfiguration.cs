@@ -1,9 +1,8 @@
-namespace RoadRegistry.Syndication.ProjectionHost
-{
-    using System;
+namespace RoadRegistry.Syndication.ProjectionHost;
 
-    public interface ISyndicationFeedConfiguration
-    {
-        public Uri Uri { get; }
-    }
+using System;
+
+public interface ISyndicationFeedConfiguration
+{
+    public Uri Uri { get; }
 }

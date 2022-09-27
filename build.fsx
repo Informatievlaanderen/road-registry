@@ -73,6 +73,7 @@ Target.create "Publish_Solution" (fun _ ->
     "RoadRegistry.BackOffice.EventHost"
     "RoadRegistry.BackOffice.ExtractHost"
     "RoadRegistry.BackOffice.CommandHost"
+    "RoadRegistry.BackOffice.MessagingHost.Sqs"
     "RoadRegistry.Legacy.Extract"
     "RoadRegistry.Legacy.Import"
     "RoadRegistry.BackOffice.Api"
@@ -126,6 +127,9 @@ Target.create "PushContainer_BackOfficeExtractHost" (fun _ -> push "backoffice-e
 Target.create "Containerize_BackOfficeCommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
 Target.create "PushContainer_BackOfficeCommandHost" (fun _ -> push "backoffice-commandhost")
 
+Target.create "Containerize_BackOfficeMessagingHostSqs" (fun _ -> containerize "RoadRegistry.BackOffice.MessagingHost.Sqs" "backoffice-messaginghost-sqs")
+Target.create "PushContainer_BackOfficeMessagingHostSqs" (fun _ -> push "backoffice-messaginghost-sqs")
+
 Target.create "Containerize_ImportLegacy" (fun _ -> containerize "RoadRegistry.Legacy.Import" "import-legacy")
 Target.create "PushContainer_ImportLegacy" (fun _ -> push "import-legacy")
 
@@ -172,6 +176,7 @@ Target.create "Push" ignore
   ==> "Containerize_BackOfficeEventHost"
   ==> "Containerize_BackOfficeExtractHost"
   ==> "Containerize_BackOfficeCommandHost"
+  ==> "Containerize_BackOfficeMessagingHostSqs"
   ==> "Containerize_ImportLegacy"
   ==> "Containerize_ExtractLegacy"
   ==> "Containerize"
@@ -190,6 +195,7 @@ Target.create "Push" ignore
   ==> "PushContainer_BackOfficeEventHost"
   ==> "PushContainer_BackOfficeExtractHost"
   ==> "PushContainer_BackOfficeCommandHost"
+  ==> "PushContainer_BackOfficeMessagingHostSqs"
   ==> "PushContainer_ImportLegacy"
   ==> "PushContainer_ExtractLegacy"
   ==> "Push"

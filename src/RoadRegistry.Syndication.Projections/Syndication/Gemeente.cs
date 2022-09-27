@@ -9,8 +9,14 @@ namespace RoadRegistry.Syndication.Projections.Syndication
     [DataContract(Name = "Gemeente", Namespace = "")]
     public class Gemeente
     {
-        [DataMember(Name = "Id", Order = 1)]
-        public Guid Id { get; set; }
+        public Gemeente()
+        {
+            Gemeentenamen = new List<GeografischeNaam>();
+            OfficialLanguages = new List<Taal>();
+            FacilitiesLanguages = new List<Taal>();
+        }
+
+        [DataMember(Name = "Id", Order = 1)] public Guid Id { get; set; }
 
         [DataMember(Name = "Identificator", Order = 2)]
         public GemeenteIdentificator Identificator { get; set; }
@@ -26,26 +32,14 @@ namespace RoadRegistry.Syndication.Projections.Syndication
 
         [DataMember(Name = "GemeenteStatus", Order = 6)]
         public GemeenteStatus? GemeenteStatus { get; set; }
-
-        public Gemeente()
-        {
-            Gemeentenamen = new List<GeografischeNaam>();
-            OfficialLanguages = new List<Taal>();
-            FacilitiesLanguages = new List<Taal>();
-        }
     }
 
     [DataContract(Name = "StraatNaam", Namespace = "")]
     public class StraatNaam
     {
-        [DataMember(Name = "Id", Order = 1)]
-        public Guid Id { get; set; }
+        [DataMember(Name = "Id", Order = 1)] public Guid Id { get; set; }
 
         [DataMember(Name = "Identificator", Order = 2)]
         public GemeenteIdentificator Identificator { get; set; }
-
-        public StraatNaam()
-        {
-        }
     }
 }

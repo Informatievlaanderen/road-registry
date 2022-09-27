@@ -1,7 +1,6 @@
-namespace RoadRegistry.Editor.Schema.RoadNetworkChanges
+namespace RoadRegistry.Editor.Schema.RoadNetworkChanges;
+
+public class RoadNetworkExtractChangesArchiveUploadedEntry
 {
-    public class RoadNetworkExtractChangesArchiveUploadedEntry
-    {
-        public ArchiveInfo Archive { get; set; }
-    }
+    public ArchiveInfo Archive { get; set; }
 }

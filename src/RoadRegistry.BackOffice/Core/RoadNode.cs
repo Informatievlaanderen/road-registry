@@ -1,155 +1,143 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using NetTopologySuite.Geometries;
+
+public class RoadNode
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Immutable;
-    using System.Linq;
-    using NetTopologySuite.Geometries;
+    private readonly ImmutableHashSet<RoadSegmentId> _segments;
 
-    public class RoadNode
+    public RoadNode(RoadNodeId id, RoadNodeType type, Point geometry)
     {
-        private readonly ImmutableHashSet<RoadSegmentId> _segments;
+        Id = id;
+        Type = type ?? throw new ArgumentNullException(nameof(type));
+        Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
+        _segments = ImmutableHashSet<RoadSegmentId>.Empty;
+    }
 
-        public RoadNodeId Id { get; }
-        public RoadNodeType Type { get; }
-        public Point Geometry { get; }
+    private RoadNode(RoadNodeId id, RoadNodeType type, Point geometry, ImmutableHashSet<RoadSegmentId> segments)
+    {
+        Id = id;
+        Type = type;
+        Geometry = geometry;
+        _segments = segments;
+    }
 
-        public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
+    public RoadNodeId Id { get; }
+    public RoadNodeType Type { get; }
+    public Point Geometry { get; }
 
-        public RoadNode(RoadNodeId id, RoadNodeType type, Point geometry)
+    public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
+
+    public IReadOnlyCollection<RoadNodeType> SupportedRoadNodeTypes
+    {
+        get
         {
-            Id = id;
-            Type = type ?? throw new ArgumentNullException(nameof(type));
-            Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
-            _segments = ImmutableHashSet<RoadSegmentId>.Empty;
+            if (_segments.Count == 0) return Array.Empty<RoadNodeType>();
+
+            if (_segments.Count == 1) return new[] { RoadNodeType.MiniRoundabout, RoadNodeType.EndNode };
+
+            if (_segments.Count == 2) return new[] { RoadNodeType.MiniRoundabout, RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode };
+
+            // 3 or more
+            return new[] { RoadNodeType.MiniRoundabout, RoadNodeType.RealNode };
         }
+    }
 
-        private RoadNode(RoadNodeId id, RoadNodeType type, Point geometry, ImmutableHashSet<RoadSegmentId> segments)
+    public RoadNode WithGeometry(Point geometry)
+    {
+        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+        return new RoadNode(Id, Type, geometry, _segments);
+    }
+
+    public RoadNode WithType(RoadNodeType type)
+    {
+        if (type == null) throw new ArgumentNullException(nameof(type));
+        return new RoadNode(Id, type, Geometry, _segments);
+    }
+
+    public RoadNode ConnectWith(RoadSegmentId segment)
+    {
+        return new RoadNode(Id, Type, Geometry, _segments.Add(segment));
+    }
+
+    public RoadNode DisconnectFrom(RoadSegmentId segment)
+    {
+        return new RoadNode(Id, Type, Geometry, _segments.Remove(segment));
+    }
+
+    //public KeyValuePair<RoadNodeId, RoadNode> ToKeyValuePair() => new KeyValuePair<RoadNodeId, RoadNode>(Id, this);
+
+    // public Builder ToBuilder() => new Builder(this);
+
+    // public class Builder
+    // {
+    //     private readonly ImmutableHashSet<RoadSegmentId>.Builder _segments;
+    //     public RoadNodeId Id { get; }
+
+    //     public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
+
+    //     internal Builder(RoadNode node)
+    //     {
+    //         Id = node.Id;
+    //         _segments = node._segments.ToBuilder();
+    //     }
+
+    //     public void ConnectWith(RoadSegmentId link)
+    //     {
+    //         _segments.Add(link);
+    //     }
+
+    //     public void DisconnectFrom(RoadSegmentId link)
+    //     {
+    //         _segments.Remove(link);
+    //     }
+
+    //     public RoadNode ToImmutable() => new RoadNode(Id, _segments.ToImmutable());
+    // }
+
+    public Problems VerifyTypeMatchesConnectedSegmentCount(IRoadNetworkView view, IRequestedChangeIdentityTranslator translator)
+    {
+        if (view == null) throw new ArgumentNullException(nameof(view));
+
+        var problems = Problems.None;
+
+        if (Segments.Count == 0)
         {
-            Id = id;
-            Type = type;
-            Geometry = geometry;
-            _segments = segments;
+            problems = problems.Add(new RoadNodeNotConnectedToAnySegment(translator.TranslateToTemporaryOrId(Id)));
         }
-
-        public RoadNode WithGeometry(Point geometry)
+        else if (Segments.Count == 1 && Type != RoadNodeType.EndNode)
         {
-            if (geometry == null) throw new ArgumentNullException(nameof(geometry));
-            return new RoadNode(Id, Type, geometry, _segments);
+            problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToTemporaryOrId).ToArray(), Type, new[] { RoadNodeType.EndNode }));
         }
-
-        public RoadNode WithType(RoadNodeType type)
+        else if (Segments.Count == 2)
         {
-            if (type == null) throw new ArgumentNullException(nameof(type));
-            return new RoadNode(Id, type, Geometry, _segments);
-        }
-
-        public RoadNode ConnectWith(RoadSegmentId segment)
-        {
-            return new RoadNode(Id, Type, Geometry, _segments.Add(segment));
-        }
-
-        public RoadNode DisconnectFrom(RoadSegmentId segment)
-        {
-            return new RoadNode(Id, Type, Geometry, _segments.Remove(segment));
-        }
-
-        public IReadOnlyCollection<RoadNodeType> SupportedRoadNodeTypes
-        {
-            get
+            if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
             {
-                if (_segments.Count == 0)
-                {
-                    return Array.Empty<RoadNodeType>();
-                }
-
-                if (_segments.Count == 1)
-                {
-                    return new[] { RoadNodeType.MiniRoundabout, RoadNodeType.EndNode };
-                }
-
-                if (_segments.Count == 2)
-                {
-                    return new[] { RoadNodeType.MiniRoundabout, RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode };
-                }
-
-                // 3 or more
-                return new[] { RoadNodeType.MiniRoundabout, RoadNodeType.RealNode };
+                problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToTemporaryOrId).ToArray(), Type, new[] { RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode }));
+            }
+            else if (Type == RoadNodeType.FakeNode)
+            {
+                var segments = Segments.Select(segmentId => view.Segments[segmentId])
+                    .ToArray();
+                var segment1 = segments[0];
+                var segment2 = segments[1];
+                if (segment1.AttributeHash.Equals(segment2.AttributeHash))
+                    problems = problems.Add(new FakeRoadNodeConnectedSegmentsDoNotDiffer(
+                        translator.TranslateToTemporaryOrId(Id),
+                        translator.TranslateToTemporaryOrId(segment1.Id),
+                        translator.TranslateToTemporaryOrId(segment2.Id)
+                    ));
             }
         }
-
-        //public KeyValuePair<RoadNodeId, RoadNode> ToKeyValuePair() => new KeyValuePair<RoadNodeId, RoadNode>(Id, this);
-
-        // public Builder ToBuilder() => new Builder(this);
-
-        // public class Builder
-        // {
-        //     private readonly ImmutableHashSet<RoadSegmentId>.Builder _segments;
-        //     public RoadNodeId Id { get; }
-
-        //     public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
-
-        //     internal Builder(RoadNode node)
-        //     {
-        //         Id = node.Id;
-        //         _segments = node._segments.ToBuilder();
-        //     }
-
-        //     public void ConnectWith(RoadSegmentId link)
-        //     {
-        //         _segments.Add(link);
-        //     }
-
-        //     public void DisconnectFrom(RoadSegmentId link)
-        //     {
-        //         _segments.Remove(link);
-        //     }
-
-        //     public RoadNode ToImmutable() => new RoadNode(Id, _segments.ToImmutable());
-        // }
-
-        public Problems VerifyTypeMatchesConnectedSegmentCount(IRoadNetworkView view, IRequestedChangeIdentityTranslator translator)
+        else if (Segments.Count > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
         {
-            if (view == null) throw new ArgumentNullException(nameof(view));
-
-            var problems = Problems.None;
-
-            if (Segments.Count == 0)
-            {
-                problems = problems.Add(new RoadNodeNotConnectedToAnySegment(translator.TranslateToTemporaryOrId(Id)));
-            }
-            else if (Segments.Count == 1 && Type != RoadNodeType.EndNode)
-            {
-                problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToTemporaryOrId).ToArray(), Type, new []{RoadNodeType.EndNode}));
-            }
-            else if (Segments.Count == 2)
-            {
-                if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
-                {
-                    problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToTemporaryOrId).ToArray(), Type, new []{RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode}));
-                }
-                else if (Type == RoadNodeType.FakeNode)
-                {
-                    var segments = Segments.Select(segmentId => view.Segments[segmentId])
-                        .ToArray();
-                    var segment1 = segments[0];
-                    var segment2 = segments[1];
-                    if (segment1.AttributeHash.Equals(segment2.AttributeHash))
-                    {
-                        problems = problems.Add(new FakeRoadNodeConnectedSegmentsDoNotDiffer(
-                            translator.TranslateToTemporaryOrId(Id),
-                            translator.TranslateToTemporaryOrId(segment1.Id),
-                            translator.TranslateToTemporaryOrId(segment2.Id)
-                        ));
-                    }
-                }
-            }
-            else if (Segments.Count > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
-            {
-                problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToTemporaryOrId).ToArray(), Type, new []{RoadNodeType.RealNode, RoadNodeType.MiniRoundabout}));
-            }
-
-            return problems;
+            problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToTemporaryOrId).ToArray(), Type, new[] { RoadNodeType.RealNode, RoadNodeType.MiniRoundabout }));
         }
+
+        return problems;
     }
 }

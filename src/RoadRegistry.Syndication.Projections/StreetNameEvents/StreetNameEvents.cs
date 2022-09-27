@@ -36,8 +36,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [DataMember(Name = "StreetNameId", Order = 1)]
         public Guid StreetNameId { get; set; }
 
-        [DataMember(Name = "Name", Order = 2)]
-        public string Name { get; set; }
+        [DataMember(Name = "Name", Order = 2)] public string Name { get; set; }
 
         [DataMember(Name = "Language", Order = 3)]
         public string LanguageValue { get; set; }
@@ -45,7 +44,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? Language =>
             string.IsNullOrEmpty(LanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
@@ -61,7 +60,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? Language =>
             string.IsNullOrEmpty(LanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
@@ -71,8 +70,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [DataMember(Name = "StreetNameId", Order = 1)]
         public Guid StreetNameId { get; set; }
 
-        [DataMember(Name = "Name", Order = 2)]
-        public string Name { get; set; }
+        [DataMember(Name = "Name", Order = 2)] public string Name { get; set; }
 
         [DataMember(Name = "Language", Order = 3)]
         public string LanguageValue { get; set; }
@@ -80,7 +78,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? Language =>
             string.IsNullOrEmpty(LanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
@@ -96,7 +94,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? Language =>
             string.IsNullOrEmpty(LanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
@@ -189,7 +187,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? Language =>
             string.IsNullOrEmpty(LanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
@@ -208,7 +206,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? Language =>
             string.IsNullOrEmpty(LanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
@@ -224,7 +222,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? Language =>
             string.IsNullOrEmpty(LanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
@@ -243,7 +241,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? Language =>
             string.IsNullOrEmpty(LanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(LanguageValue);
     }
 
@@ -272,7 +270,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? PrimaryLanguage =>
             string.IsNullOrEmpty(PrimaryLanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(PrimaryLanguageValue);
     }
 
@@ -301,7 +299,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? PrimaryLanguage =>
             string.IsNullOrEmpty(PrimaryLanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(PrimaryLanguageValue);
     }
 
@@ -330,7 +328,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? SecondaryLanguage =>
             string.IsNullOrEmpty(SecondaryLanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(SecondaryLanguageValue);
     }
 
@@ -359,7 +357,7 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents
         [IgnoreDataMember]
         public StreetNameLanguage? SecondaryLanguage =>
             string.IsNullOrEmpty(SecondaryLanguageValue)
-                ? (StreetNameLanguage?) null
+                ? (StreetNameLanguage?)null
                 : Enum.Parse<StreetNameLanguage>(SecondaryLanguageValue);
     }
 

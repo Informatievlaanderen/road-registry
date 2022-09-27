@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.Framework
-{
-    public interface IEventSourcedEntity
-    {
-        void RestoreFromEvents(object[] events);
+namespace RoadRegistry.BackOffice.Framework;
 
-        object[] TakeEvents();
-    }
+public interface IEventSourcedEntity
+{
+    void RestoreFromEvents(object[] events);
+
+    object[] TakeEvents();
 }

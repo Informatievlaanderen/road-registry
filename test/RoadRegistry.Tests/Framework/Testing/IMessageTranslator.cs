@@ -1,7 +1,6 @@
-namespace RoadRegistry.Framework.Testing
+namespace RoadRegistry.Framework.Testing;
+
+public interface IMessageTranslator
 {
-    public interface IMessageTranslator
-    {
-        string Translate(object message);
-    }
+    string Translate(object message);
 }

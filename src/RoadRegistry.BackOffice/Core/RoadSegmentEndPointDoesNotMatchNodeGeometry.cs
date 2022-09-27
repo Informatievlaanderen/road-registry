@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class RoadSegmentEndPointDoesNotMatchNodeGeometry : Error
 {
-    public class RoadSegmentEndPointDoesNotMatchNodeGeometry : Error
+    public RoadSegmentEndPointDoesNotMatchNodeGeometry() : base(nameof(RoadSegmentEndPointDoesNotMatchNodeGeometry))
     {
-        public RoadSegmentEndPointDoesNotMatchNodeGeometry() : base(nameof(RoadSegmentEndPointDoesNotMatchNodeGeometry))
-        {
-        }
     }
 }

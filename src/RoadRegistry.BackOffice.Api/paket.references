@@ -6,7 +6,11 @@ Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 Be.Vlaanderen.Basisregisters.Shaperon
 
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+MediatR.Extensions.Autofac.DependencyInjection
 NodaTime
 
 Serilog.Formatting.Compact
 Serilog.Sinks.Seq
+
+Autofac
+Autofac.Extensions.DependencyInjection

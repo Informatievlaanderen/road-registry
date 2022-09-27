@@ -1,7 +1,6 @@
-namespace RoadRegistry.Hosts.Configuration
+namespace RoadRegistry.Hosts.Configuration;
+
+public class FileBlobClientOptions
 {
-    public class FileBlobClientOptions
-    {
-        public string Directory { get; set; }
-    }
+    public string Directory { get; set; }
 }

@@ -1,42 +1,41 @@
-namespace RoadRegistry.BackOffice.Framework
+namespace RoadRegistry.BackOffice.Framework;
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+public abstract class EventHandlerModule
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
+    private readonly List<EventHandler> _handlers;
 
-    public abstract class EventHandlerModule
+    protected EventHandlerModule()
     {
-        private readonly List<EventHandler> _handlers;
+        _handlers = new List<EventHandler>();
+    }
 
-        protected EventHandlerModule()
+    public EventHandler[] Handlers => _handlers.ToArray();
+
+    protected void Handle<TEvent>(Func<Event<TEvent>, CancellationToken, Task> handler)
+    {
+        if (handler == null)
+            throw new ArgumentNullException(nameof(handler));
+        _handlers.Add(
+            new EventHandler(
+                typeof(TEvent),
+                (message, ct) => handler(new Event<TEvent>(message), ct)
+            ));
+    }
+
+    protected IEventHandlerBuilder<TEvent> For<TEvent>()
+    {
+        return new EventHandlerBuilder<TEvent>(handler =>
         {
-            _handlers = new List<EventHandler>();
-        }
-
-        public EventHandler[] Handlers => _handlers.ToArray();
-
-        protected void Handle<TEvent>(Func<Event<TEvent>, CancellationToken, Task> handler)
-        {
-            if (handler == null)
-                throw new ArgumentNullException(nameof(handler));
             _handlers.Add(
                 new EventHandler(
                     typeof(TEvent),
                     (message, ct) => handler(new Event<TEvent>(message), ct)
                 ));
-        }
-
-        protected IEventHandlerBuilder<TEvent> For<TEvent>()
-        {
-            return new EventHandlerBuilder<TEvent>(handler =>
-            {
-                _handlers.Add(
-                    new EventHandler(
-                        typeof(TEvent),
-                        (message, ct) => handler(new Event<TEvent>(message), ct)
-                    ));
-            });
-        }
+        });
     }
 }

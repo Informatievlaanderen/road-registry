@@ -1,26 +1,26 @@
 // ReSharper disable InconsistentNaming
-namespace RoadRegistry.Dbase.Lists
+
+namespace RoadRegistry.Dbase.Lists;
+
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public class RoadSegmentGeometryDrawMethodDbaseRecord : DbaseRecord
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+    public static readonly RoadSegmentGeometryDrawMethodDbaseSchema Schema = new();
 
-    public class RoadSegmentGeometryDrawMethodDbaseRecord : DbaseRecord
+    public RoadSegmentGeometryDrawMethodDbaseRecord()
     {
-        public static readonly RoadSegmentGeometryDrawMethodDbaseSchema Schema = new RoadSegmentGeometryDrawMethodDbaseSchema();
+        METHODE = new DbaseInt32(Schema.METHODE);
+        LBLMETHOD = new DbaseString(Schema.LBLMETHOD);
+        DEFMETHOD = new DbaseString(Schema.DEFMETHOD);
 
-        public RoadSegmentGeometryDrawMethodDbaseRecord()
+        Values = new DbaseFieldValue[]
         {
-            METHODE = new DbaseInt32(Schema.METHODE);
-            LBLMETHOD = new DbaseString(Schema.LBLMETHOD);
-            DEFMETHOD = new DbaseString(Schema.DEFMETHOD);
-
-            Values = new DbaseFieldValue[]
-            {
-                METHODE, LBLMETHOD, DEFMETHOD
-            };
-        }
-
-        public DbaseInt32 METHODE { get; }
-        public DbaseString LBLMETHOD { get; }
-        public DbaseString DEFMETHOD { get; }
+            METHODE, LBLMETHOD, DEFMETHOD
+        };
     }
+
+    public DbaseInt32 METHODE { get; }
+    public DbaseString LBLMETHOD { get; }
+    public DbaseString DEFMETHOD { get; }
 }

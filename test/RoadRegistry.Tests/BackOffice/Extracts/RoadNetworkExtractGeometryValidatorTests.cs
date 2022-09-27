@@ -1,40 +1,42 @@
-namespace RoadRegistry.BackOffice.Extracts
+namespace RoadRegistry.Tests.BackOffice.Extracts;
+
+using FluentAssertions;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Messages;
+using Xunit;
+
+public class RoadNetworkExtractGeometryValidatorTests
 {
-    using FluentAssertions;
-    using Messages;
-    using NetTopologySuite.IO;
-    using Xunit;
+    private readonly WKTReader _reader;
+    private readonly RoadNetworkExtractGeometryValidator _validator;
 
-    public class RoadNetworkExtractGeometryValidatorTests
+    public RoadNetworkExtractGeometryValidatorTests()
     {
-        private readonly RoadNetworkExtractGeometryValidator _validator;
-        private readonly WKTReader _reader;
+        _reader = new WKTReader();
+        _validator = new RoadNetworkExtractGeometryValidator();
+    }
 
-        public RoadNetworkExtractGeometryValidatorTests()
-        {
-            _reader = new WKTReader();
-            _validator = new RoadNetworkExtractGeometryValidator();
-        }
+    [Fact]
+    public void ValidateCanHandleGeometryWithHoles()
+    {
+        var geometry = CreateGeometryWithHoles();
 
-        [Fact]
-        public void ValidateCanHandleGeometryWithHoles()
-        {
-            var geometry = CreateGeometryWithHoles();
+        var validationResult = _validator.Validate(geometry);
 
-            var validationResult = _validator.Validate(geometry);
+        validationResult.IsValid.Should().BeTrue();
+    }
 
-            validationResult.IsValid.Should().BeTrue();
-        }
+    private RoadNetworkExtractGeometry CreateGeometryWithHoles()
+    {
+        const int validSpatialReferenceSystemIdentifier = 1;
+        var polygonal = _reader.Read(GeometryTranslatorTestCases.ValidGeometryWithHoles) as IPolygonal;
 
-        private RoadNetworkExtractGeometry CreateGeometryWithHoles()
-        {
-            const int validSpatialReferenceSystemIdentifier = 1;
-            var polygonal = _reader.Read(GeometryTranslatorTestCases.ValidGeometryWithHoles) as NetTopologySuite.Geometries.IPolygonal;
+        var geometry = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(polygonal);
+        geometry.SpatialReferenceSystemIdentifier = validSpatialReferenceSystemIdentifier;
 
-            var geometry = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(polygonal);
-            geometry.SpatialReferenceSystemIdentifier = validSpatialReferenceSystemIdentifier;
-
-            return geometry;
-        }
+        return geometry;
     }
 }

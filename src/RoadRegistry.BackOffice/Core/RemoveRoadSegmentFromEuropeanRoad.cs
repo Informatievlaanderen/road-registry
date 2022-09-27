@@ -1,74 +1,70 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+using System;
+using Messages;
+
+public class RemoveRoadSegmentFromEuropeanRoad : IRequestedChange
 {
-    using System;
-    using System.Linq;
-
-    public class RemoveRoadSegmentFromEuropeanRoad : IRequestedChange
+    public RemoveRoadSegmentFromEuropeanRoad(
+        AttributeId attributeId,
+        RoadSegmentId segmentId,
+        EuropeanRoadNumber number)
     {
-        public AttributeId AttributeId { get; }
-        public RoadSegmentId SegmentId { get; }
-        public EuropeanRoadNumber Number { get; }
+        AttributeId = attributeId;
+        SegmentId = segmentId;
+        Number = number;
+    }
 
-        public RemoveRoadSegmentFromEuropeanRoad(
-            AttributeId attributeId,
-            RoadSegmentId segmentId,
-            EuropeanRoadNumber number)
+    public AttributeId AttributeId { get; }
+    public RoadSegmentId SegmentId { get; }
+    public EuropeanRoadNumber Number { get; }
+
+    public Problems VerifyBefore(BeforeVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        var problems = Problems.None;
+
+        if (!context.BeforeView.View.Segments.TryGetValue(SegmentId, out var segment))
         {
-            AttributeId = attributeId;
-            SegmentId = segmentId;
-            Number = number;
+            problems = problems.Add(new RoadSegmentMissing(SegmentId));
+        }
+        else
+        {
+            if (!segment.PartOfEuropeanRoads.Contains(Number)) problems = problems.Add(new EuropeanRoadNumberNotFound(Number));
         }
 
-        public Problems VerifyBefore(BeforeVerificationContext context)
+        return problems;
+    }
+
+    public Problems VerifyAfter(AfterVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        return Problems.None;
+    }
+
+    public void TranslateTo(Messages.AcceptedChange message)
+    {
+        if (message == null) throw new ArgumentNullException(nameof(message));
+
+        message.RoadSegmentRemovedFromEuropeanRoad = new RoadSegmentRemovedFromEuropeanRoad
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            AttributeId = AttributeId,
+            Number = Number,
+            SegmentId = SegmentId
+        };
+    }
 
-            var problems = Problems.None;
+    public void TranslateTo(Messages.RejectedChange message)
+    {
+        if (message == null) throw new ArgumentNullException(nameof(message));
 
-            if (!context.BeforeView.View.Segments.TryGetValue(SegmentId, out var segment))
-            {
-                problems = problems.Add(new RoadSegmentMissing(SegmentId));
-            }
-            else
-            {
-                if (!segment.PartOfEuropeanRoads.Contains(Number))
-                {
-                    problems = problems.Add(new EuropeanRoadNumberNotFound(Number));
-                }
-            }
-
-            return problems;
-        }
-
-        public Problems VerifyAfter(AfterVerificationContext context)
+        message.RemoveRoadSegmentFromEuropeanRoad = new Messages.RemoveRoadSegmentFromEuropeanRoad
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-
-            return Problems.None;
-        }
-
-        public void TranslateTo(Messages.AcceptedChange message)
-        {
-            if (message == null) throw new ArgumentNullException(nameof(message));
-
-            message.RoadSegmentRemovedFromEuropeanRoad = new Messages.RoadSegmentRemovedFromEuropeanRoad
-            {
-                AttributeId = AttributeId,
-                Number = Number,
-                SegmentId = SegmentId,
-            };
-        }
-
-        public void TranslateTo(Messages.RejectedChange message)
-        {
-            if (message == null) throw new ArgumentNullException(nameof(message));
-
-            message.RemoveRoadSegmentFromEuropeanRoad = new Messages.RemoveRoadSegmentFromEuropeanRoad
-            {
-                AttributeId = AttributeId,
-                Number = Number,
-                SegmentId = SegmentId
-            };
-        }
+            AttributeId = AttributeId,
+            Number = Number,
+            SegmentId = SegmentId
+        };
     }
 }

@@ -1,24 +1,22 @@
-namespace RoadRegistry.BackOffice.Uploads
+namespace RoadRegistry.Tests.BackOffice.Uploads;
+
+using RoadRegistry.BackOffice.Uploads;
+
+public class ModifyGradeSeparatedJunctionEqualityComparer : IEqualityComparer<ModifyGradeSeparatedJunction>
 {
-    using System;
-    using System.Collections.Generic;
-
-    public class ModifyGradeSeparatedJunctionEqualityComparer : IEqualityComparer<ModifyGradeSeparatedJunction>
+    public bool Equals(ModifyGradeSeparatedJunction left, ModifyGradeSeparatedJunction right)
     {
-        public bool Equals(ModifyGradeSeparatedJunction left, ModifyGradeSeparatedJunction right)
-        {
-            if (left == null && right == null) return true;
-            if (left == null || right == null) return false;
-            return left.Id.Equals(right.Id)
-                   && left.Type.Equals(right.Type)
-                   && left.UpperSegmentId.Equals(right.UpperSegmentId)
-                   && left.LowerSegmentId.Equals(right.LowerSegmentId)
-                   && left.RecordNumber.Equals(right.RecordNumber);
-        }
+        if (left == null && right == null) return true;
+        if (left == null || right == null) return false;
+        return left.Id.Equals(right.Id)
+               && left.Type.Equals(right.Type)
+               && left.UpperSegmentId.Equals(right.UpperSegmentId)
+               && left.LowerSegmentId.Equals(right.LowerSegmentId)
+               && left.RecordNumber.Equals(right.RecordNumber);
+    }
 
-        public int GetHashCode(ModifyGradeSeparatedJunction instance)
-        {
-            throw new NotSupportedException();
-        }
+    public int GetHashCode(ModifyGradeSeparatedJunction instance)
+    {
+        throw new NotSupportedException();
     }
 }

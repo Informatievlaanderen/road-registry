@@ -1,12 +1,11 @@
-namespace RoadRegistry.Hosts
+namespace RoadRegistry.Hosts;
+
+using System.Threading;
+using System.Threading.Tasks;
+
+public interface IEventProcessorPositionStore
 {
-    using System.Threading;
-    using System.Threading.Tasks;
+    Task<long?> ReadPosition(string name, CancellationToken cancellationToken);
 
-    public interface IEventProcessorPositionStore
-    {
-        Task<long?> ReadPosition(string name, CancellationToken cancellationToken);
-
-        Task WritePosition(string name, long position, CancellationToken cancellationToken);
-    }
+    Task WritePosition(string name, long position, CancellationToken cancellationToken);
 }

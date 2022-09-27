@@ -1,6 +1,5 @@
-﻿namespace RoadRegistry.Framework.Testing
+﻿namespace RoadRegistry.Framework.Testing;
+
+public interface IScenarioThrowsStateBuilder : IExpectExceptionScenarioBuilder
 {
-    public interface IScenarioThrowsStateBuilder : IExpectExceptionScenarioBuilder
-    {
-    }
 }

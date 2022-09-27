@@ -1,10 +1,7 @@
-namespace RoadRegistry.Framework.Reactions
-{
-    using System.Collections.Generic;
+namespace RoadRegistry.Framework.Reactions;
 
-    public interface IReactionScenarioGivenNoneStateBuilder
-    {
-        IReactionScenarioThenStateBuilder Then(IEnumerable<RecordedEvent> events);
-        IReactionScenarioThenNoneStateBuilder ThenNone();
-    }
+public interface IReactionScenarioGivenNoneStateBuilder
+{
+    IReactionScenarioThenStateBuilder Then(IEnumerable<RecordedEvent> events);
+    IReactionScenarioThenNoneStateBuilder ThenNone();
 }

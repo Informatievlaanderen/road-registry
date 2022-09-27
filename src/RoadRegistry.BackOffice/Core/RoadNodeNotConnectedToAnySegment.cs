@@ -1,11 +1,10 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class RoadNodeNotConnectedToAnySegment : Error
 {
-    public class RoadNodeNotConnectedToAnySegment : Error
+    public RoadNodeNotConnectedToAnySegment(RoadNodeId node)
+        : base(nameof(RoadNodeNotConnectedToAnySegment),
+            new ProblemParameter("RoadNodeId", node.ToInt32().ToString()))
     {
-        public RoadNodeNotConnectedToAnySegment(RoadNodeId node)
-            : base(nameof(RoadNodeNotConnectedToAnySegment),
-                new ProblemParameter("RoadNodeId", node.ToInt32().ToString()))
-        {
-        }
     }
 }

@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class RoadSegmentGeometrySelfOverlaps : Error
 {
-    public class RoadSegmentGeometrySelfOverlaps : Error
+    public RoadSegmentGeometrySelfOverlaps() : base(nameof(RoadSegmentGeometrySelfOverlaps))
     {
-        public RoadSegmentGeometrySelfOverlaps() : base(nameof(RoadSegmentGeometrySelfOverlaps))
-        {
-        }
     }
 }

@@ -1,11 +1,10 @@
-namespace RoadRegistry.BackOffice.Uploads
-{
-    using System.Collections.Generic;
-    using System.IO.Compression;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
+namespace RoadRegistry.BackOffice.Uploads;
 
-    public interface IZipArchiveShapeRecordsTranslator
-    {
-        TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes);
-    }
+using System.Collections.Generic;
+using System.IO.Compression;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+
+public interface IZipArchiveShapeRecordsTranslator
+{
+    TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes);
 }

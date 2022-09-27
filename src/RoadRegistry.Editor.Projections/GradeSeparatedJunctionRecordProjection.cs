@@ -51,7 +51,6 @@ namespace RoadRegistry.Editor.Projections
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
                 foreach (var change in envelope.Message.Changes.Flatten())
-                {
                     switch (change)
                     {
                         case GradeSeparatedJunctionAdded added:
@@ -64,17 +63,17 @@ namespace RoadRegistry.Editor.Projections
                                 LowerRoadSegmentId = added.LowerRoadSegmentId,
                                 DbaseRecord = new GradeSeparatedJunctionDbaseRecord
                                 {
-                                    OK_OIDN = {Value = added.Id},
-                                    TYPE = {Value = translation.Identifier},
-                                    LBLTYPE = {Value = translation.Name},
-                                    BO_WS_OIDN = {Value = added.UpperRoadSegmentId},
-                                    ON_WS_OIDN = {Value = added.LowerRoadSegmentId},
+                                    OK_OIDN = { Value = added.Id },
+                                    TYPE = { Value = translation.Identifier },
+                                    LBLTYPE = { Value = translation.Name },
+                                    BO_WS_OIDN = { Value = added.UpperRoadSegmentId },
+                                    ON_WS_OIDN = { Value = added.LowerRoadSegmentId },
                                     BEGINTIJD =
                                     {
                                         Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
                                     },
-                                    BEGINORG = {Value = envelope.Message.OrganizationId},
-                                    LBLBGNORG = {Value = envelope.Message.Organization}
+                                    BEGINORG = { Value = envelope.Message.OrganizationId },
+                                    LBLBGNORG = { Value = envelope.Message.Organization }
                                 }.ToBytes(manager, encoding)
                             };
 
@@ -91,11 +90,11 @@ namespace RoadRegistry.Editor.Projections
                             junction.LowerRoadSegmentId = modified.LowerRoadSegmentId;
                             junction.DbaseRecord = new GradeSeparatedJunctionDbaseRecord
                             {
-                                OK_OIDN = {Value = modified.Id},
-                                TYPE = {Value = translation.Identifier},
-                                LBLTYPE = {Value = translation.Name},
-                                BO_WS_OIDN = {Value = modified.UpperRoadSegmentId},
-                                ON_WS_OIDN = {Value = modified.LowerRoadSegmentId},
+                                OK_OIDN = { Value = modified.Id },
+                                TYPE = { Value = translation.Identifier },
+                                LBLTYPE = { Value = translation.Name },
+                                BO_WS_OIDN = { Value = modified.UpperRoadSegmentId },
+                                ON_WS_OIDN = { Value = modified.LowerRoadSegmentId },
                                 BEGINTIJD =
                                 {
                                     Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
@@ -114,7 +113,6 @@ namespace RoadRegistry.Editor.Projections
                         }
                             break;
                     }
-                }
             });
         }
     }

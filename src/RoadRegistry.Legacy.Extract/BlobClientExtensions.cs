@@ -30,20 +30,15 @@ namespace RoadRegistry.Legacy.Extract
                         configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
                         var buckets = await s3Client.ListBucketsAsync(token);
-                        if (!buckets.Buckets.Exists(bucket => bucket.BucketName == s3Options.Buckets[WellknownBuckets.ImportLegacyBucket]))
-                        {
-                            await s3Client.PutBucketAsync(s3Options.Buckets[WellknownBuckets.ImportLegacyBucket], token);
-                        }
+                        if (!buckets.Buckets.Exists(bucket => bucket.BucketName == s3Options.Buckets[WellknownBuckets.ImportLegacyBucket])) await s3Client.PutBucketAsync(s3Options.Buckets[WellknownBuckets.ImportLegacyBucket], token);
                     }
+
                     break;
                 case FileBlobClient _:
                     var fileOptions = new FileBlobClientOptions();
                     configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
 
-                    if (!Directory.Exists(fileOptions.Directory))
-                    {
-                        Directory.CreateDirectory(fileOptions.Directory);
-                    }
+                    if (!Directory.Exists(fileOptions.Directory)) Directory.CreateDirectory(fileOptions.Directory);
                     break;
             }
         }

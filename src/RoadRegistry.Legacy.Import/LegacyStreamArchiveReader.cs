@@ -3,10 +3,10 @@ namespace RoadRegistry.Legacy.Import
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using Newtonsoft.Json;
     using System.IO.Compression;
     using BackOffice.Framework;
     using BackOffice.Messages;
+    using Newtonsoft.Json;
 
     internal class LegacyStreamArchiveReader
     {

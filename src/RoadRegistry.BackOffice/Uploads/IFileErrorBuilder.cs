@@ -1,11 +1,10 @@
-namespace RoadRegistry.BackOffice.Uploads
-{
-    using Core;
+namespace RoadRegistry.BackOffice.Uploads;
 
-    public interface IFileErrorBuilder
-    {
-        IFileErrorBuilder WithParameter(ProblemParameter parameter);
-        IFileErrorBuilder WithParameters(params ProblemParameter[] parameters);
-        FileError Build();
-    }
+using Core;
+
+public interface IFileErrorBuilder
+{
+    IFileErrorBuilder WithParameter(ProblemParameter parameter);
+    IFileErrorBuilder WithParameters(params ProblemParameter[] parameters);
+    FileError Build();
 }

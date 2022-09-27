@@ -11,52 +11,52 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
                 string translation;
                 switch (change.Flatten())
                 {
-                    case BackOffice.Messages.AddRoadNode m:
+                    case AddRoadNode m:
                         translation = $"Voeg wegknoop {m.TemporaryId} toe.";
                         break;
-                    case BackOffice.Messages.ModifyRoadNode m:
+                    case ModifyRoadNode m:
                         translation = $"Wijzig wegknoop {m.Id}.";
                         break;
-                    case BackOffice.Messages.RemoveRoadNode m:
+                    case RemoveRoadNode m:
                         translation = $"Verwijder wegknoop {m.Id}.";
                         break;
-                    case BackOffice.Messages.AddRoadSegment m:
+                    case AddRoadSegment m:
                         translation = $"Voeg wegsegment {m.TemporaryId} toe.";
                         break;
-                    case BackOffice.Messages.ModifyRoadSegment m:
+                    case ModifyRoadSegment m:
                         translation = $"Wijzig wegsegment {m.Id}.";
                         break;
-                    case BackOffice.Messages.RemoveRoadSegment m:
+                    case RemoveRoadSegment m:
                         translation = $"Verwijder wegsegment {m.Id}.";
                         break;
-                    case BackOffice.Messages.AddRoadSegmentToEuropeanRoad m:
+                    case AddRoadSegmentToEuropeanRoad m:
                         translation = $"Voeg wegsegment {m.SegmentId} toe aan europese weg {m.Number}.";
                         break;
-                    case BackOffice.Messages.RemoveRoadSegmentFromEuropeanRoad m:
+                    case RemoveRoadSegmentFromEuropeanRoad m:
                         translation = $"Verwijder wegsegment {m.SegmentId} van europese weg {m.Number}.";
                         break;
-                    case BackOffice.Messages.AddRoadSegmentToNationalRoad m:
+                    case AddRoadSegmentToNationalRoad m:
                         translation = $"Voeg wegsegment {m.SegmentId} toe aan nationale weg {m.Number}.";
                         break;
-                    case BackOffice.Messages.RemoveRoadSegmentFromNationalRoad m:
+                    case RemoveRoadSegmentFromNationalRoad m:
                         translation = $"Verwijder wegsegment {m.SegmentId} van nationale weg {m.Number}.";
                         break;
-                    case BackOffice.Messages.AddRoadSegmentToNumberedRoad m:
+                    case AddRoadSegmentToNumberedRoad m:
                         translation = $"Voeg wegsegment {m.SegmentId} toe aan genummerde weg {m.Number}.";
                         break;
-                    case BackOffice.Messages.ModifyRoadSegmentOnNumberedRoad m:
+                    case ModifyRoadSegmentOnNumberedRoad m:
                         translation = $"Wijzig wegsegment {m.SegmentId} op genummerde weg {m.Number}.";
                         break;
-                    case BackOffice.Messages.RemoveRoadSegmentFromNumberedRoad m:
+                    case RemoveRoadSegmentFromNumberedRoad m:
                         translation = $"Verwijder wegsegment {m.SegmentId} van genummerde weg {m.Number}.";
                         break;
-                    case BackOffice.Messages.AddGradeSeparatedJunction m:
+                    case AddGradeSeparatedJunction m:
                         translation = $"Voeg ongelijkgrondse kruising {m.TemporaryId} toe.";
                         break;
-                    case BackOffice.Messages.ModifyGradeSeparatedJunction m:
+                    case ModifyGradeSeparatedJunction m:
                         translation = $"Wijzig ongelijkgrondse kruising {m.Id}.";
                         break;
-                    case BackOffice.Messages.RemoveGradeSeparatedJunction m:
+                    case RemoveGradeSeparatedJunction m:
                         translation = $"Verwijder ongelijkgrondse kruising {m.Id}.";
                         break;
 

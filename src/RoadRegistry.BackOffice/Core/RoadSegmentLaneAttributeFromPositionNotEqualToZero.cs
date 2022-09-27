@@ -1,12 +1,11 @@
-namespace RoadRegistry.BackOffice.Core
+namespace RoadRegistry.BackOffice.Core;
+
+public class RoadSegmentLaneAttributeFromPositionNotEqualToZero : Error
 {
-    public class RoadSegmentLaneAttributeFromPositionNotEqualToZero : Error
+    public RoadSegmentLaneAttributeFromPositionNotEqualToZero(AttributeId attributeId, RoadSegmentPosition fromPosition)
+        : base(nameof(RoadSegmentLaneAttributeFromPositionNotEqualToZero),
+            new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()),
+            new ProblemParameter("FromPosition", fromPosition.ToString()))
     {
-        public RoadSegmentLaneAttributeFromPositionNotEqualToZero(AttributeId attributeId, RoadSegmentPosition fromPosition)
-            : base(nameof(RoadSegmentLaneAttributeFromPositionNotEqualToZero),
-                new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()),
-                new ProblemParameter("FromPosition", fromPosition.ToString()))
-        {
-        }
     }
 }

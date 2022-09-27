@@ -1,46 +1,44 @@
-namespace RoadRegistry.BackOffice.Framework
+namespace RoadRegistry.BackOffice.Framework;
+
+using System;
+
+public abstract class EventSourcedEntity : IEventSourcedEntity
 {
-    using System;
+    private readonly EventPlayer Player = new();
 
-    public abstract class EventSourcedEntity : IEventSourcedEntity
+    private readonly EventRecorder Recorder = new();
+
+    void IEventSourcedEntity.RestoreFromEvents(object[] events)
     {
-        private readonly EventPlayer Player
-          = new EventPlayer();
-        private readonly EventRecorder Recorder
-          = new EventRecorder();
+        if (events == null)
+            throw new ArgumentNullException(nameof(events));
+        if (Recorder.HasRecordedEvents)
+            throw new InvalidOperationException(
+                "Restoring from events is not possible when an instance " +
+                "has recorded events.");
 
-        protected void On<TEvent>(Action<TEvent> handler)
-        {
-            Player.Register(handler);
-        }
-
-        protected void Apply(object @event)
-        {
+        foreach (var @event in events)
             Player.Play(@event);
-            Recorder.Record(@event);
-        }
+    }
 
-        void IEventSourcedEntity.RestoreFromEvents(object[] events)
-        {
-            if (events == null)
-                throw new ArgumentNullException(nameof(events));
-            if (Recorder.HasRecordedEvents)
-                throw new InvalidOperationException(
-                  "Restoring from events is not possible when an instance " +
-                  "has recorded events.");
+    object[] IEventSourcedEntity.TakeEvents()
+    {
+        if (!Recorder.HasRecordedEvents)
+            return Array.Empty<object>();
 
-            foreach (var @event in events)
-                Player.Play(@event);
-        }
+        var recorded = Recorder.RecordedEvents;
+        Recorder.Reset();
+        return recorded;
+    }
 
-        object[] IEventSourcedEntity.TakeEvents()
-        {
-            if (!Recorder.HasRecordedEvents)
-                return Array.Empty<object>();
+    protected void On<TEvent>(Action<TEvent> handler)
+    {
+        Player.Register(handler);
+    }
 
-            var recorded = Recorder.RecordedEvents;
-            Recorder.Reset();
-            return recorded;
-        }
+    protected void Apply(object @event)
+    {
+        Player.Play(@event);
+        Recorder.Record(@event);
     }
 }

@@ -92,7 +92,6 @@ namespace RoadRegistry.Editor.Projections
                         .ToUnixTimeSeconds();
                 }
             });
-
         }
     }
 }

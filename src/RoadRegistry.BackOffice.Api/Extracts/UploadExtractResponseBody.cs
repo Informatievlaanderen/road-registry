@@ -1,7 +1,6 @@
-namespace RoadRegistry.BackOffice.Api.Extracts
+namespace RoadRegistry.BackOffice.Api.Extracts;
+
+public class UploadExtractResponseBody
 {
-    public class UploadExtractResponseBody
-    {
-        public string UploadId { get; set; }
-    }
+    public string UploadId { get; set; }
 }

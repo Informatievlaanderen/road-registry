@@ -1,7 +1,6 @@
-namespace RoadRegistry.BackOffice.Framework
-{
-    using System.Threading;
-    using System.Threading.Tasks;
+namespace RoadRegistry.BackOffice.Framework;
 
-    public delegate Task CommandHandlerDispatcher(Command command, CancellationToken cancellationToken);
-}
+using System.Threading;
+using System.Threading.Tasks;
+
+public delegate Task CommandHandlerDispatcher(Command command, CancellationToken cancellationToken);

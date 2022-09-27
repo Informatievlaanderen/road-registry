@@ -1,10 +1,10 @@
-namespace RoadRegistry.BackOffice.Core
-{
-    using System.Threading;
-    using System.Threading.Tasks;
+namespace RoadRegistry.BackOffice.Core;
 
-    public interface IRoadNetworkSnapshotReader
-    {
-        Task<(Messages.RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken);
-    }
+using System.Threading;
+using System.Threading.Tasks;
+using Messages;
+
+public interface IRoadNetworkSnapshotReader
+{
+    Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken);
 }

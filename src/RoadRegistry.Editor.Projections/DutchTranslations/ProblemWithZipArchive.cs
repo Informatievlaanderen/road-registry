@@ -4,10 +4,11 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations
     using BackOffice.Uploads;
     using BackOffice.Uploads.Schema;
     using BackOffice.Uploads.Schema.V2;
+    using FileProblem = BackOffice.Messages.FileProblem;
 
     public static class ProblemWithZipArchive
     {
-        public static readonly Converter<BackOffice.Messages.FileProblem, string> Translator =
+        public static readonly Converter<FileProblem, string> Translator =
             problem =>
             {
                 string translation;

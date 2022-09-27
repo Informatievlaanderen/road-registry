@@ -1,11 +1,10 @@
-namespace RoadRegistry.Syndication.ProjectionHost
+namespace RoadRegistry.Syndication.ProjectionHost;
+
+using System;
+
+public class MunicipalityFeedConfiguration : ISyndicationFeedConfiguration
 {
-    using System;
+    public const string Section = "MunicipalityFeed";
 
-    public class MunicipalityFeedConfiguration : ISyndicationFeedConfiguration
-    {
-        public const string Section = "MunicipalityFeed";
-
-        public Uri Uri { get; set; }
-    }
+    public Uri Uri { get; set; }
 }
