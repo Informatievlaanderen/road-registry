@@ -28,7 +28,6 @@ namespace RoadRegistry.BackOffice.MessagingHost.Sqs
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
-    using CommandHost;
     using Configuration;
     using Uploads;
     using Autofac.Core;

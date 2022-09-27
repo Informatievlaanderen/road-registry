@@ -22,6 +22,11 @@ updates:
     interval: daily
 
 - package-ecosystem: docker
+  directory: "/src/RoadRegistry.BackOffice.MessagingHost.Sqs"
+  schedule:
+    interval: daily
+
+- package-ecosystem: docker
   directory: "/src/RoadRegistry.BackOffice.EventHost"
   schedule:
     interval: daily

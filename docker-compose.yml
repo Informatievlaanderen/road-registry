@@ -378,6 +378,28 @@ services:
       CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
 
+  backoffice-messaging-host-sqs:
+    build: dist/RoadRegistry.BackOffice.MessagingHost.Sqs/linux
+    depends_on:
+      - mssql-seed
+      - minio
+      - seq
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      SERILOG__WRITETO__0__NAME: "Seq"
+      SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
+      SERILOG__WRITETO__1__NAME: "Console"
+      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
+      MINIO_SERVER: http://minio:9000
+      MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
+      MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+      BLOBCLIENTTYPE: S3BlobClient
+      S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
+      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+
   backoffice-api:
     build: dist/RoadRegistry.BackOffice.Api/linux
     depends_on:
