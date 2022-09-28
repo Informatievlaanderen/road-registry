@@ -12,13 +12,13 @@ using SqlStreamStore;
 public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
 {
     public RoadNetworkChangesArchiveCommandModule(
-        RoadNetworkUploadsBlobClient client,
+        RoadNetworkFeatureCompareBlobClient featureCompareBlobClient,
         IStreamStore store,
         IRoadNetworkSnapshotReader snapshotReader,
         IZipArchiveValidator validator,
         IClock clock)
     {
-        if (client == null) throw new ArgumentNullException(nameof(client));
+        if (featureCompareBlobClient == null) throw new ArgumentNullException(nameof(featureCompareBlobClient));
         if (store == null) throw new ArgumentNullException(nameof(store));
         if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
         if (validator == null) throw new ArgumentNullException(nameof(validator));
@@ -30,7 +30,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
             {
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var upload = RoadNetworkChangesArchive.Upload(archiveId);
-                var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
+                var archiveBlob = await featureCompareBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
                 await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                 using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                 {

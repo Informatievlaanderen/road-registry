@@ -1,13 +1,8 @@
 namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Responses;
-
-using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Configuration;
 using Exceptions;
-using Framework;
 using MediatR;
 using Messages;
-using Newtonsoft.Json;
 using Requests;
 using RoadRegistry.BackOffice;
 
