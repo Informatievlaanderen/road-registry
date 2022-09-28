@@ -2,13 +2,27 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers
 {
     using Abstractions;
     using Amazon.Lambda.Core;
+    using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
     using Commands;
-    using Ductus.FluentDocker.Builders;
     using Ductus.FluentDocker.Extensions;
 
     public class CheckFeatureCompareDockerContainerCommandHandler : LambdaCommandHandler<CheckFeatureCompareDockerContainerCommand, CheckFeatureCompareDockerContainerCommandResponse>
     {
-        public override Task<CheckFeatureCompareDockerContainerCommandResponse> HandleAsync(CheckFeatureCompareDockerContainerCommand request, ILambdaContext context, CancellationToken cancellationToken)
+        private readonly FeatureCompareMessagingOptions _messagingOptions;
+        private readonly ISqsQueuePublisher _sqsQueuePublisher;
+        private readonly ISqsQueueConsumer _sqsQueueConsumer;
+
+        public CheckFeatureCompareDockerContainerCommandHandler(
+            FeatureCompareMessagingOptions messagingOptions,
+            ISqsQueuePublisher sqsQueuePublisher,
+            ISqsQueueConsumer sqsQueueConsumer)
+        {
+            _messagingOptions = messagingOptions;
+            _sqsQueuePublisher = sqsQueuePublisher;
+            _sqsQueueConsumer = sqsQueueConsumer;
+        }
+
+        public override async Task<CheckFeatureCompareDockerContainerCommandResponse> HandleAsync(CheckFeatureCompareDockerContainerCommand request, ILambdaContext context, CancellationToken cancellationToken)
         {
             var container = FeatureCompareDockerContainerBuilder.Default.Build();
 
@@ -22,16 +36,45 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers
             if (cancellationToken.IsCancellationRequested)
             {
                 context.Logger.LogInformation("Received cancellation request. Exit without failure. See you on the next timer run!");
-                return Task.FromCanceled<CheckFeatureCompareDockerContainerCommandResponse>(cancellationToken);
+                await Task.FromCanceled<CheckFeatureCompareDockerContainerCommandResponse>(cancellationToken);
             }
 
             if (response.IsRunning)
             {
                 context.Logger.LogInformation("Feature compare container found. Exit without failure. See you on the next timer run!");
-                return Task.FromCanceled<CheckFeatureCompareDockerContainerCommandResponse>(cancellationToken);
+                await Task.FromCanceled<CheckFeatureCompareDockerContainerCommandResponse>(cancellationToken);
+            }
+            else
+            {
+                var cancellationTokenSource = new CancellationTokenSource();
+                var consumerCounter = 0;
+
+                await _sqsQueueConsumer.Consume(_messagingOptions.RequestQueueUrl, async (message) =>
+                {
+                    if (consumerCounter >= 1)
+                        throw new IndexOutOfRangeException("Consumer within Lambda MUST only process one single message per invocation!");
+
+                    // Publish message from one queue to another
+                    await _sqsQueuePublisher.CopyToQueue(_messagingOptions.DockerQueueName, message, new SqsQueueOptions(), cancellationToken);
+
+                    // Cancel the cancellation token so we don't get stuck inside the consumer loop
+                    cancellationTokenSource.Cancel();
+                    consumerCounter++;
+
+                }, cancellationTokenSource.Token);
             }
 
-            return Task.FromResult<CheckFeatureCompareDockerContainerCommandResponse>(response);
+            return response;
         }
+    }
+
+    public class FeatureCompareMessagingOptions
+    {
+        public string RequestQueueUrl { get; set; }
+        public string DockerQueueUrl { get; set; }
+        public string ResponseQueueUrl { get; set; }
+        public string RequestQueueName => SqsQueue.ParseQueueNameFromQueueUrl(RequestQueueUrl);
+        public string DockerQueueName => SqsQueue.ParseQueueNameFromQueueUrl(DockerQueueUrl);
+        public string ResponseQueueName => SqsQueue.ParseQueueNameFromQueueUrl(ResponseQueueUrl);
     }
 }

@@ -149,6 +149,11 @@ namespace RoadRegistry.BackOffice.MessagingHost.Sqs
                                     new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(
                                         sp.GetRequiredService<AmazonS3Client>(),
                                         s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                    )))
+                                .AddSingleton(sp =>
+                                    new RoadNetworkFeatureCompareBlobClient(new S3BlobClient(
+                                        sp.GetRequiredService<AmazonS3Client>(),
+                                        s3Options.Buckets[WellknownBuckets.FeatureCompareBucket]
                                     )));
 
                             break;
@@ -206,7 +211,7 @@ namespace RoadRegistry.BackOffice.MessagingHost.Sqs
                             new CommandHandlerModule[]
                             {
                                 new RoadNetworkChangesArchiveCommandModule(
-                                    sp.GetService<RoadNetworkUploadsBlobClient>(),
+                                    sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
                                     sp.GetService<IStreamStore>(),
                                     sp.GetService<IRoadNetworkSnapshotReader>(),
                                     new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
