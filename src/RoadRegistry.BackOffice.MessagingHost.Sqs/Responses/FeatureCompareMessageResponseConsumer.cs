@@ -52,7 +52,7 @@ public class FeatureCompareMessageResponseConsumer : BackgroundService
                 }
             }, cancellationToken);
 
-            await Task.Delay(1000, cancellationToken);
+            await Task.Delay(_messagingOptions.ConsumerDelaySeconds * 1000, cancellationToken);
         }
     }
 }
