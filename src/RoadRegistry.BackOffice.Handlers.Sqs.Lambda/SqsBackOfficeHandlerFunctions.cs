@@ -64,9 +64,15 @@ public class SqsBackOfficeHandlerFunctions
     /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
     public async Task CheckFeatureCompareDockerContainer(ILambdaContext context, CancellationToken cancellationToken)
     {
-        await _serviceProvider
-            .GetRequiredService<IMediator>()
-            .Send(new CheckFeatureCompareDockerContainerCommand(context), cancellationToken);
+        try
+        {
+            await _serviceProvider
+                .GetRequiredService<IMediator>()
+                .Send(new CheckFeatureCompareDockerContainerCommand(context), cancellationToken);
+        }
+        catch (TaskCanceledException)
+        {
+        }
     }
 
     /// <summary>
