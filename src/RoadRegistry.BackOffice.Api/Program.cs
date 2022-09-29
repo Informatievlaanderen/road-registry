@@ -156,7 +156,13 @@ public class Program
                                 new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(
                                     sp.GetRequiredService<AmazonS3Client>(),
                                     s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
-                                )));
+                                )))
+                            .AddSingleton(sp =>
+                                new RoadNetworkFeatureCompareBlobClient(new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.FeatureCompareBucket]
+                                )))
+                            ;
 
                         break;
 
@@ -172,7 +178,8 @@ public class Program
                             )
                             .AddSingleton<RoadNetworkUploadsBlobClient>()
                             .AddSingleton<RoadNetworkExtractUploadsBlobClient>()
-                            .AddSingleton<RoadNetworkExtractDownloadsBlobClient>();
+                            .AddSingleton<RoadNetworkExtractDownloadsBlobClient>()
+                            .AddSingleton<RoadNetworkFeatureCompareBlobClient>();
                         break;
 
                     default: throw new InvalidOperationException(blobOptions.BlobClientType + " is not a supported blob client type.");

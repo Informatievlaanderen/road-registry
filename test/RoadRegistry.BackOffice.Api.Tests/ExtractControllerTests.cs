@@ -35,8 +35,14 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
     private readonly SqlServer _sqlServerFixture;
     private EditorContext _editorContext;
 
-    public ExtractControllerTests(SqlServer sqlServerFixture, IMediator mediator, IStreamStore streamStore, RoadNetworkUploadsBlobClient uploadClient, RoadNetworkExtractUploadsBlobClient extractUploadClient)
-        : base(mediator, streamStore, uploadClient, extractUploadClient)
+    public ExtractControllerTests(
+        SqlServer sqlServerFixture,
+        IMediator mediator,
+        IStreamStore streamStore,
+        RoadNetworkUploadsBlobClient uploadClient,
+        RoadNetworkExtractUploadsBlobClient extractUploadClient,
+        RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
+        : base(mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
     {
         _sqlServerFixture = sqlServerFixture;
         _fixture = new Fixture();

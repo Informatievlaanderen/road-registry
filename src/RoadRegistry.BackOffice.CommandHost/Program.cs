@@ -138,7 +138,18 @@ public class Program
                                 new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(
                                     sp.GetRequiredService<AmazonS3Client>(),
                                     s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )));
+                                )))
+                            .AddSingleton(sp =>
+                                new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
+                                )))
+                            .AddSingleton(sp =>
+                                new RoadNetworkFeatureCompareBlobClient(new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.FeatureCompareBucket]
+                                )))
+                            ;
 
                         break;
 
@@ -153,7 +164,9 @@ public class Program
                                 )
                             )
                             .AddSingleton<RoadNetworkUploadsBlobClient>()
-                            .AddSingleton<RoadNetworkExtractUploadsBlobClient>();
+                            .AddSingleton<RoadNetworkExtractUploadsBlobClient>()
+                            .AddSingleton<RoadNetworkExtractDownloadsBlobClient>()
+                            .AddSingleton<RoadNetworkFeatureCompareBlobClient>();
                         break;
 
                     default:

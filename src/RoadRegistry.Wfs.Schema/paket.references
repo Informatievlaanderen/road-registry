@@ -1,6 +1,7 @@
 Microsoft.EntityFrameworkCore
 Microsoft.EntityFrameworkCore.Design
 Microsoft.EntityFrameworkCore.SqlServer
+Microsoft.Data.SqlClient
 
 NetTopologySuite
 NodaTime

@@ -30,7 +30,7 @@ nuget Microsoft.EntityFrameworkCore.InMemory 6.0.3
 nuget Microsoft.EntityFrameworkCore.Relational 6.0.3
 nuget Microsoft.Extensions.Localization 6.0.3
 nuget Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite 6.0.3
-nuget Microsoft.Data.SqlClient 4.1.0
+nuget Microsoft.Data.SqlClient 5.0.0
 
 nuget AWSSDK.S3 3.7.8.11
 nuget Docker.DotNet 3.125.5
