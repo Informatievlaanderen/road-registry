@@ -53,6 +53,7 @@ public abstract class TestStartup
                     .AddSingleton(sp => new RoadNetworkUploadsBlobClient(sp.GetService<IBlobClient>()))
                     .AddSingleton(sp => new RoadNetworkExtractUploadsBlobClient(sp.GetService<IBlobClient>()))
                     .AddSingleton(sp => new RoadNetworkExtractDownloadsBlobClient(sp.GetService<IBlobClient>()))
+                    .AddSingleton(sp => new RoadNetworkFeatureCompareBlobClient(sp.GetService<IBlobClient>()))
                     .AddSingleton(sp => new RoadNetworkSnapshotsBlobClient(sp.GetService<IBlobClient>()))
                     .AddSingleton<IStreamStore>(sp => new InMemoryStreamStore())
                     .AddSingleton<IStreetNameCache>(_ => new FakeStreetNameCache())

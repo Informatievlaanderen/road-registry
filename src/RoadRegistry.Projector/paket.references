@@ -5,3 +5,4 @@ Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 
 AspNetCore.HealthChecks.SqlServer
 Dapper
+Microsoft.Data.SqlClient

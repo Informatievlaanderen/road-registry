@@ -26,8 +26,14 @@ public class UploadControllerTests : ControllerTests<UploadController>
 {
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
-    public UploadControllerTests(IMediator mediator, IStreamStore streamStore, ISqsQueuePublisher sqsQueuePublisher, RoadNetworkUploadsBlobClient uploadClient, RoadNetworkExtractUploadsBlobClient extractUploadClient)
-        : base(mediator, streamStore, uploadClient, extractUploadClient)
+    public UploadControllerTests(
+        IMediator mediator,
+        IStreamStore streamStore,
+        ISqsQueuePublisher sqsQueuePublisher,
+        RoadNetworkUploadsBlobClient uploadClient,
+        RoadNetworkExtractUploadsBlobClient extractUploadClient,
+        RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
+        : base(mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
     {
         _sqsQueuePublisher = sqsQueuePublisher;
     }

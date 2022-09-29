@@ -6,6 +6,8 @@ Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 Be.Vlaanderen.Basisregisters.Shaperon
 
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+Microsoft.Data.SqlClient
+
 MediatR.Extensions.Autofac.DependencyInjection
 NodaTime
 

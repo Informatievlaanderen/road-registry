@@ -32,8 +32,9 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
         IMediator mediator,
         IStreamStore streamStore,
         RoadNetworkUploadsBlobClient uploadClient,
-        RoadNetworkExtractUploadsBlobClient extractUploadClient)
-        : base(mediator, streamStore, uploadClient, extractUploadClient)
+        RoadNetworkExtractUploadsBlobClient extractUploadClient,
+        RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
+        : base(mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         _tokenSource = new CancellationTokenSource();

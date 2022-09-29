@@ -134,6 +134,11 @@ public class Program
 
                         builder
                             .AddSingleton(sp =>
+                                new RoadNetworkUploadsBlobClient(new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                )))
+                            .AddSingleton(sp =>
                                 new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(
                                     sp.GetRequiredService<AmazonS3Client>(),
                                     s3Options.Buckets[WellknownBuckets.UploadsBucket]
@@ -142,7 +147,13 @@ public class Program
                                 new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(
                                     sp.GetRequiredService<AmazonS3Client>(),
                                     s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
-                                )));
+                                )))
+                            .AddSingleton(sp =>
+                                new RoadNetworkFeatureCompareBlobClient(new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.FeatureCompareBucket]
+                                )))
+                            ;
 
                         break;
 
@@ -156,8 +167,10 @@ public class Program
                                     new DirectoryInfo(fileOptions.Directory)
                                 )
                             )
+                            .AddSingleton<RoadNetworkUploadsBlobClient>()
                             .AddSingleton<RoadNetworkExtractUploadsBlobClient>()
-                            .AddSingleton<RoadNetworkExtractDownloadsBlobClient>();
+                            .AddSingleton<RoadNetworkExtractDownloadsBlobClient>()
+                            .AddSingleton<RoadNetworkFeatureCompareBlobClient>();
                         break;
 
                     default:
