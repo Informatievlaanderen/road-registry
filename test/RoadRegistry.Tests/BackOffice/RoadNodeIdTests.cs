@@ -4,8 +4,8 @@ using System.Globalization;
 using Albedo;
 using AutoFixture;
 using AutoFixture.Idioms;
+using Framework.Assertions;
 using RoadRegistry.BackOffice;
-using RoadRegistry.Framework.Assertions;
 using Xunit;
 
 public class RoadNodeIdTests

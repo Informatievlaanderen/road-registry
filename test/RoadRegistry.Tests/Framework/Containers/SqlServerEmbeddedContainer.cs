@@ -1,17 +1,18 @@
-namespace RoadRegistry.Framework.Containers;
+namespace RoadRegistry.Tests.Framework.Containers;
 
 using Microsoft.Data.SqlClient;
 
 public class SqlServerEmbeddedContainer : DockerContainer, ISqlServerDatabase
 {
-    private const int HostPort = 21533;
     private const string Password = "E@syP@ssw0rd";
 
+    private int _hostPort;
     private int _db;
 
-    public SqlServerEmbeddedContainer()
+    public SqlServerEmbeddedContainer(int hostPort)
     {
-        Configuration = new SqlServerContainerConfiguration(CreateMasterConnectionStringBuilder());
+        _hostPort = hostPort;
+        Configuration = new SqlServerContainerConfiguration(CreateMasterConnectionStringBuilder(), _hostPort);
     }
 
     public async Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
@@ -32,19 +33,19 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
             connection.Close();
         }
 
-        return CreateConnectionStringBuilder(database);
+        return CreateConnectionStringBuilder(database, _hostPort);
     }
 
     private SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
     {
-        return CreateConnectionStringBuilder("master");
+        return CreateConnectionStringBuilder("master", _hostPort);
     }
 
-    private static SqlConnectionStringBuilder CreateConnectionStringBuilder(string database)
+    private static SqlConnectionStringBuilder CreateConnectionStringBuilder(string database, int hostPort)
     {
         return new SqlConnectionStringBuilder
         {
-            DataSource = "tcp:localhost," + HostPort,
+            DataSource = "tcp:localhost," + hostPort,
             InitialCatalog = database,
             UserID = "sa",
             Password = Password,
@@ -56,7 +57,7 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
 
     private class SqlServerContainerConfiguration : DockerContainerConfiguration
     {
-        public SqlServerContainerConfiguration(SqlConnectionStringBuilder builder)
+        public SqlServerContainerConfiguration(SqlConnectionStringBuilder builder, int hostPort)
         {
             Image = new ImageSettings
             {
@@ -67,12 +68,12 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
 
             Container = new ContainerSettings
             {
-                Name = "roadregistry-api-db",
+                Name = "road-registry-test-db",
                 PortBindings = new[]
                 {
                     new PortBinding
                     {
-                        HostPort = HostPort,
+                        HostPort = hostPort,
                         GuestPort = 1433
                     }
                 },

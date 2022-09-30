@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Uploads
+namespace RoadRegistry.Tests.BackOffice.Uploads
 {
     using System;
     using System.Collections.Generic;
@@ -7,10 +7,10 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Linq;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Schema;
-    using Schema.V2;
-    using Tests.BackOffice;
-    using Tests.BackOffice.Uploads;
+    using RoadRegistry.BackOffice;
+    using RoadRegistry.BackOffice.Uploads;
+    using RoadRegistry.BackOffice.Uploads.Schema.V2;
+    using RoadRegistry.Tests.BackOffice;
     using Xunit;
 
     public class TransactionZoneDbaseRecordsValidatorTests : IDisposable

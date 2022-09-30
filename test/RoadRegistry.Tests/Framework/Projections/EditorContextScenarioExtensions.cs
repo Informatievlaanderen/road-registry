@@ -1,13 +1,13 @@
-namespace RoadRegistry.Framework.Projections;
+namespace RoadRegistry.Tests.Framework.Projections;
 
 using System.Text;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Editor.Schema;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.Editor.Schema;
 using Xunit.Sdk;
 
 public class MemoryEditorContext : EditorContext

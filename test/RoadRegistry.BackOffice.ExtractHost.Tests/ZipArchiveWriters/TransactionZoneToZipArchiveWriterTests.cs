@@ -13,8 +13,8 @@ using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
-using RoadRegistry.Framework.Projections;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework.Projections;
 
 public class TransactionZoneToZipArchiveWriterTests
 {

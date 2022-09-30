@@ -1,5 +1,6 @@
-namespace RoadRegistry.Editor.Schema.RoadNodes;
+namespace RoadRegistry.Editor.ProjectionHost.Tests.Schema.RoadNodes;
 
+using Editor.Schema.RoadNodes;
 using FluentAssertions;
 
 public class RoadNodeRecordEqualityComparerByIdTests

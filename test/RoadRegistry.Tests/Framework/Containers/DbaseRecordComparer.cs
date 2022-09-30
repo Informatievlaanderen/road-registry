@@ -1,4 +1,4 @@
-namespace RoadRegistry.Framework.Containers;
+namespace RoadRegistry.Tests.Framework.Containers;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 

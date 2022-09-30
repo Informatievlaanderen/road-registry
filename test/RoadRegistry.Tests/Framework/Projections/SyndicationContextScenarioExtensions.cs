@@ -1,4 +1,4 @@
-namespace RoadRegistry.Framework.Projections;
+namespace RoadRegistry.Tests.Framework.Projections;
 
 using System.Text;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -7,7 +7,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
-using Syndication.Schema;
+using RoadRegistry.Syndication.Schema;
 using Xunit.Sdk;
 
 public static class SyndicationContextScenarioExtensions

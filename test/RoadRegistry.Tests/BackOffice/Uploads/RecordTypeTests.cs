@@ -2,8 +2,8 @@ namespace RoadRegistry.Tests.BackOffice.Uploads;
 
 using AutoFixture;
 using AutoFixture.Idioms;
+using Framework.Assertions;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.Framework.Assertions;
 using Xunit;
 
 public class RecordTypeTests

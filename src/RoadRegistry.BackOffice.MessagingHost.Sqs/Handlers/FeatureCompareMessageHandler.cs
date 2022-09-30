@@ -1,11 +1,13 @@
 namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Handlers
 {
+    using Microsoft.Extensions.Logging;
     using RoadRegistry.BackOffice.Abstractions;
     using RoadRegistry.BackOffice.Framework;
     using RoadRegistry.BackOffice.Messages;
     using RoadRegistry.BackOffice.MessagingHost.Sqs.Requests;
     using RoadRegistry.BackOffice.MessagingHost.Sqs.Responses;
     using System.Threading;
+    using System.Threading.Tasks;
 
     public class FeatureCompareMessageHandler : SqsMessageRequestHandler<FeatureCompareMessageRequest, FeatureCompareMessageResponse>
     {

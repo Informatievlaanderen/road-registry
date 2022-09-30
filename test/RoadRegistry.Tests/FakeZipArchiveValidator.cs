@@ -1,7 +1,7 @@
-namespace RoadRegistry;
+namespace RoadRegistry.Tests;
 
 using System.IO.Compression;
-using BackOffice.Uploads;
+using RoadRegistry.BackOffice.Uploads;
 
 public class FakeZipArchiveValidator : IZipArchiveValidator
 {

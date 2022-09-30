@@ -3,8 +3,8 @@ namespace RoadRegistry.Tests.BackOffice;
 using AutoFixture;
 using AutoFixture.Idioms;
 using AutoFixture.Kernel;
+using Framework.Assertions;
 using RoadRegistry.BackOffice;
-using RoadRegistry.Framework.Assertions;
 using Xunit;
 
 public class OperatorNameTests

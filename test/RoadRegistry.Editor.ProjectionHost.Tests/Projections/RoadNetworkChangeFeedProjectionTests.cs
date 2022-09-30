@@ -1,15 +1,16 @@
-namespace RoadRegistry.Editor.Projections;
+namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using AutoFixture;
-using BackOffice;
-using BackOffice.Messages;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
-using Framework.Projections;
+using Editor.Projections;
 using Newtonsoft.Json;
-using Schema.RoadNetworkChanges;
-using Tests.BackOffice;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Editor.Schema.RoadNetworkChanges;
+using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework.Projections;
 using FileProblem = BackOffice.Messages.FileProblem;
 
 public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTestServices>

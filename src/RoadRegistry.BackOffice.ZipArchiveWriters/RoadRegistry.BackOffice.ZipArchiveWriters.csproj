@@ -8,6 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <DocumentationFile>RoadRegistry.BackOffice.ZipArchiveWriters.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,12 +21,6 @@
     <None Remove="ForProduct\StaticData\Wegsegment.lyr" />
     <None Remove="ForProduct\StaticData\Wegsegment.sld" />
     <None Remove="ForProduct\StaticData\Wegsegment.WOR" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="paket.template">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>

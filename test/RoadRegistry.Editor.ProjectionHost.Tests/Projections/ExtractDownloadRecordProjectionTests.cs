@@ -1,14 +1,15 @@
-namespace RoadRegistry.Editor.Projections;
+namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using AutoFixture;
-using BackOffice;
-using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Framework.Projections;
+using Editor.Projections;
 using NodaTime;
 using NodaTime.Text;
-using Schema.Extracts;
-using Tests.BackOffice;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Editor.Schema.Extracts;
+using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework.Projections;
 using Polygon = BackOffice.Messages.Polygon;
 
 public class ExtractDownloadRecordProjectionTests

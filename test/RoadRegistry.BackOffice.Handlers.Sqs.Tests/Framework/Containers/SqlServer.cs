@@ -1,11 +1,12 @@
-namespace RoadRegistry.Framework.Containers;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Tests.Framework.Containers;
 
-using BackOffice.Abstractions;
-using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using Product.Schema;
+using RoadRegistry.BackOffice.Abstractions;
+using RoadRegistry.Editor.Schema;
+using RoadRegistry.Product.Schema;
+using RoadRegistry.Tests.Framework.Containers;
 
 public class SqlServer : ISqlServerDatabase
 {
@@ -14,7 +15,7 @@ public class SqlServer : ISqlServerDatabase
     public SqlServer()
     {
         if (Environment.GetEnvironmentVariable("CI") == null)
-            _inner = new SqlServerEmbeddedContainer();
+            _inner = new SqlServerEmbeddedContainer(21538);
         else
             _inner = new SqlServerComposedContainer();
 

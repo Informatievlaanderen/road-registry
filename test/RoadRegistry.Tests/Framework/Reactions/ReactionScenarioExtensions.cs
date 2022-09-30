@@ -1,6 +1,6 @@
-namespace RoadRegistry.Framework.Reactions;
+namespace RoadRegistry.Tests.Framework.Reactions;
 
-using BackOffice.Framework;
+using RoadRegistry.BackOffice.Framework;
 
 public static class ReactionScenarioExtensions
 {

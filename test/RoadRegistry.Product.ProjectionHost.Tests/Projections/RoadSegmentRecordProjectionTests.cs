@@ -9,9 +9,9 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Product.Projections;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Framework.Projections;
 using RoadRegistry.Product.Schema.RoadSegments;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework.Projections;
 using Xunit;
 
 public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>

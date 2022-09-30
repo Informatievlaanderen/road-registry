@@ -1,4 +1,4 @@
-namespace RoadRegistry.Wms.Projections.Framework
+namespace RoadRegistry.Tests.Wms.Projections.Framework
 {
     using System;
 
