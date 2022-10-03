@@ -68,7 +68,7 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
 
             Container = new ContainerSettings
             {
-                Name = "road-registry-test-db",
+                Name = $"road-registry-test-db-{hostPort}",
                 PortBindings = new[]
                 {
                     new PortBinding
