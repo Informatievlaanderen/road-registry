@@ -24,6 +24,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="paket.template" />
+    <Content Include="paket.template">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="ForProduct\StaticData\Refpunt.lyr" />
     <EmbeddedResource Include="ForProduct\StaticData\Refpunt.sld" />
     <EmbeddedResource Include="ForProduct\StaticData\Refpunt.WOR" />
