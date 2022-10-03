@@ -5,9 +5,9 @@ using AutoFixture;
 using AutoFixture.Idioms;
 using AutoFixture.Kernel;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Framework.Assertions;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
-using RoadRegistry.Framework.Assertions;
 using Xunit;
 
 public class ArchiveIdTests

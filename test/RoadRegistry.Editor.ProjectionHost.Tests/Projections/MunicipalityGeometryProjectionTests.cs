@@ -1,11 +1,12 @@
-namespace RoadRegistry.Editor.Projections;
+namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using AutoFixture;
-using BackOffice;
-using BackOffice.Messages;
-using Framework.Projections;
-using Tests.BackOffice;
-using MunicipalityGeometry = Schema.MunicipalityGeometry;
+using Editor.Projections;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework.Projections;
+using MunicipalityGeometry = Editor.Schema.MunicipalityGeometry;
 
 public class MunicipalityGeometryProjectionTests : IClassFixture<ProjectionTestServices>
 {

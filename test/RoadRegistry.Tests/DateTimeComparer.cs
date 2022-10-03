@@ -1,4 +1,4 @@
-namespace RoadRegistry;
+namespace RoadRegistry.Tests;
 
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;

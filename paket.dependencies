@@ -67,6 +67,7 @@ nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
 
 nuget FeatureToggle.Net6 1.0.1
 
+nuget MediatR 11.0.0
 nuget MediatR.Contracts 1.0.1
 nuget MediatR.Extensions.Autofac.DependencyInjection 8.1.0
 

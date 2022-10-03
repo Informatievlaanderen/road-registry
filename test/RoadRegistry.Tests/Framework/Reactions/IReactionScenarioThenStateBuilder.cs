@@ -1,4 +1,4 @@
-namespace RoadRegistry.Framework.Reactions;
+namespace RoadRegistry.Tests.Framework.Reactions;
 
 public interface IReactionScenarioThenStateBuilder : IReactionScenarioBuilder
 {

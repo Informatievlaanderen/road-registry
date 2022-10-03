@@ -1,4 +1,4 @@
-namespace RoadRegistry.Framework.Projections;
+namespace RoadRegistry.Tests.Framework.Projections;
 
 using System.Text;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -6,7 +6,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
-using Product.Schema;
+using RoadRegistry.Product.Schema;
 using Xunit.Sdk;
 
 internal class MemoryProductContext : ProductContext

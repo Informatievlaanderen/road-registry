@@ -2,9 +2,9 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
 using AutoFixture.Idioms;
+using Framework.Assertions;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.Framework.Assertions;
 using Xunit;
 
 public class AttributeHashTests

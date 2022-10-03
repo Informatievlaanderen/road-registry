@@ -1,4 +1,4 @@
-namespace RoadRegistry.Framework.Projections;
+namespace RoadRegistry.Tests.Framework.Projections;
 
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;

@@ -1,4 +1,4 @@
-namespace RoadRegistry.Editor.Projections;
+namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using Microsoft.IO;
 

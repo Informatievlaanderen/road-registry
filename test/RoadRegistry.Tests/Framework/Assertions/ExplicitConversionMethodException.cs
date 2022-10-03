@@ -1,4 +1,4 @@
-namespace RoadRegistry.Framework.Assertions;
+namespace RoadRegistry.Tests.Framework.Assertions;
 
 using System.Runtime.Serialization;
 

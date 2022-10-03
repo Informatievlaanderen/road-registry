@@ -1,6 +1,6 @@
-﻿namespace RoadRegistry.Framework.Testing;
+﻿namespace RoadRegistry.Tests.Framework.Testing;
 
-using BackOffice.Framework;
+using RoadRegistry.BackOffice.Framework;
 
 public class ExpectExceptionScenario
 {

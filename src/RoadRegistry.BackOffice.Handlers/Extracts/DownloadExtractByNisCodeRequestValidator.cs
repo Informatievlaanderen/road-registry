@@ -29,7 +29,7 @@ public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator
             .MaximumLength(ExtractDescription.MaxLength).WithMessage($"'Description' must not be longer than {ExtractDescription.MaxLength} characters");
     }
 
-    public async Task<DownloadExtractByNisCodeResponse> Handle(DownloadExtractByNisCodeRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<DownloadExtractByNisCodeResponse> next)
+    public async Task<DownloadExtractByNisCodeResponse> Handle(DownloadExtractByNisCodeRequest request, RequestHandlerDelegate<DownloadExtractByNisCodeResponse> next, CancellationToken cancellationToken)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);
         var response = await next();

@@ -2,7 +2,7 @@ namespace RoadRegistry.Syndication.ProjectionHost.Tests.Projections;
 
 using AutoFixture;
 using BackOffice.Core;
-using Framework.Projections;
+using RoadRegistry.Tests.Framework.Projections;
 using Schema;
 using Syndication.Projections;
 using Syndication.Projections.StreetNameEvents;

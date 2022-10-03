@@ -3,6 +3,7 @@ namespace RoadRegistry.Tests.BackOffice.Scenarios;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Framework.Testing;
 using KellermanSoftware.CompareNetObjects;
 using Newtonsoft.Json;
 using NodaTime;
@@ -12,7 +13,6 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.Framework.Testing;
 using SqlStreamStore;
 
 public abstract class RoadRegistryFixture : IDisposable

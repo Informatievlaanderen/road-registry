@@ -1,7 +1,7 @@
-﻿namespace RoadRegistry;
+﻿namespace RoadRegistry.Tests;
 
-using BackOffice.Core;
-using BackOffice.Messages;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 
 public class FakeRoadNetworkSnapshotWriter : IRoadNetworkSnapshotWriter
 {

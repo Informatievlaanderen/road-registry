@@ -1,12 +1,12 @@
-﻿namespace RoadRegistry.Framework.Testing;
+﻿namespace RoadRegistry.Tests.Framework.Testing;
 
-using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Generators.Guid;
 using FluentValidation.Results;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Framework;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 

@@ -1,14 +1,15 @@
-namespace RoadRegistry.Editor.Projections;
+namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using System.Text;
 using AutoFixture;
-using BackOffice;
-using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Framework.Projections;
+using Editor.Projections;
+using Editor.Schema.RoadNodes;
 using Microsoft.IO;
-using Schema.RoadNodes;
-using Tests.BackOffice;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework.Projections;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestServices>

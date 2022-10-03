@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Framework.Testing;
+﻿namespace RoadRegistry.Tests.Framework.Testing;
 
 public class ScenarioExpectedExceptionButThrewNoException
 {

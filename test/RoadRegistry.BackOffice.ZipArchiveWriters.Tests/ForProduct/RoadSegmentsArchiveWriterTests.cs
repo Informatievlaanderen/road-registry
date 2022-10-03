@@ -1,14 +1,13 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForProduct;
 
+using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase;
 using Framework.Containers;
 using Product.Schema;
 using Product.Schema.RoadSegments;
-using RoadRegistry.Framework;
 using System.IO.Compression;
 using System.Text;
-using Abstractions;
 using Xunit;
 using ZipArchiveWriters.ForProduct;
 

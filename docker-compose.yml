@@ -176,7 +176,7 @@ services:
       - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
 
   municipality-api:
-    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/municipality-registry/api-legacy:3.15.10
+    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/municipality-registry/api-legacy:4.1.11
     depends_on:
       - municipality-mssql
       - seq
@@ -195,7 +195,7 @@ services:
       SERILOG__WRITETO__0__ARGS__FORMATTER: "Serilog.Formatting.Compact.RenderedCompactJsonFormatter, Serilog.Formatting.Compact"
 
   streetname-api:
-    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/streetname-registry/api-legacy:2.21.9
+    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/streetname-registry/api-legacy:3.10.44
     depends_on:
       - streetname-mssql
       - seq
@@ -395,10 +395,15 @@ services:
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
+      S3BLOBCLIENTOPTIONS__BUCKETS__FEATURECOMPARE: road-registry-feature-compare
       CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
       CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
       CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      FEATURECOMPAREMESSAGINGOPTIONS__REQUESTQUEUEURL: "https://sqs.eu-west-1.amazonaws.com/830031229216/sqs-road-registry-feature-compare-request.fifo"
+      FEATURECOMPAREMESSAGINGOPTIONS__DOCKERQUEUEURL: "https://sqs.eu-west-1.amazonaws.com/830031229216/sqs-road-registry-feature-compare-docker.fifo"
+      FEATURECOMPAREMESSAGINGOPTIONS__RESPONSEQUEUEURL: "https://sqs.eu-west-1.amazonaws.com/830031229216/sqs-road-registry-feature-compare-response.fifo"
+      FEATURECOMPAREMESSAGINGOPTIONS__CONSUMERDELAYSECONDS: 30
 
   backoffice-api:
     build: dist/RoadRegistry.BackOffice.Api/linux
@@ -446,7 +451,7 @@ services:
       API_KEY: 00000000-0000-0000-0000-000000000000
 
   public-api:
-    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/public-api/api-legacy:latest
+    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/public-api/api-legacy:5.35.1
     volumes:
       - ./docker/public-api/appsettings.json:/app/appsettings.json
     ports:

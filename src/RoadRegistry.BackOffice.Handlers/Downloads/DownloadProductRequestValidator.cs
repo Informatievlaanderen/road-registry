@@ -6,7 +6,7 @@ using MediatR;
 
 public sealed class DownloadProductRequestValidator : AbstractValidator<DownloadProductRequest>, IPipelineBehavior<DownloadProductRequest, DownloadProductResponse>
 {
-    public async Task<DownloadProductResponse> Handle(DownloadProductRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<DownloadProductResponse> next)
+    public async Task<DownloadProductResponse> Handle(DownloadProductRequest request, RequestHandlerDelegate<DownloadProductResponse> next, CancellationToken cancellationToken)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);
         var response = await next();

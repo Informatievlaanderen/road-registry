@@ -1,13 +1,14 @@
-namespace RoadRegistry.Editor.Projections;
+namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using System.Text;
 using AutoFixture;
-using BackOffice;
-using BackOffice.Messages;
-using Framework.Projections;
+using Editor.Projections;
 using Microsoft.IO;
-using Schema.GradeSeparatedJunctions;
-using Tests.BackOffice;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Editor.Schema.GradeSeparatedJunctions;
+using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework.Projections;
 
 public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {

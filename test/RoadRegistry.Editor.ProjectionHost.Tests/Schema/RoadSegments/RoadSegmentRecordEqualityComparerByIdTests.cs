@@ -1,5 +1,6 @@
-namespace RoadRegistry.Editor.Schema.RoadSegments;
+namespace RoadRegistry.Editor.ProjectionHost.Tests.Schema.RoadSegments;
 
+using Editor.Schema.RoadSegments;
 using FluentAssertions;
 
 public class RoadSegmentRecordEqualityComparerByIdTests

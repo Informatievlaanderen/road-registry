@@ -30,7 +30,7 @@ public sealed class DownloadExtractByContourRequestValidator : AbstractValidator
             .MaximumLength(ExtractDescription.MaxLength).WithMessage($"'Description' must not be longer than {ExtractDescription.MaxLength} characters");
     }
 
-    public async Task<DownloadExtractByContourResponse> Handle(DownloadExtractByContourRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<DownloadExtractByContourResponse> next)
+    public async Task<DownloadExtractByContourResponse> Handle(DownloadExtractByContourRequest request, RequestHandlerDelegate<DownloadExtractByContourResponse> next, CancellationToken cancellationToken)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);
         var response = await next();

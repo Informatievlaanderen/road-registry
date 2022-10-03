@@ -1,6 +1,6 @@
-namespace RoadRegistry;
+namespace RoadRegistry.Tests;
 
-using BackOffice.Messages;
+using RoadRegistry.BackOffice.Messages;
 
 public static class RoadNetworkChangeAcceptedExtensions
 {
