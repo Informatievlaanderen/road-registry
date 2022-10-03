@@ -6,6 +6,7 @@
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <NoWarn>1701;1702;1705;1591;8618</NoWarn>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">

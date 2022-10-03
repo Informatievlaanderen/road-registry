@@ -11,6 +11,7 @@
     <DocumentationFile>RoadRegistry.BackOffice.Api.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;1591</NoWarn>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,16 +27,10 @@
 
   <ItemGroup>
     <Content Include="Dockerfile" CopyToOutputDirectory="Always" />
-    <Content Include="init.sh" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="paket.template" />
-    <Content Include="paket.template">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="paket.template" CopyToOutputDirectory="Always" />
+    <Content Include="init.sh" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
