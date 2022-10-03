@@ -11,7 +11,7 @@ public sealed class DownloadExtractRequestValidator : AbstractValidator<Download
         RuleFor(req => req.Identifier).NotEmpty();
     }
 
-    public async Task<DownloadExtractResponse> Handle(DownloadExtractRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<DownloadExtractResponse> next)
+    public async Task<DownloadExtractResponse> Handle(DownloadExtractRequest request, RequestHandlerDelegate<DownloadExtractResponse> next, CancellationToken cancellationToken)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);
         var response = await next();

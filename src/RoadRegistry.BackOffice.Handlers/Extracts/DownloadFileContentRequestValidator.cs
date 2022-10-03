@@ -13,7 +13,7 @@ public sealed class DownloadFileContentRequestValidator : AbstractValidator<Down
             .WithMessage($"'{nameof(DownloadFileContentRequest.DownloadId)}' must not be empty, null or missing");
     }
 
-    public async Task<DownloadFileContentResponse> Handle(DownloadFileContentRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<DownloadFileContentResponse> next)
+    public async Task<DownloadFileContentResponse> Handle(DownloadFileContentRequest request, RequestHandlerDelegate<DownloadFileContentResponse> next, CancellationToken cancellationToken)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);
         var response = await next();

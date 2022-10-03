@@ -12,7 +12,7 @@ public sealed class UploadExtractFeatureCompareRequestValidator : AbstractValida
         RuleFor(req => req.Archive).NotNull();
     }
 
-    public async Task<UploadExtractFeatureCompareResponse> Handle(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<UploadExtractFeatureCompareResponse> next)
+    public async Task<UploadExtractFeatureCompareResponse> Handle(UploadExtractFeatureCompareRequest request, RequestHandlerDelegate<UploadExtractFeatureCompareResponse> next, CancellationToken cancellationToken)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);
         var response = await next();

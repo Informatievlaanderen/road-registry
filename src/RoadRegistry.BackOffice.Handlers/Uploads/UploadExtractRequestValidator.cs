@@ -12,7 +12,7 @@ public sealed class UploadExtractRequestValidator : AbstractValidator<UploadExtr
         RuleFor(req => req.Archive).NotNull();
     }
 
-    public async Task<UploadExtractResponse> Handle(UploadExtractRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<UploadExtractResponse> next)
+    public async Task<UploadExtractResponse> Handle(UploadExtractRequest request, RequestHandlerDelegate<UploadExtractResponse> next, CancellationToken cancellationToken)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);
         var response = await next();
