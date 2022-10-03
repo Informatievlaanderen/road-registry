@@ -4,11 +4,13 @@ using Microsoft.Data.SqlClient;
 
 public class SqlServerComposedContainer : ISqlServerDatabase
 {
+    private readonly string _serviceName;
     private readonly SqlConnectionStringBuilder _builder;
     private int _db;
 
-    public SqlServerComposedContainer()
+    public SqlServerComposedContainer(string serviceName)
     {
+        _serviceName = serviceName;
         if (Environment.GetEnvironmentVariable("SA_PASSWORD") == null) throw new Exception("The SA_PASSWORD environment variable is missing.");
 
         _builder =
@@ -70,7 +72,7 @@ public class SqlServerComposedContainer : ISqlServerDatabase
 
     public async Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
     {
-        var database = $"DB{Interlocked.Increment(ref _db)}";
+        var database = $"DB-{_serviceName}-{Interlocked.Increment(ref _db)}";
         var text = $@"
 CREATE DATABASE [{database}]
 ALTER DATABASE [{database}] SET ALLOW_SNAPSHOT_ISOLATION ON

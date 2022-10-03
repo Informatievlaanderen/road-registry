@@ -1,23 +1,24 @@
 namespace RoadRegistry.Tests.Framework.Containers;
 
+using System.Reflection;
 using Microsoft.Data.SqlClient;
 
 public class SqlServerEmbeddedContainer : DockerContainer, ISqlServerDatabase
 {
     private const string Password = "E@syP@ssw0rd";
 
-    private int _hostPort;
+    private readonly int _hostPort;
     private int _db;
 
     public SqlServerEmbeddedContainer(int hostPort)
     {
         _hostPort = hostPort;
-        Configuration = new SqlServerContainerConfiguration(CreateMasterConnectionStringBuilder(), _hostPort);
+        Configuration = new SqlServerContainerConfiguration(CreateMasterConnectionStringBuilder(), hostPort);
     }
 
     public async Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
     {
-        var database = $"DB{Interlocked.Increment(ref _db)}";
+        var database = $"DB-{_hostPort}-{Interlocked.Increment(ref _db)}";
         var text = $@"
 CREATE DATABASE [{database}]
 ALTER DATABASE [{database}] SET ALLOW_SNAPSHOT_ISOLATION ON
