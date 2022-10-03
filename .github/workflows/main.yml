@@ -18,6 +18,7 @@ jobs:
           MSSQL_TCP_PORT: 1433
         ports:
           - 1433:1433
+
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -297,7 +298,9 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
-        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api.$SEMVER.nupkg        
+        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api.$SEMVER.nupkg
+        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions.$SEMVER.nupkg
+        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters.$SEMVER.nupkg
       env:
         SEMVER: ${{ env.RELEASE_VERSION }}
         NUGET_HOST: ${{ secrets.NUGET_HOST }}

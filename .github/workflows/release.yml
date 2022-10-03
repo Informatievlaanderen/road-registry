@@ -133,6 +133,7 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER
@@ -167,6 +168,7 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
@@ -181,6 +183,7 @@ jobs:
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
 
+        docker push $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
@@ -216,6 +219,7 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
+        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/projector:$SEMVER
         docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
         docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
         docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/editor-projectionhost:$SEMVER
@@ -230,6 +234,7 @@ jobs:
         docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
         docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
 
+        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/projector:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/editor-projectionhost:$SEMVER
@@ -253,7 +258,9 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
-        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api.$SEMVER.nupkg        
+        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api.$SEMVER.nupkg
+        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions.$SEMVER.nupkg
+        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters.$SEMVER.nupkg
       env:
         SEMVER: ${{ env.RELEASE_VERSION }}
         NUGET_HOST: ${{ secrets.NUGET_HOST }}

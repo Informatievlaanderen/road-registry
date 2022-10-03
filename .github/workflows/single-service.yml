@@ -1,4 +1,4 @@
-name: CD Single Service
+name: Deploy Single Service
 
 on:
   workflow_dispatch:

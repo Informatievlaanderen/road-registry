@@ -59,6 +59,19 @@ Target.create "Build_Solution" (fun _ ->
 Target.create "Test_Solution" (fun _ ->
   [
     "test" @@ "RoadRegistry.Tests"
+    "test" @@ "RoadRegistry.BackOffice.Api.Tests"
+    "test" @@ "RoadRegistry.BackOffice.CommandHost.Tests"
+    "test" @@ "RoadRegistry.BackOffice.EventHost.Tests"
+    "test" @@ "RoadRegistry.BackOffice.ExtractHost.Tests"
+    "test" @@ "RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests"
+    "test" @@ "RoadRegistry.BackOffice.Handlers.Sqs.Tests"
+    "test" @@ "RoadRegistry.BackOffice.Handlers.Tests"
+    "test" @@ "RoadRegistry.BackOffice.MessagingHost.Sqs.Tests"
+    "test" @@ "RoadRegistry.BackOffice.ZipArchiveWriters.Tests"
+    "test" @@ "RoadRegistry.Editor.ProjectionHost.Tests"
+    "test" @@ "RoadRegistry.Product.ProjectionHost.Tests"
+    "test" @@ "RoadRegistry.Syndication.ProjectionHost.Tests"
+    "test" @@ "RoadRegistry.Wms.ProjectionHost.Tests"
   ] |> List.iter testWithDotNet
 )
 
@@ -167,7 +180,6 @@ Target.create "Push" ignore
 "Pack"
   ==> "Containerize_Projector"
   ==> "Containerize_BackOfficeApi"
-  ==> "Containerize_BackOfficeUI"
   ==> "Containerize_EditorProjectionHost"
   ==> "Containerize_ProductProjectionHost"
   ==> "Containerize_WmsProjectionHost"
@@ -179,6 +191,7 @@ Target.create "Push" ignore
   ==> "Containerize_BackOfficeMessagingHostSqs"
   ==> "Containerize_ImportLegacy"
   ==> "Containerize_ExtractLegacy"
+  ==> "Containerize_BackOfficeUI"
   ==> "Containerize"
 // Possibly add more projects to containerize here
 
