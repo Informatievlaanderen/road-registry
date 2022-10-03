@@ -14,10 +14,11 @@ public class SqlServer : ISqlServerDatabase
 
     public SqlServer()
     {
+        const int hostPort = 21540;
         if (Environment.GetEnvironmentVariable("CI") == null)
-            _inner = new SqlServerEmbeddedContainer(21540);
+            _inner = new SqlServerEmbeddedContainer(hostPort);
         else
-            _inner = new SqlServerComposedContainer();
+            _inner = new SqlServerComposedContainer(hostPort.ToString());
 
         MemoryStreamManager = new RecyclableMemoryStreamManager();
         StreetNameCache = new FakeStreetNameCache();
