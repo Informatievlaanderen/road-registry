@@ -1,3 +1,62 @@
+# [3.9.0](https://github.com/informatievlaanderen/road-registry/compare/v3.8.11...v3.9.0) (2022-10-03)
+
+
+### Bug Fixes
+
+* add missing upload test cases for extracts and parameter name typos ([6c6903a](https://github.com/informatievlaanderen/road-registry/commit/6c6903a5110f103dd803976b4a969c4e90417c14))
+* Await asynchronous using blocks ([958dd2e](https://github.com/informatievlaanderen/road-registry/commit/958dd2e648881241032929103eb0a2317e29b91c))
+* CI tests with multiple test libs ([2df7691](https://github.com/informatievlaanderen/road-registry/commit/2df76919729122fa85d8e5b957cc9e6d8aae140e))
+* cleanup code ([27b041b](https://github.com/informatievlaanderen/road-registry/commit/27b041bb2c739ae808cdef44679bc4250aa5e894))
+* cleanup code with ReSharper solution settings ([90ec8dc](https://github.com/informatievlaanderen/road-registry/commit/90ec8dc063352e03af5ed5e42010efd55ce726dc))
+* Configuration manager missing platforms for test projects ([1e46d53](https://github.com/informatievlaanderen/road-registry/commit/1e46d53d2b057da2c2890f61cce14dd896416110))
+* Corrupted Microsoft.Data.SqlClient library upgrade ([eb5d149](https://github.com/informatievlaanderen/road-registry/commit/eb5d1494f7c182166237131bb1e0ddb48bd05c32))
+* reverse lockfileVersion back to 1 ([f6c56a6](https://github.com/informatievlaanderen/road-registry/commit/f6c56a6225a1abe75482b5a1ba8a8f049b1a2827))
+* Unit tests failed after separation ([76ff93b](https://github.com/informatievlaanderen/road-registry/commit/76ff93b1c4f0f42cd0dd1f24e93e8e68f1ad949c))
+* Visibility marker on SqlServerCollection ([25a765b](https://github.com/informatievlaanderen/road-registry/commit/25a765b3be9a484dedbbe05a5a7cda549966345d))
+
+
+### Features
+
+* Accept cancelled tasks as valid ([c14b06e](https://github.com/informatievlaanderen/road-registry/commit/c14b06eb28c9f76f69315203d7da44f394224a32))
+* add configuration for consumer delay ([4812fa5](https://github.com/informatievlaanderen/road-registry/commit/4812fa58ce2db86cc93fa099d9c545cc991f2449))
+* add feature compare support for endpoint and updated tests ([a558f93](https://github.com/informatievlaanderen/road-registry/commit/a558f938fe0a55a770936582fe93655b83d726fc))
+* add feature compare switch ([2297002](https://github.com/informatievlaanderen/road-registry/commit/2297002d318dcfdf3ebc713d3381f270660fbba3))
+* Add missing Lambda implementation for Docker check and initialize ([63b7502](https://github.com/informatievlaanderen/road-registry/commit/63b7502c2ba5a9840dae7e734b325ae277be326a))
+* Add missing Lambda implementation for Docker check and initialize ([92836a4](https://github.com/informatievlaanderen/road-registry/commit/92836a41da5af7eddfc30c370b0b78a2dc246a93))
+* Add valid zip file for testing ([0992242](https://github.com/informatievlaanderen/road-registry/commit/0992242f2e2a03d6ffa4e41e3f54f3f365c30447))
+* Added new style lambda project and test project ([c706bcb](https://github.com/informatievlaanderen/road-registry/commit/c706bcb1106b44c7837070f2a6e65bbb09e7e4d1))
+* Corrected code style issues and sqs handler seutp ([5f32918](https://github.com/informatievlaanderen/road-registry/commit/5f3291895c20f7f928c9a5bbb75cfdce0e138059))
+* create before feature compare validators ([c00f3ce](https://github.com/informatievlaanderen/road-registry/commit/c00f3ce15a09282b18c2d47d992e87b9776132ae))
+* Docker containers ([e6378db](https://github.com/informatievlaanderen/road-registry/commit/e6378db7aba4080ad7fb301edbb8b70cb5c8f8ff))
+* Extend validators with pipeline behavior ([77f6ecc](https://github.com/informatievlaanderen/road-registry/commit/77f6ecc536a5801fc60aa39855d9ec32aa1bb248))
+* Feature compare differentiator ([e15106c](https://github.com/informatievlaanderen/road-registry/commit/e15106c2d9f2f28ce188a47a23e755dea35ca4d6))
+* Handlers and validators run through ([293ac13](https://github.com/informatievlaanderen/road-registry/commit/293ac130daefb91f6280f9164126c519dd035465))
+* MediatR refactor continuation ([2db1ef5](https://github.com/informatievlaanderen/road-registry/commit/2db1ef5043c3c8e245b3c57fea4cddb1f2d80747))
+* Merge from main ([4126b17](https://github.com/informatievlaanderen/road-registry/commit/4126b17978e98c3a976bae6bfda49b8d58d81737))
+* Merge from main ([8f0fb6f](https://github.com/informatievlaanderen/road-registry/commit/8f0fb6f36a78aeeefa221fb70a8a2758d50e0802))
+* refactor solution ([4c04e9f](https://github.com/informatievlaanderen/road-registry/commit/4c04e9f6693e34c77ce7fa0c60aaa8ac3ac09373))
+* Refactor test projects with additional cleanup code ([2d54fce](https://github.com/informatievlaanderen/road-registry/commit/2d54fce1b96f4d99758a11682e33b7779efee408))
+* Remaining test classes which failed ([cd90aa7](https://github.com/informatievlaanderen/road-registry/commit/cd90aa738069cb26e8dd4fdf38ec3f1e601e166f))
+* Remove Lambda test project ([2c32a3a](https://github.com/informatievlaanderen/road-registry/commit/2c32a3a62328116a2183a17065213db5e4086ff4))
+* Removed Lambda project ([8c21b35](https://github.com/informatievlaanderen/road-registry/commit/8c21b35adefa794a331836d4d435b541daa845f5))
+* set specific version for MediatR dependency ([56f53a0](https://github.com/informatievlaanderen/road-registry/commit/56f53a0692cf784b4990001da57f2a2faa92f1ab))
+* Skipped uncompleted tests ([8a3ecbc](https://github.com/informatievlaanderen/road-registry/commit/8a3ecbc028a04a96d3e8f6d2072f9ec27a0e58d9))
+* Solution wide code cleanup ([5bb34f3](https://github.com/informatievlaanderen/road-registry/commit/5bb34f3cc2f5361f453dd13e5b0b3254c280fd56))
+* sqs consumer ([25c35af](https://github.com/informatievlaanderen/road-registry/commit/25c35afb54238bf4422ef3d3e4ae8d2b9d7173e3))
+* SQS queue publisher/consumer and split unit tests ([bca2599](https://github.com/informatievlaanderen/road-registry/commit/bca25996838302c0bbcbaee85032a82940e05560))
+* SQS testability ([2fe9824](https://github.com/informatievlaanderen/road-registry/commit/2fe9824ce838599b07020e230def608e2c9101da))
+* Test project seperation and DotSettings cleanup ([dbf61ce](https://github.com/informatievlaanderen/road-registry/commit/dbf61ce1a2a5acc0d6b8f60964594e2d79e075dc))
+* Update test cases and sql server collection ([612b647](https://github.com/informatievlaanderen/road-registry/commit/612b6476ada53f17eb3e47cbd8cc2bab6940793f))
+* Update validators and fixed tests ([f6eaeba](https://github.com/informatievlaanderen/road-registry/commit/f6eaeba3f97a7d94b29398bc253ca167ae6edbd5))
+* Update workflows and copy messaginghost dependencies ([e59d13b](https://github.com/informatievlaanderen/road-registry/commit/e59d13bd1167a7ace681b7b6447ed65e67c1032e))
+* Updated feature compare buckets input output ([2e20836](https://github.com/informatievlaanderen/road-registry/commit/2e20836bd042dbbd14cb9fa0f16d0e8a24c499fb))
+* Updated lambda and tests ([7c6c8f1](https://github.com/informatievlaanderen/road-registry/commit/7c6c8f182db4f27276bb9a316ec71b03b00828b7))
+* Updated Lambda with environment variables ([97af338](https://github.com/informatievlaanderen/road-registry/commit/97af338a71251178b0d305782b4f461ee1d93130))
+* Updated paket dependencies and solution update ([be4f532](https://github.com/informatievlaanderen/road-registry/commit/be4f5329f22011736cdd540e945a3de04614a610))
+* updated tests for upload controller ([f5f1a10](https://github.com/informatievlaanderen/road-registry/commit/f5f1a10985017e1af57bb19f529755a1b1aeda84))
+* Updated UI with feature compare ([a4a8e7a](https://github.com/informatievlaanderen/road-registry/commit/a4a8e7ad2d8c75481fad6cee016f195de05b9892))
+* use port in Docker container name to allow parallel tests ([a95fbb7](https://github.com/informatievlaanderen/road-registry/commit/a95fbb7dae5eb2fd7b5865ba64ec7bb13fed771a))
+
 ## [3.8.11](https://github.com/informatievlaanderen/road-registry/compare/v3.8.10...v3.8.11) (2022-09-21)
 
 
