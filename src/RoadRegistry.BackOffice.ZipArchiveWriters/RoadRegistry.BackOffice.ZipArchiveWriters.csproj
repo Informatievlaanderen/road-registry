@@ -9,6 +9,7 @@
     <Nullable>disable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <DocumentationFile>RoadRegistry.BackOffice.ZipArchiveWriters.xml</DocumentationFile>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,10 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="paket.template" />
-    <Content Include="paket.template">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="paket.template" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
