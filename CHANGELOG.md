@@ -1,3 +1,10 @@
+## [3.9.1](https://github.com/informatievlaanderen/road-registry/compare/v3.9.0...v3.9.1) (2022-10-03)
+
+
+### Bug Fixes
+
+* nupkg, pipeline, github workflows ([45d3a18](https://github.com/informatievlaanderen/road-registry/commit/45d3a18383c4018c9c7cbf3f41b205a20ff114ea))
+
 # [3.9.0](https://github.com/informatievlaanderen/road-registry/compare/v3.8.11...v3.9.0) (2022-10-03)
 
 
