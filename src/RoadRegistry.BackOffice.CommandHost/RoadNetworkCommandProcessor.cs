@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.CommandHost;
 
+using Abstractions;
 using Framework;
 using Hosts;
 using Microsoft.Extensions.Logging;

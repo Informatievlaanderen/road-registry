@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Abstractions;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
