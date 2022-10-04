@@ -13,8 +13,8 @@ using RoadRegistry.Wfs.Schema;
 namespace RoadRegistry.Wfs.Schema.Migrations
 {
     [DbContext(typeof(WfsContext))]
-    [Migration("20221004142749_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20221004154751_WfsProjectionAddSpatialIndexes")]
+    partial class WfsProjectionAddSpatialIndexes
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -69,7 +69,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
                     b.ToTable("Wegknoop", "RoadRegistryWfs");
                 });
@@ -145,7 +145,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
                     b.ToTable("Wegsegment", "RoadRegistryWfs");
                 });

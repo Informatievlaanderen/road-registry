@@ -46,7 +46,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Wegknoop", x => x.objectId)
-                        .Annotation("SqlServer:Clustered", false);
+                        .Annotation("SqlServer:Clustered", true);
                 });
 
             migrationBuilder.CreateTable(
@@ -75,7 +75,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Wegsegment", x => x.objectId)
-                        .Annotation("SqlServer:Clustered", false);
+                        .Annotation("SqlServer:Clustered", true);
                 });
         }
 

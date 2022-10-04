@@ -12,7 +12,7 @@ namespace RoadRegistry.Wfs.Schema
         {
             b.ToTable(TableName, WellknownSchemas.WfsSchema)
                 .HasKey(i => i.Id)
-                .IsClustered(false);
+                .IsClustered();
 
             b.Property(p => p.Id)
                 .ValueGeneratedNever()

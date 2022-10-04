@@ -67,7 +67,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
                     b.ToTable("Wegknoop", "RoadRegistryWfs");
                 });
@@ -143,7 +143,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
                     b.ToTable("Wegsegment", "RoadRegistryWfs");
                 });
