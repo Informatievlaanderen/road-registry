@@ -1,3 +1,10 @@
+## [3.10.2](https://github.com/informatievlaanderen/road-registry/compare/v3.10.1...v3.10.2) (2022-10-04)
+
+
+### Bug Fixes
+
+* wfs migration. make RoadSegment & RodeNode primary key clustered for spatial indexes ([03ac4db](https://github.com/informatievlaanderen/road-registry/commit/03ac4db9d3471e8f19bd54ee4030cc3f5260758c))
+
 ## [3.10.1](https://github.com/informatievlaanderen/road-registry/compare/v3.10.0...v3.10.1) (2022-10-04)
 
 
