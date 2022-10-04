@@ -1,3 +1,16 @@
+# [3.10.0](https://github.com/informatievlaanderen/road-registry/compare/v3.9.1...v3.10.0) (2022-10-04)
+
+
+### Bug Fixes
+
+* generate nupkg, cleanup, git workflow ([05f10dd](https://github.com/informatievlaanderen/road-registry/commit/05f10ddb593f99ec282f53433e48003b7424c3c2))
+* MessagingHost.Sqs had invalid AssemblyName/RootNamespace ([6d04661](https://github.com/informatievlaanderen/road-registry/commit/6d046614b0b816a85ac109d69c006d467cef941d))
+
+
+### Features
+
+* Prepare refactor for use of multiple entry points which send commands ([baccbe9](https://github.com/informatievlaanderen/road-registry/commit/baccbe9ff23f97aa21ddb06520312bb36824a270))
+
 ## [3.9.1](https://github.com/informatievlaanderen/road-registry/compare/v3.9.0...v3.9.1) (2022-10-03)
 
 
