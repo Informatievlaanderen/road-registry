@@ -3,11 +3,15 @@ namespace RoadRegistry.BackOffice.MessagingHost.Sqs
     using Amazon;
     using Amazon.Runtime;
     using Amazon.S3;
+    using Autofac;
+    using Autofac.Extensions.DependencyInjection;
     using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
     using Be.Vlaanderen.Basisregisters.BlobStore.IO;
     using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
+    using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+    using Configuration;
     using Core;
     using Extracts;
     using Framework;
@@ -28,16 +32,8 @@ namespace RoadRegistry.BackOffice.MessagingHost.Sqs
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
-    using Configuration;
+    using Abstractions;
     using Uploads;
-    using Autofac.Core;
-    using Autofac.Extensions.DependencyInjection;
-    using Autofac;
-    using System.Configuration;
-    using System.ComponentModel;
-    using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-    using System.IO.Pipes;
-    using RoadRegistry.BackOffice.MessagingHost.Sqs.Responses;
 
     public class Program
     {
@@ -190,8 +186,16 @@ namespace RoadRegistry.BackOffice.MessagingHost.Sqs
                     hostContext.Configuration.GetSection(nameof(FeatureCompareMessagingOptions)).Bind(featureCompareMessagingOptions);
 
                     services
-                        .AddSingleton<Scheduler>()
+
+                        /*
+                         * Add hosted services here
+                         */
                         .AddHostedService<FeatureCompareMessageResponseConsumer>()
+                        /*
+                         *
+                         */
+
+                        .AddSingleton<Scheduler>()
                         .AddTransient<ISqsQueueConsumer>(sp => new SqsQueueConsumer(sqsOptions, sp.GetRequiredService<ILogger<SqsQueueConsumer>>()))
                         .AddSingleton<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(

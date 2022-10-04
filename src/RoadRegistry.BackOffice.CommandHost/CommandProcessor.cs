@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Abstractions;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework;
 using Hosts;

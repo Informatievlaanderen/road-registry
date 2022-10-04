@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.CommandHost;
+namespace RoadRegistry.BackOffice.Abstractions;
 
 using System.Threading;
 using System.Threading.Tasks;

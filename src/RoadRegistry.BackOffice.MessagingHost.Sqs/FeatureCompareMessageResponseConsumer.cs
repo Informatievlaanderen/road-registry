@@ -1,15 +1,16 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Responses;
+namespace RoadRegistry.BackOffice.MessagingHost.Sqs;
+
 using Configuration;
 using Exceptions;
 using MediatR;
 using Messages;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Requests;
 using RoadRegistry.BackOffice;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Abstractions.FeatureCompare;
 
 public class FeatureCompareMessageResponseConsumer : BackgroundService
 {

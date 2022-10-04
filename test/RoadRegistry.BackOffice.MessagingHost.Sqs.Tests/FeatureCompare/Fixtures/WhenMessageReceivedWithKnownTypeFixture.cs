@@ -4,7 +4,6 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using MediatR;
 using Messages;
 using Microsoft.Extensions.Logging;
-using Requests;
 
 public class WhenMessageReceivedWithKnownTypeFixture : WhenMessageReceivedFixture
 {

@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.CommandHost.Tests;
 
+using Abstractions;
 using AutoFixture;
 using Framework.Containers;
 using Microsoft.Data.SqlClient;
