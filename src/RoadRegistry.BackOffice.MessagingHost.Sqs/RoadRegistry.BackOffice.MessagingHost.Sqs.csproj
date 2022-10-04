@@ -3,8 +3,8 @@
   <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
 
   <PropertyGroup>
-    <RootNamespace>RoadRegistry.BackOffice.CommandHost</RootNamespace>
-    <AssemblyName>RoadRegistry.BackOffice.CommandHost</AssemblyName>
+    <RootNamespace>RoadRegistry.BackOffice.MessagingHost.Sqs</RootNamespace>
+    <AssemblyName>RoadRegistry.BackOffice.MessagingHost.Sqs</AssemblyName>
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <Nullable>disable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
