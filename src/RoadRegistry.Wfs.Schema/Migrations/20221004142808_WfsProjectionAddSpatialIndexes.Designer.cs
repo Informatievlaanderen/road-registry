@@ -13,8 +13,8 @@ using RoadRegistry.Wfs.Schema;
 namespace RoadRegistry.Wfs.Schema.Migrations
 {
     [DbContext(typeof(WfsContext))]
-    [Migration("20220921084643_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20221004142808_WfsProjectionAddSpatialIndexes")]
+    partial class WfsProjectionAddSpatialIndexes
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -49,35 +49,6 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                     b.ToTable("ProjectionStates", "RoadRegistryWfsMeta");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Wfs.Schema.GradeSeparatedJunctionRecord", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int")
-                        .HasColumnName("objectId");
-
-                    b.Property<string>("BeginTime")
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("versieId");
-
-                    b.Property<int?>("LowerRoadSegmentId")
-                        .HasColumnType("int")
-                        .HasColumnName("onderliggendWegsegment");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("type");
-
-                    b.Property<int?>("UpperRoadSegmentId")
-                        .HasColumnType("int")
-                        .HasColumnName("bovenliggendWegsegment");
-
-                    b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
-                    b.ToTable("OngelijkgrondseKruising", "RoadRegistryWfs");
-                });
-
             modelBuilder.Entity("RoadRegistry.Wfs.Schema.RoadNodeRecord", b =>
                 {
                     b.Property<int>("Id")
@@ -87,6 +58,10 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                     b.Property<string>("BeginTime")
                         .HasColumnType("varchar(100)")
                         .HasColumnName("versieId");
+
+                    b.Property<Geometry>("Geometry")
+                        .HasColumnType("Geometry")
+                        .HasColumnName("puntGeometrie");
 
                     b.Property<string>("Type")
                         .HasColumnType("varchar(255)")

@@ -9,7 +9,9 @@ namespace RoadRegistry.Wfs.Schema
         public override string ProjectionStateSchema => WellknownSchemas.WfsMetaSchema;
         public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
         public DbSet<RoadNodeRecord> RoadNodes { get; set; }
-        public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
+
+        // Temporarily unsupported
+        // public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
         public WfsContext() {}
 
         // This needs to be DbContextOptions<T> for Autofac!

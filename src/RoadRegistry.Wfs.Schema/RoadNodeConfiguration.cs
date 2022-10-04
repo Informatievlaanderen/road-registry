@@ -26,6 +26,10 @@ namespace RoadRegistry.Wfs.Schema
             b.Property(p => p.Type)
                 .HasColumnName("type")
                 .HasColumnType("varchar(255)");
+
+            b.Property(p => p.Geometry)
+                .HasColumnName("puntGeometrie")
+                .HasColumnType("Geometry");
         }
     }
 }
