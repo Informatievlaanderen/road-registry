@@ -1,3 +1,10 @@
+## [3.10.1](https://github.com/informatievlaanderen/road-registry/compare/v3.10.0...v3.10.1) (2022-10-04)
+
+
+### Bug Fixes
+
+* wfs comment GradeSeparatedJunctions, add spatial index, add point geometry to RoadNode ([88c071c](https://github.com/informatievlaanderen/road-registry/commit/88c071c53567ca2744dcfa8132397cfceb9d13a9))
+
 # [3.10.0](https://github.com/informatievlaanderen/road-registry/compare/v3.9.1...v3.10.0) (2022-10-04)
 
 
