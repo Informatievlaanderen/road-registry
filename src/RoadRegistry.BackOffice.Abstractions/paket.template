@@ -5,14 +5,14 @@ id Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions
 title Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions
 
 authors Basisregisters.Vlaanderen
-owners Vlaamse overheid
-copyright Copyright (c) Vlaamse overheid
+owners Digitaal Vlaanderen <https://vlaanderen.be/digitaal-vlaanderen>
+copyright Copyright (c) Digitaal Vlaanderen
 requireLicenseAcceptance false
 projectUrl https://vlaanderen.be/digitaal-vlaanderen
 iconUrl https://raw.githubusercontent.com/Informatievlaanderen/build-pipeline/master/logo.png
 licenseUrl https://opensource.org/licenses/EUPL-1.2
 
-description Road Registry.
+description Road Registry Abstractions Lib.
 
 dependencies
   framework: net6.0

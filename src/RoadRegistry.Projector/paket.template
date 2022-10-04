@@ -1,7 +1,7 @@
 type file
 version 1.0.0
 
-id Be.Vlaanderen.Basisregisters.Registry.Projector
+id Be.Vlaanderen.Basisregisters.RoadRegistry.Projector
 title Be.Vlaanderen.Basisregisters.RoadRegistry.Projector
 
 authors Basisregisters Vlaanderen

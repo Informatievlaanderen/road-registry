@@ -298,10 +298,12 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
-        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api.$SEMVER.nupkg
-        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions.$SEMVER.nupkg
-        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters.$SEMVER.nupkg
+        node $CI_NUGET_PATH/ci-nuget.js $LIB_PREFIX.BackOffice.Api.$SEMVER.nupkg
+        node $CI_NUGET_PATH/ci-nuget.js $LIB_PREFIX.BackOffice.Abstractions.$SEMVER.nupkg
+        node $CI_NUGET_PATH/ci-nuget.js $LIB_PREFIX.BackOffice.ZipArchiveWriters.$SEMVER.nupkg
       env:
+        CI_NUGET_PATH: packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content
+        LIB_PREFIX: dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry
         SEMVER: ${{ env.RELEASE_VERSION }}
         NUGET_HOST: ${{ secrets.NUGET_HOST }}
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
