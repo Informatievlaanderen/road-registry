@@ -1,3 +1,30 @@
+## [3.10.2](https://github.com/informatievlaanderen/road-registry/compare/v3.10.1...v3.10.2) (2022-10-04)
+
+
+### Bug Fixes
+
+* wfs migration. make RoadSegment & RodeNode primary key clustered for spatial indexes ([03ac4db](https://github.com/informatievlaanderen/road-registry/commit/03ac4db9d3471e8f19bd54ee4030cc3f5260758c))
+
+## [3.10.1](https://github.com/informatievlaanderen/road-registry/compare/v3.10.0...v3.10.1) (2022-10-04)
+
+
+### Bug Fixes
+
+* wfs comment GradeSeparatedJunctions, add spatial index, add point geometry to RoadNode ([88c071c](https://github.com/informatievlaanderen/road-registry/commit/88c071c53567ca2744dcfa8132397cfceb9d13a9))
+
+# [3.10.0](https://github.com/informatievlaanderen/road-registry/compare/v3.9.1...v3.10.0) (2022-10-04)
+
+
+### Bug Fixes
+
+* generate nupkg, cleanup, git workflow ([05f10dd](https://github.com/informatievlaanderen/road-registry/commit/05f10ddb593f99ec282f53433e48003b7424c3c2))
+* MessagingHost.Sqs had invalid AssemblyName/RootNamespace ([6d04661](https://github.com/informatievlaanderen/road-registry/commit/6d046614b0b816a85ac109d69c006d467cef941d))
+
+
+### Features
+
+* Prepare refactor for use of multiple entry points which send commands ([baccbe9](https://github.com/informatievlaanderen/road-registry/commit/baccbe9ff23f97aa21ddb06520312bb36824a270))
+
 ## [3.9.1](https://github.com/informatievlaanderen/road-registry/compare/v3.9.0...v3.9.1) (2022-10-03)
 
 

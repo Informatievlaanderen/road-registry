@@ -11,27 +11,10 @@ namespace RoadRegistry.Wfs.Schema.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "RoadRegistryWfs");
-
-            migrationBuilder.EnsureSchema(
                 name: "RoadRegistryWfsMeta");
 
-            migrationBuilder.CreateTable(
-                name: "OngelijkgrondseKruising",
-                schema: "RoadRegistryWfs",
-                columns: table => new
-                {
-                    objectId = table.Column<int>(type: "int", nullable: false),
-                    versieId = table.Column<string>(type: "varchar(100)", nullable: true),
-                    type = table.Column<string>(type: "varchar(255)", nullable: true),
-                    onderliggendWegsegment = table.Column<int>(type: "int", nullable: true),
-                    bovenliggendWegsegment = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OngelijkgrondseKruising", x => x.objectId)
-                        .Annotation("SqlServer:Clustered", false);
-                });
+            migrationBuilder.EnsureSchema(
+                name: "RoadRegistryWfs");
 
             migrationBuilder.CreateTable(
                 name: "ProjectionStates",
@@ -57,12 +40,13 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                 {
                     objectId = table.Column<int>(type: "int", nullable: false),
                     versieId = table.Column<string>(type: "varchar(100)", nullable: true),
-                    type = table.Column<string>(type: "varchar(255)", nullable: true)
+                    type = table.Column<string>(type: "varchar(255)", nullable: true),
+                    puntGeometrie = table.Column<Geometry>(type: "Geometry", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Wegknoop", x => x.objectId)
-                        .Annotation("SqlServer:Clustered", false);
+                        .Annotation("SqlServer:Clustered", true);
                 });
 
             migrationBuilder.CreateTable(
@@ -91,16 +75,12 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Wegsegment", x => x.objectId)
-                        .Annotation("SqlServer:Clustered", false);
+                        .Annotation("SqlServer:Clustered", true);
                 });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "OngelijkgrondseKruising",
-                schema: "RoadRegistryWfs");
-
             migrationBuilder.DropTable(
                 name: "ProjectionStates",
                 schema: "RoadRegistryWfsMeta");

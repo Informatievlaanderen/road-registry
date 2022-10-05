@@ -118,7 +118,7 @@ namespace RoadRegistry.Wfs.ProjectionHost
                         )
                         .AddSingleton(sp => new ConnectedProjection<WfsContext>[]
                         {
-                            new GradeSeparatedJunctionRecordProjection(),
+                            // new GradeSeparatedJunctionRecordProjection(),
                             new RoadNodeRecordProjection(),
                             new RoadSegmentRecordProjection(
                                 sp.GetRequiredService<IStreetNameCache>())

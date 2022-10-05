@@ -90,6 +90,8 @@ Target.create "Publish_Solution" (fun _ ->
     "RoadRegistry.Legacy.Extract"
     "RoadRegistry.Legacy.Import"
     "RoadRegistry.BackOffice.Api"
+    "RoadRegistry.BackOffice.Abstractions"
+    "RoadRegistry.BackOffice.ZipArchiveWriters"
   ] |> List.iter publishSource
 
   let dist = (buildDir @@ "RoadRegistry.BackOffice.UI" @@ "linux")
@@ -105,6 +107,8 @@ Target.create "Pack_Solution" (fun _ ->
   [
     "RoadRegistry.Projector"
     "RoadRegistry.BackOffice.Api"
+    "RoadRegistry.BackOffice.Abstractions"
+    "RoadRegistry.BackOffice.ZipArchiveWriters"
   ] |> List.iter pack)
 
 Target.create "Containerize_Projector" (fun _ -> containerize "RoadRegistry.Projector" "projector")

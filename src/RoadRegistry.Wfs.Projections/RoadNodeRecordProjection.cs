@@ -20,7 +20,8 @@ namespace RoadRegistry.Wfs.Projections
                 {
                     Id = envelope.Message.Id,
                     BeginTime = envelope.Message.Origin.Since,
-                    Type = GetRoadNodesTypeDutchTranslation(envelope.Message.Type)
+                    Type = GetRoadNodesTypeDutchTranslation(envelope.Message.Type),
+                    Geometry = GeometryTranslator.Translate(envelope.Message.Geometry)
                 }, token);
             });
 
@@ -56,7 +57,8 @@ namespace RoadRegistry.Wfs.Projections
             {
                 Id = roadNodeAdded.Id,
                 BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-                Type = GetRoadNodesTypeDutchTranslation(roadNodeAdded.Type)
+                Type = GetRoadNodesTypeDutchTranslation(roadNodeAdded.Type),
+                Geometry = GeometryTranslator.Translate(roadNodeAdded.Geometry),
             }, token);
         }
 
@@ -75,6 +77,7 @@ namespace RoadRegistry.Wfs.Projections
             roadNodeRecord.Id = roadNodeModified.Id;
             roadNodeRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             roadNodeRecord.Type = GetRoadNodesTypeDutchTranslation(roadNodeModified.Type);
+            roadNodeRecord.Geometry = GeometryTranslator.Translate(roadNodeModified.Geometry);
         }
 
         private static async Task RemoveRoadNode(RoadNodeRemoved roadNodeRemoved, WfsContext context)
