@@ -230,7 +230,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             var page = await StreamStore.ReadAllBackwards(Position.End, 1, true);
             var message = page.Messages.Single();
             Assert.Equal(nameof(RoadNetworkChangesArchiveAccepted), message.Type);
-
+            
             var archiveAcceptedMessage = JsonConvert.DeserializeObject<RoadNetworkChangesArchiveAccepted>(await message.GetJsonData());
             
             Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(archiveAcceptedMessage!.ArchiveId)));

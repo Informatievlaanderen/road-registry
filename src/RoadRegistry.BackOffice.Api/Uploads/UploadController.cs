@@ -32,7 +32,7 @@ public class UploadController : ControllerBase
 
     [HttpPost("")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadAfterFeatureCompare([FromBody] IFormFile archive, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostUploadAfterFeatureCompare(IFormFile archive, CancellationToken cancellationToken)
     {
         return await Post(archive, async () =>
         {
