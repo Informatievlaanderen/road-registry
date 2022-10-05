@@ -4,7 +4,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("ImportedMunicipality")]
 [EventDescription("Indicates a municipality was imported.")]
-public class ImportedMunicipality
+public class ImportedMunicipality : IMessage
 {
     public string NISCode { get; set; }
     public string DutchName { get; set; }

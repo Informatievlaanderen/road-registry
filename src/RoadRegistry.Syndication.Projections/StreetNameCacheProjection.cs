@@ -3,6 +3,7 @@ namespace RoadRegistry.Syndication.Projections
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Schema;
@@ -363,6 +364,7 @@ namespace RoadRegistry.Syndication.Projections
         }
 
         private static async Task UpdateStreetNameRecord<T>(SyndicationContext context, Envelope<T> envelope, Guid streetNameId, Action<StreetNameRecord> update, CancellationToken token)
+            where T: IMessage
         {
             var streetNameRecord = await FindOrThrow(context, streetNameId, token);
 

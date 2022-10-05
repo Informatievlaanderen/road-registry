@@ -16,11 +16,6 @@ public class AddGradeSeparatedJunctionValidatorTests
         Fixture.CustomizeRoadSegmentId();
         Fixture.CustomizeGradeSeparatedJunctionType();
         Validator = new AddGradeSeparatedJunctionValidator();
-        RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction model = new()
-        {
-            TemporaryId = value
-        };
-
     }
 
     public Fixture Fixture { get; }
@@ -32,8 +27,7 @@ public class AddGradeSeparatedJunctionValidatorTests
     [InlineData(-1)]
     public void TemporaryIdMustBeGreaterThan(int value)
     {
-        var result = Validator.TestValidate(Model);
-        result.ShouldHaveValidationErrorFor(c => c.TemporaryId);
+        Validator.ShouldHaveValidationErrorFor(c => c.TemporaryId, value);
     }
 
     [Theory]

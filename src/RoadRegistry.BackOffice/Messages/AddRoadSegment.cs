@@ -1,6 +1,8 @@
+using Be.Vlaanderen.Basisregisters.EventHandling;
+
 namespace RoadRegistry.BackOffice.Messages;
 
-public class AddRoadSegment
+public class AddRoadSegment : IMessage
 {
     public int TemporaryId { get; set; }
     public int StartNodeId { get; set; }

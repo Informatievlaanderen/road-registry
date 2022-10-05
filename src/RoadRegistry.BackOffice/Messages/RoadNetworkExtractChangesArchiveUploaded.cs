@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkExtractChangesArchiveUploaded")]
 [EventDescription("Indicates the road network extract changes archive was uploaded.")]
-public class RoadNetworkExtractChangesArchiveUploaded
+public class RoadNetworkExtractChangesArchiveUploaded : IMessage
 {
     public string RequestId { get; set; }
     public string ExternalRequestId { get; set; }

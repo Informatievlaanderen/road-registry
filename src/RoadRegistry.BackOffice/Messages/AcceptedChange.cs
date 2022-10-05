@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Messages;
+namespace RoadRegistry.BackOffice.Messages;
 
 public class AcceptedChange
 {

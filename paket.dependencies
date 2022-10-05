@@ -14,44 +14,44 @@ nuget Moq
 nuget NodaTime
 nuget NodaTime.Testing
 nuget Polly
-nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
+nuget Swashbuckle.AspNetCore.SwaggerUI ~> 6.0
 
 # group Be.Vlaanderen
-  nuget Be.Vlaanderen.Basisregisters.AggregateSource 7.0.0
-  nuget Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting 7.0.0
-  nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 7.0.0
-  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing 7.0.0
-  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling 7.0.0
-  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac 7.0.0
-  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit 7.0.0
-  nuget Be.Vlaanderen.Basisregisters.Api 18.2.1
-  nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex 3.0.1
-  nuget Be.Vlaanderen.Basisregisters.Aws.Lambda 1.2.4
-  nuget Be.Vlaanderen.Basisregisters.BlobStore 3.0.0
-  nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 6.0.4
-  nuget Be.Vlaanderen.Basisregisters.CommandHandling 7.0.0
-  nuget Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency 7.0.0
-  nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore 7.0.0
-  nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.AspNetCore 5.0.0
-  nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac 5.0.0
-  nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore 5.0.0
-  nuget Be.Vlaanderen.Basisregisters.EventHandling 4.2.0
-  nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.2.0
-  nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts 17.28.0
-  nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 17.28.0
-  nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.3.2
-  nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.3.2
-  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing 11.0.2
-  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList 11.0.2
-  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 11.0.2
-  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 11.0.2
-  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 11.0.2
-  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication 11.0.2
-  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Testing.Xunit 11.0.2
-  nuget Be.Vlaanderen.Basisregisters.Projector 12.0.1
-  nuget Be.Vlaanderen.Basisregisters.Shaperon 9.0.1
-  nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 9.0.1
-  nuget Be.Vlaanderen.Basisregisters.Testing.Infrastructure.Events 3.0.0 content: true, copy_content_to_output_dir: always, copy_local: true
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource ~> 7.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting ~> 7.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac ~> 7.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing ~> 7.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling ~> 7.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac ~> 7.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit ~> 7.0
+  nuget Be.Vlaanderen.Basisregisters.Api ~> 18.0
+  nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex ~> 3.0
+  nuget Be.Vlaanderen.Basisregisters.Aws.Lambda ~> 1.0
+  nuget Be.Vlaanderen.Basisregisters.BlobStore ~> 3.0
+  nuget Be.Vlaanderen.Basisregisters.Build.Pipeline ~> 6.0
+  nuget Be.Vlaanderen.Basisregisters.CommandHandling ~> 7.0
+  nuget Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency ~> 7.0
+  nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore ~> 7.0
+  nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.AspNetCore ~> 5.0
+  nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac ~> 5.0
+  nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore ~> 5.0
+  nuget Be.Vlaanderen.Basisregisters.EventHandling ~> 4.0
+  nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac ~> 4.0
+  nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts ~> 17.0
+  nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy ~> 17.0
+  nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple ~> 4.0
+  nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple ~> 4.0
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing ~> 11.0
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList ~> 11.0
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner ~> 11.0
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore ~> 11.0
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac ~> 11.0
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication ~> 11.0
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Testing.Xunit ~> 11.0
+  nuget Be.Vlaanderen.Basisregisters.Projector ~> 12.0
+  nuget Be.Vlaanderen.Basisregisters.Shaperon ~> 9.0
+  nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries ~> 9.0
+  nuget Be.Vlaanderen.Basisregisters.Testing.Infrastructure.Events ~> 3.0 content: true, copy_content_to_output_dir: always, copy_local: true
 
 # group Amazon
   nuget Amazon.Lambda.Core
@@ -71,9 +71,9 @@ nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
   nuget Ductus.FluentDocker.Xunit
 
 # group FluentValidation
-  nuget FluentValidation
-  nuget FluentValidation.AspNetCore
-  nuget FluentValidation.DependencyInjectionExtensions
+  nuget FluentValidation ~> 10.0
+  nuget FluentValidation.AspNetCore ~> 10.0
+  nuget FluentValidation.DependencyInjectionExtensions ~> 10.0
 
 # group MediatR
   nuget MediatR
@@ -102,7 +102,7 @@ nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
   nuget Microsoft.Extensions.Logging
   nuget Microsoft.Extensions.Options.ConfigurationExtensions
   nuget Microsoft.IO.RecyclableMemoryStream
-  nuget Microsoft.NET.Test.Sdk
+  nuget Microsoft.NET.Test.Sdk ~> 17.0
   nuget Microsoft.Net.Http.Headers
 
 # group NetTopologySuite
@@ -129,9 +129,9 @@ nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
   nuget SqlStreamStore.MsSql
 
 # group Structurizr
-  nuget Structurizr.AdrTools
-  nuget Structurizr.Client
-  nuget Structurizr.Core
+  nuget Structurizr.AdrTools ~> 0.0
+  nuget Structurizr.Client ~> 0.0
+  nuget Structurizr.Core ~> 0.0
 
 # group System
   nuget System.Collections.Immutable
