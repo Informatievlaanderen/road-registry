@@ -15,7 +15,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
         RoadNetworkFeatureCompareBlobClient featureCompareBlobClient,
         IStreamStore store,
         IRoadNetworkSnapshotReader snapshotReader,
-        IZipArchiveValidator validator,
+        IZipArchiveAfterFeatureCompareValidator validator,
         IClock clock)
     {
         if (featureCompareBlobClient == null) throw new ArgumentNullException(nameof(featureCompareBlobClient));

@@ -10,7 +10,7 @@ using Uploads.Schema.V1;
 /// <summary>
 ///     POST FEATURE COMPARE
 /// </summary>
-public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveValidator
+public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCompareValidator
 {
     private static readonly string[] ValidationOrder =
     {

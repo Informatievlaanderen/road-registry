@@ -66,7 +66,8 @@ public abstract class TestStartup
                     .AddSingleton(_ => new ExtractDownloadsOptions())
                     .AddSingleton<ExtractUploadsOptions>(_ => new ExtractUploadsOptions())
                     //.AddSingleton<SqsOptions>(_ => new SqsOptions("", "", RegionEndpoint.EUWest1))
-                    .AddTransient<IZipArchiveValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
+                    .AddTransient<IZipArchiveBeforeFeatureCompareValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
+                    .AddTransient<IZipArchiveAfterFeatureCompareValidator>(sp => new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
                     .AddLogging();
 

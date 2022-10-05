@@ -3,7 +3,7 @@ namespace RoadRegistry.Tests;
 using System.IO.Compression;
 using RoadRegistry.BackOffice.Uploads;
 
-public class FakeZipArchiveValidator : IZipArchiveValidator
+public class FakeZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureCompareValidator
 {
     public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)
     {

@@ -16,7 +16,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         RoadNetworkExtractUploadsBlobClient uploadsBlobClient,
         IStreamStore store,
         IRoadNetworkSnapshotReader snapshotReader,
-        IZipArchiveValidator validator,
+        IZipArchiveAfterFeatureCompareValidator validator,
         IClock clock)
     {
         if (uploadsBlobClient == null) throw new ArgumentNullException(nameof(uploadsBlobClient));

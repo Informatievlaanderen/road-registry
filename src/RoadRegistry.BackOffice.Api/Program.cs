@@ -201,7 +201,8 @@ public class Program
                     .AddSingleton<ISqsQueuePublisher>(sp =>
                         new SqsQueuePublisher(sqsOptions, sp.GetService<ILogger<SqsQueuePublisher>>())
                     )
-                    .AddSingleton<IZipArchiveValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8));
+                    .AddSingleton<IZipArchiveBeforeFeatureCompareValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
+                    .AddSingleton<IZipArchiveAfterFeatureCompareValidator>(sp => new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8));
 
                 builder
                     .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(featureToggles.UseSnapshotRebuildFeature))

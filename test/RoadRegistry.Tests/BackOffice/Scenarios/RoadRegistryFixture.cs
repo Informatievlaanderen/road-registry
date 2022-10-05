@@ -31,7 +31,7 @@ public abstract class RoadRegistryFixture : IDisposable
         Client = new MemoryBlobClient();
         Store = new InMemoryStreamStore();
         Clock = new FakeClock(NodaConstants.UnixEpoch);
-        ZipArchiveValidator = new FakeZipArchiveValidator();
+        ZipArchiveValidator = new FakeZipArchiveAfterFeatureCompareValidator();
 
         _runner = new ScenarioRunner(
             Resolve.WhenEqualToMessage(new CommandHandlerModule[]
@@ -53,7 +53,7 @@ public abstract class RoadRegistryFixture : IDisposable
     protected IStreamStore Store { get; }
     protected FakeClock Clock { get; }
     protected MemoryBlobClient Client { get; }
-    protected IZipArchiveValidator ZipArchiveValidator { get; set; }
+    protected IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
 
     public void Dispose()
     {

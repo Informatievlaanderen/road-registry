@@ -24,22 +24,18 @@ using Uploads;
 
 public class UploadControllerTests : ControllerTests<UploadController>
 {
-    private readonly ISqsQueuePublisher _sqsQueuePublisher;
-
     public UploadControllerTests(
         IMediator mediator,
         IStreamStore streamStore,
-        ISqsQueuePublisher sqsQueuePublisher,
         RoadNetworkUploadsBlobClient uploadClient,
         RoadNetworkExtractUploadsBlobClient extractUploadClient,
         RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
         : base(mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
     {
-        _sqsQueuePublisher = sqsQueuePublisher;
     }
 
     [Fact]
-    public async Task When_uploading_a_file_that_is_not_a_zip()
+    public async Task When_uploading_a_before_fc_file_that_is_not_a_zip()
     {
         var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
         {
@@ -49,12 +45,12 @@ public class UploadControllerTests : ControllerTests<UploadController>
             })
         };
 
-        var result = await Controller.PostUpload(formFile, CancellationToken.None);
+        var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None);
         Assert.IsType<UnsupportedMediaTypeResult>(result);
     }
 
     [Fact]
-    public async Task When_uploading_an_externally_created_file_that_is_an_empty_zip()
+    public async Task When_uploading_an_externally_created_before_fc_file_that_is_an_empty_zip()
     {
         using (var sourceStream = new MemoryStream())
         {
@@ -77,7 +73,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
 
             try
             {
-                var result = await Controller.PostUpload(formFile, CancellationToken.None);
+                await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None);
                 throw new ValidationException("This should not be reachable");
             }
             catch (ApiProblemDetailsException ex)
@@ -102,13 +98,13 @@ public class UploadControllerTests : ControllerTests<UploadController>
     }
 
     [Fact]
-    public async Task When_uploading_an_externally_created_file_that_is_a_valid_zip()
+    public async Task When_uploading_an_externally_created_before_fc_file_that_is_a_valid_zip()
     {
         using (var sourceStream = new MemoryStream())
         {
             await using (var embeddedStream =
                          typeof(UploadControllerTests).Assembly.GetManifestResourceStream(typeof(UploadControllerTests),
-                             "valid.zip"))
+                             "valid-before.zip"))
             {
                 embeddedStream.CopyTo(sourceStream);
             }
@@ -122,13 +118,123 @@ public class UploadControllerTests : ControllerTests<UploadController>
                     { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
                 })
             };
-            var result = await Controller.PostUpload(formFile, CancellationToken.None);
+            var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None);
 
             var typedResult = Assert.IsType<OkObjectResult>(result);
             var response = Assert.IsType<UploadExtractFeatureCompareResponse>(typedResult.Value);
 
             Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(response.ArchiveId)));
             var blob = await UploadBlobClient.GetBlobAsync(new BlobName(response.ArchiveId));
+            await using (var openStream = await blob.OpenAsync())
+            {
+                var resultStream = new MemoryStream();
+                openStream.CopyTo(resultStream);
+                resultStream.Position = 0;
+                sourceStream.Position = 0;
+
+                Assert.Equal(sourceStream.ToArray(), resultStream.ToArray());
+            }
+        }
+    }
+
+    [Fact]
+    public async Task When_uploading_an_after_fc_file_that_is_not_a_zip()
+    {
+        var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
+        {
+            Headers = new HeaderDictionary(new Dictionary<string, StringValues>
+            {
+                { "Content-Type", StringValues.Concat(StringValues.Empty, "application/octet-stream") }
+            })
+        };
+
+        var result = await Controller.PostUploadAfterFeatureCompare(formFile, CancellationToken.None);
+        Assert.IsType<UnsupportedMediaTypeResult>(result);
+    }
+
+    [Fact]
+    public async Task When_uploading_an_externally_created_after_fc_file_that_is_an_empty_zip()
+    {
+        using (var sourceStream = new MemoryStream())
+        {
+            await using (var embeddedStream =
+                         typeof(UploadControllerTests).Assembly.GetManifestResourceStream(typeof(UploadControllerTests),
+                             "empty.zip"))
+            {
+                embeddedStream.CopyTo(sourceStream);
+            }
+
+            sourceStream.Position = 0;
+
+            var formFile = new FormFile(sourceStream, 0L, sourceStream.Length, "name", "name")
+            {
+                Headers = new HeaderDictionary(new Dictionary<string, StringValues>
+                {
+                    { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
+                })
+            };
+
+            var result = await Controller.PostUploadAfterFeatureCompare(formFile, CancellationToken.None);
+
+            Assert.IsType<OkResult>(result);
+
+            var page = await StreamStore.ReadAllForwards(Position.Start, 2, true);
+            var message = page.Messages[1];
+            Assert.Equal(nameof(RoadNetworkChangesArchiveRejected), message.Type);
+
+            var archiveRejectedMessage = JsonConvert.DeserializeObject<RoadNetworkChangesArchiveRejected>(await message.GetJsonData());
+            var validationFileProblems = archiveRejectedMessage!.Problems.Select(x => x.File).ToArray();
+
+            Assert.Contains("TRANSACTIEZONES.DBF", validationFileProblems);
+            Assert.Contains("WEGKNOOP_ALL.DBF", validationFileProblems);
+            Assert.Contains("WEGKNOOP_ALL.SHP", validationFileProblems);
+            Assert.Contains("WEGKNOOP_ALL.PRJ", validationFileProblems);
+            Assert.Contains("WEGSEGMENT_ALL.DBF", validationFileProblems);
+            Assert.Contains("ATTRIJSTROKEN_ALL.DBF", validationFileProblems);
+            Assert.Contains("ATTWEGBREEDTE_ALL.DBF", validationFileProblems);
+            Assert.Contains("ATTWEGVERHARDING_ALL.DBF", validationFileProblems);
+            Assert.Contains("WEGSEGMENT_ALL.SHP", validationFileProblems);
+            Assert.Contains("WEGSEGMENT_ALL.PRJ", validationFileProblems);
+            Assert.Contains("ATTEUROPWEG_ALL.DBF", validationFileProblems);
+            Assert.Contains("ATTNATIONWEG_ALL.DBF", validationFileProblems);
+            Assert.Contains("ATTGENUMWEG_ALL.DBF", validationFileProblems);
+            Assert.Contains("RLTOGKRUISING_ALL.DBF", validationFileProblems);
+        }
+    }
+
+    [Fact]
+    public async Task When_uploading_an_externally_created_after_fc_file_that_is_a_valid_zip()
+    {
+        using (var sourceStream = new MemoryStream())
+        {
+            await using (var embeddedStream =
+                         typeof(UploadControllerTests).Assembly.GetManifestResourceStream(typeof(UploadControllerTests),
+                             "valid-after.zip"))
+            {
+                embeddedStream.CopyTo(sourceStream);
+            }
+
+            sourceStream.Position = 0;
+
+            var formFile = new FormFile(sourceStream, 0L, sourceStream.Length, "name", "name")
+            {
+                Headers = new HeaderDictionary(new Dictionary<string, StringValues>
+                {
+                    { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
+                })
+            };
+            var result = await Controller.PostUploadAfterFeatureCompare(formFile, CancellationToken.None);
+
+            Assert.IsType<OkResult>(result);
+
+            var page = await StreamStore.ReadAllForwards(Position.Start, 2, true);
+            var message = page.Messages[1];
+            Assert.Equal(nameof(RoadNetworkChangesArchiveAccepted), message.Type);
+
+            var archiveAcceptedMessage = JsonConvert.DeserializeObject<RoadNetworkChangesArchiveAccepted>(await message.GetJsonData());
+            
+            Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(archiveAcceptedMessage!.ArchiveId)));
+            var blob = await UploadBlobClient.GetBlobAsync(new BlobName(archiveAcceptedMessage.ArchiveId));
             await using (var openStream = await blob.OpenAsync())
             {
                 var resultStream = new MemoryStream();

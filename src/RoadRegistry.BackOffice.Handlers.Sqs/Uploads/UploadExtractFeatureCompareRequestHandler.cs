@@ -28,14 +28,14 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
     };
 
     private readonly RoadNetworkExtractUploadsBlobClient _client;
-    private readonly IZipArchiveValidator _validator;
+    private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
     public UploadExtractFeatureCompareRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
         ISqsQueuePublisher sqsQueuePublisher,
-        IZipArchiveValidator validator,
+        IZipArchiveBeforeFeatureCompareValidator validator,
         ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
