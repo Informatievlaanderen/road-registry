@@ -1,154 +1,147 @@
 framework: net6.0
 source https://api.nuget.org/v3/index.json
 
-// PRODUCTION STUFF
-nuget Microsoft.Extensions.Configuration 6.0.1
-nuget Microsoft.Extensions.Configuration.CommandLine 6.0.0
-nuget Microsoft.Extensions.Configuration.FileExtensions 6.0.0
-nuget Microsoft.Extensions.Configuration.EnvironmentVariables 6.0.1
-nuget Microsoft.Extensions.Configuration.Json 6.0.0
-nuget Microsoft.Extensions.Configuration.Binder 6.0.0
-nuget Microsoft.Extensions.Hosting 6.0.1
-nuget Microsoft.Extensions.Logging 6.0.0
-nuget Microsoft.Extensions.Options.ConfigurationExtensions 6.0.0
-nuget Microsoft.Extensions.DependencyInjection.Abstractions 6.0.0
-nuget Microsoft.Extensions.DependencyInjection 6.0.0
-
-nuget Microsoft.Extensions.Http.Polly 6.0.3
-nuget Polly 7.2.3
-
-// For more healtchecks, look at https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks
-nuget AspNetCore.HealthChecks.SqlServer 6.0.2
-
-nuget NetTopologySuite 2.4.0
-nuget NetTopologySuite.IO.GeoJSON 2.0.4
-
-nuget Microsoft.EntityFrameworkCore 6.0.3
-nuget Microsoft.EntityFrameworkCore.Abstractions 6.0.3
-nuget Microsoft.EntityFrameworkCore.Design 6.0.3
-nuget Microsoft.EntityFrameworkCore.InMemory 6.0.3
-nuget Microsoft.EntityFrameworkCore.Relational 6.0.3
-nuget Microsoft.Extensions.Localization 6.0.3
-nuget Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite 6.0.3
-nuget Microsoft.Data.SqlClient 5.0.0
-
-nuget AWSSDK.S3 3.7.8.11
-nuget Docker.DotNet 3.125.5
-nuget NodaTime 3.1.0
-nuget DotSpatial.Projections 4.0.656
-nuget Autofac 6.4.0
-nuget Moq 4.18.1
-nuget Ductus.FluentDocker 2.10.56
-nuget Ductus.FluentDocker.Xunit 2.10.56
-
-nuget System.Collections.Immutable 6.0.0
-nuget System.Text.Encoding.CodePages 6.0.0
-nuget System.Threading.Tasks.Dataflow 6.0.0
-nuget System.Threading.Channels 5.0.0
-
-nuget Microsoft.Net.Http.Headers 2.2.8
-nuget Microsoft.IO.RecyclableMemoryStream 1.4.0
-nuget MessagePack 2.2.85
-nuget FluentValidation 10.4.0
-
-nuget SqlStreamStore 1.2.0
-nuget SqlStreamStore.MsSql 1.2.0
-
-nuget Serilog 2.10.0
-nuget Serilog.AspNetCore 3.4.0
-nuget Serilog.Enrichers.Environment 2.2.0
-nuget Serilog.Enrichers.Thread 3.1.0
-nuget Serilog.Extensions.Logging 3.1.0
-nuget Serilog.Extensions.Hosting 3.1.0
-nuget Serilog.Formatting.Compact 1.1.0
-nuget Serilog.Settings.Configuration 3.3.0
-nuget Serilog.Sinks.Seq 5.1.1
+nuget Albedo
+nuget AspNetCore.HealthChecks.SqlServer
+nuget Autofac
+nuget CompareNETObjects
+nuget CsvHelper
+nuget DotSpatial.Projections
+nuget FeatureToggle.Net6
+nuget FluentAssertions
+nuget MessagePack
+nuget Moq
+nuget NodaTime
+nuget NodaTime.Testing
+nuget Polly
 nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
 
-nuget SourceLink.Embed.AllSourceFiles 2.8.3
-nuget SourceLink.Copy.PdbFiles 2.8.3
+# group Be.Vlaanderen
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource 7.0.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting 7.0.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 7.0.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing 7.0.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling 7.0.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac 7.0.0
+  nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit 7.0.0
+  nuget Be.Vlaanderen.Basisregisters.Api 18.2.1
+  nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex 3.0.1
+  nuget Be.Vlaanderen.Basisregisters.Aws.Lambda 1.2.4
+  nuget Be.Vlaanderen.Basisregisters.BlobStore 3.0.0
+  nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 6.0.4
+  nuget Be.Vlaanderen.Basisregisters.CommandHandling 7.0.0
+  nuget Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency 7.0.0
+  nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore 7.0.0
+  nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.AspNetCore 5.0.0
+  nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac 5.0.0
+  nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore 5.0.0
+  nuget Be.Vlaanderen.Basisregisters.EventHandling 4.2.0
+  nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.2.0
+  nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts 17.28.0
+  nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 17.28.0
+  nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.3.2
+  nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.3.2
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing 11.0.2
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList 11.0.2
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 11.0.2
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 11.0.2
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 11.0.2
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication 11.0.2
+  nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Testing.Xunit 11.0.2
+  nuget Be.Vlaanderen.Basisregisters.Projector 12.0.1
+  nuget Be.Vlaanderen.Basisregisters.Shaperon 9.0.1
+  nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 9.0.1
+  nuget Be.Vlaanderen.Basisregisters.Testing.Infrastructure.Events 3.0.0 content: true, copy_content_to_output_dir: always, copy_local: true
 
-nuget FeatureToggle.Net6 1.0.1
+# group Amazon
+  nuget Amazon.Lambda.Core
+  nuget Amazon.Lambda.SQSEvents
+  nuget Amazon.Lambda.Serialization.SystemTextJson
+  nuget Amazon.Lambda.TestUtilities
+  nuget AWSSDK.S3
 
-nuget MediatR 11.0.0
-nuget MediatR.Contracts 1.0.1
-nuget MediatR.Extensions.Autofac.DependencyInjection 8.1.0
+# group AutoFixture
+  nuget AutoFixture 
+  nuget AutoFixture.Idioms
+  nuget AutoFixture.Xunit2 
 
-// VBR STUFF
-nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 6.0.4
+# group Docker
+  nuget Docker.DotNet
+  nuget Ductus.FluentDocker
+  nuget Ductus.FluentDocker.Xunit
 
-nuget Be.Vlaanderen.Basisregisters.Testing.Infrastructure.Events 3.0.0 content: true, copy_content_to_output_dir: always, copy_local: true
+# group FluentValidation
+  nuget FluentValidation
+  nuget FluentValidation.AspNetCore
+  nuget FluentValidation.DependencyInjectionExtensions
 
-nuget Be.Vlaanderen.Basisregisters.AggregateSource 7.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting 7.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 7.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing 7.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling 7.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac 7.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit 7.0.0
+# group MediatR
+  nuget MediatR
+  nuget MediatR.Contracts
+  nuget MediatR.Extensions.Autofac.DependencyInjection
 
-nuget Be.Vlaanderen.Basisregisters.Api 18.0.5
+# group Microsoft
+  nuget Microsoft.Data.SqlClient
+  nuget Microsoft.EntityFrameworkCore
+  nuget Microsoft.EntityFrameworkCore.Abstractions
+  nuget Microsoft.EntityFrameworkCore.Design
+  nuget Microsoft.EntityFrameworkCore.InMemory
+  nuget Microsoft.EntityFrameworkCore.Relational
+  nuget Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+  nuget Microsoft.Extensions.Configuration
+  nuget Microsoft.Extensions.Configuration.Binder
+  nuget Microsoft.Extensions.Configuration.CommandLine
+  nuget Microsoft.Extensions.Configuration.EnvironmentVariables
+  nuget Microsoft.Extensions.Configuration.FileExtensions
+  nuget Microsoft.Extensions.Configuration.Json
+  nuget Microsoft.Extensions.DependencyInjection
+  nuget Microsoft.Extensions.DependencyInjection.Abstractions
+  nuget Microsoft.Extensions.Hosting
+  nuget Microsoft.Extensions.Http.Polly
+  nuget Microsoft.Extensions.Localization
+  nuget Microsoft.Extensions.Logging
+  nuget Microsoft.Extensions.Options.ConfigurationExtensions
+  nuget Microsoft.IO.RecyclableMemoryStream
+  nuget Microsoft.NET.Test.Sdk
+  nuget Microsoft.Net.Http.Headers
 
-nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex 3.0.0
-nuget Be.Vlaanderen.Basisregisters.Aws.Lambda 1.2.1
+# group NetTopologySuite
+  nuget NetTopologySuite
+  nuget NetTopologySuite.IO.GeoJSON
 
-nuget Be.Vlaanderen.Basisregisters.CommandHandling 7.0.0
-nuget Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency 7.0.0
-nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore 7.0.0
+# group Serilog
+  nuget Serilog
+  nuget Serilog.AspNetCore
+  nuget Serilog.Enrichers.Environment
+  nuget Serilog.Enrichers.Thread
+  nuget Serilog.Extensions.Hosting
+  nuget Serilog.Extensions.Logging
+  nuget Serilog.Formatting.Compact
+  nuget Serilog.Settings.Configuration
+  nuget Serilog.Sinks.Seq
 
-nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.2.3
-nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.3.2
+# group SourceLink
+  nuget SourceLink.Copy.PdbFiles
+  nuget SourceLink.Embed.AllSourceFiles
 
-nuget Be.Vlaanderen.Basisregisters.EventHandling 4.0.0
-nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.0.0
+# group StreamStore
+  nuget SqlStreamStore
+  nuget SqlStreamStore.MsSql
 
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList 10.0.1
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 10.0.1
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 10.0.1
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 10.0.1
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing 10.0.1
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Testing.Xunit 10.0.1
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication 10.0.1
+# group Structurizr
+  nuget Structurizr.AdrTools
+  nuget Structurizr.Client
+  nuget Structurizr.Core
 
-nuget Be.Vlaanderen.Basisregisters.Projector 12.0.0
+# group System
+  nuget System.Collections.Immutable
+  nuget System.Text.Encoding.CodePages
+  nuget System.Threading.Channels
+  nuget System.Threading.Tasks.Dataflow
 
-nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac 5.0.0
-nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.AspNetCore 5.0.0
-nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore 5.0.0
-
-nuget Be.Vlaanderen.Basisregisters.BlobStore 2.2.12
-
-nuget Be.Vlaanderen.Basisregisters.Shaperon 9.0.1
-nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 9.0.1
-
-nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 17.0.0
-nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts 17.28.0
-
-// DOCS STUFF
-nuget Structurizr.Core 0.9.7
-nuget Structurizr.Client 0.9.7
-nuget Structurizr.AdrTools 0.9.3
-
-// TEST STUFF
-nuget Microsoft.NET.Test.Sdk 17.1.0
-
-nuget xunit 2.4.1
-nuget xunit.runner.visualstudio 2.4.3
-nuget xunit.categories 2.0.6
-nuget xunit.DependencyInjection 8.5.0
-nuget xunit.DependencyInjection.Logging 8.0.1
-
-nuget Albedo
-nuget AutoFixture 4.17.0
-nuget AutoFixture.Xunit2 4.17.0
-nuget AutoFixture.Idioms 4.17.0
-nuget CompareNETObjects 4.76.0
-nuget NodaTime.Testing 3.1.0
-nuget CsvHelper 27.2.1
-nuget FluentAssertions 6.5.1.0
-
-// Amazon Lambda
-nuget Amazon.Lambda.Core 2.1.0
-nuget Amazon.Lambda.Serialization.SystemTextJson 2.3.0
-nuget Amazon.Lambda.TestUtilities 2.0.0
-nuget Amazon.Lambda.SQSEvents 2.1.0
+# group Xunit
+  nuget xunit
+  nuget xunit.DependencyInjection
+  nuget xunit.DependencyInjection.Logging
+  nuget xunit.categories
+  nuget xunit.runner.visualstudio

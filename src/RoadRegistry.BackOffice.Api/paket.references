@@ -1,18 +1,8 @@
-AspNetCore.HealthChecks.SqlServer
-
 Be.Vlaanderen.Basisregisters.Api
-Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
+Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.Shaperon
 
-Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
-Microsoft.Data.SqlClient
-
+AspNetCore.HealthChecks.SqlServer
 MediatR.Extensions.Autofac.DependencyInjection
 NodaTime
-
-Serilog.Formatting.Compact
-Serilog.Sinks.Seq
-
-Autofac
-Autofac.Extensions.DependencyInjection
