@@ -36,7 +36,7 @@ export const BackOfficeApi = {
     },
     Uploads: {
         upload: async (file: string | Blob, filename: string): Promise<number> => {
-            const path = `/roads/v1/upload`;
+            const path = `/roads/v1/upload/fc`;
             const data = new FormData();
             data.append("archive", file, filename);
             const response = await apiClient.post(path,data)

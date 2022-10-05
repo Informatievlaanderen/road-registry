@@ -31,7 +31,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8);
 
-            Assert.IsAssignableFrom<IZipArchiveBeforeFeatureCompareValidator>(sut);
+            Assert.IsAssignableFrom<IZipArchiveAfterFeatureCompareValidator>(sut);
         }
 
         [Fact]
