@@ -178,8 +178,8 @@ public class UploadControllerTests : ControllerTests<UploadController>
 
             Assert.IsType<OkResult>(result);
 
-            var page = await StreamStore.ReadAllForwards(Position.Start, 2, true);
-            var message = page.Messages[1];
+            var page = await StreamStore.ReadAllBackwards(Position.End, 1, true);
+            var message = page.Messages.Single();
             Assert.Equal(nameof(RoadNetworkChangesArchiveRejected), message.Type);
 
             var archiveRejectedMessage = JsonConvert.DeserializeObject<RoadNetworkChangesArchiveRejected>(await message.GetJsonData());
@@ -227,8 +227,8 @@ public class UploadControllerTests : ControllerTests<UploadController>
 
             Assert.IsType<OkResult>(result);
 
-            var page = await StreamStore.ReadAllForwards(Position.Start, 2, true);
-            var message = page.Messages[1];
+            var page = await StreamStore.ReadAllBackwards(Position.End, 1, true);
+            var message = page.Messages.Single();
             Assert.Equal(nameof(RoadNetworkChangesArchiveAccepted), message.Type);
 
             var archiveAcceptedMessage = JsonConvert.DeserializeObject<RoadNetworkChangesArchiveAccepted>(await message.GetJsonData());

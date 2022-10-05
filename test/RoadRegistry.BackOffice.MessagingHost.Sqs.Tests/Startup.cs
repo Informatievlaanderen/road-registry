@@ -67,7 +67,7 @@ public class Startup : TestStartup
                     sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
                     sp.GetService<IStreamStore>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
-                    sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                    sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>()
                 ),
                 new RoadNetworkCommandModule(
@@ -80,7 +80,7 @@ public class Startup : TestStartup
                     sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
-                    sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                    sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>()
                 )
             }));
