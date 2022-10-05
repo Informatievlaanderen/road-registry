@@ -65,6 +65,9 @@ nuget Serilog.Settings.Configuration 3.3.0
 nuget Serilog.Sinks.Seq 5.1.1
 nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
 
+nuget SourceLink.Embed.AllSourceFiles 2.8.3
+nuget SourceLink.Copy.PdbFiles 2.8.3
+
 nuget FeatureToggle.Net6 1.0.1
 
 nuget MediatR 11.0.0
@@ -76,24 +79,25 @@ nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 6.0.4
 
 nuget Be.Vlaanderen.Basisregisters.Testing.Infrastructure.Events 3.0.0 content: true, copy_content_to_output_dir: always, copy_local: true
 
-nuget Be.Vlaanderen.Basisregisters.AggregateSource 6.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting 6.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 6.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing 6.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling 6.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac 6.0.0
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit 6.0.0
+nuget Be.Vlaanderen.Basisregisters.AggregateSource 7.0.0
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting 7.0.0
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 7.0.0
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing 7.0.0
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling 7.0.0
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac 7.0.0
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit 7.0.0
 
 nuget Be.Vlaanderen.Basisregisters.Api 18.0.5
 
 nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex 3.0.0
 nuget Be.Vlaanderen.Basisregisters.Aws.Lambda 1.2.1
 
-nuget Be.Vlaanderen.Basisregisters.CommandHandling 6.0.0
-nuget Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency 6.0.0
-nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore 6.0.0
+nuget Be.Vlaanderen.Basisregisters.CommandHandling 7.0.0
+nuget Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency 7.0.0
+nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore 7.0.0
 
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.2.3
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.3.2
 
 nuget Be.Vlaanderen.Basisregisters.EventHandling 4.0.0
 nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.0.0
@@ -118,6 +122,7 @@ nuget Be.Vlaanderen.Basisregisters.Shaperon 9.0.1
 nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 9.0.1
 
 nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 17.0.0
+nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts 17.28.0
 
 // DOCS STUFF
 nuget Structurizr.Core 0.9.7
