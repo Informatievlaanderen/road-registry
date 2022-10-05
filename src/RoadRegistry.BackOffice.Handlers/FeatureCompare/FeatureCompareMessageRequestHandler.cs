@@ -8,9 +8,9 @@ namespace RoadRegistry.BackOffice.Handlers.FeatureCompare
     using System.Threading.Tasks;
     using Abstractions.FeatureCompare;
 
-    public class FeatureCompareMessageHandler : SqsMessageRequestHandler<FeatureCompareMessageRequest, FeatureCompareMessageResponse>
+    public class FeatureCompareMessageRequestHandler : SqsMessageRequestHandler<FeatureCompareMessageRequest, FeatureCompareMessageResponse>
     {
-        public FeatureCompareMessageHandler(CommandHandlerDispatcher dispatcher, ILogger<FeatureCompareMessageHandler> logger) : base(dispatcher, logger) {
+        public FeatureCompareMessageRequestHandler(CommandHandlerDispatcher dispatcher, ILogger<FeatureCompareMessageRequestHandler> logger) : base(dispatcher, logger) {
         }
 
         public override async Task<FeatureCompareMessageResponse> HandleAsync(FeatureCompareMessageRequest request, CancellationToken cancellationToken)

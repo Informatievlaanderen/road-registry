@@ -12,7 +12,7 @@ using Uploads;
 /// <summary>
 ///     PRE FEATURE COMPARE
 /// </summary>
-public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveValidator
+public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureCompareValidator
 {
     private static readonly string[] ValidationOrder =
     {
