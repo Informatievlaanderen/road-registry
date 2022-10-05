@@ -4,6 +4,7 @@ using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Extracts;
+using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;
 using Messages;
@@ -20,11 +21,11 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         ContentType.Parse("application/x-zip-compressed")
     };
 
-    private readonly RoadNetworkExtractUploadsBlobClient _client;
+    private readonly RoadNetworkFeatureCompareBlobClient _client;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
-        RoadNetworkExtractUploadsBlobClient client,
+        RoadNetworkFeatureCompareBlobClient client,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
