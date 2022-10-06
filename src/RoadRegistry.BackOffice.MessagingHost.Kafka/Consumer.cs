@@ -21,50 +21,44 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka
         private readonly ILogger<Consumer> _logger;
         private readonly ILifetimeScope _container;
         private readonly ILoggerFactory _loggerFactory;
-        private readonly KafkaOptions _options;
-        private readonly ConsumerOptions _consumerOptions;
+        //private readonly KafkaOptions _options;
+        //private readonly ConsumerOptions _consumerOptions;
 
         public Consumer(
             ILifetimeScope container,
             ILoggerFactory loggerFactory,
-            KafkaOptions options,
-            ConsumerOptions consumerOptions,
+            //KafkaOptions options,
+            //ConsumerOptions consumerOptions,
             ILogger<Consumer> logger)
         {
             _container = container;
             _loggerFactory = loggerFactory;
-            _options = options;
-            _consumerOptions = consumerOptions;
+            //_options = options;
+            //_consumerOptions = consumerOptions;
             _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(1000, cancellationToken);
-            }
+            //var commandHandler = new CommandHandler(_container, _loggerFactory.CreateLogger<CommandHandler>());
+            //var projector = new ConnectedProjector<CommandHandler>(Resolve.WhenEqualToHandlerMessageType(new MunicipalityKafkaProjection().Handlers));
+
+            //var consumerGroupId = $"{nameof(StreetNameRegistry)}.{nameof(Consumer)}.{_consumerOptions.Topic}{_consumerOptions.ConsumerGroupSuffix}";
+            //return KafkaConsumer.Consume(
+            //    new KafkaConsumerOptions(
+            //        _options.BootstrapServers,
+            //        _options.SaslUserName,
+            //        _options.SaslPassword,
+            //        consumerGroupId,
+            //        _consumerOptions.Topic,
+            //        async message =>
+            //        {
+            //            await projector.ProjectAsync(commandHandler, message, cancellationToken);
+            //        },
+            //        noMessageFoundDelay: 300,
+            //        offset: null,
+            //        _options.JsonSerializerSettings),
+            //    cancellationToken);
         }
-
-        //private Task<Result<KafkaJsonMessage>> Start(CancellationToken cancellationToken = default)
-        //{
-        //    var commandHandler = new CommandHandler(_container, _loggerFactory.CreateLogger<CommandHandler>());
-        //    var projector = new ConnectedProjector<CommandHandler>(Resolve.WhenEqualToHandlerMessageType(new MunicipalityKafkaProjection().Handlers));
-
-        //    var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(Consumer)}.{_consumerOptions.Topic}{_consumerOptions.ConsumerGroupSuffix}";
-        //    return KafkaConsumer.Consume(
-        //        new KafkaConsumerOptions(
-        //            _options.BootstrapServers,
-        //            _options.SaslUserName,
-        //            _options.SaslPassword,
-        //            consumerGroupId,
-        //            _consumerOptions.Topic,
-        //            async message => { await projector.ProjectAsync(commandHandler, message, cancellationToken); },
-        //            noMessageFoundDelay: 300,
-        //            offset: null,
-        //            _options.JsonSerializerSettings),
-        //        cancellationToken);
-        //}
     }
 }

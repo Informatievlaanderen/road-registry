@@ -32,6 +32,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="ConsumerContext.cs" />
+    <Compile Remove="ConsumerModule.cs" />
+    <Compile Remove="ConsumerOptions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Dockerfile" />
   </ItemGroup>
 

@@ -28,6 +28,13 @@ MediatR
 AWSSDK.Core
 
 Microsoft.Data.SqlClient
+Microsoft.EntityFrameworkCore.SqlServer
+Microsoft.EntityFrameworkCore.InMemory
+Microsoft.Extensions.Configuration
+Microsoft.Extensions.Configuration.CommandLine
+Microsoft.Extensions.Configuration.FileExtensions
+Microsoft.Extensions.Configuration.EnvironmentVariables
+Microsoft.Extensions.Configuration.Json
 Microsoft.Extensions.Logging
 Microsoft.Extensions.Hosting
 
