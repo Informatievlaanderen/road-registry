@@ -1,3 +1,12 @@
+# [3.11.0](https://github.com/informatievlaanderen/road-registry/compare/v3.10.2...v3.11.0) (2022-10-07)
+
+
+### Features
+
+* fix tests for restored upload fc endpoint ([4c86c50](https://github.com/informatievlaanderen/road-registry/commit/4c86c507c1df0b6d7838aab4f1a8fd717d84229b))
+* fix upload after fc endpoint to accept zip files ([f522712](https://github.com/informatievlaanderen/road-registry/commit/f5227120327af28b2dcc0f1caf179d7ab89d0227))
+* restore endpoint upload zip after featurecompare ([5098896](https://github.com/informatievlaanderen/road-registry/commit/509889699b05b4031bcd0e35d13bce142228f5b0))
+
 ## [3.10.2](https://github.com/informatievlaanderen/road-registry/compare/v3.10.1...v3.10.2) (2022-10-04)
 
 
