@@ -117,6 +117,16 @@ jobs:
         echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
       shell: bash
 
+    - name: Package Lambda functions
+      if: env.RELEASE_VERSION != 'none'
+      shell: bash
+      run: |
+        echo Zip lambda functions
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+        echo zip -r lambda.zip .
+        zip -r lambda.zip .
+        popd
+
     - name: Configure AWS credentials (Test)
       if: env.RELEASE_VERSION != 'none'
       uses: aws-actions/configure-aws-credentials@v1
@@ -147,6 +157,14 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER
+
+        echo Push Lambda functions to S3 Test
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+        echo aws s3 cp lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+        echo aws s3 cp lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+        popd
       env:
         BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
         SEMVER: ${{ env.RELEASE_VERSION }}
@@ -197,6 +215,14 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
+
+        echo Push Lambda functions to S3 Staging
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+        echo aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+        echo aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+        popd
       env:
         BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
         BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY }}
@@ -248,6 +274,14 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-sqs:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
+
+        echo Push Lambda functions to S3 Production
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+        echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+        echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+        popd
       env:
         BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
         BUILD_DOCKER_REGISTRY_PRD: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
