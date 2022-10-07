@@ -11,61 +11,24 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Infrastructure
     using RoadRegistry.BackOffice.MessagingHost.Kafka;
     using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
     using SqlStreamStore;
+    using System;
     using System.Text;
     using System.Threading.Tasks;
     using Uploads;
-    using MediatorModule = Kafka.MediatorModule;
 
     public class Program
     {
         public static async Task Main(string[] args)
         {
-            var host = new RoadRegistryHostBuilder(args)
-                .ConfigureHostConfiguration(builder =>
-                {
-                })
-                .ConfigureAppConfiguration((hostContext, builder) =>
-                {
-                })
-                .ConfigureLogging((hostContext, builder) =>
-                {
-                })
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services
-                        .AddHostedService<Consumer>();
-                })
-                .ConfigureCommandDispatcher(sp => Resolve.WhenEqualToMessage(
-                    new CommandHandlerModule[]
-                    {
-                        new RoadNetworkChangesArchiveCommandModule(
-                            sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
-                            sp.GetService<IStreamStore>(),
-                            sp.GetService<IRoadNetworkSnapshotReader>(),
-                            new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
-                            sp.GetService<IClock>()
-                        ),
-                        new RoadNetworkCommandModule(
-                            sp.GetService<IStreamStore>(),
-                            sp.GetService<IRoadNetworkSnapshotReader>(),
-                            sp.GetService<IRoadNetworkSnapshotWriter>(),
-                            sp.GetService<IClock>()
-                        ),
-                        new RoadNetworkExtractCommandModule(
-                            sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
-                            sp.GetService<IStreamStore>(),
-                            sp.GetService<IRoadNetworkSnapshotReader>(),
-                            new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
-                            sp.GetService<IClock>()
-                        )
-                    })
-                )
+            var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
+                .ConfigureServices((hostContext, services) => services
+                    .AddHostedService<Consumer>())
+                .ConfigureCommandDispatcher(ConfigureCommandDispatcher)
                 .ConfigureContainer((hostContext, builder) => builder
-                    .RegisterModule(new MediatorModule())
-                )
+                    .RegisterModule(new Kafka.MediatorModule()))
                 .Build();
 
-            await new ProgramBuilder<Program>(host)
+            await roadRegistryHost
                 .ConfigureLogging((sp, logger) =>
                 {
                     var blobClientOptions = sp.GetRequiredService<BlobClientOptions>();
@@ -73,5 +36,29 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Infrastructure
                 })
                 .RunAsync();
         }
+
+        private static CommandHandlerResolver ConfigureCommandDispatcher(IServiceProvider sp) => Resolve.WhenEqualToMessage(new CommandHandlerModule[]
+            {
+                new RoadNetworkChangesArchiveCommandModule(
+                    sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
+                    sp.GetService<IStreamStore>(),
+                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                    new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
+                    sp.GetService<IClock>()
+                ),
+                new RoadNetworkCommandModule(
+                    sp.GetService<IStreamStore>(),
+                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                    sp.GetService<IRoadNetworkSnapshotWriter>(),
+                    sp.GetService<IClock>()
+                ),
+                new RoadNetworkExtractCommandModule(
+                    sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
+                    sp.GetService<IStreamStore>(),
+                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                    new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
+                    sp.GetService<IClock>()
+                )
+            });
     }
 }

@@ -34,7 +34,7 @@ namespace RoadRegistry.Hosts
     using System.Reflection.Metadata;
     using Amazon;
 
-    public sealed class RoadRegistryHostBuilder : HostBuilder
+    public sealed class RoadRegistryHostBuilder<T> : HostBuilder
     {
         private IServiceCollection _internalServiceCollection;
         private string[] _args;
@@ -48,11 +48,22 @@ namespace RoadRegistry.Hosts
                 Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
 
             base.ConfigureServices((hostBuilderContext, services) =>  _internalServiceCollection = services );
+
+            this
+                .ConfigureHostConfiguration(builder =>
+                {
+                })
+                .ConfigureAppConfiguration((hostContext, builder) =>
+                {
+                })
+                .ConfigureLogging((hostContext, builder) =>
+                {
+                });
         }
 
         public RoadRegistryHostBuilder(string[] args) : this() => _args = args;
 
-        public new RoadRegistryHostBuilder ConfigureHostConfiguration(Action<IConfigurationBuilder> configureDelegate)
+        public new RoadRegistryHostBuilder<T> ConfigureHostConfiguration(Action<IConfigurationBuilder> configureDelegate)
         {
             base.ConfigureHostConfiguration(services =>
             {
@@ -64,9 +75,9 @@ namespace RoadRegistry.Hosts
             return this;
         }
 
-        public RoadRegistryHostBuilder ConfigureOptions<TOptions>(out TOptions configuredOptions) where TOptions : class, new() => ConfigureOptions<TOptions>(typeof(TOptions).Name, out configuredOptions);
+        public RoadRegistryHostBuilder<T> ConfigureOptions<TOptions>(out TOptions configuredOptions) where TOptions : class, new() => ConfigureOptions<TOptions>(typeof(TOptions).Name, out configuredOptions);
 
-        public RoadRegistryHostBuilder ConfigureOptions<TOptions>(string configurationSectionName, out TOptions configuredOptions) where TOptions : class, new()
+        public RoadRegistryHostBuilder<T> ConfigureOptions<TOptions>(string configurationSectionName, out TOptions configuredOptions) where TOptions : class, new()
         {
             var internallyConfiguredOptions = new TOptions();
 
@@ -90,7 +101,7 @@ namespace RoadRegistry.Hosts
             return this;
         }
 
-        public new RoadRegistryHostBuilder ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
+        public new RoadRegistryHostBuilder<T> ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
         {
             base.ConfigureAppConfiguration((hostContext, services) =>
             {
@@ -111,7 +122,7 @@ namespace RoadRegistry.Hosts
             return this;
         }
 
-        public RoadRegistryHostBuilder ConfigureLogging(Action<HostBuilderContext, ILoggingBuilder> configureDelegate)
+        public RoadRegistryHostBuilder<T> ConfigureLogging(Action<HostBuilderContext, ILoggingBuilder> configureDelegate)
         {
             Microsoft.Extensions.Hosting.HostingHostBuilderExtensions.ConfigureLogging(this, (hostContext, services) =>
             {
@@ -132,7 +143,7 @@ namespace RoadRegistry.Hosts
             return this;
         }
 
-        public new RoadRegistryHostBuilder ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
+        public new RoadRegistryHostBuilder<T> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
         {
             this.ConfigureOptions<BlobClientOptions>(out var blobClientOptions);
 
@@ -253,7 +264,7 @@ namespace RoadRegistry.Hosts
             return this;
         }
 
-        public new RoadRegistryHostBuilder ConfigureContainer(Action<HostBuilderContext, ContainerBuilder> configureDelegate)
+        public new RoadRegistryHostBuilder<T> ConfigureContainer(Action<HostBuilderContext, ContainerBuilder> configureDelegate)
         {
             base.ConfigureContainer<ContainerBuilder>((hostContext, builder) =>
             {
@@ -263,14 +274,16 @@ namespace RoadRegistry.Hosts
             return this;
         }
 
-        public new IHost Build()
+        public new RoadRegistryHost<T> Build()
         {
             this
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory());
-            return base.Build();
+            var internalHost = base.Build();
+
+            return new RoadRegistryHost<T>(internalHost);
         }
 
-        public RoadRegistryHostBuilder ConfigureCommandDispatcher(Func<IServiceProvider, CommandHandlerResolver> configureDelegate)
+        public RoadRegistryHostBuilder<T> ConfigureCommandDispatcher(Func<IServiceProvider, CommandHandlerResolver> configureDelegate)
         {
             base.ConfigureServices((hostContext, services) =>
             {

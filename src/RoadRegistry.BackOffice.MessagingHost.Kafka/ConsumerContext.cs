@@ -4,11 +4,12 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka
     using Microsoft.EntityFrameworkCore;
     using Municipality;
     using RoadRegistry.Hosts;
+    using StreetName;
     using StreetNameRegistry.Infrastructure;
 
     public class ConsumerContext : RunnerDbContext<ConsumerContext>
     {
-        public DbSet<MunicipalityConsumerItem> MunicipalityConsumerItems { get; set; }
+        public DbSet<StreetNameConsumerItem> StreetNameConsumerItems { get; set; }
 
         // This needs to be here to please EF
         public ConsumerContext()
