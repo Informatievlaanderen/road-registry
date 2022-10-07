@@ -58,7 +58,6 @@ Target.create "Build_Solution" (fun _ ->
 
 Target.create "Test_Solution" (fun _ ->
   [
-    "test" @@ "RoadRegistry.Tests"
     "test" @@ "RoadRegistry.BackOffice.Api.Tests"
     "test" @@ "RoadRegistry.BackOffice.CommandHost.Tests"
     "test" @@ "RoadRegistry.BackOffice.EventHost.Tests"
@@ -71,27 +70,29 @@ Target.create "Test_Solution" (fun _ ->
     "test" @@ "RoadRegistry.Editor.ProjectionHost.Tests"
     "test" @@ "RoadRegistry.Product.ProjectionHost.Tests"
     "test" @@ "RoadRegistry.Syndication.ProjectionHost.Tests"
+    "test" @@ "RoadRegistry.Tests"
     "test" @@ "RoadRegistry.Wms.ProjectionHost.Tests"
   ] |> List.iter testWithDotNet
 )
 
 Target.create "Publish_Solution" (fun _ ->
   [
-    "RoadRegistry.Projector"
-    "RoadRegistry.Editor.ProjectionHost"
-    "RoadRegistry.Product.ProjectionHost"
-    "RoadRegistry.Wms.ProjectionHost"
-    "RoadRegistry.Wfs.ProjectionHost"
-    "RoadRegistry.Syndication.ProjectionHost"
+    "RoadRegistry.BackOffice.Abstractions"
+    "RoadRegistry.BackOffice.Api"
+    "RoadRegistry.BackOffice.CommandHost"
     "RoadRegistry.BackOffice.EventHost"
     "RoadRegistry.BackOffice.ExtractHost"
-    "RoadRegistry.BackOffice.CommandHost"
+    "RoadRegistry.BackOffice.Handlers.Sqs.Lambda"
     "RoadRegistry.BackOffice.MessagingHost.Sqs"
+    "RoadRegistry.BackOffice.ZipArchiveWriters"
+    "RoadRegistry.Editor.ProjectionHost"
     "RoadRegistry.Legacy.Extract"
     "RoadRegistry.Legacy.Import"
-    "RoadRegistry.BackOffice.Api"
-    "RoadRegistry.BackOffice.Abstractions"
-    "RoadRegistry.BackOffice.ZipArchiveWriters"
+    "RoadRegistry.Product.ProjectionHost"
+    "RoadRegistry.Projector"
+    "RoadRegistry.Syndication.ProjectionHost"
+    "RoadRegistry.Wfs.ProjectionHost"
+    "RoadRegistry.Wms.ProjectionHost"
   ] |> List.iter publishSource
 
   let dist = (buildDir @@ "RoadRegistry.BackOffice.UI" @@ "linux")
