@@ -8,9 +8,9 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka.StreetName
 {
     public class StreetNameConsumerItem
     {
-        public Guid StreetNameId { get; set; }
+        public string StreetNameId { get; set; }
         public int? PersistentLocalId { get; set; }
-        public Guid MunicipalityId { get; set; }
+        public string MunicipalityId { get; set; }
         public string NisCode { get; set; }
         public string Name { get; set; }
         public string DutchName { get; set; }

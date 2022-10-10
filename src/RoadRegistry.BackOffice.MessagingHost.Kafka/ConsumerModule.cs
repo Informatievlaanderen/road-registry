@@ -18,7 +18,7 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka
             ILoggerFactory loggerFactory)
         {
             var logger = loggerFactory.CreateLogger<ConsumerModule>();
-            var connectionString = configuration.GetConnectionString("Consumer");
+            var connectionString = configuration.GetConnectionString(WellknownConnectionNames.StreetNameConsumer);
 
             var hasConnectionString = !string.IsNullOrWhiteSpace(connectionString);
             if (hasConnectionString)
@@ -35,18 +35,18 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka
             IConfiguration configuration,
             IServiceCollection services,
             ILoggerFactory loggerFactory,
-            string backofficeProjectionsConnectionString)
+            string connectionString)
         {
             services
-                .AddScoped(s => new TraceDbConnection<ConsumerContext>(
-                    new SqlConnection(backofficeProjectionsConnectionString),
+                .AddScoped(s => new TraceDbConnection<StreetNameConsumerContext>(
+                    new SqlConnection(connectionString),
                     configuration["DataDog:ServiceName"]))
-                .AddDbContext<ConsumerContext>((provider, options) => options
+                .AddDbContext<StreetNameConsumerContext>((provider, options) => options
                     .UseLoggerFactory(loggerFactory)
-                    .UseSqlServer(provider.GetRequiredService<TraceDbConnection<ConsumerContext>>(), sqlServerOptions =>
+                    .UseSqlServer(provider.GetRequiredService<TraceDbConnection<StreetNameConsumerContext>>(), sqlServerOptions =>
                     {
                         sqlServerOptions.EnableRetryOnFailure();
-                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.Consumer, Schema.Consumer);
+                        sqlServerOptions.MigrationsHistoryTable(MigrationTables.StreetNameConsumer, WellknownSchemas.StreetNameConsumerSchema);
                     }));
         }
 
@@ -56,11 +56,11 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka
             ILogger logger)
         {
             services
-                .AddDbContext<ConsumerContext>(options => options
+                .AddDbContext<StreetNameConsumerContext>(options => options
                     .UseLoggerFactory(loggerFactory)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString(), sqlServerOptions => { }));
 
-            logger.LogWarning("Running InMemory for {Context}!", nameof(ConsumerContext));
+            logger.LogWarning("Running InMemory for {Context}!", nameof(StreetNameConsumerContext));
         }
     }
 }

@@ -22,5 +22,7 @@ namespace RoadRegistry.Hosts
         public const string WmsProjectionsAdmin = "WmsProjectionsAdmin";
         public const string WfsProjections = "WfsProjections";
         public const string WfsProjectionsAdmin = "WfsProjectionsAdmin";
+        public const string StreetNameConsumer = "StreetNameConsumer";
+        public const string StreetNameConsumerAdmin = "StreetNameConsumerAdmin";
     }
 }

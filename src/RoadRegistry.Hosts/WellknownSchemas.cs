@@ -17,6 +17,7 @@ namespace RoadRegistry.Hosts
         public const string WmsSchema = "RoadRegistryWms";
         public const string WfsMetaSchema = "RoadRegistryWfsMeta";
         public const string WfsSchema = "RoadRegistryWfs";
+        public const string StreetNameConsumerSchema = "RoadRegistryStreetNameConsumer";
     }
 
     public static class MigrationTables
@@ -26,5 +27,6 @@ namespace RoadRegistry.Hosts
         public const string Editor = "__EFMigrationsHistoryEditor";
         public const string Wms = "__EFMigrationsHistoryWms";
         public const string Wfs = "__EFMigrationsHistoryWfs";
+        public const string StreetNameConsumer = "__EFMigrationsHistoryStreetNameConsumer";
     }
 }

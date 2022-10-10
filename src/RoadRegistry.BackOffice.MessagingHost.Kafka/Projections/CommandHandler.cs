@@ -1,9 +1,10 @@
-namespace StreetNameRegistry.Consumer.Projections
+namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Projections
 {
     using System.Threading;
     using System.Threading.Tasks;
     using Autofac;
     using Be.Vlaanderen.Basisregisters.CommandHandling;
+    using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
     using Microsoft.Extensions.Logging;
 
     public class CommandHandler
@@ -18,17 +19,14 @@ namespace StreetNameRegistry.Consumer.Projections
         }
 
         public virtual async Task Handle<T>(T command, CancellationToken cancellationToken)
-            where T : class
+            where T : class, IHasCommandProvenance
         {
             _logger.LogDebug($"Handling {command.GetType().FullName}");
 
             await using var scope = _container.BeginLifetimeScope();
 
             var resolver = scope.Resolve<ICommandHandlerResolver>();
-            _ = await resolver.Dispatch(command.CreateCommandId(), command, cancellationToken:cancellationToken);
-
-
-
+            await resolver.Dispatch(command.CreateCommandId(), command, cancellationToken:cancellationToken);
 
             _logger.LogDebug($"Handled {command.GetType().FullName}");
         }

@@ -14,7 +14,7 @@ nuget Moq
 nuget NodaTime
 nuget NodaTime.Testing
 nuget Polly
-nuget Swashbuckle.AspNetCore.SwaggerUI ~> 6.0
+nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
 
 # group Be.Vlaanderen
   nuget Be.Vlaanderen.Basisregisters.AggregateSource ~> 7.0
@@ -39,6 +39,7 @@ nuget Swashbuckle.AspNetCore.SwaggerUI ~> 6.0
   nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac ~> 4.0
   nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts ~> 17.0
   nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy ~> 17.0
+  nuget Be.Vlaanderen.Basisregisters.GrAr.Provenance ~> 17.0
   nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple ~> 4.0
   nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple ~> 4.0
   nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing ~> 11.0

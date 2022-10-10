@@ -124,7 +124,7 @@ namespace RoadRegistry.Hosts
 
         public RoadRegistryHostBuilder<T> ConfigureLogging(Action<HostBuilderContext, ILoggingBuilder> configureDelegate)
         {
-            Microsoft.Extensions.Hosting.HostingHostBuilderExtensions.ConfigureLogging(this, (hostContext, services) =>
+            HostingHostBuilderExtensions.ConfigureLogging(this, (hostContext, builder) =>
             {
                 SelfLog.Enable(Console.WriteLine);
 
@@ -137,8 +137,8 @@ namespace RoadRegistry.Hosts
 
                 Log.Logger = loggerConfiguration.CreateLogger();
 
-                services.AddSerilog(Log.Logger);
-                configureDelegate.Invoke(hostContext, services);
+                builder.AddSerilog(Log.Logger);
+                configureDelegate.Invoke(hostContext, builder);
             });
             return this;
         }
@@ -259,25 +259,29 @@ namespace RoadRegistry.Hosts
                     .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                     .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>());
                 configureDelegate.Invoke(hostContext, services);
-                _internalServiceCollection = services;
             });
             return this;
         }
 
         public new RoadRegistryHostBuilder<T> ConfigureContainer(Action<HostBuilderContext, ContainerBuilder> configureDelegate)
         {
+            return ConfigureContainer((hostContext, builder, services) => configureDelegate(hostContext, builder));
+        }
+
+        public new RoadRegistryHostBuilder<T> ConfigureContainer(Action<HostBuilderContext, ContainerBuilder, IServiceCollection> configureDelegate)
+        {
             base.ConfigureContainer<ContainerBuilder>((hostContext, builder) =>
             {
+                configureDelegate.Invoke(hostContext, builder, _internalServiceCollection);
+
                 builder.Populate(_internalServiceCollection);
-                configureDelegate.Invoke(hostContext, builder);
             });
             return this;
         }
 
         public new RoadRegistryHost<T> Build()
         {
-            this
-                .UseServiceProviderFactory(new AutofacServiceProviderFactory());
+            UseServiceProviderFactory(new AutofacServiceProviderFactory());
             var internalHost = base.Build();
 
             return new RoadRegistryHost<T>(internalHost);
