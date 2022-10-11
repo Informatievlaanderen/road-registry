@@ -273,7 +273,6 @@ namespace RoadRegistry.Hosts
             base.ConfigureContainer<ContainerBuilder>((hostContext, builder) =>
             {
                 configureDelegate.Invoke(hostContext, builder, _internalServiceCollection);
-
                 builder.Populate(_internalServiceCollection);
             });
             return this;
