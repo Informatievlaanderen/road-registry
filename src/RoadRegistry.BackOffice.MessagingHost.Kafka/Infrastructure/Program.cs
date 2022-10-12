@@ -16,7 +16,9 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Infrastructure
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.Projector.Modules;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Modules;
     using Uploads;
@@ -42,15 +44,12 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Infrastructure
                         .AddHostedService<StreetNameConsumer>();
                 })
                 .ConfigureCommandDispatcher(ConfigureCommandDispatcher)
-                .ConfigureContainer((hostContext, builder, services) =>
+                .ConfigureContainer((hostContext, builder) =>
                     {
-                        var sp = services.BuildServiceProvider();
-                        var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-
                         builder
-                            .RegisterModule(new Kafka.MediatorModule())
-                            .RegisterModule(new ApiModule(hostContext.Configuration, loggerFactory))
-                            .RegisterModule(new ConsumerModule(hostContext.Configuration, services, loggerFactory))
+                            .RegisterModule<Kafka.MediatorModule>()
+                            .RegisterModule(new ApiModule(hostContext.Configuration))
+                            .RegisterModule<ConsumerModule>()
                             .RegisterModule(new ProjectorModule(hostContext.Configuration));
                     }
                 )

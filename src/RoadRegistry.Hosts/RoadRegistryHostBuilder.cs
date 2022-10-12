@@ -33,10 +33,10 @@ namespace RoadRegistry.Hosts
     using System.Configuration;
     using System.Reflection.Metadata;
     using Amazon;
+    using Extensions.Configuration;
 
     public sealed class RoadRegistryHostBuilder<T> : HostBuilder
     {
-        private IServiceCollection _internalServiceCollection;
         private string[] _args;
 
         private RoadRegistryHostBuilder()
@@ -46,8 +46,6 @@ namespace RoadRegistry.Hosts
 
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
                 Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
-
-            base.ConfigureServices((hostBuilderContext, services) =>  _internalServiceCollection = services );
 
             this
                 .ConfigureHostConfiguration(builder =>
@@ -75,7 +73,7 @@ namespace RoadRegistry.Hosts
             return this;
         }
 
-        public RoadRegistryHostBuilder<T> ConfigureOptions<TOptions>(out TOptions configuredOptions) where TOptions : class, new() => ConfigureOptions<TOptions>(typeof(TOptions).Name, out configuredOptions);
+        public RoadRegistryHostBuilder<T> ConfigureOptions<TOptions>(out TOptions configuredOptions) where TOptions : class, new() => ConfigureOptions(typeof(TOptions).Name, out configuredOptions);
 
         public RoadRegistryHostBuilder<T> ConfigureOptions<TOptions>(string configurationSectionName, out TOptions configuredOptions) where TOptions : class, new()
         {
@@ -145,7 +143,7 @@ namespace RoadRegistry.Hosts
 
         public new RoadRegistryHostBuilder<T> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
         {
-            this.ConfigureOptions<BlobClientOptions>(out var blobClientOptions);
+            ConfigureOptions<BlobClientOptions>(out var blobClientOptions);
 
             base.ConfigureServices((hostContext, services) =>
             {
@@ -156,37 +154,30 @@ namespace RoadRegistry.Hosts
                         hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
                         // Use MINIO
-                        if (hostContext.Configuration.GetValue<string>("MINIO_SERVER") != null)
+                        var minioServer = hostContext.Configuration.GetValue<string>("MINIO_SERVER");
+                        if (minioServer != null)
                         {
-                            if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null) throw new InvalidOperationException("The MINIO_ACCESS_KEY configuration variable was not set.");
-
-                            if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null) throw new InvalidOperationException("The MINIO_SECRET_KEY configuration variable was not set.");
-
                             services.AddSingleton(new AmazonS3Client(
-                                    new BasicAWSCredentials(
-                                        hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY"),
-                                        hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY")),
-                                    new AmazonS3Config
-                                    {
-                                        RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                                        ServiceURL = hostContext.Configuration.GetValue<string>("MINIO_SERVER"),
-                                        ForcePathStyle = true
-                                    }
-                                )
-                            );
+                                new BasicAWSCredentials(
+                                    hostContext.Configuration.GetRequiredValue<string>("MINIO_ACCESS_KEY"),
+                                    hostContext.Configuration.GetRequiredValue<string>("MINIO_SECRET_KEY")
+                                ),
+                                new AmazonS3Config
+                                {
+                                    RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
+                                    ServiceURL = minioServer,
+                                    ForcePathStyle = true
+                                }
+                            ));
                         }
                         else // Use AWS
                         {
-                            if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null) throw new InvalidOperationException("The AWS_ACCESS_KEY_ID configuration variable was not set.");
-
-                            if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null) throw new InvalidOperationException("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
-
                             services.AddSingleton(new AmazonS3Client(
-                                    new BasicAWSCredentials(
-                                        hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID"),
-                                        hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY"))
+                                new BasicAWSCredentials(
+                                    hostContext.Configuration.GetRequiredValue<string>("AWS_ACCESS_KEY_ID"),
+                                    hostContext.Configuration.GetRequiredValue<string>("AWS_SECRET_ACCESS_KEY")
                                 )
-                            );
+                            ));
                         }
 
                         services
@@ -263,19 +254,9 @@ namespace RoadRegistry.Hosts
             return this;
         }
 
-        public new RoadRegistryHostBuilder<T> ConfigureContainer(Action<HostBuilderContext, ContainerBuilder> configureDelegate)
+        public RoadRegistryHostBuilder<T> ConfigureContainer(Action<HostBuilderContext, ContainerBuilder> configureDelegate)
         {
-            return ConfigureContainer((hostContext, builder, services) => configureDelegate(hostContext, builder));
-        }
-
-        public new RoadRegistryHostBuilder<T> ConfigureContainer(Action<HostBuilderContext, ContainerBuilder, IServiceCollection> configureDelegate)
-        {
-            base.ConfigureContainer<ContainerBuilder>((hostContext, builder) =>
-            {
-                configureDelegate.Invoke(hostContext, builder, _internalServiceCollection);
-
-                builder.Populate(_internalServiceCollection);
-            });
+            ConfigureContainer<ContainerBuilder>(configureDelegate.Invoke);
             return this;
         }
 

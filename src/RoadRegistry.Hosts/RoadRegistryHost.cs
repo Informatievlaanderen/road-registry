@@ -51,15 +51,15 @@ public class RoadRegistryHost<T>
                 loggingDelegate.Invoke(_host.Services, _logger);
 
             await DistributedLock<T>.RunAsync(async () =>
-                    {
-                        await WaitFor.SqlStreamStoreToBecomeAvailable(_streamStore, _logger);
-                        await
-                            new SqlCommandProcessorPositionStoreSchema(
-                                new SqlConnectionStringBuilder(_configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
-                            ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema);
-                        await _host.RunAsync();
-                    },
-                    DistributedLockOptions.LoadFromConfiguration(_configuration), _logger);
+                {
+                    await WaitFor.SqlStreamStoreToBecomeAvailable(_streamStore, _logger);
+                    await
+                        new SqlCommandProcessorPositionStoreSchema(
+                            new SqlConnectionStringBuilder(_configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
+                        ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema);
+                    await _host.RunAsync();
+                },
+                DistributedLockOptions.LoadFromConfiguration(_configuration), _logger);
         }
         catch (Exception e)
         {
