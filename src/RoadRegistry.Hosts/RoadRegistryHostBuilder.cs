@@ -33,8 +33,7 @@ namespace RoadRegistry.Hosts
     using System.Configuration;
     using System.Reflection.Metadata;
     using Amazon;
-    using Extensions.Configuration;
-
+    
     public sealed class RoadRegistryHostBuilder<T> : HostBuilder
     {
         private string[] _args;

@@ -1,9 +1,7 @@
 using System;
 
-namespace RoadRegistry.Extensions.Configuration
+namespace Microsoft.Extensions.Configuration
 {
-    using Microsoft.Extensions.Configuration;
-
     public static class ConfigurationExtensions
     {
         public static T GetRequiredValue<T>(this IConfiguration configuration, string key)

@@ -8,14 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RoadRegistry.Extensions.Autofac
+namespace Autofac
 {
     using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
     using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Infrastructure;
 
-    public static class ContainerBuilderExtensions
+    public static class AutofacExtensions
     {
         public static ContainerBuilder RegisterProjectionMigrator<TContextMigrationFactory>(this ContainerBuilder builder)
             where TContextMigrationFactory : IRunnerDbContextMigratorFactory, new()
