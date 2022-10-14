@@ -43,7 +43,7 @@ public abstract class TestStartup
             .ConfigureAppConfiguration((hostContext, configurationBuilder) =>
             {
                 configurationBuilder
-                    .AddJsonFile("appsettings.test.json", optional: true, reloadOnChange: true);
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
             .ConfigureServices((context, services) =>

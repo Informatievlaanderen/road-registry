@@ -33,14 +33,22 @@ public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorCo
 
         const int integrationBufferInMeters = 350;
 
-        var nodesInContour = await context.RoadNodes.ToListWithPolygonials(request.Contour, (dbSet, polygon) => dbSet.InsideContour(polygon), x => x.Id, cancellationToken);
+        var nodesInContour = await context.RoadNodes
+            .ToListWithPolygonials(request.Contour,
+                (dbSet, polygon) => dbSet.InsideContour(polygon),
+                x => x.Id,
+                cancellationToken);
         var geometryForNodesInContour = GeometryConfiguration.GeometryFactory
             .BuildGeometry(nodesInContour.Select(node => node.Geometry));
 
         var boundaryForNodes = geometryForNodesInContour.ConvexHull();
         var boundaryWithIntegrationBuffer = boundaryForNodes.Buffer(integrationBufferInMeters);
 
-        var nodesInIntegrationBuffer = await context.RoadNodes.ToListWithPolygonials(boundaryWithIntegrationBuffer as IPolygonal, (dbSet, polygon) => dbSet.InsideContour(polygon), x => x.Id, cancellationToken);
+        var nodesInIntegrationBuffer = await context.RoadNodes
+            .ToListWithPolygonials(boundaryWithIntegrationBuffer as IPolygonal,
+                (dbSet, polygon) => dbSet.InsideContour(polygon),
+                x => x.Id,
+                cancellationToken);
         var integrationNodes = nodesInIntegrationBuffer.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
 
         var dbfEntry = archive.CreateEntry("iWegknoop.dbf");

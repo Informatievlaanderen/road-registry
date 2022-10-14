@@ -30,7 +30,11 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         if (request == null) throw new ArgumentNullException(nameof(request));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var nodes = await context.RoadNodes.ToListWithPolygonials(request.Contour, (dbSet, polygon) => dbSet.InsideContour(polygon), x => x.Id, cancellationToken);
+        var nodes = await context.RoadNodes
+            .ToListWithPolygonials(request.Contour,
+                (dbSet, polygon) => dbSet.InsideContour(polygon),
+                x => x.Id,
+                cancellationToken);
 
         var dbfEntry = archive.CreateEntry("eWegknoop.dbf");
         var dbfHeader = new DbaseFileHeader(

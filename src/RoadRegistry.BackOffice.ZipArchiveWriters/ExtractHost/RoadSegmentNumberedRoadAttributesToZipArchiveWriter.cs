@@ -30,7 +30,13 @@ public class RoadSegmentNumberedRoadAttributesToZipArchiveWriter : IZipArchiveWr
         if (request == null) throw new ArgumentNullException(nameof(request));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var attributes = await context.RoadSegmentNumberedRoadAttributes.ToListWithPolygonials(request.Contour, (dbSet, polygon) => dbSet.InsideContour(polygon), x => x.Id, cancellationToken); var dbfEntry = archive.CreateEntry("eAttGenumweg.dbf");
+        var attributes = await context.RoadSegmentNumberedRoadAttributes
+            .ToListWithPolygonials(request.Contour,
+                (dbSet, polygon) => dbSet.InsideContour(polygon),
+                x => x.Id,
+                cancellationToken);
+
+        var dbfEntry = archive.CreateEntry("eAttGenumweg.dbf");
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,
             DbaseCodePage.Western_European_ANSI,
