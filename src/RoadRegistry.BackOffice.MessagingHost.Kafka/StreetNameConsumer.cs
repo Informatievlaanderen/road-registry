@@ -45,25 +45,32 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka
                 var projector = new ConnectedProjector<StreetNameConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameConsumerProjection().Handlers));
 
                 var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameConsumer)}.{_consumerOptions.Topic}{_consumerOptions.ConsumerGroupSuffix}";
-                await KafkaConsumer.Consume(
-                    new KafkaConsumerOptions(
-                        _options.BootstrapServers,
-                        _options.SaslUserName,
-                        _options.SaslPassword,
-                        consumerGroupId,
-                        _consumerOptions.Topic,
-                        async message =>
-                        {
-                            using (var scope = _serviceProvider.CreateScope())
-                            using (var context = scope.ServiceProvider.GetRequiredService<StreetNameConsumerContext>())
+                try
+                {
+                    await KafkaConsumer.Consume(
+                        new KafkaConsumerOptions(
+                            _options.BootstrapServers,
+                            _options.SaslUserName,
+                            _options.SaslPassword,
+                            consumerGroupId,
+                            _consumerOptions.Topic,
+                            async message =>
                             {
-                                await projector.ProjectAsync(context, message, cancellationToken);
-                            }
-                        },
-                        noMessageFoundDelay: 300,
-                        offset: null,
-                        _options.JsonSerializerSettings),
-                    cancellationToken);
+                                using (var scope = _serviceProvider.CreateScope())
+                                using (var context = scope.ServiceProvider.GetRequiredService<StreetNameConsumerContext>())
+                                {
+                                    await projector.ProjectAsync(context, message, cancellationToken);
+                                }
+                            },
+                            noMessageFoundDelay: 300,
+                            offset: null,
+                            _options.JsonSerializerSettings),
+                        cancellationToken);
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
         }
     }

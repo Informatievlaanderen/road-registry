@@ -72,11 +72,11 @@ public abstract class TestStartup
                     .AddLogging();
 
                 ConfigureServices(context, services);
-            })
-            .ConfigureContainer<ContainerBuilder>(builder =>
-            {
-                ConfigureContainer(builder);
-                builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
+                hostBuilder.ConfigureContainer<ContainerBuilder>(builder =>
+                {
+                    ConfigureContainer(builder);
+                    builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
+                });
             });
     }
 
@@ -89,11 +89,11 @@ public abstract class TestStartup
         return assemblyCollection.ToList();
     }
 
-    public virtual void ConfigureContainer(ContainerBuilder builder)
+    protected virtual void ConfigureContainer(ContainerBuilder builder)
     {
     }
 
-    public virtual void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
+    protected virtual void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
     }
 
