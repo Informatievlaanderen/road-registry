@@ -65,7 +65,7 @@ nuget Serilog.Settings.Configuration 3.3.0
 nuget Serilog.Sinks.Seq 5.1.1
 nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
 
-nuget FeatureToggle.Net6 1.0.1
+nuget FeatureToggle.Common 4.0.2
 
 nuget MediatR 11.0.0
 nuget MediatR.Contracts 1.0.1

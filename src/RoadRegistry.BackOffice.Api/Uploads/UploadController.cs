@@ -13,6 +13,7 @@ using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentValidation;
 using Framework;
+using Infrastructure.FeatureToggles;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -45,8 +46,13 @@ public class UploadController : ControllerBase
 
     [HttpPost("fc")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadBeforeFeatureCompare(IFormFile archive, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostUploadBeforeFeatureCompare(IFormFile archive, CancellationToken cancellationToken, [FromServices] UseFeatureCompareToggle useFeatureCompareToggle)
     {
+        if (!useFeatureCompareToggle.FeatureEnabled)
+        {
+            return NotFound();
+        }
+
         return await Post(archive, async () =>
         {
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
