@@ -20,6 +20,7 @@ using System.Text;
 using BackOffice.Abstractions.Uploads;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using FluentValidation;
+using Infrastructure.FeatureToggles;
 using Uploads;
 
 public class UploadControllerTests : ControllerTests<UploadController>
@@ -35,6 +36,21 @@ public class UploadControllerTests : ControllerTests<UploadController>
     }
 
     [Fact]
+    public async Task When_uploading_a_before_fc_file_with_featuretoggle_disabled()
+    {
+        var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
+        {
+            Headers = new HeaderDictionary(new Dictionary<string, StringValues>
+            {
+                { "Content-Type", StringValues.Concat(StringValues.Empty, "application/octet-stream") }
+            })
+        };
+
+        var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None, new UseFeatureCompareToggle(false));
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
     public async Task When_uploading_a_before_fc_file_that_is_not_a_zip()
     {
         var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
@@ -45,7 +61,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             })
         };
 
-        var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None);
+        var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None, new UseFeatureCompareToggle(true));
         Assert.IsType<UnsupportedMediaTypeResult>(result);
     }
 
@@ -73,7 +89,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
 
             try
             {
-                await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None);
+                await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None, new UseFeatureCompareToggle(true));
                 throw new ValidationException("This should not be reachable");
             }
             catch (ApiProblemDetailsException ex)
@@ -118,7 +134,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
                     { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
                 })
             };
-            var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None);
+            var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None, new UseFeatureCompareToggle(true));
 
             var typedResult = Assert.IsType<OkObjectResult>(result);
             var response = Assert.IsType<UploadExtractFeatureCompareResponse>(typedResult.Value);

@@ -7,6 +7,8 @@ using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
+using Infrastructure.Configuration;
+using Infrastructure.FeatureToggles;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -17,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 public class Startup
@@ -78,7 +81,11 @@ public class Startup
                                 tags: new[] { DatabaseTag, "sql", "sqlserver" });
                     }
                 }
-            });
+            })
+            .Configure<FeatureToggleOptions>(_configuration.GetSection(FeatureToggleOptions.ConfigurationKey))
+            .AddSingleton(c =>
+                new UseFeatureCompareToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseFeatureCompare)
+            );
 
         var builder = new ContainerBuilder();
         builder.Populate(services);

@@ -1,7 +1,7 @@
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.Shaperon
-FeatureToggle.Net6
+FeatureToggle.Common
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore
 Microsoft.Data.SqlClient
 Microsoft.Extensions.Hosting
