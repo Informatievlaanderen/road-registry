@@ -24,7 +24,10 @@
     <Content Include="Dockerfile" CopyToOutputDirectory="Always" />
     <Content Include="init.sh" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
-    <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+    <Content Include="appsettings.*.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <DependentUpon>appsettings.json</DependentUpon>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

@@ -6,6 +6,7 @@ using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Editor.Schema.RoadSegments;
+using Extensions;
 using Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
@@ -37,9 +38,8 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         if (request == null) throw new ArgumentNullException(nameof(request));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var segments = await context.RoadSegments
-            .InsideContour(request.Contour)
-            .ToListAsync(cancellationToken);
+        var segments = await context.RoadSegments.ToListWithPolygonials(request.Contour, (dbSet, polygon) => dbSet.InsideContour(polygon), x => x.Id, cancellationToken);
+
         var dbfEntry = archive.CreateEntry("eWegsegment.dbf");
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,
