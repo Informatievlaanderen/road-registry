@@ -5,9 +5,11 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Editor.Schema.RoadNodes;
+using Extensions;
 using Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
+using NetTopologySuite.Geometries;
 
 public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
@@ -28,8 +30,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         if (request == null) throw new ArgumentNullException(nameof(request));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var nodes =
-            await context.RoadNodes.InsideContour(request.Contour).ToListAsync(cancellationToken);
+        var nodes = await context.RoadNodes.ToListWithPolygonials(request.Contour, (dbSet, polygon) => dbSet.InsideContour(polygon), x => x.Id, cancellationToken);
 
         var dbfEntry = archive.CreateEntry("eWegknoop.dbf");
         var dbfHeader = new DbaseFileHeader(

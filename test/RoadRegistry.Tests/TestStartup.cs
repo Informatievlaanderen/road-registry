@@ -22,6 +22,7 @@ using SqlStreamStore;
 using System.Reflection;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using Microsoft.Extensions.Configuration;
 using RoadRegistry.BackOffice;
 using Xunit.DependencyInjection;
 using Xunit.DependencyInjection.Logging;
@@ -39,6 +40,11 @@ public abstract class TestStartup
         var availableModuleAssemblyCollection = DetermineAvailableAssemblyCollection();
 
         hostBuilder
+            .ConfigureAppConfiguration((hostContext, configurationBuilder) =>
+            {
+                configurationBuilder
+                    .AddJsonFile("appsettings.test.json", optional: true, reloadOnChange: true);
+            })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
             .ConfigureServices((context, services) =>
             {
@@ -62,9 +68,9 @@ public abstract class TestStartup
                     .AddSingleton<IRoadNetworkSnapshotReader>(sp => new FakeRoadNetworkSnapshotReader())
                     .AddSingleton(ConfigureCommandHandlerDispatcher)
                     .AddSingleton(new RecyclableMemoryStreamManager())
-                    .AddSingleton(_ => new ZipArchiveWriterOptions())
-                    .AddSingleton(_ => new ExtractDownloadsOptions())
-                    .AddSingleton<ExtractUploadsOptions>(_ => new ExtractUploadsOptions())
+                    .AddSingleton(new ZipArchiveWriterOptions())
+                    .AddSingleton(new ExtractDownloadsOptions())
+                    .AddSingleton(new ExtractUploadsOptions())
                     //.AddSingleton<SqsOptions>(_ => new SqsOptions("", "", RegionEndpoint.EUWest1))
                     .AddTransient<IZipArchiveBeforeFeatureCompareValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
                     .AddTransient<IZipArchiveAfterFeatureCompareValidator>(sp => new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))

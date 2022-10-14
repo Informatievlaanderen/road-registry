@@ -5,6 +5,7 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Editor.Schema.RoadSegments;
+using Extensions;
 using Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
@@ -29,10 +30,7 @@ public class RoadSegmentNumberedRoadAttributesToZipArchiveWriter : IZipArchiveWr
         if (request == null) throw new ArgumentNullException(nameof(request));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var attributes = await context.RoadSegmentNumberedRoadAttributes
-            .InsideContour(request.Contour)
-            .ToListAsync(cancellationToken);
-        var dbfEntry = archive.CreateEntry("eAttGenumweg.dbf");
+        var attributes = await context.RoadSegmentNumberedRoadAttributes.ToListWithPolygonials(request.Contour, (dbSet, polygon) => dbSet.InsideContour(polygon), x => x.Id, cancellationToken); var dbfEntry = archive.CreateEntry("eAttGenumweg.dbf");
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,
             DbaseCodePage.Western_European_ANSI,
