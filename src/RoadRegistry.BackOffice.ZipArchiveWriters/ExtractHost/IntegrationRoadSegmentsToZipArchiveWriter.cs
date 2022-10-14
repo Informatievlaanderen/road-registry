@@ -47,17 +47,13 @@ public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<Edito
                 (dbSet, polygon) => dbSet.InsideContour(polygon),
                 x => x.Id,
                 cancellationToken);
-        var geometryForSegmentsInContour = GeometryConfiguration.GeometryFactory
-            .BuildGeometry(segmentsInContour.Select(segment => segment.Geometry));
-
-        var boundaryForSegments = geometryForSegmentsInContour.ConvexHull();
-        var boundaryWithIntegrationBuffer = boundaryForSegments.Buffer(integrationBufferInMeters);
 
         var segmentsInIntegrationBuffer = await context.RoadSegments
-            .ToListWithPolygonials(boundaryWithIntegrationBuffer as IPolygonal,
-                (dbSet, polygon) => dbSet.InsideContour(polygon),
+            .ToListWithPolygonials(request.Contour,
+                (dbSet, polygon) => dbSet.InsideContour((IPolygonal)((Geometry)polygon).Buffer(integrationBufferInMeters)),
                 x => x.Id,
                 cancellationToken);
+        
         var integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
 
         var dbfEntry = archive.CreateEntry("iWegsegment.dbf");
