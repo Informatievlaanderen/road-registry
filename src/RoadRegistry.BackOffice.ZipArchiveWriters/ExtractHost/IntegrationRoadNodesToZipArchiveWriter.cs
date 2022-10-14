@@ -38,17 +38,13 @@ public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorCo
                 (dbSet, polygon) => dbSet.InsideContour(polygon),
                 x => x.Id,
                 cancellationToken);
-        var geometryForNodesInContour = GeometryConfiguration.GeometryFactory
-            .BuildGeometry(nodesInContour.Select(node => node.Geometry));
-
-        var boundaryForNodes = geometryForNodesInContour.ConvexHull();
-        var boundaryWithIntegrationBuffer = boundaryForNodes.Buffer(integrationBufferInMeters);
-
+        
         var nodesInIntegrationBuffer = await context.RoadNodes
-            .ToListWithPolygonials(boundaryWithIntegrationBuffer as IPolygonal,
-                (dbSet, polygon) => dbSet.InsideContour(polygon),
+            .ToListWithPolygonials(request.Contour,
+                (dbSet, polygon) => dbSet.InsideContour((IPolygonal)((Geometry)polygon).Buffer(integrationBufferInMeters)),
                 x => x.Id,
                 cancellationToken);
+
         var integrationNodes = nodesInIntegrationBuffer.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
 
         var dbfEntry = archive.CreateEntry("iWegknoop.dbf");
