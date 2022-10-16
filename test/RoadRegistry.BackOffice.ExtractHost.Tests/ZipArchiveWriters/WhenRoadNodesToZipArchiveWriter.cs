@@ -11,7 +11,7 @@ public class WhenRoadNodesToZipArchiveWriter : IClassFixture<RoadNodesToZipArchi
         _fixture = fixture;
     }
 
-    [Fact]
+    [Fact(Skip = "For live debugging purposes")]
     public void ItShouldSucceeded()
     {
         Assert.NotNull(_fixture.Result);
