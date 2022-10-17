@@ -1,8 +1,16 @@
 namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
-public class DownloadProductNotFoundException : ApplicationException
+using System.Runtime.Serialization;
+
+[Serializable]
+public sealed class DownloadProductNotFoundException : ApplicationException
 {
-    public DownloadProductNotFoundException(string? message) : base(message)
-    {
-    }
+    public DownloadProductNotFoundException(string? message)
+        : base(message)
+    { }
+    
+    private DownloadProductNotFoundException(SerializationInfo info, StreamingContext context)
+        : base(info, context)
+    { }
+
 }
