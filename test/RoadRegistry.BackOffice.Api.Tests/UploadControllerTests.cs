@@ -46,7 +46,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             })
         };
 
-        var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None, new UseFeatureCompareToggle(false));
+        var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareToggle(false), formFile, CancellationToken.None);
         Assert.IsType<NotFoundResult>(result);
     }
 
@@ -61,7 +61,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             })
         };
 
-        var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None, new UseFeatureCompareToggle(true));
+        var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareToggle(true), formFile, CancellationToken.None);
         Assert.IsType<UnsupportedMediaTypeResult>(result);
     }
 
@@ -89,7 +89,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
 
             try
             {
-                await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None, new UseFeatureCompareToggle(true));
+                await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareToggle(true), formFile, CancellationToken.None);
                 throw new ValidationException("This should not be reachable");
             }
             catch (ApiProblemDetailsException ex)
@@ -134,7 +134,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
                     { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
                 })
             };
-            var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None, new UseFeatureCompareToggle(true));
+            var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareToggle(true), formFile, CancellationToken.None);
 
             var typedResult = Assert.IsType<OkObjectResult>(result);
             var response = Assert.IsType<UploadExtractFeatureCompareResponse>(typedResult.Value);
