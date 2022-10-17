@@ -9,9 +9,10 @@
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <Nullable>disable</Nullable>
     <DocumentationFile>RoadRegistry.BackOffice.Api.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
+    <NoWarn>1701;1702;1705;1591;8632</NoWarn>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <UserSecretsId>245c5c1d-6913-4f11-80d6-bc3cb6bae995</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

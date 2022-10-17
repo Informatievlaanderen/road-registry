@@ -12,15 +12,8 @@
     <PackageProjectUrl>https://github.com/informatievlaanderen/road-registry.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/informatievlaanderen/road-registry.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DocumentationFile>bin\Debug\net6.0\RoadRegistry.BackOffice.ZipArchiveWriters.xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP;NET6_0</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DocumentationFile>bin\Release\net6.0\RoadRegistry.BackOffice.ZipArchiveWriters.xml</DocumentationFile>
+    <DocumentationFile>RoadRegistry.BackOffice.ZipArchiveWriters.xml</DocumentationFile>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

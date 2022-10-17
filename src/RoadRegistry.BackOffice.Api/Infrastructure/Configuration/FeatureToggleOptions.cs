@@ -4,5 +4,6 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Configuration
     {
         public const string ConfigurationKey = "FeatureToggles";
         public bool UseFeatureCompare { get; set; }
+        public bool UseApiKeyAuthentication { get; set; }
     }
 }

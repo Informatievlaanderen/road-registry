@@ -17,11 +17,14 @@ using Infrastructure.FeatureToggles;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
+using Version = Infrastructure.Version;
 
-[ApiVersion("2.0")]
-[AdvertiseApiVersions("2.0")]
+[ApiVersion(Infrastructure.Version.Current)]
+[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("upload")]
 [ApiExplorerSettings(GroupName = "Uploads")]
+[ApiKeyAuth("Road")]
 public class UploadController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -46,7 +49,7 @@ public class UploadController : ControllerBase
 
     [HttpPost("fc")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadBeforeFeatureCompare(IFormFile archive, CancellationToken cancellationToken, [FromServices] UseFeatureCompareToggle useFeatureCompareToggle)
+    public async Task<IActionResult> PostUploadBeforeFeatureCompare([FromServices] UseFeatureCompareToggle useFeatureCompareToggle, IFormFile archive, CancellationToken cancellationToken)
     {
         if (!useFeatureCompareToggle.FeatureEnabled)
         {

@@ -16,3 +16,4 @@ Serilog.Sinks.Seq
 
 Autofac
 Autofac.Extensions.DependencyInjection
+RestSharp

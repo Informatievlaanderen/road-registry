@@ -83,9 +83,9 @@ public class Startup
                 }
             })
             .Configure<FeatureToggleOptions>(_configuration.GetSection(FeatureToggleOptions.ConfigurationKey))
-            .AddSingleton(c =>
-                new UseFeatureCompareToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseFeatureCompare)
-            );
+            .AddSingleton(c => new UseFeatureCompareToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseFeatureCompare))
+            .AddSingleton(c => new UseApiKeyAuthenticationToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseApiKeyAuthentication))
+            ;
 
         var builder = new ContainerBuilder();
         builder.Populate(services);

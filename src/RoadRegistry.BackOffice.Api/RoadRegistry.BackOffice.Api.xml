@@ -9,5 +9,13 @@
                 Add headers to the response to prevent any caching.
             </summary>
         </member>
+        <member name="M:RoadRegistry.BackOffice.Api.Infrastructure.Extensions.CollectionExtensions.Debug``1(System.Collections.Generic.IEnumerable{``0},System.Action{System.Collections.Generic.IEnumerable{``0}})">
+            <summary> Access the contents of a collection </summary>
+            <remarks> This will execute the collection</remarks>
+        </member>
+        <member name="M:RoadRegistry.BackOffice.Api.Infrastructure.Extensions.CollectionExtensions.DebugItems``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary> Access the contents of a collection </summary>
+            <remarks> This will execute the collection</remarks>
+        </member>
     </members>
 </doc>
