@@ -9,6 +9,8 @@ using Editor.Schema;
 using Editor.Schema.RoadNetworkChanges;
 using FluentValidation;
 using FluentValidation.Results;
+using Infrastructure;
+using Infrastructure.Controllers.Attributes;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +19,11 @@ using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Text;
 
-[ApiVersion("1.0")]
-[AdvertiseApiVersions("1.0")]
+[ApiVersion(Version.Current)]
+[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("changefeed")]
 [ApiExplorerSettings(GroupName = "ChangeFeed")]
+[ApiKeyAuth("Road")]
 public class ChangeFeedController : ControllerBase
 {
     private readonly LocalDatePattern _localMonthPattern;

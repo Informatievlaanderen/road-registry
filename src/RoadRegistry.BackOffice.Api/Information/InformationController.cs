@@ -3,14 +3,17 @@ namespace RoadRegistry.BackOffice.Api.Information;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api;
 using Editor.Schema;
+using Infrastructure;
+using Infrastructure.Controllers.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-[ApiVersion("1.0")]
-[AdvertiseApiVersions("1.0")]
+[ApiVersion(Version.Current)]
+[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("information")]
 [ApiExplorerSettings(GroupName = "Information")]
+[ApiKeyAuth("Road")]
 public class InformationController : ControllerBase
 {
     [HttpGet("")]

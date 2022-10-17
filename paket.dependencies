@@ -16,6 +16,7 @@ nuget Microsoft.Extensions.DependencyInjection 6.0.0
 
 nuget Microsoft.Extensions.Http.Polly 6.0.3
 nuget Polly 7.2.3
+nuget RestSharp 106.11.7
 
 // For more healtchecks, look at https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks
 nuget AspNetCore.HealthChecks.SqlServer 6.0.2

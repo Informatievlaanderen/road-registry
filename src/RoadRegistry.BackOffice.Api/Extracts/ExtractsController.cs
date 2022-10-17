@@ -10,14 +10,17 @@ using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;
+using Infrastructure;
+using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-[ApiVersion("2.0")]
-[AdvertiseApiVersions("2.0")]
+[ApiVersion(Version.Current)]
+[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("extracts")]
 [ApiExplorerSettings(GroupName = "Extracts")]
+[ApiKeyAuth("Road")]
 public class ExtractsController : ControllerBase
 {
     private readonly IMediator _mediator;
