@@ -1,3 +1,22 @@
+# [3.12.0](https://github.com/informatievlaanderen/road-registry/compare/v3.11.0...v3.12.0) (2022-10-17)
+
+
+### Bug Fixes
+
+* include solution name in build.yml ([9470f0b](https://github.com/informatievlaanderen/road-registry/commit/9470f0b8a0766cb67e22bbb54d3d37d43a1ff3c5))
+* make DownloadEditorNotFoundException conform to serialiizable pattern ([6bb01b0](https://github.com/informatievlaanderen/road-registry/commit/6bb01b0b29ba3a13c51102b7a82ff0e755c34919))
+* remove ConvexPolygon for finding integrationdata for extract, use buffer on each underlying polygon of the contour ([dcb1f8d](https://github.com/informatievlaanderen/road-registry/commit/dcb1f8d435109191c35dcc2bb84280613c8b87b8))
+* skip test ([d534fb4](https://github.com/informatievlaanderen/road-registry/commit/d534fb42b0dd0abb795f77779c1a2f83639619ed))
+* skip test for live debugging ([4fa8457](https://github.com/informatievlaanderen/road-registry/commit/4fa84576e1456c96eb55af60df7eb3770162cf71))
+* skip test for live debugging purposes ([78676a8](https://github.com/informatievlaanderen/road-registry/commit/78676a8e08c903639335e7aabf4a44a4de67fb3d))
+
+
+### Features
+
+* add featuretoggle for FeatureCompare upload endpoint ([6ca59ae](https://github.com/informatievlaanderen/road-registry/commit/6ca59ae8071fa854ffe4ddac43be51ef860ea2b2))
+* Performance improvement for query ([4c90b0e](https://github.com/informatievlaanderen/road-registry/commit/4c90b0ef546e412b9c1a297168ccb32470bee034))
+* UI terug naar originele post-FC endpoint laten kijken + removal VUE_APP_API_KEY from env files ([61412f9](https://github.com/informatievlaanderen/road-registry/commit/61412f95b35e8d671e82974ba177c49aab482df5))
+
 # [3.11.0](https://github.com/informatievlaanderen/road-registry/compare/v3.10.2...v3.11.0) (2022-10-07)
 
 
