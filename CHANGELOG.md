@@ -1,3 +1,10 @@
+## [3.12.1](https://github.com/informatievlaanderen/road-registry/compare/v3.12.0...v3.12.1) (2022-10-17)
+
+
+### Bug Fixes
+
+* new release ([103f408](https://github.com/informatievlaanderen/road-registry/commit/103f408deb67252fec56802b7595bbba03e93dc9))
+
 # [3.12.0](https://github.com/informatievlaanderen/road-registry/compare/v3.11.0...v3.12.0) (2022-10-17)
 
 
