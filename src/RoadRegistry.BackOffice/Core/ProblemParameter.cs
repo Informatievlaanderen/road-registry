@@ -11,6 +11,11 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
         Value = value ?? throw new ArgumentNullException(nameof(value));
     }
 
+    public override bool Equals(object obj)
+    {
+        return obj is ProblemParameter other && Equals(other);
+    }
+
     public bool Equals(ProblemParameter x, ProblemParameter y)
     {
         if (ReferenceEquals(x, y)) return true;
@@ -32,19 +37,14 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
                && string.Equals(Value, other.Value);
     }
 
-    public override bool Equals(object obj)
+    public override int GetHashCode()
     {
-        return obj is ProblemParameter other && Equals(other);
+        return Name.GetHashCode() ^ Value.GetHashCode();
     }
 
     public int GetHashCode(ProblemParameter obj)
     {
         return HashCode.Combine(obj.Name, obj.Value);
-    }
-
-    public override int GetHashCode()
-    {
-        return Name.GetHashCode() ^ Value.GetHashCode();
     }
 
     public string Name { get; }

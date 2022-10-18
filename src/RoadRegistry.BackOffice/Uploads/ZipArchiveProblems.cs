@@ -31,14 +31,14 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
 
     public int Count => _problems.Count;
 
-    public bool Equals(ZipArchiveProblems other)
-    {
-        return other != null && _problems.SequenceEqual(other._problems);
-    }
-
     public override bool Equals(object obj)
     {
         return obj is ZipArchiveProblems other && Equals(other);
+    }
+
+    public bool Equals(ZipArchiveProblems other)
+    {
+        return other != null && _problems.SequenceEqual(other._problems);
     }
 
     public IEnumerator<FileProblem> GetEnumerator()

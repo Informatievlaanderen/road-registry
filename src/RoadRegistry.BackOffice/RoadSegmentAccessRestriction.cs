@@ -110,14 +110,14 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
         public string Name { get; }
     }
 
-    public bool Equals(RoadSegmentAccessRestriction other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentAccessRestriction type && Equals(type);
+    }
+
+    public bool Equals(RoadSegmentAccessRestriction other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()

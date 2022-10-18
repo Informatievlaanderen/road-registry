@@ -106,14 +106,14 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
         public string Name { get; }
     }
 
-    public bool Equals(RoadSegmentStatus other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentStatus type && Equals(type);
+    }
+
+    public bool Equals(RoadSegmentStatus other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()

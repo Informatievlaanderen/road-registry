@@ -14,6 +14,11 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
         Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
     }
 
+    public override bool Equals(object obj)
+    {
+        return obj is FileProblem other && Equals(other);
+    }
+
     public bool Equals(FileProblem x, FileProblem y)
     {
         if (ReferenceEquals(x, y)) return true;
@@ -37,23 +42,18 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
                && Parameters.SequenceEqual(other.Parameters);
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj is FileProblem other && Equals(other);
-    }
-
     public string File { get; }
-
-    public int GetHashCode(FileProblem obj)
-    {
-        return HashCode.Combine(obj.File, obj.Reason, obj.Parameters);
-    }
 
     public override int GetHashCode()
     {
         return Parameters.Aggregate(
             File.GetHashCode() ^ Reason.GetHashCode(),
             (current, parameter) => current ^ parameter.GetHashCode());
+    }
+
+    public int GetHashCode(FileProblem obj)
+    {
+        return HashCode.Combine(obj.File, obj.Reason, obj.Parameters);
     }
 
     public IReadOnlyCollection<ProblemParameter> Parameters { get; }

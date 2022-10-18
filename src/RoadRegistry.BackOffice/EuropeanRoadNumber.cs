@@ -36,14 +36,15 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
     }
 
 
-    public bool Equals(EuropeanRoadNumber other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is EuropeanRoadNumber type && Equals(type);
+    }
+
+
+    public bool Equals(EuropeanRoadNumber other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()

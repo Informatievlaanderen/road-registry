@@ -93,14 +93,15 @@ public sealed class RoadNodeType : IEquatable<RoadNodeType>
     }
 
 
-    public bool Equals(RoadNodeType other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadNodeType type && Equals(type);
+    }
+
+
+    public bool Equals(RoadNodeType other)
+    {
+        return other != null && other._value == _value;
     }
 
 

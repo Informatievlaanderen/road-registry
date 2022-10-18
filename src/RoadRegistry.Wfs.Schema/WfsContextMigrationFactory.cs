@@ -20,7 +20,7 @@ public class WfsContextMigrationFactory : RunnerDbContextMigrationFactory<WfsCon
 
     protected override WfsContext CreateContext(DbContextOptions<WfsContext> migrationContextOptions)
     {
-        return new(migrationContextOptions);
+        return new WfsContext(migrationContextOptions);
     }
 
     private static MigrationHistoryConfiguration HistoryConfiguration =>

@@ -244,14 +244,14 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
         public string Name { get; }
     }
 
-    public bool Equals(RoadSegmentCategory other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentCategory type && Equals(type);
+    }
+
+    public bool Equals(RoadSegmentCategory other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()

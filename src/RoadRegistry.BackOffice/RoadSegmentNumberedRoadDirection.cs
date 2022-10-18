@@ -76,14 +76,14 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
         public string Name { get; }
     }
 
-    public bool Equals(RoadSegmentNumberedRoadDirection other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentNumberedRoadDirection type && Equals(type);
+    }
+
+    public bool Equals(RoadSegmentNumberedRoadDirection other)
+    {
+        return other != null && other._value == _value;
     }
 
 

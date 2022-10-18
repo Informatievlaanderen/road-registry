@@ -85,14 +85,14 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
         public string Name { get; }
     }
 
-    public bool Equals(RoadSegmentSurfaceType other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentSurfaceType type && Equals(type);
+    }
+
+    public bool Equals(RoadSegmentSurfaceType other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()

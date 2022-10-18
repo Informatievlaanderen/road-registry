@@ -43,16 +43,16 @@ public sealed class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem
 
     public int Count => _problems.Count;
 
+    public override bool Equals(object obj)
+    {
+        return obj is ZipArchiveValidationResult other && Equals(other);
+    }
+
     public bool Equals(ZipArchiveValidationResult other)
     {
         return other != null
                && _problems.SequenceEqual(other._problems)
                && _segments.SetEquals(other._segments);
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is ZipArchiveValidationResult other && Equals(other);
     }
 
     public IEnumerator<FileProblem> GetEnumerator()

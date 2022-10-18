@@ -48,6 +48,11 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
         ImmutableHashSet<RoadNodeId>.Empty,
         ZipArchiveMetadata.Empty);
 
+    public override bool Equals(object obj)
+    {
+        return obj is ZipArchiveValidationContext other && Equals(other);
+    }
+
     public bool Equals(ZipArchiveValidationContext other)
     {
         return other != null
@@ -60,11 +65,6 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
                && _modifiedNodes.SetEquals(other._modifiedNodes)
                && _removedNodes.SetEquals(other._removedNodes)
                && ZipArchiveMetadata.Equals(other.ZipArchiveMetadata);
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is ZipArchiveValidationContext other && Equals(other);
     }
 
     public override int GetHashCode()

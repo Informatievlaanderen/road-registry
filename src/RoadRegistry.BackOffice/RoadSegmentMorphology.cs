@@ -256,14 +256,15 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
     }
 
 
-    public bool Equals(RoadSegmentMorphology other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentMorphology type && Equals(type);
+    }
+
+
+    public bool Equals(RoadSegmentMorphology other)
+    {
+        return other != null && other._value == _value;
     }
 
 

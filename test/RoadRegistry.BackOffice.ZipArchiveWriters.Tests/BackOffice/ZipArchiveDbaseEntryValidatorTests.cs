@@ -48,15 +48,15 @@ public class ZipArchiveDbaseEntryValidatorTests
             Values = new DbaseFieldValue[] { Field };
         }
 
+        public override bool Equals(object obj)
+        {
+            return obj is FakeDbaseRecord other && Equals(other);
+        }
+
         public bool Equals(FakeDbaseRecord other)
         {
             return other != null && Field.Field.Equals(other.Field.Field) &&
                    Field.Value.Equals(other.Field.Value);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is FakeDbaseRecord other && Equals(other);
         }
 
         public DbaseNumber Field { get; }

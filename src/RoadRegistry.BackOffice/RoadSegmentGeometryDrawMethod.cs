@@ -77,14 +77,14 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         public string Name { get; }
     }
 
-    public bool Equals(RoadSegmentGeometryDrawMethod other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentGeometryDrawMethod type && Equals(type);
+    }
+
+    public bool Equals(RoadSegmentGeometryDrawMethod other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()

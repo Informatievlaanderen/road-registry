@@ -76,14 +76,14 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
         public string Name { get; }
     }
 
-    public bool Equals(GradeSeparatedJunctionType other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is GradeSeparatedJunctionType type && Equals(type);
+    }
+
+    public bool Equals(GradeSeparatedJunctionType other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()

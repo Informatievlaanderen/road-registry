@@ -87,14 +87,14 @@ public sealed class RecordType : IEquatable<RecordType>
         public string Name { get; }
     }
 
-    public bool Equals(RecordType other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RecordType type && Equals(type);
+    }
+
+    public bool Equals(RecordType other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()
